@@ -13,7 +13,11 @@ license = "BSD"
 
 [tool.poetry.dependencies]
 python = "^3.8"
+zarr = "^2.12.0"
 
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.1.2"
 
 [build-system]
 requires = ["poetry-core"]
