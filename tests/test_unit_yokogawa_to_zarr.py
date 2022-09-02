@@ -17,7 +17,7 @@ import numpy as np
 from devtools import debug
 from pytest import MonkeyPatch
 
-from fractal.tasks.yokogawa_to_zarr import yokogawa_to_zarr
+from fractal_tasks_core.yokogawa_to_zarr import yokogawa_to_zarr
 
 
 # FIXME: try with two channels
@@ -44,10 +44,10 @@ def test_yokogawa_to_zarr(
     debug(tmp_path)
 
     # Mock list of images
-    mocker.patch("fractal.tasks.yokogawa_to_zarr.sorted", return_value=images)
+    mocker.patch("fractal_tasks_core.yokogawa_to_zarr.sorted", return_value=images)
 
     # Mock maximum Z-plane index
-    mocker.patch("fractal.tasks.yokogawa_to_zarr.max", return_value="01")
+    mocker.patch("fractal_tasks_core.yokogawa_to_zarr.max", return_value="01")
 
     # Patch correct() function, to keep track of the number of calls
     logfile = (tmp_path / "log_function_correct.txt").resolve().as_posix()
@@ -62,7 +62,7 @@ def test_yokogawa_to_zarr(
         return np.ones((64, 64), dtype=np.uint16)
 
     monkeypatch.setattr(
-        "fractal.tasks.yokogawa_to_zarr.imread", patched_imread
+        "fractal_tasks_core.yokogawa_to_zarr.imread", patched_imread
     )
 
     yokogawa_to_zarr(

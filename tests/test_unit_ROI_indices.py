@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from fractal.tasks.lib_regions_of_interest import convert_FOV_ROIs_3D_to_2D
-from fractal.tasks.lib_regions_of_interest import convert_ROI_table_to_indices
-from fractal.tasks.lib_regions_of_interest import prepare_FOV_ROI_table
+from fractal_tasks_core.lib_regions_of_interest import convert_FOV_ROIs_3D_to_2D
+from fractal_tasks_core.lib_regions_of_interest import convert_ROI_table_to_indices
+from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 
 
 PIXEL_SIZE_X = 0.1625

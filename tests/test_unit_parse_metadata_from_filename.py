@@ -13,7 +13,7 @@ Zurich.
 """
 import pytest
 
-from fractal.tasks.lib_parse_filename_metadata import parse_metadata
+from fractal_tasks_core.lib_parse_filename_metadata import parse_metadata
 
 f1 = (
     "20200812-CardiomyocyteDifferentiation14-Cycle1"

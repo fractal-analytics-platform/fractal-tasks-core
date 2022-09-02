@@ -3,7 +3,7 @@ from pathlib import Path
 
 from devtools import debug
 
-from fractal.tasks.dummy import dummy
+from fractal_tasks_core.dummy import dummy
 
 
 def test_dummy_task(tmp_path):

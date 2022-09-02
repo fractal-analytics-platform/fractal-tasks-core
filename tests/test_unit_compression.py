@@ -16,7 +16,7 @@ from io import BytesIO
 import pytest
 from PIL import Image
 
-from fractal.tasks.compress_tif import compress_tif
+from fractal_tasks_core.compress_tif import compress_tif
 
 in_path = ""
 out_path = ""

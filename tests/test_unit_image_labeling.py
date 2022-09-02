@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 from pytest import MonkeyPatch
 
-from fractal.tasks.image_labeling import image_labeling
+from fractal_tasks_core.image_labeling import image_labeling
 
 
 @pytest.mark.xfail(reason="TODO: adapt to new task")
@@ -48,7 +48,7 @@ def test_image_labeling(
         return np.empty_like(column).astype(label_dtype)
 
     monkeypatch.setattr(
-        "fractal.tasks.image_labeling.segment_FOV", patched_segment_FOV
+        "fractal_tasks_core.image_labeling.segment_FOV", patched_segment_FOV
     )
 
     image_labeling(

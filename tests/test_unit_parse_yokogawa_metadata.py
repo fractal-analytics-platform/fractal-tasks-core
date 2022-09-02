@@ -16,7 +16,7 @@ import numpy as np
 import pytest
 from pandas import Timestamp
 
-from fractal.tasks.metadata_parsing import parse_yokogawa_metadata
+from fractal_tasks_core.metadata_parsing import parse_yokogawa_metadata
 
 # General variables and paths (relative to mwe_fractal folder)
 testdir = os.path.dirname(__file__)
