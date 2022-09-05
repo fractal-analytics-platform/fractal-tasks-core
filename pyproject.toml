@@ -13,7 +13,30 @@ license = "BSD"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-zarr = "^2.12.0"
+dask = ">=2022.6,<2022.8"
+scikit-image = "^0.19.3"
+cellpose = "2"
+ome-zarr = "^0.5.1"
+pandas = "^1.2.0"
+imagecodecs = "^2022.2.22"
+graphviz = "^0.20"
+defusedxml = "^0.7.1"
+napari-workflows = "^0.2.3"
+napari-skimage-regionprops = "^0.5.3"
+PyQt5-sip = "^12.11.0"
+PyQt5-Qt5 = "^5.15.2"
+PyQt5 = "^5.15.7"
+anndata = "^0.8.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.1.2"
+devtools = "^0.8.0"
+bumpver = "^2022.1116"
+Pillow = "^9.1.1"
+pytest-mock = "^3.8.1"
+pre-commit = "^2.19.0"
+coverage = "^6.4.2"
+memory-profiler = "^0.60.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -22,3 +45,5 @@ pytest = "^7.1.2"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
