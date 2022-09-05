@@ -38,10 +38,6 @@ pre-commit = "^2.19.0"
 coverage = "^6.4.2"
 memory-profiler = "^0.60.0"
 
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^7.1.2"
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
