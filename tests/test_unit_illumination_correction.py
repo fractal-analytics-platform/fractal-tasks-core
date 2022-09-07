@@ -1,24 +1,30 @@
 import json
-import pathlib
+import logging
 import shutil
+from pathlib import Path
 
 import anndata as ad
 import dask.array as da
 import numpy as np
 import pytest
+from pytest import LogCaptureFixture
 from pytest import MonkeyPatch
 
 from fractal_tasks_core.illumination_correction import correct
 from fractal_tasks_core.illumination_correction import illumination_correction
-from fractal_tasks_core.lib_regions_of_interest import convert_ROI_table_to_indices
+from fractal_tasks_core.lib_regions_of_interest import (
+    convert_ROI_table_to_indices,
+)
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 
-@pytest.mark.parametrize("overwrite", [True, False])
+@pytest.mark.parametrize("overwrite", [True])
 def test_illumination_correction(
     overwrite: bool,
-    tmp_path: pathlib.Path,
+    tmp_path: Path,
+    testdata_path: Path,
     monkeypatch: MonkeyPatch,
+    caplog: LogCaptureFixture,
 ):
     # GIVEN a zarr pyramid on disk, made of all ones
     # WHEN I apply illumination_correction
@@ -26,22 +32,32 @@ def test_illumination_correction(
     #      (number of FOVs) x (number of channels)
     # AND the output array has ones at all pyramid levels
 
-    # Copy a reference zarr into a temporary folder
-    # FIXME: replace the try/except with a relative path
-    zarrurl = (tmp_path / "plate.zarr").resolve().as_posix()
-    try:
-        shutil.copytree("tests/data/plate_ones.zarr", zarrurl)
-    except FileNotFoundError as e:
-        raise FileNotFoundError(
-            f"{e}\nProbably you are not running from fractal root folder"
-        )
-    zarrurl += "/B/03/0/"
+    caplog.set_level(logging.INFO)
 
-    # Set newzarrurl
-    if overwrite:
-        newzarrurl = zarrurl
-    else:
-        newzarrurl = zarrurl.replace("plate.zarr", "newplate.zarr")
+    # Copy a reference zarr into a temporary folder
+    raw_zarrurl = (testdata_path / "plate_ones.zarr").as_posix()
+    zarrurl = (tmp_path / "plate.zarr").resolve().as_posix()
+    shutil.copytree(raw_zarrurl, zarrurl)
+    zarrurl += "/B/03/0/"
+    component = "plate.zarr/B/03/0"
+
+    # Prepare arguments for illumination_correction function
+    zarr_path = tmp_path / "*.zarr"
+    testdata_str = testdata_path.as_posix()
+    illum_params = {
+        "root_path_corr": f"{testdata_str}/illumination_correction/",
+        "A01_C01": "illum_corr_matrix.png",
+        "A01_C02": "illum_corr_matrix.png",
+    }
+    with open(zarrurl + ".zattrs") as fin:
+        zattrs = json.load(fin)
+        num_levels = len(zattrs["multiscales"][0]["datasets"])
+    metadata = {
+        "num_levels": num_levels,
+        "coarsening_xy": 2,
+        "channel_list": ["A01_C01", "A01_C02"],
+    }
+    num_levels = metadata["num_levels"]
 
     # Read FOV ROIs and create corresponding indices
     pixels = extract_zyx_pixel_sizes(zarrurl + ".zattrs", level=0)
@@ -52,11 +68,9 @@ def test_illumination_correction(
     num_z_planes = list_indices[0][1]
     num_FOVs = len(list_indices) * num_z_planes
 
-    # Load some useful variables
-    with open(zarrurl + "0/.zarray", "r") as f:
-        zarray = json.load(f)
-    shape = zarray["shape"]
-    num_channels = shape[0]
+    # Prepared expected number of calls
+    num_channels = len(metadata["channel_list"])
+    expected_tot_calls_correct = num_channels * num_FOVs
 
     # Patch correct() function, to keep track of the number of calls
     logfile = (tmp_path / "log_function_correct.txt").resolve().as_posix()
@@ -73,31 +87,29 @@ def test_illumination_correction(
     )
 
     # Call illumination correction task, with patched correct()
-    # FIXME: make tests/data paths relative?
     illumination_correction(
-        zarrurl,
+        input_paths=[zarr_path],
+        output_path=zarr_path,
+        metadata=metadata,
+        component=component,
         overwrite=overwrite,
-        newzarrurl=newzarrurl,
-        chl_list=["A01_C01", "A02_C02"],
-        path_dict_corr="tests/data/illumination_correction/illum.json",
-        coarsening_xy=2,
+        dict_corr=illum_params,
         background=0,
     )
-
-    # FIXME: make tests/data paths relative?
-    if not overwrite:
-        shutil.copy("tests/data/plate_ones.zarr/B/03/0/.zattrs", newzarrurl)
+    print(caplog.text)
+    caplog.clear()
 
     # Verify the total number of calls
     with open(logfile, "r") as f:
         tot_calls_correct = len(f.read().splitlines())
-    assert tot_calls_correct == (num_channels * num_FOVs)
+    assert tot_calls_correct == expected_tot_calls_correct
 
     # Verify the output
-    num_levels = 5
     for ind_level in range(num_levels):
-        old = da.from_zarr(f"tests/data/plate_ones.zarr/B/03/0/{ind_level}")
-        new = da.from_zarr(f"{newzarrurl}{ind_level}")
+        old = da.from_zarr(
+            testdata_path / f"plate_ones.zarr/B/03/0/{ind_level}"
+        )
+        new = da.from_zarr(f"{zarrurl}{ind_level}")
         assert old.shape == new.shape
         assert old.chunks == new.chunks
         assert new.compute()[0, 0, 0, 0] == 1

@@ -12,17 +12,24 @@ Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
 import json
+import logging
 import warnings
+from pathlib import Path
+from typing import Any
+from typing import Dict
+from typing import Iterable
+from typing import Optional
 
 import anndata as ad
 import dask
 import dask.array as da
 import numpy as np
-from devtools import debug
 from skimage.io import imread
 
 from fractal_tasks_core.lib_pyramid_creation import write_pyramid
-from fractal_tasks_core.lib_regions_of_interest import convert_ROI_table_to_indices
+from fractal_tasks_core.lib_regions_of_interest import (
+    convert_ROI_table_to_indices,
+)
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 
@@ -46,6 +53,8 @@ def correct(
     :type background: int
 
     """
+
+    logging.info(f"Start correct function on image of shape {img.shape}")
 
     # Check shapes
     if illum_img.shape != img.shape:
@@ -79,59 +88,53 @@ def correct(
         )
         img_corr[img_corr > np.iinfo(img.dtype).max] = np.iinfo(img.dtype).max
 
+    logging.info("End correct function")
+
     return img_corr.astype(img.dtype)
 
 
 def illumination_correction(
-    zarrurl,
-    overwrite=False,
-    newzarrurl=None,
-    chl_list=None,
-    path_dict_corr=None,
-    coarsening_xy=2,
-    background=110,
+    *,
+    input_paths: Iterable[Path],
+    output_path: Path,
+    metadata: Optional[Dict[str, Any]] = None,
+    component: str = None,
+    overwrite: bool = False,
+    dict_corr: dict = None,
+    background: int = 100,
 ):
 
     """
-    Perform illumination correction of the array in zarrurl.
+    FIXME
 
-    :param zarrurl: input zarr, at the site level (e.g. x.zarr/B/03/0/)
-    :type zarrurl: str
-    :param overwrite: whether to overwrite an existing zarr file
-    :type overwrite: bool
-    :param newzarrurl: output zarr, at the site level (e.g. x.zarr/B/03/0/)
-    :type newzarrurl: str
-    :param chl_list: list of channel names (e.g. A01_C01)
-    :type chl_list: list
-    :param path_dict_corr: path of JSON file with info on illumination matrices
-    :type path_dict_corr: str
-    :param coarsening_xy: coarsening factor in XY (optional, default 2)
-    :type coarsening_xy: xy
-    :param background: value for background subtraction (optional, default 110)
-    :type background: int
-
+    Example inputs:
+    input_paths: [PosixPath('tmp_out/*.zarr')]
+    output_path: PosixPath('tmp_out/*.zarr')
+    component: myplate.zarr/B/03/0/
+    metadata: {...}
     """
 
-    # Check that only one output option is chosen
-    if overwrite and (newzarrurl is not None) and (newzarrurl != zarrurl):
-        raise Exception(
-            "ERROR in illumination_correction: "
-            f"overwrite={overwrite} and newzarrurl={newzarrurl}."
-        )
-    if newzarrurl is None and not overwrite:
-        raise Exception(
-            "ERROR in illumination_correction: "
-            f"overwrite={overwrite} and newzarrurl={newzarrurl}."
-        )
+    # Read some parameters from metadata
+    num_levels = metadata["num_levels"]
+    coarsening_xy = metadata["coarsening_xy"]
+    chl_list = metadata["channel_list"]
+    plate, well = component.split(".zarr/")
+
+    if not overwrite:
+        raise NotImplementedError("Only overwrite=True currently supported")
+
+    # Define zarrurl
+    if len(input_paths) > 1:
+        raise NotImplementedError
+    in_path = input_paths[0]
+    zarrurl = (in_path.parent.resolve() / component).as_posix() + "/"
 
     # Sanitize zarr paths
-    if not zarrurl.endswith("/"):
-        zarrurl += "/"
-    if overwrite:
-        newzarrurl = zarrurl
-    else:
-        if not newzarrurl.endswith("/"):
-            newzarrurl += "/"
+    newzarrurl = zarrurl
+
+    logging.info(
+        "Start illumination_correction " f"with {zarrurl=} and {newzarrurl=}"
+    )
 
     # Read FOV ROIs
     FOV_ROI_table = ad.read_zarr(f"{zarrurl}tables/FOV_ROI_table")
@@ -165,8 +168,6 @@ def illumination_correction(
     img_size_y, img_size_x = img_size[:]
 
     # Load paths of correction matrices
-    with open(path_dict_corr, "r") as jsonfile:
-        dict_corr = json.load(jsonfile)
     root_path_corr = dict_corr.pop("root_path_corr")
     if not root_path_corr.endswith("/"):
         root_path_corr += "/"
@@ -249,10 +250,6 @@ def illumination_correction(
     tmp_accumulated_data = data_czyx_new
     accumulated_data = tmp_accumulated_data.rechunk(data_czyx.chunks)
 
-    debug("tmp_accumulated_data", tmp_accumulated_data)
-    debug("accumulated_data", accumulated_data)
-    debug("nbytes", accumulated_data.nbytes)
-
     # Construct resolution pyramid
     write_pyramid(
         accumulated_data,
@@ -263,6 +260,8 @@ def illumination_correction(
         chunk_size_x=img_size_x,
         chunk_size_y=img_size_y,
     )
+
+    logging.info("End illumination_correction")
 
 
 if __name__ == "__main__":
