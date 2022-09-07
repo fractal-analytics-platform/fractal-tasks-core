@@ -11,14 +11,15 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
-
-from pathlib import Path
-import pytest
 import logging
+from pathlib import Path
+
+import pytest
 from devtools import debug
+
 from fractal_tasks_core.create_zarr_structure import create_zarr_structure
-from fractal_tasks_core.yokogawa_to_zarr import yokogawa_to_zarr
 from fractal_tasks_core.illumination_correction import illumination_correction
+from fractal_tasks_core.yokogawa_to_zarr import yokogawa_to_zarr
 
 
 channel_parameters = {
@@ -79,10 +80,8 @@ def test_workflow_yokogawa_to_zarr(tmp_path: Path, testdata_path: Path):
 
 
 def test_workflow_illumination_correction(
-        tmp_path: Path,
-        testdata_path: Path,
-        caplog: pytest.LogCaptureFixture
-    ):
+    tmp_path: Path, testdata_path: Path, caplog: pytest.LogCaptureFixture
+):
 
     # Setup caplog fixture, see
     # https://docs.pytest.org/en/stable/how-to/logging.html#caplog-fixture
