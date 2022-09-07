@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fractal-tasks-core"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = [
     "Jacopo Nespolo <jacopo.nespolo@exact-lab.it>",
@@ -9,7 +9,9 @@ authors = [
 ]
 readme = "README.md"
 packages = [{include = "fractal_tasks_core"}]
-license = "BSD"
+license = "BSD-3-Clause"
+homepage = "https://github.com/fractal-analytics-platform/fractal-tasks-core"
+
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -42,5 +44,3 @@ memory-profiler = "^0.60.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-
