@@ -29,6 +29,7 @@ PyQt5-sip = "^12.11.0"
 PyQt5-Qt5 = "^5.15.2"
 PyQt5 = "^5.15.7"
 anndata = "^0.8.0"
+llvmlite = "^0.39.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.1.2"
@@ -39,7 +40,6 @@ pytest-mock = "^3.8.1"
 pre-commit = "^2.19.0"
 coverage = "^6.4.2"
 memory-profiler = "^0.60.0"
-
 
 [build-system]
 requires = ["poetry-core"]
