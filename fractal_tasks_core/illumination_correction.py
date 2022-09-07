@@ -12,7 +12,13 @@ Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
 import json
+import logging
 import warnings
+from pathlib import Path
+from typing import Any
+from typing import Dict
+from typing import Iterable
+from typing import Optional
 
 import anndata as ad
 import dask
@@ -20,16 +26,10 @@ import dask.array as da
 import numpy as np
 from skimage.io import imread
 
-from pathlib import Path
-from typing import Any
-from typing import Dict
-from typing import Iterable
-from typing import Optional
-
-import logging
-
 from fractal_tasks_core.lib_pyramid_creation import write_pyramid
-from fractal_tasks_core.lib_regions_of_interest import convert_ROI_table_to_indices
+from fractal_tasks_core.lib_regions_of_interest import (
+    convert_ROI_table_to_indices,
+)
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 
@@ -53,6 +53,8 @@ def correct(
     :type background: int
 
     """
+
+    logging.info(f"Start correct function on image of shape {img.shape}")
 
     # Check shapes
     if illum_img.shape != img.shape:
@@ -86,19 +88,20 @@ def correct(
         )
         img_corr[img_corr > np.iinfo(img.dtype).max] = np.iinfo(img.dtype).max
 
+    logging.info("End correct function")
+
     return img_corr.astype(img.dtype)
 
 
 def illumination_correction(
-  *,
-  input_paths: Iterable[Path],
-  output_path: Path,
-  metadata: Optional[Dict[str, Any]] = None,
-  component: str = None,
-  overwrite: bool = False,
-  newzarrurl: str = None,
-  dict_corr: dict = None,
-  background: int = 100,
+    *,
+    input_paths: Iterable[Path],
+    output_path: Path,
+    metadata: Optional[Dict[str, Any]] = None,
+    component: str = None,
+    overwrite: bool = False,
+    dict_corr: dict = None,
+    background: int = 100,
 ):
 
     """
@@ -117,6 +120,8 @@ def illumination_correction(
     chl_list = metadata["channel_list"]
     plate, well = component.split(".zarr/")
 
+    if not overwrite:
+        raise NotImplementedError("Only overwrite=True currently supported")
 
     # Define zarrurl
     if len(input_paths) > 1:
@@ -124,27 +129,12 @@ def illumination_correction(
     in_path = input_paths[0]
     zarrurl = (in_path.parent.resolve() / component).as_posix() + "/"
 
-    # Check that only one output option is chosen
-    if overwrite and (newzarrurl is not None) and (newzarrurl != zarrurl):
-        raise Exception(
-            "ERROR in illumination_correction: "
-            f"overwrite={overwrite} and newzarrurl={newzarrurl}."
-        )
-    if newzarrurl is None and not overwrite:
-        raise Exception(
-            "ERROR in illumination_correction: "
-            f"overwrite={overwrite} and newzarrurl={newzarrurl}."
-        )
-
     # Sanitize zarr paths
-    if overwrite:
-        newzarrurl = zarrurl
-    else:
-        if not newzarrurl.endswith("/"):
-            newzarrurl += "/"
+    newzarrurl = zarrurl
 
-    logging.info("Start illumination_correction "
-                 f"with {zarrurl=} and {newzarrurl=}")
+    logging.info(
+        "Start illumination_correction " f"with {zarrurl=} and {newzarrurl=}"
+    )
 
     # Read FOV ROIs
     FOV_ROI_table = ad.read_zarr(f"{zarrurl}tables/FOV_ROI_table")
