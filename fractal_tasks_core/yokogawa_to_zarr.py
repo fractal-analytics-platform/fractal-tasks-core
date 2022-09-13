@@ -19,12 +19,18 @@ from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import Optional
+
 import anndata as ad
 import dask.array as da
-from dask import delayed
 from skimage.io import imread
+
 from fractal_tasks_core.lib_pyramid_creation import write_pyramid
-from fractal_tasks_core.lib_regions_of_interest import convert_ROI_table_to_indices
+from fractal_tasks_core.lib_regions_of_interest import (
+    convert_ROI_table_to_indices,
+)
+
+# from dask import delayed
+
 
 def sort_fun(s):
     """
@@ -40,7 +46,7 @@ def sort_fun(s):
     return [site, zind]
 
 
-def yokogawa_to_zarr_mod(
+def yokogawa_to_zarr(
     *,
     input_paths: Iterable[Path],
     output_path: Path,
@@ -86,7 +92,7 @@ def yokogawa_to_zarr_mod(
 
     well_ID = well_row + well_column
 
-    delayed_imread = delayed(imread)
+    # delayed_imread = delayed(imread)
 
     print(f"Channels: {chl_list}")
 
@@ -114,12 +120,16 @@ def yokogawa_to_zarr_mod(
         # )
 
         sample = imread(filenames[0])
-        debug(f'{input_paths[0].resolve()/component}tables/FOV_ROI_table')
+        debug(f"{input_paths[0].resolve()/component}tables/FOV_ROI_table")
 
-        adata = ad.read_zarr(f'{os.path.split(input_paths[0].resolve())[0]}/{component}tables/FOV_ROI_table')
+        adata = ad.read_zarr(
+            f"{os.path.split(input_paths[0].resolve())[0]}/ \
+                {component}tables/FOV_ROI_table"
+        )
         pxl_size = [1.0, 0.1625, 0.1625]
-        img_position = convert_ROI_table_to_indices(adata,
-                full_res_pxl_sizes_zyx=pxl_size)
+        img_position = convert_ROI_table_to_indices(
+            adata, full_res_pxl_sizes_zyx=pxl_size
+        )
 
         indexes_zyx = []
         for indexes in img_position:
@@ -128,16 +138,16 @@ def yokogawa_to_zarr_mod(
         max_y = indexes_zyx[-1][3]
         max_x = indexes_zyx[-1][5]
         canvas = da.empty(
-                (max_z, max_y, max_x),
-                dtype=sample.dtype,
-                chunks="auto"
+            (max_z, max_y, max_x), dtype=sample.dtype, chunks="auto"
         )
 
         for indexes, image_file in zip(*(indexes_zyx, filenames)):
             debug(indexes, image_file)
-            canvas[indexes[0]:indexes[1], \
-                   indexes[2]:indexes[3],\
-                   indexes[4]:indexes[5]] = imread(image_file)
+            canvas[
+                indexes[0] : indexes[1],  # noqa: 203
+                indexes[2] : indexes[3],  # noqa: 203
+                indexes[4] : indexes[5],  # noqa: 203
+            ] = imread(image_file)
 
         # Loop over FOVs, corresponding to filenames[start:end]
         # start = 0
@@ -248,7 +258,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    yokogawa_to_zarr_mod(
+    yokogawa_to_zarr(
         args.zarrurl,
         in_path=args.in_path,
         ext=args.ext,
