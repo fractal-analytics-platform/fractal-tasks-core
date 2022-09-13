@@ -19,13 +19,12 @@ from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import Optional
-
+import anndata as ad
 import dask.array as da
 from dask import delayed
 from skimage.io import imread
-
 from fractal_tasks_core.lib_pyramid_creation import write_pyramid
-
+from fractal_tasks_core.lib_regions_of_interest import convert_ROI_table_to_indices
 
 def sort_fun(s):
     """
@@ -41,7 +40,7 @@ def sort_fun(s):
     return [site, zind]
 
 
-def yokogawa_to_zarr(
+def yokogawa_to_zarr_mod(
     *,
     input_paths: Iterable[Path],
     output_path: Path,
@@ -55,7 +54,7 @@ def yokogawa_to_zarr(
     Convert Yokogawa output (png, tif) to zarr file
 
     Example arguments:
-      input_paths[0] = /tmp/outpyt/*.zarr  (Path)
+      input_paths[0] = /tmp/output/*.zarr  (Path)
       output_path = /tmp/output/*.zarr      (Path)
       metadata = {"channel_list": [...], "num_levels": ..., }
       component = plate.zarr/B/03/0/
@@ -107,38 +106,64 @@ def yokogawa_to_zarr(
                 f"  channel: {chl},\n"
                 f"  glob_path: {glob_path}"
             )
-        max_z = max(
-            [
-                re.findall(r"Z(.*)C", filename.split("/")[-1])[0]
-                for filename in filenames
-            ]
-        )
+        # max_z = max(
+        #     [
+        #         re.findall(r"Z(.*)C", filename.split("/")[-1])[0]
+        #         for filename in filenames
+        #     ]
+        # )
 
         sample = imread(filenames[0])
+        debug(f'{input_paths[0].resolve()/component}tables/FOV_ROI_table')
+
+        adata = ad.read_zarr(f'{os.path.split(input_paths[0].resolve())[0]}/{component}tables/FOV_ROI_table')
+        pxl_size = [1.0, 0.1625, 0.1625]
+        img_position = convert_ROI_table_to_indices(adata,
+                full_res_pxl_sizes_zyx=pxl_size)
+
+        indexes_zyx = []
+        for indexes in img_position:
+            indexes_zyx.append(indexes)
+        max_z = indexes_zyx[-1][1]
+        max_y = indexes_zyx[-1][3]
+        max_x = indexes_zyx[-1][5]
+        canvas = da.empty(
+                (max_z, max_y, max_x),
+                dtype=sample.dtype,
+                chunks="auto"
+        )
+
+        for indexes, image_file in zip(*(indexes_zyx, filenames)):
+            debug(indexes, image_file)
+            canvas[indexes[0]:indexes[1], \
+                   indexes[2]:indexes[3],\
+                   indexes[4]:indexes[5]] = imread(image_file)
 
         # Loop over FOVs, corresponding to filenames[start:end]
-        start = 0
-        end = int(max_z)
-        data_zfyx = []
-        for row in range(int(rows)):
-            FOV_rows = []
-            for col in range(int(cols)):
-                images = [delayed_imread(fn) for fn in filenames[start:end]]
-                lazy_images = [
-                    da.from_delayed(
-                        image, shape=sample.shape, dtype=sample.dtype
-                    )
-                    for image in images
-                ]
-                z_stack = da.stack(lazy_images, axis=0)
-                start += int(max_z)
-                end += int(max_z)
-                FOV_rows.append(z_stack)
-            data_zfyx.append(da.block(FOV_rows))
-        # Remove FOV index
-        data_zyx = da.concatenate(data_zfyx, axis=1)
-        list_channels.append(data_zyx)
+        # start = 0
+        # end = int(max_z)
+        # data_zfyx = []
+        # for row in range(int(rows)):
+        #     FOV_rows = []
+        #     for col in range(int(cols)):
+        #         images = [delayed_imread(fn) for fn in filenames[start:end]]
+        #         lazy_images = [
+        #             da.from_delayed(
+        #                 image, shape=sample.shape, dtype=sample.dtype
+        #             )
+        #             for image in images
+        #         ]
+        #         z_stack = da.stack(lazy_images, axis=0)
+        #         start += int(max_z)
+        #         end += int(max_z)
+        #         FOV_rows.append(z_stack)
+        #     data_zfyx.append(da.block(FOV_rows))
+        # # Remove FOV index
+        # data_zyx = da.concatenate(data_zfyx, axis=1)
+        list_channels.append(canvas)
     data_czyx = da.stack(list_channels, axis=0)
+
+    debug(data_czyx)
 
     if delete_input:
         for f in filenames:
@@ -223,7 +248,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    yokogawa_to_zarr(
+    yokogawa_to_zarr_mod(
         args.zarrurl,
         in_path=args.in_path,
         ext=args.ext,
