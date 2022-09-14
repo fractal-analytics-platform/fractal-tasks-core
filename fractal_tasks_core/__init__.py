@@ -1,4 +1,4 @@
-__VERSION__ = "0.1.1"
+__VERSION__ = "0.1.2"
 
 __FRACTAL_MANIFEST__ = [
     {
