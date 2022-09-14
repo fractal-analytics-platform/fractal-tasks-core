@@ -54,6 +54,7 @@ def to_zarr_custom(newzarrurl=None, array=None, component="", overwrite=False):
             component=component + tmp_suffix,
             dimension_separator="/",
             compute=True,
+            write_empty_chunks=False,
         )
         shutil.rmtree(newzarrurl + component)
         shutil.move(
@@ -67,6 +68,7 @@ def to_zarr_custom(newzarrurl=None, array=None, component="", overwrite=False):
             dimension_separator="/",
             compute=True,
             return_stored=True,
+            write_empty_chunks=False,
         )
 
     return output

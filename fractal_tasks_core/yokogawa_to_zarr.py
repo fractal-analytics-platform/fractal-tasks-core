@@ -21,10 +21,16 @@ from typing import Iterable
 from typing import Optional
 
 import dask.array as da
-from dask import delayed
+from anndata import read_zarr
 from skimage.io import imread
 
 from fractal_tasks_core.lib_pyramid_creation import write_pyramid
+from fractal_tasks_core.lib_regions_of_interest import (
+    convert_ROI_table_to_indices,
+)
+from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
+
+# from dask import delayed
 
 
 def sort_fun(s):
@@ -45,8 +51,6 @@ def yokogawa_to_zarr(
     *,
     input_paths: Iterable[Path],
     output_path: Path,
-    rows: int,
-    cols: int,
     delete_input=False,
     metadata: Optional[Dict[str, Any]] = None,
     component: str = None,
@@ -55,11 +59,15 @@ def yokogawa_to_zarr(
     Convert Yokogawa output (png, tif) to zarr file
 
     Example arguments:
-      input_paths[0] = /tmp/outpyt/*.zarr  (Path)
+      input_paths[0] = /tmp/output/*.zarr  (Path)
       output_path = /tmp/output/*.zarr      (Path)
       metadata = {"channel_list": [...], "num_levels": ..., }
       component = plate.zarr/B/03/0/
     """
+
+    # Preliminary checks
+    if len(input_paths) > 1:
+        raise NotImplementedError
 
     from devtools import debug
 
@@ -87,7 +95,7 @@ def yokogawa_to_zarr(
 
     well_ID = well_row + well_column
 
-    delayed_imread = delayed(imread)
+    # delayed_imread = delayed(imread)
 
     print(f"Channels: {chl_list}")
 
@@ -107,38 +115,45 @@ def yokogawa_to_zarr(
                 f"  channel: {chl},\n"
                 f"  glob_path: {glob_path}"
             )
-        max_z = max(
-            [
-                re.findall(r"Z(.*)C", filename.split("/")[-1])[0]
-                for filename in filenames
-            ]
-        )
 
         sample = imread(filenames[0])
 
-        # Loop over FOVs, corresponding to filenames[start:end]
-        start = 0
-        end = int(max_z)
-        data_zfyx = []
-        for row in range(int(rows)):
-            FOV_rows = []
-            for col in range(int(cols)):
-                images = [delayed_imread(fn) for fn in filenames[start:end]]
-                lazy_images = [
-                    da.from_delayed(
-                        image, shape=sample.shape, dtype=sample.dtype
-                    )
-                    for image in images
-                ]
-                z_stack = da.stack(lazy_images, axis=0)
-                start += int(max_z)
-                end += int(max_z)
-                FOV_rows.append(z_stack)
-            data_zfyx.append(da.block(FOV_rows))
-        # Remove FOV index
-        data_zyx = da.concatenate(data_zfyx, axis=1)
-        list_channels.append(data_zyx)
+        zarrurl = input_paths[0].parent.as_posix() + f"/{component}"
+        adata = read_zarr(f"{zarrurl}/tables/FOV_ROI_table")
+        pxl_size = extract_zyx_pixel_sizes(f"{zarrurl}/.zattrs")
+        fov_position = convert_ROI_table_to_indices(
+            adata, full_res_pxl_sizes_zyx=pxl_size
+        )
+
+        max_x = max(roi[5] for roi in fov_position)
+        max_y = max(roi[3] for roi in fov_position)
+        max_z = max(roi[1] for roi in fov_position)
+
+        img_position = []
+        for fov in fov_position:
+            for z in range(fov[1]):
+                img = [z, z + 1, fov[2], fov[3], fov[4], fov[5]]
+                img_position.append(img)
+
+        canvas = da.zeros(
+            (max_z, max_y, max_x),
+            dtype=sample.dtype,
+            chunks=(1, chunk_size_y, chunk_size_x),
+        )
+
+        debug(img_position)
+
+        for indexes, image_file in zip(*(img_position, filenames)):
+            canvas[
+                indexes[0] : indexes[1],  # noqa: 203
+                indexes[2] : indexes[3],  # noqa: 203
+                indexes[4] : indexes[5],  # noqa: 203
+            ] = imread(image_file)
+
+        list_channels.append(canvas)
     data_czyx = da.stack(list_channels, axis=0)
+
+    debug(data_czyx)
 
     if delete_input:
         for f in filenames:
@@ -172,18 +187,6 @@ if __name__ == "__main__":
         "-z",
         "--zarrurl",
         help="structure of the zarr folder",
-    )
-
-    parser.add_argument(
-        "-r",
-        "--rows",
-        help="Number of rows of final image",
-    )
-
-    parser.add_argument(
-        "-c",
-        "--cols",
-        help="Number of columns of final image",
     )
 
     parser.add_argument(
@@ -227,8 +230,6 @@ if __name__ == "__main__":
         args.zarrurl,
         in_path=args.in_path,
         ext=args.ext,
-        rows=args.rows,
-        cols=args.cols,
         chl_list=args.chl_list,
         num_levels=args.num_levels,
         coarsening_xy=args.coarsening_xy,
