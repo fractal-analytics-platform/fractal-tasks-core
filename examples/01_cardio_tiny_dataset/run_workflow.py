@@ -11,6 +11,7 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
+import os
 from pathlib import Path
 
 from devtools import debug
@@ -46,6 +47,11 @@ coarsening_xy = 2
 
 # Init
 img_path = Path("../images/10.5281_zenodo.7059515/*.png")
+if not os.path.isdir(img_path.parent):
+    raise FileNotFoundError(
+        f"{img_path.parent} is missing,"
+        " try running ./fetch_test_data_from_zenodo.sh"
+    )
 zarr_path = Path("tmp_out/*.zarr")
 metadata = {}
 
