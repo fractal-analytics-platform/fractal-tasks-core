@@ -28,6 +28,7 @@ from fractal_tasks_core.lib_pyramid_creation import write_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
+from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 # from dask import delayed
 
@@ -124,54 +125,37 @@ def yokogawa_to_zarr(
         # )
 
         sample = imread(filenames[0])
-        debug(f"{input_paths[0].resolve()/component}/tables/FOV_ROI_table")
 
         zarrurl = input_paths[0].parent.as_posix() + f"/{component}"
         adata = ad.read_zarr(f"{zarrurl}/tables/FOV_ROI_table")
-        pxl_size = [1.0, 0.1625, 0.1625]
-        img_position = convert_ROI_table_to_indices(
+        pxl_size = extract_zyx_pixel_sizes(f"{zarrurl}/.zattrs")
+        fov_position = convert_ROI_table_to_indices(
             adata, full_res_pxl_sizes_zyx=pxl_size
         )
 
-        indexes_zyx = []
-        for indexes in img_position:
-            indexes_zyx.append(indexes)
-        max_z = indexes_zyx[-1][1]
-        max_y = indexes_zyx[-1][3]
-        max_x = indexes_zyx[-1][5]
+        max_x = max(roi[5] for roi in fov_position)
+        max_y = max(roi[3] for roi in fov_position)
+        max_z = max(roi[1] for roi in fov_position)
+
+        img_position = []
+        for fov in fov_position:
+            for z in range(fov[1]):
+                img = [z, z + 1, fov[2], fov[3], fov[4], fov[5]]
+                img_position.append(img)
+
         canvas = da.empty(
-            (max_z, max_y, max_x), dtype=sample.dtype, chunks="auto"
+            (max_z, max_y, max_x),
+            dtype=sample.dtype,
+            chunks=(1, chunk_size_y, chunk_size_x),
         )
 
-        for indexes, image_file in zip(*(indexes_zyx, filenames)):
-            debug(indexes, image_file)
+        for indexes, image_file in zip(*(img_position, filenames)):
             canvas[
                 indexes[0] : indexes[1],  # noqa: 203
                 indexes[2] : indexes[3],  # noqa: 203
                 indexes[4] : indexes[5],  # noqa: 203
             ] = imread(image_file)
 
-        # Loop over FOVs, corresponding to filenames[start:end]
-        # start = 0
-        # end = int(max_z)
-        # data_zfyx = []
-        # for row in range(int(rows)):
-        #     FOV_rows = []
-        #     for col in range(int(cols)):
-        #         images = [delayed_imread(fn) for fn in filenames[start:end]]
-        #         lazy_images = [
-        #             da.from_delayed(
-        #                 image, shape=sample.shape, dtype=sample.dtype
-        #             )
-        #             for image in images
-        #         ]
-        #         z_stack = da.stack(lazy_images, axis=0)
-        #         start += int(max_z)
-        #         end += int(max_z)
-        #         FOV_rows.append(z_stack)
-        #     data_zfyx.append(da.block(FOV_rows))
-        # # Remove FOV index
-        # data_zyx = da.concatenate(data_zfyx, axis=1)
         list_channels.append(canvas)
     data_czyx = da.stack(list_channels, axis=0)
 
