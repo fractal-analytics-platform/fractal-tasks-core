@@ -45,7 +45,7 @@ coarsening_xy = 2
 
 
 # Init
-img_path = Path("images/10.5281_zenodo.7059515/*.png")
+img_path = Path("../images/10.5281_zenodo.7059515/*.png")
 zarr_path = Path("tmp_out/*.zarr")
 metadata = {}
 
