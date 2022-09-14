@@ -51,8 +51,6 @@ def yokogawa_to_zarr(
     *,
     input_paths: Iterable[Path],
     output_path: Path,
-    rows: int,
-    cols: int,
     delete_input=False,
     metadata: Optional[Dict[str, Any]] = None,
     component: str = None,
@@ -117,12 +115,6 @@ def yokogawa_to_zarr(
                 f"  channel: {chl},\n"
                 f"  glob_path: {glob_path}"
             )
-        # max_z = max(
-        #     [
-        #         re.findall(r"Z(.*)C", filename.split("/")[-1])[0]
-        #         for filename in filenames
-        #     ]
-        # )
 
         sample = imread(filenames[0])
 
@@ -143,11 +135,13 @@ def yokogawa_to_zarr(
                 img = [z, z + 1, fov[2], fov[3], fov[4], fov[5]]
                 img_position.append(img)
 
-        canvas = da.empty(
+        canvas = da.zeros(
             (max_z, max_y, max_x),
             dtype=sample.dtype,
             chunks=(1, chunk_size_y, chunk_size_x),
         )
+
+        debug(img_position)
 
         for indexes, image_file in zip(*(img_position, filenames)):
             canvas[
@@ -196,18 +190,6 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "-r",
-        "--rows",
-        help="Number of rows of final image",
-    )
-
-    parser.add_argument(
-        "-c",
-        "--cols",
-        help="Number of columns of final image",
-    )
-
-    parser.add_argument(
         "-e",
         "--ext",
         help="source images extension",
@@ -248,8 +230,6 @@ if __name__ == "__main__":
         args.zarrurl,
         in_path=args.in_path,
         ext=args.ext,
-        rows=args.rows,
-        cols=args.cols,
         chl_list=args.chl_list,
         num_levels=args.num_levels,
         coarsening_xy=args.coarsening_xy,

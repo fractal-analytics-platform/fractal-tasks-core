@@ -72,8 +72,6 @@ for component in metadata["well"]:
     yokogawa_to_zarr(
         input_paths=[zarr_path],
         output_path=zarr_path,
-        rows=1,
-        cols=2,
         metadata=metadata,
         component=component,
     )
