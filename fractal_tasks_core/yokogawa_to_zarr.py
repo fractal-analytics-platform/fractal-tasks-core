@@ -66,6 +66,10 @@ def yokogawa_to_zarr(
       component = plate.zarr/B/03/0/
     """
 
+    # Preliminary checks
+    if len(input_paths) > 1:
+        raise NotImplementedError
+
     from devtools import debug
 
     debug(output_path)
@@ -120,12 +124,10 @@ def yokogawa_to_zarr(
         # )
 
         sample = imread(filenames[0])
-        debug(f"{input_paths[0].resolve()/component}tables/FOV_ROI_table")
+        debug(f"{input_paths[0].resolve()/component}/tables/FOV_ROI_table")
 
-        adata = ad.read_zarr(
-            f"{os.path.split(input_paths[0].resolve())[0]}/ \
-                {component}tables/FOV_ROI_table"
-        )
+        zarrurl = input_paths[0].parent.as_posix() + f"/{component}"
+        adata = ad.read_zarr(f"{zarrurl}/tables/FOV_ROI_table")
         pxl_size = [1.0, 0.1625, 0.1625]
         img_position = convert_ROI_table_to_indices(
             adata, full_res_pxl_sizes_zyx=pxl_size
