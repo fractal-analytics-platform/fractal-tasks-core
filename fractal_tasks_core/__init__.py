@@ -40,7 +40,7 @@ __FRACTAL_MANIFEST__ = [
         "resource_type": "core task",
         "input_type": "zarr",
         "output_type": "zarr",
-        "module": f"{__name__}.replicate_zarr_structure:replicate_zarr_structure",
+        "module": f"{__name__}.replicate_zarr_structure:replicate_zarr_structure",  # noqa: E501
         "default_args": {
             "executor": "cpu",
             "project_to_2D": True,
@@ -52,7 +52,7 @@ __FRACTAL_MANIFEST__ = [
         "resource_type": "core task",
         "input_type": "zarr",
         "output_type": "zarr",
-        "module": f"{__name__}.maximum_intensity_projection:maximum_intensity_projection",
+        "module": f"{__name__}.maximum_intensity_projection:maximum_intensity_projection",  # noqa: E501
         "default_args": {"executor": "cpu", "parallelization_level": "well"},
     },
     {
@@ -72,7 +72,7 @@ __FRACTAL_MANIFEST__ = [
         "resource_type": "core task",
         "input_type": "zarr",
         "output_type": "zarr",
-        "module": f"{__name__}.image_labeling_whole_well:image_labeling_whole_well",
+        "module": f"{__name__}.image_labeling_whole_well:image_labeling_whole_well",  # noqa: E501
         "default_args": {
             "labeling_channel": "A01_C01",
             "executor": "cpu",  # FIXME: put gpu
