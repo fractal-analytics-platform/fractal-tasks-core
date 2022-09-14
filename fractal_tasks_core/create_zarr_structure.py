@@ -78,7 +78,7 @@ def create_zarr_structure(
     *,
     input_paths: Iterable[Path],
     output_path: Path,
-    channel_parameters: Dict[str, Any],
+    channel_parameters: Dict[str, Any] = None,
     num_levels: int = 2,
     coarsening_xy: int = 2,
     metadata_table: str = "mrf_mlf",
@@ -126,6 +126,10 @@ def create_zarr_structure(
             "We currently only support "
             'metadata_table="mrf_mlf", '
             f"and not {metadata_table}"
+        )
+    if channel_parameters is None:
+        raise Exception(
+            "Missing channel_parameters argument in " "create_zarr_structure"
         )
 
     # Identify all plates and all channels, across all input folders
