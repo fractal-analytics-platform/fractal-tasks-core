@@ -28,11 +28,57 @@ from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.metadata_parsing import parse_yokogawa_metadata
 
 
+def define_omero_channels(actual_channels, channel_parameters, bit_depth):
+    from devtools import debug
+
+    omero_channels = []
+    default_colormaps = ["00FFFF", "FF00FF", "FFFF00"]
+    for channel in actual_channels:
+        debug(channel_parameters[channel])
+
+        # Set colormap. If missing, use the default ones (for the first three
+        # channels) or gray
+        colormap = channel_parameters[channel].get("colormap", None)
+        if colormap is None:
+            try:
+                colormap = default_colormaps.pop()
+            except IndexError:
+                colormap = "808080"
+
+        omero_channels.append(
+            {
+                "active": True,
+                "coefficient": 1,
+                "color": colormap,
+                "family": "linear",
+                "inverted": False,
+                "label": channel_parameters[channel].get("label", channel),
+                "window": {
+                    "min": 0,
+                    "max": 2**bit_depth - 1,
+                },
+            }
+        )
+        debug(omero_channels[-1])
+
+        try:
+            omero_channels[-1]["window"]["start"] = channel_parameters[
+                channel
+            ]["start"]
+            omero_channels[-1]["window"]["end"] = channel_parameters[channel][
+                "end"
+            ]
+        except KeyError:
+            pass
+
+    return omero_channels
+
+
 def create_zarr_structure(
     *,
     input_paths: Iterable[Path],
     output_path: Path,
-    channel_parameters: Dict[str, Any],
+    channel_parameters: Dict[str, Any] = None,
     num_levels: int = 2,
     coarsening_xy: int = 2,
     metadata_table: str = "mrf_mlf",
@@ -80,6 +126,10 @@ def create_zarr_structure(
             "We currently only support "
             'metadata_table="mrf_mlf", '
             f"and not {metadata_table}"
+        )
+    if channel_parameters is None:
+        raise Exception(
+            "Missing channel_parameters argument in " "create_zarr_structure"
         )
 
     # Identify all plates and all channels, across all input folders
@@ -147,7 +197,7 @@ def create_zarr_structure(
         else:
             if channels != tmp_channels:
                 raise Exception(
-                    f"ERROR\n{info}\nERROR: expected channels " "{channels}"
+                    f"ERROR\n{info}\nERROR: expected channels {channels}"
                 )
 
         # Update dict_plate_paths
@@ -160,12 +210,13 @@ def create_zarr_structure(
         msg += f"allowed_channels: {channel_parameters.keys()}\n"
         raise Exception(msg)
 
-    # Sort channels according to allowed_channels, and assign increasing index
-    # actual_channels is a list of entries like A01_C01"
+    # Create actual_channels, i.e. a list of entries like "A01_C01"
     actual_channels = []
     for ind_ch, ch in enumerate(channels):
         actual_channels.append(ch)
     print(f"actual_channels: {actual_channels}")
+
+    # Clean up dictionary channel_parameters
 
     zarrurls = {"plate": [], "well": []}
 
@@ -191,14 +242,11 @@ def create_zarr_structure(
                 )
                 has_mrf_mlf_metadata = True
 
-                # Extract pixel sizes
+                # Extract pixel sizes and bit_depth
                 pixel_size_z = site_metadata["pixel_size_z"][0]
                 pixel_size_y = site_metadata["pixel_size_y"][0]
                 pixel_size_x = site_metadata["pixel_size_x"][0]
-                # Extract bit_depth #FIXME
-                # bit_depth = site_metadata["bit_depth"][0]
-                # if bit_depth == 8:
-                #    dtype
+                bit_depth = site_metadata["bit_depth"][0]
         except FileNotFoundError:
             print("Missing metadata files")
             has_mrf_mlf_metadata = False
@@ -335,23 +383,9 @@ def create_zarr_structure(
                 "id": 1,  # FIXME does this depend on the plate number?
                 "name": "TBD",
                 "version": "0.4",
-                "channels": [
-                    {
-                        "active": True,
-                        "coefficient": 1,
-                        "color": channel_parameters[channel]["colormap"],
-                        "family": "linear",
-                        "inverted": False,
-                        "label": channel_parameters[channel]["label"],
-                        "window": {
-                            "min": 0,
-                            "max": 65535,
-                            "start": channel_parameters[channel]["start"],
-                            "end": channel_parameters[channel]["end"],
-                        },
-                    }
-                    for channel in actual_channels
-                ],
+                "channels": define_omero_channels(
+                    actual_channels, channel_parameters, bit_depth
+                ),
             }
 
             # FIXME

@@ -30,8 +30,6 @@ from fractal_tasks_core.lib_regions_of_interest import (
 )
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
-# from dask import delayed
-
 
 def sort_fun(s):
     """
@@ -68,11 +66,6 @@ def yokogawa_to_zarr(
     # Preliminary checks
     if len(input_paths) > 1:
         raise NotImplementedError
-
-    from devtools import debug
-
-    debug(output_path)
-    debug(component)
 
     chl_list = metadata["channel_list"]
     original_path_list = metadata["original_paths"]
@@ -141,8 +134,6 @@ def yokogawa_to_zarr(
             chunks=(1, chunk_size_y, chunk_size_x),
         )
 
-        debug(img_position)
-
         for indexes, image_file in zip(*(img_position, filenames)):
             canvas[
                 indexes[0] : indexes[1],  # noqa: 203
@@ -152,8 +143,6 @@ def yokogawa_to_zarr(
 
         list_channels.append(canvas)
     data_czyx = da.stack(list_channels, axis=0)
-
-    debug(data_czyx)
 
     if delete_input:
         for f in filenames:
