@@ -46,7 +46,7 @@ coarsening_xy = 2
 
 
 # Init
-img_path = Path("../images/10.5281_zenodo.7059515/*.png")
+img_path = Path("../images/10.5281_zenodo.7059515_sparse/*.png")
 if not os.path.isdir(img_path.parent):
     raise FileNotFoundError(
         f"{img_path.parent} is missing,"

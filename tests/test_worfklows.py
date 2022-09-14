@@ -71,8 +71,6 @@ def test_workflow_yokogawa_to_zarr(tmp_path: Path, testdata_path: Path):
         yokogawa_to_zarr(
             input_paths=[zarr_path],
             output_path=zarr_path,
-            rows=1,
-            cols=2,
             metadata=metadata,
             component=component,
         )
@@ -116,8 +114,6 @@ def test_workflow_illumination_correction(
         yokogawa_to_zarr(
             input_paths=[zarr_path],
             output_path=zarr_path,
-            rows=1,
-            cols=2,
             metadata=metadata,
             component=component,
         )
