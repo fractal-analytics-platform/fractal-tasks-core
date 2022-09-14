@@ -12,7 +12,6 @@ packages = [{include = "fractal_tasks_core"}]
 license = "BSD-3-Clause"
 homepage = "https://github.com/fractal-analytics-platform/fractal-tasks-core"
 
-
 [tool.poetry.dependencies]
 python = "^3.8"
 dask = ">=2022.6,<2022.8"
@@ -45,3 +44,20 @@ zenodo-get = "^1.3.4"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.bumpver]
+current_version = "0.1.1"
+version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
+commit_message = "bump version {old_version} -> {new_version}"
+commit = true
+tag = true
+push = true
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = [
+    'version = "{version}"',
+]
+"fractal_tasks_core/__init__.py" = [
+    '__VERSION__ = "{version}"'
+]

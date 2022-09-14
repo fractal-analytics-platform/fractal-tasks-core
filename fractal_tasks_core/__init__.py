@@ -1,3 +1,5 @@
+__VERSION__ = "0.1.1"
+
 __FRACTAL_MANIFEST__ = [
     {
         "resource_type": "core task",
