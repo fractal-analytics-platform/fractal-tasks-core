@@ -20,8 +20,8 @@ from typing import Dict
 from typing import Iterable
 from typing import Optional
 
-import anndata as ad
 import dask.array as da
+from anndata import read_zarr
 from skimage.io import imread
 
 from fractal_tasks_core.lib_pyramid_creation import write_pyramid
@@ -119,7 +119,7 @@ def yokogawa_to_zarr(
         sample = imread(filenames[0])
 
         zarrurl = input_paths[0].parent.as_posix() + f"/{component}"
-        adata = ad.read_zarr(f"{zarrurl}/tables/FOV_ROI_table")
+        adata = read_zarr(f"{zarrurl}/tables/FOV_ROI_table")
         pxl_size = extract_zyx_pixel_sizes(f"{zarrurl}/.zattrs")
         fov_position = convert_ROI_table_to_indices(
             adata, full_res_pxl_sizes_zyx=pxl_size
