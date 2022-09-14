@@ -459,7 +459,7 @@ python-versions = "*"
 
 [[package]]
 name = "fasteners"
-version = "0.17.3"
+version = "0.18"
 description = "A python package that provides useful locks"
 category = "main"
 optional = false
