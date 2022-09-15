@@ -36,8 +36,7 @@ logging.info(
 
 
 # Copy a reference zarr file
-source_dir = "Backup_data/plate.zarr"
-source_dir = "Backup_data/20200812-CardiomyocyteDifferentiation14-Cycle1.zarr"
+source_dir = "Backup_data/one_well_2x2_fovs_10_z_planes_3_channels.zarr"
 shutil.rmtree("data")
 os.makedirs("data")
 os.makedirs("data/plate.zarr")
