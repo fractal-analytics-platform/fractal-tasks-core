@@ -265,6 +265,10 @@ def illumination_correction(
 
 
 if __name__ == "__main__":
+
+    # FIXME
+    raise NotImplementedError("TODO: CLI argument parsing is not up to date")
+
     from argparse import ArgumentParser
 
     parser = ArgumentParser(prog="illumination_correction.py")
