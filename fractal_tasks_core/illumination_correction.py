@@ -11,6 +11,7 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
+import copy
 import logging
 import time
 import warnings
@@ -24,6 +25,8 @@ import anndata as ad
 import dask
 import dask.array as da
 import numpy as np
+import zarr
+from devtools import debug
 from skimage.io import imread
 
 from fractal_tasks_core.lib_regions_of_interest import (
@@ -33,7 +36,7 @@ from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 
 def correct(
-    img,
+    da_img,
     illum_img=None,
     background=110,
     logger=None,
@@ -56,8 +59,11 @@ def correct(
 
     # logger.info(f"Start correct function on image of shape {img.shape}")
 
+    # FIXME FIXME
+    img = da_img.compute()
+
     # Check shapes
-    if illum_img.shape != img.shape:
+    if illum_img.shape != img.shape[2:]:
         raise Exception(
             "Error in illumination_correction\n"
             f"img.shape: {img.shape}\n"
@@ -68,12 +74,16 @@ def correct(
     # FIXME: is there a problem with these changes?
     # devdoc.net/python/dask-2.23.0-doc/delayed-best-practices.html
     # ?highlight=delayed#don-t-mutate-inputs
-    img[img <= background] = 0
-    img[img > background] = img[img > background] - background
+
+    below_threshold = img <= background
+    above_threshold = np.logical_not(below_threshold)
+    img[below_threshold] = 0
+    img[above_threshold] = img[above_threshold] - background
+    # FIXME FIXME
 
     # Apply the illumination correction
     # (normalized by the max value in the illum_img)
-    img_corr = img / (illum_img / np.max(illum_img))
+    img_corr = img / (illum_img / np.max(illum_img))[None, None, :, :]
 
     # Handle edge case: The illumination correction can increase a value
     # beyond the limit of the encoding, e.g. beyond 65535 for 16bit
@@ -90,7 +100,8 @@ def correct(
 
     # logger.info("End correct function")
 
-    return img_corr.astype(img.dtype)
+    # FIXME FIXME
+    return da.array(img_corr.astype(img.dtype))
 
 
 def illumination_correction(
@@ -134,7 +145,6 @@ def illumination_correction(
 
     # Sanitize zarr paths
     # FIXME
-    from devtools import debug
 
     newzarrurl = zarrurl.replace(".zarr", "_CORR.zarr").replace(
         str(in_path.parent), str(output_path.parent)
@@ -195,81 +205,40 @@ def illumination_correction(
     # Load highest-resolution level from original zarr array
     data_czyx = da.from_zarr(zarrurl + "/0")
     dtype = data_czyx.dtype
+    n_c, n_z, n_y, n_x = data_czyx.shape[:]
 
-    # Check that input array is made of images (in terms of shape/chunks)
-    nc, nz, ny, nx = data_czyx.shape
-    if (ny % img_size_y != 0) or (nx % img_size_x != 0):
-        raise Exception(
-            "Error in illumination_correction, "
-            f"data_czyx.shape: {data_czyx.shape}"
-        )
-    chunks_c, chunks_z, chunks_y, chunks_x = data_czyx.chunks
-    if len(set(chunks_c)) != 1 or chunks_c[0] != 1:
-        raise Exception(
-            f"Error in illumination_correction, chunks_c: {chunks_c}"
-        )
-    if len(set(chunks_z)) != 1 or chunks_z[0] != 1:
-        raise Exception(
-            f"Error in illumination_correction, chunks_z: {chunks_z}"
-        )
-    if len(set(chunks_y)) != 1 or chunks_y[0] != img_size_y:
-        raise Exception(
-            f"Error in illumination_correction, chunks_y: {chunks_y}"
-        )
-    if len(set(chunks_x)) != 1 or chunks_x[0] != img_size_x:
-        raise Exception(
-            f"Error in illumination_correction, chunks_x: {chunks_x}"
-        )
-
-    # Prepare delayed function
-    delayed_correct = dask.delayed(correct)
-
-    # Loop over channels
-    data_czyx_new = []
-    data_czyx_new = da.empty(
-        data_czyx.shape,
-        chunks="auto",
+    new_zarr = zarr.create(
+        shape=data_czyx.shape,
+        chunks=data_czyx.chunksize,
         dtype=data_czyx.dtype,
+        store=da.core.get_mapper(newzarrurl + "/0"),
+        overwrite=False,
+        dimension_separator="/",
     )
-    for ind_ch, ch in enumerate(chl_list):
-        # Set correction matrix
-        illum_img = corrections[ch]
-        # 3D data for multiple FOVs
-        # Loop over FOVs
+
+    regions = []
+    for i_c, channel in enumerate(chl_list):
         for indices in list_indices:
             s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
-            # 3D single-FOV data
-            tmp_zyx = []
-            # For each FOV, loop over Z planes
-            for ind_z in range(e_z):
-                shape = [e_y - s_y, e_x - s_x]
-                new_img = delayed_correct(
-                    data_czyx[ind_ch, ind_z, s_y:e_y, s_x:e_x],
-                    illum_img,
-                    background=background,
-                    logger=logger,
+            for i_z in range(s_z, e_z):
+                region = (
+                    slice(i_c, i_c + 1),
+                    slice(i_z, i_z + 1),
+                    slice(s_y, e_y),
+                    slice(s_x, e_x),
                 )
-                tmp_zyx.append(da.from_delayed(new_img, shape, dtype))
-            data_czyx_new[ind_ch, s_z:e_z, s_y:e_y, s_x:e_x] = da.stack(
-                tmp_zyx, axis=0
-            )
-    tmp_accumulated_data = data_czyx_new
-    accumulated_data = tmp_accumulated_data.rechunk(data_czyx.chunks)
+                regions.append(region)
 
-    accumulated_data.to_zarr(newzarrurl)
-
-    # Construct resolution pyramid
-    """
-    write_pyramid(
-        accumulated_data,
-        newzarrurl=newzarrurl,
-        overwrite=overwrite,
-        coarsening_xy=coarsening_xy,
-        num_levels=num_levels,
-        chunk_size_x=img_size_x,
-        chunk_size_y=img_size_y,
-    )
-    """
+    for region in regions:
+        corrected_img = correct(
+            data_czyx[region],
+            corrections[channel],
+            background=background,
+            logger=logger,
+        )
+        task = corrected_img.to_zarr(
+            url=new_zarr, region=region, compute=True, dimension_separator="/"
+        )
 
     t_end = time.perf_counter()
     logger.info(f"End illumination_correction, elapsed: {t_end-t_start}")
@@ -279,59 +248,3 @@ if __name__ == "__main__":
 
     # FIXME
     raise NotImplementedError("TODO: CLI argument parsing is not up to date")
-
-    from argparse import ArgumentParser
-
-    parser = ArgumentParser(prog="illumination_correction.py")
-    parser.add_argument(
-        "-z", "--zarrurl", help="zarr url, at the FOV level", required=True
-    )
-    parser.add_argument(
-        "-o",
-        "--overwrite",
-        action="store_true",
-        help="overwrite original zarr file",
-    )
-    parser.add_argument(
-        "-znew",
-        "--newzarrurl",
-        help="path of the new zarr file",
-    )
-    parser.add_argument(
-        "--path_dict_corr",
-        help="path of JSON file with info on illumination matrices",
-    )
-    parser.add_argument(
-        "-C",
-        "--chl_list",
-        nargs="+",
-        help="list of channel names (e.g. A01_C01)",
-    )
-    parser.add_argument(
-        "-cxy",
-        "--coarsening_xy",
-        default=2,
-        type=int,
-        help="coarsening factor along X and Y (optional, defaults to 2)",
-    )
-    parser.add_argument(
-        "-bg",
-        "--background",
-        default=110,
-        type=int,
-        help=(
-            "threshold for background subtraction"
-            " (optional, defaults to 110)"
-        ),
-    )
-
-    args = parser.parse_args()
-    illumination_correction(
-        args.zarrurl,
-        overwrite=args.overwrite,
-        newzarrurl=args.newzarrurl,
-        path_dict_corr=args.path_dict_corr,
-        chl_list=args.chl_list,
-        coarsening_xy=args.coarsening_xy,
-        background=args.background,
-    )
