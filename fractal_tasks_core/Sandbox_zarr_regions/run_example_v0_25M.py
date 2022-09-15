@@ -68,7 +68,7 @@ for component in metadata["well"]:
         output_path=zarr_path,
         metadata=metadata,
         component=component,
-        overwrite=True,
+        overwrite=False,
         dict_corr=dict_corr,
         background=100,
         logger=logger,

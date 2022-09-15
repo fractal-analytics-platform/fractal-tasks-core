@@ -11,7 +11,6 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
-import json
 import logging
 import time
 import warnings
@@ -27,7 +26,6 @@ import dask.array as da
 import numpy as np
 from skimage.io import imread
 
-from fractal_tasks_core.lib_pyramid_creation import write_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
@@ -121,13 +119,12 @@ def illumination_correction(
         logger = logging.getLogger(__name__)
 
     # Read some parameters from metadata
-    num_levels = metadata["num_levels"]
     coarsening_xy = metadata["coarsening_xy"]
     chl_list = metadata["channel_list"]
     plate, well = component.split(".zarr/")
 
-    if not overwrite:
-        raise NotImplementedError("Only overwrite=True currently supported")
+    if overwrite:
+        raise NotImplementedError("Only overwrite=False currently supported")
 
     # Define zarrurl
     if len(input_paths) > 1:
@@ -136,12 +133,18 @@ def illumination_correction(
     zarrurl = (in_path.parent.resolve() / component).as_posix() + "/"
 
     # Sanitize zarr paths
-    newzarrurl = zarrurl
+    # FIXME
+    from devtools import debug
+
+    newzarrurl = zarrurl.replace(".zarr", "_CORR.zarr").replace(
+        str(in_path.parent), str(output_path.parent)
+    )
+    debug(newzarrurl)
 
     t_start = time.perf_counter()
-    logger.info(
-        "Start illumination_correction " f"with {zarrurl=} and {newzarrurl=}"
-    )
+    logger.info("Start illumination_correction")
+    logger.info(f"  {zarrurl=}")
+    logger.info(f"  {newzarrurl=}")
 
     # Read FOV ROIs
     FOV_ROI_table = ad.read_zarr(f"{zarrurl}tables/FOV_ROI_table")
@@ -188,11 +191,6 @@ def illumination_correction(
                 "Error in illumination_correction, "
                 "correction matrix has wrong shape."
             )
-
-    # Read number of levels from .zattrs of original zarr file
-    with open(zarrurl + ".zattrs", "r") as inputjson:
-        zattrs = json.load(inputjson)
-    num_levels = len(zattrs["multiscales"][0]["datasets"])
 
     # Load highest-resolution level from original zarr array
     data_czyx = da.from_zarr(zarrurl + "/0")
@@ -258,7 +256,10 @@ def illumination_correction(
     tmp_accumulated_data = data_czyx_new
     accumulated_data = tmp_accumulated_data.rechunk(data_czyx.chunks)
 
+    accumulated_data.to_zarr(newzarrurl)
+
     # Construct resolution pyramid
+    """
     write_pyramid(
         accumulated_data,
         newzarrurl=newzarrurl,
@@ -268,6 +269,7 @@ def illumination_correction(
         chunk_size_x=img_size_x,
         chunk_size_y=img_size_y,
     )
+    """
 
     t_end = time.perf_counter()
     logger.info(f"End illumination_correction, elapsed: {t_end-t_start}")

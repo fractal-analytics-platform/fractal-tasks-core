@@ -34,23 +34,13 @@ logging.info(
 )
 
 
-# Copy a reference zarr file
-# source_dir = "Backup_data/one_well_9x8_fovs_19_z_planes_3_channels.zarr"
-# shutil.rmtree("data")
-# os.makedirs("data")
-# os.makedirs("data/plate.zarr")
-# destination_dir = "data/plate.zarr"
-# shutil.rmtree(destination_dir)
-# shutil.copytree(source_dir, destination_dir)
-# logging.info("Input zarr file copied over")
-logging.info("Using current data folder")
-
 # Set dataset path
-zarr_path = Path("data/*.zarr")
+in_path = Path("Backup_data/*.zarr")
+out_path = Path("data/*.zarr")
 
 # Set minimalistic metadata
 metadata = {
-    "well": ["plate.zarr/B/03/0/"],
+    "well": ["one_well_9x8_fovs_10_z_planes_3_channels.zarr/B/03/0/"],
     "num_levels": 1,
     "coarsening_xy": 2,
     "channel_list": ["A01_C01", "A01_C02", "A02_C03"],
@@ -69,11 +59,11 @@ dict_corr = {
 # Illumination correction
 for component in metadata["well"]:
     illumination_correction(
-        input_paths=[zarr_path],
-        output_path=zarr_path,
+        input_paths=[in_path],
+        output_path=out_path,
         metadata=metadata,
         component=component,
-        overwrite=True,
+        overwrite=False,  # FIXME do not change
         dict_corr=dict_corr,
         background=100,
         logger=logger,
