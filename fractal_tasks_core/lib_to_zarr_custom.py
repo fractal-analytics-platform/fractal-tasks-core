@@ -14,6 +14,7 @@ Zurich.
 import shutil
 
 import dask.array as da
+from devtools import debug
 
 
 def to_zarr_custom(newzarrurl=None, array=None, component="", overwrite=False):
@@ -47,6 +48,8 @@ def to_zarr_custom(newzarrurl=None, array=None, component="", overwrite=False):
     if not newzarrurl.endswith("/"):
         newzarrurl += "/"
 
+    debug("ENTER to_zarr_custom")
+
     if overwrite:
         tmp_suffix = "_TEMPORARY_ZARR_ARRAY"
         array.to_zarr(
@@ -57,8 +60,13 @@ def to_zarr_custom(newzarrurl=None, array=None, component="", overwrite=False):
             write_empty_chunks=False,
         )
         shutil.rmtree(newzarrurl + component)
+        debug(f"REMOVED {newzarrurl + component}")
         shutil.move(
             newzarrurl + component + tmp_suffix, newzarrurl + component
+        )
+        debug(
+            f"MOVED {newzarrurl + component + tmp_suffix} to "
+            f"{newzarrurl + component}"
         )
         output = da.from_zarr(newzarrurl, component=component)
     else:

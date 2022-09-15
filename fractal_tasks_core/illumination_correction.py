@@ -56,7 +56,7 @@ def correct(
 
     """
 
-    logger.info(f"Start correct function on image of shape {img.shape}")
+    # logger.info(f"Start correct function on image of shape {img.shape}")
 
     # Check shapes
     if illum_img.shape != img.shape:
@@ -90,7 +90,7 @@ def correct(
         )
         img_corr[img_corr > np.iinfo(img.dtype).max] = np.iinfo(img.dtype).max
 
-    logger.info("End correct function")
+    # logger.info("End correct function")
 
     return img_corr.astype(img.dtype)
 
