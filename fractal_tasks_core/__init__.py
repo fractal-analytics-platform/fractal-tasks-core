@@ -93,4 +93,18 @@ __FRACTAL_MANIFEST__ = [
             "parallelization_level": "well",
         },
     },
+    {
+        "name": "Illumination correction",
+        "resource_type": "core task",
+        "input_type": "zarr",
+        "output_type": "zarr",
+        "module": f"{__name__}.illumination_correction:illumination_correction",  # noqa: E501
+        "default_args": {
+            "overwrite": False,
+            "dict_corr": None,
+            "background": 100,
+            "executor": "cpu",
+            "parallelization_level": "well",
+        },
+    },
 ]
