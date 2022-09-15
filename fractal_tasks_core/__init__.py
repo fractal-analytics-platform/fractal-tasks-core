@@ -1,4 +1,4 @@
-__VERSION__ = "0.1.1"
+__VERSION__ = "0.1.3"
 
 __FRACTAL_MANIFEST__ = [
     {
@@ -40,7 +40,7 @@ __FRACTAL_MANIFEST__ = [
         "resource_type": "core task",
         "input_type": "zarr",
         "output_type": "zarr",
-        "module": f"{__name__}.replicate_zarr_structure:replicate_zarr_structure",
+        "module": f"{__name__}.replicate_zarr_structure:replicate_zarr_structure",  # noqa: E501
         "default_args": {
             "executor": "cpu",
             "project_to_2D": True,
@@ -52,7 +52,7 @@ __FRACTAL_MANIFEST__ = [
         "resource_type": "core task",
         "input_type": "zarr",
         "output_type": "zarr",
-        "module": f"{__name__}.maximum_intensity_projection:maximum_intensity_projection",
+        "module": f"{__name__}.maximum_intensity_projection:maximum_intensity_projection",  # noqa: E501
         "default_args": {"executor": "cpu", "parallelization_level": "well"},
     },
     {
@@ -72,7 +72,7 @@ __FRACTAL_MANIFEST__ = [
         "resource_type": "core task",
         "input_type": "zarr",
         "output_type": "zarr",
-        "module": f"{__name__}.image_labeling_whole_well:image_labeling_whole_well",
+        "module": f"{__name__}.image_labeling_whole_well:image_labeling_whole_well",  # noqa: E501
         "default_args": {
             "labeling_channel": "A01_C01",
             "executor": "cpu",  # FIXME: put gpu
@@ -89,6 +89,20 @@ __FRACTAL_MANIFEST__ = [
             "labeling_channel": "A01_C01",
             "level": 0,
             "table_name": "nuclei",
+            "executor": "cpu",
+            "parallelization_level": "well",
+        },
+    },
+    {
+        "name": "Illumination correction",
+        "resource_type": "core task",
+        "input_type": "zarr",
+        "output_type": "zarr",
+        "module": f"{__name__}.illumination_correction:illumination_correction",  # noqa: E501
+        "default_args": {
+            "overwrite": False,
+            "dict_corr": None,
+            "background": 100,
             "executor": "cpu",
             "parallelization_level": "well",
         },
