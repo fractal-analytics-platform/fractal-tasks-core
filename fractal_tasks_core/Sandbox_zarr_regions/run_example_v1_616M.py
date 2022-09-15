@@ -50,7 +50,6 @@ zarr_path = Path("data/*.zarr")
 # Set minimalistic metadata
 metadata = {
     "well": ["plate.zarr/B/03/0/"],
-    "num_levels": 5,
     "coarsening_xy": 2,
     "channel_list": ["A01_C01", "A01_C02", "A02_C03"],
 }
@@ -72,7 +71,7 @@ for component in metadata["well"]:
         output_path=zarr_path,
         metadata=metadata,
         component=component,
-        overwrite=True,
+        overwrite=False,
         dict_corr=dict_corr,
         background=100,
         logger=logger,

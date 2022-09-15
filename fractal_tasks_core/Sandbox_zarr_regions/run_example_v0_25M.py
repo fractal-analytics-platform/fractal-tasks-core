@@ -37,6 +37,9 @@ logging.info(
 
 # Copy a reference zarr file
 source_dir = "Backup_data/plate.zarr"
+shutil.rmtree("data")
+os.makedirs("data")
+os.makedirs("data/plate.zarr")
 destination_dir = "data/plate.zarr"
 shutil.rmtree(destination_dir)
 shutil.copytree(source_dir, destination_dir)
@@ -47,7 +50,6 @@ zarr_path = Path("data/*.zarr")
 # Set minimalistic metadata
 metadata = {
     "well": ["plate.zarr/B/03/0/"],
-    "num_levels": 2,
     "coarsening_xy": 2,
     "channel_list": ["A01_C01"],
 }
@@ -57,7 +59,8 @@ cwd = Path(__file__).parent.resolve().as_posix()
 dict_corr = {
     "root_path_corr": f"{cwd}/parameters",
     "A01_C01": "illum_corr_matrix.png",
-    "A02_C02": "illum_corr_matrix.png",
+    "A01_C02": "illum_corr_matrix.png",
+    "A02_C03": "illum_corr_matrix.png",
 }
 
 
