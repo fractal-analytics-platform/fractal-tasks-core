@@ -13,6 +13,7 @@ Zurich.
 """
 import json
 import logging
+import time
 import warnings
 from pathlib import Path
 from typing import Any
@@ -37,6 +38,7 @@ def correct(
     img,
     illum_img=None,
     background=110,
+    logger=None,
 ):
     """
     Corrects single Z level input image using an illumination profile
@@ -54,7 +56,7 @@ def correct(
 
     """
 
-    logging.info(f"Start correct function on image of shape {img.shape}")
+    logger.info(f"Start correct function on image of shape {img.shape}")
 
     # Check shapes
     if illum_img.shape != img.shape:
@@ -88,7 +90,7 @@ def correct(
         )
         img_corr[img_corr > np.iinfo(img.dtype).max] = np.iinfo(img.dtype).max
 
-    logging.info("End correct function")
+    logger.info("End correct function")
 
     return img_corr.astype(img.dtype)
 
@@ -102,6 +104,7 @@ def illumination_correction(
     overwrite: bool = False,
     dict_corr: dict = None,
     background: int = 100,
+    logger: logging.Logger = None,
 ):
 
     """
@@ -113,6 +116,9 @@ def illumination_correction(
     component: myplate.zarr/B/03/0/
     metadata: {...}
     """
+
+    if logger is None:
+        logger = logging.getLogger(__name__)
 
     # Read some parameters from metadata
     num_levels = metadata["num_levels"]
@@ -132,7 +138,8 @@ def illumination_correction(
     # Sanitize zarr paths
     newzarrurl = zarrurl
 
-    logging.info(
+    t_start = time.perf_counter()
+    logger.info(
         "Start illumination_correction " f"with {zarrurl=} and {newzarrurl=}"
     )
 
@@ -242,6 +249,7 @@ def illumination_correction(
                     data_czyx[ind_ch, ind_z, s_y:e_y, s_x:e_x],
                     illum_img,
                     background=background,
+                    logger=logger,
                 )
                 tmp_zyx.append(da.from_delayed(new_img, shape, dtype))
             data_czyx_new[ind_ch, s_z:e_z, s_y:e_y, s_x:e_x] = da.stack(
@@ -261,7 +269,8 @@ def illumination_correction(
         chunk_size_y=img_size_y,
     )
 
-    logging.info("End illumination_correction")
+    t_end = time.perf_counter()
+    logger.info(f"End illumination_correction, elapsed: {t_end-t_start}")
 
 
 if __name__ == "__main__":
