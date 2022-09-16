@@ -71,9 +71,8 @@ for component in metadata["well"]:
         output_path=zarr_path,
         metadata=metadata,
         component=component,
-        new_component=component.replace("plate", "plate_corr"),
-        overwrite=False,
+        overwrite=True,
         dict_corr=dict_corr,
-        background=100,
+        background=0,
         logger=logger,
     )

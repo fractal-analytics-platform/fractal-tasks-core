@@ -24,7 +24,6 @@ import anndata as ad
 import dask.array as da
 import numpy as np
 import zarr
-from devtools import debug
 from skimage.io import imread
 
 from fractal_tasks_core.lib_regions_of_interest import (
@@ -45,7 +44,7 @@ def correct(
 
     img_stack is a four-dimensional (czyx) numpy array, with dummy size along c
 
-    FIXME
+    FIXME: write docstring
 
     """
 
@@ -95,6 +94,7 @@ def illumination_correction(
     metadata: Optional[Dict[str, Any]] = None,
     component: str = None,
     overwrite: bool = False,
+    new_component: str = None,
     dict_corr: dict = None,
     background: int = 100,
     logger: logging.Logger = None,
@@ -104,48 +104,53 @@ def illumination_correction(
     FIXME
 
     Example inputs:
-    input_paths: [PosixPath('tmp_out/*.zarr')]
-    output_path: PosixPath('tmp_out/*.zarr')
+    input_paths: [PosixPath('some_path/*.zarr')]
+    output_path: PosixPath('same_or_other_path/*.zarr')
     component: myplate.zarr/B/03/0/
+    new_component: myplate_new_name.zarr/B/03/0/
     metadata: {...}
     """
 
     if logger is None:
         logger = logging.getLogger(__name__)
 
-    # Read some parameters from metadata
-    coarsening_xy = metadata["coarsening_xy"]
-    chl_list = metadata["channel_list"]
-    plate, well = component.split(".zarr/")
-
-    if overwrite:
-        raise NotImplementedError("Only overwrite=False currently supported")
-
-    # Define zarrurl
+    # Preliminary checks
     if len(input_paths) > 1:
         raise NotImplementedError
+    if (overwrite and new_component is not None) or (
+        new_component is None and not overwrite
+    ):
+        raise Exception(f"{overwrite=}, but {new_component=}")
+
+    # Read some parameters from metadata
+    chl_list = metadata["channel_list"]
+    # num_levels = metadata["num_levels"]
+    coarsening_xy = metadata["coarsening_xy"]
+
+    # Defione old/new zarrurls
+    plate, well = component.split(".zarr/")
     in_path = input_paths[0]
-    zarrurl = (in_path.parent.resolve() / component).as_posix() + "/"
-
-    # Sanitize zarr paths
-    # FIXME
-
-    newzarrurl = zarrurl.replace(".zarr", "_CORR.zarr").replace(
-        str(in_path.parent), str(output_path.parent)
-    )
-    debug(newzarrurl)
+    zarrurl_old = (in_path.parent / component).as_posix()
+    if overwrite:
+        zarrurl_new = zarrurl_old
+    else:
+        new_plate, new_well = new_component.split(".zarr/")
+        if new_well != well:
+            raise Exception(f"{well=}, {new_well=}")
+        zarrurl_new = (output_path.parent / new_component).as_posix()
 
     t_start = time.perf_counter()
     logger.info("Start illumination_correction")
-    logger.info(f"  {zarrurl=}")
-    logger.info(f"  {newzarrurl=}")
+    logger.info(f"  {overwrite=}")
+    logger.info(f"  {zarrurl_old=}")
+    logger.info(f"  {zarrurl_new=}")
 
     # Read FOV ROIs
-    FOV_ROI_table = ad.read_zarr(f"{zarrurl}tables/FOV_ROI_table")
+    FOV_ROI_table = ad.read_zarr(f"{zarrurl_old}/tables/FOV_ROI_table")
 
     # Read pixel sizes from zattrs file
     full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
-        zarrurl + ".zattrs", level=0
+        f"{zarrurl_old}/.zattrs", level=0
     )
 
     # Create list of indices for 3D FOVs spanning the entire Z direction
@@ -156,9 +161,8 @@ def illumination_correction(
         full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
     )
 
-    # Extract image size from FOV-ROI indices
-    # Note: this works at level=0, where FOVs should all be of the exact same
-    #       size (in pixels)
+    # Extract image size from FOV-ROI indices. Note: this works at level=0,
+    # where FOVs should all be of the exact same size (in pixels)
     ref_img_size = None
     for indices in list_indices:
         img_size = (indices[3] - indices[2], indices[5] - indices[4])
@@ -187,17 +191,21 @@ def illumination_correction(
             )
 
     # Lazily load highest-res level from original zarr array
-    data_czyx = da.from_zarr(zarrurl + "/0")
+    data_czyx = da.from_zarr(f"{zarrurl_old}/0")
 
     # Create zarr for output
-    new_zarr = zarr.create(
-        shape=data_czyx.shape,
-        chunks=data_czyx.chunksize,
-        dtype=data_czyx.dtype,
-        store=da.core.get_mapper(newzarrurl + "/0"),
-        overwrite=False,
-        dimension_separator="/",
-    )
+    if overwrite:
+        new_zarr = zarr.open(f"{zarrurl_old}/0")
+    else:
+        new_zarr = zarr.create(
+            shape=data_czyx.shape,
+            chunks=data_czyx.chunksize,
+            dtype=data_czyx.dtype,
+            store=da.core.get_mapper(f"{zarrurl_new}/0"),
+            overwrite=False,
+            dimension_separator="/",
+            # write_empty_chunks=.. do we need this?
+        )
 
     # Iterate over FOV ROIs
     for i_c, channel in enumerate(chl_list):

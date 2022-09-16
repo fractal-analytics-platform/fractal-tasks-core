@@ -36,7 +36,7 @@ logging.info(
 
 
 # Copy a reference zarr file
-source_dir = "Backup_data/plate.zarr"
+source_dir = "Backup_data/one_well_2x2_fovs_10_z_planes_3_channels.zarr"
 shutil.rmtree("data")
 os.makedirs("data")
 os.makedirs("data/plate.zarr")
@@ -51,7 +51,7 @@ zarr_path = Path("data/*.zarr")
 metadata = {
     "well": ["plate.zarr/B/03/0/"],
     "coarsening_xy": 2,
-    "channel_list": ["A01_C01"],
+    "channel_list": ["A01_C01", "A01_C02", "A02_C03"],
 }
 
 # Set parameters
@@ -71,8 +71,7 @@ for component in metadata["well"]:
         output_path=zarr_path,
         metadata=metadata,
         component=component,
-        new_component=component.replace("plate", "plate_corr"),
-        overwrite=False,
+        overwrite=True,
         dict_corr=dict_corr,
         background=100,
         logger=logger,
