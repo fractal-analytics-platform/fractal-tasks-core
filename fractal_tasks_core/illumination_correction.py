@@ -11,7 +11,6 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
-import copy
 import logging
 import time
 import warnings
@@ -22,7 +21,6 @@ from typing import Iterable
 from typing import Optional
 
 import anndata as ad
-import dask
 import dask.array as da
 import numpy as np
 import zarr
@@ -36,72 +34,58 @@ from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 
 def correct(
-    da_img,
-    illum_img=None,
-    background=110,
-    logger=None,
+    img_stack: np.ndarray,
+    corr_img: np.ndarray,
+    background: int = 110,
+    logger: logging.Logger = None,
 ):
     """
-    Corrects single Z level input image using an illumination profile
+    Corrects a stack of images, using a given illumination profile (e.g. bright
+    in the center of the image, dim outside).
 
-    The illumination profile image can be uint8 or uint16.
-    It needs to follow the illumination profile. e.g. bright in the
-    center of the image, dim outside
+    img_stack is a four-dimensional (czyx) numpy array, with dummy size along c
 
-    :param img: input image to be corrected, either uint8 or uint16
-    :type img: np.array
-    :param illum_img: correction matrix
-    :type illum_img: np.array
-    :param background: value for background subtraction (optional, default 110)
-    :type background: int
+    FIXME
 
     """
 
-    # logger.info(f"Start correct function on image of shape {img.shape}")
-
-    # FIXME FIXME
-    img = da_img.compute()
+    if logger is not None:
+        logger.debug("Start correct, {img_stack.shape}")
 
     # Check shapes
-    if illum_img.shape != img.shape[2:]:
+    if corr_img.shape != img_stack.shape[2:] or img_stack.shape[0] != 1:
         raise Exception(
-            "Error in illumination_correction\n"
-            f"img.shape: {img.shape}\n"
-            f"illum_img.shape: {illum_img.shape}"
+            "Error in illumination_correction:\n"
+            f"{img_stack.shape=}\n{corr_img.shape=}"
         )
+
+    # Store info about dtype
+    dtype = img_stack.dtype
+    dtype_max = np.iinfo(dtype).max
 
     # Background subtraction
-    # FIXME: is there a problem with these changes?
-    # devdoc.net/python/dask-2.23.0-doc/delayed-best-practices.html
-    # ?highlight=delayed#don-t-mutate-inputs
+    img_stack[img_stack <= background] = 0
+    img_stack[img_stack > background] -= background
 
-    below_threshold = img <= background
-    above_threshold = np.logical_not(below_threshold)
-    img[below_threshold] = 0
-    img[above_threshold] = img[above_threshold] - background
-    # FIXME FIXME
+    #  Apply the normalized correction matrix (requires a float array)
+    # img_stack = img_stack.astype(np.float64)
+    new_img_stack = img_stack / (corr_img / np.max(corr_img))[None, None, :, :]
 
-    # Apply the illumination correction
-    # (normalized by the max value in the illum_img)
-    img_corr = img / (illum_img / np.max(illum_img))[None, None, :, :]
-
-    # Handle edge case: The illumination correction can increase a value
-    # beyond the limit of the encoding, e.g. beyond 65535 for 16bit
-    # images. This clips values that surpass this limit and triggers
-    # a warning
-    if np.sum(img_corr > np.iinfo(img.dtype).max) > 0:
+    # Handle edge case: corrected image may have values beyond the limit of
+    # the encoding, e.g. beyond 65535 for 16bit images. This clips values
+    # that surpass this limit and triggers a warning
+    if np.sum(new_img_stack > dtype_max) > 0:
         warnings.warn(
-            f"The illumination correction created values \
-                       beyond the max range of your current image \
-                       type. These have been clipped to \
-                       {np.iinfo(img.dtype).max}"
+            "Illumination correction created values beyond the max range of"
+            " the current image type. These have been clipped to {dtype_max=}."
         )
-        img_corr[img_corr > np.iinfo(img.dtype).max] = np.iinfo(img.dtype).max
+        new_img_stack[new_img_stack > dtype_max] = dtype_max
 
-    # logger.info("End correct function")
+    if logger is not None:
+        logger.debug("End correct")
 
-    # FIXME FIXME
-    return da.array(img_corr.astype(img.dtype))
+    # Cast back to original dtype and return
+    return new_img_stack.astype(dtype)
 
 
 def illumination_correction(
@@ -202,11 +186,10 @@ def illumination_correction(
                 "correction matrix has wrong shape."
             )
 
-    # Load highest-resolution level from original zarr array
+    # Lazily load highest-res level from original zarr array
     data_czyx = da.from_zarr(zarrurl + "/0")
-    dtype = data_czyx.dtype
-    n_c, n_z, n_y, n_x = data_czyx.shape[:]
 
+    # Create zarr for output
     new_zarr = zarr.create(
         shape=data_czyx.shape,
         chunks=data_czyx.chunksize,
@@ -216,27 +199,29 @@ def illumination_correction(
         dimension_separator="/",
     )
 
+    # Get list of FOV-ROI regions
     regions = []
     for i_c, channel in enumerate(chl_list):
         for indices in list_indices:
             s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
-            for i_z in range(s_z, e_z):
-                region = (
-                    slice(i_c, i_c + 1),
-                    slice(i_z, i_z + 1),
-                    slice(s_y, e_y),
-                    slice(s_x, e_x),
-                )
-                regions.append(region)
+            region = (
+                slice(i_c, i_c + 1),
+                slice(s_z, e_z),
+                slice(s_y, e_y),
+                slice(s_x, e_x),
+            )
+            regions.append(region)
 
+    # Iterate over regions
     for region in regions:
-        corrected_img = correct(
-            data_czyx[region],
+        corrected_fov = correct(
+            data_czyx[region].compute(),
             corrections[channel],
             background=background,
             logger=logger,
         )
-        task = corrected_img.to_zarr(
+
+        da.array(corrected_fov).to_zarr(
             url=new_zarr, region=region, compute=True, dimension_separator="/"
         )
 
