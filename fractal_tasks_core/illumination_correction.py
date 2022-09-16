@@ -199,10 +199,10 @@ def illumination_correction(
         dimension_separator="/",
     )
 
-    # Get list of FOV-ROI regions
-    regions = []
+    # Iterate over FOV ROIs
     for i_c, channel in enumerate(chl_list):
         for indices in list_indices:
+            # Define region
             s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
             region = (
                 slice(i_c, i_c + 1),
@@ -210,20 +210,19 @@ def illumination_correction(
                 slice(s_y, e_y),
                 slice(s_x, e_x),
             )
-            regions.append(region)
-
-    # Iterate over regions
-    for region in regions:
-        corrected_fov = correct(
-            data_czyx[region].compute(),
-            corrections[channel],
-            background=background,
-            logger=logger,
-        )
-
-        da.array(corrected_fov).to_zarr(
-            url=new_zarr, region=region, compute=True, dimension_separator="/"
-        )
+            # Execute illumination correction
+            corrected_fov = correct(
+                data_czyx[region].compute(),
+                corrections[channel],
+                background=background,
+                logger=logger,
+            )
+            # Write to disk
+            da.array(corrected_fov).to_zarr(
+                url=new_zarr,
+                region=region,
+                compute=True,
+            )
 
     t_end = time.perf_counter()
     logger.info(f"End illumination_correction, elapsed: {t_end-t_start}")
