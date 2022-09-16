@@ -204,7 +204,7 @@ def illumination_correction(
             store=da.core.get_mapper(f"{zarrurl_new}/0"),
             overwrite=False,
             dimension_separator="/",
-            # write_empty_chunks=.. do we need this?
+            # FIXME write_empty_chunks=.. do we need this?
         )
 
     # Iterate over FOV ROIs
