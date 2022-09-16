@@ -118,6 +118,9 @@ def test_yokogawa_to_zarr(
     mocker.patch(
         "fractal_tasks_core.yokogawa_to_zarr.sorted", return_value=images
     )
+    mocker.patch(
+        "fractal_tasks_core.yokogawa_to_zarr.glob", return_value=images
+    )
 
     # Patch correct() function, to keep track of the number of calls
     logfile = (tmp_path / "log_function_correct.txt").resolve().as_posix()
