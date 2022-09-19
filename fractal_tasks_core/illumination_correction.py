@@ -26,10 +26,9 @@ import numpy as np
 import zarr
 from skimage.io import imread
 
-from fractal_tasks_core.lib_regions_of_interest import (
-    convert_ROI_table_to_indices,
-)
-from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
+from .lib_pyramid_creation import build_pyramid
+from .lib_regions_of_interest import convert_ROI_table_to_indices
+from .lib_zattrs_utils import extract_zyx_pixel_sizes
 
 
 def correct(
@@ -124,7 +123,7 @@ def illumination_correction(
 
     # Read some parameters from metadata
     chl_list = metadata["channel_list"]
-    # num_levels = metadata["num_levels"]
+    num_levels = metadata["num_levels"]
     coarsening_xy = metadata["coarsening_xy"]
 
     # Defione old/new zarrurls
@@ -195,8 +194,10 @@ def illumination_correction(
 
     # Create zarr for output
     if overwrite:
+        fov_path = zarrurl_old
         new_zarr = zarr.open(f"{zarrurl_old}/0")
     else:
+        fov_path = zarrurl_new
         new_zarr = zarr.create(
             shape=data_czyx.shape,
             chunks=data_czyx.chunksize,
@@ -231,6 +232,18 @@ def illumination_correction(
                 region=region,
                 compute=True,
             )
+
+    from devtools import debug
+
+    debug(data_czyx.chunksize)
+
+    build_pyramid(
+        zarrurl=fov_path,
+        overwrite=overwrite,
+        num_levels=num_levels,
+        coarsening_xy=coarsening_xy,
+        chunksize=data_czyx.chunksize,
+    )
 
     t_end = time.perf_counter()
     logger.info(f"End illumination_correction, elapsed: {t_end-t_start}")
