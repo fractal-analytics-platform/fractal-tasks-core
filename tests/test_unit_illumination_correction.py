@@ -65,8 +65,7 @@ def test_illumination_correction(
     list_indices = convert_ROI_table_to_indices(
         ROIs, level=0, full_res_pxl_sizes_zyx=pixels
     )
-    num_z_planes = list_indices[0][1]
-    num_FOVs = len(list_indices) * num_z_planes
+    num_FOVs = len(list_indices)
 
     # Prepared expected number of calls
     num_channels = len(metadata["channel_list"])
