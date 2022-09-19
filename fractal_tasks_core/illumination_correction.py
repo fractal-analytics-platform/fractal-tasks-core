@@ -121,6 +121,14 @@ def illumination_correction(
     ):
         raise Exception(f"{overwrite=}, but {new_component=}")
 
+    if not overwrite:
+        msg = (
+            "We still have to harmonize illumination_correction("
+            "overwrite=False) with replicate_zarr_structure(..., "
+            "suffix=..)"
+        )
+        raise NotImplementedError(msg)
+
     # Read some parameters from metadata
     chl_list = metadata["channel_list"]
     num_levels = metadata["num_levels"]

@@ -18,7 +18,7 @@ from fractal_tasks_core.lib_regions_of_interest import (
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 
-@pytest.mark.parametrize("overwrite", [True, False])
+@pytest.mark.parametrize("overwrite", [True])
 def test_illumination_correction(
     overwrite: bool,
     tmp_path: Path,
