@@ -15,11 +15,11 @@ Here is an example of the interactive visualization in napari using the newly-pr
 ![napari_plate_overview](https://user-images.githubusercontent.com/18033446/190983839-afb9743f-530c-4b00-bde7-23ad62404ee8.gif)
 
 
-### Installation instructions
+## Installation instructions
 
 TBD
 
-### Available tasks
+## Available tasks
 
 Currently, the following tasks are available:
 - Create Zarr Structure: Task to generate the zarr structure based on Yokogawa metadata files
@@ -30,3 +30,18 @@ Currently, the following tasks are available:
 - Measurement: Make some standard measurements (intensity & morphology) using napari workflows, saving results to AnnData tables.
 
 Some additional tasks are currently being worked on and some older tasks are still present in the fractal_tasks_core folder.
+
+## Contributors
+
+Fractal was conceived in the Liberali Lab at the Friedrich Miescher Institute
+for Biomedical Research and in the Pelkmans Lab at the University of Zurich
+(both in Switzerland). The project lead is with
+[@gusqgm](https://github.com/gusqgm) & [@jluethi](https://github.com/jluethi).
+The core development is done under contract by
+[@mfranzon](https://github.com/mfranzon), [@tcompa](https://github.com/tcompa)
+& [@jacopo-exact](https://github.com/jacopo-exact) from [eXact lab
+S.r.l.](https://exact-lab.it).
+
+## License
+
+Fractal is released according to a BSD 3-Clause License. See `LICENSE`.
