@@ -233,10 +233,8 @@ def illumination_correction(
                 compute=True,
             )
 
-    from devtools import debug
-
-    debug(data_czyx.chunksize)
-
+    # Starting from on-disk highest-resolution data, build and write to disk a
+    # pyramid of coarser levels
     build_pyramid(
         zarrurl=fov_path,
         overwrite=overwrite,

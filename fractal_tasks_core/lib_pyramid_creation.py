@@ -124,7 +124,8 @@ def build_pyramid(
 ):
 
     """
-    Take a 2D/3D/4D array and write to disk a pyramid of coarsened levels
+    Starting from on-disk highest-resolution data, build and write to disk a
+    pyramid of coarser levels. This works for 2D, 3D or 4D arrays.
 
     Example input:
         zarrurl = "some/path/plate.zarr/B/03/0
