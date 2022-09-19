@@ -1,4 +1,5 @@
 __VERSION__ = "0.1.3"
+__OMERO_FORMAT_VERSION__ = "0.4"
 
 __FRACTAL_MANIFEST__ = [
     {

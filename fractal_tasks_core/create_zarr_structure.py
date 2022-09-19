@@ -23,9 +23,13 @@ import pandas as pd
 import zarr
 from anndata.experimental import write_elem
 
-from fractal_tasks_core.lib_parse_filename_metadata import parse_metadata
-from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
-from fractal_tasks_core.metadata_parsing import parse_yokogawa_metadata
+import fractal_tasks_core
+from .lib_parse_filename_metadata import parse_metadata
+from .lib_regions_of_interest import prepare_FOV_ROI_table
+from .metadata_parsing import parse_yokogawa_metadata
+
+
+__OMERO_FORMAT_VERSION__ = fractal_tasks_core.__OMERO_FORMAT_VERSION__
 
 
 def define_omero_channels(actual_channels, channel_parameters, bit_depth):
@@ -331,7 +335,7 @@ def create_zarr_structure(
 
             group_well.attrs["well"] = {
                 "images": [{"path": "0"}],
-                "version": "0.3",
+                "version": __OMERO_FORMAT_VERSION__,
             }
 
             group_FOV = group_well.create_group("0/")  # noqa: F841
@@ -339,7 +343,7 @@ def create_zarr_structure(
 
             group_FOV.attrs["multiscales"] = [
                 {
-                    "version": "0.3",
+                    "version": __OMERO_FORMAT_VERSION__,
                     "axes": [
                         {"name": "c", "type": "channel"},
                         {
@@ -382,7 +386,7 @@ def create_zarr_structure(
             group_FOV.attrs["omero"] = {
                 "id": 1,  # FIXME does this depend on the plate number?
                 "name": "TBD",
-                "version": "0.4",
+                "version": __OMERO_FORMAT_VERSION__,
                 "channels": define_omero_channels(
                     actual_channels, channel_parameters, bit_depth
                 ),

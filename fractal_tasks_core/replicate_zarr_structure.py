@@ -24,8 +24,12 @@ import zarr
 from anndata.experimental import write_elem
 from devtools import debug
 
-from fractal_tasks_core.lib_regions_of_interest import convert_FOV_ROIs_3D_to_2D
-from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
+import fractal_tasks_core
+from .lib_regions_of_interest import convert_FOV_ROIs_3D_to_2D
+from .lib_zattrs_utils import extract_zyx_pixel_sizes
+
+
+__OMERO_FORMAT_VERSION__ = fractal_tasks_core.__OMERO_FORMAT_VERSION__
 
 
 def replicate_zarr_structure(
@@ -137,7 +141,7 @@ def replicate_zarr_structure(
             group_well = group_plate.create_group(f"{row}/{column}/")
             group_well.attrs["well"] = {
                 "images": well_images,
-                "version": "0.3",
+                "version": __OMERO_FORMAT_VERSION__,
             }
 
             # Check that only the 0-th FOV exists
