@@ -15,6 +15,7 @@ import pathlib
 
 import numpy as np
 import pandas as pd
+import pytest
 from devtools import debug
 from pytest import MonkeyPatch
 
@@ -106,6 +107,7 @@ coarsening_factor_xy = 2
 coarsening_factor_z = 1
 
 
+@pytest.mark.skip(reason="This test should be rewritten, or removed")
 def test_yokogawa_to_zarr(
     mocker,
     tmp_path: pathlib.Path,
