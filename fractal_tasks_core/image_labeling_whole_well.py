@@ -31,7 +31,7 @@ from .lib_pyramid_creation import write_pyramid
 from .lib_zattrs_utils import rescale_datasets
 
 
-__OMERO_FORMAT_VERSION__ = fractal_tasks_core.__OMERO_FORMAT_VERSION__
+__OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
 
 def image_labeling_whole_well(
@@ -185,11 +185,11 @@ def image_labeling_whole_well(
     labels_group = zarr.group(f"{zarrurl}labels")
     labels_group.attrs["labels"] = [label_name]
     label_group = labels_group.create_group(label_name)
-    label_group.attrs["image-label"] = {"version": __OMERO_FORMAT_VERSION__}
+    label_group.attrs["image-label"] = {"version": __OME_NGFF_VERSION__}
     label_group.attrs["multiscales"] = [
         {
             "name": label_name,
-            "version": __OMERO_FORMAT_VERSION__,
+            "version": __OME_NGFF_VERSION__,
             "axes": new_axes,
             "datasets": new_datasets,
         }

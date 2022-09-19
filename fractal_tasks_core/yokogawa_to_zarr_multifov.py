@@ -20,7 +20,7 @@ import numpy as np
 from dask import delayed
 from skimage.io import imread
 
-from fractal_tasks_core.lib_parse_filename_metadata import parse_metadata
+from .lib_parse_filename_metadata import parse_metadata
 
 
 def sort_by_z(s):
