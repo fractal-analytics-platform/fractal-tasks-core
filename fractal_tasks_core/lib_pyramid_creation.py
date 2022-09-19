@@ -177,11 +177,20 @@ def build_pyramid(
             newlevel_rechunked = newlevel.rechunk(chunksize)
 
         # Write zarr and store output (useful to construct next level)
+        from devtools import debug
+
+        debug(newlevel_rechunked)
+        debug(zarrurl)
+        debug(f"{ind_level}")
+        debug(overwrite)
         previous_level = newlevel_rechunked.to_zarr(
-            f"{zarrurl}",
+            zarrurl,
             component=f"{ind_level}",
             overwrite=overwrite,
             compute=True,
             return_stored=True,
             write_empty_chunks=False,
+            dimension_separator="/",
         )
+        debug(previous_level)
+        debug()
