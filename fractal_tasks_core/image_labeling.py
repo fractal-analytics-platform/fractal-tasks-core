@@ -30,10 +30,14 @@ from cellpose import core
 from cellpose import models
 from devtools import debug
 
-from fractal_tasks_core.lib_pyramid_creation import write_pyramid
-from fractal_tasks_core.lib_regions_of_interest import convert_ROI_table_to_indices
-from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
-from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
+import fractal_tasks_core
+from .lib_pyramid_creation import write_pyramid
+from .lib_regions_of_interest import convert_ROI_table_to_indices
+from .lib_zattrs_utils import extract_zyx_pixel_sizes
+from .lib_zattrs_utils import rescale_datasets
+
+
+__OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
 
 def segment_FOV(
@@ -307,11 +311,11 @@ def image_labeling(
     labels_group = zarr.group(f"{zarrurl}labels")
     labels_group.attrs["labels"] = [label_name]
     label_group = labels_group.create_group(label_name)
-    label_group.attrs["image-label"] = {"version": "0.4"}
+    label_group.attrs["image-label"] = {"version": __OME_NGFF_VERSION__}
     label_group.attrs["multiscales"] = [
         {
             "name": label_name,
-            "version": "0.4",
+            "version": __OME_NGFF_VERSION__,
             "axes": new_axes,
             "datasets": new_datasets,
         }

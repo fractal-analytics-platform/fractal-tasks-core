@@ -23,9 +23,13 @@ import pandas as pd
 import zarr
 from anndata.experimental import write_elem
 
-from fractal_tasks_core.lib_parse_filename_metadata import parse_metadata
-from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
-from fractal_tasks_core.metadata_parsing import parse_yokogawa_metadata
+import fractal_tasks_core
+from .lib_parse_filename_metadata import parse_metadata
+from .lib_regions_of_interest import prepare_FOV_ROI_table
+from .metadata_parsing import parse_yokogawa_metadata
+
+
+__OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
 
 def define_omero_channels(actual_channels, channel_parameters, bit_depth):
@@ -290,36 +294,24 @@ def create_zarr_structure(
         well_rows_columns = [
             ind for ind in sorted([(n[0], n[1:]) for n in wells])
         ]
+        row_list = [
+            well_row_column[0] for well_row_column in well_rows_columns
+        ]
+        col_list = [
+            well_row_column[1] for well_row_column in well_rows_columns
+        ]
+        row_list = sorted(list(set(row_list)))
+        col_list = sorted(list(set(col_list)))
 
         group_plate.attrs["plate"] = {
             "acquisitions": [{"id": 1, "name": plate}],
-            "columns": sorted(
-                [
-                    {"name": u_col}
-                    for u_col in set(
-                        [
-                            well_row_column[1]
-                            for well_row_column in well_rows_columns
-                        ]
-                    )
-                ],
-                key=lambda key: key["name"],
-            ),
-            "rows": sorted(
-                [
-                    {"name": u_row}
-                    for u_row in set(
-                        [
-                            well_row_column[0]
-                            for well_row_column in well_rows_columns
-                        ]
-                    )
-                ],
-                key=lambda key: key["name"],
-            ),
+            "columns": [{"name": col} for col in col_list],
+            "rows": [{"name": row} for row in row_list],
             "wells": [
                 {
                     "path": well_row_column[0] + "/" + well_row_column[1],
+                    "rowIndex": row_list.index(well_row_column[0]),
+                    "columnIndex": col_list.index(well_row_column[1]),
                 }
                 for well_row_column in well_rows_columns
             ],
@@ -331,7 +323,7 @@ def create_zarr_structure(
 
             group_well.attrs["well"] = {
                 "images": [{"path": "0"}],
-                "version": "0.3",
+                "version": __OME_NGFF_VERSION__,
             }
 
             group_FOV = group_well.create_group("0/")  # noqa: F841
@@ -339,7 +331,7 @@ def create_zarr_structure(
 
             group_FOV.attrs["multiscales"] = [
                 {
-                    "version": "0.3",
+                    "version": __OME_NGFF_VERSION__,
                     "axes": [
                         {"name": "c", "type": "channel"},
                         {
@@ -382,7 +374,7 @@ def create_zarr_structure(
             group_FOV.attrs["omero"] = {
                 "id": 1,  # FIXME does this depend on the plate number?
                 "name": "TBD",
-                "version": "0.4",
+                "version": __OME_NGFF_VERSION__,
                 "channels": define_omero_channels(
                     actual_channels, channel_parameters, bit_depth
                 ),

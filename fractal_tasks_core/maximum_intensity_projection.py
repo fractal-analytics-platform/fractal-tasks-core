@@ -20,7 +20,7 @@ from typing import Optional
 import dask.array as da
 from devtools import debug
 
-from fractal_tasks_core.lib_pyramid_creation import write_pyramid
+from .lib_pyramid_creation import write_pyramid
 
 
 def maximum_intensity_projection(

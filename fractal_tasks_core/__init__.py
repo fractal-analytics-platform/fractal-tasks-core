@@ -1,4 +1,5 @@
 __VERSION__ = "0.1.3"
+__OME_NGFF_VERSION__ = "0.4"
 
 __FRACTAL_MANIFEST__ = [
     {
