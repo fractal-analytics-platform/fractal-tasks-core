@@ -294,36 +294,24 @@ def create_zarr_structure(
         well_rows_columns = [
             ind for ind in sorted([(n[0], n[1:]) for n in wells])
         ]
+        row_list = [
+            well_row_column[0] for well_row_column in well_rows_columns
+        ]
+        col_list = [
+            well_row_column[1] for well_row_column in well_rows_columns
+        ]
+        row_list = sorted(list(set(row_list)))
+        col_list = sorted(list(set(col_list)))
 
         group_plate.attrs["plate"] = {
             "acquisitions": [{"id": 1, "name": plate}],
-            "columns": sorted(
-                [
-                    {"name": u_col}
-                    for u_col in set(
-                        [
-                            well_row_column[1]
-                            for well_row_column in well_rows_columns
-                        ]
-                    )
-                ],
-                key=lambda key: key["name"],
-            ),
-            "rows": sorted(
-                [
-                    {"name": u_row}
-                    for u_row in set(
-                        [
-                            well_row_column[0]
-                            for well_row_column in well_rows_columns
-                        ]
-                    )
-                ],
-                key=lambda key: key["name"],
-            ),
+            "columns": [{"name": col} for col in col_list],
+            "rows": [{"name": row} for row in row_list],
             "wells": [
                 {
                     "path": well_row_column[0] + "/" + well_row_column[1],
+                    "rowIndex": row_list.index(well_row_column[0]),
+                    "columnIndex": col_list.index(well_row_column[1]),
                 }
                 for well_row_column in well_rows_columns
             ],
