@@ -65,8 +65,7 @@ def test_illumination_correction(
     list_indices = convert_ROI_table_to_indices(
         ROIs, level=0, full_res_pxl_sizes_zyx=pixels
     )
-    num_z_planes = list_indices[0][1]
-    num_FOVs = len(list_indices) * num_z_planes
+    num_FOVs = len(list_indices)
 
     # Prepared expected number of calls
     num_channels = len(metadata["channel_list"])
@@ -87,15 +86,28 @@ def test_illumination_correction(
     )
 
     # Call illumination correction task, with patched correct()
-    illumination_correction(
-        input_paths=[zarr_path],
-        output_path=zarr_path,
-        metadata=metadata,
-        component=component,
-        overwrite=overwrite,
-        dict_corr=illum_params,
-        background=0,
-    )
+    if overwrite:
+        illumination_correction(
+            input_paths=[zarr_path],
+            output_path=zarr_path,
+            metadata=metadata,
+            component=component,
+            overwrite=overwrite,
+            dict_corr=illum_params,
+            background=0,
+        )
+    else:
+        illumination_correction(
+            input_paths=[zarr_path],
+            output_path=zarr_path,
+            metadata=metadata,
+            component=component,
+            overwrite=overwrite,
+            new_component="plate_new.zarr/B/03/0",
+            dict_corr=illum_params,
+            background=0,
+        )
+
     print(caplog.text)
     caplog.clear()
 
@@ -105,6 +117,8 @@ def test_illumination_correction(
     assert tot_calls_correct == expected_tot_calls_correct
 
     # Verify the output
+    if not overwrite:
+        zarrurl = zarrurl.replace(".zarr", "_new.zarr")
     for ind_level in range(num_levels):
         old = da.from_zarr(
             testdata_path / f"plate_ones.zarr/B/03/0/{ind_level}"
