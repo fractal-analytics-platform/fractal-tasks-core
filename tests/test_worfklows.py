@@ -11,15 +11,34 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
+import json
 import logging
+import urllib
 from pathlib import Path
 
 import pytest
 from devtools import debug
+from jsonschema import validate
 
+from fractal_tasks_core import __OME_NGFF_VERSION__
 from fractal_tasks_core.create_zarr_structure import create_zarr_structure
 from fractal_tasks_core.illumination_correction import illumination_correction
 from fractal_tasks_core.yokogawa_to_zarr import yokogawa_to_zarr
+
+
+def validate_schema(*, path: str, type: str):
+    url = (
+        "https://raw.githubusercontent.com/ome/ngff/main/"
+        f"{__OME_NGFF_VERSION__}/schemas/{type}.schema"
+    )
+    debug(url)
+    with urllib.request.urlopen(url) as url:
+        schema = json.load(url)
+    debug(path)
+    debug(type)
+    with open(f"{path}/.zattrs", "r") as fin:
+        zattrs = json.load(fin)
+    validate(instance=zattrs, schema=schema)
 
 
 channel_parameters = {
@@ -47,10 +66,12 @@ num_levels = 2
 coarsening_xy = 2
 
 
-def test_workflow_yokogawa_to_zarr(tmp_path: Path, testdata_path: Path):
+def test_workflow_yokogawa_to_zarr(
+    tmp_path: Path, dataset_10_5281_zenodo_7059515: Path
+):
 
     # Init
-    img_path = testdata_path / "png/*.png"
+    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     metadata = {}
 
@@ -76,9 +97,20 @@ def test_workflow_yokogawa_to_zarr(tmp_path: Path, testdata_path: Path):
         )
     debug(metadata)
 
+    # OME-NGFF JSON validation
+    image_zarr = Path(zarr_path.parent / metadata["well"][0])
+    well_zarr = image_zarr.parent
+    plate_zarr = image_zarr.parents[2]
+    validate_schema(path=str(image_zarr), type="image")
+    validate_schema(path=str(well_zarr), type="well")
+    validate_schema(path=str(plate_zarr), type="plate")
+
 
 def test_workflow_illumination_correction(
-    tmp_path: Path, testdata_path: Path, caplog: pytest.LogCaptureFixture
+    tmp_path: Path,
+    testdata_path: Path,
+    dataset_10_5281_zenodo_7059515: Path,
+    caplog: pytest.LogCaptureFixture,
 ):
 
     # Setup caplog fixture, see
@@ -86,7 +118,7 @@ def test_workflow_illumination_correction(
     caplog.set_level(logging.INFO)
 
     # Init
-    img_path = testdata_path / "png/*.png"
+    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     metadata = {}
 
@@ -132,3 +164,11 @@ def test_workflow_illumination_correction(
         )
     print(caplog.text)
     caplog.clear()
+
+    # OME-NGFF JSON validation
+    image_zarr = Path(zarr_path.parent / metadata["well"][0])
+    well_zarr = image_zarr.parent
+    plate_zarr = image_zarr.parents[2]
+    validate_schema(path=str(image_zarr), type="image")
+    validate_schema(path=str(well_zarr), type="well")
+    validate_schema(path=str(plate_zarr), type="plate")
