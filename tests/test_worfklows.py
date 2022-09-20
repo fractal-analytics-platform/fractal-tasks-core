@@ -24,6 +24,12 @@ from fractal_tasks_core import __OME_NGFF_VERSION__
 from fractal_tasks_core.create_zarr_structure import create_zarr_structure
 from fractal_tasks_core.illumination_correction import illumination_correction
 from fractal_tasks_core.image_labeling import image_labeling
+from fractal_tasks_core.maximum_intensity_projection import (
+    maximum_intensity_projection,
+)  # noqa
+from fractal_tasks_core.replicate_zarr_structure import (
+    replicate_zarr_structure,
+)  # noqa
 from fractal_tasks_core.yokogawa_to_zarr import yokogawa_to_zarr
 
 
@@ -100,6 +106,64 @@ def test_workflow_yokogawa_to_zarr(
 
     # OME-NGFF JSON validation
     image_zarr = Path(zarr_path.parent / metadata["well"][0])
+    well_zarr = image_zarr.parent
+    plate_zarr = image_zarr.parents[2]
+    validate_schema(path=str(image_zarr), type="image")
+    validate_schema(path=str(well_zarr), type="well")
+    validate_schema(path=str(plate_zarr), type="plate")
+
+
+def test_workflow_MIP(tmp_path: Path, dataset_10_5281_zenodo_7059515: Path):
+
+    # Init
+    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    zarr_path = tmp_path / "tmp_out/*.zarr"
+    zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
+    metadata = {}
+
+    # Create zarr structure
+    metadata_update = create_zarr_structure(
+        input_paths=[img_path],
+        output_path=zarr_path,
+        channel_parameters=channel_parameters,
+        num_levels=num_levels,
+        coarsening_xy=coarsening_xy,
+        metadata_table="mrf_mlf",
+    )
+    metadata.update(metadata_update)
+
+    # Yokogawa to zarr
+    for component in metadata["well"]:
+        yokogawa_to_zarr(
+            input_paths=[zarr_path],
+            output_path=zarr_path,
+            metadata=metadata,
+            component=component,
+        )
+
+    # Replicate
+    metadata_update = replicate_zarr_structure(
+        input_paths=[zarr_path],
+        output_path=zarr_path_mip,
+        metadata=metadata,
+        project_to_2D=True,
+        suffix="mip",
+    )
+    metadata.update(metadata_update)
+    debug(metadata)
+
+    # MIP
+    for component in metadata["well"]:
+        maximum_intensity_projection(
+            input_paths=[zarr_path_mip],
+            output_path=zarr_path_mip,
+            metadata=metadata,
+            component=component,
+        )
+
+    # OME-NGFF JSON validation
+    image_zarr = Path(zarr_path_mip.parent / metadata["well"][0])
+    debug(image_zarr)
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
     validate_schema(path=str(image_zarr), type="image")
