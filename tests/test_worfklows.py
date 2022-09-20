@@ -23,6 +23,7 @@ from jsonschema import validate
 from fractal_tasks_core import __OME_NGFF_VERSION__
 from fractal_tasks_core.create_zarr_structure import create_zarr_structure
 from fractal_tasks_core.illumination_correction import illumination_correction
+from fractal_tasks_core.image_labeling import image_labeling
 from fractal_tasks_core.yokogawa_to_zarr import yokogawa_to_zarr
 
 
@@ -62,7 +63,7 @@ channel_parameters = {
     },
 }
 
-num_levels = 2
+num_levels = 5
 coarsening_xy = 2
 
 
@@ -172,3 +173,67 @@ def test_workflow_illumination_correction(
     validate_schema(path=str(image_zarr), type="image")
     validate_schema(path=str(well_zarr), type="well")
     validate_schema(path=str(plate_zarr), type="plate")
+
+
+def test_workflow_with_per_FOV_labeling(
+    tmp_path: Path,
+    dataset_10_5281_zenodo_7059515: Path,
+    caplog: pytest.LogCaptureFixture,
+):
+
+    # Setup caplog fixture, see
+    # https://docs.pytest.org/en/stable/how-to/logging.html#caplog-fixture
+    caplog.set_level(logging.INFO)
+
+    # Init
+    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    zarr_path = tmp_path / "tmp_out/*.zarr"
+    metadata = {}
+
+    # Create zarr structure
+    metadata_update = create_zarr_structure(
+        input_paths=[img_path],
+        output_path=zarr_path,
+        channel_parameters=channel_parameters,
+        num_levels=num_levels,
+        coarsening_xy=coarsening_xy,
+        metadata_table="mrf_mlf",
+    )
+    metadata.update(metadata_update)
+    print(caplog.text)
+    caplog.clear()
+
+    # Yokogawa to zarr
+    for component in metadata["well"]:
+        yokogawa_to_zarr(
+            input_paths=[zarr_path],
+            output_path=zarr_path,
+            metadata=metadata,
+            component=component,
+        )
+    print(caplog.text)
+    caplog.clear()
+
+    # Per-FOV labeling
+    for component in metadata["well"]:
+        image_labeling(
+            input_paths=[zarr_path],
+            output_path=zarr_path,
+            metadata=metadata,
+            component=component,
+            labeling_channel="A01_C01",
+            labeling_level=4,
+            num_threads=1,
+            relabeling=True,
+            diameter_level0=80.0,
+        )
+
+    # OME-NGFF JSON validation
+    image_zarr = Path(zarr_path.parent / metadata["well"][0])
+    label_zarr = image_zarr / "labels/label_DAPI"
+    well_zarr = image_zarr.parent
+    plate_zarr = image_zarr.parents[2]
+    validate_schema(path=str(image_zarr), type="image")
+    validate_schema(path=str(well_zarr), type="well")
+    validate_schema(path=str(plate_zarr), type="plate")
+    validate_schema(path=str(label_zarr), type="label")
