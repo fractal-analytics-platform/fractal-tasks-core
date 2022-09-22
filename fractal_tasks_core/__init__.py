@@ -11,7 +11,6 @@ __FRACTAL_MANIFEST__ = [
         "default_args": {
             "message": "dummy default",
             "index": 0,
-            "executor": "cpu",
         },
     },
     {
@@ -21,7 +20,6 @@ __FRACTAL_MANIFEST__ = [
         "input_type": "image",
         "output_type": "zarr",
         "default_args": {
-            "executor": "cpu",
             "num_levels": 2,
             "coarsening_xy": 2,
             "metadata_table": "mrf_mlf",
@@ -34,7 +32,7 @@ __FRACTAL_MANIFEST__ = [
         "input_type": "zarr",
         "output_type": "zarr",
         "module": f"{__name__}.yokogawa_to_zarr:yokogawa_to_zarr",
-        "default_args": {"executor": "cpu", "parallelization_level": "well"},
+        "default_args": {"parallelization_level": "well"},
     },
     {
         "name": "Replicate Zarr structure",
@@ -43,7 +41,6 @@ __FRACTAL_MANIFEST__ = [
         "output_type": "zarr",
         "module": f"{__name__}.replicate_zarr_structure:replicate_zarr_structure",  # noqa: E501
         "default_args": {
-            "executor": "cpu",
             "project_to_2D": True,
             "suffix": "mip",
         },
@@ -54,7 +51,7 @@ __FRACTAL_MANIFEST__ = [
         "input_type": "zarr",
         "output_type": "zarr",
         "module": f"{__name__}.maximum_intensity_projection:maximum_intensity_projection",  # noqa: E501
-        "default_args": {"executor": "cpu", "parallelization_level": "well"},
+        "default_args": {"parallelization_level": "well"},
     },
     {
         "name": "Per-FOV image labeling",
@@ -64,7 +61,6 @@ __FRACTAL_MANIFEST__ = [
         "module": f"{__name__}.image_labeling:image_labeling",
         "default_args": {
             "labeling_channel": "A01_C01",
-            "executor": "cpu",  # FIXME: put gpu
             "parallelization_level": "well",
         },
     },
@@ -76,7 +72,6 @@ __FRACTAL_MANIFEST__ = [
         "module": f"{__name__}.image_labeling_whole_well:image_labeling_whole_well",  # noqa: E501
         "default_args": {
             "labeling_channel": "A01_C01",
-            "executor": "cpu",  # FIXME: put gpu
             "parallelization_level": "well",
         },
     },
@@ -90,7 +85,6 @@ __FRACTAL_MANIFEST__ = [
             "labeling_channel": "A01_C01",
             "level": 0,
             "table_name": "nuclei",
-            "executor": "cpu",
             "parallelization_level": "well",
         },
     },
@@ -104,7 +98,6 @@ __FRACTAL_MANIFEST__ = [
             "overwrite": False,
             "dict_corr": None,
             "background": 100,
-            "executor": "cpu",
             "parallelization_level": "well",
         },
     },
