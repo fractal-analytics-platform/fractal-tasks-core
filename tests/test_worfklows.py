@@ -287,7 +287,6 @@ def test_workflow_with_per_FOV_labeling(
             component=component,
             labeling_channel="A01_C01",
             labeling_level=4,
-            num_threads=1,
             relabeling=True,
             diameter_level0=80.0,
         )

@@ -14,7 +14,6 @@ Zurich.
 import json
 import shutil
 import time
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 from typing import Dict
@@ -105,7 +104,6 @@ def image_labeling(
     component: str = None,
     labeling_channel: str = None,
     labeling_level: int = 1,
-    num_threads: int = 1,
     relabeling: bool = True,
     anisotropy: float = None,
     diameter_level0: float = 80.0,
@@ -257,7 +255,6 @@ def image_labeling(
         out.write(f"labeling_level: {labeling_level}\n")
         out.write(f"model_type: {model_type}\n")
         out.write(f"anisotropy: {anisotropy}\n")
-        out.write(f"num_threads: {num_threads}\n")
         out.write("Total well shape/chunks:\n")
         out.write(f"{data_zyx.shape}\n")
         out.write(f"{data_zyx.chunks}\n\n")
@@ -324,17 +321,16 @@ def image_labeling(
     if relabeling:
 
         # Execute all, and write level-0 mask to disk
-        with dask.config.set(pool=ThreadPoolExecutor(num_threads)):
-            write_pyramid(
-                mask,
-                newzarrurl=f"{zarrurl}labels/{label_name}/",
-                overwrite=False,
-                coarsening_xy=coarsening_xy,
-                num_levels=1,
-                chunk_size_x=img_size_x,
-                chunk_size_y=img_size_y,
-                aggregation_function=np.max,
-            )
+        write_pyramid(
+            mask,
+            newzarrurl=f"{zarrurl}labels/{label_name}/",
+            overwrite=False,
+            coarsening_xy=coarsening_xy,
+            num_levels=1,
+            chunk_size_x=img_size_x,
+            chunk_size_y=img_size_y,
+            aggregation_function=np.max,
+        )
 
         with open(logfile, "a") as out:
             out.write("\nStart relabeling\n")
@@ -402,17 +398,16 @@ def image_labeling(
     else:
 
         # Construct resolution pyramid
-        with dask.config.set(pool=ThreadPoolExecutor(num_threads)):
-            write_pyramid(
-                mask,
-                newzarrurl=f"{zarrurl}labels/{label_name}/",
-                overwrite=False,
-                coarsening_xy=coarsening_xy,
-                num_levels=num_levels,
-                chunk_size_x=img_size_x,
-                chunk_size_y=img_size_y,
-                aggregation_function=np.max,
-            )
+        write_pyramid(
+            mask,
+            newzarrurl=f"{zarrurl}labels/{label_name}/",
+            overwrite=False,
+            coarsening_xy=coarsening_xy,
+            num_levels=num_levels,
+            chunk_size_x=img_size_x,
+            chunk_size_y=img_size_y,
+            aggregation_function=np.max,
+        )
 
         with open(logfile, "a") as out:
             out.write("\nSkip relabeling\n")
@@ -446,12 +441,6 @@ if __name__ == "__main__":
         help="name of channel for labeling (e.g. A01_C01)",
     )
     parser.add_argument(
-        "--num_threads",
-        default=1,
-        type=int,
-        help="TBD",
-    )
-    parser.add_argument(
         "-ll",
         "--labeling_level",
         default=0,
@@ -465,6 +454,5 @@ if __name__ == "__main__":
         coarsening_xy=args.coarsening_xy,
         chl_list=args.chl_list,
         labeling_channel=args.labeling_channel,
-        num_threads=args.num_threads,
         labeling_level=args.labeling_level,
     )
