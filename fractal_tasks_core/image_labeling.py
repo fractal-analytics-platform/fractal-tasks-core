@@ -14,6 +14,7 @@ Zurich.
 import json
 import shutil
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 from typing import Dict
@@ -321,16 +322,17 @@ def image_labeling(
     if relabeling:
 
         # Execute all, and write level-0 mask to disk
-        write_pyramid(
-            mask,
-            newzarrurl=f"{zarrurl}labels/{label_name}/",
-            overwrite=False,
-            coarsening_xy=coarsening_xy,
-            num_levels=1,
-            chunk_size_x=img_size_x,
-            chunk_size_y=img_size_y,
-            aggregation_function=np.max,
-        )
+        with dask.config.set(pool=ThreadPoolExecutor(1)):
+            write_pyramid(
+                mask,
+                newzarrurl=f"{zarrurl}labels/{label_name}/",
+                overwrite=False,
+                coarsening_xy=coarsening_xy,
+                num_levels=1,
+                chunk_size_x=img_size_x,
+                chunk_size_y=img_size_y,
+                aggregation_function=np.max,
+            )
 
         with open(logfile, "a") as out:
             out.write("\nStart relabeling\n")
@@ -380,16 +382,17 @@ def image_labeling(
         # FIXME: this is ugly
         shutil.rmtree(zarrurl + f"labels/{label_name}/{0}")
 
-        write_pyramid(
-            newmask,
-            newzarrurl=f"{zarrurl}labels/{label_name}/",
-            overwrite=False,
-            coarsening_xy=coarsening_xy,
-            num_levels=num_levels,
-            chunk_size_x=img_size_x,
-            chunk_size_y=img_size_y,
-            aggregation_function=np.max,
-        )
+        with dask.config.set(pool=ThreadPoolExecutor(1)):
+            write_pyramid(
+                newmask,
+                newzarrurl=f"{zarrurl}labels/{label_name}/",
+                overwrite=False,
+                coarsening_xy=coarsening_xy,
+                num_levels=num_levels,
+                chunk_size_x=img_size_x,
+                chunk_size_y=img_size_y,
+                aggregation_function=np.max,
+            )
 
         t1 = time.perf_counter()
         with open(logfile, "a") as out:
