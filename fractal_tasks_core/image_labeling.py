@@ -12,9 +12,7 @@ Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
 import json
-import shutil
 import time
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 from typing import Dict
@@ -22,7 +20,6 @@ from typing import Iterable
 from typing import Optional
 
 import anndata as ad
-import dask
 import dask.array as da
 import numpy as np
 import zarr
@@ -31,7 +28,7 @@ from cellpose import models
 from devtools import debug
 
 import fractal_tasks_core
-from .lib_pyramid_creation import write_pyramid
+from .lib_pyramid_creation import build_pyramid
 from .lib_regions_of_interest import convert_ROI_table_to_indices
 from .lib_zattrs_utils import extract_zyx_pixel_sizes
 from .lib_zattrs_utils import rescale_datasets
@@ -208,6 +205,8 @@ def image_labeling(
                     f"pixel_size_y={pixel_size_y}"
                 )
             anisotropy = pixel_size_z / pixel_size_x
+    if not do_3D:
+        raise NotImplementedError("2D behavior has not been verified")
 
     # Check model_type
     if model_type not in ["nuclei", "cyto2", "cyto"]:
@@ -260,23 +259,40 @@ def image_labeling(
         out.write(f"{data_zyx.shape}\n")
         out.write(f"{data_zyx.chunks}\n\n")
 
-    # Prepare delayed function
-    delayed_segment_FOV = dask.delayed(segment_FOV)
-
-    # Prepare empty mask with correct chunks
-    mask = da.empty(
-        data_zyx.shape,
-        dtype=label_dtype,
-        chunks=(1, img_size_y, img_size_x),
+    # Open new zarr group for mask 0-th level
+    mask_zarr = zarr.create(
+        shape=data_zyx.shape,
+        chunks=data_zyx.chunksize,
+        dtype=data_zyx.dtype,
+        store=da.core.get_mapper(f"{zarrurl}labels/{label_name}/0"),
+        overwrite=False,
+        dimension_separator="/",
+        # FIXME write_empty_chunks=.. do we need this?
     )
 
-    # Map labeling function onto all FOV ROIs
+    # FIXME remove this log
+    with open(logfile, "a") as out:
+        out.write(
+            f"mask will have shape {data_zyx.shape} "
+            f"and chunks {data_zyx.chunks}\n\n"
+        )
+
+    # Counters for relabeling
+    if relabeling:
+        num_labels_tot = 0
+        num_labels_column = 0
+
+    # Iterate over FOV ROIs
     for indices in list_indices:
+        # Define region
         s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
-        shape = [e_z - s_z, e_y - s_y, e_x - s_x]
-        if min(shape) == 0:
-            raise Exception(f"ERROR: ROI indices lead to shape {shape}")
-        FOV_mask = delayed_segment_FOV(
+        region = (
+            slice(s_z, e_z),
+            slice(s_y, e_y),
+            slice(s_x, e_x),
+        )
+        # Execute illumination correction
+        fov_mask = segment_FOV(
             data_zyx[s_z:e_z, s_y:e_y, s_x:e_x],
             model=model,
             do_3D=do_3D,
@@ -287,15 +303,46 @@ def image_labeling(
             flow_threshold=flow_threshold,
             logfile=logfile,
         )
-        mask[s_z:e_z, s_y:e_y, s_x:e_x] = da.from_delayed(
-            FOV_mask, shape, label_dtype
+
+        # Shift labels and update relabeling counters
+        if relabeling:
+            num_labels_fov = np.max(fov_mask)
+            fov_mask += num_labels_tot
+            num_labels_tot += num_labels_fov
+
+            # Write some logs
+            with open(logfile, "a") as out:
+                out.write(
+                    f"FOV ROI {indices}, "
+                    f"num_labels_column={num_labels_column}, "
+                    f"num_labels_tot={num_labels_tot}\n"
+                )
+
+            # Check that total number of labels is under control
+            if num_labels_tot > np.iinfo(label_dtype).max:
+                raise Exception(
+                    "ERROR in re-labeling:\n"
+                    f"Reached {num_labels_tot} labels, "
+                    f"but dtype={label_dtype}"
+                )
+
+        # Compute and store 0-th level to disk
+        da.array(fov_mask).to_zarr(
+            url=mask_zarr,
+            region=region,
+            compute=True,
         )
 
-    with open(logfile, "a") as out:
-        out.write(
-            f"mask will have shape {mask.shape} "
-            f"and chunks {mask.chunks}\n\n"
-        )
+    # Starting from on-disk highest-resolution data, build and write to disk a
+    # pyramid of coarser levels
+    build_pyramid(
+        zarrurl=f"{zarrurl}labels/{label_name}",
+        overwrite=False,
+        num_levels=num_levels,
+        coarsening_xy=coarsening_xy,
+        chunksize=data_zyx.chunksize,
+        aggregation_function=np.max,
+    )
 
     # Rescale datasets (only relevant for labeling_level>0)
     new_datasets = rescale_datasets(
@@ -318,102 +365,6 @@ def image_labeling(
             "datasets": new_datasets,
         }
     ]
-
-    if relabeling:
-
-        # Execute all, and write level-0 mask to disk
-        with dask.config.set(pool=ThreadPoolExecutor(1)):
-            write_pyramid(
-                mask,
-                newzarrurl=f"{zarrurl}labels/{label_name}/",
-                overwrite=False,
-                coarsening_xy=coarsening_xy,
-                num_levels=1,
-                chunk_size_x=img_size_x,
-                chunk_size_y=img_size_y,
-                aggregation_function=np.max,
-            )
-
-        with open(logfile, "a") as out:
-            out.write("\nStart relabeling\n")
-        t0 = time.perf_counter()
-
-        # Load non-relabeled mask from disk
-        mask = da.from_zarr(zarrurl, component=f"labels/{label_name}/{0}")
-        newmask = da.empty(
-            shape=mask.shape,
-            chunks=mask.chunks,
-            dtype=label_dtype,
-        )
-
-        # Sequential relabeling
-        num_labels_tot = 0
-        num_labels_column = 0
-        for indices in list_indices:
-            s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
-            shape = [e_z - s_z, e_y - s_y, e_x - s_x]
-
-            # Extract a specific FOV (=column in 3D, =image in 2D)
-            column_mask = mask[s_z:e_z, s_y:e_y, s_x:e_x].compute()
-            num_labels_column = np.max(column_mask)
-
-            # Apply re-labeling and update total number of labels
-            shift = np.zeros_like(column_mask, dtype=label_dtype)
-            shift[column_mask > 0] = num_labels_tot
-            num_labels_tot += num_labels_column
-
-            with open(logfile, "a") as out:
-                out.write(
-                    f"FOV ROI {indices}, "
-                    f"num_labels_column={num_labels_column}, "
-                    f"num_labels_tot={num_labels_tot}\n"
-                )
-
-            # Check that total number of labels is under control
-            if num_labels_tot > np.iinfo(label_dtype).max:
-                raise Exception(
-                    "ERROR in re-labeling:\n"
-                    f"Reached {num_labels_tot} labels, "
-                    f"but dtype={label_dtype}"
-                )
-            # Re-assign the chunk to the new array
-            newmask[s_z:e_z, s_y:e_y, s_x:e_x] = column_mask + shift
-
-        # FIXME: this is ugly
-        shutil.rmtree(zarrurl + f"labels/{label_name}/{0}")
-
-        with dask.config.set(pool=ThreadPoolExecutor(1)):
-            write_pyramid(
-                newmask,
-                newzarrurl=f"{zarrurl}labels/{label_name}/",
-                overwrite=False,
-                coarsening_xy=coarsening_xy,
-                num_levels=num_levels,
-                chunk_size_x=img_size_x,
-                chunk_size_y=img_size_y,
-                aggregation_function=np.max,
-            )
-
-        t1 = time.perf_counter()
-        with open(logfile, "a") as out:
-            out.write(f"End relabeling, elapsed: {t1-t0} s\n")
-
-    else:
-
-        # Construct resolution pyramid
-        write_pyramid(
-            mask,
-            newzarrurl=f"{zarrurl}labels/{label_name}/",
-            overwrite=False,
-            coarsening_xy=coarsening_xy,
-            num_levels=num_levels,
-            chunk_size_x=img_size_x,
-            chunk_size_y=img_size_y,
-            aggregation_function=np.max,
-        )
-
-        with open(logfile, "a") as out:
-            out.write("\nSkip relabeling\n")
 
     return {}
 
