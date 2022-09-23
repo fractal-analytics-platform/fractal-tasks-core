@@ -150,6 +150,9 @@ def replicate_zarr_structure(
             FOV_ROI_table = ad.read_zarr(
                 f"{zarrurl_old}/{row}/{column}/0/tables/FOV_ROI_table"
             )
+            well_ROI_table = ad.read_zarr(
+                f"{zarrurl_old}/{row}/{column}/0/tables/well_ROI_table"
+            )
 
             # Convert 3D FOVs to 2D
             if project_to_2D:
@@ -165,6 +168,7 @@ def replicate_zarr_structure(
             # Create table group and write new table
             group_tables = group_FOV.create_group("tables/")
             write_elem(group_tables, "FOV_ROI_table", FOV_ROI_table)
+            write_elem(group_tables, "well_ROI_table", well_ROI_table)
 
     meta_update["well"] = [
         component.replace(".zarr", f"_{suffix}.zarr")
