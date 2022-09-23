@@ -205,8 +205,6 @@ def image_labeling(
                     f"pixel_size_y={pixel_size_y}"
                 )
             anisotropy = pixel_size_z / pixel_size_x
-    if not do_3D:
-        raise NotImplementedError("2D behavior has not been verified")
 
     # Check model_type
     if model_type not in ["nuclei", "cyto2", "cyto"]:
