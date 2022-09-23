@@ -75,6 +75,68 @@ def prepare_FOV_ROI_table(
     return adata
 
 
+def prepare_well_ROI_table(
+    df: pd.DataFrame, metadata: list = ["time"]
+) -> ad.AnnData:
+
+    # Convert DataFrame index to str, to avoid
+    # >> ImplicitModificationWarning: Transforming to str index
+    # when creating AnnData object.
+    # Do this in the beginning to allow concatenation with e.g. time
+    df.index = df.index.astype(str)
+
+    # Calculate bounding box extents in physical units
+    min_micrometers = {}
+    max_micrometers = {}
+    for mu in ["x", "y", "z"]:
+        # Reset reference values for coordinates
+        df[f"{mu}_micrometer"] -= df[f"{mu}_micrometer"].min()
+        # Obtain FOV box size in physical units
+        df[f"len_{mu}_micrometer"] = df[f"{mu}_pixel"] * df[f"pixel_size_{mu}"]
+        # Obtain well bounding box, in physical units
+        min_micrometers[mu] = df[f"{mu}_micrometer"].min()
+        max_micrometers[mu] = (
+            df[f"{mu}_micrometer"] + df[f"len_{mu}_micrometer"]
+        ).max()
+        df[f"len_{mu}_micrometer"] = max_micrometers[mu]
+
+    # Select only the numeric positional columns needed to define ROIs
+    # (to avoid) casting things like the data column to float32
+    # or to use unnecessary columns like bit_depth
+    positional_columns = [
+        "x_micrometer",
+        "y_micrometer",
+        "z_micrometer",
+        "len_x_micrometer",
+        "len_y_micrometer",
+        "len_z_micrometer",
+    ]
+
+    # Assign dtype explicitly, to avoid
+    # >> UserWarning: X converted to numpy array with dtype float64
+    # when creating AnnData object
+    df_roi = df.iloc[0:1, :].loc[:, positional_columns].astype(np.float32)
+
+    # Create an AnnData object directly from the DataFrame
+    adata = ad.AnnData(X=df_roi)
+
+    # Save any metadata that is specified to the obs df
+    for col in metadata:
+        if col in df:
+            # Cast all metadata to str.
+            # Reason: AnnData Zarr writers don't support all pandas types.
+            # e.g. pandas.core.arrays.datetimes.DatetimeArray can't be written
+            adata.obs[col] = df[col].astype(str)
+
+    # Rename rows and columns: Maintain FOV indices from the dataframe
+    # (they are already enforced to be unique by Pandas and may contain
+    # information for the user, as they are based on the filenames)
+    adata.obs_names = "well_" + adata.obs.index
+    adata.var_names = list(map(str, df_roi.columns))
+
+    return adata
+
+
 def convert_FOV_ROIs_3D_to_2D(
     adata: ad.AnnData = None, pixel_size_z: float = None
 ) -> ad.AnnData:
@@ -170,46 +232,3 @@ def _inspect_ROI_table(
     for indices in list_indices:
         print(indices)
     print()
-
-
-def get_ROIs_bounding_box(
-    adata,
-    pxl_size: Iterable,
-    x_start_label: str = "x_micrometer",
-    y_start_label: str = "y_micrometer",
-    z_start_label: str = "z_micrometer",
-    len_x_label: str = "len_x_micrometer",
-    len_y_label: str = "len_y_micrometer",
-    len_z_label: str = "len_z_micrometer",
-):
-
-    x_start = adata[:, x_start_label].X
-    y_start = adata[:, y_start_label].X
-    z_start = adata[:, z_start_label].X
-    len_x = adata[:, len_x_label].X
-    len_y = adata[:, len_y_label].X
-    len_z = adata[:, len_z_label].X
-
-    x_min_micrometer = min(x_start)
-    y_min_micrometer = min(y_start)
-    z_min_micrometer = min(z_start)
-
-    x_max_micrometer = max(x_start + len_x)
-    y_max_micrometer = max(y_start + len_y)
-    z_max_micrometer = max(z_start + len_z)
-
-    ind_x_min = x_min_micrometer / pxl_size[2]
-    ind_y_min = y_min_micrometer / pxl_size[1]
-    ind_z_min = z_min_micrometer / pxl_size[0]
-
-    ind_x_max = x_max_micrometer / pxl_size[2]
-    ind_y_max = y_max_micrometer / pxl_size[1]
-    ind_z_max = z_max_micrometer / pxl_size[0]
-
-    if max(ind_x_min, ind_y_min, ind_z_min) > 0:
-        raise Exception(
-            "We are assuming that ind_mu_min=0, but"
-            f"{ind_x_min=}, {ind_y_min=}, {ind_z_min=}"
-        )
-
-    return ind_x_max, ind_y_max, ind_z_max
