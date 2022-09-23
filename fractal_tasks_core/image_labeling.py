@@ -327,7 +327,7 @@ def image_labeling(
         # Shift labels and update relabeling counters
         if relabeling:
             num_labels_fov = np.max(fov_mask)
-            fov_mask += num_labels_tot
+            fov_mask[fov_mask > 0] += num_labels_tot
             num_labels_tot += num_labels_fov
 
             # Write some logs
