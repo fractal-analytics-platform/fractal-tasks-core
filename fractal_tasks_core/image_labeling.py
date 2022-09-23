@@ -79,6 +79,7 @@ def segment_FOV(
     t1 = time.perf_counter()
 
     # Write some debugging info
+    # FIXME: use logging
     with open(logfile, "a") as out:
         out.write(
             f"[segment_FOV] END   Cellpose |"
@@ -119,12 +120,16 @@ def image_labeling(
 
     """
 
-    # Preliminary check
+    # PRELIMINARY STEPS
+
+    # Set input path
     if len(input_paths) > 1:
         raise NotImplementedError
     in_path = input_paths[0]
+    zarrurl = (in_path.parent.resolve() / component).as_posix() + "/"
+    debug(zarrurl)
 
-    # Read some parameters from metadata
+    # Read useful parameters from metadata
     num_levels = metadata["num_levels"]
     coarsening_xy = metadata["coarsening_xy"]
     chl_list = metadata["channel_list"]
@@ -132,7 +137,7 @@ def image_labeling(
 
     # Find well ID
     well_ID = well.replace("/", "_")[:-1]
-    logfile = f"LOG_image_labeling_{well_ID}"
+    logfile = f"LOG_image_labeling_{well_ID}"  # FIXME
     debug(well_ID)
 
     # Find channel index
@@ -141,10 +146,6 @@ def image_labeling(
     ind_channel = chl_list.index(labeling_channel)
 
     # Set labels dtype
-    label_dtype = np.uint32
-
-    zarrurl = (in_path.parent.resolve() / component).as_posix() + "/"
-    debug(zarrurl)
 
     # Load ZYX data
     data_zyx = da.from_zarr(f"{zarrurl}{labeling_level}")[ind_channel]
@@ -155,7 +156,7 @@ def image_labeling(
 
     # Read pixel sizes from zattrs file
     full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
-        zarrurl + ".zattrs", level=0
+        f"{zarrurl}.zattrs", level=0
     )
 
     # Create list of indices for 3D FOVs spanning the entire Z direction
@@ -174,7 +175,6 @@ def image_labeling(
         level=0,
         full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
     )
-
     ref_img_size = None
     for indices in list_indices_level0:
         img_size = (indices[3] - indices[2], indices[5] - indices[4])
@@ -230,18 +230,58 @@ def image_labeling(
             "level are not currently supported"
         )
 
-    # Extract num_levels
-    num_levels = len(multiscales[0]["datasets"])
-
-    # Extract axes, and remove channel
-    new_axes = [ax for ax in multiscales[0]["axes"] if ax["type"] != "channel"]
-
-    # Try to read channel label from OMERO metadata
+    # Set channel label
     try:
         omero_label = zattrs["omero"]["channels"][ind_channel]["label"]
         label_name = f"label_{omero_label}"
     except (KeyError, IndexError):
         label_name = f"label_{ind_channel}"
+
+    # Rescale datasets (only relevant for labeling_level>0)
+    new_datasets = rescale_datasets(
+        datasets=multiscales[0]["datasets"],
+        coarsening_xy=coarsening_xy,
+        reference_level=labeling_level,
+    )
+
+    # Write zattrs for labels and for specific label
+    # FIXME deal with: (1) many channels, (2) overwriting
+    labels_group = zarr.group(f"{zarrurl}labels")
+    labels_group.attrs["labels"] = [label_name]
+    label_group = labels_group.create_group(label_name)
+    label_group.attrs["image-label"] = {"version": __OME_NGFF_VERSION__}
+    label_group.attrs["multiscales"] = [
+        {
+            "name": label_name,
+            "version": __OME_NGFF_VERSION__,
+            "axes": [
+                ax for ax in multiscales[0]["axes"] if ax["type"] != "channel"
+            ],
+            "datasets": new_datasets,
+        }
+    ]
+
+    # Open new zarr group for mask 0-th level
+    debug(f"{zarrurl}labels/{label_name}/0")
+    zarr.group(f"{zarrurl}/labels")
+    zarr.group(f"{zarrurl}/labels/{label_name}")
+    store = da.core.get_mapper(f"{zarrurl}labels/{label_name}/0")
+    label_dtype = np.uint32
+    mask_zarr = zarr.create(
+        shape=data_zyx.shape,
+        chunks=data_zyx.chunksize,
+        dtype=label_dtype,
+        store=store,
+        overwrite=False,
+        dimension_separator="/",
+        # FIXME write_empty_chunks=.. do we need this?
+    )
+
+    with open(logfile, "a") as out:
+        out.write(
+            f"mask will have shape {data_zyx.shape} "
+            f"and chunks {data_zyx.chunks}\n\n"
+        )
 
     # Initialize cellpose
     use_gpu = core.use_gpu()
@@ -258,24 +298,6 @@ def image_labeling(
         out.write("Total well shape/chunks:\n")
         out.write(f"{data_zyx.shape}\n")
         out.write(f"{data_zyx.chunks}\n\n")
-
-    # Open new zarr group for mask 0-th level
-    mask_zarr = zarr.create(
-        shape=data_zyx.shape,
-        chunks=data_zyx.chunksize,
-        dtype=data_zyx.dtype,
-        store=da.core.get_mapper(f"{zarrurl}labels/{label_name}/0"),
-        overwrite=False,
-        dimension_separator="/",
-        # FIXME write_empty_chunks=.. do we need this?
-    )
-
-    # FIXME remove this log
-    with open(logfile, "a") as out:
-        out.write(
-            f"mask will have shape {data_zyx.shape} "
-            f"and chunks {data_zyx.chunks}\n\n"
-        )
 
     # Counters for relabeling
     if relabeling:
@@ -343,28 +365,6 @@ def image_labeling(
         chunksize=data_zyx.chunksize,
         aggregation_function=np.max,
     )
-
-    # Rescale datasets (only relevant for labeling_level>0)
-    new_datasets = rescale_datasets(
-        datasets=multiscales[0]["datasets"],
-        coarsening_xy=coarsening_xy,
-        reference_level=labeling_level,
-    )
-
-    # Write zattrs for labels and for specific label
-    # FIXME deal with: (1) many channels, (2) overwriting
-    labels_group = zarr.group(f"{zarrurl}labels")
-    labels_group.attrs["labels"] = [label_name]
-    label_group = labels_group.create_group(label_name)
-    label_group.attrs["image-label"] = {"version": __OME_NGFF_VERSION__}
-    label_group.attrs["multiscales"] = [
-        {
-            "name": label_name,
-            "version": __OME_NGFF_VERSION__,
-            "axes": new_axes,
-            "datasets": new_datasets,
-        }
-    ]
 
     return {}
 
