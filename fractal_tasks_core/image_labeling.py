@@ -109,6 +109,7 @@ def image_labeling(
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
     model_type: str = "nuclei",
+    ROI_table_name: str = "FOV_ROI_table",
 ):
 
     """
@@ -119,8 +120,6 @@ def image_labeling(
       metadata: {...}
 
     """
-
-    # PRELIMINARY STEPS
 
     # Set input path
     if len(input_paths) > 1:
@@ -145,14 +144,12 @@ def image_labeling(
         raise Exception(f"ERROR: {labeling_channel} not in {chl_list}")
     ind_channel = chl_list.index(labeling_channel)
 
-    # Set labels dtype
-
     # Load ZYX data
     data_zyx = da.from_zarr(f"{zarrurl}{labeling_level}")[ind_channel]
     debug(data_zyx.shape)
 
-    # Read FOV ROIs
-    FOV_ROI_table = ad.read_zarr(f"{zarrurl}tables/FOV_ROI_table")
+    # Read ROI table
+    ROI_table = ad.read_zarr(f"{zarrurl}tables/{ROI_table_name}")
 
     # Read pixel sizes from zattrs file
     full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
@@ -161,7 +158,7 @@ def image_labeling(
 
     # Create list of indices for 3D FOVs spanning the entire Z direction
     list_indices = convert_ROI_table_to_indices(
-        FOV_ROI_table,
+        ROI_table,
         level=labeling_level,
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
@@ -170,21 +167,22 @@ def image_labeling(
     # Extract image size from FOV-ROI indices
     # Note: this works at level=0, where FOVs should all be of the exact same
     #       size (in pixels)
-    list_indices_level0 = convert_ROI_table_to_indices(
+    FOV_ROI_table = ad.read_zarr(f"{zarrurl}tables/FOV_ROI_table")
+    list_FOV_indices_level0 = convert_ROI_table_to_indices(
         FOV_ROI_table,
         level=0,
         full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
     )
     ref_img_size = None
-    for indices in list_indices_level0:
+    for indices in list_FOV_indices_level0:
         img_size = (indices[3] - indices[2], indices[5] - indices[4])
         if ref_img_size is None:
             ref_img_size = img_size
         else:
             if img_size != ref_img_size:
                 raise Exception(
-                    "ERROR: inconsistent image sizes in list_indices",
-                    list_indices,
+                    "ERROR: inconsistent image sizes in "
+                    f"{list_FOV_indices_level0=}"
                 )
     img_size_y, img_size_x = img_size[:]
 
@@ -302,7 +300,7 @@ def image_labeling(
         num_labels_tot = 0
         num_labels_column = 0
 
-    # Iterate over FOV ROIs
+    # Iterate over ROIs
     for indices in list_indices:
         # Define region
         s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
