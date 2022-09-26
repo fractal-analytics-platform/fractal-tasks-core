@@ -28,8 +28,11 @@ def prepare_FOV_ROI_table(
     # when creating AnnData object.
     # Do this in the beginning to allow concatenation with e.g. time
     df.index = df.index.astype(str)
+    from devtools import debug
 
+    debug(df)
     # Calculate bounding box extents in physical units
+
     for mu in ["x", "y", "z"]:
 
         # Reset reference values for coordinates
@@ -116,7 +119,7 @@ def convert_ROI_table_to_indices(
     pxl_size_y *= prefactor
 
     list_indices = []
-    for FOV in sorted(ROI.obs_names):
+    for FOV in ROI.obs_names:
 
         # Extract data from anndata table
         x_micrometer = ROI[FOV, "x_micrometer"].X[0, 0]
