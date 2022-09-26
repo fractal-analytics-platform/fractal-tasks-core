@@ -103,26 +103,23 @@ def measurement(
         img = img[0, :, :]
         label_img_up = label_img_up[0, :, :]
 
+    # Read pixel sizes from zattrs file
+    full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
+        f"{in_path}/{component}/.zattrs", level=0
+    )
+
     # Create list of indices
     if whole_well:
-        list_indices = [[0, img_shape[0], 0, img_shape[1], 0, img_shape[2]]]
+        ROI_table_name = "well_ROI_table"
     else:
-        # Read FOV ROIs
-        FOV_ROI_table = ad.read_zarr(
-            f"{in_path}/{component}/tables/FOV_ROI_table"
-        )
-
-        # Read pixel sizes from zattrs file
-        full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
-            f"{in_path}/{component}/.zattrs", level=0
-        )
-
-        list_indices = convert_ROI_table_to_indices(
-            FOV_ROI_table,
-            level=level,
-            coarsening_xy=coarsening_xy,
-            full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
-        )
+        ROI_table_name = "FOV_ROI_table"
+    ROI_table = ad.read_zarr(f"{in_path}/{component}/tables/{ROI_table_name}")
+    list_indices = convert_ROI_table_to_indices(
+        ROI_table,
+        level=level,
+        coarsening_xy=coarsening_xy,
+        full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
+    )
 
     # Check that the target group is not already there, or fail fast
     target_table_folder = f"{in_path}/{component}/tables/{table_name}"
