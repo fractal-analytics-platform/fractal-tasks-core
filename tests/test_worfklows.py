@@ -313,12 +313,21 @@ def test_workflow_with_per_FOV_labeling(
     validate_schema(path=str(label_zarr), type="label")
 
 
-@pytest.mark.skip()
 def test_workflow_with_per_FOV_labeling_2D(
     tmp_path: Path,
     dataset_10_5281_zenodo_7059515: Path,
     caplog: pytest.LogCaptureFixture,
+    monkeypatch: MonkeyPatch,
 ):
+
+    # Never look for a gpu
+    def patched_use_gpu(*args, **kwargs):
+        debug("WARNING: using patched_use_gpu")
+        return False
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.image_labeling.use_gpu", patched_use_gpu
+    )
 
     # Init
     img_path = dataset_10_5281_zenodo_7059515 / "*.png"
@@ -374,7 +383,7 @@ def test_workflow_with_per_FOV_labeling_2D(
             metadata=metadata,
             component=component,
             labeling_channel="A01_C01",
-            labeling_level=4,
+            labeling_level=5,
             relabeling=True,
             diameter_level0=80.0,
         )
@@ -389,12 +398,21 @@ def test_workflow_with_per_FOV_labeling_2D(
     validate_schema(path=str(plate_zarr), type="plate")
 
 
-@pytest.mark.skip()
 def test_workflow_with_per_well_labeling_2D(
     tmp_path: Path,
     dataset_10_5281_zenodo_7059515: Path,
     caplog: pytest.LogCaptureFixture,
+    monkeypatch: MonkeyPatch,
 ):
+
+    # Never look for a gpu
+    def patched_use_gpu(*args, **kwargs):
+        debug("WARNING: using patched_use_gpu")
+        return False
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.image_labeling.use_gpu", patched_use_gpu
+    )
 
     # Init
     img_path = dataset_10_5281_zenodo_7059515 / "*.png"
@@ -450,7 +468,7 @@ def test_workflow_with_per_well_labeling_2D(
             metadata=metadata,
             component=component,
             labeling_channel="A01_C01",
-            labeling_level=4,
+            labeling_level=5,
             ROI_table_name="well_ROI_table",
             relabeling=True,
             diameter_level0=80.0,
