@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import Any
 from typing import Dict
@@ -62,6 +63,8 @@ def dummy(
         message=message,
     )
 
+    if not os.path.isdir(output_path.parent):
+        os.makedirs(output_path.parent)
     if not output_path.as_posix().endswith(".json"):
         filename_out = f"{index}.json"
         out_fullpath = output_path / filename_out
