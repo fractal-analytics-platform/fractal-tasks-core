@@ -19,6 +19,7 @@ from pathlib import Path
 import pytest
 from devtools import debug
 from jsonschema import validate
+from pytest import MonkeyPatch
 
 from fractal_tasks_core import __OME_NGFF_VERSION__
 from fractal_tasks_core.create_zarr_structure import create_zarr_structure
@@ -69,7 +70,7 @@ channel_parameters = {
     },
 }
 
-num_levels = 5
+num_levels = 6
 coarsening_xy = 2
 
 
@@ -243,7 +244,17 @@ def test_workflow_with_per_FOV_labeling(
     tmp_path: Path,
     dataset_10_5281_zenodo_7059515: Path,
     caplog: pytest.LogCaptureFixture,
+    monkeypatch: MonkeyPatch,
 ):
+
+    # Never look for a gpu
+    def patched_use_gpu(*args, **kwargs):
+        debug("WARNING: using patched_use_gpu")
+        return False
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.image_labeling.use_gpu", patched_use_gpu
+    )
 
     # Setup caplog fixture, see
     # https://docs.pytest.org/en/stable/how-to/logging.html#caplog-fixture
@@ -286,7 +297,7 @@ def test_workflow_with_per_FOV_labeling(
             metadata=metadata,
             component=component,
             labeling_channel="A01_C01",
-            labeling_level=4,
+            labeling_level=5,
             relabeling=True,
             diameter_level0=80.0,
         )
@@ -302,6 +313,7 @@ def test_workflow_with_per_FOV_labeling(
     validate_schema(path=str(label_zarr), type="label")
 
 
+@pytest.mark.skip()
 def test_workflow_with_per_FOV_labeling_2D(
     tmp_path: Path,
     dataset_10_5281_zenodo_7059515: Path,
@@ -377,6 +389,7 @@ def test_workflow_with_per_FOV_labeling_2D(
     validate_schema(path=str(plate_zarr), type="plate")
 
 
+@pytest.mark.skip()
 def test_workflow_with_per_well_labeling_2D(
     tmp_path: Path,
     dataset_10_5281_zenodo_7059515: Path,
