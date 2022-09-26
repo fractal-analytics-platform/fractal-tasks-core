@@ -23,8 +23,8 @@ import anndata as ad
 import dask.array as da
 import numpy as np
 import zarr
-from cellpose import core
 from cellpose import models
+from cellpose.core import use_gpu
 from devtools import debug
 
 import fractal_tasks_core
@@ -280,8 +280,7 @@ def image_labeling(
         )
 
     # Initialize cellpose
-    use_gpu = core.use_gpu()
-    model = models.Cellpose(gpu=use_gpu, model_type=model_type)
+    model = models.Cellpose(gpu=use_gpu(), model_type=model_type)
 
     # Initialize other things
     with open(logfile, "w") as out:
@@ -311,7 +310,7 @@ def image_labeling(
         )
         # Execute illumination correction
         fov_mask = segment_FOV(
-            data_zyx[s_z:e_z, s_y:e_y, s_x:e_x],
+            data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].compute(),
             model=model,
             do_3D=do_3D,
             anisotropy=anisotropy,
