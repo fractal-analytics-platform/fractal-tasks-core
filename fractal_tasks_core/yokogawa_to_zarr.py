@@ -27,7 +27,6 @@ from dask.array.image import imread
 
 from .lib_pyramid_creation import build_pyramid
 from .lib_regions_of_interest import convert_ROI_table_to_indices
-from .lib_regions_of_interest import get_ROIs_bounding_box
 from .lib_zattrs_utils import extract_zyx_pixel_sizes
 
 
@@ -87,7 +86,18 @@ def yokogawa_to_zarr(
     fov_indices = convert_ROI_table_to_indices(
         adata, full_res_pxl_sizes_zyx=pxl_size
     )
-    max_x, max_y, max_z = get_ROIs_bounding_box(adata, pxl_size)
+    adata_well = read_zarr(f"{zarrurl}/tables/well_ROI_table")
+    well_indices = convert_ROI_table_to_indices(
+        adata_well, full_res_pxl_sizes_zyx=pxl_size
+    )
+    if len(well_indices) > 1:
+        raise Exception(f"Something wrong with {well_indices=}")
+
+    # FIXME: Put back the choice of columns by name? Not here..
+
+    max_z = well_indices[0][1]
+    max_y = well_indices[0][3]
+    max_x = well_indices[0][5]
 
     # Load a single image, to retrieve useful information
     sample = imread(glob(f"{in_path}/*_{well_ID}_*{ext}")[0])

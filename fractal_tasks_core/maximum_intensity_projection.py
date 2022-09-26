@@ -17,10 +17,13 @@ from typing import Dict
 from typing import Iterable
 from typing import Optional
 
+import anndata as ad
 import dask.array as da
 from devtools import debug
 
-from .lib_pyramid_creation import write_pyramid
+from .lib_pyramid_creation import build_pyramid
+from .lib_regions_of_interest import convert_ROI_table_to_indices
+from .lib_zattrs_utils import extract_zyx_pixel_sizes
 
 
 def maximum_intensity_projection(
@@ -57,13 +60,32 @@ def maximum_intensity_projection(
     debug(zarrurl_old)
     debug(zarrurl_new)
 
-    # Hard-coded values (by now) of chunk sizes to be passed to rechunk,
-    # both at level 0 (before coarsening) and at levels 1,2,.. (after
-    # repeated coarsening).
-    # Note that balance=True may override these values.
-    # FIXME should this be inferred from somewhere?
-    chunk_size_x = 2560
-    chunk_size_y = 2160
+    # This whole block finds (chunk_size_y,chunk_size_x)
+    FOV_ROI_table = ad.read_zarr(f"{zarrurl_old}/tables/FOV_ROI_table")
+    full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
+        f"{zarrurl_old}/.zattrs", level=0
+    )
+    # Create list of indices for 3D FOVs spanning the entire Z direction
+    list_indices = convert_ROI_table_to_indices(
+        FOV_ROI_table,
+        level=0,
+        coarsening_xy=coarsening_xy,
+        full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
+    )
+    # Extract image size from FOV-ROI indices. Note: this works at level=0,
+    # where FOVs should all be of the exact same size (in pixels)
+    ref_img_size = None
+    for indices in list_indices:
+        img_size = (indices[3] - indices[2], indices[5] - indices[4])
+        if ref_img_size is None:
+            ref_img_size = img_size
+        else:
+            if img_size != ref_img_size:
+                raise Exception(
+                    "ERROR: inconsistent image sizes in list_indices"
+                )
+    chunk_size_y, chunk_size_x = img_size[:]
+    chunksize = (1, 1, chunk_size_y, chunk_size_x)
 
     # Load 0-th level
     data_czyx = da.from_zarr(zarrurl_old + "/0")
@@ -76,15 +98,19 @@ def maximum_intensity_projection(
         accumulate_chl.append(mip_yx)
     accumulate_chl = da.stack(accumulate_chl, axis=0)
 
-    # Construct resolution pyramid
-    write_pyramid(
-        accumulate_chl,
-        newzarrurl=zarrurl_new,
+    # Write to disk (triggering execution)
+    if accumulate_chl.chunksize != chunksize:
+        raise Exception("ERROR\n{accumulate_chl.chunksize=}\n{chunksize=}")
+    accumulate_chl.to_zarr(f"{zarrurl_new}/0", overwrite=False)
+
+    # Starting from on-disk highest-resolution data, build and write to disk a
+    # pyramid of coarser levels
+    build_pyramid(
+        zarrurl=zarrurl_new,
         overwrite=False,
-        coarsening_xy=coarsening_xy,
         num_levels=num_levels,
-        chunk_size_x=chunk_size_x,
-        chunk_size_y=chunk_size_y,
+        coarsening_xy=coarsening_xy,
+        chunksize=chunksize,
     )
 
 

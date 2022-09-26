@@ -12,9 +12,7 @@ Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
 import json
-import shutil
 import time
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 from typing import Dict
@@ -22,16 +20,15 @@ from typing import Iterable
 from typing import Optional
 
 import anndata as ad
-import dask
 import dask.array as da
 import numpy as np
 import zarr
-from cellpose import core
 from cellpose import models
+from cellpose.core import use_gpu
 from devtools import debug
 
 import fractal_tasks_core
-from .lib_pyramid_creation import write_pyramid
+from .lib_pyramid_creation import build_pyramid
 from .lib_regions_of_interest import convert_ROI_table_to_indices
 from .lib_zattrs_utils import extract_zyx_pixel_sizes
 from .lib_zattrs_utils import rescale_datasets
@@ -82,6 +79,7 @@ def segment_FOV(
     t1 = time.perf_counter()
 
     # Write some debugging info
+    # FIXME: use logging
     with open(logfile, "a") as out:
         out.write(
             f"[segment_FOV] END   Cellpose |"
@@ -105,13 +103,13 @@ def image_labeling(
     component: str = None,
     labeling_channel: str = None,
     labeling_level: int = 1,
-    num_threads: int = 1,
     relabeling: bool = True,
     anisotropy: float = None,
     diameter_level0: float = 80.0,
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
     model_type: str = "nuclei",
+    ROI_table_name: str = "FOV_ROI_table",
 ):
 
     """
@@ -123,12 +121,14 @@ def image_labeling(
 
     """
 
-    # Preliminary check
+    # Set input path
     if len(input_paths) > 1:
         raise NotImplementedError
     in_path = input_paths[0]
+    zarrurl = (in_path.parent.resolve() / component).as_posix() + "/"
+    debug(zarrurl)
 
-    # Read some parameters from metadata
+    # Read useful parameters from metadata
     num_levels = metadata["num_levels"]
     coarsening_xy = metadata["coarsening_xy"]
     chl_list = metadata["channel_list"]
@@ -136,7 +136,7 @@ def image_labeling(
 
     # Find well ID
     well_ID = well.replace("/", "_")[:-1]
-    logfile = f"LOG_image_labeling_{well_ID}"
+    logfile = f"LOG_image_labeling_{well_ID}"  # FIXME
     debug(well_ID)
 
     # Find channel index
@@ -144,27 +144,21 @@ def image_labeling(
         raise Exception(f"ERROR: {labeling_channel} not in {chl_list}")
     ind_channel = chl_list.index(labeling_channel)
 
-    # Set labels dtype
-    label_dtype = np.uint32
-
-    zarrurl = (in_path.parent.resolve() / component).as_posix() + "/"
-    debug(zarrurl)
-
     # Load ZYX data
     data_zyx = da.from_zarr(f"{zarrurl}{labeling_level}")[ind_channel]
     debug(data_zyx.shape)
 
-    # Read FOV ROIs
-    FOV_ROI_table = ad.read_zarr(f"{zarrurl}tables/FOV_ROI_table")
+    # Read ROI table
+    ROI_table = ad.read_zarr(f"{zarrurl}tables/{ROI_table_name}")
 
     # Read pixel sizes from zattrs file
     full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
-        zarrurl + ".zattrs", level=0
+        f"{zarrurl}.zattrs", level=0
     )
 
     # Create list of indices for 3D FOVs spanning the entire Z direction
     list_indices = convert_ROI_table_to_indices(
-        FOV_ROI_table,
+        ROI_table,
         level=labeling_level,
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
@@ -173,22 +167,22 @@ def image_labeling(
     # Extract image size from FOV-ROI indices
     # Note: this works at level=0, where FOVs should all be of the exact same
     #       size (in pixels)
-    list_indices_level0 = convert_ROI_table_to_indices(
+    FOV_ROI_table = ad.read_zarr(f"{zarrurl}tables/FOV_ROI_table")
+    list_FOV_indices_level0 = convert_ROI_table_to_indices(
         FOV_ROI_table,
         level=0,
         full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
     )
-
     ref_img_size = None
-    for indices in list_indices_level0:
+    for indices in list_FOV_indices_level0:
         img_size = (indices[3] - indices[2], indices[5] - indices[4])
         if ref_img_size is None:
             ref_img_size = img_size
         else:
             if img_size != ref_img_size:
                 raise Exception(
-                    "ERROR: inconsistent image sizes in list_indices",
-                    list_indices,
+                    "ERROR: inconsistent image sizes in "
+                    f"{list_FOV_indices_level0=}"
                 )
     img_size_y, img_size_x = img_size[:]
 
@@ -232,72 +226,12 @@ def image_labeling(
             "level are not currently supported"
         )
 
-    # Extract num_levels
-    num_levels = len(multiscales[0]["datasets"])
-
-    # Extract axes, and remove channel
-    new_axes = [ax for ax in multiscales[0]["axes"] if ax["type"] != "channel"]
-
-    # Try to read channel label from OMERO metadata
+    # Set channel label
     try:
         omero_label = zattrs["omero"]["channels"][ind_channel]["label"]
         label_name = f"label_{omero_label}"
     except (KeyError, IndexError):
         label_name = f"label_{ind_channel}"
-
-    # Initialize cellpose
-    use_gpu = core.use_gpu()
-    model = models.Cellpose(gpu=use_gpu, model_type=model_type)
-
-    # Initialize other things
-    with open(logfile, "w") as out:
-        out.write(f"Start image_labeling task for {zarrurl}\n")
-        out.write(f"relabeling: {relabeling}\n")
-        out.write(f"do_3D: {do_3D}\n")
-        out.write(f"labeling_level: {labeling_level}\n")
-        out.write(f"model_type: {model_type}\n")
-        out.write(f"anisotropy: {anisotropy}\n")
-        out.write(f"num_threads: {num_threads}\n")
-        out.write("Total well shape/chunks:\n")
-        out.write(f"{data_zyx.shape}\n")
-        out.write(f"{data_zyx.chunks}\n\n")
-
-    # Prepare delayed function
-    delayed_segment_FOV = dask.delayed(segment_FOV)
-
-    # Prepare empty mask with correct chunks
-    mask = da.empty(
-        data_zyx.shape,
-        dtype=label_dtype,
-        chunks=(1, img_size_y, img_size_x),
-    )
-
-    # Map labeling function onto all FOV ROIs
-    for indices in list_indices:
-        s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
-        shape = [e_z - s_z, e_y - s_y, e_x - s_x]
-        if min(shape) == 0:
-            raise Exception(f"ERROR: ROI indices lead to shape {shape}")
-        FOV_mask = delayed_segment_FOV(
-            data_zyx[s_z:e_z, s_y:e_y, s_x:e_x],
-            model=model,
-            do_3D=do_3D,
-            anisotropy=anisotropy,
-            label_dtype=label_dtype,
-            diameter=diameter_level0 / coarsening_xy**labeling_level,
-            cellprob_threshold=cellprob_threshold,
-            flow_threshold=flow_threshold,
-            logfile=logfile,
-        )
-        mask[s_z:e_z, s_y:e_y, s_x:e_x] = da.from_delayed(
-            FOV_mask, shape, label_dtype
-        )
-
-    with open(logfile, "a") as out:
-        out.write(
-            f"mask will have shape {mask.shape} "
-            f"and chunks {mask.chunks}\n\n"
-        )
 
     # Rescale datasets (only relevant for labeling_level>0)
     new_datasets = rescale_datasets(
@@ -316,54 +250,84 @@ def image_labeling(
         {
             "name": label_name,
             "version": __OME_NGFF_VERSION__,
-            "axes": new_axes,
+            "axes": [
+                ax for ax in multiscales[0]["axes"] if ax["type"] != "channel"
+            ],
             "datasets": new_datasets,
         }
     ]
 
-    if relabeling:
+    # Open new zarr group for mask 0-th level
+    debug(f"{zarrurl}labels/{label_name}/0")
+    zarr.group(f"{zarrurl}/labels")
+    zarr.group(f"{zarrurl}/labels/{label_name}")
+    store = da.core.get_mapper(f"{zarrurl}labels/{label_name}/0")
+    label_dtype = np.uint32
+    mask_zarr = zarr.create(
+        shape=data_zyx.shape,
+        chunks=data_zyx.chunksize,
+        dtype=label_dtype,
+        store=store,
+        overwrite=False,
+        dimension_separator="/",
+        # FIXME write_empty_chunks=.. do we need this?
+    )
 
-        # Execute all, and write level-0 mask to disk
-        with dask.config.set(pool=ThreadPoolExecutor(num_threads)):
-            write_pyramid(
-                mask,
-                newzarrurl=f"{zarrurl}labels/{label_name}/",
-                overwrite=False,
-                coarsening_xy=coarsening_xy,
-                num_levels=1,
-                chunk_size_x=img_size_x,
-                chunk_size_y=img_size_y,
-                aggregation_function=np.max,
-            )
-
-        with open(logfile, "a") as out:
-            out.write("\nStart relabeling\n")
-        t0 = time.perf_counter()
-
-        # Load non-relabeled mask from disk
-        mask = da.from_zarr(zarrurl, component=f"labels/{label_name}/{0}")
-        newmask = da.empty(
-            shape=mask.shape,
-            chunks=mask.chunks,
-            dtype=label_dtype,
+    with open(logfile, "a") as out:
+        out.write(
+            f"mask will have shape {data_zyx.shape} "
+            f"and chunks {data_zyx.chunks}\n\n"
         )
 
-        # Sequential relabeling
+    # Initialize cellpose
+    model = models.Cellpose(gpu=use_gpu(), model_type=model_type)
+
+    # Initialize other things
+    with open(logfile, "w") as out:
+        out.write(f"Start image_labeling task for {zarrurl}\n")
+        out.write(f"relabeling: {relabeling}\n")
+        out.write(f"do_3D: {do_3D}\n")
+        out.write(f"labeling_level: {labeling_level}\n")
+        out.write(f"model_type: {model_type}\n")
+        out.write(f"anisotropy: {anisotropy}\n")
+        out.write("Total well shape/chunks:\n")
+        out.write(f"{data_zyx.shape}\n")
+        out.write(f"{data_zyx.chunks}\n\n")
+
+    # Counters for relabeling
+    if relabeling:
         num_labels_tot = 0
         num_labels_column = 0
-        for indices in list_indices:
-            s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
-            shape = [e_z - s_z, e_y - s_y, e_x - s_x]
 
-            # Extract a specific FOV (=column in 3D, =image in 2D)
-            column_mask = mask[s_z:e_z, s_y:e_y, s_x:e_x].compute()
-            num_labels_column = np.max(column_mask)
+    # Iterate over ROIs
+    for indices in list_indices:
+        # Define region
+        s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
+        region = (
+            slice(s_z, e_z),
+            slice(s_y, e_y),
+            slice(s_x, e_x),
+        )
+        # Execute illumination correction
+        fov_mask = segment_FOV(
+            data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].compute(),
+            model=model,
+            do_3D=do_3D,
+            anisotropy=anisotropy,
+            label_dtype=label_dtype,
+            diameter=diameter_level0 / coarsening_xy**labeling_level,
+            cellprob_threshold=cellprob_threshold,
+            flow_threshold=flow_threshold,
+            logfile=logfile,
+        )
 
-            # Apply re-labeling and update total number of labels
-            shift = np.zeros_like(column_mask, dtype=label_dtype)
-            shift[column_mask > 0] = num_labels_tot
-            num_labels_tot += num_labels_column
+        # Shift labels and update relabeling counters
+        if relabeling:
+            num_labels_fov = np.max(fov_mask)
+            fov_mask[fov_mask > 0] += num_labels_tot
+            num_labels_tot += num_labels_fov
 
+            # Write some logs
             with open(logfile, "a") as out:
                 out.write(
                     f"FOV ROI {indices}, "
@@ -378,44 +342,24 @@ def image_labeling(
                     f"Reached {num_labels_tot} labels, "
                     f"but dtype={label_dtype}"
                 )
-            # Re-assign the chunk to the new array
-            newmask[s_z:e_z, s_y:e_y, s_x:e_x] = column_mask + shift
 
-        # FIXME: this is ugly
-        shutil.rmtree(zarrurl + f"labels/{label_name}/{0}")
-
-        write_pyramid(
-            newmask,
-            newzarrurl=f"{zarrurl}labels/{label_name}/",
-            overwrite=False,
-            coarsening_xy=coarsening_xy,
-            num_levels=num_levels,
-            chunk_size_x=img_size_x,
-            chunk_size_y=img_size_y,
-            aggregation_function=np.max,
+        # Compute and store 0-th level to disk
+        da.array(fov_mask).to_zarr(
+            url=mask_zarr,
+            region=region,
+            compute=True,
         )
 
-        t1 = time.perf_counter()
-        with open(logfile, "a") as out:
-            out.write(f"End relabeling, elapsed: {t1-t0} s\n")
-
-    else:
-
-        # Construct resolution pyramid
-        with dask.config.set(pool=ThreadPoolExecutor(num_threads)):
-            write_pyramid(
-                mask,
-                newzarrurl=f"{zarrurl}labels/{label_name}/",
-                overwrite=False,
-                coarsening_xy=coarsening_xy,
-                num_levels=num_levels,
-                chunk_size_x=img_size_x,
-                chunk_size_y=img_size_y,
-                aggregation_function=np.max,
-            )
-
-        with open(logfile, "a") as out:
-            out.write("\nSkip relabeling\n")
+    # Starting from on-disk highest-resolution data, build and write to disk a
+    # pyramid of coarser levels
+    build_pyramid(
+        zarrurl=f"{zarrurl}labels/{label_name}",
+        overwrite=False,
+        num_levels=num_levels,
+        coarsening_xy=coarsening_xy,
+        chunksize=data_zyx.chunksize,
+        aggregation_function=np.max,
+    )
 
     return {}
 
@@ -446,12 +390,6 @@ if __name__ == "__main__":
         help="name of channel for labeling (e.g. A01_C01)",
     )
     parser.add_argument(
-        "--num_threads",
-        default=1,
-        type=int,
-        help="TBD",
-    )
-    parser.add_argument(
         "-ll",
         "--labeling_level",
         default=0,
@@ -465,6 +403,5 @@ if __name__ == "__main__":
         coarsening_xy=args.coarsening_xy,
         chl_list=args.chl_list,
         labeling_channel=args.labeling_channel,
-        num_threads=args.num_threads,
         labeling_level=args.labeling_level,
     )

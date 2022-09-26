@@ -57,7 +57,6 @@ def test_image_labeling(
         labeling_level=0,
         labeling_channel="A01_C01",
         chl_list=["A01_C01", "A02_C02"],
-        num_threads=2,
     )
 
     # Verify the total number of calls

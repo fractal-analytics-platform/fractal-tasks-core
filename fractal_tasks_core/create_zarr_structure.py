@@ -26,6 +26,7 @@ from anndata.experimental import write_elem
 import fractal_tasks_core
 from .lib_parse_filename_metadata import parse_metadata
 from .lib_regions_of_interest import prepare_FOV_ROI_table
+from .lib_regions_of_interest import prepare_well_ROI_table
 from .metadata_parsing import parse_yokogawa_metadata
 
 
@@ -382,12 +383,19 @@ def create_zarr_structure(
 
             # FIXME
             if has_mrf_mlf_metadata:
-                # Prepare and write anndata table of FOV ROIs
+                group_tables = group_FOV.create_group("tables/")  # noqa: F841
+
+                # Prepare FOV/well tables
                 FOV_ROIs_table = prepare_FOV_ROI_table(
                     site_metadata.loc[f"{row+column}"],
                 )
-                group_tables = group_FOV.create_group("tables/")  # noqa: F841
+                # Prepare and write anndata table of well ROIs
+                well_ROIs_table = prepare_well_ROI_table(
+                    site_metadata.loc[f"{row+column}"],
+                )
+                # Write tables
                 write_elem(group_tables, "FOV_ROI_table", FOV_ROIs_table)
+                write_elem(group_tables, "well_ROI_table", well_ROIs_table)
 
     metadata_update = dict(
         plate=zarrurls["plate"],

@@ -65,17 +65,6 @@ __FRACTAL_MANIFEST__ = [
         },
     },
     {
-        "name": "Whole-well image labeling",
-        "resource_type": "core task",
-        "input_type": "zarr",
-        "output_type": "zarr",
-        "module": f"{__name__}.image_labeling_whole_well:image_labeling_whole_well",  # noqa: E501
-        "default_args": {
-            "labeling_channel": "A01_C01",
-            "parallelization_level": "well",
-        },
-    },
-    {
         "name": "Measurement",
         "resource_type": "core task",
         "input_type": "zarr",
