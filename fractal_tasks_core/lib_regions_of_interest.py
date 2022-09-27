@@ -28,16 +28,11 @@ def prepare_FOV_ROI_table(
     # when creating AnnData object.
     # Do this in the beginning to allow concatenation with e.g. time
     df.index = df.index.astype(str)
-    from devtools import debug
 
-    debug(df)
     # Calculate bounding box extents in physical units
-
     for mu in ["x", "y", "z"]:
-
         # Reset reference values for coordinates
         df[f"{mu}_micrometer"] -= df[f"{mu}_micrometer"].min()
-
         # Obtain box size in physical units
         df[f"len_{mu}_micrometer"] = df[f"{mu}_pixel"] * df[f"pixel_size_{mu}"]
 
@@ -172,6 +167,16 @@ def convert_ROI_table_to_indices(
     level: int = 0,
     coarsening_xy: int = 2,
     full_res_pxl_sizes_zyx: Iterable[float] = None,
+    cols_xyz_pos: Iterable[str] = [
+        "x_micrometer",
+        "y_micrometer",
+        "z_micrometer",
+    ],
+    cols_xyz_len: Iterable[str] = [
+        "len_x_micrometer",
+        "len_y_micrometer",
+        "len_z_micrometer",
+    ],
 ) -> List[List[int]]:
 
     # Set pyramid-level pixel sizes
@@ -180,16 +185,19 @@ def convert_ROI_table_to_indices(
     pxl_size_x *= prefactor
     pxl_size_y *= prefactor
 
+    x_pos, y_pos, z_pos = cols_xyz_pos[:]
+    x_len, y_len, z_len = cols_xyz_len[:]
+
     list_indices = []
     for FOV in ROI.obs_names:
 
         # Extract data from anndata table
-        x_micrometer = ROI[FOV, "x_micrometer"].X[0, 0]
-        y_micrometer = ROI[FOV, "y_micrometer"].X[0, 0]
-        z_micrometer = ROI[FOV, "z_micrometer"].X[0, 0]
-        len_x_micrometer = ROI[FOV, "len_x_micrometer"].X[0, 0]
-        len_y_micrometer = ROI[FOV, "len_y_micrometer"].X[0, 0]
-        len_z_micrometer = ROI[FOV, "len_z_micrometer"].X[0, 0]
+        x_micrometer = ROI[FOV, x_pos].X[0, 0]
+        y_micrometer = ROI[FOV, y_pos].X[0, 0]
+        z_micrometer = ROI[FOV, z_pos].X[0, 0]
+        len_x_micrometer = ROI[FOV, x_len].X[0, 0]
+        len_y_micrometer = ROI[FOV, y_len].X[0, 0]
+        len_z_micrometer = ROI[FOV, z_len].X[0, 0]
 
         # Identify indices along the three dimensions
         start_x = x_micrometer / pxl_size_x
