@@ -27,8 +27,8 @@ def measurement(
     labeling_channel: str = None,
     level: int = 0,
     workflow_file: str = None,
-    table_name: str = None,
-    whole_well: str = False,
+    ROI_table_name: str = "FOV_ROI_table",
+    measurement_table_name: str = "measurement",
 ):
 
     # Pre-processing of task inputs
@@ -103,29 +103,24 @@ def measurement(
         img = img[0, :, :]
         label_img_up = label_img_up[0, :, :]
 
+    # Read pixel sizes from zattrs file
+    full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
+        f"{in_path}/{component}/.zattrs", level=0
+    )
+
     # Create list of indices
-    if whole_well:
-        list_indices = [[0, img_shape[0], 0, img_shape[1], 0, img_shape[2]]]
-    else:
-        # Read FOV ROIs
-        FOV_ROI_table = ad.read_zarr(
-            f"{in_path}/{component}/tables/FOV_ROI_table"
-        )
-
-        # Read pixel sizes from zattrs file
-        full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
-            f"{in_path}/{component}/.zattrs", level=0
-        )
-
-        list_indices = convert_ROI_table_to_indices(
-            FOV_ROI_table,
-            level=level,
-            coarsening_xy=coarsening_xy,
-            full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
-        )
+    ROI_table = ad.read_zarr(f"{in_path}/{component}/tables/{ROI_table_name}")
+    list_indices = convert_ROI_table_to_indices(
+        ROI_table,
+        level=level,
+        coarsening_xy=coarsening_xy,
+        full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
+    )
 
     # Check that the target group is not already there, or fail fast
-    target_table_folder = f"{in_path}/{component}/tables/{table_name}"
+    target_table_folder = (
+        f"{in_path}/{component}/tables/{measurement_table_name}"
+    )
     if os.path.isdir(target_table_folder):
         raise Exception(f"ERROR: {target_table_folder} already exists.")
 
@@ -181,7 +176,7 @@ def measurement(
 
     # Write to zarr group
     group_tables = zarr.group(f"{in_path}/{component}/tables/")
-    write_elem(group_tables, table_name, measurement_table)
+    write_elem(group_tables, measurement_table_name, measurement_table)
 
 
 if __name__ == "__main__":

@@ -39,7 +39,6 @@ __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
 def segment_FOV(
     column,
-    block_info=None,
     model=None,
     do_3D=True,
     anisotropy=None,

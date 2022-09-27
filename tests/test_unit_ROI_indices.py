@@ -2,8 +2,12 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from fractal_tasks_core.lib_regions_of_interest import convert_FOV_ROIs_3D_to_2D
-from fractal_tasks_core.lib_regions_of_interest import convert_ROI_table_to_indices
+from fractal_tasks_core.lib_regions_of_interest import (
+    convert_ROI_table_to_indices,
+)  # noqa
+from fractal_tasks_core.lib_regions_of_interest import (
+    convert_ROIs_from_3D_to_2D,
+)  # noqa
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 
 
@@ -157,7 +161,7 @@ def test_ROI_indices_2D(level, coarsening_xy, full_res_pxl_sizes_zyx):
 
     metadata_dataframe = get_metadata_dataframe()
     adata = prepare_FOV_ROI_table(metadata_dataframe)
-    adata = convert_FOV_ROIs_3D_to_2D(adata, PIXEL_SIZE_Z)
+    adata = convert_ROIs_from_3D_to_2D(adata, PIXEL_SIZE_Z)
 
     list_indices = convert_ROI_table_to_indices(
         adata,
