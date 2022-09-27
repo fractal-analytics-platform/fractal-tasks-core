@@ -140,12 +140,12 @@ def prepare_well_ROI_table(
     return adata
 
 
-def convert_FOV_ROIs_3D_to_2D(
+def convert_ROIs_from_3D_to_2D(
     adata: ad.AnnData = None, pixel_size_z: float = None
 ) -> ad.AnnData:
 
     if pixel_size_z is None:
-        raise Exception("Missing pixel_size_z in convert_FOV_ROIs_3D_to_2D")
+        raise Exception("Missing pixel_size_z in convert_ROIs_from_3D_to_2D")
 
     # Compress a 3D stack of images to a single Z plane,
     # with thickness equal to pixel_size_z
@@ -161,7 +161,7 @@ def convert_FOV_ROIs_3D_to_2D(
     new_adata = ad.AnnData(X=df)
 
     # Rename rows and columns
-    adata.obs_names = "FOV_" + new_adata.obs.index
+    new_adata.obs_names = adata.obs_names
     new_adata.var_names = list(map(str, df.columns))
 
     return new_adata

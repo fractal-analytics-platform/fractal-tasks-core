@@ -25,7 +25,7 @@ from anndata.experimental import write_elem
 from devtools import debug
 
 import fractal_tasks_core
-from .lib_regions_of_interest import convert_FOV_ROIs_3D_to_2D
+from .lib_regions_of_interest import convert_ROIs_from_3D_to_2D
 from .lib_zattrs_utils import extract_zyx_pixel_sizes
 
 
@@ -161,8 +161,11 @@ def replicate_zarr_structure(
                     path_FOV_zattrs, level=0
                 )
                 pxl_size_z = pxl_sizes_zyx[0]
-                FOV_ROI_table = convert_FOV_ROIs_3D_to_2D(
+                FOV_ROI_table = convert_ROIs_from_3D_to_2D(
                     FOV_ROI_table, pxl_size_z
+                )
+                well_ROI_table = convert_ROIs_from_3D_to_2D(
+                    well_ROI_table, pxl_size_z
                 )
 
             # Create table group and write new table

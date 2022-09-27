@@ -16,6 +16,8 @@ import logging
 import urllib
 from pathlib import Path
 
+import anndata as ad
+import numpy as np
 import pytest
 from devtools import debug
 from jsonschema import validate
@@ -28,6 +30,7 @@ from fractal_tasks_core.image_labeling import image_labeling
 from fractal_tasks_core.maximum_intensity_projection import (
     maximum_intensity_projection,
 )  # noqa
+from fractal_tasks_core.measurement import measurement
 from fractal_tasks_core.replicate_zarr_structure import (
     replicate_zarr_structure,
 )  # noqa
@@ -240,8 +243,24 @@ def test_workflow_illumination_correction(
     validate_schema(path=str(plate_zarr), type="plate")
 
 
+def patched_segment_FOV(column, do_3D=True, label_dtype=None, **kwargs):
+
+    # Actual labeling
+    mask = np.zeros_like(column)
+    nz, ny, nx = mask.shape
+    if do_3D:
+        mask[:, 0 : ny // 4, 0 : nx // 4] = 1
+        mask[:, ny // 4 : ny // 2, 0 : nx // 2] = 2
+    else:
+        mask[:, 0 : ny // 4, 0 : nx // 4] = 1
+        mask[:, ny // 4 : ny // 2, 0 : nx // 2] = 2
+
+    return mask.astype(label_dtype)
+
+
 def test_workflow_with_per_FOV_labeling(
     tmp_path: Path,
+    testdata_path: Path,
     dataset_10_5281_zenodo_7059515: Path,
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
@@ -254,6 +273,10 @@ def test_workflow_with_per_FOV_labeling(
 
     monkeypatch.setattr(
         "fractal_tasks_core.image_labeling.use_gpu", patched_use_gpu
+    )
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.image_labeling.segment_FOV", patched_segment_FOV
     )
 
     # Setup caplog fixture, see
@@ -297,10 +320,34 @@ def test_workflow_with_per_FOV_labeling(
             metadata=metadata,
             component=component,
             labeling_channel="A01_C01",
-            labeling_level=5,
+            labeling_level=3,
             relabeling=True,
             diameter_level0=80.0,
         )
+
+    # Per-FOV measurement
+    for component in metadata["well"]:
+        measurement(
+            input_paths=[zarr_path],
+            output_path=zarr_path,
+            metadata=metadata,
+            component=component,
+            labeling_channel="A01_C01",
+            level=0,
+            workflow_file=str(
+                testdata_path / "napari_workflows/regionprops.yaml"
+            ),
+            ROI_table_name="FOV_ROI_table",
+            measurement_table_name="measurement",
+        )
+
+    # Load measurements
+    meas = ad.read_zarr(
+        zarr_path.parent / metadata["well"][0] / "tables/measurement/"
+    )
+    print(meas.var_names)
+    assert "area" in meas.var_names
+    assert "bbox_area" in meas.var_names
 
     # OME-NGFF JSON validation
     image_zarr = Path(zarr_path.parent / metadata["well"][0])
@@ -315,6 +362,7 @@ def test_workflow_with_per_FOV_labeling(
 
 def test_workflow_with_per_FOV_labeling_2D(
     tmp_path: Path,
+    testdata_path: Path,
     dataset_10_5281_zenodo_7059515: Path,
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
@@ -327,6 +375,11 @@ def test_workflow_with_per_FOV_labeling_2D(
 
     monkeypatch.setattr(
         "fractal_tasks_core.image_labeling.use_gpu", patched_use_gpu
+    )
+
+    # Do not use cellpose
+    monkeypatch.setattr(
+        "fractal_tasks_core.image_labeling.segment_FOV", patched_segment_FOV
     )
 
     # Init
@@ -383,10 +436,34 @@ def test_workflow_with_per_FOV_labeling_2D(
             metadata=metadata,
             component=component,
             labeling_channel="A01_C01",
-            labeling_level=5,
+            labeling_level=2,
             relabeling=True,
             diameter_level0=80.0,
         )
+
+    # Per-FOV measurement
+    for component in metadata["well"]:
+        measurement(
+            input_paths=[zarr_path_mip],
+            output_path=zarr_path_mip,
+            metadata=metadata,
+            component=component,
+            labeling_channel="A01_C01",
+            level=0,
+            workflow_file=str(
+                testdata_path / "napari_workflows/regionprops.yaml"
+            ),
+            ROI_table_name="FOV_ROI_table",
+            measurement_table_name="measurement",
+        )
+
+    # Load measurements
+    meas = ad.read_zarr(
+        zarr_path_mip.parent / metadata["well"][0] / "tables/measurement/"
+    )
+    print(meas.var_names)
+    assert "area" in meas.var_names
+    assert "bbox_area" in meas.var_names
 
     # OME-NGFF JSON validation
     image_zarr = Path(zarr_path_mip.parent / metadata["well"][0])
@@ -400,6 +477,7 @@ def test_workflow_with_per_FOV_labeling_2D(
 
 def test_workflow_with_per_well_labeling_2D(
     tmp_path: Path,
+    testdata_path: Path,
     dataset_10_5281_zenodo_7059515: Path,
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
@@ -412,6 +490,11 @@ def test_workflow_with_per_well_labeling_2D(
 
     monkeypatch.setattr(
         "fractal_tasks_core.image_labeling.use_gpu", patched_use_gpu
+    )
+
+    # Do not use cellpose
+    monkeypatch.setattr(
+        "fractal_tasks_core.image_labeling.segment_FOV", patched_segment_FOV
     )
 
     # Init
@@ -468,11 +551,35 @@ def test_workflow_with_per_well_labeling_2D(
             metadata=metadata,
             component=component,
             labeling_channel="A01_C01",
-            labeling_level=5,
+            labeling_level=2,
             ROI_table_name="well_ROI_table",
             relabeling=True,
             diameter_level0=80.0,
         )
+
+    # Per-FOV measurement
+    for component in metadata["well"]:
+        measurement(
+            input_paths=[zarr_path_mip],
+            output_path=zarr_path_mip,
+            metadata=metadata,
+            component=component,
+            labeling_channel="A01_C01",
+            level=0,
+            workflow_file=str(
+                testdata_path / "napari_workflows/regionprops.yaml"
+            ),
+            ROI_table_name="well_ROI_table",
+            measurement_table_name="measurement",
+        )
+
+    # Load measurements
+    meas = ad.read_zarr(
+        zarr_path_mip.parent / metadata["well"][0] / "tables/measurement/"
+    )
+    print(meas.var_names)
+    assert "area" in meas.var_names
+    assert "bbox_area" in meas.var_names
 
     # OME-NGFF JSON validation
     image_zarr = Path(zarr_path_mip.parent / metadata["well"][0])
