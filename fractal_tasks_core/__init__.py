@@ -73,7 +73,7 @@ __FRACTAL_MANIFEST__ = [
         "default_args": {
             "labeling_channel": "A01_C01",
             "level": 0,
-            "table_name": "nuclei",
+            "measurement_table_name": "nuclei",
             "parallelization_level": "well",
         },
     },
