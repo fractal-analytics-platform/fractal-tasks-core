@@ -18,6 +18,7 @@ import urllib
 from pathlib import Path
 
 import anndata as ad
+import dask.array as da
 import numpy as np
 import pytest
 from devtools import debug
@@ -53,19 +54,26 @@ def validate_schema(*, path: str, type: str):
     validate(instance=zattrs, schema=schema)
 
 
-def check_file_number(*, img_path: Path, zarr_path: Path):
+def check_file_number(*, zarr_path: Path):
     """
-    Example inputs:
-        img_path = Path("/SOME/PATH/*.png")
+    Example input:
         zarr_path = Path("/SOME/PATH/plate.zarr/row/col/fov/")
+
+    Relevant glob for zarr_path
+        zarr_path / 0 / c / z / y / x
+
     """
-    images = glob.glob(str(img_path))
-    chunkfiles = glob.glob(str(zarr_path / "0/*/*/*/*"))
-    num_chunkfiles = len(chunkfiles)
-    num_images = len(images)
-    debug(chunkfiles)
-    debug(images)
-    assert num_images == num_chunkfiles
+    chunkfiles_on_disk = glob.glob(str(zarr_path / "0/*/*/*/*"))
+    debug(chunkfiles_on_disk)
+    num_chunkfiles_on_disk = len(chunkfiles_on_disk)
+
+    zarr_chunks = da.from_zarr(str(zarr_path / "0/")).chunks
+    debug(zarr_chunks)
+    num_chunkfiles_from_zarr = 1
+    for c in zarr_chunks:
+        num_chunkfiles_from_zarr *= len(c)
+
+    assert num_chunkfiles_from_zarr == num_chunkfiles_on_disk
 
 
 channel_parameters = {
@@ -132,7 +140,7 @@ def test_workflow_yokogawa_to_zarr(
     validate_schema(path=str(well_zarr), type="well")
     validate_schema(path=str(plate_zarr), type="plate")
 
-    check_file_number(img_path=img_path, zarr_path=image_zarr)
+    check_file_number(zarr_path=image_zarr)
 
 
 def test_workflow_MIP(tmp_path: Path, dataset_10_5281_zenodo_7059515: Path):
@@ -191,8 +199,6 @@ def test_workflow_MIP(tmp_path: Path, dataset_10_5281_zenodo_7059515: Path):
     validate_schema(path=str(image_zarr), type="image")
     validate_schema(path=str(well_zarr), type="well")
     validate_schema(path=str(plate_zarr), type="plate")
-
-    check_file_number(img_path=img_path, zarr_path=image_zarr)
 
 
 def test_workflow_illumination_correction(
@@ -262,7 +268,7 @@ def test_workflow_illumination_correction(
     validate_schema(path=str(well_zarr), type="well")
     validate_schema(path=str(plate_zarr), type="plate")
 
-    check_file_number(img_path=img_path, zarr_path=image_zarr)
+    check_file_number(zarr_path=image_zarr)
 
 
 def patched_segment_FOV(column, do_3D=True, label_dtype=None, **kwargs):
@@ -381,7 +387,7 @@ def test_workflow_with_per_FOV_labeling(
     validate_schema(path=str(plate_zarr), type="plate")
     validate_schema(path=str(label_zarr), type="label")
 
-    check_file_number(img_path=img_path, zarr_path=image_zarr)
+    check_file_number(zarr_path=image_zarr)
 
 
 def test_workflow_with_per_FOV_labeling_2D(
@@ -498,7 +504,7 @@ def test_workflow_with_per_FOV_labeling_2D(
     validate_schema(path=str(well_zarr), type="well")
     validate_schema(path=str(plate_zarr), type="plate")
 
-    check_file_number(img_path=img_path, zarr_path=image_zarr)
+    check_file_number(zarr_path=image_zarr)
 
 
 def test_workflow_with_per_well_labeling_2D(
@@ -616,4 +622,4 @@ def test_workflow_with_per_well_labeling_2D(
     validate_schema(path=str(well_zarr), type="well")
     validate_schema(path=str(plate_zarr), type="plate")
 
-    check_file_number(img_path=img_path, zarr_path=image_zarr)
+    check_file_number(zarr_path=image_zarr)
