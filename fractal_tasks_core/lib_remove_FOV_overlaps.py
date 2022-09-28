@@ -51,6 +51,10 @@ def remove_FOV_overlaps(df):
     df["ymax"] = df["y_micrometer"] + df["pixel_size_y"] * df["y_pixel"]
     list_columns = ["xmin", "ymin", "xmax", "ymax"]
 
+    # Create columns with the original positions (not to be removed)
+    df["x_micrometer_original"] = df["x_micrometer"]
+    df["y_micrometer_original"] = df["y_micrometer"]
+
     # Check that tolerance is much smaller than pixel sizes
     min_pixel_size = df[["pixel_size_x", "pixel_size_y"]].min().min()
     if tol > min_pixel_size / 1e3:

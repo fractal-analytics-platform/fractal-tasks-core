@@ -31,8 +31,11 @@ def prepare_FOV_ROI_table(
 
     # Calculate bounding box extents in physical units
     for mu in ["x", "y", "z"]:
+
+        # FIXME: remove coordinate reset
         # Reset reference values for coordinates
         df[f"{mu}_micrometer"] -= df[f"{mu}_micrometer"].min()
+
         # Obtain box size in physical units
         df[f"len_{mu}_micrometer"] = df[f"{mu}_pixel"] * df[f"pixel_size_{mu}"]
 
@@ -46,6 +49,8 @@ def prepare_FOV_ROI_table(
         "len_x_micrometer",
         "len_y_micrometer",
         "len_z_micrometer",
+        "x_micrometer_original",
+        "y_micrometer_original",
     ]
 
     # Assign dtype explicitly, to avoid
