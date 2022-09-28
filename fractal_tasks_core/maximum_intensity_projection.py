@@ -101,7 +101,9 @@ def maximum_intensity_projection(
     # Write to disk (triggering execution)
     if accumulate_chl.chunksize != chunksize:
         raise Exception("ERROR\n{accumulate_chl.chunksize=}\n{chunksize=}")
-    accumulate_chl.to_zarr(f"{zarrurl_new}/0", overwrite=False)
+    accumulate_chl.to_zarr(
+        f"{zarrurl_new}/0", overwrite=False, dimension_separator="/"
+    )
 
     # Starting from on-disk highest-resolution data, build and write to disk a
     # pyramid of coarser levels

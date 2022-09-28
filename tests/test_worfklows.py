@@ -11,12 +11,14 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
+import glob
 import json
 import logging
 import urllib
 from pathlib import Path
 
 import anndata as ad
+import dask.array as da
 import numpy as np
 import pytest
 from devtools import debug
@@ -50,6 +52,28 @@ def validate_schema(*, path: str, type: str):
     with open(f"{path}/.zattrs", "r") as fin:
         zattrs = json.load(fin)
     validate(instance=zattrs, schema=schema)
+
+
+def check_file_number(*, zarr_path: Path):
+    """
+    Example input:
+        zarr_path = Path("/SOME/PATH/plate.zarr/row/col/fov/")
+
+    Relevant glob for zarr_path
+        zarr_path / 0 / c / z / y / x
+
+    """
+    chunkfiles_on_disk = glob.glob(str(zarr_path / "0/*/*/*/*"))
+    debug(chunkfiles_on_disk)
+    num_chunkfiles_on_disk = len(chunkfiles_on_disk)
+
+    zarr_chunks = da.from_zarr(str(zarr_path / "0/")).chunks
+    debug(zarr_chunks)
+    num_chunkfiles_from_zarr = 1
+    for c in zarr_chunks:
+        num_chunkfiles_from_zarr *= len(c)
+
+    assert num_chunkfiles_from_zarr == num_chunkfiles_on_disk
 
 
 channel_parameters = {
@@ -115,6 +139,8 @@ def test_workflow_yokogawa_to_zarr(
     validate_schema(path=str(image_zarr), type="image")
     validate_schema(path=str(well_zarr), type="well")
     validate_schema(path=str(plate_zarr), type="plate")
+
+    check_file_number(zarr_path=image_zarr)
 
 
 def test_workflow_MIP(tmp_path: Path, dataset_10_5281_zenodo_7059515: Path):
@@ -242,6 +268,8 @@ def test_workflow_illumination_correction(
     validate_schema(path=str(well_zarr), type="well")
     validate_schema(path=str(plate_zarr), type="plate")
 
+    check_file_number(zarr_path=image_zarr)
+
 
 def patched_segment_FOV(column, do_3D=True, label_dtype=None, **kwargs):
 
@@ -249,11 +277,11 @@ def patched_segment_FOV(column, do_3D=True, label_dtype=None, **kwargs):
     mask = np.zeros_like(column)
     nz, ny, nx = mask.shape
     if do_3D:
-        mask[:, 0 : ny // 4, 0 : nx // 4] = 1
-        mask[:, ny // 4 : ny // 2, 0 : nx // 2] = 2
+        mask[:, 0 : ny // 4, 0 : nx // 4] = 1  # noqa
+        mask[:, ny // 4 : ny // 2, 0 : nx // 2] = 2  # noqa
     else:
-        mask[:, 0 : ny // 4, 0 : nx // 4] = 1
-        mask[:, ny // 4 : ny // 2, 0 : nx // 2] = 2
+        mask[:, 0 : ny // 4, 0 : nx // 4] = 1  # noqa
+        mask[:, ny // 4 : ny // 2, 0 : nx // 2] = 2  # noqa
 
     return mask.astype(label_dtype)
 
@@ -358,6 +386,8 @@ def test_workflow_with_per_FOV_labeling(
     validate_schema(path=str(well_zarr), type="well")
     validate_schema(path=str(plate_zarr), type="plate")
     validate_schema(path=str(label_zarr), type="label")
+
+    check_file_number(zarr_path=image_zarr)
 
 
 def test_workflow_with_per_FOV_labeling_2D(
@@ -474,6 +504,8 @@ def test_workflow_with_per_FOV_labeling_2D(
     validate_schema(path=str(well_zarr), type="well")
     validate_schema(path=str(plate_zarr), type="plate")
 
+    check_file_number(zarr_path=image_zarr)
+
 
 def test_workflow_with_per_well_labeling_2D(
     tmp_path: Path,
@@ -589,3 +621,5 @@ def test_workflow_with_per_well_labeling_2D(
     validate_schema(path=str(image_zarr), type="image")
     validate_schema(path=str(well_zarr), type="well")
     validate_schema(path=str(plate_zarr), type="plate")
+
+    check_file_number(zarr_path=image_zarr)
