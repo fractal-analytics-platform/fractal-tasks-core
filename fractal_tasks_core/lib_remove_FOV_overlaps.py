@@ -1,6 +1,3 @@
-import pandas as pd
-
-
 def is_overlapping_1D(line1, line2, tol=0):
     """
     Based on https://stackoverflow.com/a/70023212/19085332
@@ -141,10 +138,4 @@ def remove_FOV_overlaps(df):
                 raise Exception("Something went wrong, {num_iteration=}")
     df.drop(list_columns, axis=1, inplace=True)
 
-
-if __name__ == "__main__":
-    import sys
-
-    csv_file = sys.argv[1]
-    df = pd.read_csv(csv_file, index_col=[0, 1])
-    df = remove_FOV_overlaps(df)
+    return df
