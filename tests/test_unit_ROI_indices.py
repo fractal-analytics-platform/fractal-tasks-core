@@ -27,12 +27,14 @@ def get_metadata_dataframe():
     """
     Create artificial metadata dataframe
     """
-    df = pd.DataFrame(np.zeros((4, 11)), dtype=int)
+    df = pd.DataFrame(np.zeros((4, 13)), dtype=float)
     df.index = FOV_IDS
     df.columns = [
         "x_micrometer",
         "y_micrometer",
         "z_micrometer",
+        "x_micrometer_original",
+        "y_micrometer_original",
         "x_pixel",
         "y_pixel",
         "z_pixel",
@@ -56,6 +58,8 @@ def get_metadata_dataframe():
         img_size_y_micrometer,
         img_size_y_micrometer,
     ]
+    df["x_micrometer_original"] = df["x_micrometer"]
+    df["y_micrometer_original"] = df["y_micrometer"]
     df["z_micrometer"] = [0.0, 0.0, 0.0, 0.0]
     df["x_pixel"] = [IMG_SIZE_X] * 4
     df["y_pixel"] = [IMG_SIZE_Y] * 4

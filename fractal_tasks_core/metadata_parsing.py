@@ -16,6 +16,8 @@ import numpy as np
 import pandas as pd
 from defusedxml import ElementTree
 
+from .lib_remove_FOV_overlaps import remove_FOV_overlaps
+
 
 def parse_yokogawa_metadata(mrf_path, mlf_path):
     """
@@ -76,6 +78,8 @@ def parse_yokogawa_metadata(mrf_path, mlf_path):
     # relevant input images in the input folder. Returning it for now
     # Maybe return it here for further checks and produce a warning if it does
     # not match
+
+    site_metadata = remove_FOV_overlaps(site_metadata)
 
     return site_metadata, total_files
 

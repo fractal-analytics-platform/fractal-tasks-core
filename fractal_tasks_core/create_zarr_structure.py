@@ -34,12 +34,10 @@ __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
 
 def define_omero_channels(actual_channels, channel_parameters, bit_depth):
-    from devtools import debug
 
     omero_channels = []
     default_colormaps = ["00FFFF", "FF00FF", "FFFF00"]
     for channel in actual_channels:
-        debug(channel_parameters[channel])
 
         # Set colormap. If missing, use the default ones (for the first three
         # channels) or gray
@@ -64,7 +62,6 @@ def define_omero_channels(actual_channels, channel_parameters, bit_depth):
                 },
             }
         )
-        debug(omero_channels[-1])
 
         try:
             omero_channels[-1]["window"]["start"] = channel_parameters[
