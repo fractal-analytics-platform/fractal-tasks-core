@@ -29,14 +29,8 @@ def prepare_FOV_ROI_table(
     # Do this in the beginning to allow concatenation with e.g. time
     df.index = df.index.astype(str)
 
-    # Calculate bounding box extents in physical units
+    # Obtain box size in physical units
     for mu in ["x", "y", "z"]:
-
-        # FIXME: remove coordinate reset
-        # Reset reference values for coordinates
-        df[f"{mu}_micrometer"] -= df[f"{mu}_micrometer"].min()
-
-        # Obtain box size in physical units
         df[f"len_{mu}_micrometer"] = df[f"{mu}_pixel"] * df[f"pixel_size_{mu}"]
 
     # Select only the numeric positional columns needed to define ROIs
@@ -193,13 +187,17 @@ def convert_ROI_table_to_indices(
     x_pos, y_pos, z_pos = cols_xyz_pos[:]
     x_len, y_len, z_len = cols_xyz_len[:]
 
+    origin_x = min(ROI[:, x_pos].X[:, 0])
+    origin_y = min(ROI[:, y_pos].X[:, 0])
+    origin_z = min(ROI[:, z_pos].X[:, 0])
+
     list_indices = []
     for FOV in ROI.obs_names:
 
         # Extract data from anndata table
-        x_micrometer = ROI[FOV, x_pos].X[0, 0]
-        y_micrometer = ROI[FOV, y_pos].X[0, 0]
-        z_micrometer = ROI[FOV, z_pos].X[0, 0]
+        x_micrometer = ROI[FOV, x_pos].X[0, 0] - origin_x
+        y_micrometer = ROI[FOV, y_pos].X[0, 0] - origin_y
+        z_micrometer = ROI[FOV, z_pos].X[0, 0] - origin_z
         len_x_micrometer = ROI[FOV, x_len].X[0, 0]
         len_y_micrometer = ROI[FOV, y_len].X[0, 0]
         len_z_micrometer = ROI[FOV, z_len].X[0, 0]
