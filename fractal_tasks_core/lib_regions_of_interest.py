@@ -30,8 +30,9 @@ def prepare_FOV_ROI_table(
     df.index = df.index.astype(str)
 
     # Obtain box size in physical units
-    for mu in ["x", "y", "z"]:
-        df[f"len_{mu}_micrometer"] = df[f"{mu}_pixel"] * df[f"pixel_size_{mu}"]
+    df = df.assign(len_x_micrometer=df.x_pixel * df.pixel_size_x)
+    df = df.assign(len_y_micrometer=df.y_pixel * df.pixel_size_y)
+    df = df.assign(len_z_micrometer=df.z_pixel * df.pixel_size_z)
 
     # Select only the numeric positional columns needed to define ROIs
     # (to avoid) casting things like the data column to float32
