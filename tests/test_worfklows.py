@@ -11,6 +11,7 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
+import glob
 import json
 import logging
 import urllib
@@ -50,6 +51,21 @@ def validate_schema(*, path: str, type: str):
     with open(f"{path}/.zattrs", "r") as fin:
         zattrs = json.load(fin)
     validate(instance=zattrs, schema=schema)
+
+
+def check_file_number(*, img_path: Path, zarr_path: Path):
+    """
+    Example inputs:
+        img_path = Path("/SOME/PATH/*.png")
+        zarr_path = Path("/SOME/PATH/plate.zarr/row/col/fov/")
+    """
+    images = glob.glob(str(img_path))
+    chunkfiles = glob.glob(str(zarr_path / "0/*/*/*/*"))
+    num_chunkfiles = len(chunkfiles)
+    num_images = len(images)
+    debug(chunkfiles)
+    debug(images)
+    assert num_images == num_chunkfiles
 
 
 channel_parameters = {
@@ -116,6 +132,8 @@ def test_workflow_yokogawa_to_zarr(
     validate_schema(path=str(well_zarr), type="well")
     validate_schema(path=str(plate_zarr), type="plate")
 
+    check_file_number(img_path=img_path, zarr_path=image_zarr)
+
 
 def test_workflow_MIP(tmp_path: Path, dataset_10_5281_zenodo_7059515: Path):
 
@@ -173,6 +191,8 @@ def test_workflow_MIP(tmp_path: Path, dataset_10_5281_zenodo_7059515: Path):
     validate_schema(path=str(image_zarr), type="image")
     validate_schema(path=str(well_zarr), type="well")
     validate_schema(path=str(plate_zarr), type="plate")
+
+    check_file_number(img_path=img_path, zarr_path=image_zarr)
 
 
 def test_workflow_illumination_correction(
@@ -241,6 +261,8 @@ def test_workflow_illumination_correction(
     validate_schema(path=str(image_zarr), type="image")
     validate_schema(path=str(well_zarr), type="well")
     validate_schema(path=str(plate_zarr), type="plate")
+
+    check_file_number(img_path=img_path, zarr_path=image_zarr)
 
 
 def patched_segment_FOV(column, do_3D=True, label_dtype=None, **kwargs):
@@ -359,6 +381,8 @@ def test_workflow_with_per_FOV_labeling(
     validate_schema(path=str(plate_zarr), type="plate")
     validate_schema(path=str(label_zarr), type="label")
 
+    check_file_number(img_path=img_path, zarr_path=image_zarr)
+
 
 def test_workflow_with_per_FOV_labeling_2D(
     tmp_path: Path,
@@ -473,6 +497,8 @@ def test_workflow_with_per_FOV_labeling_2D(
     validate_schema(path=str(image_zarr), type="image")
     validate_schema(path=str(well_zarr), type="well")
     validate_schema(path=str(plate_zarr), type="plate")
+
+    check_file_number(img_path=img_path, zarr_path=image_zarr)
 
 
 def test_workflow_with_per_well_labeling_2D(
@@ -589,3 +615,5 @@ def test_workflow_with_per_well_labeling_2D(
     validate_schema(path=str(image_zarr), type="image")
     validate_schema(path=str(well_zarr), type="well")
     validate_schema(path=str(plate_zarr), type="plate")
+
+    check_file_number(img_path=img_path, zarr_path=image_zarr)
