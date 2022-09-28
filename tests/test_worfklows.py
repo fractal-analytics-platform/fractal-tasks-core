@@ -249,11 +249,11 @@ def patched_segment_FOV(column, do_3D=True, label_dtype=None, **kwargs):
     mask = np.zeros_like(column)
     nz, ny, nx = mask.shape
     if do_3D:
-        mask[:, 0 : ny // 4, 0 : nx // 4] = 1
-        mask[:, ny // 4 : ny // 2, 0 : nx // 2] = 2
+        mask[:, 0 : ny // 4, 0 : nx // 4] = 1  # noqa
+        mask[:, ny // 4 : ny // 2, 0 : nx // 2] = 2  # noqa
     else:
-        mask[:, 0 : ny // 4, 0 : nx // 4] = 1
-        mask[:, ny // 4 : ny // 2, 0 : nx // 2] = 2
+        mask[:, 0 : ny // 4, 0 : nx // 4] = 1  # noqa
+        mask[:, ny // 4 : ny // 2, 0 : nx // 2] = 2  # noqa
 
     return mask.astype(label_dtype)
 
