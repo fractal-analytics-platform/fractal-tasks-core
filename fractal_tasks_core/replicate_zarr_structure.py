@@ -12,6 +12,7 @@ Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
 import json
+import logging
 from glob import glob
 from pathlib import Path
 from typing import Any
@@ -22,7 +23,6 @@ from typing import Optional
 import anndata as ad
 import zarr
 from anndata.experimental import write_elem
-from devtools import debug
 
 import fractal_tasks_core
 from .lib_regions_of_interest import convert_ROIs_from_3D_to_2D
@@ -63,7 +63,7 @@ def replicate_zarr_structure(
     list_plates = [
         p.as_posix() for p in in_path.parent.resolve().glob(in_path.name)
     ]
-    debug(list_plates)
+    logging.info("{list_plates=}")
 
     meta_update = {"replicate_zarr": {}}
     meta_update["replicate_zarr"]["suffix"] = suffix
@@ -78,9 +78,9 @@ def replicate_zarr_structure(
         zarrurl_new = f"{(new_plate_dir / new_plate_name).as_posix()}.zarr"
         meta_update["replicate_zarr"]["sources"][new_plate_name] = zarrurl_old
 
-        debug(zarrurl_old)
-        debug(zarrurl_new)
-        debug(meta_update)
+        logging.info(f"{zarrurl_old=}")
+        logging.info(f"{zarrurl_new=}")
+        logging.info(f"{meta_update=}")
 
         # Identify properties of input zarr file
         well_rows_columns = sorted(
@@ -97,7 +97,7 @@ def replicate_zarr_structure(
 
         group_plate = zarr.group(zarrurl_new)
         plate = zarrurl_old.replace(".zarr", "").split("/")[-1]
-        debug(plate)
+        logging.info(f"{plate=}")
         group_plate.attrs["plate"] = {
             "acquisitions": [{"id": 0, "name": plate}],
             "columns": [{"name": col} for col in col_list],

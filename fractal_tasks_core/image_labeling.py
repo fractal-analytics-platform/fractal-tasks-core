@@ -12,6 +12,7 @@ Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
 import json
+import logging
 import time
 from pathlib import Path
 from typing import Any
@@ -25,7 +26,6 @@ import numpy as np
 import zarr
 from cellpose import models
 from cellpose.core import use_gpu
-from devtools import debug
 
 import fractal_tasks_core
 from .lib_pyramid_creation import build_pyramid
@@ -125,7 +125,7 @@ def image_labeling(
         raise NotImplementedError
     in_path = input_paths[0]
     zarrurl = (in_path.parent.resolve() / component).as_posix() + "/"
-    debug(zarrurl)
+    logging.info(zarrurl)
 
     # Read useful parameters from metadata
     num_levels = metadata["num_levels"]
@@ -136,7 +136,7 @@ def image_labeling(
     # Find well ID
     well_ID = well.replace("/", "_")[:-1]
     logfile = f"LOG_image_labeling_{well_ID}"  # FIXME
-    debug(well_ID)
+    logging.info(well_ID)
 
     # Find channel index
     if labeling_channel not in chl_list:
@@ -145,7 +145,7 @@ def image_labeling(
 
     # Load ZYX data
     data_zyx = da.from_zarr(f"{zarrurl}{labeling_level}")[ind_channel]
-    debug(data_zyx.shape)
+    logging.info(data_zyx.shape)
 
     # Read ROI table
     ROI_table = ad.read_zarr(f"{zarrurl}tables/{ROI_table_name}")
@@ -194,7 +194,7 @@ def image_labeling(
                 zarrurl + ".zattrs", level=labeling_level
             )
             pixel_size_z, pixel_size_y, pixel_size_x = pxl_zyx[:]
-            debug(pxl_zyx)
+            logging.info(pxl_zyx)
             if not np.allclose(pixel_size_x, pixel_size_y):
                 raise Exception(
                     "ERROR: XY anisotropy detected\n"
@@ -257,7 +257,7 @@ def image_labeling(
     ]
 
     # Open new zarr group for mask 0-th level
-    debug(f"{zarrurl}labels/{label_name}/0")
+    logging.info(f"{zarrurl}labels/{label_name}/0")
     zarr.group(f"{zarrurl}/labels")
     zarr.group(f"{zarrurl}/labels/{label_name}")
     store = da.core.get_mapper(f"{zarrurl}labels/{label_name}/0")

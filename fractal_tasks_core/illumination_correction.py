@@ -48,7 +48,7 @@ def correct(
     """
 
     if logger is not None:
-        logger.debug("Start correct, {img_stack.shape}")
+        logger.info("Start correct, {img_stack.shape}")
 
     # Check shapes
     if corr_img.shape != img_stack.shape[2:] or img_stack.shape[0] != 1:
@@ -80,7 +80,7 @@ def correct(
         new_img_stack[new_img_stack > dtype_max] = dtype_max
 
     if logger is not None:
-        logger.debug("End correct")
+        logger.info("End correct")
 
     # Cast back to original dtype and return
     return new_img_stack.astype(dtype)

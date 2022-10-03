@@ -11,6 +11,7 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
+import logging
 from pathlib import Path
 from typing import Any
 from typing import Dict
@@ -19,7 +20,6 @@ from typing import Optional
 
 import anndata as ad
 import dask.array as da
-from devtools import debug
 
 from .lib_pyramid_creation import build_pyramid
 from .lib_regions_of_interest import convert_ROI_table_to_indices
@@ -57,8 +57,8 @@ def maximum_intensity_projection(
     zarrurl_old = metadata["replicate_zarr"]["sources"][plate] + "/" + well
     clean_output_path = output_path.parent.resolve()
     zarrurl_new = (clean_output_path / component).as_posix()
-    debug(zarrurl_old)
-    debug(zarrurl_new)
+    logging.info(f"{zarrurl_old=}")
+    logging.info(f"{zarrurl_new=}")
 
     # This whole block finds (chunk_size_y,chunk_size_x)
     FOV_ROI_table = ad.read_zarr(f"{zarrurl_old}/tables/FOV_ROI_table")
