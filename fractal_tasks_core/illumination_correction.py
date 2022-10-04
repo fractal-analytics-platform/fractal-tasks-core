@@ -30,6 +30,9 @@ from .lib_pyramid_creation import build_pyramid
 from .lib_regions_of_interest import convert_ROI_table_to_indices
 from .lib_zattrs_utils import extract_zyx_pixel_sizes
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 def correct(
     img_stack: np.ndarray,
@@ -46,7 +49,7 @@ def correct(
 
     """
 
-    logging.info("Start correct, {img_stack.shape}")
+    logger.info("Start correct, {img_stack.shape}")
 
     # Check shapes
     if corr_img.shape != img_stack.shape[2:] or img_stack.shape[0] != 1:
@@ -77,7 +80,7 @@ def correct(
         )
         new_img_stack[new_img_stack > dtype_max] = dtype_max
 
-    logging.info("End correct")
+    logger.info("End correct")
 
     # Cast back to original dtype and return
     return new_img_stack.astype(dtype)
@@ -140,10 +143,10 @@ def illumination_correction(
         zarrurl_new = (output_path.parent / new_component).as_posix()
 
     t_start = time.perf_counter()
-    logging.info("Start illumination_correction")
-    logging.info(f"  {overwrite=}")
-    logging.info(f"  {zarrurl_old=}")
-    logging.info(f"  {zarrurl_new=}")
+    logger.info("Start illumination_correction")
+    logger.info(f"  {overwrite=}")
+    logger.info(f"  {zarrurl_old=}")
+    logger.info(f"  {zarrurl_new=}")
 
     # Read FOV ROIs
     FOV_ROI_table = ad.read_zarr(f"{zarrurl_old}/tables/FOV_ROI_table")
@@ -244,7 +247,7 @@ def illumination_correction(
     )
 
     t_end = time.perf_counter()
-    logging.info(f"End illumination_correction, elapsed: {t_end-t_start}")
+    logger.info(f"End illumination_correction, elapsed: {t_end-t_start}")
 
 
 if __name__ == "__main__":

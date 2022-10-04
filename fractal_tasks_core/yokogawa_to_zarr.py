@@ -11,6 +11,7 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
+import logging
 import os
 import re
 from glob import glob
@@ -28,6 +29,9 @@ from dask.array.image import imread
 from .lib_pyramid_creation import build_pyramid
 from .lib_regions_of_interest import convert_ROI_table_to_indices
 from .lib_zattrs_utils import extract_zyx_pixel_sizes
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def sort_fun(s):
@@ -118,7 +122,7 @@ def yokogawa_to_zarr(
         A, C = chl.split("_")
 
         glob_path = f"{in_path}/*_{well_ID}_*{A}*{C}{ext}"
-        print(f"glob path: {glob_path}")
+        logger.info(f"glob path: {glob_path}")
         filenames = sorted(glob(glob_path), key=sort_fun)
         if len(filenames) == 0:
             raise Exception(
@@ -165,7 +169,7 @@ def yokogawa_to_zarr(
             try:
                 os.remove(f)
             except OSError as e:
-                print("Error: %s : %s" % (f, e.strerror))
+                logging.info("Error: %s : %s" % (f, e.strerror))
 
 
 if __name__ == "__main__":

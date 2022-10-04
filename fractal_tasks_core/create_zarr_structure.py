@@ -32,6 +32,11 @@ from .metadata_parsing import parse_yokogawa_metadata
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 def define_omero_channels(actual_channels, channel_parameters, bit_depth):
 
@@ -159,7 +164,7 @@ def create_zarr_structure(
                 tmp_plates.append(plate)
                 tmp_channels.append(f"A{metadata['A']}_C{metadata['C']}")
             except IndexError:
-                print("IndexError for ", fn)
+                logger.info("IndexError for ", fn)
                 pass
         tmp_plates = sorted(list(set(tmp_plates)))
         tmp_channels = sorted(list(set(tmp_channels)))
@@ -184,7 +189,7 @@ def create_zarr_structure(
             while new_plate in plates:
                 new_plate = f"{plate}_{ind}"
                 ind += 1
-            print(
+            logger.info(
                 f"WARNING: {plate} already exists, renaming it as {new_plate}"
             )
             plates.append(new_plate)
@@ -216,7 +221,7 @@ def create_zarr_structure(
     actual_channels = []
     for ind_ch, ch in enumerate(channels):
         actual_channels.append(ch)
-    print(f"actual_channels: {actual_channels}")
+    logger.info(f"actual_channels: {actual_channels}")
 
     # Clean up dictionary channel_parameters
 
@@ -227,7 +232,7 @@ def create_zarr_structure(
         # Define plate zarr
         zarrurl = f"{plate}.zarr"
         in_path = dict_plate_paths[plate]
-        print(f"Creating {zarrurl}")
+        logger.info(f"Creating {zarrurl}")
         group_plate = zarr.group(output_path.parent / zarrurl)
         zarrurls["plate"].append(zarrurl)
 
@@ -250,7 +255,7 @@ def create_zarr_structure(
                 pixel_size_x = site_metadata["pixel_size_x"][0]
                 bit_depth = site_metadata["bit_depth"][0]
         except FileNotFoundError:
-            print("Missing metadata files")
+            logger.info("Missing metadata files")
             has_mrf_mlf_metadata = False
             pixel_size_x = pixel_size_y = pixel_size_z = 1
 
@@ -279,7 +284,7 @@ def create_zarr_structure(
                     metadata = parse_metadata(os.path.basename(fn))
                     well_channels.append(f"A{metadata['A']}_C{metadata['C']}")
                 except IndexError:
-                    print(f"Skipping {fn}")
+                    logger.info(f"Skipping {fn}")
             well_channels = sorted(list(set(well_channels)))
             if well_channels != actual_channels:
                 raise Exception(
