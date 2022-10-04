@@ -35,7 +35,6 @@ def correct(
     img_stack: np.ndarray,
     corr_img: np.ndarray,
     background: int = 110,
-    logger: logging.Logger = None,
 ):
     """
     Corrects a stack of images, using a given illumination profile (e.g. bright
@@ -47,8 +46,7 @@ def correct(
 
     """
 
-    if logger is not None:
-        logger.info("Start correct, {img_stack.shape}")
+    logging.info("Start correct, {img_stack.shape}")
 
     # Check shapes
     if corr_img.shape != img_stack.shape[2:] or img_stack.shape[0] != 1:
@@ -79,8 +77,7 @@ def correct(
         )
         new_img_stack[new_img_stack > dtype_max] = dtype_max
 
-    if logger is not None:
-        logger.info("End correct")
+    logging.info("End correct")
 
     # Cast back to original dtype and return
     return new_img_stack.astype(dtype)
@@ -96,7 +93,6 @@ def illumination_correction(
     new_component: str = None,
     dict_corr: dict = None,
     background: int = 100,
-    logger: logging.Logger = None,
 ):
 
     """
@@ -109,9 +105,6 @@ def illumination_correction(
     new_component: myplate_new_name.zarr/B/03/0/
     metadata: {...}
     """
-
-    if logger is None:
-        logger = logging.getLogger(__name__)
 
     # Preliminary checks
     if len(input_paths) > 1:
@@ -147,10 +140,10 @@ def illumination_correction(
         zarrurl_new = (output_path.parent / new_component).as_posix()
 
     t_start = time.perf_counter()
-    logger.info("Start illumination_correction")
-    logger.info(f"  {overwrite=}")
-    logger.info(f"  {zarrurl_old=}")
-    logger.info(f"  {zarrurl_new=}")
+    logging.info("Start illumination_correction")
+    logging.info(f"  {overwrite=}")
+    logging.info(f"  {zarrurl_old=}")
+    logging.info(f"  {zarrurl_new=}")
 
     # Read FOV ROIs
     FOV_ROI_table = ad.read_zarr(f"{zarrurl_old}/tables/FOV_ROI_table")
@@ -232,7 +225,6 @@ def illumination_correction(
                 data_czyx[region].compute(),
                 corrections[channel],
                 background=background,
-                logger=logger,
             )
             # Write to disk
             da.array(corrected_fov).to_zarr(
@@ -252,7 +244,7 @@ def illumination_correction(
     )
 
     t_end = time.perf_counter()
-    logger.info(f"End illumination_correction, elapsed: {t_end-t_start}")
+    logging.info(f"End illumination_correction, elapsed: {t_end-t_start}")
 
 
 if __name__ == "__main__":
