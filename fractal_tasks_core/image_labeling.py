@@ -49,19 +49,18 @@ def segment_FOV(
     cellprob_threshold=0.0,
     flow_threshold=0.4,
     label_dtype=None,
-    logfile="LOG_image_labeling",
+    well_id=None,
 ):
 
     # Write some debugging info
-    with open(logfile, "a") as out:
-        out.write(
-            f"[segment_FOV] START Cellpose |"
-            f" column: {type(column)}, {column.shape} |"
-            f" do_3D: {do_3D} |"
-            f" model.diam_mean: {model.diam_mean} |"
-            f" diameter: {diameter} |"
-            f" flow threshold: {flow_threshold}\n"
-        )
+    logger.info(
+        f"[{well_id}][segment_FOV] START Cellpose |"
+        f" column: {type(column)}, {column.shape} |"
+        f" do_3D: {do_3D} |"
+        f" model.diam_mean: {model.diam_mean} |"
+        f" diameter: {diameter} |"
+        f" flow threshold: {flow_threshold}"
+    )
 
     # Actual labeling
     t0 = time.perf_counter()
@@ -81,18 +80,16 @@ def segment_FOV(
     t1 = time.perf_counter()
 
     # Write some debugging info
-    # FIXME: use logging
-    with open(logfile, "a") as out:
-        out.write(
-            f"[segment_FOV] END   Cellpose |"
-            f" Elapsed: {t1-t0:.4f} seconds |"
-            f" mask shape: {mask.shape},"
-            f" mask dtype: {mask.dtype} (before recast to {label_dtype}),"
-            f" max(mask): {np.max(mask)} |"
-            f" model.diam_mean: {model.diam_mean} |"
-            f" diameter: {diameter} |"
-            f" flow threshold: {flow_threshold}\n"
-        )
+    logger.info(
+        f"[{well_id}][segment_FOV] END   Cellpose |"
+        f" Elapsed: {t1-t0:.4f} seconds |"
+        f" mask shape: {mask.shape},"
+        f" mask dtype: {mask.dtype} (before recast to {label_dtype}),"
+        f" max(mask): {np.max(mask)} |"
+        f" model.diam_mean: {model.diam_mean} |"
+        f" diameter: {diameter} |"
+        f" flow threshold: {flow_threshold}"
+    )
 
     return mask.astype(label_dtype)
 
@@ -137,9 +134,7 @@ def image_labeling(
     plate, well = component.split(".zarr/")
 
     # Find well ID
-    well_ID = well.replace("/", "_")[:-1]
-    logfile = f"LOG_image_labeling_{well_ID}"  # FIXME
-    logger.info(well_ID)
+    well_id = well.replace("/", "_")[:-1]
 
     # Find channel index
     if labeling_channel not in chl_list:
@@ -148,7 +143,7 @@ def image_labeling(
 
     # Load ZYX data
     data_zyx = da.from_zarr(f"{zarrurl}{labeling_level}")[ind_channel]
-    logger.info(data_zyx.shape)
+    logger.info(f"[{well_id}] {data_zyx.shape=}")
 
     # Read ROI table
     ROI_table = ad.read_zarr(f"{zarrurl}tables/{ROI_table_name}")
@@ -197,11 +192,11 @@ def image_labeling(
                 zarrurl + ".zattrs", level=labeling_level
             )
             pixel_size_z, pixel_size_y, pixel_size_x = pxl_zyx[:]
-            logger.info(pxl_zyx)
+            logger.info(f"[{well_id}] {pxl_zyx=}")
             if not np.allclose(pixel_size_x, pixel_size_y):
                 raise Exception(
-                    "ERROR: XY anisotropy detected\n"
-                    f"pixel_size_x={pixel_size_x}\n"
+                    "ERROR: XY anisotropy detected"
+                    f"pixel_size_x={pixel_size_x}"
                     f"pixel_size_y={pixel_size_y}"
                 )
             anisotropy = pixel_size_z / pixel_size_x
@@ -260,7 +255,7 @@ def image_labeling(
     ]
 
     # Open new zarr group for mask 0-th level
-    logger.info(f"{zarrurl}labels/{label_name}/0")
+    logger.info(f"[{well_id}] {zarrurl}labels/{label_name}/0")
     zarr.group(f"{zarrurl}/labels")
     zarr.group(f"{zarrurl}/labels/{label_name}")
     store = da.core.get_mapper(f"{zarrurl}labels/{label_name}/0")
@@ -275,26 +270,25 @@ def image_labeling(
         # FIXME write_empty_chunks=.. do we need this?
     )
 
-    with open(logfile, "a") as out:
-        out.write(
-            f"mask will have shape {data_zyx.shape} "
-            f"and chunks {data_zyx.chunks}\n\n"
-        )
+    logger.info(
+        f"[{well_id}] "
+        f"mask will have shape {data_zyx.shape} "
+        f"and chunks {data_zyx.chunks}"
+    )
 
     # Initialize cellpose
     model = models.Cellpose(gpu=use_gpu(), model_type=model_type)
 
     # Initialize other things
-    with open(logfile, "w") as out:
-        out.write(f"Start image_labeling task for {zarrurl}\n")
-        out.write(f"relabeling: {relabeling}\n")
-        out.write(f"do_3D: {do_3D}\n")
-        out.write(f"labeling_level: {labeling_level}\n")
-        out.write(f"model_type: {model_type}\n")
-        out.write(f"anisotropy: {anisotropy}\n")
-        out.write("Total well shape/chunks:\n")
-        out.write(f"{data_zyx.shape}\n")
-        out.write(f"{data_zyx.chunks}\n\n")
+    logger.info(f"[{well_id}] Start image_labeling task for {zarrurl}")
+    logger.info(f"[{well_id}] relabeling: {relabeling}")
+    logger.info(f"[{well_id}] do_3D: {do_3D}")
+    logger.info(f"[{well_id}] labeling_level: {labeling_level}")
+    logger.info(f"[{well_id}] model_type: {model_type}")
+    logger.info(f"[{well_id}] anisotropy: {anisotropy}")
+    logger.info(f"[{well_id}] Total well shape/chunks:")
+    logger.info(f"[{well_id}] {data_zyx.shape}")
+    logger.info(f"[{well_id}] {data_zyx.chunks}")
 
     # Counters for relabeling
     if relabeling:
@@ -302,6 +296,7 @@ def image_labeling(
         num_labels_column = 0
 
     # Iterate over ROIs
+    logger.info(f"[{well_id}] Now starting loop over {len(list_indices)} ROIs")
     for indices in list_indices:
         # Define region
         s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
@@ -320,7 +315,7 @@ def image_labeling(
             diameter=diameter_level0 / coarsening_xy**labeling_level,
             cellprob_threshold=cellprob_threshold,
             flow_threshold=flow_threshold,
-            logfile=logfile,
+            well_id=well_id,
         )
 
         # Shift labels and update relabeling counters
@@ -330,17 +325,17 @@ def image_labeling(
             num_labels_tot += num_labels_fov
 
             # Write some logs
-            with open(logfile, "a") as out:
-                out.write(
-                    f"FOV ROI {indices}, "
-                    f"num_labels_column={num_labels_column}, "
-                    f"num_labels_tot={num_labels_tot}\n"
-                )
+            logger.info(
+                f"[{well_id}] "
+                f"FOV ROI {indices}, "
+                f"num_labels_column={num_labels_column}, "
+                f"num_labels_tot={num_labels_tot}"
+            )
 
             # Check that total number of labels is under control
             if num_labels_tot > np.iinfo(label_dtype).max:
                 raise Exception(
-                    "ERROR in re-labeling:\n"
+                    "ERROR in re-labeling:"
                     f"Reached {num_labels_tot} labels, "
                     f"but dtype={label_dtype}"
                 )
@@ -352,6 +347,11 @@ def image_labeling(
             compute=True,
         )
 
+    logger.info(
+        f"[{well_id}] End image_labeling task for {zarrurl}, "
+        "now building pyramids."
+    )
+
     # Starting from on-disk highest-resolution data, build and write to disk a
     # pyramid of coarser levels
     build_pyramid(
@@ -362,6 +362,8 @@ def image_labeling(
         chunksize=data_zyx.chunksize,
         aggregation_function=np.max,
     )
+
+    logger.info(f"[{well_id}] End building pyramids, exit")
 
     return {}
 

@@ -271,7 +271,15 @@ def test_workflow_illumination_correction(
     check_file_number(zarr_path=image_zarr)
 
 
-def patched_segment_FOV(column, do_3D=True, label_dtype=None, **kwargs):
+def patched_segment_FOV(
+    column, do_3D=True, label_dtype=None, well_id=None, **kwargs
+):
+
+    import logging
+
+    logger = logging.getLogger("image_labeling.py")
+
+    logger.info(f"[{well_id}][patched_segment_FOV] START")
 
     # Actual labeling
     mask = np.zeros_like(column)
@@ -282,6 +290,8 @@ def patched_segment_FOV(column, do_3D=True, label_dtype=None, **kwargs):
     else:
         mask[:, 0 : ny // 4, 0 : nx // 4] = 1  # noqa
         mask[:, ny // 4 : ny // 2, 0 : nx // 2] = 2  # noqa
+
+    logger.info(f"[{well_id}][patched_segment_FOV] END")
 
     return mask.astype(label_dtype)
 
