@@ -55,7 +55,7 @@ def dummy(
     import json
     from json.decoder import JSONDecodeError
 
-    logger.info("START of dummy task")
+    logger.info("START of dummy task (from within task)")
 
     if component:
         index = component
@@ -89,6 +89,6 @@ def dummy(
     # Update metadata
     metadata_update = {"dummy": "dummy"}
 
-    logger.info("END of dummy task")
+    logger.info("END of dummy task (from within task)")
 
     return metadata_update
