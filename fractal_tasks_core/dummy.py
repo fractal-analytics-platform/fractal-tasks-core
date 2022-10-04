@@ -1,9 +1,13 @@
+import logging
 import os
 from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import Optional
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def dummy(
@@ -51,6 +55,8 @@ def dummy(
     import json
     from json.decoder import JSONDecodeError
 
+    logger.info("START of dummy task")
+
     if component:
         index = component
 
@@ -82,5 +88,7 @@ def dummy(
 
     # Update metadata
     metadata_update = {"dummy": "dummy"}
+
+    logger.info("END of dummy task")
 
     return metadata_update

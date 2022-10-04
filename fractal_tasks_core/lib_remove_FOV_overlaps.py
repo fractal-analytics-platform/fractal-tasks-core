@@ -1,3 +1,9 @@
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
 def is_overlapping_1D(line1, line2, tol=0):
     """
     Based on https://stackoverflow.com/a/70023212/19085332
@@ -65,7 +71,7 @@ def remove_FOV_overlaps(df):
     # Loop over wells
     wells = sorted(list(set([ind[0] for ind in df.index])))
     for well in wells:
-        print(f"[remove_FOV_overlaps] removing FOV overlaps for {well=}")
+        logger.info(f"removing FOV overlaps for {well=}")
 
         # NOTE: these are positional indices (i.e. starting from 0)
         pair_pos_indices = get_overlapping_pair(
@@ -89,8 +95,8 @@ def remove_FOV_overlaps(df):
                 pos_ind_2
             ]
 
-            print(
-                f"[remove_FOV_overlaps] {iteration=}, removing overlap between"
+            logger.info(
+                f"{iteration=}, removing overlap between"
                 f" {fov_id_1=} and {fov_id_2=}"
             )
 

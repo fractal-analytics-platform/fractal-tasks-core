@@ -30,12 +30,14 @@ from .lib_pyramid_creation import build_pyramid
 from .lib_regions_of_interest import convert_ROI_table_to_indices
 from .lib_zattrs_utils import extract_zyx_pixel_sizes
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 def correct(
     img_stack: np.ndarray,
     corr_img: np.ndarray,
     background: int = 110,
-    logger: logging.Logger = None,
 ):
     """
     Corrects a stack of images, using a given illumination profile (e.g. bright
@@ -47,8 +49,7 @@ def correct(
 
     """
 
-    if logger is not None:
-        logger.debug("Start correct, {img_stack.shape}")
+    logger.info("Start correct, {img_stack.shape}")
 
     # Check shapes
     if corr_img.shape != img_stack.shape[2:] or img_stack.shape[0] != 1:
@@ -79,8 +80,7 @@ def correct(
         )
         new_img_stack[new_img_stack > dtype_max] = dtype_max
 
-    if logger is not None:
-        logger.debug("End correct")
+    logger.info("End correct")
 
     # Cast back to original dtype and return
     return new_img_stack.astype(dtype)
@@ -96,7 +96,6 @@ def illumination_correction(
     new_component: str = None,
     dict_corr: dict = None,
     background: int = 100,
-    logger: logging.Logger = None,
 ):
 
     """
@@ -109,9 +108,6 @@ def illumination_correction(
     new_component: myplate_new_name.zarr/B/03/0/
     metadata: {...}
     """
-
-    if logger is None:
-        logger = logging.getLogger(__name__)
 
     # Preliminary checks
     if len(input_paths) > 1:
@@ -232,7 +228,6 @@ def illumination_correction(
                 data_czyx[region].compute(),
                 corrections[channel],
                 background=background,
-                logger=logger,
             )
             # Write to disk
             da.array(corrected_fov).to_zarr(

@@ -12,6 +12,7 @@ Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
 import json
+import logging
 from glob import glob
 from pathlib import Path
 from typing import Any
@@ -22,11 +23,13 @@ from typing import Optional
 import anndata as ad
 import zarr
 from anndata.experimental import write_elem
-from devtools import debug
 
 import fractal_tasks_core
 from .lib_regions_of_interest import convert_ROIs_from_3D_to_2D
 from .lib_zattrs_utils import extract_zyx_pixel_sizes
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
@@ -63,7 +66,7 @@ def replicate_zarr_structure(
     list_plates = [
         p.as_posix() for p in in_path.parent.resolve().glob(in_path.name)
     ]
-    debug(list_plates)
+    logger.info("{list_plates=}")
 
     meta_update = {"replicate_zarr": {}}
     meta_update["replicate_zarr"]["suffix"] = suffix
@@ -78,9 +81,9 @@ def replicate_zarr_structure(
         zarrurl_new = f"{(new_plate_dir / new_plate_name).as_posix()}.zarr"
         meta_update["replicate_zarr"]["sources"][new_plate_name] = zarrurl_old
 
-        debug(zarrurl_old)
-        debug(zarrurl_new)
-        debug(meta_update)
+        logger.info(f"{zarrurl_old=}")
+        logger.info(f"{zarrurl_new=}")
+        logger.info(f"{meta_update=}")
 
         # Identify properties of input zarr file
         well_rows_columns = sorted(
@@ -97,7 +100,7 @@ def replicate_zarr_structure(
 
         group_plate = zarr.group(zarrurl_new)
         plate = zarrurl_old.replace(".zarr", "").split("/")[-1]
-        debug(plate)
+        logger.info(f"{plate=}")
         group_plate.attrs["plate"] = {
             "acquisitions": [{"id": 0, "name": plate}],
             "columns": [{"name": col} for col in col_list],

@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from pathlib import Path
 from typing import Any
@@ -16,6 +17,9 @@ from napari_workflows._io_yaml_v1 import load_workflow
 
 from .lib_regions_of_interest import convert_ROI_table_to_indices
 from .lib_zattrs_utils import extract_zyx_pixel_sizes
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def measurement(
@@ -127,12 +131,11 @@ def measurement(
     # Get the workflow
     napari_workflow = load_workflow(workflow_file)
 
-    print(f"Workflow file:         {workflow_file}")
-    print(f"Resolution level:      {level}")
-    print(f"Labels upscale factor: {upscale_factor}")
-    print(f"Whole-array shape:     {img_shape}")
-    print(f"is_2D:                 {is_2D}")
-    print()
+    logger.info(f"Workflow file:         {workflow_file}")
+    logger.info(f"Resolution level:      {level}")
+    logger.info(f"Labels upscale factor: {upscale_factor}")
+    logger.info(f"Whole-array shape:     {img_shape}")
+    logger.info(f"is_2D:                 {is_2D}")
 
     # Loop over FOV ROIs
     list_dfs = []
@@ -143,7 +146,7 @@ def measurement(
             if not (s_z, e_z) == (0, 1):
                 raise Exception("Something went wrong with 2D ROI ", ROI)
             ROI = (slice(s_y, e_y), slice(s_x, e_x))
-        print(f"Single-ROI shape:      {img[ROI].shape}")
+        logger.info(f"Single-ROI shape:      {img[ROI].shape}")
 
         # Set the input images: DAPI image & label image for current ROI
         napari_workflow.set("dapi_img", img[ROI])
