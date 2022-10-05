@@ -4,7 +4,7 @@ TMP=tmp_$CHANGELOG
 
 cat $CHANGELOG > $TMP
 
-LAST_TAG=`git tag --sort version:refname | tail -n 2 | head -n 1`
+LAST_TAG=`git tag --sort version:refname | tail -n 1`
 
 date > $CHANGELOG
 echo "Changes since $LAST_TAG:" >> $CHANGELOG
