@@ -7,16 +7,16 @@ import numpy as np
 import pytest
 from pytest import MonkeyPatch
 
-from fractal_tasks_core.image_labeling import image_labeling
+from fractal_tasks_core.cellpose_segmentation import cellpose_segmentation
 
 
 @pytest.mark.xfail(reason="TODO: adapt to new task")
-def test_image_labeling(
+def test_cellpose_segmentation(
     tmp_path: pathlib.Path,
     monkeypatch: MonkeyPatch,
 ):
     # GIVEN a zarr pyramid on disk, made of all ones
-    # WHEN I apply image_labeling
+    # WHEN I apply cellpose_segmentation
     # THEN segment_FOV(..) is executed as many times as the number of columns
 
     # Copy a reference zarr into a temporary folder
@@ -48,10 +48,11 @@ def test_image_labeling(
         return np.empty_like(column).astype(label_dtype)
 
     monkeypatch.setattr(
-        "fractal_tasks_core.image_labeling.segment_FOV", patched_segment_FOV
+        "fractal_tasks_core.cellpose_segmentation.segment_FOV",
+        patched_segment_FOV,
     )
 
-    image_labeling(
+    cellpose_segmentation(
         zarrurl,
         coarsening_xy=2,
         labeling_level=0,

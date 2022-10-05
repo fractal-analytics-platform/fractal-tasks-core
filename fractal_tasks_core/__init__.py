@@ -69,11 +69,11 @@ __FRACTAL_MANIFEST__ = [
         "default_args": {"parallelization_level": "well"},
     },
     {
-        "name": "Per-FOV image labeling",
+        "name": "Cellpose Segmentation",
         "resource_type": "core task",
         "input_type": "zarr",
         "output_type": "zarr",
-        "module": f"{__name__}.image_labeling:image_labeling",
+        "module": f"{__name__}.cellpose_segmentation:cellpose_segmentation",
         "default_args": {
             "labeling_channel": "A01_C01",
             "parallelization_level": "well",

@@ -26,9 +26,9 @@ from jsonschema import validate
 from pytest import MonkeyPatch
 
 from fractal_tasks_core import __OME_NGFF_VERSION__
+from fractal_tasks_core.cellpose_segmentation import cellpose_segmentation
 from fractal_tasks_core.create_zarr_structure import create_zarr_structure
 from fractal_tasks_core.illumination_correction import illumination_correction
-from fractal_tasks_core.image_labeling import image_labeling
 from fractal_tasks_core.maximum_intensity_projection import (
     maximum_intensity_projection,
 )  # noqa
@@ -277,7 +277,7 @@ def patched_segment_FOV(
 
     import logging
 
-    logger = logging.getLogger("image_labeling.py")
+    logger = logging.getLogger("cellpose_segmentation.py")
 
     logger.info(f"[{well_id}][patched_segment_FOV] START")
 
@@ -310,11 +310,12 @@ def test_workflow_with_per_FOV_labeling(
         return False
 
     monkeypatch.setattr(
-        "fractal_tasks_core.image_labeling.use_gpu", patched_use_gpu
+        "fractal_tasks_core.cellpose_segmentation.use_gpu", patched_use_gpu
     )
 
     monkeypatch.setattr(
-        "fractal_tasks_core.image_labeling.segment_FOV", patched_segment_FOV
+        "fractal_tasks_core.cellpose_segmentation.segment_FOV",
+        patched_segment_FOV,
     )
 
     # Setup caplog fixture, see
@@ -352,7 +353,7 @@ def test_workflow_with_per_FOV_labeling(
 
     # Per-FOV labeling
     for component in metadata["well"]:
-        image_labeling(
+        cellpose_segmentation(
             input_paths=[zarr_path],
             output_path=zarr_path,
             metadata=metadata,
@@ -414,12 +415,13 @@ def test_workflow_with_per_FOV_labeling_2D(
         return False
 
     monkeypatch.setattr(
-        "fractal_tasks_core.image_labeling.use_gpu", patched_use_gpu
+        "fractal_tasks_core.cellpose_segmentation.use_gpu", patched_use_gpu
     )
 
     # Do not use cellpose
     monkeypatch.setattr(
-        "fractal_tasks_core.image_labeling.segment_FOV", patched_segment_FOV
+        "fractal_tasks_core.cellpose_segmentation.segment_FOV",
+        patched_segment_FOV,
     )
 
     # Init
@@ -470,7 +472,7 @@ def test_workflow_with_per_FOV_labeling_2D(
 
     # Per-FOV labeling
     for component in metadata["well"]:
-        image_labeling(
+        cellpose_segmentation(
             input_paths=[zarr_path_mip],
             output_path=zarr_path_mip,
             metadata=metadata,
@@ -531,12 +533,13 @@ def test_workflow_with_per_well_labeling_2D(
         return False
 
     monkeypatch.setattr(
-        "fractal_tasks_core.image_labeling.use_gpu", patched_use_gpu
+        "fractal_tasks_core.cellpose_segmentation.use_gpu", patched_use_gpu
     )
 
     # Do not use cellpose
     monkeypatch.setattr(
-        "fractal_tasks_core.image_labeling.segment_FOV", patched_segment_FOV
+        "fractal_tasks_core.cellpose_segmentation.segment_FOV",
+        patched_segment_FOV,
     )
 
     # Init
@@ -587,7 +590,7 @@ def test_workflow_with_per_well_labeling_2D(
 
     # Whole-well labeling
     for component in metadata["well"]:
-        image_labeling(
+        cellpose_segmentation(
             input_paths=[zarr_path_mip],
             output_path=zarr_path_mip,
             metadata=metadata,

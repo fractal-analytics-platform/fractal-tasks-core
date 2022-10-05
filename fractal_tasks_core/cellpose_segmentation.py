@@ -93,7 +93,7 @@ def segment_FOV(
     return mask.astype(label_dtype)
 
 
-def image_labeling(
+def cellpose_segmentation(
     *,
     input_paths: Iterable[Path],
     output_path: Path,
@@ -279,7 +279,7 @@ def image_labeling(
     model = models.Cellpose(gpu=use_gpu(), model_type=model_type)
 
     # Initialize other things
-    logger.info(f"[{well_id}] Start image_labeling task for {zarrurl}")
+    logger.info(f"[{well_id}] Start cellpose_segmentation task for {zarrurl}")
     logger.info(f"[{well_id}] relabeling: {relabeling}")
     logger.info(f"[{well_id}] do_3D: {do_3D}")
     logger.info(f"[{well_id}] labeling_level: {labeling_level}")
@@ -347,7 +347,7 @@ def image_labeling(
         )
 
     logger.info(
-        f"[{well_id}] End image_labeling task for {zarrurl}, "
+        f"[{well_id}] End cellpose_segmentation task for {zarrurl}, "
         "now building pyramids."
     )
 
@@ -370,7 +370,7 @@ def image_labeling(
 if __name__ == "__main__":
     from argparse import ArgumentParser
 
-    parser = ArgumentParser(prog="image_labeling.py")
+    parser = ArgumentParser(prog="cellpose_segmentation.py")
     parser.add_argument(
         "-z", "--zarrurl", help="zarr url, at the FOV level", required=True
     )
@@ -401,7 +401,7 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    image_labeling(
+    cellpose_segmentation(
         args.zarrurl,
         coarsening_xy=args.coarsening_xy,
         chl_list=args.chl_list,
