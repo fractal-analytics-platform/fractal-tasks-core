@@ -6,7 +6,6 @@ from typing import Dict
 from typing import Iterable
 from typing import Optional
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 

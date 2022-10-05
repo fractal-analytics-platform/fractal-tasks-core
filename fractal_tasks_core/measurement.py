@@ -18,7 +18,6 @@ from napari_workflows._io_yaml_v1 import load_workflow
 from .lib_regions_of_interest import convert_ROI_table_to_indices
 from .lib_zattrs_utils import extract_zyx_pixel_sizes
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 

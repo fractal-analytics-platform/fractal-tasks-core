@@ -28,7 +28,6 @@ import fractal_tasks_core
 from .lib_regions_of_interest import convert_ROIs_from_3D_to_2D
 from .lib_zattrs_utils import extract_zyx_pixel_sizes
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 

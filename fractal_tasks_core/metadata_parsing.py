@@ -10,6 +10,7 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
+import logging
 import warnings
 
 import numpy as np
@@ -17,6 +18,8 @@ import pandas as pd
 from defusedxml import ElementTree
 
 from .lib_remove_FOV_overlaps import remove_FOV_overlaps
+
+logger = logging.getLogger(__name__)
 
 
 def parse_yokogawa_metadata(mrf_path, mlf_path):
@@ -69,7 +72,7 @@ def parse_yokogawa_metadata(mrf_path, mlf_path):
     )
 
     if error_count > 0:
-        print(
+        logger.info(
             f"Succesfully parsed {len(site_metadata)} sites, could not "
             f"parse {error_count} sites due to errors (see warnings)."
         )

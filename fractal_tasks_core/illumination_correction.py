@@ -30,7 +30,6 @@ from .lib_pyramid_creation import build_pyramid
 from .lib_regions_of_interest import convert_ROI_table_to_indices
 from .lib_zattrs_utils import extract_zyx_pixel_sizes
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
