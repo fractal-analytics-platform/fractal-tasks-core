@@ -20,7 +20,7 @@ def dummy(
     message: str,
     index: int = 0,
     **task_args,
-) -> Path:
+) -> Dict:
     """
     Dummy task
 

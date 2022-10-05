@@ -15,6 +15,14 @@ __FRACTAL_MANIFEST__ = [
     },
     {
         "resource_type": "core task",
+        "name": "dummy_fail",
+        "module": f"{__name__}.dummy_fail:dummy_fail",
+        "input_type": "Any",
+        "output_type": "None",
+        "default_args": {},
+    },
+    {
+        "resource_type": "core task",
         "name": "Create OME-ZARR structure",
         "module": f"{__name__}.create_zarr_structure:create_zarr_structure",
         "input_type": "image",
