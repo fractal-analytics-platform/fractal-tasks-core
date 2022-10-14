@@ -158,4 +158,4 @@ def test_parse_yokogawa_metadata(
     assert np.allclose(site_metadata["x_pixel"], x_pixel)
     assert np.allclose(site_metadata["y_pixel"], y_pixel)
     assert np.allclose(site_metadata["bit_depth"], bit_depth)
-    assert list(site_metadata["time"]) == Time
+    assert list(site_metadata["Time"]) == Time
