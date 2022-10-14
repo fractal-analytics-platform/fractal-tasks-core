@@ -144,148 +144,22 @@ def read_mrf_file(mrf_path):
 
 
 def read_mlf_file(mlf_path):
-    mlf_frame = pd.read_xml(mlf_path)   
+    mlf_frame_raw = pd.read_xml(mlf_path)   
 
     # Create a well ID column
-    row_str = [chr(x) for x in (mlf_frame['Row'] + 64)]
-    mlf_frame['well_id'] = ['{}{:02}'.format(a, b) for a, b in zip(row_str, mlf_frame['Column'])]
-
+    row_str = [chr(x) for x in (mlf_frame_raw['Row'] + 64)]
+    mlf_frame_raw['well_id'] = ['{}{:02}'.format(a, b) for a, b in zip(row_str, mlf_frame_raw['Column'])]
+    
+    # We're only interested in the image metadata
+    mlf_frame = mlf_frame_raw[mlf_frame_raw['Type'] == 'IMG']
+    
     # TODO: Implement error handling (& don't parse the error lines to the output) => filter for IMG
     error_count = 0
 
+    # Flip Y axis to align to image coordinate system
+    mlf_frame['Y'] = - mlf_frame['Y']
+
     return mlf_frame, error_count
-
-
-# def read_mlf_file_old(mlf_path, mrf_frame):
-#     # Docstring TBD
-#     mlf_xml = ElementTree.parse(mlf_path).getroot()
-#     ns = {"bts": "http://www.yokogawa.co.jp/BTS/BTSSchema/1.0"}
-
-#     # Measure number of lines
-#     def blocks(fh, size=65536):
-#         while True:
-#             block = fh.read(size)
-#             if not block:
-#                 break
-#             yield block
-
-#     mlf_entries = mlf_xml.findall("bts:MeasurementRecord", namespaces=ns)
-#     nb_lines = len(mlf_entries)
-
-#     # Prepare mlf dataframe
-#     mlf_columns = [
-#         "type",
-#         "well_id",
-#         "column",
-#         "row",
-#         "time_point",
-#         "field_id",
-#         "z_index",
-#         "timeline_id",
-#         "action_id",
-#         "action",
-#         "x_micrometer",
-#         "y_micrometer",
-#         "z_micrometer",
-#         "x_pixel",
-#         "y_pixel",
-#         "pixel_size_x",
-#         "pixel_size_y",
-#         "bit_depth",
-#         "width",
-#         "height",
-#         "channel_id",
-#         "camera_no",
-#         "file_name",
-#         "time",
-#     ]
-#     mlf_frame = pd.DataFrame(columns=mlf_columns, index=range(0, nb_lines))
-
-#     mrf_channel_indices = {
-#         row.channel_id: idx
-#         for idx, (_, row) in enumerate(mrf_frame.iterrows())
-#     }
-
-#     error_count = 0
-#     for idx, record in enumerate(mlf_entries):
-#         rec_type = record.get("{%s}Type" % ns["bts"])
-
-#         if rec_type == "ERR":
-#             warnings.warn(
-#                 "When parsing the yokogawa metadata, "
-#                 f"found an 'ERR' entry at line '{idx+3}' in the MLF "
-#                 f"meta file! The error was: '{record.text}'."
-#                 "The entry is skipped."
-#             )
-#             error_count += 1
-#             continue
-#         elif rec_type != "IMG":
-#             warnings.warn(
-#                 "When parsing the yokogawa metadata, "
-#                 f"Found unexpected '{rec_type}' entry at line '{idx+3}'"
-#                 "in the MLF meta file! The entry is skipped."
-#             )
-#             error_count += 1
-#             continue
-
-#         channel_id = record.get("{%s}Ch" % ns["bts"])
-#         x_micrometer = float(record.get("{%s}X" % ns["bts"]))
-#         # we mirror the y coordinate to fit with the field layout
-#         y_micrometer = -float(record.get("{%s}Y" % ns["bts"]))
-#         z_micrometer = float(record.get("{%s}Z" % ns["bts"]))
-
-#         well_row_id = record.get("{%s}Row" % ns["bts"])
-#         well_col_id = record.get("{%s}Column" % ns["bts"])
-#         well_id = chr(64 + int(well_row_id)) + str(well_col_id).zfill(2)
-#         # Convert all times to UTC time zone to avoid later timezone handling
-#         time = pd.to_datetime(record.get("{%s}Time" % ns["bts"]), utc=True)
-
-#         bit_depth = np.nan
-#         width = np.nan
-#         height = np.nan
-#         camera_no = np.nan
-#         pixel_size_x = np.nan
-#         pixel_size_y = np.nan
-#         if rec_type == "IMG":
-#             mrf_idx = mrf_channel_indices[channel_id]
-#             pixel_size_x = mrf_frame.iat[mrf_idx, 1]
-#             pixel_size_y = mrf_frame.iat[mrf_idx, 2]
-#             bit_depth = int(mrf_frame.iat[mrf_idx, 4])
-#             width = int(mrf_frame.iat[mrf_idx, 5])
-#             height = int(mrf_frame.iat[mrf_idx, 6])
-#             camera_no = int(mrf_frame.iat[mrf_idx, 3])
-
-#         # we use iat[] here for (significant) performance reasons
-#         mlf_frame.iat[idx, 0] = rec_type
-#         mlf_frame.iat[idx, 1] = well_id
-#         mlf_frame.iat[idx, 2] = int(well_col_id)
-#         mlf_frame.iat[idx, 3] = int(well_row_id)
-#         mlf_frame.iat[idx, 4] = int(record.get("{%s}TimePoint" % ns["bts"]))
-#         mlf_frame.iat[idx, 5] = int(record.get("{%s}FieldIndex" % ns["bts"]))
-#         mlf_frame.iat[idx, 6] = int(record.get("{%s}ZIndex" % ns["bts"]))
-#         mlf_frame.iat[idx, 7] = int(
-#             record.get("{%s}TimelineIndex" % ns["bts"])
-#         )
-#         mlf_frame.iat[idx, 8] = int(record.get("{%s}ActionIndex" % ns["bts"]))
-#         mlf_frame.iat[idx, 9] = record.get("{%s}Action" % ns["bts"])
-#         mlf_frame.iat[idx, 10] = x_micrometer
-#         mlf_frame.iat[idx, 11] = y_micrometer
-#         mlf_frame.iat[idx, 12] = z_micrometer
-#         mlf_frame.iat[idx, 13] = width
-#         mlf_frame.iat[idx, 14] = height
-#         mlf_frame.iat[idx, 15] = pixel_size_x
-#         mlf_frame.iat[idx, 16] = pixel_size_y
-
-#         mlf_frame.iat[idx, 17] = bit_depth
-#         mlf_frame.iat[idx, 18] = width
-#         mlf_frame.iat[idx, 19] = height
-#         mlf_frame.iat[idx, 20] = channel_id
-#         mlf_frame.iat[idx, 21] = camera_no
-#         mlf_frame.iat[idx, 22] = record.text  # file_name
-#         mlf_frame.iat[idx, 23] = time  # file_name
-
-#     mlf_frame = mlf_frame.dropna(thresh=(len(mlf_frame.columns)))
-#     return mlf_frame, error_count
 
 
 def calculate_steps(site_series: pd.Series):
@@ -326,14 +200,7 @@ def get_z_steps(mlf_frame):
             ["well_id", "FieldIndex"]
         )
     
-    # Is this necessary? Checking via std is not save towards float imprecisions
-    # Thus, deactivated this check for the moment
-    # if not z_data.std().sum().sum() == 0.0:
-    #     raise Exception(
-    #         "When parsing the Yokogawa mlf file, channels had "
-    #         "varying step size in Z. "
-    #         "That is not supported for the OME-Zarr parsing"
-    #     )
+    check_group_consistency(z_data, message='Comparing Z steps between channels')
 
     # Ensure that channels have the same number of z planes and
     # reduce it to one value.
@@ -341,18 +208,9 @@ def get_z_steps(mlf_frame):
     if any(
         grouped_sites_z.count().groupby(["well_id", "FieldIndex"]).count() > 1
     ):
-        if any(
-            grouped_sites_z.count()
-            .groupby(["well_id", "FieldIndex"])
-            .std()
-            .sum()
-            != 0
-        ):
-            raise Exception(
-                "When parsing the Yokogawa mlf file, channels had "
-                "varying number of z planes."
-                "That is not supported for the OME-Zarr parsing"
-            )
+        check_group_consistency(grouped_sites_z.count().groupby(["well_id", "FieldIndex"]), 
+                                message='Checking number of Z steps between channels')
+    
     z_steps = (
         grouped_sites_z.count()
         .groupby(["well_id", "FieldIndex"])
