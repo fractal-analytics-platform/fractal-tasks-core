@@ -127,7 +127,7 @@ parameters = [
 @pytest.mark.parametrize(
     "mlf_path, mrf_path, expected_files, expected_shape, x_mic_pos, "
     "y_mic_pos, pixel_size_z, z_pixel, pixel_size_x, pixel_size_y, "
-    "x_pixel, y_pixel, bit_depth, time",
+    "x_pixel, y_pixel, bit_depth, Time",
     parameters,
 )
 def test_parse_yokogawa_metadata(
@@ -144,7 +144,7 @@ def test_parse_yokogawa_metadata(
     x_pixel,
     y_pixel,
     bit_depth,
-    time,
+    Time,
 ):
     site_metadata, total_files = parse_yokogawa_metadata(mrf_path, mlf_path)
     assert total_files == expected_files
@@ -158,4 +158,4 @@ def test_parse_yokogawa_metadata(
     assert np.allclose(site_metadata["x_pixel"], x_pixel)
     assert np.allclose(site_metadata["y_pixel"], y_pixel)
     assert np.allclose(site_metadata["bit_depth"], bit_depth)
-    assert list(site_metadata["time"]) == time
+    assert list(site_metadata["Time"]) == Time
