@@ -67,15 +67,10 @@ def parse_yokogawa_metadata(mrf_path, mlf_path):
     site_metadata['y_pixel'] = int(mrf_frame.loc[:, "vert_pixels"].max())
     site_metadata['bit_depth'] = int(mrf_frame.loc[:, "bit_depth"].max())
 
-    original_site_metadata = ['x_micrometer', 'y_micrometer', 'pixel_size_x', 'pixel_size_y',
-        'x_pixel', 'y_pixel', 'bit_depth', 'z_micrometer', 'pixel_size_z',
-        'z_pixel', 'time', 'x_micrometer_original', 'y_micrometer_original']
-    site_metadata
-
     if error_count > 0:
         logger.info(
-            f"Succesfully parsed {len(site_metadata)} sites, could not "
-            f"parse {error_count} sites due to errors (see warnings)."
+            f"There were {error_count} ERR entries in the metadatafile. "
+            f"Still succesfully parsed {len(site_metadata)} sites. "
         )
     total_files = len(mlf_frame)
     # TODO: Check whether the total_files correspond to the number of
@@ -150,14 +145,12 @@ def read_mlf_file(mlf_path):
     row_str = [chr(x) for x in (mlf_frame_raw['Row'] + 64)]
     mlf_frame_raw['well_id'] = ['{}{:02}'.format(a, b) for a, b in zip(row_str, mlf_frame_raw['Column'])]
     
+    # Flip Y axis to align to image coordinate system
+    mlf_frame_raw.loc['Y'] = - mlf_frame_raw['Y']
     # We're only interested in the image metadata
     mlf_frame = mlf_frame_raw[mlf_frame_raw['Type'] == 'IMG']
     
-    # TODO: Implement error handling (& don't parse the error lines to the output) => filter for IMG
-    error_count = 0
-
-    # Flip Y axis to align to image coordinate system
-    mlf_frame['Y'] = - mlf_frame['Y']
+    error_count = (mlf_frame_raw['Type'] == 'ERR').sum()
 
     return mlf_frame, error_count
 
@@ -229,7 +222,7 @@ def get_earliest_time_per_site(mlf_frame) -> pd.DataFrame:
     # Because a site will contain time information for each plane
     # of each channel, we just return the earliest time infromation
     # per site.
-    return mlf_frame.groupby(["well_id", "FieldIndex"]).min()["Time"]
+    return pd.to_datetime(mlf_frame.groupby(["well_id", "FieldIndex"]).min()["Time"], utc=True)
 
 
 def check_group_consistency(grouped_df, message=''):
