@@ -11,7 +11,6 @@ Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
 import logging
-import warnings
 
 import numpy as np
 import pandas as pd
@@ -34,19 +33,16 @@ def parse_yokogawa_metadata(mrf_path, mlf_path):
     mrf_frame, mlf_frame, error_count = read_metadata_files(mrf_path, mlf_path)
 
     # Aggregate information from the mlf file
-    per_site_parameters = [
-        "X",
-        "Y"
-    ]
+    per_site_parameters = ["X", "Y"]
 
     grouping_params = ["well_id", "FieldIndex"]
     grouped_sites = mlf_frame.loc[
-            :, grouping_params + per_site_parameters
-        ].groupby(by=grouping_params)
+        :, grouping_params + per_site_parameters
+    ].groupby(by=grouping_params)
 
-    check_group_consistency(grouped_sites, message='X & Y stage positions')
+    check_group_consistency(grouped_sites, message="X & Y stage positions")
     site_metadata = grouped_sites.mean()
-    site_metadata.columns = ['x_micrometer', 'y_micrometer']
+    site_metadata.columns = ["x_micrometer", "y_micrometer"]
     site_metadata["z_micrometer"] = 0
 
     site_metadata = pd.concat(
@@ -59,13 +55,21 @@ def parse_yokogawa_metadata(mrf_path, mlf_path):
     )
 
     # Aggregate information from the mrf file
-    mrf_columns = ["horiz_pixel_dim", "vert_pixel_dim", "horiz_pixels", "vert_pixels", "bit_depth"]
-    check_group_consistency(mrf_frame.loc[:, mrf_columns], message='Image dimensions')
-    site_metadata['pixel_size_x'] = mrf_frame.loc[:, "horiz_pixel_dim"].max()
-    site_metadata['pixel_size_y'] = mrf_frame.loc[:, "vert_pixel_dim"].max()
-    site_metadata['x_pixel'] = int(mrf_frame.loc[:, "horiz_pixels"].max())
-    site_metadata['y_pixel'] = int(mrf_frame.loc[:, "vert_pixels"].max())
-    site_metadata['bit_depth'] = int(mrf_frame.loc[:, "bit_depth"].max())
+    mrf_columns = [
+        "horiz_pixel_dim",
+        "vert_pixel_dim",
+        "horiz_pixels",
+        "vert_pixels",
+        "bit_depth",
+    ]
+    check_group_consistency(
+        mrf_frame.loc[:, mrf_columns], message="Image dimensions"
+    )
+    site_metadata["pixel_size_x"] = mrf_frame.loc[:, "horiz_pixel_dim"].max()
+    site_metadata["pixel_size_y"] = mrf_frame.loc[:, "vert_pixel_dim"].max()
+    site_metadata["x_pixel"] = int(mrf_frame.loc[:, "horiz_pixels"].max())
+    site_metadata["y_pixel"] = int(mrf_frame.loc[:, "vert_pixels"].max())
+    site_metadata["bit_depth"] = int(mrf_frame.loc[:, "bit_depth"].max())
 
     if error_count > 0:
         logger.info(
@@ -139,18 +143,22 @@ def read_mrf_file(mrf_path):
 
 
 def read_mlf_file(mlf_path):
-    mlf_frame_raw = pd.read_xml(mlf_path)   
+    mlf_frame_raw = pd.read_xml(mlf_path)
 
     # Create a well ID column
-    row_str = [chr(x) for x in (mlf_frame_raw['Row'] + 64)]
-    mlf_frame_raw['well_id'] = ['{}{:02}'.format(a, b) for a, b in zip(row_str, mlf_frame_raw['Column'])]
-    
+    row_str = [chr(x) for x in (mlf_frame_raw["Row"] + 64)]
+    mlf_frame_raw["well_id"] = [
+        "{}{:02}".format(a, b)
+        for a, b in zip(row_str, mlf_frame_raw["Column"])
+    ]
+
     # Flip Y axis to align to image coordinate system
-    mlf_frame_raw.loc['Y'] = - mlf_frame_raw['Y']
+    mlf_frame_raw["Y"] = -mlf_frame_raw["Y"]
+
     # We're only interested in the image metadata
-    mlf_frame = mlf_frame_raw[mlf_frame_raw['Type'] == 'IMG']
-    
-    error_count = (mlf_frame_raw['Type'] == 'ERR').sum()
+    mlf_frame = mlf_frame_raw[mlf_frame_raw["Type"] == "IMG"]
+
+    error_count = (mlf_frame_raw["Type"] == "ERR").sum()
 
     return mlf_frame, error_count
 
@@ -192,8 +200,10 @@ def get_z_steps(mlf_frame):
         z_data = grouped_sites_z.apply(calculate_steps).groupby(
             ["well_id", "FieldIndex"]
         )
-    
-    check_group_consistency(z_data, message='Comparing Z steps between channels')
+
+    check_group_consistency(
+        z_data, message="Comparing Z steps between channels"
+    )
 
     # Ensure that channels have the same number of z planes and
     # reduce it to one value.
@@ -201,9 +211,11 @@ def get_z_steps(mlf_frame):
     if any(
         grouped_sites_z.count().groupby(["well_id", "FieldIndex"]).count() > 1
     ):
-        check_group_consistency(grouped_sites_z.count().groupby(["well_id", "FieldIndex"]), 
-                                message='Checking number of Z steps between channels')
-    
+        check_group_consistency(
+            grouped_sites_z.count().groupby(["well_id", "FieldIndex"]),
+            message="Checking number of Z steps between channels",
+        )
+
     z_steps = (
         grouped_sites_z.count()
         .groupby(["well_id", "FieldIndex"])
@@ -222,17 +234,18 @@ def get_earliest_time_per_site(mlf_frame) -> pd.DataFrame:
     # Because a site will contain time information for each plane
     # of each channel, we just return the earliest time infromation
     # per site.
-    return pd.to_datetime(mlf_frame.groupby(["well_id", "FieldIndex"]).min()["Time"], utc=True)
+    return pd.to_datetime(
+        mlf_frame.groupby(["well_id", "FieldIndex"]).min()["Time"], utc=True
+    )
 
 
-def check_group_consistency(grouped_df, message=''):
+def check_group_consistency(grouped_df, message=""):
     # Check consistency in grouped df for multi-index, multi-column dataframes
     # raises an exception if there is variability
     diff_df = grouped_df.max() - grouped_df.min()
     if not np.isclose(np.sum(np.sum(diff_df)), 0.0):
         raise Exception(
-            'During metadata parsing, a consistency check failed: \n'
-            f'{message}\n'
-            f'Difference dataframe: \n{diff_df}'
+            "During metadata parsing, a consistency check failed: \n"
+            f"{message}\n"
+            f"Difference dataframe: \n{diff_df}"
         )
-
