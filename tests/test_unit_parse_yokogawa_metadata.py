@@ -127,7 +127,7 @@ parameters = [
 @pytest.mark.parametrize(
     "mlf_path, mrf_path, expected_files, expected_shape, x_mic_pos, "
     "y_mic_pos, pixel_size_z, z_pixel, pixel_size_x, pixel_size_y, "
-    "x_pixel, y_pixel, bit_depth, time",
+    "x_pixel, y_pixel, bit_depth, Time",
     parameters,
 )
 def test_parse_yokogawa_metadata(
