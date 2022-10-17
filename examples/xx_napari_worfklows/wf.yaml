@@ -1,0 +1,12 @@
+!!python/object:napari_workflows._workflow.Workflow
+_tasks:
+  regionprops_DAPI: !!python/tuple
+  - &id001 !!python/name:napari_skimage_regionprops._regionprops.regionprops_table ''
+  - dapi_img
+  - dapi_label_img
+  - true
+  - true
+  - true
+  - true
+  - true
+  - true
