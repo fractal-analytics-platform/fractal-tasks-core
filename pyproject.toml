@@ -32,6 +32,7 @@ anndata = "^0.8.0"
 llvmlite = "^0.39.1"
 imageio-ffmpeg = "^0.4.7"
 lxml = "^4.9.1"
+napari-segment-blobs-and-things-with-membranes = "^0.3.3"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.1.2"
