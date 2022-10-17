@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fractal-tasks-core"
-version = "0.2.3"
+version = "0.2.4"
 description = ""
 authors = [
     "Jacopo Nespolo <jacopo.nespolo@exact-lab.it>",
@@ -51,7 +51,7 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.bumpver]
-current_version = "0.2.3"
+current_version = "0.2.4"
 version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true
