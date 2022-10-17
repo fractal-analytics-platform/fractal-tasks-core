@@ -91,3 +91,4 @@ for component in metadata["well"]:
         relabeling=True,
         diameter_level0=80.0,
     )
+debug(metadata)

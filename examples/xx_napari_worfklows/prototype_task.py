@@ -1,6 +1,10 @@
+import anndata as ad
 import dask.array as da
 import napari_workflows
 import numpy as np
+import pandas as pd
+import zarr
+from anndata.experimental import write_elem
 from napari_workflows._io_yaml_v1 import load_workflow
 
 
@@ -17,10 +21,15 @@ def napari_workflows_wrapper():
     input_specs = {
         "dapi_img": dict(in_type="image", channel_name="DAPI"),
         "dapi_label_img": dict(in_type="label", table_name="label_DAPI"),
+        "lamin_img": dict(in_type="image", channel_name="DAPI"),
+        "lamin_label_img": dict(in_type="label", table_name="label_DAPI"),
     }
     output_specs = {
-        "DAPI_regionprops": dict(
+        "regionprops_DAPI": dict(
             out_type="dataframe", table_name="dapi_measurements"
+        ),
+        "regionprops_Lamin": dict(
+            out_type="dataframe", table_name="lamin_measurements"
         ),
     }
     list_outputs = sorted(output_specs.keys())
@@ -28,12 +37,13 @@ def napari_workflows_wrapper():
     # FIXME: use standard ROIs
     list_indices = [
         [0, 10, 0, 2160, 0, 2560],
+        [0, 10, 0, 2160, 2560, 5120],
     ]
 
     # Validation of specs
     wf: napari_workflows.Worfklow = load_workflow(workflow_file)
-    assert len(wf.leafs()) == len(output_specs)
-    assert len(wf.roots()) == len(input_specs)
+    assert set(wf.leafs()) == set(output_specs)
+    assert set(wf.roots()) == set(input_specs)
 
     # This loads /some/path/plate.zarr/B/03/0/{level}
     img_array = da.from_zarr(f"{in_path}/{component}/{level}")
@@ -104,10 +114,34 @@ def napari_workflows_wrapper():
             output_type = output_specs[output_name]["out_type"]
             if output_type == "dataframe":
                 table_name = output_specs[output_name]["table_name"]
-                tables[table_name].append(outputs[ind_output])
+                # Select output dataframe
+                df = outputs[ind_output]
+                # Use label column as index, simply to avoid non-unique indices when
+                # using per-FOV labels
+                df.index = df["label"].astype(str)
+                # Append the new-ROI dataframe to the all-ROIs list
+                tables[table_name].append(df)
             # FIXME: handle label output
 
-    # FIXME write each (concatenated) dataframes to a table
+    # For each dataframe output: concatenate all ROI dataframes, clean up, and
+    # store in a AnnData table
+    # FIXME: is this cleanup procedure general?
+    for table_name in required_dataframes:
+        list_dfs = tables[table_name]
+        # Concatenate all FOV dataframes
+        df_well = pd.concat(list_dfs, axis=0)
+        # Extract labels and drop them from df_well
+        labels = pd.DataFrame(df_well["label"].astype(str))
+        df_well.drop(labels=["label"], axis=1, inplace=True)
+        # Convert all to float (warning: some would be int, in principle)
+        measurement_dtype = np.float32
+        df_well = df_well.astype(measurement_dtype)
+        # Convert to anndata
+        measurement_table = ad.AnnData(df_well, dtype=measurement_dtype)
+        measurement_table.obs = labels
+        # Write to zarr group
+        group_tables = zarr.group(f"{in_path}/{component}/tables/")
+        write_elem(group_tables, table_name, measurement_table)
 
 
 if __name__ == "__main__":

@@ -6,7 +6,17 @@ _tasks:
   - dapi_label_img
   - true
   - true
+  - false
+  - false
+  - false
+  - false
+  regionprops_Lamin: !!python/tuple
+  - *id001
+  - lamin_img
+  - lamin_label_img
   - true
   - true
-  - true
-  - true
+  - false
+  - false
+  - false
+  - false
