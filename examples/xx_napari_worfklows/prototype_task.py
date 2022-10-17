@@ -7,17 +7,22 @@ import zarr
 from anndata.experimental import write_elem
 from napari_workflows._io_yaml_v1 import load_workflow
 
+from ..lib_pyramid_creation import build_pyramid
+
 
 def napari_workflows_wrapper():
 
     in_path = "tmp_out"
     component = "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr/B/03/0"
+
     level = 0
+    num_levels = 6
+    coarsening_xy = 2
 
     channel_mapping = {"DAPI": 0}
 
-    workflow_file = "wf.yaml"
-
+    """
+    workflow_file = "wf_7.yaml"
     input_specs = {
         "dapi_img": dict(in_type="image", channel_name="DAPI"),
         "dapi_label_img": dict(in_type="label", table_name="label_DAPI"),
@@ -32,6 +37,23 @@ def napari_workflows_wrapper():
             out_type="dataframe", table_name="lamin_measurements"
         ),
     }
+    """
+
+    workflow_file = "wf_6.yaml"
+    input_specs = {
+        "slice_img": dict(in_type="image", channel_name="DAPI"),
+        "slice_img_c2": dict(in_type="image", channel_name="DAPI"),
+    }
+    output_specs = {
+        "Result of Expand labels (scikit-image, nsbatwm)": dict(
+            out_type="label",
+            table_name="label_DAPI_nw",
+        ),
+        "regionprops_DAPI": dict(
+            out_type="dataframe", table_name="dapi_measurements"
+        ),
+    }
+
     list_outputs = sorted(output_specs.keys())
 
     # FIXME: use standard ROIs
@@ -68,12 +90,56 @@ def napari_workflows_wrapper():
             label_img_up_x, upscale_factor, axis=1
         )
 
-    # FIXME: prepare label arrays for output
+    # Prepare label arrays for output
     required_labels = [
         output_specs[output_item]["table_name"]
         for output_item in output_specs
         if output_specs[output_item]["out_type"] == "label"
     ]
+    # Open new zarr group for each mask 0-th level
+    label_zarr_groups = {}
+    for label_name in required_labels:
+
+        label_dtype = np.uint32
+        zarrurl = f"{in_path}/{component}"
+
+        XXXX
+
+        # Write zattrs for labels and for specific label
+        # FIXME deal with: (1) many channels, (2) overwriting
+        labels_group = zarr.group(f"{zarrurl}labels")
+        labels_group.attrs["labels"] = [label_name]
+        label_group = labels_group.create_group(label_name)
+        label_group.attrs["image-label"] = {"version": __OME_NGFF_VERSION__}
+        label_group.attrs["multiscales"] = [
+            {
+                "name": label_name,
+                "version": __OME_NGFF_VERSION__,
+                "axes": [
+                    ax
+                    for ax in multiscales[0]["axes"]
+                    if ax["type"] != "channel"
+                ],
+                "datasets": new_datasets,
+            }
+        ]
+
+        XXX
+
+        zarr.group(f"{zarrurl}/labels")
+        zarr.group(f"{zarrurl}/labels/{label_name}")
+        store = da.core.get_mapper(f"{zarrurl}/labels/{label_name}/0")
+        label_dtype = np.uint32
+        mask_zarr = zarr.create(
+            shape=img_array[0].shape,
+            chunks=img_array[0].chunksize,
+            dtype=label_dtype,
+            store=store,
+            overwrite=False,
+            dimension_separator="/",
+            # FIXME write_empty_chunks=.. do we need this?
+        )
+        label_zarr_groups[label_name] = mask_zarr
 
     # Prepare dataframe-output collections
     required_dataframes = [
@@ -119,9 +185,21 @@ def napari_workflows_wrapper():
                 # Use label column as index, simply to avoid non-unique indices when
                 # using per-FOV labels
                 df.index = df["label"].astype(str)
+                # FIXME: add relabeling
                 # Append the new-ROI dataframe to the all-ROIs list
                 tables[table_name].append(df)
-            # FIXME: handle label output
+            elif output_type == "label":
+                table_name = output_specs[output_name]["table_name"]
+                mask = outputs[ind_output]
+                # FIXME: add relabeling
+                # if relabeling:
+                #    mask += tot_labels[table_name]
+                #    tot_labels[table_name] += np.max(mask)
+                da.array(mask).to_zarr(
+                    url=label_zarr_groups[label_name],
+                    region=region,
+                    compute=True,
+                )
 
     # For each dataframe output: concatenate all ROI dataframes, clean up, and
     # store in a AnnData table
@@ -142,6 +220,17 @@ def napari_workflows_wrapper():
         # Write to zarr group
         group_tables = zarr.group(f"{in_path}/{component}/tables/")
         write_elem(group_tables, table_name, measurement_table)
+
+    # For each output label, build and write to disk a pyramid of coarser levels
+    for label_name in required_labels:
+        build_pyramid(
+            zarrurl=f"{zarrurl}/labels/{label_name}",
+            overwrite=False,
+            num_levels=num_levels,
+            coarsening_xy=coarsening_xy,
+            chunksize=img_array[0].chunksize,
+            aggregation_function=np.max,
+        )
 
 
 if __name__ == "__main__":
