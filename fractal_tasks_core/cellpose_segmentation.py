@@ -292,7 +292,6 @@ def cellpose_segmentation(
     # Counters for relabeling
     if relabeling:
         num_labels_tot = 0
-        num_labels_column = 0
 
     # Iterate over ROIs
     logger.info(f"[{well_id}] Now starting loop over {len(list_indices)} ROIs")
@@ -327,8 +326,8 @@ def cellpose_segmentation(
             logger.info(
                 f"[{well_id}] "
                 f"FOV ROI {indices}, "
-                f"num_labels_column={num_labels_column}, "
-                f"num_labels_tot={num_labels_tot}"
+                f"{num_labels_fov=}, "
+                f"{num_labels_tot=}"
             )
 
             # Check that total number of labels is under control
