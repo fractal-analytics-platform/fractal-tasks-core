@@ -21,6 +21,10 @@ def upscale_array(
         f"acting on {axis=}."
     )
 
+    # Default behavior: use all axis
+    if axis is None:
+        axis = list(range(len(target_shape)))
+
     if len(array_shape) != len(target_shape):
         raise ValueError(f"{info} Dimensions-number mismatch.")
     if min(axis) < 0:
