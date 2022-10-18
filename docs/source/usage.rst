@@ -6,7 +6,7 @@ Usage
 Installation
 ------------
 
-To use Fractal Core Task, first install it using pip:
+To use Fractal Tasks Core, first install it using pip:
 
 .. code-block:: console
 

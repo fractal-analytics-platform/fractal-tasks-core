@@ -1,4 +1,4 @@
-Welcome to Fractal Core Task's documentation!
+Welcome to Fractal Tasks Core's documentation!
 ===================================
 
 **Fractal Tasks Core** (/lu'make/) is a Python library...
