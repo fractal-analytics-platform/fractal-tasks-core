@@ -3,7 +3,7 @@ _tasks:
   regionprops_DAPI: !!python/tuple
   - !!python/name:napari_skimage_regionprops._regionprops.regionprops_table ''
   - dapi_img
-  - label_img
+  - dapi_label_img
   - true
   - true
   - true

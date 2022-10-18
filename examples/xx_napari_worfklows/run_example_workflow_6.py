@@ -81,7 +81,7 @@ for component in metadata["well"]:
 debug(metadata)
 
 # napari-workflows
-workflow_file = "wf_3.yaml"
+workflow_file = "wf_6.yaml"
 input_specs = {
     "slice_img": {"type": "image", "channel": "A01_C01"},
     "slice_img_c2": {"type": "image", "channel": "A01_C01"},

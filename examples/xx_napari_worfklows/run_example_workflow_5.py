@@ -81,38 +81,17 @@ for component in metadata["well"]:
     )
 debug(metadata)
 
-# Per-FOV labeling
-for component in metadata["well"]:
-    cellpose_segmentation(
-        input_paths=[zarr_path],
-        output_path=zarr_path,
-        metadata=metadata,
-        component=component,
-        labeling_channel="A01_C01",
-        labeling_level=4,
-        relabeling=True,
-        diameter_level0=80.0,
-    )
-debug(metadata)
-
 # napari-workflows
-
-workflow_file = "wf_6.yaml"
+workflow_file = "wf_5.yaml"
 input_specs = {
-    "slice_img": {"type": "image", "channel": "DAPI"},
-    "slice_img_c2": {"type": "image", "channel": "DAPI"},
+    "input": {"type": "image", "channel": "A01_C01"},
 }
 output_specs = {
     "Result of Expand labels (scikit-image, nsbatwm)": {
         "type": "label",
-        "table_name": "label_DAPI_nw",
-    },
-    "regionprops_DAPI": {
-        "type": "dataframe",
-        "table_name": "dapi_measurements",
+        "label_name": "label_DAPI",
     },
 }
-
 for component in metadata["well"]:
     napari_workflows_wrapper(
         input_paths=[zarr_path],

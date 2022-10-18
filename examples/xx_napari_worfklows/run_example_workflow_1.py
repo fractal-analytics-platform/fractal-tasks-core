@@ -81,7 +81,6 @@ for component in metadata["well"]:
 debug(metadata)
 
 # napari-workflows
-
 workflow_file = "wf_1.yaml"
 input_specs = {
     "input": {"type": "image", "channel": "A01_C01"},
@@ -92,7 +91,6 @@ output_specs = {
         "label_name": "label_DAPI",
     },
 }
-
 for component in metadata["well"]:
     napari_workflows_wrapper(
         input_paths=[zarr_path],
