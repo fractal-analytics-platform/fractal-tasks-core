@@ -49,9 +49,9 @@ def napari_workflows_wrapper(
     chl_list = metadata["channel_list"]
     label_dtype = np.uint32
 
-    # Hard-coded parameters  #FIXME
-    level = 0
-    labeling_level = 0
+    # Hard-coded parameters
+    level = 0                # FIXME
+    labeling_level = 0       # FIXME
     if level > 0 or labeling_level > 0:
         raise NotImplementedError(f"{level=}, {labeling_level=}")
 
@@ -71,8 +71,20 @@ def napari_workflows_wrapper(
             "level are not currently supported"
         )
 
-    in_path = "tmp_out"
-    component = "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr/B/03/0"
+    # Read ROI table
+    zarrurl = f"{in_path}/{component}"
+    ROI_table = ad.read_zarr(f"{in_path}/{component}/tables/{ROI_table_name}")
+
+    # Read pixel sizes from zattrs file
+    full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(zattrs_file, level=0)
+
+    # Create list of indices for 3D FOVs spanning the entire Z direction
+    list_indices = convert_ROI_table_to_indices(
+        ROI_table,
+        level=labeling_level,
+        coarsening_xy=coarsening_xy,
+        full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
+    )
 
     """
     workflow_file = "wf_7.yaml"
@@ -107,8 +119,9 @@ def napari_workflows_wrapper(
             "table_name": "dapi_measurements",
         },
     }
-
     list_outputs = sorted(output_specs.keys())
+
+
 
     # FIXME: use standard ROIs
     list_indices = [
