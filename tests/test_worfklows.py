@@ -33,6 +33,9 @@ from fractal_tasks_core.maximum_intensity_projection import (
     maximum_intensity_projection,
 )  # noqa
 from fractal_tasks_core.measurement import measurement
+from fractal_tasks_core.napari_workflows_wrapper import (
+    napari_workflows_wrapper,
+)
 from fractal_tasks_core.replicate_zarr_structure import (
     replicate_zarr_structure,
 )  # noqa
@@ -634,5 +637,75 @@ def test_workflow_with_per_well_labeling_2D(
     validate_schema(path=str(image_zarr), type="image")
     validate_schema(path=str(well_zarr), type="well")
     validate_schema(path=str(plate_zarr), type="plate")
+
+    check_file_number(zarr_path=image_zarr)
+
+
+def test_workflow_napari_worfklow(
+    tmp_path: Path,
+    dataset_10_5281_zenodo_7059515: Path,
+    testdata_path: Path,
+):
+
+    # Init
+    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    zarr_path = tmp_path / "tmp_out/*.zarr"
+    metadata = {}
+
+    # Create zarr structure
+    metadata_update = create_zarr_structure(
+        input_paths=[img_path],
+        output_path=zarr_path,
+        channel_parameters=channel_parameters,
+        num_levels=num_levels,
+        coarsening_xy=coarsening_xy,
+        metadata_table="mrf_mlf",
+    )
+    metadata.update(metadata_update)
+    debug(metadata)
+
+    # Yokogawa to zarr
+    for component in metadata["well"]:
+        yokogawa_to_zarr(
+            input_paths=[zarr_path],
+            output_path=zarr_path,
+            metadata=metadata,
+            component=component,
+        )
+    debug(metadata)
+
+    # napari-workflows
+    workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
+    input_specs = {
+        "input": {"type": "image", "channel": "A01_C01"},
+    }
+    output_specs = {
+        "Result of Expand labels (scikit-image, nsbatwm)": {
+            "type": "label",
+            "label_name": "label_DAPI",
+        },
+    }
+    for component in metadata["well"]:
+        napari_workflows_wrapper(
+            input_paths=[zarr_path],
+            output_path=zarr_path,
+            metadata=metadata,
+            component=component,
+            input_specs=input_specs,
+            output_specs=output_specs,
+            workflow_file=workflow_file,
+            ROI_table_name="FOV_ROI_table",
+        )
+    debug(metadata)
+
+    # OME-NGFF JSON validation
+    image_zarr = Path(zarr_path.parent / metadata["well"][0])
+    well_zarr = image_zarr.parent
+    plate_zarr = image_zarr.parents[2]
+    label_zarr = image_zarr / "labels/label_DAPI"
+    validate_schema(path=str(image_zarr), type="image")
+    validate_schema(path=str(well_zarr), type="well")
+    validate_schema(path=str(plate_zarr), type="plate")
+    validate_schema(path=str(label_zarr), type="label")
 
     check_file_number(zarr_path=image_zarr)
