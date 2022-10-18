@@ -4,4 +4,4 @@ API
 .. autosummary::
    :toctree: generated
 
-   fractal_core_task
+   fractal_tasks_core

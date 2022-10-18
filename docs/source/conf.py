@@ -1,7 +1,7 @@
 # Configuration file for the Sphinx documentation builder.
 # -- Project information
 
-project = "Fractal Core Task"
+project = "Fractal Tasks Core"
 copyright = "2022, Fractal"
 author = "Marco Franzon"
 
