@@ -16,7 +16,6 @@ from pathlib import Path
 
 from devtools import debug
 
-from fractal_tasks_core.cellpose_segmentation import cellpose_segmentation
 from fractal_tasks_core.create_zarr_structure import create_zarr_structure
 from fractal_tasks_core.napari_workflows_wrapper import (
     napari_workflows_wrapper,
