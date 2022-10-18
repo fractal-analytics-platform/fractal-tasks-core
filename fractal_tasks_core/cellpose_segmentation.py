@@ -294,8 +294,9 @@ def cellpose_segmentation(
         num_labels_tot = 0
 
     # Iterate over ROIs
-    logger.info(f"[{well_id}] Now starting loop over {len(list_indices)} ROIs")
-    for indices in list_indices:
+    num_ROIs = len(list_indices)
+    logger.info(f"[{well_id}] Now starting loop over {num_ROIs} ROIs")
+    for i_ROI, indices in enumerate(list_indices):
         # Define region
         s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
         region = (
@@ -303,6 +304,7 @@ def cellpose_segmentation(
             slice(s_y, e_y),
             slice(s_x, e_x),
         )
+        logger.info(f"[{well_id}] Now processing ROI {i_ROI+1}/{num_ROIs}")
         # Execute illumination correction
         fov_mask = segment_FOV(
             data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].compute(),

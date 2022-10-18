@@ -212,8 +212,9 @@ def illumination_correction(
         )
 
     # Iterate over FOV ROIs
+    num_ROIs = len(list_indices)
     for i_c, channel in enumerate(chl_list):
-        for indices in list_indices:
+        for i_ROI, indices in enumerate(list_indices):
             # Define region
             s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
             region = (
@@ -221,6 +222,10 @@ def illumination_correction(
                 slice(s_z, e_z),
                 slice(s_y, e_y),
                 slice(s_x, e_x),
+            )
+            logger.info(
+                f"Now processing ROI {i_ROI+1}/{num_ROIs} "
+                f"for channel {i_c+1}/{len(chl_list)}"
             )
             # Execute illumination correction
             corrected_fov = correct(

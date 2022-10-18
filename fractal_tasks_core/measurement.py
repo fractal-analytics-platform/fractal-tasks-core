@@ -151,13 +151,15 @@ def measurement(
 
     # Loop over FOV ROIs
     list_dfs = []
-    for indices in list_indices:
+    num_ROIs = len(list_indices)
+    for i_ROI, indices in enumerate(list_indices):
         s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
         ROI = (slice(s_z, e_z), slice(s_y, e_y), slice(s_x, e_x))
         if is_2D:
             if not (s_z, e_z) == (0, 1):
                 raise Exception("Something went wrong with 2D ROI ", ROI)
             ROI = (slice(s_y, e_y), slice(s_x, e_x))
+        logger.info(f"Now processing ROI {i_ROI+1}/{num_ROIs}")
         logger.info(f"Single-ROI shape:      {img[ROI].shape}")
 
         # Set the input images: DAPI image & label image for current ROI
