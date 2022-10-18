@@ -1,35 +1,68 @@
+from typing import Iterable
+
 import numpy as np
+import warning
 
 
-def upscale_array(reference_array=None, array=None):
+def upscale_array(
+    *,
+    reference_shape: Iterable[int] = None,
+    array=None,
+    axis: Iterable[int] = None,
+) -> np.ndarray:
+    """
+    Upscale array along given axis, to match a
+    reference shape. Upscaling is based on np.repeat.
+    """
 
-    # Find upscale_factor for labels array
-    ref_shape = reference_array.shape
     array_shape = array.shape
-
-    upscale_factor_x = ref_shape[-1] // array_shape[-1]
-    upscale_factor_y = ref_shape[-2] // array_shape[-2]
-    msg = (
-        f"Trying to upscale from {array_shape=} to {ref_shape=}, with"
-        f"{upscale_factor_x=} and {upscale_factor_y=}."
+    info = (
+        f"Trying to upscale from {array_shape=} to {reference_shape=}, "
+        f"acting on {axis=}."
     )
 
-    if upscale_factor_x != upscale_factor_y:
-        error_msg = f"{msg} Expecting upscale_factor_x=upscale_factor_y."
-        raise ValueError(error_msg)
-    upscale_factor = upscale_factor_x
+    if len(array_shape) != len(reference_shape):
+        raise ValueError(f"{info} Dimensions-number mismatch.")
+    if min(axis) < 0:
+        raise ValueError(f"{info} Negative axis specification not allowed.")
 
-    if (
-        array_shape[-1] * upscale_factor != ref_shape[-1]
-        or array_shape[-2] * upscale_factor != ref_shape[-2]
-    ):
-        raise ValueError(msg)
+    # Check that upscale is doable
+    for ind, dim in enumerate(array_shape):
+        # Check that array is not larger than reference (downscaling)
+        if dim > reference_shape[ind]:
+            raise ValueError(
+                f"{info} {ind}-th array dimension is larger than " "reference."
+            )
+        # Check that all relevant axis are included in axis
+        if dim != reference_shape[ind] and ind not in axis:
+            raise ValueError(
+                f"{info} {ind}-th array dimension differs from "
+                f"reference, but {ind} is not included in "
+                f"{axis=}."
+            )
 
-    # Upscale labels array - see https://stackoverflow.com/a/7525345/19085332
-    x_rescaled_array = np.repeat(array, upscale_factor, axis=-1)
-    xy_rescaled_array = np.repeat(x_rescaled_array, upscale_factor, axis=-2)
-    if not xy_rescaled_array.shape == ref_shape:
-        error_msg = f"{msg} Upscaled-array shape: {xy_rescaled_array.shape}."
-        raise Exception(error_msg)
+    # Compute upscaling factors
+    upscale_factors = {}
+    for ax in axis:
+        upscale_factors[ax] = reference_shape[ax] // array_shape[ax]
+        # Check that this is not downscaling
+        if upscale_factors[ax] < 1:
+            raise ValueError(info)
+    info = f"{info} Upscale factors: {upscale_factors}"
 
-    return xy_rescaled_array
+    # Raise a warning if upscaling is non-homogeneous across all axis
+    if len(set(upscale_factors)) > 1:
+        warning.warn(info)
+
+    # Upscale array, via np.repeat
+    upscaled_array = array
+    for ax in axis:
+        upscaled_array = np.repeat(
+            upscaled_array, upscale_factors[ax], axis=ax
+        )
+
+    # Check that final shape is correct
+    if not upscaled_array.shape == reference_shape:
+        raise Exception(f"{info} {upscaled_array.shape=}.")
+
+    return upscaled_array
