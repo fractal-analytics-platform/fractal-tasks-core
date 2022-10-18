@@ -286,8 +286,8 @@ def napari_workflows_wrapper(
                     compute=True,
                 )
 
-    # For each dataframe output: concatenate all ROI dataframes, clean up, and
-    # store in a AnnData table
+    # Output handling: "dataframe" type (for each output, concatenate ROI
+    # dataframes, clean up, and store in a AnnData table on-disk)
     # FIXME: is this cleanup procedure general?
     for (name, params) in dataframe_outputs:
         table_name = params["table_name"]
@@ -307,7 +307,8 @@ def napari_workflows_wrapper(
         group_tables = zarr.group(f"{in_path}/{component}/tables/")
         write_elem(group_tables, table_name, measurement_table)
 
-    # For each output label, build and write to disk pyramid of coarser levels
+    # Output handling: "label" type (for each output, build and write to disk
+    # pyramid of coarser levels)
     for (name, params) in label_outputs:
         label_name = params["label_name"]
         build_pyramid(
@@ -318,7 +319,3 @@ def napari_workflows_wrapper(
             chunksize=img_array[0].chunksize,
             aggregation_function=np.max,
         )
-
-
-if __name__ == "__main__":
-    napari_workflows_wrapper()
