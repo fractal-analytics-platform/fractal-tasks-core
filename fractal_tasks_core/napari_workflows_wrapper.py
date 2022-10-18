@@ -35,7 +35,8 @@ def napari_workflows_wrapper(
     output_path: Path,
     metadata: Optional[Dict[str, Any]] = None,
     component: str = None,
-    level: int = 0,
+    input_specs: Dict[str, Dict[str, str]] = None,
+    output_specs: Dict[str, Dict[str, str]] = None,
     workflow_file: str = None,
     ROI_table_name: str = "FOV_ROI_table",
 ):
@@ -50,8 +51,8 @@ def napari_workflows_wrapper(
     label_dtype = np.uint32
 
     # Hard-coded parameters
-    level = 0                # FIXME
-    labeling_level = 0       # FIXME
+    level = 0  # FIXME
+    labeling_level = 0  # FIXME
     if level > 0 or labeling_level > 0:
         raise NotImplementedError(f"{level=}, {labeling_level=}")
 
@@ -102,7 +103,6 @@ def napari_workflows_wrapper(
             out_type="dataframe", table_name="lamin_measurements"
         ),
     }
-    """
 
     workflow_file = "wf_6.yaml"
     input_specs = {
@@ -119,15 +119,7 @@ def napari_workflows_wrapper(
             "table_name": "dapi_measurements",
         },
     }
-    list_outputs = sorted(output_specs.keys())
-
-
-
-    # FIXME: use standard ROIs
-    list_indices = [
-        [0, 10, 0, 2160, 0, 2560],
-        [0, 10, 0, 2160, 2560, 5120],
-    ]
+    """
 
     # Validation of input/output specs
     wf: napari_workflows.Worfklow = load_workflow(workflow_file)
@@ -137,6 +129,7 @@ def napari_workflows_wrapper(
     if set(wf.roots()) > set(input_specs.keys()):
         msg = f"Some item of {wf.roots()=} is not part of {input_specs=}."
         raise ValueError(msg)
+    list_outputs = sorted(output_specs.keys())
 
     # Input preparation: "image" type
     image_inputs = [
