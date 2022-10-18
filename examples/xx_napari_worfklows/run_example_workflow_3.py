@@ -16,8 +16,10 @@ from pathlib import Path
 
 from devtools import debug
 
-from fractal_tasks_core.cellpose_segmentation import cellpose_segmentation
 from fractal_tasks_core.create_zarr_structure import create_zarr_structure
+from fractal_tasks_core.napari_workflows_wrapper import (
+    napari_workflows_wrapper,
+)
 from fractal_tasks_core.yokogawa_to_zarr import yokogawa_to_zarr
 
 
@@ -78,17 +80,32 @@ for component in metadata["well"]:
     )
 debug(metadata)
 
+# napari-workflows
+workflow_file = "wf_3.yaml"
+input_specs = {
+    "slice_img": {"type": "image", "channel": "A01_C01"},
+    "slice_img_c2": {"type": "image", "channel": "A01_C01"},
+}
+output_specs = {
+    "Result of Expand labels (scikit-image, nsbatwm)": {
+        "type": "label",
+        "label_name": "label_DAPI",
+    },
+    "regionprops_DAPI": {
+        "type": "dataframe",
+        "table_name": "regionprops_DAPI",
+    },
+}
 
-# Per-FOV labeling
 for component in metadata["well"]:
-    cellpose_segmentation(
+    napari_workflows_wrapper(
         input_paths=[zarr_path],
         output_path=zarr_path,
         metadata=metadata,
         component=component,
-        labeling_channel="A01_C01",
-        labeling_level=4,
-        relabeling=True,
-        diameter_level0=80.0,
+        input_specs=input_specs,
+        output_specs=output_specs,
+        workflow_file=workflow_file,
+        ROI_table_name="FOV_ROI_table",
     )
 debug(metadata)
