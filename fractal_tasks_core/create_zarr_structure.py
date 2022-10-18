@@ -24,7 +24,7 @@ import zarr
 from anndata.experimental import write_elem
 
 import fractal_tasks_core
-from .lib_parse_filename_metadata import parse_metadata
+from .lib_parse_filename_metadata import parse_filename
 from .lib_regions_of_interest import prepare_FOV_ROI_table
 from .lib_regions_of_interest import prepare_well_ROI_table
 from .metadata_parsing import parse_yokogawa_metadata
@@ -161,7 +161,7 @@ def create_zarr_structure(
         tmp_plates = []
         for fn in input_filename_iter:
             try:
-                metadata = parse_metadata(fn.name)
+                metadata = parse_filename(fn.name)
                 plate_prefix = metadata["plate_prefix"]
                 plate = metadata["plate"]
                 if plate not in dict_plate_prefixes.keys():
@@ -273,7 +273,7 @@ def create_zarr_structure(
         plate_image_iter = glob(f"{in_path}/{plate_prefix}_{ext_glob_pattern}")
 
         wells = [
-            parse_metadata(os.path.basename(fn))["well"]
+            parse_filename(os.path.basename(fn))["well"]
             for fn in plate_image_iter
         ]
         wells = sorted(list(set(wells)))
@@ -286,7 +286,7 @@ def create_zarr_structure(
             well_channels = []
             for fn in well_image_iter:
                 try:
-                    metadata = parse_metadata(os.path.basename(fn))
+                    metadata = parse_filename(os.path.basename(fn))
                     well_channels.append(f"A{metadata['A']}_C{metadata['C']}")
                 except IndexError:
                     logger.info(f"Skipping {fn}")

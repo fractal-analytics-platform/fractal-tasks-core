@@ -13,7 +13,7 @@ Zurich.
 """
 import pytest
 
-from fractal_tasks_core.lib_parse_filename_metadata import parse_metadata
+from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 
 f1 = (
     "20200812-CardiomyocyteDifferentiation14-Cycle1"
@@ -48,7 +48,7 @@ parameters = [
 
 @pytest.mark.parametrize("filename,plate,A,C", parameters)
 def test_parse_metadata_from_image_filename(filename, plate, A, C):
-    metadata = parse_metadata(filename)
+    metadata = parse_filename(filename)
     assert metadata["plate"] == plate
     assert metadata["A"] == A
     assert metadata["C"] == C

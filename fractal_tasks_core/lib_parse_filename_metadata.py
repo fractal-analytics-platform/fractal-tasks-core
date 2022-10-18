@@ -14,7 +14,7 @@ Zurich.
 import re
 
 
-def parse_metadata(filename):
+def parse_filename(filename):
     """
     Extract metadata by parsing image filename, return a parameter dictionary.
     Three kinds of filenames are supported:
@@ -34,7 +34,7 @@ def parse_metadata(filename):
 
     if "/" in filename:
         raise Exception(
-            "ERROR: parse_metadata may fail when filename "
+            "ERROR: parse_filename may fail when filename "
             f'includes "/". Please check that {filename} is '
             "correct."
         )
