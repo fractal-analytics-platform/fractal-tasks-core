@@ -147,6 +147,7 @@ def napari_workflows_wrapper(
                 raise ValueError(f"{channel_name=} not in {chl_list}")
             channel_index = chl_list.index(channel_name)
             input_image_arrays[name] = img_array[channel_index]
+            logger.info(f"Prepared input with {name=} and {params=}")
 
     # Input preparation: "label" type
     label_inputs = [
@@ -172,6 +173,7 @@ def napari_workflows_wrapper(
             input_label_arrays[name] = upscale_array(
                 array=label_array_raw, reference_shape=ref_shape, axis=[1, 2]
             )
+            logger.info(f"Prepared input with {name=} and {params=}")
 
     # Output preparation: "label" type
     label_outputs = [
@@ -232,6 +234,7 @@ def napari_workflows_wrapper(
                 # FIXME write_empty_chunks=.. do we need this?
             )
             output_label_zarr_groups[label_name] = mask_zarr
+            logger.info(f"Prepared output with {name=} and {params=}")
 
     # Output preparation: "dataframe" type
     dataframe_outputs = [
@@ -242,11 +245,15 @@ def napari_workflows_wrapper(
     output_dataframe_lists = {}
     for (name, params) in dataframe_outputs:
         output_dataframe_lists[name] = []
+        logger.info(f"Prepared output with {name=} and {params=}")
 
-    for indices in list_indices:
+    #####
+
+    num_ROIs = len(list_indices)
+    for i_ROI, indices in enumerate(list_indices):
         s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
         region = (slice(s_z, e_z), slice(s_y, e_y), slice(s_x, e_x))
-        print(region)
+        logger.info(f"ROI {i_ROI}/{num_ROIs}: {region=}")
 
         # Always re-load napari worfklow
         wf: napari_workflows.Worfklow = load_workflow(workflow_file)
@@ -266,7 +273,9 @@ def napari_workflows_wrapper(
                 )
 
         # Get outputs
+        logger.info(f"ROI {i_ROI}/{num_ROIs}: wf.set() complete")
         outputs = wf.get(list_outputs)
+        logger.info(f"ROI {i_ROI}/{num_ROIs}: wf.get() complete")
 
         # Handle outputs
         for ind_output, output_name in enumerate(list_outputs):
@@ -285,6 +294,7 @@ def napari_workflows_wrapper(
                     region=region,
                     compute=True,
                 )
+        logger.info(f"ROI {i_ROI}/{num_ROIs}: output handling complete")
 
     # Output handling: "dataframe" type (for each output, concatenate ROI
     # dataframes, clean up, and store in a AnnData table on-disk)
