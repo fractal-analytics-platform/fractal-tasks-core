@@ -14,9 +14,10 @@ Zurich.
 import re
 
 
-def parse_filename(filename):
+def parse_filename(filename: str):
     """
-    Extract metadata by parsing image filename, return a parameter dictionary.
+    Parse metadata from image filename to parameter dictionary.
+
     Three kinds of filenames are supported:
     1) Filenames from UZH:
        20200812-Cardio[...]Cycle1_B03_T0001F036L01A01Z18C01.png
