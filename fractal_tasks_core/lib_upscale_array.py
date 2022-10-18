@@ -1,7 +1,7 @@
+import warnings
 from typing import Iterable
 
 import numpy as np
-import warning
 
 
 def upscale_array(
@@ -52,7 +52,7 @@ def upscale_array(
 
     # Raise a warning if upscaling is non-homogeneous across all axis
     if len(set(upscale_factors)) > 1:
-        warning.warn(info)
+        warnings.warn(info)
 
     # Upscale array, via np.repeat
     upscaled_array = array
