@@ -3,7 +3,7 @@
 
 project = "Fractal Tasks Core"
 copyright = "2022, Fractal"
-author = "Marco Franzon"
+author = "Fractal"
 
 release = "0.1"
 version = "0.1.0"
@@ -26,6 +26,7 @@ intersphinx_disabled_domains = ["std"]
 
 templates_path = ["_templates"]
 
+pygments_style = "sphinx"
 # -- Options for HTML output
 
 html_theme = "sphinx_rtd_theme"

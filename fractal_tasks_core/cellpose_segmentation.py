@@ -53,7 +53,7 @@ def segment_FOV(
     """
     Description
 
-    :param dummy: this is just a placeholder
+    :param dummy: this is a placeholder
     :type dummy: int
     """
 
