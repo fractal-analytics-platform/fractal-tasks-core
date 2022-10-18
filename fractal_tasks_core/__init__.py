@@ -5,7 +5,7 @@ logging.basicConfig(
 )
 
 
-__VERSION__ = "0.2.4"
+__VERSION__ = "0.2.5"
 __OME_NGFF_VERSION__ = "0.4"
 
 __FRACTAL_MANIFEST__ = [
