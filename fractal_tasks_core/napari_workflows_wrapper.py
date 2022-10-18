@@ -103,22 +103,6 @@ def napari_workflows_wrapper(
             out_type="dataframe", table_name="lamin_measurements"
         ),
     }
-
-    workflow_file = "wf_6.yaml"
-    input_specs = {
-        "slice_img": {"type": "image", "channel": "DAPI"},
-        "slice_img_c2": {"type": "image", "channel": "DAPI"},
-    }
-    output_specs = {
-        "Result of Expand labels (scikit-image, nsbatwm)": {
-            "type": "label",
-            "table_name": "label_DAPI_nw",
-        },
-        "regionprops_DAPI": {
-            "type": "dataframe",
-            "table_name": "dapi_measurements",
-        },
-    }
     """
 
     # Validation of input/output specs
@@ -148,6 +132,7 @@ def napari_workflows_wrapper(
             channel_index = chl_list.index(channel_name)
             input_image_arrays[name] = img_array[channel_index]
             logger.info(f"Prepared input with {name=} and {params=}")
+        logger.info(f"{input_image_arrays=}")
 
     # Input preparation: "label" type
     label_inputs = [
@@ -174,6 +159,7 @@ def napari_workflows_wrapper(
                 array=label_array_raw, reference_shape=ref_shape, axis=[1, 2]
             )
             logger.info(f"Prepared input with {name=} and {params=}")
+        logger.info(f"{input_label_arrays=}")
 
     # Output preparation: "label" type
     label_outputs = [
@@ -193,9 +179,8 @@ def napari_workflows_wrapper(
         ]
 
         # Loop over label outputs and (1) set zattrs, (2) create zarr group
-        for (name, params) in label_inputs:
+        for (name, params) in label_outputs:
             label_name = params["label_name"]
-            channel_name = params["channel_name"]
 
             # (1a) Rescale OME-NGFF datasets (relevant for labeling_level>0)
             new_datasets = rescale_datasets(
@@ -235,6 +220,7 @@ def napari_workflows_wrapper(
             )
             output_label_zarr_groups[label_name] = mask_zarr
             logger.info(f"Prepared output with {name=} and {params=}")
+        logger.info(f"{output_label_zarr_groups=}")
 
     # Output preparation: "dataframe" type
     dataframe_outputs = [
@@ -246,6 +232,7 @@ def napari_workflows_wrapper(
     for (name, params) in dataframe_outputs:
         output_dataframe_lists[name] = []
         logger.info(f"Prepared output with {name=} and {params=}")
+        logger.info(f"{output_dataframe_lists=}")
 
     #####
 
