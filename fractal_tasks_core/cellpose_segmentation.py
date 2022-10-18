@@ -50,6 +50,12 @@ def segment_FOV(
     label_dtype=None,
     well_id=None,
 ):
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
 
     # Write some debugging info
     logger.info(
@@ -109,7 +115,6 @@ def cellpose_segmentation(
     model_type: str = "nuclei",
     ROI_table_name: str = "FOV_ROI_table",
 ):
-
     """
     Example inputs:
       input_paths: PosixPath('tmp_out_mip/*.zarr')
@@ -117,6 +122,8 @@ def cellpose_segmentation(
       component: myplate.zarr/B/03/0/
       metadata: {...}
 
+    :param dummy: this is just a placeholder
+    :type dummy: int
     """
 
     # Set input path

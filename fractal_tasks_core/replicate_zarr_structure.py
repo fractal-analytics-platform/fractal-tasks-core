@@ -51,6 +51,9 @@ def replicate_zarr_structure(
     Examples
       input_paths[0] = /tmp/out/*.zarr    (Path)
       output_path = /tmp/out_mip/*.zarr   (Path)
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
     """
 
     # Preliminary check

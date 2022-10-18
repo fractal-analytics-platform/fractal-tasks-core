@@ -13,6 +13,9 @@ def upscale_array(
     """
     Upscale array along given axis, to match a
     target shape. Upscaling is based on np.repeat.
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
     """
 
     array_shape = array.shape

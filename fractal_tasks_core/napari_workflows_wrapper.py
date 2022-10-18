@@ -40,6 +40,12 @@ def napari_workflows_wrapper(
     workflow_file: str = None,
     ROI_table_name: str = "FOV_ROI_table",
 ):
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
 
     # Pre-processing of task inputs
     if len(input_paths) > 1:

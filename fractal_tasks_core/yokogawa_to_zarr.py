@@ -63,6 +63,9 @@ def yokogawa_to_zarr(
       output_path = /tmp/output/*.zarr      (Path)
       metadata = {"channel_list": [...], "num_levels": ..., }
       component = plate.zarr/B/03/0/
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
     """
 
     # Preliminary checks

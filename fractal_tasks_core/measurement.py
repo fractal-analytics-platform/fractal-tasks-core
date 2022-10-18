@@ -46,6 +46,10 @@ def measurement(
     ROI_table_name: str = "FOV_ROI_table",
     measurement_table_name: str = "measurement",
 ):
+    """
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
 
     # Pre-processing of task inputs
     # FIXME here we should add all necessary checks on inputs

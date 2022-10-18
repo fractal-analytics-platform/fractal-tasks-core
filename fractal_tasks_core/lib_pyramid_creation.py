@@ -37,8 +37,8 @@ def build_pyramid(
     Example input:
         zarrurl = "some/path/plate.zarr/B/03/0
 
-    FIXME docstring
-
+    :param dummy: this is just a placeholder
+    :type dummy: int
     """
 
     # Clean up zarrurl

@@ -17,6 +17,12 @@ from typing import List
 
 
 def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0):
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
 
     with open(zattrs_path, "r") as jsonfile:
         zattrs = json.load(jsonfile)
@@ -69,6 +75,13 @@ def rescale_datasets(
     coarsening_xy: int = None,
     reference_level: int = None,
 ) -> List[Dict]:
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
+
     if datasets is None or coarsening_xy is None or reference_level is None:
         raise TypeError("Missing argument in rescale_datasets")
 

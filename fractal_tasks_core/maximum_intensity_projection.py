@@ -45,6 +45,9 @@ def maximum_intensity_projection(
       output_path = /tmp/out_mip/*zarr   (Path)
       metadata = {"num_levels": 2, "coarsening_xy": 2, ...}
       component = plate.zarr/B/03/0     (str)
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
     """
 
     # Preliminary checks

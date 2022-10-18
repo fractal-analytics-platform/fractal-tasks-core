@@ -38,6 +38,12 @@ logger = logging.getLogger(__name__)
 
 
 def define_omero_channels(actual_channels, channel_parameters, bit_depth):
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
 
     omero_channels = []
     default_colormaps = ["00FFFF", "FF00FF", "FFFF00"]

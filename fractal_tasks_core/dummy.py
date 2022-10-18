@@ -42,6 +42,13 @@ def dummy(
 
     Incidentally, this task defines the reference interface of a task.
 
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
+
+    """
+    Old docstring
+
     Arguments
     ---------
     input_paths (iterable of Path) :
@@ -64,6 +71,7 @@ def dummy(
     metadata_update (Dict[str, Any]) :
         a dictionary that will update the metadata
     """
+
     from datetime import datetime, timezone
     import json
     from json.decoder import JSONDecodeError

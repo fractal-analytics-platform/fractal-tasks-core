@@ -44,8 +44,8 @@ def correct(
 
     img_stack is a four-dimensional (czyx) numpy array, with dummy size along c
 
-    FIXME: write docstring
-
+    :param dummy: this is just a placeholder
+    :type dummy: int
     """
 
     logger.info("Start correct, {img_stack.shape}")
@@ -106,6 +106,9 @@ def illumination_correction(
     component: myplate.zarr/B/03/0/
     new_component: myplate_new_name.zarr/B/03/0/
     metadata: {...}
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
     """
 
     # Preliminary checks

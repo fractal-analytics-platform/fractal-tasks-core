@@ -88,6 +88,13 @@ def parse_yokogawa_metadata(mrf_path, mlf_path):
 
 
 def read_metadata_files(mrf_path, mlf_path):
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
+
     # parsing of mrf & mlf files are based on the
     # yokogawa_image_collection_task v0.5 in drogon, written by Dario Vischi.
     # https://github.com/fmi-basel/job-system-workflows/blob/00bbf34448972d27f258a2c28245dd96180e8229/src/gliberal_workflows/tasks/yokogawa_image_collection_task/versions/version_0_5.py  # noqa
@@ -106,6 +113,12 @@ def read_metadata_files(mrf_path, mlf_path):
 
 
 def read_mrf_file(mrf_path):
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
 
     # Prepare mrf dataframe
     mrf_columns = [
@@ -143,6 +156,13 @@ def read_mrf_file(mrf_path):
 
 
 def read_mlf_file(mlf_path):
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
+
     mlf_frame_raw = pd.read_xml(mlf_path)
 
     # Create a well ID column
@@ -164,6 +184,13 @@ def read_mlf_file(mlf_path):
 
 
 def calculate_steps(site_series: pd.Series):
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
+
     # site_series is the z_micrometer series for a given site of a given
     # channel. This function calculates the step size in Z
 
@@ -179,6 +206,13 @@ def calculate_steps(site_series: pd.Series):
 
 
 def get_z_steps(mlf_frame):
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
+
     # Process mlf_frame to extract Z information (pixel size & steps).
     # Run checks on consistencies & return site-based z step dataframe
     # Group by well, field & channel
@@ -230,6 +264,13 @@ def get_z_steps(mlf_frame):
 
 
 def get_earliest_time_per_site(mlf_frame) -> pd.DataFrame:
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
+
     # Get the time information per site
     # Because a site will contain time information for each plane
     # of each channel, we just return the earliest time infromation
@@ -240,6 +281,13 @@ def get_earliest_time_per_site(mlf_frame) -> pd.DataFrame:
 
 
 def check_group_consistency(grouped_df, message=""):
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
+
     # Check consistency in grouped df for multi-index, multi-column dataframes
     # raises an exception if there is variability
     diff_df = grouped_df.max() - grouped_df.min()

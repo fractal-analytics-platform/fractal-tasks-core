@@ -27,6 +27,12 @@ def dummy_fail(
     metadata: Optional[Dict[str, Any]] = None,
     component: Optional[Any] = None,
 ) -> Dict:
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
     logger.info("START of dummy_fail task (from within task)")
     raise Exception("This is the traceback of dummy_fail.")
     logger.info("END of dummy_fail task (from within task)")
