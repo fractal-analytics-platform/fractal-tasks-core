@@ -6,45 +6,45 @@ import numpy as np
 
 def upscale_array(
     *,
-    reference_shape: Iterable[int] = None,
+    target_shape: Iterable[int] = None,
     array=None,
     axis: Iterable[int] = None,
 ) -> np.ndarray:
     """
     Upscale array along given axis, to match a
-    reference shape. Upscaling is based on np.repeat.
+    target shape. Upscaling is based on np.repeat.
     """
 
     array_shape = array.shape
     info = (
-        f"Trying to upscale from {array_shape=} to {reference_shape=}, "
+        f"Trying to upscale from {array_shape=} to {target_shape=}, "
         f"acting on {axis=}."
     )
 
-    if len(array_shape) != len(reference_shape):
+    if len(array_shape) != len(target_shape):
         raise ValueError(f"{info} Dimensions-number mismatch.")
     if min(axis) < 0:
         raise ValueError(f"{info} Negative axis specification not allowed.")
 
     # Check that upscale is doable
     for ind, dim in enumerate(array_shape):
-        # Check that array is not larger than reference (downscaling)
-        if dim > reference_shape[ind]:
+        # Check that array is not larger than target (downscaling)
+        if dim > target_shape[ind]:
             raise ValueError(
-                f"{info} {ind}-th array dimension is larger than " "reference."
+                f"{info} {ind}-th array dimension is larger than target."
             )
         # Check that all relevant axis are included in axis
-        if dim != reference_shape[ind] and ind not in axis:
+        if dim != target_shape[ind] and ind not in axis:
             raise ValueError(
                 f"{info} {ind}-th array dimension differs from "
-                f"reference, but {ind} is not included in "
+                f"target, but {ind} is not included in "
                 f"{axis=}."
             )
 
     # Compute upscaling factors
     upscale_factors = {}
     for ax in axis:
-        upscale_factors[ax] = reference_shape[ax] // array_shape[ax]
+        upscale_factors[ax] = target_shape[ax] // array_shape[ax]
         # Check that this is not downscaling
         if upscale_factors[ax] < 1:
             raise ValueError(info)
@@ -62,7 +62,7 @@ def upscale_array(
         )
 
     # Check that final shape is correct
-    if not upscaled_array.shape == reference_shape:
+    if not upscaled_array.shape == target_shape:
         raise Exception(f"{info} {upscaled_array.shape=}.")
 
     return upscaled_array

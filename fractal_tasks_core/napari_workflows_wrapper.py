@@ -127,13 +127,13 @@ def napari_workflows_wrapper(
         if params["type"] == "label"
     ]
     if label_inputs:
-        # Set reference_shape for upscaling labels
+        # Set target_shape for upscaling labels
         if not image_inputs:
             raise ValueError(
                 f"{len(label_inputs)=} but num_image_inputs=0, "
                 "unclear how to upscale label array(s)."
             )
-        ref_shape = list(input_image_arrays.values())[0].shape
+        target_shape = list(input_image_arrays.values())[0].shape
         # Loop over label inputs and load corresponding (upscaled) image
         input_label_arrays = {}
         for (name, params) in label_inputs:
@@ -142,7 +142,7 @@ def napari_workflows_wrapper(
                 f"{in_path}/{component}/labels/{label_name}/{level}"
             )
             input_label_arrays[name] = upscale_array(
-                array=label_array_raw, reference_shape=ref_shape, axis=[1, 2]
+                array=label_array_raw, target_shape=target_shape, axis=[1, 2]
             )
             logger.info(f"Prepared input with {name=} and {params=}")
         logger.info(f"{input_label_arrays=}")
