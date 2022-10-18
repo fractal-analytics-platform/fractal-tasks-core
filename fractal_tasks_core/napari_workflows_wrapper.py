@@ -86,24 +86,10 @@ def napari_workflows_wrapper(
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
     )
-
-    """
-    workflow_file = "wf_7.yaml"
-    input_specs = {
-        "dapi_img": dict(in_type="image", channel_name="DAPI"),
-        "dapi_label_img": dict(in_type="label", label_name="label_DAPI"),
-        "lamin_img": dict(in_type="image", channel_name="DAPI"),
-        "lamin_label_img": dict(in_type="label", label_name="label_DAPI"),
-    }
-    output_specs = {
-        "regionprops_DAPI": dict(
-            out_type="dataframe", table_name="dapi_measurements"
-        ),
-        "regionprops_Lamin": dict(
-            out_type="dataframe", table_name="lamin_measurements"
-        ),
-    }
-    """
+    num_ROIs = len(list_indices)
+    logger.info(
+        f"Completed reading ROI table {ROI_table_name}, " f"found {num_ROIs}."
+    )
 
     # Validation of input/output specs
     wf: napari_workflows.Worfklow = load_workflow(workflow_file)
@@ -236,7 +222,6 @@ def napari_workflows_wrapper(
 
     #####
 
-    num_ROIs = len(list_indices)
     for i_ROI, indices in enumerate(list_indices):
         s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
         region = (slice(s_z, e_z), slice(s_y, e_y), slice(s_x, e_x))
