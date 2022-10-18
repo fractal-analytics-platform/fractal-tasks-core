@@ -175,7 +175,7 @@ def napari_workflows_wrapper(
             raise NotImplementedError(f"{zarrurl}/labels already exists.")
         labels_group = zarr.group(f"{zarrurl}/labels")
         labels_group.attrs["labels"] = [
-            params["label_name"] for (name, params) in label_inputs
+            params["label_name"] for (name, params) in label_outputs
         ]
 
         # Loop over label outputs and (1) set zattrs, (2) create zarr group
