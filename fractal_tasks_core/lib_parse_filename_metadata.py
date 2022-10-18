@@ -12,11 +12,13 @@ Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
 import re
+from typing import Dict
 
 
-def parse_filename(filename):
+def parse_filename(filename: str) -> Dict[str, str]:
     """
-    Extract metadata by parsing image filename, return a parameter dictionary.
+    Parse metadata from image filename to parameter dictionary.
+
     Three kinds of filenames are supported:
     1) Filenames from UZH:
        20200812-Cardio[...]Cycle1_B03_T0001F036L01A01Z18C01.png
@@ -30,6 +32,8 @@ def parse_filename(filename):
 
     :param filename: name of the image
     :type filename: str
+    :returns: metadata dictionary
+    :rtype: dict
     """
 
     if "/" in filename:
