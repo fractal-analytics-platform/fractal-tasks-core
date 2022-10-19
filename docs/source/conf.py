@@ -5,8 +5,7 @@ project = "Fractal Tasks Core"
 copyright = "2022, Fractal"
 author = "Fractal"
 
-release = "0.1"
-version = "0.1.0"
+version = "0.2.5"
 
 # -- General configuration
 
