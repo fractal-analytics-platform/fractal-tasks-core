@@ -24,24 +24,27 @@ extensions = [
 ]
 
 autodoc_default_options = {"autosummary": True}
-
 autodata_content = "both"
-
 source_suffix = ".rst"
 exclude_patterns = []
 gettext_compact = False
 
 master_doc = "index"
 
+# sphinx_rtd_theme config
 html_theme = "sphinx_rtd_theme"
 html_theme_options = {
-    "logo_only": True,
+    "logo_only": False,
+    "sticky_navigation": True,
+    "titles_only": True,
     "navigation_depth": 5,
     "prev_next_buttons_location": None,
+    "display_version": True,
+    "style_external_links": True,
 }
 html_context = {}
 
-
+# sphinx_autodoc_defaultargs config
 rst_prolog = (
     """
 .. |default| raw:: html
