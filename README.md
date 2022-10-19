@@ -48,3 +48,5 @@ S.r.l.](https://exact-lab.it).
 ## License
 
 Fractal is released according to a BSD 3-Clause License. See `LICENSE`.
+
+.
