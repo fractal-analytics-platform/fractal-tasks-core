@@ -1,5 +1,0 @@
-Wed  5 Oct 16:23:20 CEST 2022
-Changes since 0.2.1:
-[2022-10-05] 2b5470c - First custom script for updating changelog (ref #127)
-[2022-10-05] 0418dba - Merge pull request #128 from fractal-analytics-platform/119_rename_labeling
-[2022-10-05] 166a97b - Rename image_labeling -> cellpose_segmentation (closes #119)

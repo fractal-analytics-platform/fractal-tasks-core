@@ -1,16 +1,19 @@
 """
-Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-University of Zurich
+Copyright 2022 (C)
+    Friedrich Miescher Institute for Biomedical Research and
+    University of Zurich
 
-Original authors:
-Jacopo Nespolo <jacopo.nespolo@exact-lab.it>
-Tommaso Comparin <tommaso.comparin@exact-lab.it>
-Marco Franzon <marco.franzon@exact-lab.it>
+    Original authors:
+    Jacopo Nespolo <jacopo.nespolo@exact-lab.it>
+    Tommaso Comparin <tommaso.comparin@exact-lab.it>
+    Marco Franzon <marco.franzon@exact-lab.it>
 
-This file is part of Fractal and was originally developed by eXact lab S.r.l.
-<exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-Institute for Biomedical Research and Pelkmans Lab from the University of
-Zurich.
+    This file is part of Fractal and was originally developed by eXact lab
+    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
+    Miescher Institute for Biomedical Research and Pelkmans Lab from the
+    University of Zurich.
+
+Dummy task, for testing purposes
 """
 import logging
 import os
@@ -42,6 +45,13 @@ def dummy(
 
     Incidentally, this task defines the reference interface of a task.
 
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
+
+    """
+    Old docstring
+
     Arguments
     ---------
     input_paths (iterable of Path) :
@@ -64,6 +74,7 @@ def dummy(
     metadata_update (Dict[str, Any]) :
         a dictionary that will update the metadata
     """
+
     from datetime import datetime, timezone
     import json
     from json.decoder import JSONDecodeError

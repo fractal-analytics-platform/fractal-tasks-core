@@ -1,22 +1,36 @@
 """
-Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-University of Zurich
+Copyright 2022 (C)
+    Friedrich Miescher Institute for Biomedical Research and
+    University of Zurich
 
-Original authors:
-Tommaso Comparin <tommaso.comparin@exact-lab.it>
-Marco Franzon <marco.franzon@exact-lab.it>
+    Original authors:
+    Tommaso Comparin <tommaso.comparin@exact-lab.it>
+    Marco Franzon <marco.franzon@exact-lab.it>
 
-This file is part of Fractal and was originally developed by eXact lab S.r.l.
-<exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-Institute for Biomedical Research and Pelkmans Lab from the University of
-Zurich.
+    This file is part of Fractal and was originally developed by eXact lab
+    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
+    Miescher Institute for Biomedical Research and Pelkmans Lab from the
+    University of Zurich.
+
+Functions to handle .zattrs files and their contents
 """
 import json
 from typing import Dict
 from typing import List
 
 
-def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0):
+def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0) -> List[float]:
+    """
+    Load multiscales/datasets from .zattrs file and read the pixel sizes for a
+    given resoluion level.
+
+    :param zattrs_path: Path to .zattrs file
+    :type zattrs_path: str
+    :param level: Resolution level for which the pixe sizes are required
+    :type level: int
+    :returns: ZYX pixel sizes
+    :rtype: list[int]
+    """
 
     with open(zattrs_path, "r") as jsonfile:
         zattrs = json.load(jsonfile)
@@ -65,12 +79,23 @@ def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0):
 
 
 def rescale_datasets(
-    datasets: List[Dict] = None,
-    coarsening_xy: int = None,
-    reference_level: int = None,
+    *,
+    datasets: List[Dict],
+    coarsening_xy: int,
+    reference_level: int,
 ) -> List[Dict]:
-    if datasets is None or coarsening_xy is None or reference_level is None:
-        raise TypeError("Missing argument in rescale_datasets")
+    """
+    Given a set of datasets (as per OME-NGFF specs), update their "scale"
+    transformations in the YX directions by including a prefactor
+    (coarsening_xy**reference_level).
+
+    :param datasets: list of datasets (as per OME-NGFF specs)
+    :type datasets: list of dictionaries
+    :param coarsening_xy: linear coarsening factor between subsequent levels
+    :type coarsening_xy: int
+    :param reference_level: TBD
+    :type reference_level: int
+    """
 
     # Construct rescaled datasets
     new_datasets = []

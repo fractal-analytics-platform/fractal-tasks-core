@@ -1,15 +1,18 @@
 """
-Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-University of Zurich
+Copyright 2022 (C)
+    Friedrich Miescher Institute for Biomedical Research and
+    University of Zurich
 
-Original authors:
-Tommaso Comparin <tommaso.comparin@exact-lab.it>
-Marco Franzon <marco.franzon@exact-lab.it>
+    Original authors:
+    Tommaso Comparin <tommaso.comparin@exact-lab.it>
+    Marco Franzon <marco.franzon@exact-lab.it>
 
-This file is part of Fractal and was originally developed by eXact lab S.r.l.
-<exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-Institute for Biomedical Research and Pelkmans Lab from the University of
-Zurich.
+    This file is part of Fractal and was originally developed by eXact lab
+    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
+    Miescher Institute for Biomedical Research and Pelkmans Lab from the
+    University of Zurich.
+
+Task to measure properties of a pre-computed label array
 """
 import json
 import logging
@@ -46,6 +49,10 @@ def measurement(
     ROI_table_name: str = "FOV_ROI_table",
     measurement_table_name: str = "measurement",
 ):
+    """
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
 
     # Pre-processing of task inputs
     # FIXME here we should add all necessary checks on inputs

@@ -1,3 +1,19 @@
+"""
+Copyright 2022 (C)
+    Friedrich Miescher Institute for Biomedical Research and
+    University of Zurich
+
+    Original authors:
+    Tommaso Comparin <tommaso.comparin@exact-lab.it>
+    Marco Franzon <marco.franzon@exact-lab.it>
+
+    This file is part of Fractal and was originally developed by eXact lab
+    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
+    Miescher Institute for Biomedical Research and Pelkmans Lab from the
+    University of Zurich.
+
+Wrapper of napari-workflows
+"""
 import json
 import logging
 import os
@@ -40,6 +56,12 @@ def napari_workflows_wrapper(
     workflow_file: str = None,
     ROI_table_name: str = "FOV_ROI_table",
 ):
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
 
     # Pre-processing of task inputs
     if len(input_paths) > 1:

@@ -1,15 +1,18 @@
 """
-Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-University of Zurich
+Copyright 2022 (C)
+    Friedrich Miescher Institute for Biomedical Research and
+    University of Zurich
 
-Original authors:
-Tommaso Comparin <tommaso.comparin@exact-lab.it>
-Marco Franzon <marco.franzon@exact-lab.it>
+    Original authors:
+    Tommaso Comparin <tommaso.comparin@exact-lab.it>
+    Marco Franzon <marco.franzon@exact-lab.it>
 
-This file is part of Fractal and was originally developed by eXact lab S.r.l.
-<exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-Institute for Biomedical Research and Pelkmans Lab from the University of
-Zurich.
+    This file is part of Fractal and was originally developed by eXact lab
+    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
+    Miescher Institute for Biomedical Research and Pelkmans Lab from the
+    University of Zurich.
+
+Task that writes image data to an existing OME-NGFF zarr array
 """
 import logging
 import os
@@ -63,6 +66,9 @@ def yokogawa_to_zarr(
       output_path = /tmp/output/*.zarr      (Path)
       metadata = {"channel_list": [...], "num_levels": ..., }
       component = plate.zarr/B/03/0/
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
     """
 
     # Preliminary checks

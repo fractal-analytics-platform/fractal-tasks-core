@@ -1,15 +1,17 @@
 """
-Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-University of Zurich
+Copyright 2022 (C)
+    Friedrich Miescher Institute for Biomedical Research and
+    University of Zurich
 
-Original authors:
-Tommaso Comparin <tommaso.comparin@exact-lab.it>
-Marco Franzon <marco.franzon@exact-lab.it>
+    Original authors:
+    Tommaso Comparin <tommaso.comparin@exact-lab.it>
 
-This file is part of Fractal and was originally developed by eXact lab S.r.l.
-<exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-Institute for Biomedical Research and Pelkmans Lab from the University of
-Zurich.
+    This file is part of Fractal and was originally developed by eXact lab
+    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
+    Miescher Institute for Biomedical Research and Pelkmans Lab from the
+    University of Zurich.
+
+Create structure for OME-NGFF zarr array
 """
 import os
 from glob import glob
@@ -17,6 +19,7 @@ from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import Iterable
+from typing import List
 from typing import Optional
 
 import pandas as pd
@@ -24,7 +27,7 @@ import zarr
 from anndata.experimental import write_elem
 
 import fractal_tasks_core
-from .lib_parse_filename_metadata import parse_metadata
+from .lib_parse_filename_metadata import parse_filename
 from .lib_regions_of_interest import prepare_FOV_ROI_table
 from .lib_regions_of_interest import prepare_well_ROI_table
 from .metadata_parsing import parse_yokogawa_metadata
@@ -37,7 +40,19 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def define_omero_channels(actual_channels, channel_parameters, bit_depth):
+def define_omero_channels(
+    actual_channels: Iterable[str],
+    channel_parameters: Dict[str, Any],
+    bit_depth: int,
+) -> List[Dict[str, Any]]:
+    """
+    Description
+
+    :param actual_channels: TBD
+    :param channel_parameters: TBD
+    :param bit_depth: TBD
+    :returns: omero_channels
+    """
 
     omero_channels = []
     default_colormaps = ["00FFFF", "FF00FF", "FFFF00"]
@@ -84,39 +99,33 @@ def create_zarr_structure(
     *,
     input_paths: Iterable[Path],
     output_path: Path,
+    metadata: Optional[Dict[str, Any]] = None,
     channel_parameters: Dict[str, Any] = None,
     num_levels: int = 2,
     coarsening_xy: int = 2,
     metadata_table: str = "mrf_mlf",
-    metadata: Optional[Dict[str, Any]] = None,
 ):
-
     """
-    Create (and store) the zarr folder, without reading or writing data.
+    Create a OME-NGFF zarr folder, without reading/writing image data
 
-    1. Find plates
-        For each folder in input paths:
+    Find plates (for each folder in input_paths)
         * glob image files
         * parse metadata from image filename to identify plates
         * identify populated channels
 
-    2. Create a ZARR for each plate
-        For each plate:
+    Create a zarr folder (for each plate)
         * parse mlf metadata
         * identify wells and field of view (FOV)
         * create FOV ZARR
         * verify that channels are uniform (i.e., same channels)
 
-    :param in_paths: list of image directories
-    :type in_path: list
-    :param out_path: path for output zarr files
-    :type out_path: str
-    :param ext: extension of images (e.g. tiff, png, ..)
-    :param path_dict_channels: FIXME
-    :type path_dict_channels: str
-    :param num_levels: number of coarsening levels in the pyramid
-    :type num_levels: int
-    FIXME
+    :param input_paths: TBD (common to all tasks)
+    :param output_path: TBD (common to all tasks)
+    :param metadata: TBD (common to all tasks)
+    :param channel_parameters: TBD
+    :param num_levels: number of resolution-pyramid levels
+    :param coarsening_xy: linear coarsening factor between subsequent levels
+    :param metadata_table: TBD
     """
 
     # Preliminary checks on metadata_table
@@ -155,7 +164,7 @@ def create_zarr_structure(
         tmp_plates = []
         for fn in input_filename_iter:
             try:
-                metadata = parse_metadata(fn.name)
+                metadata = parse_filename(fn.name)
                 plate_prefix = metadata["plate_prefix"]
                 plate = metadata["plate"]
                 if plate not in dict_plate_prefixes.keys():
@@ -267,7 +276,7 @@ def create_zarr_structure(
         plate_image_iter = glob(f"{in_path}/{plate_prefix}_{ext_glob_pattern}")
 
         wells = [
-            parse_metadata(os.path.basename(fn))["well"]
+            parse_filename(os.path.basename(fn))["well"]
             for fn in plate_image_iter
         ]
         wells = sorted(list(set(wells)))
@@ -280,7 +289,7 @@ def create_zarr_structure(
             well_channels = []
             for fn in well_image_iter:
                 try:
-                    metadata = parse_metadata(os.path.basename(fn))
+                    metadata = parse_filename(os.path.basename(fn))
                     well_channels.append(f"A{metadata['A']}_C{metadata['C']}")
                 except IndexError:
                     logger.info(f"Skipping {fn}")

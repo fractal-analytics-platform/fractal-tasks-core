@@ -1,15 +1,18 @@
 """
-Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-University of Zurich
+Copyright 2022 (C)
+    Friedrich Miescher Institute for Biomedical Research and
+    University of Zurich
 
-Original authors:
-Tommaso Comparin <tommaso.comparin@exact-lab.it>
-Marco Franzon <marco.franzon@exact-lab.it>
+    Original authors:
+    Tommaso Comparin <tommaso.comparin@exact-lab.it>
+    Marco Franzon <marco.franzon@exact-lab.it>
 
-This file is part of Fractal and was originally developed by eXact lab S.r.l.
-<exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-Institute for Biomedical Research and Pelkmans Lab from the University of
-Zurich.
+    This file is part of Fractal and was originally developed by eXact lab
+    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
+    Miescher Institute for Biomedical Research and Pelkmans Lab from the
+    University of Zurich.
+
+Construct and write pyramid of lower-resolution levels
 """
 import pathlib
 from typing import Callable
@@ -32,17 +35,28 @@ def build_pyramid(
 
     """
     Starting from on-disk highest-resolution data, build and write to disk a
-    pyramid of coarser levels. This works for 2D, 3D or 4D arrays.
+    pyramid with (num_levels-1) coarsened levels.
+    This function works for 2D, 3D or 4D arrays.
 
     Example input:
         zarrurl = "some/path/plate.zarr/B/03/0
 
-    FIXME docstring
-
+    :param zarrurl: path of the zarr group, which must already include level 0
+    :type zarrurl: str | path
+    :param overwrite: whether to overwrite existing pyramid levels
+    :type overwrite: bool
+    :param num_levels: total number of pyramid levels (including 0)
+    :type num_levels: int
+    :param coarsening_xy: linear coarsening factor between subsequent levels
+    :type coarsening_xy: int
+    :param chunksize: shape of a single chunk
+    :type chunksize: list of ints
+    :param aggregation_function: function to be used when downsampling
+    :type aggregation_function: callable
     """
 
     # Clean up zarrurl
-    zarrurl = str(pathlib.Path(zarrurl))
+    zarrurl = str(pathlib.Path(zarrurl))  # FIXME
     zarrurl_highres = f"{zarrurl}/0"
 
     # Lazily load highest-resolution data
@@ -51,7 +65,7 @@ def build_pyramid(
     # Check the number of axes and identify YX dimensions
     ndims = len(data_highres.shape)
     if ndims not in [2, 3, 4]:
-        raise Exception("ERROR: {data_highres.shape=}, ndims not in [2,3,4]")
+        raise Exception("{data_highres.shape=}, ndims not in [2,3,4]")
     y_axis = ndims - 2
     x_axis = ndims - 1
 

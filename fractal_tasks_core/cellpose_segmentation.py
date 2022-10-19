@@ -1,15 +1,18 @@
 """
-Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-University of Zurich
+Copyright 2022 (C)
+    Friedrich Miescher Institute for Biomedical Research and
+    University of Zurich
 
-Original authors:
-Tommaso Comparin <tommaso.comparin@exact-lab.it>
-Marco Franzon <marco.franzon@exact-lab.it>
+    Original authors:
+    Tommaso Comparin <tommaso.comparin@exact-lab.it>
+    Marco Franzon <marco.franzon@exact-lab.it>
 
-This file is part of Fractal and was originally developed by eXact lab S.r.l.
-<exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-Institute for Biomedical Research and Pelkmans Lab from the University of
-Zurich.
+    This file is part of Fractal and was originally developed by eXact lab
+    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
+    Miescher Institute for Biomedical Research and Pelkmans Lab from the
+    University of Zurich.
+
+Image segmentation via cellpose library
 """
 import json
 import logging
@@ -50,6 +53,12 @@ def segment_FOV(
     label_dtype=None,
     well_id=None,
 ):
+    """
+    Description
+
+    :param dummy: this is a placeholder
+    :type dummy: int
+    """
 
     # Write some debugging info
     logger.info(
@@ -109,7 +118,6 @@ def cellpose_segmentation(
     model_type: str = "nuclei",
     ROI_table_name: str = "FOV_ROI_table",
 ):
-
     """
     Example inputs:
       input_paths: PosixPath('tmp_out_mip/*.zarr')
@@ -117,6 +125,8 @@ def cellpose_segmentation(
       component: myplate.zarr/B/03/0/
       metadata: {...}
 
+    :param dummy: this is just a placeholder
+    :type dummy: int
     """
 
     # Set input path

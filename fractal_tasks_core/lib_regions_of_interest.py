@@ -1,15 +1,18 @@
 """
-Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-University of Zurich
+Copyright 2022 (C)
+    Friedrich Miescher Institute for Biomedical Research and
+    University of Zurich
 
-Original authors:
-Tommaso Comparin <tommaso.comparin@exact-lab.it>
-Joel Lüthi <joel.luethi@uzh.ch>
+    Original authors:
+    Tommaso Comparin <tommaso.comparin@exact-lab.it>
+    Joel Lüthi <joel.luethi@uzh.ch>
 
-This file is part of Fractal and was originally developed by eXact lab S.r.l.
-<exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-Institute for Biomedical Research and Pelkmans Lab from the University of
-Zurich.
+    This file is part of Fractal and was originally developed by eXact lab
+    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
+    Miescher Institute for Biomedical Research and Pelkmans Lab from the
+    University of Zurich.
+
+Functions to handle regions of interests (via pandas and AnnData)
 """
 from typing import Iterable
 from typing import List
@@ -22,6 +25,12 @@ import pandas as pd
 def prepare_FOV_ROI_table(
     df: pd.DataFrame, metadata: list = ["time"]
 ) -> ad.AnnData:
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
 
     # Convert DataFrame index to str, to avoid
     # >> ImplicitModificationWarning: Transforming to str index
@@ -76,6 +85,12 @@ def prepare_FOV_ROI_table(
 def prepare_well_ROI_table(
     df: pd.DataFrame, metadata: list = ["time"]
 ) -> ad.AnnData:
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
 
     # Convert DataFrame index to str, to avoid
     # >> ImplicitModificationWarning: Transforming to str index
@@ -138,6 +153,12 @@ def prepare_well_ROI_table(
 def convert_ROIs_from_3D_to_2D(
     adata: ad.AnnData = None, pixel_size_z: float = None
 ) -> ad.AnnData:
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
 
     if pixel_size_z is None:
         raise Exception("Missing pixel_size_z in convert_ROIs_from_3D_to_2D")
@@ -178,6 +199,12 @@ def convert_ROI_table_to_indices(
         "len_z_micrometer",
     ],
 ) -> List[List[int]]:
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
 
     # Set pyramid-level pixel sizes
     pxl_size_z, pxl_size_y, pxl_size_x = full_res_pxl_sizes_zyx
@@ -227,6 +254,12 @@ def _inspect_ROI_table(
     coarsening_xy: int = 2,
     full_res_pxl_sizes_zyx=[1.0, 0.1625, 0.1625],
 ) -> None:
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
 
     adata = ad.read_zarr(path)
     df = adata.to_df()

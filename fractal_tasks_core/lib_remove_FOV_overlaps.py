@@ -1,14 +1,17 @@
 """
-Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-University of Zurich
+Copyright 2022 (C)
+    Friedrich Miescher Institute for Biomedical Research and
+    University of Zurich
 
-Original authors:
-Tommaso Comparin <tommaso.comparin@exact-lab.it>
+    Original authors:
+    Tommaso Comparin <tommaso.comparin@exact-lab.it>
 
-This file is part of Fractal and was originally developed by eXact lab S.r.l.
-<exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-Institute for Biomedical Research and Pelkmans Lab from the University of
-Zurich.
+    This file is part of Fractal and was originally developed by eXact lab
+    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
+    Miescher Institute for Biomedical Research and Pelkmans Lab from the
+    University of Zurich.
+
+Functions to identify and remove overlaps between regions of interest
 """
 import logging
 
@@ -19,8 +22,10 @@ def is_overlapping_1D(line1, line2, tol=0):
     """
     Based on https://stackoverflow.com/a/70023212/19085332
 
-    line:
-        (xmin, xmax)
+    line: (xmin, xmax)
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
     """
     return line1[0] <= line2[1] - tol and line2[0] <= line1[1] - tol
 
@@ -29,8 +34,10 @@ def is_overlapping_2D(box1, box2, tol=0):
     """
     Based on https://stackoverflow.com/a/70023212/19085332
 
-    box:
-        (xmin, ymin, xmax, ymax)
+    box: (xmin, ymin, xmax, ymax)
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
     """
     overlap_x = is_overlapping_1D(
         [box1[0], box1[2]], [box2[0], box2[2]], tol=tol
@@ -42,6 +49,12 @@ def is_overlapping_2D(box1, box2, tol=0):
 
 
 def get_overlapping_pair(tmp_df, tol=0):
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
     # NOTE: here we use positional indices (i.e. starting from 0)
     num_lines = len(tmp_df.index)
     for pos_ind_1 in range(num_lines):
@@ -54,6 +67,12 @@ def get_overlapping_pair(tmp_df, tol=0):
 
 
 def remove_FOV_overlaps(df):
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
 
     # Set tolerance (this should be much smaller than pixel size or expected
     # round-offs), and maximum number of iterations in constraint solver

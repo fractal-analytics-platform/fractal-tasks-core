@@ -1,3 +1,18 @@
+"""
+Copyright 2022 (C)
+    Friedrich Miescher Institute for Biomedical Research and
+    University of Zurich
+
+    Original authors:
+    Tommaso Comparin <tommaso.comparin@exact-lab.it>
+
+    This file is part of Fractal and was originally developed by eXact lab
+    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
+    Miescher Institute for Biomedical Research and Pelkmans Lab from the
+    University of Zurich.
+
+Function to increase the shape of an array by replicating it
+"""
 import warnings
 from typing import Iterable
 
@@ -13,6 +28,9 @@ def upscale_array(
     """
     Upscale array along given axis, to match a
     target shape. Upscaling is based on np.repeat.
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
     """
 
     array_shape = array.shape

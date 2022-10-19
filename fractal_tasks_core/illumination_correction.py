@@ -1,15 +1,18 @@
 """
-Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-University of Zurich
+Copyright 2022 (C)
+    Friedrich Miescher Institute for Biomedical Research and
+    University of Zurich
 
-Original authors:
-Tommaso Comparin <tommaso.comparin@exact-lab.it>
-Marco Franzon <marco.franzon@exact-lab.it>
+    Original authors:
+    Tommaso Comparin <tommaso.comparin@exact-lab.it>
+    Marco Franzon <marco.franzon@exact-lab.it>
 
-This file is part of Fractal and was originally developed by eXact lab S.r.l.
-<exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-Institute for Biomedical Research and Pelkmans Lab from the University of
-Zurich.
+    This file is part of Fractal and was originally developed by eXact lab
+    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
+    Miescher Institute for Biomedical Research and Pelkmans Lab from the
+    University of Zurich.
+
+Apply illumination correction to all fields of view
 """
 import logging
 import time
@@ -44,8 +47,8 @@ def correct(
 
     img_stack is a four-dimensional (czyx) numpy array, with dummy size along c
 
-    FIXME: write docstring
-
+    :param dummy: this is just a placeholder
+    :type dummy: int
     """
 
     logger.info("Start correct, {img_stack.shape}")
@@ -106,6 +109,9 @@ def illumination_correction(
     component: myplate.zarr/B/03/0/
     new_component: myplate_new_name.zarr/B/03/0/
     metadata: {...}
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
     """
 
     # Preliminary checks

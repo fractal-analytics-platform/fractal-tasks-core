@@ -1,14 +1,17 @@
 """
-Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-University of Zurich
+Copyright 2022 (C)
+    Friedrich Miescher Institute for Biomedical Research and
+    University of Zurich
 
-Original authors:
-Tommaso Comparin <tommaso.comparin@exact-lab.it>
+    Original authors:
+    Tommaso Comparin <tommaso.comparin@exact-lab.it>
 
-This file is part of Fractal and was originally developed by eXact lab S.r.l.
-<exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-Institute for Biomedical Research and Pelkmans Lab from the University of
-Zurich.
+    This file is part of Fractal and was originally developed by eXact lab
+    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
+    Miescher Institute for Biomedical Research and Pelkmans Lab from the
+    University of Zurich.
+
+Dummy task that only raises an exception
 """
 import logging
 from pathlib import Path
@@ -27,6 +30,12 @@ def dummy_fail(
     metadata: Optional[Dict[str, Any]] = None,
     component: Optional[Any] = None,
 ) -> Dict:
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
     logger.info("START of dummy_fail task (from within task)")
     raise Exception("This is the traceback of dummy_fail.")
     logger.info("END of dummy_fail task (from within task)")
