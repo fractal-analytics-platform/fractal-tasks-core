@@ -30,6 +30,7 @@ exclude_patterns = []
 gettext_compact = False
 
 master_doc = "index"
+github_url = "https://github.com/fractal-analytics-platform/fractal-tasks-core"
 
 # sphinx_rtd_theme config
 html_theme = "sphinx_rtd_theme"
@@ -41,7 +42,6 @@ html_theme_options = {
     "prev_next_buttons_location": None,
     "display_version": True,
     "style_external_links": True,
-    "github_url": "https://github.com/fractal-analytics-platform/fractal-tasks-core",  # noqa
 }
 html_context = {}
 
