@@ -1,5 +1,6 @@
 """
-Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
+Copyright 2022 (C)
+    Friedrich Miescher Institute for Biomedical Research and
     University of Zurich
 
     Original authors:
@@ -11,7 +12,7 @@ Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
     Miescher Institute for Biomedical Research and Pelkmans Lab from the
     University of Zurich.
 
-This is a very nice module
+Minimalistic module description
 """
 import re
 from typing import Dict
