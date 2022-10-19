@@ -15,4 +15,5 @@ Bla bla bla bla
    :caption: Contents:
 
    intro
+   changelog
    api_files/fractal_tasks_core
