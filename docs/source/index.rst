@@ -14,4 +14,4 @@ Bla bla bla bla
    :maxdepth: 2
    :caption: Contents:
 
-   api_files/fractal_tasks_core
+   api_files/modules
