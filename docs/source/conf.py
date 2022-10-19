@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 project = "Fractal Tasks Core"
-copyright = "2022, Fractal"
-author = "Fractal"
+copyright = (
+    "2022, Friedrich Miescher Institute for Biomedical Research and "
+    "University of Zurich"
+)
 version = "0.2.5"
 language = "en"
 
@@ -16,15 +18,8 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.githubpages",
     "sphinx_autodoc_typehints",
-    "sphinxcontrib.apidoc",
     "autodocsumm",
 ]
-
-
-apidoc_module_dir = "../../fractal_tasks_core"
-apidoc_output_dir = "api_files"
-apidoc_excluded_paths = ["tests", "examples"]
-apidoc_separate_modules = True
 
 autodoc_default_options = {
     "autosummary": True,
@@ -55,10 +50,22 @@ html_context = {}
 # Extensions to theme docs
 def setup(app):
 
-    # from sphinx.ext import apidoc
-    # app.connect('builder-inited', lambda _: apidoc.main([
-    #    '-o', 'source/api_files', '-d2', '-feMT', '../fractal_tasks_core',
-    # ]))
+    from sphinx.ext import apidoc
+
+    app.connect(
+        "builder-inited",
+        lambda _: apidoc.main(
+            [
+                "-o",
+                "source/api_files",
+                "-d2",
+                "-feMT",
+                "../fractal_tasks_core",
+                "--templatedir=apidoc_templates",
+            ]
+        ),
+    )
+    # apidoc_extra_args = ["--templatedir=apidoc_templates"]
 
     # What follows is taken from https://stackoverflow.com/a/68913808,
     # and used to remove each indented block following a line starting
