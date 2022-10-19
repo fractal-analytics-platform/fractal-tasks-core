@@ -1,12 +1,22 @@
 Changelog
 =========
 
-**Changes in 0.0.2**
+0.0.2
+-----
 
-* lala
-* lala
+New features
+~~~~~~~~~~~~
+* Added task XY (#213)
+* Task Z exposes argument K (#123)
 
-**Changes in 0.0.1**
+Fixes
+~~~~~
+* Fixed floating-point precision bug (#99)
 
-* lala
-* lala
+
+0.0.1
+-----
+
+New features
+~~~~~~~~~~~~
+* Added task A (#2)
