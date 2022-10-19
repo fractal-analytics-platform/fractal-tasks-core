@@ -67,6 +67,9 @@ push = true
 "docs/source/conf.py" = [
     'version = "{version}"',
 ]
+"docs/requirements.txt" = [
+    'fractal-tasks-core=={version}',
+]
 "fractal_tasks_core/__init__.py" = [
     '__VERSION__ = "{version}"'
 ]
