@@ -12,7 +12,7 @@ Copyright 2022 (C)
     Miescher Institute for Biomedical Research and Pelkmans Lab from the
     University of Zurich.
 
-Minimalistic module description
+Task for 3D->2D maximum-intensity projection
 """
 import logging
 from pathlib import Path

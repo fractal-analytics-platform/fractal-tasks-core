@@ -11,7 +11,7 @@ Copyright 2022 (C)
     Miescher Institute for Biomedical Research and Pelkmans Lab from the
     University of Zurich.
 
-Minimalistic module description
+Create structure for OME-NGFF zarr array
 """
 import os
 from glob import glob

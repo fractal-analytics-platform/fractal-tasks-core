@@ -11,7 +11,7 @@ Copyright 2022 (C)
     Miescher Institute for Biomedical Research and Pelkmans Lab from the
     University of Zurich.
 
-Minimalistic module description
+Functions to create a metadata dataframe from Yokogawa files
 """
 import logging
 

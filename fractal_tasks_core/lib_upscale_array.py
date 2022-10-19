@@ -11,7 +11,7 @@ Copyright 2022 (C)
     Miescher Institute for Biomedical Research and Pelkmans Lab from the
     University of Zurich.
 
-Minimalistic module description
+Function to increase the shape of an array by replicating it
 """
 import warnings
 from typing import Iterable

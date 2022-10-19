@@ -12,7 +12,7 @@ Copyright 2022 (C)
     Miescher Institute for Biomedical Research and Pelkmans Lab from the
     University of Zurich.
 
-Minimalistic module description
+Construct and write pyramid of lower-resolution levels
 """
 import pathlib
 from typing import Callable

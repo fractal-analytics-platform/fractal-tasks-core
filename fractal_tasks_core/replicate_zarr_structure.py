@@ -12,7 +12,7 @@ Copyright 2022 (C)
     Miescher Institute for Biomedical Research and Pelkmans Lab from the
     University of Zurich.
 
-Minimalistic module description
+Task that copies the structure of an OME-NGFF zarr array to a new one
 """
 import json
 import logging

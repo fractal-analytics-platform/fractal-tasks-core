@@ -12,7 +12,7 @@ Copyright 2022 (C)
     Miescher Institute for Biomedical Research and Pelkmans Lab from the
     University of Zurich.
 
-Minimalistic module description
+Functions to handle regions of interests (via pandas and AnnData)
 """
 from typing import Iterable
 from typing import List

@@ -13,7 +13,7 @@ Copyright 2022 (C)
     Miescher Institute for Biomedical Research and Pelkmans Lab from the
     University of Zurich.
 
-This module includes dummy tasks.
+Dummy task, for testing purposes
 """
 import logging
 import os
