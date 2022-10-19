@@ -9,14 +9,10 @@ version = "0.2.5"
 language = "en"
 
 extensions = [
-    "sphinx.ext.intersphinx",
     "sphinx.ext.autodoc",
-    "sphinx.ext.mathjax",
-    "sphinx.ext.viewcode",
-    "sphinx_rtd_theme",
     "sphinx.ext.autosummary",
     "sphinx.ext.viewcode",
-    "sphinx.ext.githubpages",
+    "sphinx_rtd_theme",
     "sphinx_autodoc_typehints",
     "autodocsumm",
 ]
@@ -32,11 +28,6 @@ exclude_patterns = []
 gettext_compact = False
 
 master_doc = "index"
-
-intersphinx_mapping = {
-    "rtd": ("https://docs.readthedocs.io/en/stable/", None),
-    "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
-}
 
 html_theme = "sphinx_rtd_theme"
 html_theme_options = {
@@ -65,7 +56,6 @@ def setup(app):
             ]
         ),
     )
-    # apidoc_extra_args = ["--templatedir=apidoc_templates"]
 
     # What follows is taken from https://stackoverflow.com/a/68913808,
     # and used to remove each indented block following a line starting
