@@ -2,6 +2,7 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/fractal-tasks-core?color=gree)](https://pypi.org/project/fractal-tasks-core/)
 [![Documentation Status](https://readthedocs.org/projects/fractal-tasks-core/badge/?version=latest)](https://fractal-tasks-core.readthedocs.io/en/latest)
+[![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 Fractal is a framework to process high content imaging data at scale and prepare it for interactive visualization.
 
@@ -48,5 +49,3 @@ S.r.l.](https://exact-lab.it).
 ## License
 
 Fractal is released according to a BSD 3-Clause License. See `LICENSE`.
-
-.
