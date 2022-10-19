@@ -1,7 +1,7 @@
 Welcome to Fractal Tasks Core's documentation!
 ==============================================
 
-**Fractal Tasks Core** is a list of tasks for Fractal, a framework to process high content imaging data at scale and prepare it for interactive visualization.
+**Fractal Tasks Core** provides a list of tasks for Fractal, a framework to process high content imaging data at scale and prepare it for interactive visualization.
 
 
 .. note::
