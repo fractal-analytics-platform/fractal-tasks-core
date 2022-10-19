@@ -11,7 +11,6 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.mathjax",
     "sphinx.ext.viewcode",
-    "sphinxcontrib.httpdomain",
     "sphinx_rtd_theme",
     "sphinx.ext.autosummary",
     "sphinx.ext.viewcode",
