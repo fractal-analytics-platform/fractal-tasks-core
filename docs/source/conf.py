@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from pathlib import Path
+
+from sphinx.ext import apidoc
 
 project = "Fractal Tasks Core"
 copyright = (
@@ -38,10 +41,13 @@ html_theme_options = {
 html_context = {}
 
 
+package_dir = str(
+    Path(__file__).parent.absolute() / "../../fractal_tasks_core"
+)
+
+
 # Extensions to theme docs
 def setup(app):
-
-    from sphinx.ext import apidoc
 
     app.connect(
         "builder-inited",
@@ -51,8 +57,8 @@ def setup(app):
                 "source/api_files",
                 "-d2",
                 "-feMT",
-                "../fractal_tasks_core",
                 "--templatedir=apidoc_templates",
+                package_dir,
             ]
         ),
     )
