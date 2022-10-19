@@ -1,15 +1,16 @@
 """
 Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-University of Zurich
+    University of Zurich
 
-Original authors:
-Tommaso Comparin <tommaso.comparin@exact-lab.it>
-Marco Franzon <marco.franzon@exact-lab.it>
+    Original authors:
+    Tommaso Comparin <tommaso.comparin@exact-lab.it>
 
-This file is part of Fractal and was originally developed by eXact lab S.r.l.
-<exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-Institute for Biomedical Research and Pelkmans Lab from the University of
-Zurich.
+    This file is part of Fractal and was originally developed by eXact lab
+    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
+    Miescher Institute for Biomedical Research and Pelkmans Lab from the
+    University of Zurich.
+
+This is a very nice module
 """
 import logging
 from pathlib import Path
@@ -35,15 +36,15 @@ def maximum_intensity_projection(
     metadata: Optional[Dict[str, Any]] = None,
     component: str = None,
 ):
-
     """
     Perform maximum-intensity projection along Z axis, and store the output in
     a new zarr file.
 
-    Examples
+    Examples::
+
       input_paths[0] = /tmp/out_mip/*.zarr  (Path)
-      output_path = /tmp/out_mip/*zarr   (Path)
-      metadata = {"num_levels": 2, "coarsening_xy": 2, ...}
+      output_path = /tmp/out_mip/*.zarr   (Path)
+      metadata = {"num_levels": 2, "coarsening_xy": 2, }
       component = plate.zarr/B/03/0     (str)
 
     :param dummy: this is just a placeholder

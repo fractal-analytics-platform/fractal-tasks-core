@@ -1,15 +1,16 @@
 """
 Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-University of Zurich
+    University of Zurich
 
-Original authors:
-Tommaso Comparin <tommaso.comparin@exact-lab.it>
-Marco Franzon <marco.franzon@exact-lab.it>
+    Original authors:
+    Tommaso Comparin <tommaso.comparin@exact-lab.it>
 
-This file is part of Fractal and was originally developed by eXact lab S.r.l.
-<exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-Institute for Biomedical Research and Pelkmans Lab from the University of
-Zurich.
+    This file is part of Fractal and was originally developed by eXact lab
+    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
+    Miescher Institute for Biomedical Research and Pelkmans Lab from the
+    University of Zurich.
+
+This is a very nice module
 """
 import os
 from glob import glob
@@ -96,7 +97,6 @@ def create_zarr_structure(
     metadata_table: str = "mrf_mlf",
     metadata: Optional[Dict[str, Any]] = None,
 ):
-
     """
     Create (and store) the zarr folder, without reading or writing data.
 
@@ -122,7 +122,6 @@ def create_zarr_structure(
     :type path_dict_channels: str
     :param num_levels: number of coarsening levels in the pyramid
     :type num_levels: int
-    FIXME
     """
 
     # Preliminary checks on metadata_table

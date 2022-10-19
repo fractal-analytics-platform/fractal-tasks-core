@@ -1,14 +1,16 @@
 """
 Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-University of Zurich
+    University of Zurich
 
-Original authors:
-Tommaso Comparin <tommaso.comparin@exact-lab.it>
+    Original authors:
+    Tommaso Comparin <tommaso.comparin@exact-lab.it>
 
-This file is part of Fractal and was originally developed by eXact lab S.r.l.
-<exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-Institute for Biomedical Research and Pelkmans Lab from the University of
-Zurich.
+    This file is part of Fractal and was originally developed by eXact lab
+    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
+    Miescher Institute for Biomedical Research and Pelkmans Lab from the
+    University of Zurich.
+
+This is a very nice module
 """
 import logging
 
@@ -18,8 +20,8 @@ logger = logging.getLogger(__name__)
 def is_overlapping_1D(line1, line2, tol=0):
     """
     Based on https://stackoverflow.com/a/70023212/19085332
-    line:
-        (xmin, xmax)
+
+    line: (xmin, xmax)
 
     :param dummy: this is just a placeholder
     :type dummy: int
@@ -30,8 +32,8 @@ def is_overlapping_1D(line1, line2, tol=0):
 def is_overlapping_2D(box1, box2, tol=0):
     """
     Based on https://stackoverflow.com/a/70023212/19085332
-    box:
-        (xmin, ymin, xmax, ymax)
+
+    box: (xmin, ymin, xmax, ymax)
 
     :param dummy: this is just a placeholder
     :type dummy: int
