@@ -45,9 +45,12 @@ html_theme_options = {
 }
 html_context = {}
 
-# sphinx_autodoc_defaultargs config
+# This prolog is useful for both sphinx_autodoc_defaultargs and the "Edit on
+# github" button
 rst_prolog = (
     """
+:github_url: https://github.com/fractal-analytics-platform/fractal-tasks-core
+
 .. |default| raw:: html
 
     <div class="default-value-section">"""
@@ -58,7 +61,7 @@ rst_prolog = (
 # Extensions to theme docs
 def setup(app):
 
-    # apidoc part
+    # apidoc (see https://github.com/readthedocs/readthedocs.org/issues/1139)
     source_dir = Path(__file__).parent.absolute()
     package_dir = str(source_dir / "../../fractal_tasks_core")
     api_files_dir = str(source_dir / "api_files")
@@ -80,7 +83,6 @@ def setup(app):
     # What follows is taken from https://stackoverflow.com/a/68913808,
     # and used to remove each indented block following a line starting
     # with "Copyright"
-
     what = None
 
     def process(
@@ -94,7 +96,6 @@ def setup(app):
         if what and what_ not in what:
             return
         orig_lines = lines[:]
-
         ignoring = False
         new_lines = []
         for i, line in enumerate(orig_lines):
@@ -106,10 +107,8 @@ def setup(app):
                 # ignoring the indented region.
                 if ignoring and line and not line.startswith(" "):
                     ignoring = False
-
             if not ignoring:
                 new_lines.append(line)
-
         lines[:] = new_lines
         # make sure there is a blank line at the end
         if lines and lines[-1]:
