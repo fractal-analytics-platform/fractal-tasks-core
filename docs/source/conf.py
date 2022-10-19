@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 project = "Fractal Tasks Core"
-copyright = "2022, Fractal"
-author = "Fractal"
+copyright = (
+    "2022, Friedrich Miescher Institute for Biomedical Research and "
+    "University of Zurich"
+)
 version = "0.2.5"
 language = "en"
 
@@ -16,15 +18,8 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.githubpages",
     "sphinx_autodoc_typehints",
-    # "sphinxcontrib.apidoc",
     "autodocsumm",
 ]
-
-
-# apidoc_module_dir = "../../fractal_tasks_core"
-# apidoc_output_dir = "api_files"
-# apidoc_excluded_paths = ["tests", "examples"]
-# apidoc_separate_modules = True
 
 autodoc_default_options = {
     "autosummary": True,
