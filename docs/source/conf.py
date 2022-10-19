@@ -20,6 +20,7 @@ extensions = [
     "sphinx_rtd_theme",
     "sphinx_autodoc_typehints",
     "autodocsumm",
+    "sphinx_autodoc_defaultargs",
 ]
 
 autodoc_default_options = {"autosummary": True}
@@ -39,6 +40,15 @@ html_theme_options = {
     "prev_next_buttons_location": None,
 }
 html_context = {}
+
+
+rst_prolog = (
+    """
+.. |default| raw:: html
+
+    <div class="default-value-section">"""
+    + ' <span class="default-value-label">Default:</span>'
+)
 
 
 # Extensions to theme docs
