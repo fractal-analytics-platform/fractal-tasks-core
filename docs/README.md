@@ -25,7 +25,7 @@ This is a very nice module.
 
 ### Function docstrings
 
-See example below
+See example below, or also https://sphinx-rtd-theme.readthedocs.io/en/stable/_modules/test_py_module/test.html#Foo
 
 
 ```python
