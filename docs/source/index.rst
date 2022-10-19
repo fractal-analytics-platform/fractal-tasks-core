@@ -1,19 +1,17 @@
 Welcome to Fractal Tasks Core's documentation!
 ==============================================
 
-**Fractal Tasks Core** (/lu'make/) is a Python library...
+**Fractal Tasks Core** is a list of tasks for Fractal, a framework to process high content imaging data at scale and prepare it for interactive visualization.
 
-Check out the :doc:`usage` section for further information, including
-how to :ref:`installation` the project.
 
 .. note::
 
    This project is under active development.
 
-Contents
---------
+Bla bla bla bla
 
 .. toctree::
+   :maxdepth: 2
+   :caption: Contents:
 
-   usage
-   api
+   api_files/fractal_tasks_core

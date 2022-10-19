@@ -1,15 +1,17 @@
 """
 Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-University of Zurich
+    University of Zurich
 
-Original authors:
-Tommaso Comparin <tommaso.comparin@exact-lab.it>
-Marco Franzon <marco.franzon@exact-lab.it>
+    Original authors:
+    Tommaso Comparin <tommaso.comparin@exact-lab.it>
+    Marco Franzon <marco.franzon@exact-lab.it>
 
-This file is part of Fractal and was originally developed by eXact lab S.r.l.
-<exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-Institute for Biomedical Research and Pelkmans Lab from the University of
-Zurich.
+    This file is part of Fractal and was originally developed by eXact lab
+    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
+    Miescher Institute for Biomedical Research and Pelkmans Lab from the
+    University of Zurich.
+
+This is a very nice module
 """
 import re
 from typing import Dict
@@ -20,6 +22,7 @@ def parse_filename(filename: str) -> Dict[str, str]:
     Parse metadata from image filename to parameter dictionary.
 
     Three kinds of filenames are supported:
+
     1) Filenames from UZH:
        20200812-Cardio[...]Cycle1_B03_T0001F036L01A01Z18C01.png
        with plate name 20200812-Cardio[...]Cycle1
@@ -30,10 +33,14 @@ def parse_filename(filename: str) -> Dict[str, str]:
        yymmdd_hhmmss_210416_164828_B11_T0001F006L01A04Z14C01.tif
        with plate name RS{yymmddhhmmss}
 
+    Some code::
+
+        print(1)
+        print(2)
+
+
     :param filename: name of the image
-    :type filename: str
     :returns: metadata dictionary
-    :rtype: dict
     """
 
     if "/" in filename:

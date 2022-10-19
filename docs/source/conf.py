@@ -14,7 +14,24 @@ extensions = [
     "sphinxcontrib.httpdomain",
     "sphinx_rtd_theme",
     "sphinx.ext.autosummary",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.githubpages",
+    "sphinx_autodoc_typehints",
+    "sphinxcontrib.apidoc",
+    "autodocsumm",
 ]
+
+
+apidoc_module_dir = "../../fractal_tasks_core"
+apidoc_output_dir = "api_files"
+apidoc_excluded_paths = ["tests", "examples"]
+apidoc_separate_modules = True
+
+autodoc_default_options = {
+    "autosummary": True,
+}
+
+autodata_content = "both"
 
 source_suffix = ".rst"
 exclude_patterns = []
@@ -31,12 +48,18 @@ html_theme = "sphinx_rtd_theme"
 html_theme_options = {
     "logo_only": True,
     "navigation_depth": 5,
+    "collapse_navigation": True,
 }
 html_context = {}
 
 
 # Extensions to theme docs
 def setup(app):
+
+    # from sphinx.ext import apidoc
+    # app.connect('builder-inited', lambda _: apidoc.main([
+    #    '-o', 'source/api_files', '-d2', '-feMT', '../fractal_tasks_core',
+    # ]))
 
     # What follows is taken from https://stackoverflow.com/a/68913808,
     # and used to remove each indented block following a line starting
