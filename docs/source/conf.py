@@ -1,6 +1,8 @@
-# -*- coding: utf-8 -*-
 from pathlib import Path
+from typing import Any
+from typing import List
 
+from sphinx.application import Sphinx
 from sphinx.ext import apidoc
 
 project = "Fractal Tasks Core"
@@ -20,9 +22,7 @@ extensions = [
     "autodocsumm",
 ]
 
-autodoc_default_options = {
-    "autosummary": True,
-}
+autodoc_default_options = {"autosummary": True}
 
 autodata_content = "both"
 
@@ -36,28 +36,28 @@ html_theme = "sphinx_rtd_theme"
 html_theme_options = {
     "logo_only": True,
     "navigation_depth": 5,
-    "collapse_navigation": True,
+    "prev_next_buttons_location": None,
 }
 html_context = {}
-
-
-package_dir = str(
-    Path(__file__).parent.absolute() / "../../fractal_tasks_core"
-)
 
 
 # Extensions to theme docs
 def setup(app):
 
+    # apidoc part
+    source_dir = Path(__file__).parent.absolute()
+    package_dir = str(source_dir / "../../fractal_tasks_core")
+    api_files_dir = str(source_dir / "api_files")
+    templates_dir = str(source_dir / "../apidoc_templates")
     app.connect(
         "builder-inited",
         lambda _: apidoc.main(
             [
                 "-o",
-                "source/api_files",
+                api_files_dir,
                 "-d2",
                 "-feMT",
-                "--templatedir=apidoc_templates",
+                f"--templatedir={templates_dir}",
                 package_dir,
             ]
         ),
@@ -66,9 +66,6 @@ def setup(app):
     # What follows is taken from https://stackoverflow.com/a/68913808,
     # and used to remove each indented block following a line starting
     # with "Copyright"
-
-    from sphinx.application import Sphinx
-    from typing import Any, List
 
     what = None
 
