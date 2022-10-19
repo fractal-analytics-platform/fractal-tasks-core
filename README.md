@@ -1,6 +1,7 @@
 # Fractal Core Tasks
 
 [![PyPI version](https://img.shields.io/pypi/v/fractal-tasks-core?color=gree)](https://pypi.org/project/fractal-tasks-core/)
+[![Documentation Status](https://readthedocs.org/projects/fractal-tasks-core/badge/?version=latest)](https://fractal-tasks-core.readthedocs.io/en/latest/?badge=latest)
 
 Fractal is a framework to process high content imaging data at scale and prepare it for interactive visualization.
 
