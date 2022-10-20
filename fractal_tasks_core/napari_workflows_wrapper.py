@@ -224,7 +224,6 @@ def napari_workflows_wrapper(
                 store=store,
                 overwrite=False,
                 dimension_separator="/",
-                # FIXME write_empty_chunks=.. do we need this?
             )
             output_label_zarr_groups[name] = mask_zarr
             logger.info(f"Prepared output with {name=} and {params=}")

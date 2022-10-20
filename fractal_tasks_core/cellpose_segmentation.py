@@ -276,7 +276,6 @@ def cellpose_segmentation(
         store=store,
         overwrite=False,
         dimension_separator="/",
-        # FIXME write_empty_chunks=.. do we need this?
     )
 
     logger.info(
