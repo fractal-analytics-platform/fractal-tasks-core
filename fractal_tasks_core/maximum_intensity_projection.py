@@ -110,7 +110,10 @@ def maximum_intensity_projection(
     if accumulate_chl.chunksize != chunksize:
         raise Exception("ERROR\n{accumulate_chl.chunksize=}\n{chunksize=}")
     accumulate_chl.to_zarr(
-        f"{zarrurl_new}/0", overwrite=False, dimension_separator="/"
+        f"{zarrurl_new}/0",
+        overwrite=False,
+        dimension_separator="/",
+        write_empty_chunks=False,
     )
 
     # Starting from on-disk highest-resolution data, build and write to disk a
