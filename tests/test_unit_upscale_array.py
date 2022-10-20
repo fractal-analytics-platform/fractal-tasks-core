@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Sequence
 
 import numpy as np
 import pytest
@@ -17,7 +17,7 @@ list_success.append(((1, 2, 3), (1, 4, 12), [1, 2]))
 
 @pytest.mark.parametrize("old_shape,target_shape,axis", list_success)
 def test_upscale_array_success(
-    old_shape: Iterable[int], target_shape: Iterable[int], axis: Iterable[int]
+    old_shape: Sequence[int], target_shape: Sequence[int], axis: Sequence[int]
 ):
     old_array = np.ones(old_shape)
     new_array = upscale_array(
@@ -35,7 +35,7 @@ list_fail.append(((1, 4), (1, 2), [0]))
 
 @pytest.mark.parametrize("old_shape,target_shape,axis", list_fail)
 def test_upscale_array_fail(
-    old_shape: Iterable[int], target_shape: Iterable[int], axis: Iterable[int]
+    old_shape: Sequence[int], target_shape: Sequence[int], axis: Sequence[int]
 ):
     old_array = np.ones(old_shape)
     with pytest.raises(ValueError):
