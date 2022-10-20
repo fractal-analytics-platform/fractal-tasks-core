@@ -54,6 +54,11 @@ def parse_filename(filename: str) -> Dict[str, str]:
 
 
     :param filename: name of the image
+    :param dummy_parameters: this is a dummy parameter with a very very long \
+                             description which does not fit in a single line \
+                             but that we want to be rendered on a single \
+                             line. Note that we could pick a different \
+                             indentation as well (e.g. 4 spaces).
     :returns: metadata dictionary
     """
 ```
