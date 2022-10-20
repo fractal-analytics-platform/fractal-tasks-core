@@ -47,20 +47,33 @@ logger = logging.getLogger(__name__)
 
 def napari_workflows_wrapper(
     *,
+    # Default arguments for fractal tasks:
     input_paths: Iterable[Path],
     output_path: Path,
+    component: str,
     metadata: Optional[Dict[str, Any]] = None,
-    component: str = None,
-    input_specs: Dict[str, Dict[str, str]] = None,
-    output_specs: Dict[str, Dict[str, str]] = None,
-    workflow_file: str = None,
+    # Task-specific arguments:
+    workflow_file: str,
+    input_specs: Dict[str, Dict[str, str]],
+    output_specs: Dict[str, Dict[str, str]],
     ROI_table_name: str = "FOV_ROI_table",
+    level: int = 0,
 ):
     """
     Description
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    Example of some arguments::
+        asd
+
+    :param input_paths: TBD (fractal arg)
+    :param output_path: TBD (fractal arg)
+    :param component: TBD (fractal arg)
+    :param metadata: TBD (fractal arg)
+    :type workflow_file: absolute path to napari-workflows YAML file
+    :type input_specs: TBD
+    :type output_specs: TBD
+    :type ROI_table_name: name of the table that contains ROIs to which the\
+                          task applies the napari-worfklow
     """
 
     # Pre-processing of task inputs
