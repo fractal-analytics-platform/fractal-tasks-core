@@ -20,8 +20,8 @@ import os
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import Iterable
 from typing import Optional
+from typing import Sequence
 
 import anndata as ad
 import dask.array as da
@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 def measurement(
     *,
-    input_paths: Iterable[Path],
+    input_paths: Sequence[Path],
     output_path: Path,
     metadata: Optional[Dict[str, Any]] = None,
     component: str = None,

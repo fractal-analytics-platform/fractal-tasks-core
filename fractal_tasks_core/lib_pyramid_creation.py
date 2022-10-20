@@ -16,7 +16,7 @@ Construct and write pyramid of lower-resolution levels
 """
 import pathlib
 from typing import Callable
-from typing import Iterable
+from typing import Sequence
 from typing import Union
 
 import dask.array as da
@@ -29,7 +29,7 @@ def build_pyramid(
     overwrite: bool = False,
     num_levels: int = 2,
     coarsening_xy: int = 2,
-    chunksize: Iterable[int] = None,
+    chunksize: Sequence[int] = None,
     aggregation_function: Callable = None,
 ):
 
@@ -42,17 +42,11 @@ def build_pyramid(
         zarrurl = "some/path/plate.zarr/B/03/0
 
     :param zarrurl: path of the zarr group, which must already include level 0
-    :type zarrurl: str | path
     :param overwrite: whether to overwrite existing pyramid levels
-    :type overwrite: bool
     :param num_levels: total number of pyramid levels (including 0)
-    :type num_levels: int
     :param coarsening_xy: linear coarsening factor between subsequent levels
-    :type coarsening_xy: int
     :param chunksize: shape of a single chunk
-    :type chunksize: list of ints
     :param aggregation_function: function to be used when downsampling
-    :type aggregation_function: callable
     """
 
     # Clean up zarrurl
