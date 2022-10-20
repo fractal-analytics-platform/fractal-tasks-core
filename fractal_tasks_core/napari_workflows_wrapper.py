@@ -20,6 +20,7 @@ import os
 from pathlib import Path
 from typing import Any
 from typing import Dict
+from typing import List
 from typing import Optional
 from typing import Sequence
 
@@ -248,7 +249,7 @@ def napari_workflows_wrapper(
         for (name, params) in output_specs.items()
         if params["type"] == "dataframe"
     ]
-    output_dataframe_lists = {}
+    output_dataframe_lists: Dict[str, List] = {}
     for (name, params) in dataframe_outputs:
         output_dataframe_lists[name] = []
         logger.info(f"Prepared output with {name=} and {params=}")
@@ -262,7 +263,7 @@ def napari_workflows_wrapper(
         logger.info(f"ROI {i_ROI+1}/{num_ROIs}: {region=}")
 
         # Always re-load napari worfklow
-        wf: napari_workflows.Worfklow = load_workflow(workflow_file)
+        wf = load_workflow(workflow_file)
 
         # Set inputs
         for input_name in input_specs.keys():
@@ -275,7 +276,7 @@ def napari_workflows_wrapper(
             elif input_type == "label":
                 wf.set(
                     input_name,
-                    input_label_arrays[input_name][region].compute(),
+                    input_label_arrays[input_name][region],
                 )
 
         # Get outputs
