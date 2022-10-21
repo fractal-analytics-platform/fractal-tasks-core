@@ -9,3 +9,4 @@ tmp*
 LOG*
 dist
 dist
+.mypy_cache
