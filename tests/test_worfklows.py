@@ -16,6 +16,7 @@ import json
 import logging
 import urllib
 from pathlib import Path
+from typing import Dict
 
 import anndata as ad
 import dask.array as da
@@ -43,13 +44,13 @@ from fractal_tasks_core.yokogawa_to_zarr import yokogawa_to_zarr
 
 
 def validate_schema(*, path: str, type: str):
-    url = (
+    url: str = (
         "https://raw.githubusercontent.com/ome/ngff/main/"
         f"{__OME_NGFF_VERSION__}/schemas/{type}.schema"
     )
     debug(url)
-    with urllib.request.urlopen(url) as url:
-        schema = json.load(url)
+    with urllib.request.urlopen(url) as fin:
+        schema: Dict = json.load(fin)
     debug(path)
     debug(type)
     with open(f"{path}/.zattrs", "r") as fin:
