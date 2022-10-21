@@ -86,12 +86,6 @@ def napari_workflows_wrapper(
     chl_list = metadata["channel_list"]
     label_dtype = np.uint32
 
-    # Hard-coded parameters
-    level = 0  # FIXME
-    labeling_level = 0  # FIXME
-    if level > 0 or labeling_level > 0:
-        raise NotImplementedError(f"{level=}, {labeling_level=}")
-
     # Load zattrs file and multiscales
     zattrs_file = f"{in_path}/{component}/.zattrs"
     with open(zattrs_file, "r") as jsonfile:
@@ -118,7 +112,7 @@ def napari_workflows_wrapper(
     # Create list of indices for 3D FOVs spanning the entire Z direction
     list_indices = convert_ROI_table_to_indices(
         ROI_table,
-        level=labeling_level,
+        level=level,
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
     )
@@ -136,6 +130,19 @@ def napari_workflows_wrapper(
         msg = f"Some item of {wf.roots()=} is not part of {input_specs=}."
         raise ValueError(msg)
     list_outputs = sorted(output_specs.keys())
+
+    # Characterization of workflow
+    input_types = [params["type"] for (name, params) in input_specs.items()]
+    output_types = [params["type"] for (name, params) in output_specs.items()]
+    is_labeling_workflow = set(input_types) == {"image"} and set(
+        output_types
+    ) == {"label"}
+    if level > 0 and not is_labeling_workflow:
+        msg = (
+            f"{level=}>0 is currently only accepted for labeling workflows, "
+            "i.e. those going from image(s) to label(s)"
+        )
+        raise NotImplementedError(msg)
 
     # Input preparation: "image" type
     image_inputs = [
@@ -204,11 +211,11 @@ def napari_workflows_wrapper(
         for (name, params) in label_outputs:
             label_name = params["label_name"]
 
-            # (1a) Rescale OME-NGFF datasets (relevant for labeling_level>0)
+            # (1a) Rescale OME-NGFF datasets (relevant for level>0)
             new_datasets = rescale_datasets(
                 datasets=multiscales[0]["datasets"],
                 coarsening_xy=coarsening_xy,
-                reference_level=labeling_level,
+                reference_level=level,
             )
             # (1b) Write zattrs for specific label
             label_group = labels_group.create_group(label_name)
