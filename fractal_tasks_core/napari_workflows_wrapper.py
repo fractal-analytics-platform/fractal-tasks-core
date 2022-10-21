@@ -134,9 +134,9 @@ def napari_workflows_wrapper(
     # Characterization of workflow
     input_types = [params["type"] for (name, params) in input_specs.items()]
     output_types = [params["type"] for (name, params) in output_specs.items()]
-    is_labeling_workflow = set(input_types) == {"image"} and set(
-        output_types
-    ) == {"label"}
+    are_inputs_all_images = set(input_types) == {"image"}
+    are_outputs_all_labels = set(output_types) == {"label"}
+    is_labeling_workflow = are_inputs_all_images and are_outputs_all_labels
     if level > 0 and not is_labeling_workflow:
         msg = (
             f"{level=}>0 is currently only accepted for labeling workflows, "
