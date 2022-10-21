@@ -287,12 +287,12 @@ def create_zarr_structure(
                 f"{in_path}/{plate_prefix}_{well}{ext_glob_pattern}"
             )
             well_channels = []
-            for fn in well_image_iter:
+            for fpath in well_image_iter:
                 try:
-                    metadata = parse_filename(os.path.basename(fn))
+                    metadata = parse_filename(os.path.basename(fpath))
                     well_channels.append(f"A{metadata['A']}_C{metadata['C']}")
                 except IndexError:
-                    logger.info(f"Skipping {fn}")
+                    logger.info(f"Skipping {fpath}")
             well_channels = sorted(list(set(well_channels)))
             if well_channels != actual_channels:
                 raise Exception(

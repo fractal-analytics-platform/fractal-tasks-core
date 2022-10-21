@@ -15,6 +15,7 @@ Copyright 2022 (C)
 Functions to handle .zattrs files and their contents
 """
 import json
+from typing import Any
 from typing import Dict
 from typing import List
 
@@ -112,7 +113,7 @@ def rescale_datasets(
         new_transformations = []
         for t in old_transformations:
             if t["type"] == "scale":
-                new_t = {"type": "scale"}
+                new_t: Dict[str, Any] = {"type": "scale"}
                 new_t["scale"] = [
                     t["scale"][0],
                     t["scale"][1] * coarsening_xy**reference_level,
