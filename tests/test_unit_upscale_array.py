@@ -1,4 +1,6 @@
+from typing import List
 from typing import Sequence
+from typing import Tuple
 
 import numpy as np
 import pytest
@@ -6,7 +8,7 @@ import pytest
 from fractal_tasks_core.lib_upscale_array import upscale_array
 
 
-list_success = []
+list_success: List[Tuple] = []
 list_success.append(((1, 2, 3), (1, 2, 3), [0, 1, 2]))
 list_success.append(((1, 2, 3), (1, 2, 3), [0, 1]))
 list_success.append(((1, 2, 3), (1, 2, 3), [0]))
@@ -26,7 +28,7 @@ def test_upscale_array_success(
     assert new_array.shape == target_shape
 
 
-list_fail = []
+list_fail: List[Tuple] = []
 list_fail.append(((1, 2, 3, 4), (1, 2, 6), [0, 1]))
 list_fail.append(((1, 2, 3, 4), (1, 2, 6), [0, -2]))
 list_fail.append(((1, 4), (1, 2), None))
