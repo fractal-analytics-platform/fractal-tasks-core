@@ -80,10 +80,7 @@ def napari_workflows_wrapper(
     # Validation of input/output specs
     wf: napari_workflows.Worfklow = load_workflow(workflow_file)
     logger.info(f"Loaded workflow from {workflow_file}")
-    from devtools import debug
 
-    debug(wf.leafs())
-    debug(wf.roots())
     if not (set(wf.leafs()) <= set(output_specs.keys())):
         msg = f"Some item of {wf.leafs()=} is not part of {output_specs=}."
         logger.error(msg)
