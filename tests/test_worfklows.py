@@ -675,7 +675,7 @@ def test_workflow_napari_worfklow(
         )
     debug(metadata)
 
-    # napari-workflows
+    # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
     input_specs = {
         "input": {"type": "image", "channel": "A01_C01"},
@@ -684,6 +684,32 @@ def test_workflow_napari_worfklow(
         "Result of Expand labels (scikit-image, nsbatwm)": {
             "type": "label",
             "label_name": "label_DAPI",
+        },
+    }
+    for component in metadata["well"]:
+        napari_workflows_wrapper(
+            input_paths=[zarr_path],
+            output_path=zarr_path,
+            metadata=metadata,
+            component=component,
+            input_specs=input_specs,
+            output_specs=output_specs,
+            workflow_file=workflow_file,
+            ROI_table_name="FOV_ROI_table",
+            level=2,
+        )
+    debug(metadata)
+
+    # Second napari-workflows task (measurement)
+    workflow_file = str(testdata_path / "napari_workflows/wf_4.yaml")
+    input_specs = {
+        "dapi_img": {"type": "image", "channel": "A01_C01"},
+        "dapi_label_img": {"type": "label", "label_name": "label_DAPI"},
+    }
+    output_specs = {
+        "regionprops_DAPI": {
+            "type": "dataframe",
+            "table_name": "regionprops_DAPI",
         },
     }
     for component in metadata["well"]:
