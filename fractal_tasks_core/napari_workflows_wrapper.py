@@ -77,10 +77,10 @@ def napari_workflows_wrapper(
                           task applies the napari-worfklow
     """
 
-    # Validation of input/output specs
     wf: napari_workflows.Worfklow = load_workflow(workflow_file)
     logger.info(f"Loaded workflow from {workflow_file}")
 
+    # Validation of input/output specs
     if not (set(wf.leafs()) <= set(output_specs.keys())):
         msg = f"Some item of {wf.leafs()=} is not part of {output_specs=}."
         logger.error(msg)
