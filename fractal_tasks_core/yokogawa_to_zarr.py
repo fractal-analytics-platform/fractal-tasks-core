@@ -21,7 +21,6 @@ from glob import glob
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import Optional
 from typing import Sequence
 
 import dask.array as da
@@ -29,9 +28,11 @@ import zarr
 from anndata import read_zarr
 from dask.array.image import imread
 
-from .lib_pyramid_creation import build_pyramid
-from .lib_regions_of_interest import convert_ROI_table_to_indices
-from .lib_zattrs_utils import extract_zyx_pixel_sizes
+from fractal_tasks_core.lib_pyramid_creation import build_pyramid
+from fractal_tasks_core.lib_regions_of_interest import (
+    convert_ROI_table_to_indices,
+)
+from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +55,7 @@ def yokogawa_to_zarr(
     input_paths: Sequence[Path],
     output_path: Path,
     component: str = None,
-    metadata: Optional[Dict[str, Any]] = None,
+    metadata: Dict[str, Any] = None,
     delete_input=False,
 ):
     """
@@ -182,5 +183,16 @@ def yokogawa_to_zarr(
 
 
 if __name__ == "__main__":
+    from pydantic import BaseModel
+    from fractal_tasks_core._utils import run_fractal_task
 
-    raise NotImplementedError
+    class TaskArguments(BaseModel):
+        input_paths: Sequence[Path]
+        output_path: Path
+        delete_input = False
+        metadata: Dict[str, Any] = None
+        component: str = None
+
+    run_fractal_task(
+        callable_function=yokogawa_to_zarr, args_model=TaskArguments
+    )

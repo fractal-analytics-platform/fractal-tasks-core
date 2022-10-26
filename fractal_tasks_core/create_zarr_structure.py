@@ -19,7 +19,6 @@ from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import List
-from typing import Optional
 from typing import Sequence
 
 import pandas as pd
@@ -27,10 +26,10 @@ import zarr
 from anndata.experimental import write_elem
 
 import fractal_tasks_core
-from .lib_parse_filename_metadata import parse_filename
-from .lib_regions_of_interest import prepare_FOV_ROI_table
-from .lib_regions_of_interest import prepare_well_ROI_table
-from .metadata_parsing import parse_yokogawa_metadata
+from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
+from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
+from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
+from fractal_tasks_core.metadata_parsing import parse_yokogawa_metadata
 
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
@@ -99,7 +98,7 @@ def create_zarr_structure(
     *,
     input_paths: Sequence[Path],
     output_path: Path,
-    metadata: Optional[Dict[str, Any]] = None,
+    metadata: Dict[str, Any] = None,
     channel_parameters: Dict[str, Any] = None,
     num_levels: int = 2,
     coarsening_xy: int = 2,
@@ -419,53 +418,18 @@ def create_zarr_structure(
 
 
 if __name__ == "__main__":
+    from pydantic import BaseModel
+    from fractal_tasks_core._utils import run_fractal_task
 
-    raise NotImplementedError("CLI to be updated")
+    class TaskArguments(BaseModel):
+        input_paths: Sequence[Path]
+        output_path: Path
+        metadata: Dict[str, Any] = None
+        channel_parameters: Dict[str, Any] = None
+        num_levels: int = 2
+        coarsening_xy: int = 2
+        metadata_table: str = "mrf_mlf"
 
-    """
-    from argparse import ArgumentParser
-
-    parser = ArgumentParser(prog="create_zarr_structure")
-    parser.add_argument(
-        "-i",
-        "--in_paths",
-        help="list of directories containing the input files",
-        nargs="+",
+    run_fractal_task(
+        callable_function=create_zarr_structure, args_model=TaskArguments
     )
-    parser.add_argument(
-        "-o", "--out_path", help="directory for the outnput zarr files"
-    )
-    parser.add_argument(
-        "-e",
-        "--ext",
-        help="source images extension",
-    )
-    parser.add_argument(
-        "-nl",
-        "--num_levels",
-        type=int,
-        help="number of levels in the Zarr pyramid",
-    )
-    parser.add_argument(
-        "-cxy",
-        "--coarsening_xy",
-        type=int,
-        help="FIXME",
-    )
-    parser.add_argument(
-        "-c",
-        "--path_dict_channels",
-        type=str,
-        help="path of channel dictionary",
-    )
-    args = parser.parse_args()
-    create_zarr_structure(
-        in_paths=args.in_paths,
-        out_path=args.out_path,
-        ext=args.ext,
-        num_levels=args.num_levels,
-        coarsening_xy=args.coarsening_xy,
-        path_dict_channels=args.path_dict_channels,
-        # metadata_table=args.metadata_table,   #FIXME
-    )
-    """
