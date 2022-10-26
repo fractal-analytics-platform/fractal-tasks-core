@@ -652,6 +652,7 @@ def test_workflow_napari_worfklow(
     img_path = dataset_10_5281_zenodo_7059515 / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     metadata = {}
+    debug(zarr_path)
 
     # Create zarr structure
     metadata_update = create_zarr_structure(
