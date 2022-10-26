@@ -22,7 +22,7 @@ def dataset_10_5281_zenodo_7059515(testdata_path):
     url = "10.5281/zenodo.7059515"
     folder = str(testdata_path / (url.replace(".", "_").replace("/", "_")))
     if os.path.isdir(folder):
-        print(f"{folder} already exists, exit")
+        print(f"{folder} already exists, skip")
         return Path(folder)
     os.makedirs(folder)
     url = "https://doi.org/" + url
