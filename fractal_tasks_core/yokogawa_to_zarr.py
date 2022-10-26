@@ -21,17 +21,18 @@ from glob import glob
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import Iterable
-from typing import Optional
+from typing import Sequence
 
 import dask.array as da
 import zarr
 from anndata import read_zarr
 from dask.array.image import imread
 
-from .lib_pyramid_creation import build_pyramid
-from .lib_regions_of_interest import convert_ROI_table_to_indices
-from .lib_zattrs_utils import extract_zyx_pixel_sizes
+from fractal_tasks_core.lib_pyramid_creation import build_pyramid
+from fractal_tasks_core.lib_regions_of_interest import (
+    convert_ROI_table_to_indices,
+)
+from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 logger = logging.getLogger(__name__)
 
@@ -52,10 +53,10 @@ def sort_fun(s):
 
 def yokogawa_to_zarr(
     *,
-    input_paths: Iterable[Path],
+    input_paths: Sequence[Path],
     output_path: Path,
     delete_input=False,
-    metadata: Optional[Dict[str, Any]] = None,
+    metadata: Dict[str, Any] = None,
     component: str = None,
 ):
     """
@@ -178,63 +179,16 @@ def yokogawa_to_zarr(
 
 
 if __name__ == "__main__":
-    from argparse import ArgumentParser
+    from pydantic import BaseModel
+    from fractal_tasks_core._utils import run_fractal_task
 
-    parser = ArgumentParser(prog="Yokogawa_to_zarr")
+    class TaskArguments(BaseModel):
+        input_paths: Sequence[Path]
+        output_path: Path
+        delete_input = False
+        metadata: Dict[str, Any] = None
+        component: str = None
 
-    parser.add_argument(
-        "-i", "--in_path", help="directory containing the input files"
-    )
-
-    parser.add_argument(
-        "-z",
-        "--zarrurl",
-        help="structure of the zarr folder",
-    )
-
-    parser.add_argument(
-        "-e",
-        "--ext",
-        help="source images extension",
-    )
-
-    parser.add_argument(
-        "-C",
-        "--chl_list",
-        nargs="+",
-        help="list of channel names (e.g. A01_C01)",
-    )
-
-    parser.add_argument(
-        "-nl",
-        "--num_levels",
-        type=int,
-        help="number of levels in the Zarr pyramid",
-    )
-
-    parser.add_argument(
-        "-cxy",
-        "--coarsening_xy",
-        default=2,
-        type=int,
-        help="coarsening factor along X and Y (optional, defaults to 2)",
-    )
-
-    parser.add_argument(
-        "-d",
-        "--delete_input",
-        action="store_true",
-        help="Delete input files",
-    )
-
-    args = parser.parse_args()
-
-    yokogawa_to_zarr(
-        args.zarrurl,
-        in_path=args.in_path,
-        ext=args.ext,
-        chl_list=args.chl_list,
-        num_levels=args.num_levels,
-        coarsening_xy=args.coarsening_xy,
-        delete_input=args.delete_input,
+    run_fractal_task(
+        callable_function=yokogawa_to_zarr, args_model=TaskArguments
     )
