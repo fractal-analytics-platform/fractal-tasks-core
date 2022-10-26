@@ -36,13 +36,12 @@ from .lib_zattrs_utils import extract_zyx_pixel_sizes
 logger = logging.getLogger(__name__)
 
 
-def sort_fun(s):
+def sort_fun(s: str):
     """
     sort_fun takes a string (filename of a yokogawa images),
     extract site and z-index metadata and returns them as a list.
 
     :param s: filename
-    :type s: str
     """
 
     site = re.findall(r"F(.*)L", s)[0]
@@ -54,9 +53,9 @@ def yokogawa_to_zarr(
     *,
     input_paths: Sequence[Path],
     output_path: Path,
-    delete_input=False,
-    metadata: Optional[Dict[str, Any]] = None,
     component: str = None,
+    metadata: Optional[Dict[str, Any]] = None,
+    delete_input=False,
 ):
     """
     Convert Yokogawa output (png, tif) to zarr file
@@ -67,8 +66,11 @@ def yokogawa_to_zarr(
       metadata = {"channel_list": [...], "num_levels": ..., }
       component = plate.zarr/B/03/0/
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    :param input_paths: TBD
+    :param output_path: TBD
+    :param component: TBD
+    :param metadata: TBD
+    :param delete_input: TBD
     """
 
     # Preliminary checks

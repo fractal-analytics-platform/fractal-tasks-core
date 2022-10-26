@@ -70,10 +70,10 @@ def napari_workflows_wrapper(
     :param output_path: TBD (fractal arg)
     :param component: TBD (fractal arg)
     :param metadata: TBD (fractal arg)
-    :type workflow_file: absolute path to napari-workflows YAML file
-    :type input_specs: TBD
-    :type output_specs: TBD
-    :type ROI_table_name: name of the table that contains ROIs to which the\
+    :param workflow_file: absolute path to napari-workflows YAML file
+    :param input_specs: TBD
+    :param output_specs: TBD
+    :param ROI_table_name: name of the table that contains ROIs to which the\
                           task applies the napari-worfklow
     """
 

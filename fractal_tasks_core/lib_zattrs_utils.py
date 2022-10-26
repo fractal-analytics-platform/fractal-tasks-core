@@ -26,11 +26,8 @@ def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0) -> List[float]:
     given resoluion level.
 
     :param zattrs_path: Path to .zattrs file
-    :type zattrs_path: str
     :param level: Resolution level for which the pixe sizes are required
-    :type level: int
     :returns: ZYX pixel sizes
-    :rtype: list[int]
     """
 
     with open(zattrs_path, "r") as jsonfile:
@@ -91,11 +88,8 @@ def rescale_datasets(
     (coarsening_xy**reference_level).
 
     :param datasets: list of datasets (as per OME-NGFF specs)
-    :type datasets: list of dictionaries
     :param coarsening_xy: linear coarsening factor between subsequent levels
-    :type coarsening_xy: int
     :param reference_level: TBD
-    :type reference_level: int
     """
 
     # Construct rescaled datasets
