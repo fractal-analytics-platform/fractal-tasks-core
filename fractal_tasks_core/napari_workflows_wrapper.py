@@ -77,6 +77,41 @@ def napari_workflows_wrapper(
                           task applies the napari-worfklow
     """
 
+    # Validation of input/output specs
+    wf: napari_workflows.Worfklow = load_workflow(workflow_file)
+    logger.info(f"Loaded workflow from {workflow_file}")
+    from devtools import debug
+
+    debug(wf.leafs())
+    debug(wf.roots())
+    if not (set(wf.leafs()) <= set(output_specs.keys())):
+        msg = f"Some item of {wf.leafs()=} is not part of {output_specs=}."
+        logger.error(msg)
+        raise ValueError(msg)
+    if not (set(wf.roots()) <= set(input_specs.keys())):
+        msg = f"Some item of {wf.roots()=} is not part of {input_specs=}."
+        logger.error(msg)
+        raise ValueError(msg)
+    list_outputs = sorted(output_specs.keys())
+
+    # Characterization of workflow
+    input_types = [params["type"] for (name, params) in input_specs.items()]
+    output_types = [params["type"] for (name, params) in output_specs.items()]
+    are_inputs_all_images = set(input_types) == {"image"}
+    are_outputs_all_labels = set(output_types) == {"label"}
+    is_labeling_workflow = are_inputs_all_images and are_outputs_all_labels
+    logger.info(f"This workflow acts at {level=}")
+    logger.info(
+        f"Is the current workflow a labeling one? {is_labeling_workflow}"
+    )
+    if level > 0 and not is_labeling_workflow:
+        msg = (
+            f"{level=}>0 is currently only accepted for labeling workflows, "
+            "i.e. those going from image(s) to label(s)"
+        )
+        logger.error(msg)
+        raise NotImplementedError(msg)
+
     # Pre-processing of task inputs
     if len(input_paths) > 1:
         raise NotImplementedError("We currently only support a single in_path")
@@ -120,29 +155,6 @@ def napari_workflows_wrapper(
     logger.info(
         f"Completed reading ROI table {ROI_table_name}, " f"found {num_ROIs}."
     )
-
-    # Validation of input/output specs
-    wf: napari_workflows.Worfklow = load_workflow(workflow_file)
-    if set(wf.leafs()) > set(output_specs.keys()):
-        msg = f"Some item of {wf.leafs()=} is not part of {output_specs=}."
-        raise ValueError(msg)
-    if set(wf.roots()) > set(input_specs.keys()):
-        msg = f"Some item of {wf.roots()=} is not part of {input_specs=}."
-        raise ValueError(msg)
-    list_outputs = sorted(output_specs.keys())
-
-    # Characterization of workflow
-    input_types = [params["type"] for (name, params) in input_specs.items()]
-    output_types = [params["type"] for (name, params) in output_specs.items()]
-    are_inputs_all_images = set(input_types) == {"image"}
-    are_outputs_all_labels = set(output_types) == {"label"}
-    is_labeling_workflow = are_inputs_all_images and are_outputs_all_labels
-    if level > 0 and not is_labeling_workflow:
-        msg = (
-            f"{level=}>0 is currently only accepted for labeling workflows, "
-            "i.e. those going from image(s) to label(s)"
-        )
-        raise NotImplementedError(msg)
 
     # Input preparation: "image" type
     image_inputs = [
@@ -287,9 +299,7 @@ def napari_workflows_wrapper(
                 )
 
         # Get outputs
-        logger.info(f"ROI {i_ROI+1}/{num_ROIs}: wf.set() complete")
         outputs = wf.get(list_outputs)
-        logger.info(f"ROI {i_ROI+1}/{num_ROIs}: wf.get() complete")
 
         # Handle outputs
         for ind_output, output_name in enumerate(list_outputs):
