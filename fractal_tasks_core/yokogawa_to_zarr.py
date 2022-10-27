@@ -54,9 +54,9 @@ def yokogawa_to_zarr(
     *,
     input_paths: Sequence[Path],
     output_path: Path,
-    component: str = None,
-    metadata: Dict[str, Any] = None,
-    delete_input=False,
+    component: str,
+    metadata: Dict[str, Any],
+    delete_input: bool = False,
 ):
     """
     Convert Yokogawa output (png, tif) to zarr file
@@ -189,9 +189,9 @@ if __name__ == "__main__":
     class TaskArguments(BaseModel):
         input_paths: Sequence[Path]
         output_path: Path
-        delete_input = False
-        metadata: Dict[str, Any] = None
-        component: str = None
+        metadata: Dict[str, Any]
+        component: str
+        delete_input: bool = False
 
     run_fractal_task(
         task_function=yokogawa_to_zarr, TaskArgsModel=TaskArguments

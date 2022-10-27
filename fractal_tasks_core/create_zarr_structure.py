@@ -424,8 +424,8 @@ if __name__ == "__main__":
     class TaskArguments(BaseModel):
         input_paths: Sequence[Path]
         output_path: Path
-        metadata: Dict[str, Any] = None
-        channel_parameters: Dict[str, Any] = None
+        metadata: Dict[str, Any]
+        channel_parameters: Dict[str, Any]
         num_levels: int = 2
         coarsening_xy: int = 2
         metadata_table: str = "mrf_mlf"

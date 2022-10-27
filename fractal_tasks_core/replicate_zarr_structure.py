@@ -54,8 +54,11 @@ def replicate_zarr_structure(
       input_paths[0] = /tmp/out/*.zarr    (Path)
       output_path = /tmp/out_mip/*.zarr   (Path)
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    :param input_paths: TBD
+    :param output_path: TBD
+    :param metadata: TBD
+    :param project_to_2D: TBD
+    :param suffix: TBD
     """
 
     # Preliminary check
@@ -189,12 +192,16 @@ def replicate_zarr_structure(
 
 
 if __name__ == "__main__":
+    from pydantic import BaseModel
+    from fractal_tasks_core._utils import run_fractal_task
 
-    raise NotImplementedError
+    class TaskArguments(BaseModel):
+        input_paths: Sequence[Path]
+        output_path: Path
+        metadata: Dict[str, Any]
+        project_to_2D: bool = True
+        suffix: str = None
 
-    from argparse import ArgumentParser
-
-    parser = ArgumentParser(prog="FIXME")
-    parser.add_argument("-z", "--zarrurl", help="zarr url", required=True)
-    args = parser.parse_args()
-    replicate_zarr_structure(args.zarrurl)
+    run_fractal_task(
+        task_function=replicate_zarr_structure, TaskArgsModel=TaskArguments
+    )

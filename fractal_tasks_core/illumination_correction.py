@@ -95,7 +95,7 @@ def illumination_correction(
     metadata: Dict[str, Any],
     overwrite: bool = False,
     new_component: str = None,
-    dict_corr: dict = None,
+    dict_corr: dict,
     background: int = 100,
 ) -> Dict[str, Any]:
 
@@ -274,7 +274,7 @@ if __name__ == "__main__":
         # Task-specific arguments
         overwrite: bool = False
         new_component: str = None
-        dict_corr: dict = None
+        dict_corr: dict
         background: int = 100
 
     run_fractal_task(

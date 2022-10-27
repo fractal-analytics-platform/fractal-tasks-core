@@ -349,3 +349,23 @@ def napari_workflows_wrapper(
             chunksize=img_array[0].chunksize,
             aggregation_function=np.max,
         )
+
+
+if __name__ == "__main__":
+    from pydantic import BaseModel
+    from fractal_tasks_core._utils import run_fractal_task
+
+    class TaskArguments(BaseModel):
+        input_paths: Sequence[Path]
+        output_path: Path
+        metadata: Dict[str, Any]
+        component: str
+        workflow_file: str
+        input_specs: Dict[str, Dict[str, str]]
+        output_specs: Dict[str, Dict[str, str]]
+        ROI_table_name: str = "FOV_ROI_table"
+        level: int = 0
+
+    run_fractal_task(
+        task_function=napari_workflows_wrapper, TaskArgsModel=TaskArguments
+    )

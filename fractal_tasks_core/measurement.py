@@ -42,7 +42,7 @@ def measurement(
     input_paths: Sequence[Path],
     output_path: Path,
     metadata: Dict[str, Any],
-    component: str = None,
+    component: str,
     labeling_channel: str = None,
     level: int = 0,
     workflow_file: str = None,
@@ -205,4 +205,18 @@ def measurement(
 
 
 if __name__ == "__main__":
-    raise NotImplementedError("CLI not implemented yet")
+    from pydantic import BaseModel
+    from fractal_tasks_core._utils import run_fractal_task
+
+    class TaskArguments(BaseModel):
+        input_paths: Sequence[Path]
+        output_path: Path
+        metadata: Dict[str, Any]
+        component: str
+        labeling_channel: str = None
+        level: int = 0
+        workflow_file: str = None
+        ROI_table_name: str = "FOV_ROI_table"
+        measurement_table_name: str = "measurement"
+
+    run_fractal_task(task_function=measurement, TaskArgsModel=TaskArguments)

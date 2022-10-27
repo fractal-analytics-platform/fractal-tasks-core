@@ -135,7 +135,7 @@ if __name__ == "__main__":
     class TaskArguments(BaseModel):
         input_paths: Sequence[Path]
         output_path: Path
-        metadata: Dict[str, Any] = None
+        metadata: Dict[str, Any]
         component: str
 
     run_fractal_task(
