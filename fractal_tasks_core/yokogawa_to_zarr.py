@@ -194,5 +194,5 @@ if __name__ == "__main__":
         component: str = None
 
     run_fractal_task(
-        callable_function=yokogawa_to_zarr, args_model=TaskArguments
+        task_function=yokogawa_to_zarr, TaskArgsModel=TaskArguments
     )
