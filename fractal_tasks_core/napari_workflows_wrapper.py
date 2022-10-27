@@ -20,8 +20,9 @@ import os
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import Iterable
+from typing import List
 from typing import Optional
+from typing import Sequence
 
 import anndata as ad
 import dask.array as da
@@ -47,21 +48,66 @@ logger = logging.getLogger(__name__)
 
 def napari_workflows_wrapper(
     *,
-    input_paths: Iterable[Path],
+    # Default arguments for fractal tasks:
+    input_paths: Sequence[Path],
     output_path: Path,
+    component: str,
     metadata: Optional[Dict[str, Any]] = None,
-    component: str = None,
-    input_specs: Dict[str, Dict[str, str]] = None,
-    output_specs: Dict[str, Dict[str, str]] = None,
-    workflow_file: str = None,
+    # Task-specific arguments:
+    workflow_file: str,
+    input_specs: Dict[str, Dict[str, str]],
+    output_specs: Dict[str, Dict[str, str]],
     ROI_table_name: str = "FOV_ROI_table",
+    level: int = 0,
 ):
     """
     Description
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    Example of some arguments::
+        asd
+
+    :param input_paths: TBD (fractal arg)
+    :param output_path: TBD (fractal arg)
+    :param component: TBD (fractal arg)
+    :param metadata: TBD (fractal arg)
+    :param workflow_file: absolute path to napari-workflows YAML file
+    :param input_specs: TBD
+    :param output_specs: TBD
+    :param ROI_table_name: name of the table that contains ROIs to which the\
+                          task applies the napari-worfklow
     """
+
+    wf: napari_workflows.Worfklow = load_workflow(workflow_file)
+    logger.info(f"Loaded workflow from {workflow_file}")
+
+    # Validation of input/output specs
+    if not (set(wf.leafs()) <= set(output_specs.keys())):
+        msg = f"Some item of {wf.leafs()=} is not part of {output_specs=}."
+        logger.error(msg)
+        raise ValueError(msg)
+    if not (set(wf.roots()) <= set(input_specs.keys())):
+        msg = f"Some item of {wf.roots()=} is not part of {input_specs=}."
+        logger.error(msg)
+        raise ValueError(msg)
+    list_outputs = sorted(output_specs.keys())
+
+    # Characterization of workflow
+    input_types = [params["type"] for (name, params) in input_specs.items()]
+    output_types = [params["type"] for (name, params) in output_specs.items()]
+    are_inputs_all_images = set(input_types) == {"image"}
+    are_outputs_all_labels = set(output_types) == {"label"}
+    is_labeling_workflow = are_inputs_all_images and are_outputs_all_labels
+    logger.info(f"This workflow acts at {level=}")
+    logger.info(
+        f"Is the current workflow a labeling one? {is_labeling_workflow}"
+    )
+    if level > 0 and not is_labeling_workflow:
+        msg = (
+            f"{level=}>0 is currently only accepted for labeling workflows, "
+            "i.e. those going from image(s) to label(s)"
+        )
+        logger.error(msg)
+        raise NotImplementedError(msg)
 
     # Pre-processing of task inputs
     if len(input_paths) > 1:
@@ -71,12 +117,6 @@ def napari_workflows_wrapper(
     coarsening_xy = metadata["coarsening_xy"]
     chl_list = metadata["channel_list"]
     label_dtype = np.uint32
-
-    # Hard-coded parameters
-    level = 0  # FIXME
-    labeling_level = 0  # FIXME
-    if level > 0 or labeling_level > 0:
-        raise NotImplementedError(f"{level=}, {labeling_level=}")
 
     # Load zattrs file and multiscales
     zattrs_file = f"{in_path}/{component}/.zattrs"
@@ -104,7 +144,7 @@ def napari_workflows_wrapper(
     # Create list of indices for 3D FOVs spanning the entire Z direction
     list_indices = convert_ROI_table_to_indices(
         ROI_table,
-        level=labeling_level,
+        level=level,
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
     )
@@ -112,16 +152,6 @@ def napari_workflows_wrapper(
     logger.info(
         f"Completed reading ROI table {ROI_table_name}, " f"found {num_ROIs}."
     )
-
-    # Validation of input/output specs
-    wf: napari_workflows.Worfklow = load_workflow(workflow_file)
-    if set(wf.leafs()) > set(output_specs.keys()):
-        msg = f"Some item of {wf.leafs()=} is not part of {output_specs=}."
-        raise ValueError(msg)
-    if set(wf.roots()) > set(input_specs.keys()):
-        msg = f"Some item of {wf.roots()=} is not part of {input_specs=}."
-        raise ValueError(msg)
-    list_outputs = sorted(output_specs.keys())
 
     # Input preparation: "image" type
     image_inputs = [
@@ -190,11 +220,11 @@ def napari_workflows_wrapper(
         for (name, params) in label_outputs:
             label_name = params["label_name"]
 
-            # (1a) Rescale OME-NGFF datasets (relevant for labeling_level>0)
+            # (1a) Rescale OME-NGFF datasets (relevant for level>0)
             new_datasets = rescale_datasets(
                 datasets=multiscales[0]["datasets"],
                 coarsening_xy=coarsening_xy,
-                reference_level=labeling_level,
+                reference_level=level,
             )
             # (1b) Write zattrs for specific label
             label_group = labels_group.create_group(label_name)
@@ -224,7 +254,6 @@ def napari_workflows_wrapper(
                 store=store,
                 overwrite=False,
                 dimension_separator="/",
-                # FIXME write_empty_chunks=.. do we need this?
             )
             output_label_zarr_groups[name] = mask_zarr
             logger.info(f"Prepared output with {name=} and {params=}")
@@ -236,7 +265,7 @@ def napari_workflows_wrapper(
         for (name, params) in output_specs.items()
         if params["type"] == "dataframe"
     ]
-    output_dataframe_lists = {}
+    output_dataframe_lists: Dict[str, List] = {}
     for (name, params) in dataframe_outputs:
         output_dataframe_lists[name] = []
         logger.info(f"Prepared output with {name=} and {params=}")
@@ -250,7 +279,7 @@ def napari_workflows_wrapper(
         logger.info(f"ROI {i_ROI+1}/{num_ROIs}: {region=}")
 
         # Always re-load napari worfklow
-        wf: napari_workflows.Worfklow = load_workflow(workflow_file)
+        wf = load_workflow(workflow_file)
 
         # Set inputs
         for input_name in input_specs.keys():
@@ -263,13 +292,11 @@ def napari_workflows_wrapper(
             elif input_type == "label":
                 wf.set(
                     input_name,
-                    input_label_arrays[input_name][region].compute(),
+                    input_label_arrays[input_name][region],
                 )
 
         # Get outputs
-        logger.info(f"ROI {i_ROI+1}/{num_ROIs}: wf.set() complete")
         outputs = wf.get(list_outputs)
-        logger.info(f"ROI {i_ROI+1}/{num_ROIs}: wf.get() complete")
 
         # Handle outputs
         for ind_output, output_name in enumerate(list_outputs):

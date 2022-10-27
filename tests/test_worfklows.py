@@ -16,6 +16,7 @@ import json
 import logging
 import urllib
 from pathlib import Path
+from typing import Dict
 
 import anndata as ad
 import dask.array as da
@@ -43,13 +44,13 @@ from fractal_tasks_core.yokogawa_to_zarr import yokogawa_to_zarr
 
 
 def validate_schema(*, path: str, type: str):
-    url = (
+    url: str = (
         "https://raw.githubusercontent.com/ome/ngff/main/"
         f"{__OME_NGFF_VERSION__}/schemas/{type}.schema"
     )
     debug(url)
-    with urllib.request.urlopen(url) as url:
-        schema = json.load(url)
+    with urllib.request.urlopen(url) as fin:
+        schema: Dict = json.load(fin)
     debug(path)
     debug(type)
     with open(f"{path}/.zattrs", "r") as fin:
@@ -651,6 +652,7 @@ def test_workflow_napari_worfklow(
     img_path = dataset_10_5281_zenodo_7059515 / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     metadata = {}
+    debug(zarr_path)
 
     # Create zarr structure
     metadata_update = create_zarr_structure(
@@ -674,7 +676,7 @@ def test_workflow_napari_worfklow(
         )
     debug(metadata)
 
-    # napari-workflows
+    # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
     input_specs = {
         "input": {"type": "image", "channel": "A01_C01"},
@@ -683,6 +685,32 @@ def test_workflow_napari_worfklow(
         "Result of Expand labels (scikit-image, nsbatwm)": {
             "type": "label",
             "label_name": "label_DAPI",
+        },
+    }
+    for component in metadata["well"]:
+        napari_workflows_wrapper(
+            input_paths=[zarr_path],
+            output_path=zarr_path,
+            metadata=metadata,
+            component=component,
+            input_specs=input_specs,
+            output_specs=output_specs,
+            workflow_file=workflow_file,
+            ROI_table_name="FOV_ROI_table",
+            level=2,
+        )
+    debug(metadata)
+
+    # Second napari-workflows task (measurement)
+    workflow_file = str(testdata_path / "napari_workflows/wf_4.yaml")
+    input_specs = {
+        "dapi_img": {"type": "image", "channel": "A01_C01"},
+        "dapi_label_img": {"type": "label", "label_name": "label_DAPI"},
+    }
+    output_specs = {
+        "regionprops_DAPI": {
+            "type": "dataframe",
+            "table_name": "regionprops_DAPI",
         },
     }
     for component in metadata["well"]:

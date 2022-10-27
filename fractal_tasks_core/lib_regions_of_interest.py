@@ -14,8 +14,8 @@ Copyright 2022 (C)
 
 Functions to handle regions of interests (via pandas and AnnData)
 """
-from typing import Iterable
 from typing import List
+from typing import Sequence
 
 import anndata as ad
 import numpy as np
@@ -187,13 +187,13 @@ def convert_ROI_table_to_indices(
     ROI: ad.AnnData,
     level: int = 0,
     coarsening_xy: int = 2,
-    full_res_pxl_sizes_zyx: Iterable[float] = None,
-    cols_xyz_pos: Iterable[str] = [
+    full_res_pxl_sizes_zyx: Sequence[float] = None,
+    cols_xyz_pos: Sequence[str] = [
         "x_micrometer",
         "y_micrometer",
         "z_micrometer",
     ],
-    cols_xyz_len: Iterable[str] = [
+    cols_xyz_len: Sequence[str] = [
         "len_x_micrometer",
         "len_y_micrometer",
         "len_z_micrometer",

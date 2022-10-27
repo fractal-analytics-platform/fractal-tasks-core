@@ -20,8 +20,8 @@ import warnings
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import Iterable
 from typing import Optional
+from typing import Sequence
 
 import anndata as ad
 import dask.array as da
@@ -90,15 +90,15 @@ def correct(
 
 def illumination_correction(
     *,
-    input_paths: Iterable[Path],
+    input_paths: Sequence[Path],
     output_path: Path,
+    component: str,
     metadata: Optional[Dict[str, Any]] = None,
-    component: str = None,
     overwrite: bool = False,
     new_component: str = None,
     dict_corr: dict = None,
     background: int = 100,
-):
+) -> Dict[str, Any]:
 
     """
     FIXME
@@ -214,7 +214,6 @@ def illumination_correction(
             store=da.core.get_mapper(f"{zarrurl_new}/0"),
             overwrite=False,
             dimension_separator="/",
-            # FIXME write_empty_chunks=.. do we need this?
         )
 
     # Iterate over FOV ROIs
@@ -258,6 +257,8 @@ def illumination_correction(
 
     t_end = time.perf_counter()
     logger.info(f"End illumination_correction, elapsed: {t_end-t_start}")
+
+    return {}
 
 
 if __name__ == "__main__":

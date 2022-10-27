@@ -2,6 +2,7 @@ import json
 import logging
 import shutil
 from pathlib import Path
+from typing import Dict
 
 import anndata as ad
 import dask.array as da
@@ -52,7 +53,7 @@ def test_illumination_correction(
     with open(zarrurl + ".zattrs") as fin:
         zattrs = json.load(fin)
         num_levels = len(zattrs["multiscales"][0]["datasets"])
-    metadata = {
+    metadata: Dict = {
         "num_levels": num_levels,
         "coarsening_xy": 2,
         "channel_list": ["A01_C01", "A01_C02"],

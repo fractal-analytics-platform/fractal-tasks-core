@@ -20,8 +20,9 @@ import os
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import Iterable
 from typing import Optional
+from typing import Sequence
+from typing import Tuple
 
 import anndata as ad
 import dask.array as da
@@ -39,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 def measurement(
     *,
-    input_paths: Iterable[Path],
+    input_paths: Sequence[Path],
     output_path: Path,
     metadata: Optional[Dict[str, Any]] = None,
     component: str = None,
@@ -159,6 +160,7 @@ def measurement(
     # Loop over FOV ROIs
     list_dfs = []
     num_ROIs = len(list_indices)
+    ROI: Tuple
     for i_ROI, indices in enumerate(list_indices):
         s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
         ROI = (slice(s_z, e_z), slice(s_y, e_y), slice(s_x, e_x))

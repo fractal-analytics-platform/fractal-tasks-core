@@ -14,23 +14,26 @@ Copyright 2022 (C)
 Function to increase the shape of an array by replicating it
 """
 import warnings
-from typing import Iterable
+from typing import Sequence
 
 import numpy as np
 
 
 def upscale_array(
     *,
-    target_shape: Iterable[int] = None,
-    array=None,
-    axis: Iterable[int] = None,
+    array,
+    target_shape: Sequence[int],
+    axis: Sequence[int] = None,
 ) -> np.ndarray:
     """
-    Upscale array along given axis, to match a
-    target shape. Upscaling is based on np.repeat.
+    Upscale an array along a given list of axis (through repeated application
+    of ``np.repeat``), to match a target shape.
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    :param array: the array to be upscaled
+    :param target_shape: the shape of the rescaled array
+    :param axis: the axis along which to upscale the array (if ``None``, then \
+                 all axis are used)
+    :returns: upscaled array, with shape ``target_shape``
     """
 
     array_shape = array.shape

@@ -18,7 +18,6 @@ from glob import glob
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import Iterable
 from typing import List
 from typing import Sequence
 
@@ -41,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 
 def define_omero_channels(
-    actual_channels: Iterable[str],
+    actual_channels: Sequence[str],
     channel_parameters: Dict[str, Any],
     bit_depth: int,
 ) -> List[Dict[str, Any]]:
@@ -104,7 +103,7 @@ def create_zarr_structure(
     num_levels: int = 2,
     coarsening_xy: int = 2,
     metadata_table: str = "mrf_mlf",
-):
+) -> Dict[str, Any]:
     """
     Create a OME-NGFF zarr folder, without reading/writing image data
 
@@ -151,7 +150,7 @@ def create_zarr_structure(
     plates = []
     channels = None
     dict_plate_paths = {}
-    dict_plate_prefixes = {}
+    dict_plate_prefixes: Dict[str, Any] = {}
 
     # FIXME
     # find a smart way to remove it
@@ -233,7 +232,7 @@ def create_zarr_structure(
 
     # Clean up dictionary channel_parameters
 
-    zarrurls = {"plate": [], "well": []}
+    zarrurls: Dict[str, List[str]] = {"plate": [], "well": []}
 
     ################################################################
     for plate in plates:
@@ -287,12 +286,12 @@ def create_zarr_structure(
                 f"{in_path}/{plate_prefix}_{well}{ext_glob_pattern}"
             )
             well_channels = []
-            for fn in well_image_iter:
+            for fpath in well_image_iter:
                 try:
-                    metadata = parse_filename(os.path.basename(fn))
+                    metadata = parse_filename(os.path.basename(fpath))
                     well_channels.append(f"A{metadata['A']}_C{metadata['C']}")
                 except IndexError:
-                    logger.info(f"Skipping {fn}")
+                    logger.info(f"Skipping {fpath}")
             well_channels = sorted(list(set(well_channels)))
             if well_channels != actual_channels:
                 raise Exception(

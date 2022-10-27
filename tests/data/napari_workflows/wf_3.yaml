@@ -1,0 +1,27 @@
+!!python/object:napari_workflows._workflow.Workflow
+_tasks:
+  Result of Expand labels (scikit-image, nsbatwm): !!python/tuple
+  - !!python/name:napari_segment_blobs_and_things_with_membranes.expand_labels ''
+  - Result of Voronoi-Otsu-labeling (nsbatwm)
+  - 2.0
+  Result of Sum images (numpy, nsbatwm): !!python/tuple
+  - !!python/name:napari_segment_blobs_and_things_with_membranes.sum_images ''
+  - slice_img
+  - slice_img_c2
+  - 2.0
+  - -0.5
+  Result of Voronoi-Otsu-labeling (nsbatwm): !!python/tuple
+  - !!python/name:napari_segment_blobs_and_things_with_membranes.voronoi_otsu_labeling ''
+  - Result of Sum images (numpy, nsbatwm)
+  - 15.0
+  - 2.0
+  regionprops_DAPI: !!python/tuple
+  - !!python/name:napari_skimage_regionprops._regionprops.regionprops_table ''
+  - slice_img
+  - Result of Expand labels (scikit-image, nsbatwm)
+  - true
+  - true
+  - false
+  - false
+  - false
+  - false

@@ -18,8 +18,8 @@ import logging
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import Iterable
 from typing import Optional
+from typing import Sequence
 
 import anndata as ad
 import dask.array as da
@@ -33,11 +33,11 @@ logger = logging.getLogger(__name__)
 
 def maximum_intensity_projection(
     *,
-    input_paths: Iterable[Path],
+    input_paths: Sequence[Path],
     output_path: Path,
+    component: str,
     metadata: Optional[Dict[str, Any]] = None,
-    component: str = None,
-):
+) -> Dict[str, Any]:
     """
     Perform maximum-intensity projection along Z axis, and store the output in
     a new zarr file.
@@ -104,13 +104,16 @@ def maximum_intensity_projection(
         # Perform MIP for each channel of level 0
         mip_yx = da.stack([da.max(data_czyx[ind_ch], axis=0)], axis=0)
         accumulate_chl.append(mip_yx)
-    accumulate_chl = da.stack(accumulate_chl, axis=0)
+    accumulated_array = da.stack(accumulate_chl, axis=0)
 
     # Write to disk (triggering execution)
-    if accumulate_chl.chunksize != chunksize:
-        raise Exception("ERROR\n{accumulate_chl.chunksize=}\n{chunksize=}")
-    accumulate_chl.to_zarr(
-        f"{zarrurl_new}/0", overwrite=False, dimension_separator="/"
+    if accumulated_array.chunksize != chunksize:
+        raise Exception("ERROR\n{accumulated_array.chunksize=}\n{chunksize=}")
+    accumulated_array.to_zarr(
+        f"{zarrurl_new}/0",
+        overwrite=False,
+        dimension_separator="/",
+        write_empty_chunks=False,
     )
 
     # Starting from on-disk highest-resolution data, build and write to disk a
@@ -123,22 +126,9 @@ def maximum_intensity_projection(
         chunksize=chunksize,
     )
 
+    return {}
+
 
 if __name__ == "__main__":
-    from argparse import ArgumentParser
 
-    parser = ArgumentParser(prog="maximum_intensity_projection.py")
-    parser.add_argument(
-        "-z", "--zarrurl", help="zarr url, at the FOV level", required=True
-    )
-
-    parser.add_argument(
-        "-cxy",
-        "--coarsening_xy",
-        default=2,
-        type=int,
-        help="coarsening factor along X and Y (optional, defaults to 2)",
-    )
-
-    args = parser.parse_args()
-    maximum_intensity_projection(args.zarrurl, args.coarsening_xy)
+    raise NotImplementedError("CLI not implemented")

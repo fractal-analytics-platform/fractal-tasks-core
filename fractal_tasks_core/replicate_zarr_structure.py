@@ -20,8 +20,8 @@ from glob import glob
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import Iterable
 from typing import Optional
+from typing import Sequence
 
 import anndata as ad
 import zarr
@@ -39,12 +39,12 @@ __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
 def replicate_zarr_structure(
     *,
-    input_paths: Iterable[Path],
+    input_paths: Sequence[Path],
     output_path: Path,
     metadata: Optional[Dict[str, Any]] = None,
     project_to_2D: bool = True,
     suffix: str = None,
-):
+) -> Dict[str, Any]:
 
     """
     Duplicate an input zarr structure to a new path.
@@ -73,7 +73,7 @@ def replicate_zarr_structure(
     ]
     logger.info("{list_plates=}")
 
-    meta_update = {"replicate_zarr": {}}
+    meta_update: Dict[str, Any] = {"replicate_zarr": {}}
     meta_update["replicate_zarr"]["suffix"] = suffix
     meta_update["replicate_zarr"]["sources"] = {}
 

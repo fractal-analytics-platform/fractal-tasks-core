@@ -20,8 +20,8 @@ import time
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import Iterable
 from typing import Optional
+from typing import Sequence
 
 import anndata as ad
 import dask.array as da
@@ -104,20 +104,22 @@ def segment_FOV(
 
 def cellpose_segmentation(
     *,
-    input_paths: Iterable[Path],
+    # Fractal arguments
+    input_paths: Sequence[Path],
     output_path: Path,
+    component: str,
     metadata: Optional[Dict[str, Any]] = None,
-    component: str = None,
-    labeling_channel: str = None,
+    # Task-specific arguments
+    labeling_channel: str,
     labeling_level: int = 1,
     relabeling: bool = True,
-    anisotropy: float = None,
+    anisotropy: Optional[float] = None,
     diameter_level0: float = 80.0,
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
     model_type: str = "nuclei",
     ROI_table_name: str = "FOV_ROI_table",
-):
+) -> Dict[str, Any]:
     """
     Example inputs:
       input_paths: PosixPath('tmp_out_mip/*.zarr')
@@ -276,7 +278,6 @@ def cellpose_segmentation(
         store=store,
         overwrite=False,
         dimension_separator="/",
-        # FIXME write_empty_chunks=.. do we need this?
     )
 
     logger.info(
@@ -379,6 +380,10 @@ def cellpose_segmentation(
 
 
 if __name__ == "__main__":
+
+    raise NotImplementedError("CLI not implemented")
+
+    """
     from argparse import ArgumentParser
 
     parser = ArgumentParser(prog="cellpose_segmentation.py")
@@ -419,3 +424,4 @@ if __name__ == "__main__":
         labeling_channel=args.labeling_channel,
         labeling_level=args.labeling_level,
     )
+    """
