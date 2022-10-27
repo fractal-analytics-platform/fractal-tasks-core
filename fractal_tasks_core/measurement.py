@@ -20,7 +20,6 @@ import os
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import Optional
 from typing import Sequence
 from typing import Tuple
 
@@ -42,7 +41,7 @@ def measurement(
     *,
     input_paths: Sequence[Path],
     output_path: Path,
-    metadata: Optional[Dict[str, Any]] = None,
+    metadata: Dict[str, Any],
     component: str = None,
     labeling_channel: str = None,
     level: int = 0,

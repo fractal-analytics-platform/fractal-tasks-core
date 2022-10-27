@@ -20,7 +20,6 @@ from glob import glob
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import Optional
 from typing import Sequence
 
 import anndata as ad
@@ -41,7 +40,7 @@ def replicate_zarr_structure(
     *,
     input_paths: Sequence[Path],
     output_path: Path,
-    metadata: Optional[Dict[str, Any]] = None,
+    metadata: Dict[str, Any],
     project_to_2D: bool = True,
     suffix: str = None,
 ) -> Dict[str, Any]:

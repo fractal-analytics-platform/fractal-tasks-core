@@ -21,7 +21,6 @@ from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import List
-from typing import Optional
 from typing import Sequence
 
 import anndata as ad
@@ -52,7 +51,7 @@ def napari_workflows_wrapper(
     input_paths: Sequence[Path],
     output_path: Path,
     component: str,
-    metadata: Optional[Dict[str, Any]] = None,
+    metadata: Dict[str, Any],
     # Task-specific arguments:
     workflow_file: str,
     input_specs: Dict[str, Dict[str, str]],

@@ -20,7 +20,6 @@ import warnings
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import Optional
 from typing import Sequence
 
 import anndata as ad
@@ -93,7 +92,7 @@ def illumination_correction(
     input_paths: Sequence[Path],
     output_path: Path,
     component: str,
-    metadata: Optional[Dict[str, Any]] = None,
+    metadata: Dict[str, Any],
     overwrite: bool = False,
     new_component: str = None,
     dict_corr: dict = None,

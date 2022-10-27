@@ -108,7 +108,7 @@ def cellpose_segmentation(
     input_paths: Sequence[Path],
     output_path: Path,
     component: str,
-    metadata: Optional[Dict[str, Any]] = None,
+    metadata: Dict[str, Any],
     # Task-specific arguments
     labeling_channel: str,
     labeling_level: int = 1,

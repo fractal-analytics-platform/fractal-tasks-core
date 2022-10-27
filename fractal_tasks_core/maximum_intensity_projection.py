@@ -18,7 +18,6 @@ import logging
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import Optional
 from typing import Sequence
 
 import anndata as ad
@@ -36,7 +35,7 @@ def maximum_intensity_projection(
     input_paths: Sequence[Path],
     output_path: Path,
     component: str,
-    metadata: Optional[Dict[str, Any]] = None,
+    metadata: Dict[str, Any],
 ) -> Dict[str, Any]:
     """
     Perform maximum-intensity projection along Z axis, and store the output in
