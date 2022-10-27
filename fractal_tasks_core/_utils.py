@@ -1,47 +1,68 @@
+# Starting from Python 3.9 (see PEP 585) we can use type hints like
+# `type[BaseModel`. For versions 3.7 and 3.8, this is available through an
+# additional import
+from __future__ import annotations
+
 import json
 import logging
 from argparse import ArgumentParser
 from json import JSONEncoder
 from pathlib import Path
+from typing import Callable
+
+from pydantic import BaseModel
 
 
 class TaskParameterEncoder(JSONEncoder):
+    """
+    Custom JSONEncoder that transforms Path objects to strings
+    """
+
     def default(self, value):
         if isinstance(value, Path):
             return value.as_posix()
         return JSONEncoder.default(self, value)
 
 
-def run_fractal_task(callable_function, args_model=None):
+def run_fractal_task(
+    *, task_function: Callable, TaskArgsModel: type[BaseModel] = None
+):
+    """
+    Implement standard task interface and call task_function. If TaskArgsModel
+    is not None, validate arguments against given model.
+
+    :param task_function: the callable function that runs the task
+    :param TaskArgsModel: a class specifying all types for task arguments
+    """
+
+    # Parse `-j` and `--metadata-out` arguments
     parser = ArgumentParser()
     parser.add_argument("-j", "--json", help="Read parameters from json file")
     parser.add_argument(
         "--metadata-out",
-        help=(
-            "Output file to redirect serialised returned data "
-            "(default stdout)"
-        ),
+        help="Output file to redirect serialised returned data",
     )
-
     args = parser.parse_args()
 
-    if args.metadata_out and Path(args.metadata_out).exists():
+    # Preliminary check
+    if Path(args.metadata_out).exists():
         logging.error(
             f"Output file {args.metadata_out} already exists. Terminating"
         )
         exit(1)
 
-    pars = {}
-    if args.json:
-        with open(args.json, "r") as f:
-            pars = json.load(f)
+    # Read parameters dictionary
+    with open(args.json, "r") as f:
+        pars = json.load(f)
 
-    if args_model is not None:
-        task_args = args_model(**pars)
-        metadata_update = callable_function(**task_args.dict())
+    if TaskArgsModel is None:
+        # Run task without validating arguments' types
+        metadata_update = task_function(**pars)
     else:
-        metadata_update = callable_function(**pars)
+        # Validating arguments' types and run task
+        task_args = TaskArgsModel(**pars)
+        metadata_update = task_function(**task_args.dict())
 
-    if args.metadata_out:
-        with open(args.metadata_out, "w") as fout:
-            json.dump(metadata_update, fout, cls=TaskParameterEncoder)
+    # Write output metadata to file, with custom JSON encoder
+    with open(args.metadata_out, "w") as fout:
+        json.dump(metadata_update, fout, cls=TaskParameterEncoder)

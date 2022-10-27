@@ -21,7 +21,6 @@ from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import List
-from typing import Optional
 from typing import Sequence
 
 import anndata as ad
@@ -34,11 +33,13 @@ from anndata.experimental import write_elem
 from napari_workflows._io_yaml_v1 import load_workflow
 
 import fractal_tasks_core
-from .lib_pyramid_creation import build_pyramid
-from .lib_regions_of_interest import convert_ROI_table_to_indices
-from .lib_upscale_array import upscale_array
-from .lib_zattrs_utils import extract_zyx_pixel_sizes
-from .lib_zattrs_utils import rescale_datasets
+from fractal_tasks_core.lib_pyramid_creation import build_pyramid
+from fractal_tasks_core.lib_regions_of_interest import (
+    convert_ROI_table_to_indices,
+)
+from fractal_tasks_core.lib_upscale_array import upscale_array
+from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
+from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
@@ -52,7 +53,7 @@ def napari_workflows_wrapper(
     input_paths: Sequence[Path],
     output_path: Path,
     component: str,
-    metadata: Optional[Dict[str, Any]] = None,
+    metadata: Dict[str, Any],
     # Task-specific arguments:
     workflow_file: str,
     input_specs: Dict[str, Dict[str, str]],
@@ -350,3 +351,23 @@ def napari_workflows_wrapper(
             chunksize=img_array[0].chunksize,
             aggregation_function=np.max,
         )
+
+
+if __name__ == "__main__":
+    from pydantic import BaseModel
+    from fractal_tasks_core._utils import run_fractal_task
+
+    class TaskArguments(BaseModel):
+        input_paths: Sequence[Path]
+        output_path: Path
+        metadata: Dict[str, Any]
+        component: str
+        workflow_file: str
+        input_specs: Dict[str, Dict[str, str]]
+        output_specs: Dict[str, Dict[str, str]]
+        ROI_table_name: str = "FOV_ROI_table"
+        level: int = 0
+
+    run_fractal_task(
+        task_function=napari_workflows_wrapper, TaskArgsModel=TaskArguments
+    )

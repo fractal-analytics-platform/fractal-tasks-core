@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 from defusedxml import ElementTree
 
-from .lib_remove_FOV_overlaps import remove_FOV_overlaps
+from fractal_tasks_core.lib_remove_FOV_overlaps import remove_FOV_overlaps
 
 logger = logging.getLogger(__name__)
 

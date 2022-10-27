@@ -40,6 +40,15 @@ class TaskParameterEncoder(JSONEncoder):
         return JSONEncoder.default(self, value)
 
 
+def run_command(cmd: str):
+    debug(cmd)
+    completed_process = subprocess.run(cmd, shell=True, check=False)
+    debug(completed_process.stdout)
+    debug(completed_process.stderr)
+    assert completed_process.returncode == 0
+    assert completed_process.stderr is None
+
+
 def test_workflow_yokogawa_to_zarr(
     tmp_path: Path, dataset_10_5281_zenodo_7059515: Path
 ):
@@ -48,31 +57,34 @@ def test_workflow_yokogawa_to_zarr(
     img_path = dataset_10_5281_zenodo_7059515 / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     metadata = {}
+    tasks_path = str(Path(fractal_tasks_core.__file__).parent)
 
     # Create zarr structure
     args_create_zarr = dict(
         input_paths=[img_path],
         output_path=zarr_path,
         channel_parameters=channel_parameters,
+        metadata={},
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         metadata_table="mrf_mlf",
     )
 
-    with open(f"{str(tmp_path)}/args_create_zarr.json", "w") as js:
+    # Run task as executable
+    input_json_path = f"{str(tmp_path)}/args_create_zarr.json"
+    output_json_path = f"{str(tmp_path)}/metadata_create_zarr.json"
+    with open(input_json_path, "w") as js:
         json.dump(args_create_zarr, js, cls=TaskParameterEncoder)
-
-    cmd = f"python {Path(fractal_tasks_core.__file__).parent}/create_zarr_structure.py \
-            -j {str(tmp_path)}/args_create_zarr.json \
-            --metadata-out {str(tmp_path)}/metadata_create_zarr.json"
-
-    complete_create_zarr = subprocess.run(cmd, shell=True, check=False)
-    debug(complete_create_zarr.stderr)
-    debug(complete_create_zarr.stdout)
-
-    with open(f"{str(tmp_path)}/metadata_create_zarr.json", "r") as js:
+    cmd = (
+        f"python {tasks_path}/create_zarr_structure.py "
+        f"-j {input_json_path} "
+        f"--metadata-out {output_json_path}"
+    )
+    run_command(cmd)
+    with open(output_json_path, "r") as js:
         diff_metadata = json.load(js)
 
+    # Update metadata
     metadata.update(diff_metadata)
     debug(metadata)
 
@@ -85,13 +97,14 @@ def test_workflow_yokogawa_to_zarr(
             component=component,
         )
 
-        with open(f"{str(tmp_path)}/args_yokogawa.json", "w") as js:
+        # Run task as executable
+        input_json_path = f"{str(tmp_path)}/args_yokogawa.json"
+        output_json_path = f"{str(tmp_path)}/metadata_yokogawa.json"
+        with open(input_json_path, "w") as js:
             json.dump(args_yokogawa, js, cls=TaskParameterEncoder)
-
-        cmd = f"python {Path(fractal_tasks_core.__file__).parent}/yokogawa_to_zarr.py \
-                -j {str(tmp_path)}/args_yokogawa.json \
-                --metadata-out {str(tmp_path)}/metadata_yokogawa.json"
-
-        complete_yokogawa = subprocess.run(cmd, shell=True, check=False)
-        debug(complete_yokogawa.stderr)
-        debug(complete_yokogawa.stdout)
+        cmd = (
+            f"python {tasks_path}/yokogawa_to_zarr.py "
+            f"-j {input_json_path} "
+            f"--metadata-out {output_json_path}"
+        )
+        run_command(cmd)

@@ -20,7 +20,6 @@ import warnings
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import Optional
 from typing import Sequence
 
 import anndata as ad
@@ -29,9 +28,11 @@ import numpy as np
 import zarr
 from skimage.io import imread
 
-from .lib_pyramid_creation import build_pyramid
-from .lib_regions_of_interest import convert_ROI_table_to_indices
-from .lib_zattrs_utils import extract_zyx_pixel_sizes
+from fractal_tasks_core.lib_pyramid_creation import build_pyramid
+from fractal_tasks_core.lib_regions_of_interest import (
+    convert_ROI_table_to_indices,
+)
+from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 logger = logging.getLogger(__name__)
 
@@ -93,10 +94,10 @@ def illumination_correction(
     input_paths: Sequence[Path],
     output_path: Path,
     component: str,
-    metadata: Optional[Dict[str, Any]] = None,
+    metadata: Dict[str, Any],
     overwrite: bool = False,
     new_component: str = None,
-    dict_corr: dict = None,
+    dict_corr: dict,
     background: int = 100,
 ) -> Dict[str, Any]:
 
@@ -263,5 +264,21 @@ def illumination_correction(
 
 if __name__ == "__main__":
 
-    # FIXME
-    raise NotImplementedError("TODO: CLI argument parsing is not up to date")
+    from pydantic import BaseModel
+    from fractal_tasks_core._utils import run_fractal_task
+
+    class TaskArguments(BaseModel):
+        # Fractal arguments
+        input_paths: Sequence[Path]
+        output_path: Path
+        component: str
+        metadata: Dict[str, Any]
+        # Task-specific arguments
+        overwrite: bool = False
+        new_component: str = None
+        dict_corr: dict
+        background: int = 100
+
+    run_fractal_task(
+        task_function=illumination_correction, TaskArgsModel=TaskArguments
+    )

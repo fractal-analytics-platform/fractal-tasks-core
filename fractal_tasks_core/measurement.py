@@ -20,7 +20,6 @@ import os
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import Optional
 from typing import Sequence
 from typing import Tuple
 
@@ -32,8 +31,10 @@ import zarr
 from anndata.experimental import write_elem
 from napari_workflows._io_yaml_v1 import load_workflow
 
-from .lib_regions_of_interest import convert_ROI_table_to_indices
-from .lib_zattrs_utils import extract_zyx_pixel_sizes
+from fractal_tasks_core.lib_regions_of_interest import (
+    convert_ROI_table_to_indices,
+)
+from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 logger = logging.getLogger(__name__)
 
@@ -42,8 +43,8 @@ def measurement(
     *,
     input_paths: Sequence[Path],
     output_path: Path,
-    metadata: Optional[Dict[str, Any]] = None,
-    component: str = None,
+    metadata: Dict[str, Any],
+    component: str,
     labeling_channel: str = None,
     level: int = 0,
     workflow_file: str = None,
@@ -206,4 +207,18 @@ def measurement(
 
 
 if __name__ == "__main__":
-    raise NotImplementedError("CLI not implemented yet")
+    from pydantic import BaseModel
+    from fractal_tasks_core._utils import run_fractal_task
+
+    class TaskArguments(BaseModel):
+        input_paths: Sequence[Path]
+        output_path: Path
+        metadata: Dict[str, Any]
+        component: str
+        labeling_channel: str = None
+        level: int = 0
+        workflow_file: str = None
+        ROI_table_name: str = "FOV_ROI_table"
+        measurement_table_name: str = "measurement"
+
+    run_fractal_task(task_function=measurement, TaskArgsModel=TaskArguments)

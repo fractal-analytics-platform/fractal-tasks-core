@@ -20,7 +20,6 @@ from glob import glob
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import Optional
 from typing import Sequence
 
 import anndata as ad
@@ -28,8 +27,10 @@ import zarr
 from anndata.experimental import write_elem
 
 import fractal_tasks_core
-from .lib_regions_of_interest import convert_ROIs_from_3D_to_2D
-from .lib_zattrs_utils import extract_zyx_pixel_sizes
+from fractal_tasks_core.lib_regions_of_interest import (
+    convert_ROIs_from_3D_to_2D,
+)
+from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +42,7 @@ def replicate_zarr_structure(
     *,
     input_paths: Sequence[Path],
     output_path: Path,
-    metadata: Optional[Dict[str, Any]] = None,
+    metadata: Dict[str, Any],
     project_to_2D: bool = True,
     suffix: str = None,
 ) -> Dict[str, Any]:
@@ -55,8 +56,11 @@ def replicate_zarr_structure(
       input_paths[0] = /tmp/out/*.zarr    (Path)
       output_path = /tmp/out_mip/*.zarr   (Path)
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    :param input_paths: TBD
+    :param output_path: TBD
+    :param metadata: TBD
+    :param project_to_2D: TBD
+    :param suffix: TBD
     """
 
     # Preliminary check
@@ -190,12 +194,16 @@ def replicate_zarr_structure(
 
 
 if __name__ == "__main__":
+    from pydantic import BaseModel
+    from fractal_tasks_core._utils import run_fractal_task
 
-    raise NotImplementedError
+    class TaskArguments(BaseModel):
+        input_paths: Sequence[Path]
+        output_path: Path
+        metadata: Dict[str, Any]
+        project_to_2D: bool = True
+        suffix: str = None
 
-    from argparse import ArgumentParser
-
-    parser = ArgumentParser(prog="FIXME")
-    parser.add_argument("-z", "--zarrurl", help="zarr url", required=True)
-    args = parser.parse_args()
-    replicate_zarr_structure(args.zarrurl)
+    run_fractal_task(
+        task_function=replicate_zarr_structure, TaskArgsModel=TaskArguments
+    )

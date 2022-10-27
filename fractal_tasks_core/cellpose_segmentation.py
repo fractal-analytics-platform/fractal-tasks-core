@@ -31,10 +31,12 @@ from cellpose import models
 from cellpose.core import use_gpu
 
 import fractal_tasks_core
-from .lib_pyramid_creation import build_pyramid
-from .lib_regions_of_interest import convert_ROI_table_to_indices
-from .lib_zattrs_utils import extract_zyx_pixel_sizes
-from .lib_zattrs_utils import rescale_datasets
+from fractal_tasks_core.lib_pyramid_creation import build_pyramid
+from fractal_tasks_core.lib_regions_of_interest import (
+    convert_ROI_table_to_indices,
+)
+from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
+from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
 
 logger = logging.getLogger(__name__)
 
@@ -108,7 +110,7 @@ def cellpose_segmentation(
     input_paths: Sequence[Path],
     output_path: Path,
     component: str,
-    metadata: Optional[Dict[str, Any]] = None,
+    metadata: Dict[str, Any],
     # Task-specific arguments
     labeling_channel: str,
     labeling_level: int = 1,
@@ -381,47 +383,26 @@ def cellpose_segmentation(
 
 if __name__ == "__main__":
 
-    raise NotImplementedError("CLI not implemented")
+    from pydantic import BaseModel
+    from fractal_tasks_core._utils import run_fractal_task
 
-    """
-    from argparse import ArgumentParser
+    class TaskArguments(BaseModel):
+        # Fractal arguments
+        input_paths: Sequence[Path]
+        output_path: Path
+        component: str
+        metadata: Dict[str, Any]
+        # Task-specific arguments
+        labeling_channel: str
+        labeling_level: int = 1
+        relabeling: bool = True
+        anisotropy: Optional[float] = None
+        diameter_level0: float = 80.0
+        cellprob_threshold: float = 0.0
+        flow_threshold: float = 0.4
+        model_type: str = "nuclei"
+        ROI_table_name: str = "FOV_ROI_table"
 
-    parser = ArgumentParser(prog="cellpose_segmentation.py")
-    parser.add_argument(
-        "-z", "--zarrurl", help="zarr url, at the FOV level", required=True
+    run_fractal_task(
+        task_function=cellpose_segmentation, TaskArgsModel=TaskArguments
     )
-    parser.add_argument(
-        "-C",
-        "--chl_list",
-        nargs="+",
-        help="list of channel names (e.g. A01_C01)",
-    )
-    parser.add_argument(
-        "-cxy",
-        "--coarsening_xy",
-        default=2,
-        type=int,
-        help="coarsening factor along X and Y (optional, defaults to 2)",
-    )
-    parser.add_argument(
-        "-lc",
-        "--labeling_channel",
-        help="name of channel for labeling (e.g. A01_C01)",
-    )
-    parser.add_argument(
-        "-ll",
-        "--labeling_level",
-        default=0,
-        type=int,
-        help="TBD",
-    )
-
-    args = parser.parse_args()
-    cellpose_segmentation(
-        args.zarrurl,
-        coarsening_xy=args.coarsening_xy,
-        chl_list=args.chl_list,
-        labeling_channel=args.labeling_channel,
-        labeling_level=args.labeling_level,
-    )
-    """
