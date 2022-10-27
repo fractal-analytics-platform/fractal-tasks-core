@@ -30,6 +30,9 @@ def run_fractal_task(
     """
     Implement standard task interface and call task_function. If TaskArgsModel
     is not None, validate arguments against given model.
+
+    :param task_function: the callable function that runs the task
+    :param TaskArgsModel: a class specifying all types for task arguments
     """
 
     # Parse `-j` and `--metadata-out` arguments
