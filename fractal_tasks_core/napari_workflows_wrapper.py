@@ -33,11 +33,13 @@ from anndata.experimental import write_elem
 from napari_workflows._io_yaml_v1 import load_workflow
 
 import fractal_tasks_core
-from .lib_pyramid_creation import build_pyramid
-from .lib_regions_of_interest import convert_ROI_table_to_indices
-from .lib_upscale_array import upscale_array
-from .lib_zattrs_utils import extract_zyx_pixel_sizes
-from .lib_zattrs_utils import rescale_datasets
+from fractal_tasks_core.lib_pyramid_creation import build_pyramid
+from fractal_tasks_core.lib_regions_of_interest import (
+    convert_ROI_table_to_indices,
+)
+from fractal_tasks_core.lib_upscale_array import upscale_array
+from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
+from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
