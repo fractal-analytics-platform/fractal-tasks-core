@@ -1,7 +1,6 @@
 {
     "manifest_version": "1",
     "task_list":
-
 [
     {
         "name": "Create OME-ZARR structure",
