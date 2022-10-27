@@ -67,8 +67,10 @@ def test_workflow_yokogawa_to_zarr(
             --metadata-out {str(tmp_path)}/metadata_create_zarr.json"
 
     complete_create_zarr = subprocess.run(cmd, shell=True, check=False)
-    debug(complete_create_zarr.stderr)
     debug(complete_create_zarr.stdout)
+    debug(complete_create_zarr.stderr)
+    assert complete_create_zarr.returncode == 0
+    assert complete_create_zarr.stderr is None
 
     with open(f"{str(tmp_path)}/metadata_create_zarr.json", "r") as js:
         diff_metadata = json.load(js)
@@ -93,5 +95,7 @@ def test_workflow_yokogawa_to_zarr(
                 --metadata-out {str(tmp_path)}/metadata_yokogawa.json"
 
         complete_yokogawa = subprocess.run(cmd, shell=True, check=False)
-        debug(complete_yokogawa.stderr)
         debug(complete_yokogawa.stdout)
+        debug(complete_yokogawa.stderr)
+        assert complete_yokogawa.returncode == 0
+        assert complete_yokogawa.stderr is None
