@@ -129,5 +129,15 @@ def maximum_intensity_projection(
 
 
 if __name__ == "__main__":
+    from pydantic import BaseModel
+    from fractal_tasks_core._utils import run_fractal_task
 
-    raise NotImplementedError("CLI not implemented")
+    class TaskArguments(BaseModel):
+        input_paths: Sequence[Path]
+        output_path: Path
+        metadata: Dict[str, Any] = None
+        component: str
+
+    run_fractal_task(
+        task_function=maximum_intensity_projection, TaskArgsModel=TaskArguments
+    )
