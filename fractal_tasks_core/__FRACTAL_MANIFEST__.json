@@ -1,0 +1,12 @@
+{
+    "manifest_version": "1",
+    "task_list": [
+        {
+            "name": "Create OME-ZARR structure",
+            "executable": "/tmp/some/path",
+            "input_type": "image",
+            "output_type": "zarr",
+            "default_args": {"num_levels": 2}
+        }
+    ]
+}
