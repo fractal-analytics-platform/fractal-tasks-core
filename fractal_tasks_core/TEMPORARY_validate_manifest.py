@@ -6,6 +6,7 @@ from typing import List
 from typing import TypeVar
 
 from pydantic import BaseModel
+from pydantic import validator
 
 
 __all__ = ("TaskManifestV1", "ManifestV1")
@@ -34,9 +35,16 @@ class TaskManifestV1(_TaskManifestBase):
 
 class ManifestV1(_ManifestBase):
     task_list: List[TaskManifestV1]
+    manifest_version: str
+
+    @validator("manifest_version")
+    def manifest_version_1(cls, value):
+        if value != "1":
+            raise ValueError("Wrong manifest version")
 
 
 with open("__FRACTAL_MANIFEST__.json", "r") as fin:
     manifest_dict = json.load(fin)
 print(json.dumps(manifest_dict, indent=4))
-manifest = ManifestV1(manifest_dict)
+manifest = ManifestV1(**manifest_dict)
+print(manifest)
