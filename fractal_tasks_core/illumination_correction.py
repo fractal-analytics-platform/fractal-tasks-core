@@ -262,5 +262,21 @@ def illumination_correction(
 
 if __name__ == "__main__":
 
-    # FIXME
-    raise NotImplementedError("TODO: CLI argument parsing is not up to date")
+    from pydantic import BaseModel
+    from fractal_tasks_core._utils import run_fractal_task
+
+    class TaskArguments(BaseModel):
+        # Fractal arguments
+        input_paths: Sequence[Path]
+        output_path: Path
+        component: str
+        metadata: Dict[str, Any]
+        # Task-specific arguments
+        overwrite: bool = False
+        new_component: str = None
+        dict_corr: dict = None
+        background: int = 100
+
+    run_fractal_task(
+        task_function=illumination_correction, TaskArgsModel=TaskArguments
+    )
