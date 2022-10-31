@@ -12,16 +12,16 @@
             "metadata_table": "mrf_mlf",
             "channel_parameters": null
         },
-        "executable": "/tmp/FIXME",
-        "meta": {}
+        "executable": "create_ome_zarr",
+        "meta": {"executor": "cpu-low"}
     },
     {
         "name": "Yokogawa to Zarr",
         "input_type": "zarr",
         "output_type": "zarr",
         "default_args": {"parallelization_level": "well"},
-        "executable": "/tmp/FIXME",
-        "meta": {}
+        "executable": "yokogawa_to_zarr",
+        "meta": {"executor": "cpu-low"}
     },
     {
         "name": "Replicate Zarr structure",
@@ -31,16 +31,16 @@
             "project_to_2D": true,
             "suffix": "mip"
         },
-        "executable": "/tmp/FIXME",
-        "meta": {}
+        "executable": "replicate_zarr_structure",
+        "meta": {"executor": "cpu-low"}
     },
     {
         "name": "Maximum Intensity Projection",
         "input_type": "zarr",
         "output_type": "zarr",
         "default_args": {"parallelization_level": "well"},
-        "executable": "/tmp/FIXME",
-        "meta": {}
+        "executable": "maximum_intensity_projection",
+        "meta": {"executor": "cpu-low"}
     },
     {
         "name": "Cellpose Segmentation",
@@ -50,8 +50,8 @@
             "labeling_channel": "A01_C01",
             "parallelization_level": "well"
         },
-        "executable": "/tmp/FIXME",
-        "meta": {}
+        "executable": "cellpose_segmentation",
+        "meta": {"executor": "gpu"}
     },
     {
         "name": "Measurement",
@@ -63,8 +63,8 @@
             "measurement_table_name": "nuclei",
             "parallelization_level": "well"
         },
-        "executable": "/tmp/FIXME",
-        "meta": {}
+        "executable": "measurement",
+        "meta": {"executor": "cpu-low"}
     },
     {
         "name": "Illumination correction",
@@ -76,8 +76,8 @@
             "background": 100,
             "parallelization_level": "well"
         },
-        "executable": "/tmp/FIXME",
-        "meta": {}
+        "executable": "illumination_correction",
+        "meta": {"executor": "cpu-low"}
     }
 ]
 }
