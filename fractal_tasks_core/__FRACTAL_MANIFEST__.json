@@ -1,89 +1,83 @@
-import logging
-
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s; %(levelname)s; %(message)s"
-)
-
-
-__VERSION__ = "0.2.6"
-__OME_NGFF_VERSION__ = "0.4"
-
-__FRACTAL_MANIFEST__ = [
+{
+    "manifest_version": "1",
+    "task_list":
+[
     {
-        "resource_type": "core task",
         "name": "Create OME-ZARR structure",
-        "module": f"{__name__}.create_zarr_structure:create_zarr_structure",
         "input_type": "image",
         "output_type": "zarr",
         "default_args": {
             "num_levels": 2,
             "coarsening_xy": 2,
             "metadata_table": "mrf_mlf",
-            "channel_parameters": None,
+            "channel_parameters": null
         },
+        "executable": "create_ome_zarr",
+        "meta": {"executor": "cpu-low"}
     },
     {
         "name": "Yokogawa to Zarr",
-        "resource_type": "core task",
         "input_type": "zarr",
         "output_type": "zarr",
-        "module": f"{__name__}.yokogawa_to_zarr:yokogawa_to_zarr",
         "default_args": {"parallelization_level": "well"},
+        "executable": "yokogawa_to_zarr",
+        "meta": {"executor": "cpu-low"}
     },
     {
         "name": "Replicate Zarr structure",
-        "resource_type": "core task",
         "input_type": "zarr",
         "output_type": "zarr",
-        "module": f"{__name__}.replicate_zarr_structure:replicate_zarr_structure",  # noqa: E501
         "default_args": {
-            "project_to_2D": True,
-            "suffix": "mip",
+            "project_to_2D": true,
+            "suffix": "mip"
         },
+        "executable": "replicate_zarr_structure",
+        "meta": {"executor": "cpu-low"}
     },
     {
         "name": "Maximum Intensity Projection",
-        "resource_type": "core task",
         "input_type": "zarr",
         "output_type": "zarr",
-        "module": f"{__name__}.maximum_intensity_projection:maximum_intensity_projection",  # noqa: E501
         "default_args": {"parallelization_level": "well"},
+        "executable": "maximum_intensity_projection",
+        "meta": {"executor": "cpu-low"}
     },
     {
         "name": "Cellpose Segmentation",
-        "resource_type": "core task",
         "input_type": "zarr",
         "output_type": "zarr",
-        "module": f"{__name__}.cellpose_segmentation:cellpose_segmentation",
         "default_args": {
             "labeling_channel": "A01_C01",
-            "parallelization_level": "well",
+            "parallelization_level": "well"
         },
+        "executable": "cellpose_segmentation",
+        "meta": {"executor": "gpu"}
     },
     {
         "name": "Measurement",
-        "resource_type": "core task",
         "input_type": "zarr",
         "output_type": "zarr",
-        "module": f"{__name__}.measurement:measurement",
         "default_args": {
             "labeling_channel": "A01_C01",
             "level": 0,
             "measurement_table_name": "nuclei",
-            "parallelization_level": "well",
+            "parallelization_level": "well"
         },
+        "executable": "measurement",
+        "meta": {"executor": "cpu-low"}
     },
     {
         "name": "Illumination correction",
-        "resource_type": "core task",
         "input_type": "zarr",
         "output_type": "zarr",
-        "module": f"{__name__}.illumination_correction:illumination_correction",  # noqa: E501
         "default_args": {
-            "overwrite": False,
-            "dict_corr": None,
+            "overwrite": false,
+            "dict_corr": null,
             "background": 100,
-            "parallelization_level": "well",
+            "parallelization_level": "well"
         },
-    },
+        "executable": "illumination_correction",
+        "meta": {"executor": "cpu-low"}
+    }
 ]
+}
