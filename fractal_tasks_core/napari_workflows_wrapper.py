@@ -30,6 +30,7 @@ import numpy as np
 import pandas as pd
 import zarr
 from anndata.experimental import write_elem
+from distutils.log import debug
 from napari_workflows._io_yaml_v1 import load_workflow
 
 import fractal_tasks_core
@@ -299,7 +300,6 @@ def napari_workflows_wrapper(
         # Get outputs
         outputs = wf.get(list_outputs)
 
-        # Handle outputs
         for ind_output, output_name in enumerate(list_outputs):
             output_type = output_specs[output_name]["type"]
             if output_type == "dataframe":
@@ -309,6 +309,39 @@ def napari_workflows_wrapper(
                 df.index = df["label"].astype(str)
                 # Append the new-ROI dataframe to the all-ROIs list
                 output_dataframe_lists[output_name].append(df)
+
+            ###
+            # Update label values accordingly with the previous one @idea 2
+            ###
+            # prev_output_name = list_outputs[0]
+            # from devtools import debug
+            # # Handle outputs
+            # for ind_output, output_name in enumerate(list_outputs):
+            #     output_type = output_specs[output_name]["type"]
+            #     if output_type == "dataframe":
+            #         df = outputs[ind_output]
+            #         # Use label column as index, to avoid non-unique
+            #         # indices when using per-FOV labels
+            #
+
+            #         ###
+            #         debug(prev_output_name)
+            #         if output_dataframe_lists[prev_output_name]:
+            #             debug(output_dataframe_lists[prev_output_name] \
+            #                 [-1]["label"].iloc[-1])
+            #             df["label"] += \
+            #                 output_dataframe_lists[prev_output_name] \
+            #                 [-1]["label"].iloc[-1]
+
+            #         df.index = df["label"].astype(str)
+            #         debug(df.index)
+            #         ###
+            #         # Append the new-ROI dataframe to the all-ROIs list
+            #         output_dataframe_lists[output_name].append(df)
+
+            #         prev_output_name = output_name
+            ###
+
             elif output_type == "label":
                 mask = outputs[ind_output]
                 da.array(mask).to_zarr(
@@ -324,8 +357,21 @@ def napari_workflows_wrapper(
     for (name, params) in dataframe_outputs:
         table_name = params["table_name"]
         list_dfs = output_dataframe_lists[name]
+
         # Concatenate all FOV dataframes
+
+        ###
+        # Copy index in label column @idea 1
+        ###
+        # df_well = pd.concat(list_dfs, axis=0, ignore_index=True)
+        # df_well.index += 1
+        # df_well["label"] = df_well.index
+        # from devtools import debug
+        # debug(df_well)
+        ###
+
         df_well = pd.concat(list_dfs, axis=0)
+        debug(df_well)
         # Extract labels and drop them from df_well
         labels = pd.DataFrame(df_well["label"].astype(str))
         df_well.drop(labels=["label"], axis=1, inplace=True)
