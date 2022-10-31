@@ -10,7 +10,7 @@ New features
 
 Other changes
 ~~~~~~~~~~~~~
-* Update `napari_worfklow_wrapper`: pyramid level for labeling worfklows (#148), ...
+* Update `napari_worfklow_wrapper`: pyramid level for labeling worfklows (#148), label-only inputs (#163), relabeling ().
 * Add several type hints (#148) and preliminary mypy compliance.
 * Deprecate `dummy` and `dummy_fail` tasks.
 
