@@ -22,6 +22,7 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Sequence
+from typing import Union
 
 import anndata as ad
 import dask.array as da
@@ -56,8 +57,8 @@ def napari_workflows_wrapper(
     metadata: Dict[str, Any],
     # Task-specific arguments:
     workflow_file: str,
-    input_specs: Dict[str, Dict[str, str]],
-    output_specs: Dict[str, Dict[str, str]],
+    input_specs: Dict[str, Dict[str, Union[str, int]]],
+    output_specs: Dict[str, Dict[str, Union[str, int]]],
     ROI_table_name: str = "FOV_ROI_table",
     level: int = 0,
 ):
@@ -109,6 +110,14 @@ def napari_workflows_wrapper(
         )
         logger.error(msg)
         raise NotImplementedError(msg)
+
+    # Add expected_dim key to all I/O items
+    for (name, params) in input_specs.items():
+        if "expected_dim" not in params.keys():
+            params["expected_dim"] = 3
+    for (name, params) in input_specs.items():
+        if "expected_dim" not in params.keys():
+            params["expected_dim"] = 3
 
     # Pre-processing of task inputs
     if len(input_paths) > 1:
