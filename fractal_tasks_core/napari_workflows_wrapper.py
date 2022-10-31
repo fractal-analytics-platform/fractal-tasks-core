@@ -116,8 +116,9 @@ def napari_workflows_wrapper(
         if "expected_dimensions" not in params.keys():
             params["expected_dimensions"] = 3
     for (name, params) in input_specs.items():
-        if "expected_dimensions" not in params.keys():
-            params["expected_dimensions"] = 3
+        if params["type"] != "dataframe":
+            if "expected_dimensions" not in params.keys():
+                params["expected_dimensions"] = 3
 
     # Pre-processing of task inputs
     if len(input_paths) > 1:
@@ -327,7 +328,22 @@ def napari_workflows_wrapper(
                 # Append the new-ROI dataframe to the all-ROIs list
                 output_dataframe_lists[output_name].append(df)
             elif output_type == "label":
+                # Retrieve output array from outputs
                 mask = outputs[ind_output]
+                # Check dimensions
+                expected_dimensions = output_specs[output_name][
+                    "expected_dimensions"
+                ]
+                if len(mask.shape) != expected_dimensions:
+                    msg = (
+                        f"Output {output_name} has shape {mask.shape} "
+                        f"but {expected_dimensions=}"
+                    )
+                    logger.error(msg)
+                    raise ValueError(msg)
+                elif expected_dimensions == 2:
+                    mask = np.expand_dims(mask, axis=0)
+                # Store to zarr
                 da.array(mask).to_zarr(
                     url=output_label_zarr_groups[output_name],
                     region=region,
