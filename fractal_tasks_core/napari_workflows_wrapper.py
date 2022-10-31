@@ -111,13 +111,13 @@ def napari_workflows_wrapper(
         logger.error(msg)
         raise NotImplementedError(msg)
 
-    # Add expected_dim key to all I/O items
+    # Add expected_dimensions key to all I/O items
     for (name, params) in input_specs.items():
-        if "expected_dim" not in params.keys():
-            params["expected_dim"] = 3
+        if "expected_dimensions" not in params.keys():
+            params["expected_dimensions"] = 3
     for (name, params) in input_specs.items():
-        if "expected_dim" not in params.keys():
-            params["expected_dim"] = 3
+        if "expected_dimensions" not in params.keys():
+            params["expected_dimensions"] = 3
 
     # Pre-processing of task inputs
     if len(input_paths) > 1:
