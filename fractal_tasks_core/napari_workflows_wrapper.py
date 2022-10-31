@@ -180,6 +180,27 @@ def napari_workflows_wrapper(
                 raise ValueError(f"{channel_name=} not in {chl_list}")
             channel_index = chl_list.index(channel_name)
             input_image_arrays[name] = img_array[channel_index]
+
+            # Handle dimensions
+            expected_dimensions = params["expected_dimensions"]
+            shape = input_image_arrays[name]
+            if expected_dimensions == 3 and shape[0] == 1:
+                logger.warn(
+                    f"Input {name} has shape {shape} "
+                    f"but {expected_dimensions=}"
+                )
+            if expected_dimensions == 2:
+                if shape[0] == 1:
+                    input_image_arrays[name] = input_image_arrays[name][
+                        0, :, :
+                    ]
+                else:
+                    msg = (
+                        f"Input {name} has shape {shape} "
+                        f"but {expected_dimensions=}"
+                    )
+                    logger.error(msg)
+                    raise ValueError(msg)
             logger.info(f"Prepared input with {name=} and {params=}")
         logger.info(f"{input_image_arrays=}")
 
