@@ -267,8 +267,10 @@ def napari_workflows_wrapper(
                 f"{in_path}/{component}/labels/{label_name}/0"
             )
             mask_zarr = zarr.create(
-                shape=img_array[0].shape,
-                chunks=img_array[0].chunksize,
+                shape=img_array[0].shape,  # FIXME for label-to-label workflows
+                chunks=img_array[
+                    0
+                ].chunksize,  # FIXME for label-to-label workflows
                 dtype=label_dtype,
                 store=store,
                 overwrite=False,
@@ -366,7 +368,9 @@ def napari_workflows_wrapper(
             overwrite=False,
             num_levels=num_levels,
             coarsening_xy=coarsening_xy,
-            chunksize=img_array[0].chunksize,
+            chunksize=img_array[
+                0
+            ].chunksize,  # FIXME for label-to-label workflows
             aggregation_function=np.max,
         )
 
