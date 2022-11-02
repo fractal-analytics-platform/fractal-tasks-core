@@ -115,7 +115,7 @@ def napari_workflows_wrapper(
     for (name, params) in input_specs.items():
         if "expected_dimensions" not in params.keys():
             params["expected_dimensions"] = 3
-    for (name, params) in input_specs.items():
+    for (name, params) in output_specs.items():
         if params["type"] != "dataframe":
             if "expected_dimensions" not in params.keys():
                 params["expected_dimensions"] = 3
