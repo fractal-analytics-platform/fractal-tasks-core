@@ -80,6 +80,31 @@ def check_file_number(*, zarr_path: Path):
     assert num_chunkfiles_from_zarr == num_chunkfiles_on_disk
 
 
+def validate_labels_and_measurements(
+    image_zarr: Path, *, label_name: str, table_name: str
+):
+
+    # FIXME: clean up this test and make asserts as strict as possible
+
+    label_path = str(image_zarr / "labels" / label_name / "0")
+    table_path = str(image_zarr / "tables" / table_name)
+    labels = da.from_zarr(label_path)
+    table = ad.read_zarr(table_path)
+    label_values = list(da.unique(labels).compute())
+    table_label_values = [int(x) for x in list(table.obs["label"])]
+
+    debug(labels)
+    debug(table)
+    debug(label_values)
+    debug(table_label_values)
+
+    # Check that labels are unique in measurement dataframe
+    assert len(set(table_label_values)) == len(table_label_values)
+
+    # Check that labels are the same in measurement dataframe and labels array
+    assert list(table_label_values) == list(label_values)
+
+
 channel_parameters = {
     "A01_C01": {
         "label": "DAPI",
@@ -737,6 +762,10 @@ def test_workflow_napari_worfklow(
     validate_schema(path=str(label_zarr), type="label")
 
     check_file_number(zarr_path=image_zarr)
+
+    validate_labels_and_measurements(
+        image_zarr, label_name="label_DAPI", table_name="regionprops_DAPI"
+    )
 
 
 @pytest.mark.skip(
