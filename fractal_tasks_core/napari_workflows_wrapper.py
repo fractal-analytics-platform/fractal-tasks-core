@@ -16,7 +16,6 @@ Wrapper of napari-workflows
 """
 import json
 import logging
-import os
 from pathlib import Path
 from typing import Any
 from typing import Dict
@@ -182,7 +181,7 @@ def napari_workflows_wrapper(
     if label_inputs:
         # Set target_shape for upscaling labels
         if not image_inputs:
-            logger.warn(
+            logger.warning(
                 f"{len(label_inputs)=} but num_image_inputs=0. "
                 "Label array(s) will not be upscaled."
             )
@@ -216,14 +215,25 @@ def napari_workflows_wrapper(
     ]
     if label_outputs:
         output_label_zarr_groups = {}
-        # Set labels group
+        # New/existing labels
+        new_labels = [params["label_name"] for (name, params) in label_outputs]
         zarrurl = f"{in_path}/{component}"
-        if os.path.isdir(f"{zarrurl}/labels"):
-            raise NotImplementedError(f"{zarrurl}/labels already exists.")
+        try:
+            with open(f"{zarrurl}/labels/.zattrs", "r") as f_zattrs:
+                existing_labels = json.load(f_zattrs)["labels"]
+        except FileNotFoundError:
+            existing_labels = []
+        intersection = set(new_labels) & set(existing_labels)
+        logger.info("{new_labels=}")
+        logger.info("{existing_labels=}")
+        if intersection:
+            raise NotImplementedError(
+                f"Labels {intersection} already exist "
+                "but are part of outputs"
+            )
+
         labels_group = zarr.group(f"{zarrurl}/labels")
-        labels_group.attrs["labels"] = [
-            params["label_name"] for (name, params) in label_outputs
-        ]
+        labels_group.attrs["labels"] = existing_labels + new_labels
 
         # Loop over label outputs and (1) set zattrs, (2) create zarr group
         for (name, params) in label_outputs:
