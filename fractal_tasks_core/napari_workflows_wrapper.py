@@ -318,6 +318,10 @@ def napari_workflows_wrapper(
                 # Append the new-ROI dataframe to the all-ROIs list
                 output_dataframe_lists[output_name].append(df)
 
+                logger.info(
+                    f"ROI {i_ROI+1}/{num_ROIs}: dataframe output {df=}"
+                )  # FIXME cleanup
+
             ###
             # Update label values accordingly with the previous one @idea 2
             ###
@@ -352,6 +356,9 @@ def napari_workflows_wrapper(
 
             elif output_type == "label":
                 mask = outputs[ind_output]
+                logger.info(
+                    f"ROI {i_ROI+1}/{num_ROIs}: label output with {np.max(mask)=}"
+                )  # FIXME: cleanup
                 da.array(mask).to_zarr(
                     url=output_label_zarr_groups[output_name],
                     region=region,
