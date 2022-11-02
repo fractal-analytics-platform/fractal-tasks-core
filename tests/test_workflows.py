@@ -808,7 +808,7 @@ def test_workflow_napari_worfklow_label_to_dataframe(
     output_specs = {
         "Result of Expand labels (scikit-image, nsbatwm)": {
             "type": "label",
-            "label_name": "label_DAPI_new",
+            "label_name": "label_DAPI_expanded",
         },
     }
     for component in metadata["well"]:
