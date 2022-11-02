@@ -183,7 +183,7 @@ def napari_workflows_wrapper(
 
             # Handle dimensions
             expected_dimensions = params["expected_dimensions"]
-            shape = input_image_arrays[name]
+            shape = input_image_arrays[name].shape
             if expected_dimensions == 3 and shape[0] == 1:
                 logger.warn(
                     f"Input {name} has shape {shape} "
