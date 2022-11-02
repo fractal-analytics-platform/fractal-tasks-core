@@ -739,7 +739,7 @@ def test_workflow_napari_worfklow(
     check_file_number(zarr_path=image_zarr)
 
 
-def test_workflow_napari_worfklow_label_to_dataframe(
+def test_workflow_napari_worfklow_label_input_only(
     tmp_path: Path,
     dataset_10_5281_zenodo_7059515: Path,
     testdata_path: Path,
