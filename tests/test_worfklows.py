@@ -12,18 +12,18 @@ Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
 import pytest
-from .conftest import can_use_task
 import json
 import logging
+from .conftest import can_use_task
 import urllib
 from pathlib import Path
 
 from devtools import debug
+from fractal_tasks_core.create_zarr_structure import create_zarr_structure
 from jsonschema import validate
 
 from fractal_tasks_core import __OME_NGFF_VERSION__
 from fractal_tasks_core.illumination_correction import illumination_correction
-from fractal_tasks_core.image_labeling import image_labeling
 from fractal_tasks_core.maximum_intensity_projection import (
     maximum_intensity_projection,
 )  # noqa
@@ -113,12 +113,7 @@ def test_workflow_yokogawa_to_zarr(
     validate_schema(path=str(plate_zarr), type="plate")
 
 
-@pytest.mark.skipif(
-    not can_use_task("fractal_tasks_core.create_zarr_structure"),
-    reason="Missing dependency"
-)
 def test_workflow_MIP(tmp_path: Path, dataset_10_5281_zenodo_7059515: Path):
-    from fractal_tasks_core.create_zarr_structure import create_zarr_structure
 
     # Init
     img_path = dataset_10_5281_zenodo_7059515 / "*.png"
@@ -244,12 +239,17 @@ def test_workflow_illumination_correction(
     validate_schema(path=str(plate_zarr), type="plate")
 
 
+@pytest.mark.skipif(
+    not can_use_task("fractal_tasks_core.image_labeling"),
+    reason="missing dependency",
+)
 def test_workflow_with_per_FOV_labeling(
     tmp_path: Path,
     dataset_10_5281_zenodo_7059515: Path,
     caplog: pytest.LogCaptureFixture,
 ):
 
+    from fractal_tasks_core.image_labeling import image_labeling
     # Setup caplog fixture, see
     # https://docs.pytest.org/en/stable/how-to/logging.html#caplog-fixture
     caplog.set_level(logging.INFO)

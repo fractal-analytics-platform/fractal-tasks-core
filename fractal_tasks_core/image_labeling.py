@@ -26,8 +26,16 @@ import dask
 import dask.array as da
 import numpy as np
 import zarr
-from cellpose import core
-from cellpose import models
+try:
+    from cellpose import core
+    from cellpose import models
+except ModuleNotFoundError:
+    from . import MissingOptionalDependencyError
+    raise MissingOptionalDependencyError(
+        f"Task `{__name__}` depends on `cellpose`, but it does not appear "
+        "to be installed. Please install `fractal-tasks-core[cellpose]` to "
+        "use this task."
+    )
 from devtools import debug
 
 import fractal_tasks_core

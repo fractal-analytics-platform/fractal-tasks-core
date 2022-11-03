@@ -7,8 +7,6 @@ import numpy as np
 import pytest
 from pytest import MonkeyPatch
 
-from fractal_tasks_core.image_labeling import image_labeling
-
 
 @pytest.mark.xfail(reason="TODO: adapt to new task")
 def test_image_labeling(
@@ -19,6 +17,7 @@ def test_image_labeling(
     # WHEN I apply image_labeling
     # THEN segment_FOV(..) is executed as many times as the number of columns
 
+    from fractal_tasks_core.image_labeling import image_labeling
     # Copy a reference zarr into a temporary folder
     # FIXME: replace the try/except with a relative path
     zarrurl = (tmp_path / "plate.zarr").resolve().as_posix()

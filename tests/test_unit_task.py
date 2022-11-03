@@ -1,10 +1,8 @@
-import pytest
 import json
 
 from devtools import debug
 
 from fractal_tasks_core import __FRACTAL_MANIFEST__
-from .conftest import can_use_task
 
 
 create_zarr_structure_manifest = next(
@@ -14,10 +12,6 @@ create_zarr_structure_manifest = next(
 )
 
 
-@pytest.mark.skipif(
-    not can_use_task("fractal_tasks_core.create_zarr_structure"),
-    reason="Missing dependency"
-)
 def test_create_zarr_structure(tmp_path, testdata_path):
     from fractal_tasks_core.create_zarr_structure import create_zarr_structure
     input_paths = [testdata_path / "png/*.png"]
