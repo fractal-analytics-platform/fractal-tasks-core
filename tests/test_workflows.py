@@ -164,7 +164,7 @@ def test_workflow_MIP(
     shutil.copytree(
         str(zenodo_zarr_3D), str(zarr_path.parent / zenodo_zarr_3D.name)
     )
-    metadata: Dict[str, Any] = metadata_3D.copy()
+    metadata = metadata_3D.copy()
 
     # Replicate
     metadata_update = replicate_zarr_structure(
@@ -478,6 +478,38 @@ def test_workflow_with_per_FOV_labeling_2D(
             diameter_level0=80.0,
         )
 
+    # OME-NGFF JSON validation
+    image_zarr = Path(zarr_path_mip.parent / metadata["well"][0])
+    debug(image_zarr)
+    well_zarr = image_zarr.parent
+    plate_zarr = image_zarr.parents[2]
+    validate_schema(path=str(image_zarr), type="image")
+    validate_schema(path=str(well_zarr), type="well")
+    validate_schema(path=str(plate_zarr), type="plate")
+
+    check_file_number(zarr_path=image_zarr)
+
+
+def test_workflow_measurement_2D(
+    tmp_path: Path,
+    testdata_path: Path,
+    zenodo_images: Path,
+    zenodo_zarr: List[Path],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+):
+
+    # Init
+    zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
+    metadata = {}
+
+    # Load zarr array from zenodo
+    zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
+    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
+    shutil.copytree(
+        str(zenodo_zarr_2D), str(zarr_path_mip.parent / zenodo_zarr_2D.name)
+    )
+    metadata = metadata_2D.copy()
+
     # Per-FOV measurement
     for component in metadata["well"]:
         measurement(
@@ -501,17 +533,6 @@ def test_workflow_with_per_FOV_labeling_2D(
     print(meas.var_names)
     assert "area" in meas.var_names
     assert "bbox_area" in meas.var_names
-
-    # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path_mip.parent / metadata["well"][0])
-    debug(image_zarr)
-    well_zarr = image_zarr.parent
-    plate_zarr = image_zarr.parents[2]
-    validate_schema(path=str(image_zarr), type="image")
-    validate_schema(path=str(well_zarr), type="well")
-    validate_schema(path=str(plate_zarr), type="plate")
-
-    check_file_number(zarr_path=image_zarr)
 
 
 def test_workflow_with_per_well_labeling_2D(
