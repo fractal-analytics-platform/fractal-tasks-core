@@ -20,6 +20,7 @@ import warnings
 from pathlib import Path
 from typing import Any
 from typing import Dict
+from typing import Optional
 from typing import Sequence
 
 import anndata as ad
@@ -275,7 +276,7 @@ if __name__ == "__main__":
         metadata: Dict[str, Any]
         # Task-specific arguments
         overwrite: bool = False
-        new_component: str = None
+        new_component: Optional[str] = None
         dict_corr: dict
         background: int = 100
 
