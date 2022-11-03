@@ -6,6 +6,16 @@ from urllib.parse import unquote
 import pytest
 import requests
 import wget
+from importlib import import_module
+from fractal_tasks_core import MissingOptionalDependencyError
+
+
+def can_use_task(task_module_name: str) -> bool:
+    try:
+        import_module(task_module_name)
+        return True
+    except MissingOptionalDependencyError:
+        return False
 
 
 @pytest.fixture(scope="session")

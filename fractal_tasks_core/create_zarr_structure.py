@@ -19,7 +19,15 @@ from typing import Dict
 from typing import Iterable
 from typing import Optional
 
-import pandas as pd
+try:
+    import pandas as pd
+except ModuleNotFoundError:
+    from . import MissingOptionalDependencyError
+    raise MissingOptionalDependencyError(
+        "Task `create_zarr_structure` depends on Pandas but it does not "
+        "appear to be installed. Please install `fractal-tasks-core[pandas]` "
+        "to use this task."
+    )
 import zarr
 from anndata.experimental import write_elem
 

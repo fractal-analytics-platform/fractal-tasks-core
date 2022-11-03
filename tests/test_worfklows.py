@@ -11,17 +11,17 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
+import pytest
+from .conftest import can_use_task
 import json
 import logging
 import urllib
 from pathlib import Path
 
-import pytest
 from devtools import debug
 from jsonschema import validate
 
 from fractal_tasks_core import __OME_NGFF_VERSION__
-from fractal_tasks_core.create_zarr_structure import create_zarr_structure
 from fractal_tasks_core.illumination_correction import illumination_correction
 from fractal_tasks_core.image_labeling import image_labeling
 from fractal_tasks_core.maximum_intensity_projection import (
@@ -113,7 +113,12 @@ def test_workflow_yokogawa_to_zarr(
     validate_schema(path=str(plate_zarr), type="plate")
 
 
+@pytest.mark.skipif(
+    not can_use_task("fractal_tasks_core.create_zarr_structure"),
+    reason="Missing dependency"
+)
 def test_workflow_MIP(tmp_path: Path, dataset_10_5281_zenodo_7059515: Path):
+    from fractal_tasks_core.create_zarr_structure import create_zarr_structure
 
     # Init
     img_path = dataset_10_5281_zenodo_7059515 / "*.png"

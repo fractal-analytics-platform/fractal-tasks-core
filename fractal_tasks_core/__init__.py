@@ -1,6 +1,11 @@
 __VERSION__ = "0.1.5"
 __OME_NGFF_VERSION__ = "0.4"
 
+
+class MissingOptionalDependencyError(RuntimeError):
+    pass
+
+
 __FRACTAL_MANIFEST__ = [
     {
         "resource_type": "core task",
