@@ -48,13 +48,17 @@ def zenodo_images(testdata_path):
 
 @pytest.fixture(scope="session")
 def zenodo_zarr(testdata_path, tmpdir_factory):
-    tmp_path = tmpdir_factory.mktemp("zenodo_zarr")
+
     doi = "10.5281/zenodo.7274533"
     rootfolder = testdata_path / (doi.replace(".", "_").replace("/", "_"))
     platenames = ["plate.zarr", "plate_mip.zarr"]
     folders = [rootfolder / plate for plate in platenames]
-    if not rootfolder.exists():
+
+    if rootfolder.exists():
+        print(f"{str(rootfolder)} already exists, skip")
+    else:
         rootfolder.mkdir()
+        tmp_path = tmpdir_factory.mktemp("zenodo_zarr")
         zarrnames = [
             "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
             "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr",
@@ -67,4 +71,31 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
                 str(tmp_path / zipname), extract_dir=rootfolder, format="zip"
             )
             shutil.move(str(rootfolder / zarrname), str(folder))
-    return folders
+
+    metadata_3D = {
+        "plate": ["plate.zarr"],
+        "well": ["plate.zarr/B/03/0/"],
+        "num_levels": 6,
+        "coarsening_xy": 2,
+        "channel_list": ["A01_C01"],
+        "original_paths": [
+            str(testdata_path / "10_5281_zenodo_7059515/*.png")
+        ],
+    }
+
+    metadata_2D = {
+        "plate": ["plate.zarr"],
+        "well": ["plate_mip.zarr/B/03/0/"],
+        "num_levels": 6,
+        "coarsening_xy": 2,
+        "channel_list": ["A01_C01"],
+        "original_paths": [
+            str(testdata_path / "10_5281_zenodo_7059515/*.png")
+        ],
+        "replicate_zarr": {
+            "suffix": "mip",
+            "sources": {"plate_mip": "/this/should/not/be/used/"},
+        },
+    }
+
+    return folders, (metadata_3D, metadata_2D)
