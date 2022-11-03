@@ -47,7 +47,8 @@ def zenodo_images(testdata_path):
 
 
 @pytest.fixture(scope="session")
-def zenodo_zarr(testdata_path, tmp_path):
+def zenodo_zarr(testdata_path, tmpdir_factory):
+    tmp_path = tmpdir_factory.mktemp("zenodo_zarr")
     doi = "10.5281/zenodo.7274533"
     rootfolder = testdata_path / (doi.replace(".", "_").replace("/", "_"))
     platenames = ["plate.zarr", "plate_mip.zarr"]
