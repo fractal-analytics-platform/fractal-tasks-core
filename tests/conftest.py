@@ -15,7 +15,7 @@ def testdata_path() -> Path:
 
 
 @pytest.fixture(scope="session")
-def dataset_10_5281_zenodo_7059515(testdata_path):
+def zenodo_images(testdata_path):
     # Based on
     # https://github.com/dvolgyes/zenodo_get/blob/master/zenodo_get/zget.py
 

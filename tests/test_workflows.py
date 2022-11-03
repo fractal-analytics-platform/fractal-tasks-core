@@ -105,12 +105,10 @@ num_levels = 6
 coarsening_xy = 2
 
 
-def test_workflow_yokogawa_to_zarr(
-    tmp_path: Path, dataset_10_5281_zenodo_7059515: Path
-):
+def test_workflow_yokogawa_to_zarr(tmp_path: Path, zenodo_images: Path):
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     metadata = {}
 
@@ -147,10 +145,10 @@ def test_workflow_yokogawa_to_zarr(
     check_file_number(zarr_path=image_zarr)
 
 
-def test_workflow_MIP(tmp_path: Path, dataset_10_5281_zenodo_7059515: Path):
+def test_workflow_MIP(tmp_path: Path, zenodo_images: Path):
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
     metadata = {}
@@ -208,7 +206,7 @@ def test_workflow_MIP(tmp_path: Path, dataset_10_5281_zenodo_7059515: Path):
 def test_workflow_illumination_correction(
     tmp_path: Path,
     testdata_path: Path,
-    dataset_10_5281_zenodo_7059515: Path,
+    zenodo_images: Path,
     caplog: pytest.LogCaptureFixture,
 ):
 
@@ -217,7 +215,7 @@ def test_workflow_illumination_correction(
     caplog.set_level(logging.INFO)
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     metadata = {}
 
@@ -303,7 +301,7 @@ def patched_segment_FOV(
 def test_workflow_with_per_FOV_labeling(
     tmp_path: Path,
     testdata_path: Path,
-    dataset_10_5281_zenodo_7059515: Path,
+    zenodo_images: Path,
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -327,7 +325,7 @@ def test_workflow_with_per_FOV_labeling(
     caplog.set_level(logging.INFO)
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     metadata = {}
 
@@ -408,7 +406,7 @@ def test_workflow_with_per_FOV_labeling(
 def test_workflow_with_per_FOV_labeling_2D(
     tmp_path: Path,
     testdata_path: Path,
-    dataset_10_5281_zenodo_7059515: Path,
+    zenodo_images: Path,
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -429,7 +427,7 @@ def test_workflow_with_per_FOV_labeling_2D(
     )
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
     metadata = {}
@@ -526,7 +524,7 @@ def test_workflow_with_per_FOV_labeling_2D(
 def test_workflow_with_per_well_labeling_2D(
     tmp_path: Path,
     testdata_path: Path,
-    dataset_10_5281_zenodo_7059515: Path,
+    zenodo_images: Path,
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -547,7 +545,7 @@ def test_workflow_with_per_well_labeling_2D(
     )
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
     metadata = {}
@@ -644,12 +642,12 @@ def test_workflow_with_per_well_labeling_2D(
 
 def test_workflow_napari_worfklow(
     tmp_path: Path,
-    dataset_10_5281_zenodo_7059515: Path,
+    zenodo_images: Path,
     testdata_path: Path,
 ):
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     metadata = {}
     debug(zarr_path)
@@ -744,12 +742,12 @@ def test_workflow_napari_worfklow(
 )
 def test_workflow_napari_worfklow_label_to_dataframe(
     tmp_path: Path,
-    dataset_10_5281_zenodo_7059515: Path,
+    zenodo_images: Path,
     testdata_path: Path,
 ):
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     metadata = {}
     debug(zarr_path)
