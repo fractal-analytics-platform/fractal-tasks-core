@@ -14,9 +14,12 @@ Zurich.
 import glob
 import json
 import logging
+import shutil
 import urllib
 from pathlib import Path
+from typing import Any
 from typing import Dict
+from typing import List
 
 import anndata as ad
 import dask.array as da
@@ -145,33 +148,23 @@ def test_workflow_yokogawa_to_zarr(tmp_path: Path, zenodo_images: Path):
     check_file_number(zarr_path=image_zarr)
 
 
-def test_workflow_MIP(tmp_path: Path, zenodo_images: Path):
+def test_workflow_MIP(
+    tmp_path: Path,
+    zenodo_zarr: List[Path],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+):
 
     # Init
-    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
-    metadata = {}
 
-    # Create zarr structure
-    metadata_update = create_zarr_structure(
-        input_paths=[img_path],
-        output_path=zarr_path,
-        channel_parameters=channel_parameters,
-        num_levels=num_levels,
-        coarsening_xy=coarsening_xy,
-        metadata_table="mrf_mlf",
+    # Load zarr array from zenodo
+    zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
+    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
+    shutil.copytree(
+        str(zenodo_zarr_3D), str(zarr_path.parent / zenodo_zarr_3D.name)
     )
-    metadata.update(metadata_update)
-
-    # Yokogawa to zarr
-    for component in metadata["well"]:
-        yokogawa_to_zarr(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
-            metadata=metadata,
-            component=component,
-        )
+    metadata: Dict[str, Any] = metadata_3D.copy()
 
     # Replicate
     metadata_update = replicate_zarr_structure(

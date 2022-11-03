@@ -72,6 +72,11 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
             )
             shutil.move(str(rootfolder / zarrname), str(folder))
 
+    return folders
+
+
+@pytest.fixture(scope="session")
+def zenodo_zarr_metadata(testdata_path):
     metadata_3D = {
         "plate": ["plate.zarr"],
         "well": ["plate.zarr/B/03/0/"],
@@ -98,4 +103,4 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
         },
     }
 
-    return folders, (metadata_3D, metadata_2D)
+    return [metadata_3D, metadata_2D]
