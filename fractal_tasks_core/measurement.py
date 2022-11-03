@@ -20,7 +20,6 @@ import os
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import Optional
 from typing import Sequence
 from typing import Tuple
 
@@ -219,7 +218,7 @@ if __name__ == "__main__":
         labeling_channel: str
         level: int = 0
         workflow_file: str
-        ROI_table_name: Optional[str] = "FOV_ROI_table"
-        measurement_table_name: Optional[str] = "measurement"
+        ROI_table_name: str = "FOV_ROI_table"
+        measurement_table_name: str = "measurement"
 
     run_fractal_task(task_function=measurement, TaskArgsModel=TaskArguments)
