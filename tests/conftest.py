@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 from pathlib import Path
 from urllib.parse import unquote
 
@@ -43,3 +44,26 @@ def zenodo_images(testdata_path):
         wget.download(link, out=folder)
         print()
     return Path(folder)
+
+
+@pytest.fixture(scope="session")
+def zenodo_zarr(testdata_path, tmp_path):
+    doi = "10.5281/zenodo.7274533"
+    rootfolder = testdata_path / (doi.replace(".", "_").replace("/", "_"))
+    platenames = ["plate.zarr", "plate_mip.zarr"]
+    folders = [rootfolder / plate for plate in platenames]
+    if not rootfolder.exists():
+        rootfolder.mkdir()
+        zarrnames = [
+            "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
+            "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr",
+        ]
+        for zarrname, folder in zip(zarrnames, folders):
+            zipname = f"{zarrname}.zip"
+            url = f"https://zenodo.org/record/7274533/files/{zipname}"
+            wget.download(url, out=str(tmp_path / zipname), bar=None)
+            shutil.unpack_archive(
+                str(tmp_path / zipname), extract_dir=rootfolder, format="zip"
+            )
+            shutil.move(str(rootfolder / zarrname), str(folder))
+    return folders
