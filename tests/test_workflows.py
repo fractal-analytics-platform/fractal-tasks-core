@@ -27,7 +27,12 @@ from jsonschema import validate
 from pytest import MonkeyPatch
 
 from fractal_tasks_core import __OME_NGFF_VERSION__
-from fractal_tasks_core.cellpose_segmentation import cellpose_segmentation
+from fractal_tasks_core import MissingOptionalDependencyError
+try:
+    from fractal_tasks_core.cellpose_segmentation import cellpose_segmentation
+    MISSING_CELLPOSE = False
+except MissingOptionalDependencyError:
+    MISSING_CELLPOSE = True
 from fractal_tasks_core.create_zarr_structure import create_zarr_structure
 from fractal_tasks_core.illumination_correction import illumination_correction
 from fractal_tasks_core.maximum_intensity_projection import (
@@ -300,6 +305,9 @@ def patched_segment_FOV(
     return mask.astype(label_dtype)
 
 
+@pytest.mark.skipif(
+    MISSING_CELLPOSE, reason="Optional dependency `cellpose` missing"
+)
 def test_workflow_with_per_FOV_labeling(
     tmp_path: Path,
     testdata_path: Path,
@@ -405,6 +413,9 @@ def test_workflow_with_per_FOV_labeling(
     check_file_number(zarr_path=image_zarr)
 
 
+@pytest.mark.skipif(
+    MISSING_CELLPOSE, reason="Optional dependency `cellpose` missing"
+)
 def test_workflow_with_per_FOV_labeling_2D(
     tmp_path: Path,
     testdata_path: Path,
@@ -523,6 +534,9 @@ def test_workflow_with_per_FOV_labeling_2D(
     check_file_number(zarr_path=image_zarr)
 
 
+@pytest.mark.skipif(
+    MISSING_CELLPOSE, reason="Optional dependency `cellpose` missing"
+)
 def test_workflow_with_per_well_labeling_2D(
     tmp_path: Path,
     testdata_path: Path,

@@ -6,6 +6,7 @@ from subprocess import PIPE
 
 import pytest
 from devtools import debug
+import sys
 
 import fractal_tasks_core
 
@@ -24,6 +25,17 @@ def validate_command(cmd: str):
     assert result.returncode == 1
     stderr = result.stderr.decode()
     debug(stderr)
+
+    # Tasks may fail if they require optional dependency `cellpose`. In that
+    # case we manually skip the assertions
+    if "MissingOptionalDependencyError" in stderr:
+        from warnings import warn
+        warn(
+            "Skipping checks because of missing optional dependency.\n"
+            f"{stderr}"
+        )
+        return
+
     # Valid stderr includes pydantic.error_wrappers.ValidationError (type
     # match between model and function, but tmp_file_args has wrong arguments)
     assert "pydantic.error_wrappers.ValidationError" in stderr
@@ -49,7 +61,7 @@ def test_task_interface(task, tmp_path):
     executable = task["executable"]
     task_path = f"{str(module_dir)}/{executable}.py"
     cmd = (
-        f"python {task_path} "
+        f"{sys.executable} {task_path} "
         f"-j {tmp_file_args} "
         f"--metadata-out {tmp_file_metadiff}"
     )

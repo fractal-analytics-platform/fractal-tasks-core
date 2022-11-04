@@ -31,7 +31,7 @@ try:
     from cellpose import models
     from cellpose.core import use_gpu
 except ImportError:
-    from . import MissingOptionalDependencyError
+    from fractal_tasks_core import MissingOptionalDependencyError
     raise MissingOptionalDependencyError(
         task="cellpose_segmentation",
         dependency="cellpose"
