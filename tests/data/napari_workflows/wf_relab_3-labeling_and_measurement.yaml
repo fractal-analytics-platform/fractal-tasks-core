@@ -5,7 +5,7 @@ _tasks:
   - input_image
   - 15.0
   - 2.0
-  regionprops_DAPI: !!python/tuple
+  output_dataframe: !!python/tuple
   - !!python/name:napari_skimage_regionprops._regionprops.regionprops_table ''
   - input_image
   - output_label
