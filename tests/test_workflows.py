@@ -77,30 +77,6 @@ def check_file_number(*, zarr_path: Path):
     assert num_chunkfiles_from_zarr == num_chunkfiles_on_disk
 
 
-def validate_labels_and_measurements(
-    image_zarr: Path, *, label_name: str, table_name: str
-):
-
-    # FIXME: clean up this test and make asserts as strict as possible
-    # FIXME: move this test at the end of a napari-workflow task
-
-    label_path = str(image_zarr / "labels" / label_name / "0")
-    table_path = str(image_zarr / "tables" / table_name)
-    labels = da.from_zarr(label_path)
-    list_label_values = list(da.unique(labels).compute())
-    assert list_label_values[0] == 0
-    list_label_values = list_label_values[1:]
-
-    table = ad.read_zarr(table_path)
-    list_table_label_values = [int(x) for x in list(table.obs["label"])]
-
-    # Check that labels are unique in measurement dataframe
-    assert len(set(list_table_label_values)) == len(list_table_label_values)
-
-    # Check that labels are the same in measurement dataframe and labels array
-    assert list_table_label_values == list_label_values
-
-
 channel_parameters = {
     "A01_C01": {
         "label": "DAPI",
@@ -126,12 +102,10 @@ num_levels = 6
 coarsening_xy = 2
 
 
-def test_workflow_yokogawa_to_zarr(
-    tmp_path: Path, dataset_10_5281_zenodo_7059515: Path
-):
+def test_workflow_yokogawa_to_zarr(tmp_path: Path, zenodo_images: Path):
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     metadata = {}
 
@@ -168,10 +142,10 @@ def test_workflow_yokogawa_to_zarr(
     check_file_number(zarr_path=image_zarr)
 
 
-def test_workflow_MIP(tmp_path: Path, dataset_10_5281_zenodo_7059515: Path):
+def test_workflow_MIP(tmp_path: Path, zenodo_images: Path):
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
     metadata = {}
@@ -229,7 +203,7 @@ def test_workflow_MIP(tmp_path: Path, dataset_10_5281_zenodo_7059515: Path):
 def test_workflow_illumination_correction(
     tmp_path: Path,
     testdata_path: Path,
-    dataset_10_5281_zenodo_7059515: Path,
+    zenodo_images: Path,
     caplog: pytest.LogCaptureFixture,
 ):
 
@@ -238,7 +212,7 @@ def test_workflow_illumination_correction(
     caplog.set_level(logging.INFO)
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     metadata = {}
 
@@ -324,7 +298,7 @@ def patched_segment_FOV(
 def test_workflow_with_per_FOV_labeling(
     tmp_path: Path,
     testdata_path: Path,
-    dataset_10_5281_zenodo_7059515: Path,
+    zenodo_images: Path,
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -348,7 +322,7 @@ def test_workflow_with_per_FOV_labeling(
     caplog.set_level(logging.INFO)
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     metadata = {}
 
@@ -429,7 +403,7 @@ def test_workflow_with_per_FOV_labeling(
 def test_workflow_with_per_FOV_labeling_2D(
     tmp_path: Path,
     testdata_path: Path,
-    dataset_10_5281_zenodo_7059515: Path,
+    zenodo_images: Path,
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -450,7 +424,7 @@ def test_workflow_with_per_FOV_labeling_2D(
     )
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
     metadata = {}
@@ -547,7 +521,7 @@ def test_workflow_with_per_FOV_labeling_2D(
 def test_workflow_with_per_well_labeling_2D(
     tmp_path: Path,
     testdata_path: Path,
-    dataset_10_5281_zenodo_7059515: Path,
+    zenodo_images: Path,
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -568,7 +542,7 @@ def test_workflow_with_per_well_labeling_2D(
     )
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
     metadata = {}
