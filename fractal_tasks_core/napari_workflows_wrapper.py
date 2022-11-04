@@ -16,7 +16,6 @@ Wrapper of napari-workflows
 """
 import json
 import logging
-import os
 from pathlib import Path
 from typing import Any
 from typing import Dict
@@ -182,7 +181,7 @@ def napari_workflows_wrapper(
     if label_inputs:
         # Set target_shape for upscaling labels
         if not image_inputs:
-            logger.warn(
+            logger.warning(
                 f"{len(label_inputs)=} but num_image_inputs=0. "
                 "Label array(s) will not be upscaled."
             )
@@ -215,17 +214,77 @@ def napari_workflows_wrapper(
         if params["type"] == "label"
     ]
     if label_outputs:
-        output_label_zarr_groups = {}
-        # Set labels group
+        # Preliminary scope check
+        if len(label_outputs) > 1:
+            raise NotImplementedError(
+                "Multiple label outputs not supported"
+                "(found {len(label_outputs)=})."
+            )
+
+        # We only support two cases:
+        # 1. If there exist some input images, then use the first one to
+        #    determine output-label array properties
+        # 2. If there are no input images, but there are input labels, then (A)
+        #    re-load the pixel sizes and re-build ROI indices, and (B) use the
+        #    first input label to determine output-label array properties
+        if image_inputs:
+            reference_array = list(input_image_arrays.values())[0]
+        elif label_inputs:
+            reference_array = list(input_label_arrays.values())[0]
+            # Re-load pixel size, matching to the correct level
+            input_label_name = label_inputs[0][1]["label_name"]
+            zattrs_file = (
+                f"{in_path}/{component}/labels/{input_label_name}/.zattrs"
+            )
+            # Read pixel sizes from zattrs file
+            full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
+                zattrs_file, level=0
+            )
+            # Create list of indices for 3D FOVs spanning the whole Z direction
+            list_indices = convert_ROI_table_to_indices(
+                ROI_table,
+                level=level,
+                coarsening_xy=coarsening_xy,
+                full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
+            )
+            num_ROIs = len(list_indices)
+            logger.info(
+                f"Re-loaded reading ROI table {ROI_table_name}, "
+                f"and created indices using {full_res_pxl_sizes_zyx=}. "
+                "This is necessary because label-input-only workflows may "
+                "have label inputs that are at a different resolution and "
+                "are not upscaled."
+            )
+        else:
+            msg = (
+                "Missing image_inputs and label_inputs, we cannot assign"
+                " label output properties"
+            )
+            raise NotImplementedError(msg)
+        label_shape = reference_array.shape
+        label_chunksize = reference_array.chunksize
+
+        # Create labels zarr group and combine existing/new labels in .zattrs
+        new_labels = [params["label_name"] for (name, params) in label_outputs]
         zarrurl = f"{in_path}/{component}"
-        if os.path.isdir(f"{zarrurl}/labels"):
-            raise NotImplementedError(f"{zarrurl}/labels already exists.")
+        try:
+            with open(f"{zarrurl}/labels/.zattrs", "r") as f_zattrs:
+                existing_labels = json.load(f_zattrs)["labels"]
+        except FileNotFoundError:
+            existing_labels = []
+        intersection = set(new_labels) & set(existing_labels)
+        logger.info("{new_labels=}")
+        logger.info("{existing_labels=}")
+        if intersection:
+            raise NotImplementedError(
+                f"Labels {intersection} already exist "
+                "but are part of outputs"
+            )
         labels_group = zarr.group(f"{zarrurl}/labels")
-        labels_group.attrs["labels"] = [
-            params["label_name"] for (name, params) in label_outputs
-        ]
+        labels_group.attrs["labels"] = existing_labels + new_labels
 
         # Loop over label outputs and (1) set zattrs, (2) create zarr group
+        output_label_zarr_groups = {}
         for (name, params) in label_outputs:
             label_name = params["label_name"]
 
@@ -252,13 +311,13 @@ def napari_workflows_wrapper(
                     "datasets": new_datasets,
                 }
             ]
-            # (2) Create zarr group for level=0
+            # (2) Create zarr group at level=0
             store = da.core.get_mapper(
                 f"{in_path}/{component}/labels/{label_name}/0"
             )
             mask_zarr = zarr.create(
-                shape=img_array[0].shape,
-                chunks=img_array[0].chunksize,
+                shape=label_shape,
+                chunks=label_chunksize,
                 dtype=label_dtype,
                 store=store,
                 overwrite=False,
@@ -356,7 +415,7 @@ def napari_workflows_wrapper(
             overwrite=False,
             num_levels=num_levels,
             coarsening_xy=coarsening_xy,
-            chunksize=img_array[0].chunksize,
+            chunksize=label_chunksize,
             aggregation_function=np.max,
         )
 
