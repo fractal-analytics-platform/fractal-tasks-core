@@ -29,7 +29,6 @@ import numpy as np
 import pandas as pd
 import zarr
 from anndata.experimental import write_elem
-from distutils.log import debug
 from napari_workflows._io_yaml_v1 import load_workflow
 
 import fractal_tasks_core
@@ -446,20 +445,14 @@ def napari_workflows_wrapper(
 
     # Output handling: "dataframe" type (for each output, concatenate ROI
     # dataframes, clean up, and store in a AnnData table on-disk)
-    # FIXME: is this cleanup procedure general?
     for (name, params) in dataframe_outputs:
         table_name = params["table_name"]
-        list_dfs = output_dataframe_lists[name]
-
         # Concatenate all FOV dataframes
+        list_dfs = output_dataframe_lists[name]
         df_well = pd.concat(list_dfs, axis=0, ignore_index=True)
-
         # Extract labels and drop them from df_well
         labels = pd.DataFrame(df_well["label"].astype(str))
         df_well.drop(labels=["label"], axis=1, inplace=True)
-
-        debug(df_well)
-
         # Convert all to float (warning: some would be int, in principle)
         measurement_dtype = np.float32
         df_well = df_well.astype(measurement_dtype)
@@ -482,6 +475,8 @@ def napari_workflows_wrapper(
             chunksize=label_chunksize,
             aggregation_function=np.max,
         )
+
+    # FIXME: add validation here?
 
 
 if __name__ == "__main__":
