@@ -129,7 +129,7 @@ def test_workflow_napari_worfklow_label_input_only(
     zenodo_zarr_metadata: List[Dict[str, Any]],
 ):
 
-    # Init
+    # Prepare 3D zarr
     zarr_path = tmp_path / "tmp_out/*.zarr"
     metadata = prepare_3D_zarr(zarr_path, zenodo_zarr, zenodo_zarr_metadata)
     debug(zarr_path)
@@ -200,16 +200,14 @@ def test_workflow_napari_worfklow_label_input_only(
 
 
 # Define three relabeling scenarios:
-# 1. Labeling-only workflow, from images to labels.
-# 2. Measurement-only workflow, from images+labels to dataframes.
-# 3. Mixed labeling/measurement workflow.
 LABEL_NAME = "label_DAPI"
 TABLE_NAME = "measurement_DAPI"
-relabeling_cases = []
+# 1. Labeling-only workflow, from images to labels.
 workflow_file_name = "wf_relab_1-labeling_only.yaml"
 input_specs = dict(input_image={"type": "image", "channel": "A01_C01"})
 output_specs = dict(output_label={"type": "label", "label_name": LABEL_NAME})
-relabeling_cases.append([workflow_file_name, input_specs, output_specs])
+RELABELING_CASE_1: List = [workflow_file_name, input_specs, output_specs]
+# 2. Measurement-only workflow, from images+labels to dataframes.
 workflow_file_name = "wf_relab_2-measurement_only.yaml"
 input_specs = dict(
     input_image={"type": "image", "channel": "A01_C01"},
@@ -218,23 +216,31 @@ input_specs = dict(
 output_specs = dict(
     output_dataframe={"type": "dataframe", "table_name": TABLE_NAME}
 )
-relabeling_cases.append([workflow_file_name, input_specs, output_specs])
+RELABELING_CASE_2: List = [workflow_file_name, input_specs, output_specs]
+# 3. Mixed labeling/measurement workflow.
 workflow_file_name = "wf_relab_3-labeling_and_measurement.yaml"
 input_specs = dict(input_image={"type": "image", "channel": "A01_C01"})
 output_specs = dict(
     output_label={"type": "label", "label_name": LABEL_NAME},
     output_dataframe={"type": "dataframe", "table_name": TABLE_NAME},
 )
-relabeling_cases.append([workflow_file_name, input_specs, output_specs])
+RELABELING_CASE_3: List = [workflow_file_name, input_specs, output_specs]
+# Assemble three cases
+relabeling_cases = []
+relabeling_cases.append(RELABELING_CASE_1 + [False])
+relabeling_cases.append(RELABELING_CASE_2 + [True])
+relabeling_cases.append(RELABELING_CASE_3 + [False])
 
 
 @pytest.mark.parametrize(
-    "workflow_file_name,input_specs,output_specs", relabeling_cases
+    "workflow_file_name,input_specs,output_specs,needs_labels",
+    relabeling_cases,
 )
 def test_relabeling(
     workflow_file_name: str,
     input_specs: Dict[str, Dict],
     output_specs: Dict[str, Dict],
+    needs_labels: bool,
     tmp_path: Path,
     testdata_path: Path,
     zenodo_zarr: List[Path],
@@ -247,10 +253,30 @@ def test_relabeling(
     debug(zarr_path)
     debug(metadata)
 
+    # If needed, produce some labels before the actual test
+    if needs_labels:
+        workflow_file = str(
+            testdata_path / "napari_workflows" / RELABELING_CASE_1[0]
+        )
+        for component in metadata["well"]:
+            napari_workflows_wrapper(
+                input_paths=[zarr_path],
+                output_path=zarr_path,
+                metadata=metadata,
+                component=component,
+                input_specs=RELABELING_CASE_1[1],
+                output_specs=RELABELING_CASE_1[2],
+                workflow_file=workflow_file,
+                ROI_table_name="FOV_ROI_table",
+            )
+
     # Run napari-workflow
     workflow_file = str(
         testdata_path / "napari_workflows" / workflow_file_name
     )
+    debug(workflow_file)
+    debug(input_specs)
+    debug(output_specs)
     for component in metadata["well"]:
         napari_workflows_wrapper(
             input_paths=[zarr_path],
