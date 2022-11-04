@@ -13,9 +13,12 @@ Zurich.
 """
 import glob
 import json
+import shutil
 import urllib
 from pathlib import Path
+from typing import Any
 from typing import Dict
+from typing import List
 
 import anndata as ad
 import dask.array as da
@@ -23,11 +26,9 @@ from devtools import debug
 from jsonschema import validate
 
 from fractal_tasks_core import __OME_NGFF_VERSION__
-from fractal_tasks_core.create_zarr_structure import create_zarr_structure
 from fractal_tasks_core.napari_workflows_wrapper import (
     napari_workflows_wrapper,
 )
-from fractal_tasks_core.yokogawa_to_zarr import yokogawa_to_zarr
 
 
 def validate_schema(*, path: str, type: str):
@@ -116,38 +117,31 @@ num_levels = 6
 coarsening_xy = 2
 
 
+def prepare_3D_zarr(
+    zarr_path: Path,
+    zenodo_zarr: List[Path],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+):
+    zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
+    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
+    shutil.copytree(
+        str(zenodo_zarr_3D), str(zarr_path.parent / zenodo_zarr_3D.name)
+    )
+    metadata = metadata_3D.copy()
+    return metadata
+
+
 def test_workflow_napari_worfklow(
     tmp_path: Path,
-    dataset_10_5281_zenodo_7059515: Path,
     testdata_path: Path,
+    zenodo_zarr: List[Path],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
 ):
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
-    metadata = {}
+    metadata = prepare_3D_zarr(zarr_path, zenodo_zarr, zenodo_zarr_metadata)
     debug(zarr_path)
-
-    # Create zarr structure
-    metadata_update = create_zarr_structure(
-        input_paths=[img_path],
-        output_path=zarr_path,
-        channel_parameters=channel_parameters,
-        num_levels=num_levels,
-        coarsening_xy=coarsening_xy,
-        metadata_table="mrf_mlf",
-    )
-    metadata.update(metadata_update)
-    debug(metadata)
-
-    # Yokogawa to zarr
-    for component in metadata["well"]:
-        yokogawa_to_zarr(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
-            metadata=metadata,
-            component=component,
-        )
     debug(metadata)
 
     # First napari-workflows task (labeling)
@@ -219,36 +213,15 @@ def test_workflow_napari_worfklow(
 
 def test_workflow_napari_worfklow_label_input_only(
     tmp_path: Path,
-    dataset_10_5281_zenodo_7059515: Path,
     testdata_path: Path,
+    zenodo_zarr: List[Path],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
 ):
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
-    metadata = {}
+    metadata = prepare_3D_zarr(zarr_path, zenodo_zarr, zenodo_zarr_metadata)
     debug(zarr_path)
-
-    # Create zarr structure
-    metadata_update = create_zarr_structure(
-        input_paths=[img_path],
-        output_path=zarr_path,
-        channel_parameters=channel_parameters,
-        num_levels=num_levels,
-        coarsening_xy=coarsening_xy,
-        metadata_table="mrf_mlf",
-    )
-    metadata.update(metadata_update)
-    debug(metadata)
-
-    # Yokogawa to zarr
-    for component in metadata["well"]:
-        yokogawa_to_zarr(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
-            metadata=metadata,
-            component=component,
-        )
     debug(metadata)
 
     # First napari-workflows task (labeling)
