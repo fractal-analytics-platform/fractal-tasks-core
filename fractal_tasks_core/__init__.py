@@ -1,8 +1,28 @@
 import logging
+from typing import Optional
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s; %(levelname)s; %(message)s"
 )
+
+
+class MissingOptionalDependencyError(ModuleNotFoundError):
+    def __init__(
+        self, task: str, dependency: str, extra: Optional[str] = None,
+        *args, **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+        self.task = task
+        self.dependency = dependency
+        self.extra = extra or dependency
+
+    def __str__(self):
+        return (
+            f"Task `{self.task}` depends on `{self.dependency}`, "
+            "which does not appear to be installed. "
+            f"Please install `fractal-tasks-core[{self.extra}]` "
+            "to use this task."
+        )
 
 
 __VERSION__ = "0.2.6"

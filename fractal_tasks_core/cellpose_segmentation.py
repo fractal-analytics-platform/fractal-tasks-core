@@ -27,8 +27,15 @@ import anndata as ad
 import dask.array as da
 import numpy as np
 import zarr
-from cellpose import models
-from cellpose.core import use_gpu
+try:
+    from cellpose import models
+    from cellpose.core import use_gpu
+except ImportError:
+    from . import MissingOptionalDependencyError
+    raise MissingOptionalDependencyError(
+        task="cellpose_segmentation",
+        dependency="cellpose"
+    )
 
 import fractal_tasks_core
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
