@@ -396,13 +396,12 @@ def napari_workflows_wrapper(
             output_type = output_specs[output_name]["type"]
             if output_type == "dataframe":
                 df = outputs[ind_output]
-                # Use label column as index, to avoid non-unique indices when
-                # using per-FOV labels
-                df.index = df["label"].astype(str)
 
                 # TODO: Sanity check: warning for non-consecutive labels
-                # TODO: df["labels"] += output_dataframe_tot_labels[name]
-                # TODO: output_dataframe_tot_labels[name] += max(df["labels"])
+
+                if relabeling:
+                    df["label"] += output_dataframe_tot_labels[name]
+                    output_dataframe_tot_labels[name] += max(df["labels"])
 
                 # Append the new-ROI dataframe to the all-ROIs list
                 output_dataframe_lists[output_name].append(df)
@@ -410,48 +409,24 @@ def napari_workflows_wrapper(
                 logger.info(
                     f"ROI {i_ROI+1}/{num_ROIs}: dataframe output {df=}"
                 )  # FIXME cleanup
-
-            ###
-            # Update label values accordingly with the previous one @idea 2
-            ###
-            # prev_output_name = list_outputs[0]
-            # from devtools import debug
-            # # Handle outputs
-            # for ind_output, output_name in enumerate(list_outputs):
-            #     output_type = output_specs[output_name]["type"]
-            #     if output_type == "dataframe":
-            #         df = outputs[ind_output]
-            #         # Use label column as index, to avoid non-unique
-            #         # indices when using per-FOV labels
-            #
-
-            #         ###
-            #         debug(prev_output_name)
-            #         if output_dataframe_lists[prev_output_name]:
-            #             debug(output_dataframe_lists[prev_output_name] \
-            #                 [-1]["label"].iloc[-1])
-            #             df["label"] += \
-            #                 output_dataframe_lists[prev_output_name] \
-            #                 [-1]["label"].iloc[-1]
-
-            #         df.index = df["label"].astype(str)
-            #         debug(df.index)
-            #         ###
-            #         # Append the new-ROI dataframe to the all-ROIs list
-            #         output_dataframe_lists[output_name].append(df)
-
-            #         prev_output_name = output_name
-            ###
+                if relabeling:
+                    logger.info(f"New {output_dataframe_tot_labels[name]=}")
 
             elif output_type == "label":
                 mask = outputs[ind_output]
+
                 # TODO: Sanity check: warning for non-consecutive labels
-                # TODO: mask[mask > 0] += output_label_tot_labels[name]
-                # TODO: output_label_tot_labels[name] += max(mask)
+
+                if relabeling:
+                    mask[mask > 0] += output_label_tot_labels[name]
+                    output_label_tot_labels[name] += np.max(mask)
                 logger.info(
                     f"ROI {i_ROI+1}/{num_ROIs}: label output with "
                     f"{np.max(mask)=}"
                 )  # FIXME: cleanup
+                if relabeling:
+                    logger.info(f"New {output_label_tot_labels[name]=}")
+
                 da.array(mask).to_zarr(
                     url=output_label_zarr_groups[output_name],
                     region=region,
@@ -467,22 +442,14 @@ def napari_workflows_wrapper(
         list_dfs = output_dataframe_lists[name]
 
         # Concatenate all FOV dataframes
+        df_well = pd.concat(list_dfs, axis=0, ignore_index=True)
 
-        ###
-        # Copy index in label column @idea 1
-        ###
-        # df_well = pd.concat(list_dfs, axis=0, ignore_index=True)
-        # df_well.index += 1
-        # df_well["label"] = df_well.index
-        # from devtools import debug
-        # debug(df_well)
-        ###
-
-        df_well = pd.concat(list_dfs, axis=0)
-        debug(df_well)
         # Extract labels and drop them from df_well
         labels = pd.DataFrame(df_well["label"].astype(str))
         df_well.drop(labels=["label"], axis=1, inplace=True)
+
+        debug(df_well)
+
         # Convert all to float (warning: some would be int, in principle)
         measurement_dtype = np.float32
         df_well = df_well.astype(measurement_dtype)
