@@ -76,7 +76,7 @@ def upscale_array(
     info = f"{info} Upscale factors: {upscale_factors}"
 
     # Raise a warning if upscaling is non-homogeneous across all axis
-    if len(set(upscale_factors)) > 1:
+    if len(set(upscale_factors.values())) > 1:
         warnings.warn(info)
 
     # Upscale array, via np.repeat

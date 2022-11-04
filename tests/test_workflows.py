@@ -739,10 +739,7 @@ def test_workflow_napari_worfklow(
     check_file_number(zarr_path=image_zarr)
 
 
-@pytest.mark.skip(
-    "not implemented yet (missing wf_from_labels_to_measurements.yaml)"
-)
-def test_workflow_napari_worfklow_label_to_dataframe(
+def test_workflow_napari_worfklow_label_input_only(
     tmp_path: Path,
     dataset_10_5281_zenodo_7059515: Path,
     testdata_path: Path,
@@ -803,17 +800,15 @@ def test_workflow_napari_worfklow_label_to_dataframe(
 
     # Second napari-workflows task (measurement)
     workflow_file = str(
-        testdata_path
-        / "napari_workflows"
-        / "wf_from_labels_to_measurements.yaml"
+        testdata_path / "napari_workflows" / "wf_from_labels_to_labels.yaml"
     )
     input_specs = {
-        "dapi_label_img": {"type": "label", "label_name": "label_DAPI"},
+        "test_labels": {"type": "label", "label_name": "label_DAPI"},
     }
     output_specs = {
-        "regionprops_DAPI": {
-            "type": "dataframe",
-            "table_name": "regionprops_DAPI",
+        "Result of Expand labels (scikit-image, nsbatwm)": {
+            "type": "label",
+            "label_name": "label_DAPI_expanded",
         },
     }
     for component in metadata["well"]:
