@@ -20,6 +20,7 @@ from glob import glob
 from pathlib import Path
 from typing import Any
 from typing import Dict
+from typing import Optional
 from typing import Sequence
 
 import anndata as ad
@@ -202,7 +203,7 @@ if __name__ == "__main__":
         output_path: Path
         metadata: Dict[str, Any]
         project_to_2D: bool = True
-        suffix: str = None
+        suffix: Optional[str] = None
 
     run_fractal_task(
         task_function=replicate_zarr_structure, TaskArgsModel=TaskArguments
