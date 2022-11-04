@@ -81,6 +81,8 @@ def napari_workflows_wrapper(
     :param output_specs: TBD
     :param ROI_table_name: name of the table that contains ROIs to which the\
                           task applies the napari-worfklow
+    :param level: TBD
+    :param relabeling: TBD
     """
 
     wf: napari_workflows.Worfklow = load_workflow(workflow_file)
@@ -97,12 +99,15 @@ def napari_workflows_wrapper(
         raise ValueError(msg)
     list_outputs = sorted(output_specs.keys())
 
-    # Characterization of workflow
+    # Characterization of workflow and scope restriction
     input_types = [params["type"] for (name, params) in input_specs.items()]
     output_types = [params["type"] for (name, params) in output_specs.items()]
     are_inputs_all_images = set(input_types) == {"image"}
     are_outputs_all_labels = set(output_types) == {"label"}
+    are_outputs_all_dataframes = set(output_types) == {"dataframe"}
     is_labeling_workflow = are_inputs_all_images and are_outputs_all_labels
+    is_measurement_only_workflow = are_outputs_all_dataframes
+    # Level-related constraint
     logger.info(f"This workflow acts at {level=}")
     logger.info(
         f"Is the current workflow a labeling one? {is_labeling_workflow}"
@@ -114,6 +119,13 @@ def napari_workflows_wrapper(
         )
         logger.error(msg)
         raise OutOfTaskScopeError(msg)
+    # Relabeling-related (soft) constraint
+    if is_measurement_only_workflow and relabeling:
+        logger.warning(
+            "This is a measurement-output-only workflow, setting "
+            "relabeling=False."
+        )
+        relabeling = False
 
     # Pre-processing of task inputs
     if len(input_paths) > 1:
@@ -437,7 +449,8 @@ def napari_workflows_wrapper(
                 # TODO: mask[mask > 0] += output_label_tot_labels[name]
                 # TODO: output_label_tot_labels[name] += max(mask)
                 logger.info(
-                    f"ROI {i_ROI+1}/{num_ROIs}: label output with {np.max(mask)=}"
+                    f"ROI {i_ROI+1}/{num_ROIs}: label output with "
+                    f"{np.max(mask)=}"
                 )  # FIXME: cleanup
                 da.array(mask).to_zarr(
                     url=output_label_zarr_groups[output_name],
