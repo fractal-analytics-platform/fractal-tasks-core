@@ -47,6 +47,10 @@ __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 logger = logging.getLogger(__name__)
 
 
+class OutOfTaskScopeError(NotImplementedError):
+    pass
+
+
 def napari_workflows_wrapper(
     *,
     # Default arguments for fractal tasks:
@@ -60,6 +64,7 @@ def napari_workflows_wrapper(
     output_specs: Dict[str, Dict[str, Union[str, int]]],
     ROI_table_name: str = "FOV_ROI_table",
     level: int = 0,
+    relabeling: bool = True,
 ):
     """
     Description
@@ -76,6 +81,8 @@ def napari_workflows_wrapper(
     :param output_specs: TBD
     :param ROI_table_name: name of the table that contains ROIs to which the\
                           task applies the napari-worfklow
+    :param level: TBD
+    :param relabeling: TBD
     """
 
     wf: napari_workflows.Worfklow = load_workflow(workflow_file)
@@ -92,12 +99,15 @@ def napari_workflows_wrapper(
         raise ValueError(msg)
     list_outputs = sorted(output_specs.keys())
 
-    # Characterization of workflow
+    # Characterization of workflow and scope restriction
     input_types = [params["type"] for (name, params) in input_specs.items()]
     output_types = [params["type"] for (name, params) in output_specs.items()]
     are_inputs_all_images = set(input_types) == {"image"}
     are_outputs_all_labels = set(output_types) == {"label"}
+    are_outputs_all_dataframes = set(output_types) == {"dataframe"}
     is_labeling_workflow = are_inputs_all_images and are_outputs_all_labels
+    is_measurement_only_workflow = are_outputs_all_dataframes
+    # Level-related constraint
     logger.info(f"This workflow acts at {level=}")
     logger.info(
         f"Is the current workflow a labeling one? {is_labeling_workflow}"
@@ -108,7 +118,16 @@ def napari_workflows_wrapper(
             "i.e. those going from image(s) to label(s)"
         )
         logger.error(msg)
-        raise NotImplementedError(msg)
+        raise OutOfTaskScopeError(msg)
+    # Relabeling-related (soft) constraint
+    if is_measurement_only_workflow and relabeling:
+        logger.warning(
+            "This is a measurement-output-only workflow, setting "
+            "relabeling=False."
+        )
+        relabeling = False
+    if relabeling:
+        max_label_for_relabeling = 0
 
     # Add expected_dimensions key to all I/O items
     for (name, params) in input_specs.items():
@@ -264,11 +283,16 @@ def napari_workflows_wrapper(
         if params["type"] == "label"
     ]
     if label_outputs:
-        # Preliminary scope check
+        # Preliminary scope checks
         if len(label_outputs) > 1:
-            raise NotImplementedError(
-                "Multiple label outputs not supported"
-                "(found {len(label_outputs)=})."
+            raise OutOfTaskScopeError(
+                "Multiple label outputs would break label-inputs-only "
+                f"workflows (found {len(label_outputs)=})."
+            )
+        if len(label_outputs) > 1 and relabeling:
+            raise OutOfTaskScopeError(
+                "Multiple label outputs would break relabeling in labeling+"
+                f"measurement workflows (found {len(label_outputs)=})."
             )
 
         # We only support two cases:
@@ -310,7 +334,7 @@ def napari_workflows_wrapper(
                 "Missing image_inputs and label_inputs, we cannot assign"
                 " label output properties"
             )
-            raise NotImplementedError(msg)
+            raise OutOfTaskScopeError(msg)
         label_shape = reference_array.shape
         label_chunksize = reference_array.chunksize
 
@@ -323,10 +347,10 @@ def napari_workflows_wrapper(
         except FileNotFoundError:
             existing_labels = []
         intersection = set(new_labels) & set(existing_labels)
-        logger.info("{new_labels=}")
-        logger.info("{existing_labels=}")
+        logger.info(f"{new_labels=}")
+        logger.info(f"{existing_labels=}")
         if intersection:
-            raise NotImplementedError(
+            raise OutOfTaskScopeError(
                 f"Labels {intersection} already exist "
                 "but are part of outputs"
             )
@@ -334,7 +358,7 @@ def napari_workflows_wrapper(
         labels_group.attrs["labels"] = existing_labels + new_labels
 
         # Loop over label outputs and (1) set zattrs, (2) create zarr group
-        output_label_zarr_groups = {}
+        output_label_zarr_groups: Dict[str, Any] = {}
         for (name, params) in label_outputs:
             label_name = params["label_name"]
 
@@ -416,48 +440,80 @@ def napari_workflows_wrapper(
         # Get outputs
         outputs = wf.get(list_outputs)
 
-        # Handle outputs
+        # Iterate first over dataframe outputs (to use the correct
+        # max_label_for_relabeling, if needed)
         for ind_output, output_name in enumerate(list_outputs):
-            output_type = output_specs[output_name]["type"]
-            if output_type == "dataframe":
-                df = outputs[ind_output]
-                # Use label column as index, to avoid non-unique indices when
-                # using per-FOV labels
-                df.index = df["label"].astype(str)
-                # Append the new-ROI dataframe to the all-ROIs list
-                output_dataframe_lists[output_name].append(df)
-            elif output_type == "label":
-                # Retrieve output array from outputs
-                mask = outputs[ind_output]
-                # Check dimensions
-                expected_dimensions = output_specs[output_name][
-                    "expected_dimensions"
-                ]
-                if len(mask.shape) != expected_dimensions:
-                    msg = (
-                        f"Output {output_name} has shape {mask.shape} "
-                        f"but {expected_dimensions=}"
-                    )
-                    logger.error(msg)
-                    raise ValueError(msg)
-                elif expected_dimensions == 2:
-                    mask = np.expand_dims(mask, axis=0)
-                # Store to zarr
-                da.array(mask).to_zarr(
-                    url=output_label_zarr_groups[output_name],
-                    region=region,
-                    compute=True,
+            if output_specs[output_name]["type"] != "dataframe":
+                continue
+            df = outputs[ind_output]
+            if relabeling:
+                df["label"] += max_label_for_relabeling
+                logger.info(
+                    f'ROI {i_ROI+1}/{num_ROIs}: Relabeling "{name}" dataframe'
+                    "output, with {max_label_for_relabeling=}"
                 )
+
+            # Append the new-ROI dataframe to the all-ROIs list
+            output_dataframe_lists[output_name].append(df)
+
+        # After all dataframe outputs, iterate over label outputs (which
+        # actually can be only 0 or 1)
+        for ind_output, output_name in enumerate(list_outputs):
+            if output_specs[output_name]["type"] != "label":
+                continue
+            mask = outputs[ind_output]
+
+            # Check dimensions
+            expected_dimensions = output_specs[output_name][
+                "expected_dimensions"
+            ]
+            if len(mask.shape) != expected_dimensions:
+                msg = (
+                    f"Output {output_name} has shape {mask.shape} "
+                    f"but {expected_dimensions=}"
+                )
+                logger.error(msg)
+                raise ValueError(msg)
+            elif expected_dimensions == 2:
+                mask = np.expand_dims(mask, axis=0)
+
+            # Sanity check: issue warning for non-consecutive labels
+            num_unique_labels_in_this_ROI = len(np.unique(mask)) - 1
+            num_labels_in_this_ROI = int(np.max(mask))
+            if num_labels_in_this_ROI != num_unique_labels_in_this_ROI:
+                logger.warning(
+                    f'ROI {i_ROI+1}/{num_ROIs}: "{name}" label output has'
+                    f"non-consecutive labels: {num_labels_in_this_ROI=} but"
+                    f"{num_unique_labels_in_this_ROI=}"
+                )
+
+            if relabeling:
+                mask[mask > 0] += max_label_for_relabeling
+                logger.info(
+                    f'ROI {i_ROI+1}/{num_ROIs}: Relabeling "{name}" label '
+                    f"output, with {max_label_for_relabeling=}"
+                )
+                max_label_for_relabeling += num_labels_in_this_ROI
+                logger.info(
+                    f"ROI {i_ROI+1}/{num_ROIs}: label-number update with "
+                    f"{num_labels_in_this_ROI=}; "
+                    f"new {max_label_for_relabeling=}"
+                )
+
+            da.array(mask).to_zarr(
+                url=output_label_zarr_groups[output_name],
+                region=region,
+                compute=True,
+            )
         logger.info(f"ROI {i_ROI+1}/{num_ROIs}: output handling complete")
 
     # Output handling: "dataframe" type (for each output, concatenate ROI
     # dataframes, clean up, and store in a AnnData table on-disk)
-    # FIXME: is this cleanup procedure general?
     for (name, params) in dataframe_outputs:
         table_name = params["table_name"]
-        list_dfs = output_dataframe_lists[name]
         # Concatenate all FOV dataframes
-        df_well = pd.concat(list_dfs, axis=0)
+        list_dfs = output_dataframe_lists[name]
+        df_well = pd.concat(list_dfs, axis=0, ignore_index=True)
         # Extract labels and drop them from df_well
         labels = pd.DataFrame(df_well["label"].astype(str))
         df_well.drop(labels=["label"], axis=1, inplace=True)
@@ -499,6 +555,7 @@ if __name__ == "__main__":
         output_specs: Dict[str, Dict[str, str]]
         ROI_table_name: str = "FOV_ROI_table"
         level: int = 0
+        relabeling: bool = True
 
     run_fractal_task(
         task_function=napari_workflows_wrapper, TaskArgsModel=TaskArguments
