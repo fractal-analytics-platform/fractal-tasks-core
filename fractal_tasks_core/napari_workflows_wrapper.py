@@ -47,6 +47,10 @@ __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 logger = logging.getLogger(__name__)
 
 
+class OutOfTaskScopeError(NotImplementedError):
+    pass
+
+
 def napari_workflows_wrapper(
     *,
     # Default arguments for fractal tasks:
@@ -60,6 +64,7 @@ def napari_workflows_wrapper(
     output_specs: Dict[str, Dict[str, str]],
     ROI_table_name: str = "FOV_ROI_table",
     level: int = 0,
+    relabeling: bool = True,
 ):
     """
     Description
@@ -108,7 +113,7 @@ def napari_workflows_wrapper(
             "i.e. those going from image(s) to label(s)"
         )
         logger.error(msg)
-        raise NotImplementedError(msg)
+        raise OutOfTaskScopeError(msg)
 
     # Pre-processing of task inputs
     if len(input_paths) > 1:
@@ -215,9 +220,9 @@ def napari_workflows_wrapper(
         if params["type"] == "label"
     ]
     if label_outputs:
-        # Preliminary scope check
+        # Preliminary scope checks
         if len(label_outputs) > 1:
-            raise NotImplementedError(
+            raise OutOfTaskScopeError(
                 "Multiple label outputs not supported"
                 "(found {len(label_outputs)=})."
             )
@@ -261,7 +266,7 @@ def napari_workflows_wrapper(
                 "Missing image_inputs and label_inputs, we cannot assign"
                 " label output properties"
             )
-            raise NotImplementedError(msg)
+            raise OutOfTaskScopeError(msg)
         label_shape = reference_array.shape
         label_chunksize = reference_array.chunksize
 
@@ -277,7 +282,7 @@ def napari_workflows_wrapper(
         logger.info("{new_labels=}")
         logger.info("{existing_labels=}")
         if intersection:
-            raise NotImplementedError(
+            raise OutOfTaskScopeError(
                 f"Labels {intersection} already exist "
                 "but are part of outputs"
             )
@@ -285,9 +290,13 @@ def napari_workflows_wrapper(
         labels_group.attrs["labels"] = existing_labels + new_labels
 
         # Loop over label outputs and (1) set zattrs, (2) create zarr group
-        output_label_zarr_groups = {}
+        output_label_zarr_groups: Dict[str, Any] = {}
+        if relabeling:
+            output_label_tot_labels: Dict[str, int] = {}
         for (name, params) in label_outputs:
             label_name = params["label_name"]
+            if relabeling:
+                output_label_tot_labels[name] = 0
 
             # (1a) Rescale OME-NGFF datasets (relevant for level>0)
             new_datasets = rescale_datasets(
@@ -335,8 +344,12 @@ def napari_workflows_wrapper(
         if params["type"] == "dataframe"
     ]
     output_dataframe_lists: Dict[str, List] = {}
+    if relabeling:
+        output_dataframe_tot_labels: Dict[str, int] = {}
     for (name, params) in dataframe_outputs:
         output_dataframe_lists[name] = []
+        if relabeling:
+            output_dataframe_tot_labels[name] = 0
         logger.info(f"Prepared output with {name=} and {params=}")
         logger.info(f"{output_dataframe_lists=}")
 
@@ -374,6 +387,11 @@ def napari_workflows_wrapper(
                 # Use label column as index, to avoid non-unique indices when
                 # using per-FOV labels
                 df.index = df["label"].astype(str)
+
+                # TODO: Sanity check: warning for non-consecutive labels
+                # TODO: df["labels"] += output_dataframe_tot_labels[name]
+                # TODO: output_dataframe_tot_labels[name] += max(df["labels"])
+
                 # Append the new-ROI dataframe to the all-ROIs list
                 output_dataframe_lists[output_name].append(df)
 
@@ -415,6 +433,9 @@ def napari_workflows_wrapper(
 
             elif output_type == "label":
                 mask = outputs[ind_output]
+                # TODO: Sanity check: warning for non-consecutive labels
+                # TODO: mask[mask > 0] += output_label_tot_labels[name]
+                # TODO: output_label_tot_labels[name] += max(mask)
                 logger.info(
                     f"ROI {i_ROI+1}/{num_ROIs}: label output with {np.max(mask)=}"
                 )  # FIXME: cleanup
@@ -487,6 +508,7 @@ if __name__ == "__main__":
         output_specs: Dict[str, Dict[str, str]]
         ROI_table_name: str = "FOV_ROI_table"
         level: int = 0
+        relabeling: bool = True
 
     run_fractal_task(
         task_function=napari_workflows_wrapper, TaskArgsModel=TaskArguments
