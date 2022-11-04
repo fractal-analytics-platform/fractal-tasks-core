@@ -19,8 +19,8 @@ import numpy as np
 import pytest
 from devtools import debug
 from pytest import MonkeyPatch
-from utils import check_file_number
-from utils import validate_schema
+from .utils import check_file_number
+from .utils import validate_schema
 
 from fractal_tasks_core.cellpose_segmentation import cellpose_segmentation
 from fractal_tasks_core.create_zarr_structure import create_zarr_structure

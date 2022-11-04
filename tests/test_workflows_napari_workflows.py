@@ -17,11 +17,12 @@ from typing import Any
 from typing import Dict
 from typing import List
 
+import pytest
 from devtools import debug
-from utils import check_file_number
-from utils import validate_labels_and_measurements
-from utils import validate_schema
 
+from .utils import check_file_number
+from .utils import validate_labels_and_measurements
+from .utils import validate_schema
 from fractal_tasks_core.napari_workflows_wrapper import (
     napari_workflows_wrapper,
 )
@@ -196,3 +197,78 @@ def test_workflow_napari_worfklow_label_input_only(
     validate_schema(path=str(label_zarr), type="label")
 
     check_file_number(zarr_path=image_zarr)
+
+
+# Define three relabeling scenarios:
+# 1. Labeling-only workflow, from images to labels.
+# 2. Measurement-only workflow, from images+labels to dataframes.
+# 3. Mixed labeling/measurement workflow.
+LABEL_NAME = "label_DAPI"
+TABLE_NAME = "measurement_DAPI"
+relabeling_cases = []
+workflow_file_name = "wf_relab_1-labeling_only.yaml"
+input_specs = dict(input_image={"type": "image", "channel": "A01_C01"})
+output_specs = dict(output_label={"type": "label", "label_name": LABEL_NAME})
+relabeling_cases.append([workflow_file_name, input_specs, output_specs])
+workflow_file_name = "wf_relab_2-measurement_only.yaml"
+input_specs = dict(
+    input_image={"type": "image", "channel": "A01_C01"},
+    input_label={"type": "label", "label_name": LABEL_NAME},
+)
+output_specs = dict(
+    output_dataframe={"type": "dataframe", "table_name": TABLE_NAME}
+)
+relabeling_cases.append([workflow_file_name, input_specs, output_specs])
+workflow_file_name = "wf_relab_3-labeling_and_measurement.yaml"
+input_specs = dict(input_image={"type": "image", "channel": "A01_C01"})
+output_specs = dict(
+    output_label={"type": "label", "label_name": LABEL_NAME},
+    output_dataframe={"type": "dataframe", "table_name": TABLE_NAME},
+)
+relabeling_cases.append([workflow_file_name, input_specs, output_specs])
+
+
+@pytest.mark.parametrize(
+    "workflow_file_name,input_specs,output_specs", relabeling_cases
+)
+def test_relabeling(
+    workflow_file_name: str,
+    input_specs: Dict[str, Dict],
+    output_specs: Dict[str, Dict],
+    tmp_path: Path,
+    testdata_path: Path,
+    zenodo_zarr: List[Path],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+):
+
+    # Prepare 3D zarr
+    zarr_path = tmp_path / "tmp_out/*.zarr"
+    metadata = prepare_3D_zarr(zarr_path, zenodo_zarr, zenodo_zarr_metadata)
+    debug(zarr_path)
+    debug(metadata)
+
+    # Run napari-workflow
+    workflow_file = str(
+        testdata_path / "napari_workflows" / workflow_file_name
+    )
+    for component in metadata["well"]:
+        napari_workflows_wrapper(
+            input_paths=[zarr_path],
+            output_path=zarr_path,
+            metadata=metadata,
+            component=component,
+            input_specs=input_specs,
+            output_specs=output_specs,
+            workflow_file=workflow_file,
+            ROI_table_name="FOV_ROI_table",
+        )
+    debug(metadata)
+
+    # OME-NGFF JSON validation
+    image_zarr = Path(zarr_path.parent / metadata["well"][0])
+    label_zarr = image_zarr / "labels/label_DAPI"
+    validate_schema(path=str(label_zarr), type="label")
+
+    validate_labels_and_measurements(
+        image_zarr, label_name=LABEL_NAME, table_name=TABLE_NAME
+    )
