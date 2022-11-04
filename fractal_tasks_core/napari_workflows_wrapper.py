@@ -414,7 +414,7 @@ def napari_workflows_wrapper(
                 continue
             mask = outputs[ind_output]
 
-            # TODO: Sanity check: warning for non-consecutive labels
+            # Sanity check: issue warning for non-consecutive labels
             num_unique_labels_in_this_ROI = len(np.unique(mask)) - 1
             num_labels_in_this_ROI = int(np.max(mask))
             if num_labels_in_this_ROI != num_unique_labels_in_this_ROI:
@@ -427,8 +427,8 @@ def napari_workflows_wrapper(
             if relabeling:
                 mask[mask > 0] += max_label_for_relabeling
                 logger.info(
-                    f'ROI {i_ROI+1}/{num_ROIs}: Relabeling "{name}" label'
-                    "output, with {max_label_for_relabeling=}"
+                    f'ROI {i_ROI+1}/{num_ROIs}: Relabeling "{name}" label '
+                    f"output, with {max_label_for_relabeling=}"
                 )
                 max_label_for_relabeling += num_labels_in_this_ROI
                 logger.info(

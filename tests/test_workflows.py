@@ -97,11 +97,6 @@ def validate_labels_and_measurements(
     table = ad.read_zarr(table_path)
     list_table_label_values = [int(x) for x in list(table.obs["label"])]
 
-    debug(labels)
-    debug(table)
-    debug(list_label_values)
-    debug(list_table_label_values)
-
     # Check that labels are unique in measurement dataframe
     assert len(set(list_table_label_values)) == len(list_table_label_values)
 
