@@ -6,6 +6,7 @@ from typing import Dict
 
 import anndata as ad
 import dask.array as da
+import zarr
 from devtools import debug
 from jsonschema import validate
 
@@ -54,20 +55,35 @@ def validate_labels_and_measurements(
 ):
 
     # FIXME: clean up this test and make asserts as strict as possible
-    # FIXME: move this test at the end of a napari-workflow task
 
     label_path = str(image_zarr / "labels" / label_name / "0")
     table_path = str(image_zarr / "tables" / table_name)
+    debug(label_path)
+    debug(table_path)
+
+    # Load label array
     labels = da.from_zarr(label_path)
     list_label_values = list(da.unique(labels).compute())
-    assert list_label_values[0] == 0
-    list_label_values = list_label_values[1:]
 
-    table = ad.read_zarr(table_path)
-    list_table_label_values = [int(x) for x in list(table.obs["label"])]
+    # Check that labels are unique
+    assert len(set(list_label_values)) == len(list_label_values)
 
-    # Check that labels are unique in measurement dataframe
+    # Load measurements
+    try:
+        table = ad.read_zarr(table_path)
+        list_table_label_values = [int(x) for x in list(table.obs["label"])]
+    except zarr.errors.PathNotFoundError:
+        print(
+            f"{table_path} missing, skip validation of dataframe and of "
+            "dataframe/label match"
+        )
+        return
+
+    # Check that measurement labels are unique
     assert len(set(list_table_label_values)) == len(list_table_label_values)
 
-    # Check that labels are the same in measurement dataframe and labels array
+    # Check match of label array/measurement (after removing the no-label 0
+    # value from array)
+    if list_label_values[0] == 0:
+        list_label_values = list_label_values[1:]
     assert list_table_label_values == list_label_values
