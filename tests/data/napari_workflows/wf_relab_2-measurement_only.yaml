@@ -1,0 +1,12 @@
+!!python/object:napari_workflows._workflow.Workflow
+_tasks:
+  output_dataframe: !!python/tuple
+  - !!python/name:napari_skimage_regionprops._regionprops.regionprops_table ''
+  - input_image
+  - input_label
+  - true
+  - true
+  - false
+  - false
+  - false
+  - false

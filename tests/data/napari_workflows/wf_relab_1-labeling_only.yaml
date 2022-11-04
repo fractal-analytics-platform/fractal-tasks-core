@@ -1,0 +1,7 @@
+!!python/object:napari_workflows._workflow.Workflow
+_tasks:
+  output_label: !!python/tuple
+  - !!python/name:napari_segment_blobs_and_things_with_membranes.voronoi_otsu_labeling ''
+  - input_image
+  - 15.0
+  - 2.0

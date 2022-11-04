@@ -49,12 +49,10 @@ def run_command(cmd: str):
     assert completed_process.stderr is None
 
 
-def test_workflow_yokogawa_to_zarr(
-    tmp_path: Path, dataset_10_5281_zenodo_7059515: Path
-):
+def test_workflow_yokogawa_to_zarr(tmp_path: Path, zenodo_images: Path):
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     metadata = {}
     tasks_path = str(Path(fractal_tasks_core.__file__).parent)

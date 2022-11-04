@@ -11,22 +11,17 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
-import glob
-import json
 import logging
-import urllib
 from pathlib import Path
-from typing import Dict
 
 import anndata as ad
-import dask.array as da
 import numpy as np
 import pytest
 from devtools import debug
-from jsonschema import validate
 from pytest import MonkeyPatch
 
-from fractal_tasks_core import __OME_NGFF_VERSION__
+from .utils import check_file_number
+from .utils import validate_schema
 from fractal_tasks_core.cellpose_segmentation import cellpose_segmentation
 from fractal_tasks_core.create_zarr_structure import create_zarr_structure
 from fractal_tasks_core.illumination_correction import illumination_correction
@@ -34,50 +29,10 @@ from fractal_tasks_core.maximum_intensity_projection import (
     maximum_intensity_projection,
 )  # noqa
 from fractal_tasks_core.measurement import measurement
-from fractal_tasks_core.napari_workflows_wrapper import (
-    napari_workflows_wrapper,
-)
 from fractal_tasks_core.replicate_zarr_structure import (
     replicate_zarr_structure,
 )  # noqa
 from fractal_tasks_core.yokogawa_to_zarr import yokogawa_to_zarr
-
-
-def validate_schema(*, path: str, type: str):
-    url: str = (
-        "https://raw.githubusercontent.com/ome/ngff/main/"
-        f"{__OME_NGFF_VERSION__}/schemas/{type}.schema"
-    )
-    debug(url)
-    with urllib.request.urlopen(url) as fin:
-        schema: Dict = json.load(fin)
-    debug(path)
-    debug(type)
-    with open(f"{path}/.zattrs", "r") as fin:
-        zattrs = json.load(fin)
-    validate(instance=zattrs, schema=schema)
-
-
-def check_file_number(*, zarr_path: Path):
-    """
-    Example input:
-        zarr_path = Path("/SOME/PATH/plate.zarr/row/col/fov/")
-
-    Relevant glob for zarr_path
-        zarr_path / 0 / c / z / y / x
-
-    """
-    chunkfiles_on_disk = glob.glob(str(zarr_path / "0/*/*/*/*"))
-    debug(chunkfiles_on_disk)
-    num_chunkfiles_on_disk = len(chunkfiles_on_disk)
-
-    zarr_chunks = da.from_zarr(str(zarr_path / "0/")).chunks
-    debug(zarr_chunks)
-    num_chunkfiles_from_zarr = 1
-    for c in zarr_chunks:
-        num_chunkfiles_from_zarr *= len(c)
-
-    assert num_chunkfiles_from_zarr == num_chunkfiles_on_disk
 
 
 channel_parameters = {
@@ -105,12 +60,10 @@ num_levels = 6
 coarsening_xy = 2
 
 
-def test_workflow_yokogawa_to_zarr(
-    tmp_path: Path, dataset_10_5281_zenodo_7059515: Path
-):
+def test_workflow_yokogawa_to_zarr(tmp_path: Path, zenodo_images: Path):
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     metadata = {}
 
@@ -147,10 +100,10 @@ def test_workflow_yokogawa_to_zarr(
     check_file_number(zarr_path=image_zarr)
 
 
-def test_workflow_MIP(tmp_path: Path, dataset_10_5281_zenodo_7059515: Path):
+def test_workflow_MIP(tmp_path: Path, zenodo_images: Path):
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
     metadata = {}
@@ -208,7 +161,7 @@ def test_workflow_MIP(tmp_path: Path, dataset_10_5281_zenodo_7059515: Path):
 def test_workflow_illumination_correction(
     tmp_path: Path,
     testdata_path: Path,
-    dataset_10_5281_zenodo_7059515: Path,
+    zenodo_images: Path,
     caplog: pytest.LogCaptureFixture,
 ):
 
@@ -217,7 +170,7 @@ def test_workflow_illumination_correction(
     caplog.set_level(logging.INFO)
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     metadata = {}
 
@@ -303,7 +256,7 @@ def patched_segment_FOV(
 def test_workflow_with_per_FOV_labeling(
     tmp_path: Path,
     testdata_path: Path,
-    dataset_10_5281_zenodo_7059515: Path,
+    zenodo_images: Path,
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -327,7 +280,7 @@ def test_workflow_with_per_FOV_labeling(
     caplog.set_level(logging.INFO)
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     metadata = {}
 
@@ -408,7 +361,7 @@ def test_workflow_with_per_FOV_labeling(
 def test_workflow_with_per_FOV_labeling_2D(
     tmp_path: Path,
     testdata_path: Path,
-    dataset_10_5281_zenodo_7059515: Path,
+    zenodo_images: Path,
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -429,7 +382,7 @@ def test_workflow_with_per_FOV_labeling_2D(
     )
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
     metadata = {}
@@ -526,7 +479,7 @@ def test_workflow_with_per_FOV_labeling_2D(
 def test_workflow_with_per_well_labeling_2D(
     tmp_path: Path,
     testdata_path: Path,
-    dataset_10_5281_zenodo_7059515: Path,
+    zenodo_images: Path,
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -547,7 +500,7 @@ def test_workflow_with_per_well_labeling_2D(
     )
 
     # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
+    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
     metadata = {}
@@ -638,200 +591,5 @@ def test_workflow_with_per_well_labeling_2D(
     validate_schema(path=str(image_zarr), type="image")
     validate_schema(path=str(well_zarr), type="well")
     validate_schema(path=str(plate_zarr), type="plate")
-
-    check_file_number(zarr_path=image_zarr)
-
-
-def test_workflow_napari_worfklow(
-    tmp_path: Path,
-    dataset_10_5281_zenodo_7059515: Path,
-    testdata_path: Path,
-):
-
-    # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
-    zarr_path = tmp_path / "tmp_out/*.zarr"
-    metadata = {}
-    debug(zarr_path)
-
-    # Create zarr structure
-    metadata_update = create_zarr_structure(
-        input_paths=[img_path],
-        output_path=zarr_path,
-        channel_parameters=channel_parameters,
-        num_levels=num_levels,
-        coarsening_xy=coarsening_xy,
-        metadata_table="mrf_mlf",
-    )
-    metadata.update(metadata_update)
-    debug(metadata)
-
-    # Yokogawa to zarr
-    for component in metadata["well"]:
-        yokogawa_to_zarr(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
-            metadata=metadata,
-            component=component,
-        )
-    debug(metadata)
-
-    # First napari-workflows task (labeling)
-    workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
-    input_specs = {
-        "input": {"type": "image", "channel": "A01_C01"},
-    }
-    output_specs = {
-        "Result of Expand labels (scikit-image, nsbatwm)": {
-            "type": "label",
-            "label_name": "label_DAPI",
-        },
-    }
-    for component in metadata["well"]:
-        napari_workflows_wrapper(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
-            metadata=metadata,
-            component=component,
-            input_specs=input_specs,
-            output_specs=output_specs,
-            workflow_file=workflow_file,
-            ROI_table_name="FOV_ROI_table",
-            level=2,
-        )
-    debug(metadata)
-
-    # Second napari-workflows task (measurement)
-    workflow_file = str(testdata_path / "napari_workflows/wf_4.yaml")
-    input_specs = {
-        "dapi_img": {"type": "image", "channel": "A01_C01"},
-        "dapi_label_img": {"type": "label", "label_name": "label_DAPI"},
-    }
-    output_specs = {
-        "regionprops_DAPI": {
-            "type": "dataframe",
-            "table_name": "regionprops_DAPI",
-        },
-    }
-    for component in metadata["well"]:
-        napari_workflows_wrapper(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
-            metadata=metadata,
-            component=component,
-            input_specs=input_specs,
-            output_specs=output_specs,
-            workflow_file=workflow_file,
-            ROI_table_name="FOV_ROI_table",
-        )
-    debug(metadata)
-
-    # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path.parent / metadata["well"][0])
-    well_zarr = image_zarr.parent
-    plate_zarr = image_zarr.parents[2]
-    label_zarr = image_zarr / "labels/label_DAPI"
-    validate_schema(path=str(image_zarr), type="image")
-    validate_schema(path=str(well_zarr), type="well")
-    validate_schema(path=str(plate_zarr), type="plate")
-    validate_schema(path=str(label_zarr), type="label")
-
-    check_file_number(zarr_path=image_zarr)
-
-
-def test_workflow_napari_worfklow_label_input_only(
-    tmp_path: Path,
-    dataset_10_5281_zenodo_7059515: Path,
-    testdata_path: Path,
-):
-
-    # Init
-    img_path = dataset_10_5281_zenodo_7059515 / "*.png"
-    zarr_path = tmp_path / "tmp_out/*.zarr"
-    metadata = {}
-    debug(zarr_path)
-
-    # Create zarr structure
-    metadata_update = create_zarr_structure(
-        input_paths=[img_path],
-        output_path=zarr_path,
-        channel_parameters=channel_parameters,
-        num_levels=num_levels,
-        coarsening_xy=coarsening_xy,
-        metadata_table="mrf_mlf",
-    )
-    metadata.update(metadata_update)
-    debug(metadata)
-
-    # Yokogawa to zarr
-    for component in metadata["well"]:
-        yokogawa_to_zarr(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
-            metadata=metadata,
-            component=component,
-        )
-    debug(metadata)
-
-    # First napari-workflows task (labeling)
-    workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
-    input_specs = {
-        "input": {"type": "image", "channel": "A01_C01"},
-    }
-    output_specs = {
-        "Result of Expand labels (scikit-image, nsbatwm)": {
-            "type": "label",
-            "label_name": "label_DAPI",
-        },
-    }
-    for component in metadata["well"]:
-        napari_workflows_wrapper(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
-            metadata=metadata,
-            component=component,
-            input_specs=input_specs,
-            output_specs=output_specs,
-            workflow_file=workflow_file,
-            ROI_table_name="FOV_ROI_table",
-            level=2,
-        )
-    debug(metadata)
-
-    # Second napari-workflows task (measurement)
-    workflow_file = str(
-        testdata_path / "napari_workflows" / "wf_from_labels_to_labels.yaml"
-    )
-    input_specs = {
-        "test_labels": {"type": "label", "label_name": "label_DAPI"},
-    }
-    output_specs = {
-        "Result of Expand labels (scikit-image, nsbatwm)": {
-            "type": "label",
-            "label_name": "label_DAPI_expanded",
-        },
-    }
-    for component in metadata["well"]:
-        napari_workflows_wrapper(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
-            metadata=metadata,
-            component=component,
-            input_specs=input_specs,
-            output_specs=output_specs,
-            workflow_file=workflow_file,
-            ROI_table_name="FOV_ROI_table",
-        )
-    debug(metadata)
-
-    # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path.parent / metadata["well"][0])
-    well_zarr = image_zarr.parent
-    plate_zarr = image_zarr.parents[2]
-    label_zarr = image_zarr / "labels/label_DAPI"
-    validate_schema(path=str(image_zarr), type="image")
-    validate_schema(path=str(well_zarr), type="well")
-    validate_schema(path=str(plate_zarr), type="plate")
-    validate_schema(path=str(label_zarr), type="label")
 
     check_file_number(zarr_path=image_zarr)
