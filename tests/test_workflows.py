@@ -11,22 +11,17 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
-import glob
-import json
 import logging
-import urllib
 from pathlib import Path
-from typing import Dict
 
 import anndata as ad
-import dask.array as da
 import numpy as np
 import pytest
 from devtools import debug
-from jsonschema import validate
 from pytest import MonkeyPatch
+from utils import check_file_number
+from utils import validate_schema
 
-from fractal_tasks_core import __OME_NGFF_VERSION__
 from fractal_tasks_core.cellpose_segmentation import cellpose_segmentation
 from fractal_tasks_core.create_zarr_structure import create_zarr_structure
 from fractal_tasks_core.illumination_correction import illumination_correction
@@ -38,43 +33,6 @@ from fractal_tasks_core.replicate_zarr_structure import (
     replicate_zarr_structure,
 )  # noqa
 from fractal_tasks_core.yokogawa_to_zarr import yokogawa_to_zarr
-
-
-def validate_schema(*, path: str, type: str):
-    url: str = (
-        "https://raw.githubusercontent.com/ome/ngff/main/"
-        f"{__OME_NGFF_VERSION__}/schemas/{type}.schema"
-    )
-    debug(url)
-    with urllib.request.urlopen(url) as fin:
-        schema: Dict = json.load(fin)
-    debug(path)
-    debug(type)
-    with open(f"{path}/.zattrs", "r") as fin:
-        zattrs = json.load(fin)
-    validate(instance=zattrs, schema=schema)
-
-
-def check_file_number(*, zarr_path: Path):
-    """
-    Example input:
-        zarr_path = Path("/SOME/PATH/plate.zarr/row/col/fov/")
-
-    Relevant glob for zarr_path
-        zarr_path / 0 / c / z / y / x
-
-    """
-    chunkfiles_on_disk = glob.glob(str(zarr_path / "0/*/*/*/*"))
-    debug(chunkfiles_on_disk)
-    num_chunkfiles_on_disk = len(chunkfiles_on_disk)
-
-    zarr_chunks = da.from_zarr(str(zarr_path / "0/")).chunks
-    debug(zarr_chunks)
-    num_chunkfiles_from_zarr = 1
-    for c in zarr_chunks:
-        num_chunkfiles_from_zarr *= len(c)
-
-    assert num_chunkfiles_from_zarr == num_chunkfiles_on_disk
 
 
 channel_parameters = {
