@@ -126,6 +126,8 @@ def napari_workflows_wrapper(
             "relabeling=False."
         )
         relabeling = False
+    if relabeling:
+        max_label_for_relabeling = 0
 
     # Pre-processing of task inputs
     if len(input_paths) > 1:
@@ -235,8 +237,13 @@ def napari_workflows_wrapper(
         # Preliminary scope checks
         if len(label_outputs) > 1:
             raise OutOfTaskScopeError(
-                "Multiple label outputs not supported"
-                "(found {len(label_outputs)=})."
+                "Multiple label outputs would break label-inputs-only "
+                f"workflows (found {len(label_outputs)=})."
+            )
+        if len(label_outputs) > 1 and relabeling:
+            raise OutOfTaskScopeError(
+                "Multiple label outputs would break relabeling in labeling+"
+                f"measurement workflows (found {len(label_outputs)=})."
             )
 
         # We only support two cases:
@@ -291,8 +298,8 @@ def napari_workflows_wrapper(
         except FileNotFoundError:
             existing_labels = []
         intersection = set(new_labels) & set(existing_labels)
-        logger.info("{new_labels=}")
-        logger.info("{existing_labels=}")
+        logger.info(f"{new_labels=}")
+        logger.info(f"{existing_labels=}")
         if intersection:
             raise OutOfTaskScopeError(
                 f"Labels {intersection} already exist "
@@ -303,12 +310,8 @@ def napari_workflows_wrapper(
 
         # Loop over label outputs and (1) set zattrs, (2) create zarr group
         output_label_zarr_groups: Dict[str, Any] = {}
-        if relabeling:
-            output_label_tot_labels: Dict[str, int] = {}
         for (name, params) in label_outputs:
             label_name = params["label_name"]
-            if relabeling:
-                output_label_tot_labels[name] = 0
 
             # (1a) Rescale OME-NGFF datasets (relevant for level>0)
             new_datasets = rescale_datasets(
@@ -356,12 +359,8 @@ def napari_workflows_wrapper(
         if params["type"] == "dataframe"
     ]
     output_dataframe_lists: Dict[str, List] = {}
-    if relabeling:
-        output_dataframe_tot_labels: Dict[str, int] = {}
     for (name, params) in dataframe_outputs:
         output_dataframe_lists[name] = []
-        if relabeling:
-            output_dataframe_tot_labels[name] = 0
         logger.info(f"Prepared output with {name=} and {params=}")
         logger.info(f"{output_dataframe_lists=}")
 
@@ -392,46 +391,57 @@ def napari_workflows_wrapper(
         # Get outputs
         outputs = wf.get(list_outputs)
 
+        # Iterate first over dataframe outputs (to use the correct
+        # max_label_for_relabeling, if needed)
         for ind_output, output_name in enumerate(list_outputs):
-            output_type = output_specs[output_name]["type"]
-            if output_type == "dataframe":
-                df = outputs[ind_output]
-
-                # TODO: Sanity check: warning for non-consecutive labels
-
-                if relabeling:
-                    df["label"] += output_dataframe_tot_labels[name]
-                    output_dataframe_tot_labels[name] += max(df["labels"])
-
-                # Append the new-ROI dataframe to the all-ROIs list
-                output_dataframe_lists[output_name].append(df)
-
+            if output_specs[output_name]["type"] != "dataframe":
+                continue
+            df = outputs[ind_output]
+            if relabeling:
+                df["label"] += max_label_for_relabeling
                 logger.info(
-                    f"ROI {i_ROI+1}/{num_ROIs}: dataframe output {df=}"
-                )  # FIXME cleanup
-                if relabeling:
-                    logger.info(f"New {output_dataframe_tot_labels[name]=}")
-
-            elif output_type == "label":
-                mask = outputs[ind_output]
-
-                # TODO: Sanity check: warning for non-consecutive labels
-
-                if relabeling:
-                    mask[mask > 0] += output_label_tot_labels[name]
-                    output_label_tot_labels[name] += np.max(mask)
-                logger.info(
-                    f"ROI {i_ROI+1}/{num_ROIs}: label output with "
-                    f"{np.max(mask)=}"
-                )  # FIXME: cleanup
-                if relabeling:
-                    logger.info(f"New {output_label_tot_labels[name]=}")
-
-                da.array(mask).to_zarr(
-                    url=output_label_zarr_groups[output_name],
-                    region=region,
-                    compute=True,
+                    f'ROI {i_ROI+1}/{num_ROIs}: Relabeling "{name}" dataframe'
+                    "output, with {max_label_for_relabeling=}"
                 )
+
+            # Append the new-ROI dataframe to the all-ROIs list
+            output_dataframe_lists[output_name].append(df)
+
+        # After all dataframe outputs, iterate over label outputs (which
+        # actually can be only 0 or 1)
+        for ind_output, output_name in enumerate(list_outputs):
+            if output_specs[output_name]["type"] != "label":
+                continue
+            mask = outputs[ind_output]
+
+            # TODO: Sanity check: warning for non-consecutive labels
+            num_unique_labels_in_this_ROI = len(np.unique(mask)) - 1
+            num_labels_in_this_ROI = int(np.max(mask))
+            if num_labels_in_this_ROI != num_unique_labels_in_this_ROI:
+                logger.warning(
+                    f'ROI {i_ROI+1}/{num_ROIs}: "{name}" label output has'
+                    f"non-consecutive labels: {num_labels_in_this_ROI=} but"
+                    f"{num_unique_labels_in_this_ROI=}"
+                )
+
+            if relabeling:
+                mask[mask > 0] += max_label_for_relabeling
+                logger.info(
+                    f'ROI {i_ROI+1}/{num_ROIs}: Relabeling "{name}" label'
+                    "output, with {max_label_for_relabeling=}"
+                )
+                max_label_for_relabeling += num_labels_in_this_ROI
+                logger.info(
+                    f"ROI {i_ROI+1}/{num_ROIs}: label-number update with "
+                    f"{num_labels_in_this_ROI=}; "
+                    f"new {max_label_for_relabeling=}"
+                )
+
+            da.array(mask).to_zarr(
+                url=output_label_zarr_groups[output_name],
+                region=region,
+                compute=True,
+            )
         logger.info(f"ROI {i_ROI+1}/{num_ROIs}: output handling complete")
 
     # Output handling: "dataframe" type (for each output, concatenate ROI
