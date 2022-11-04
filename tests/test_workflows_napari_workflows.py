@@ -92,31 +92,6 @@ def validate_labels_and_measurements(
     assert list_table_label_values == list_label_values
 
 
-channel_parameters = {
-    "A01_C01": {
-        "label": "DAPI",
-        "colormap": "00FFFF",
-        "start": 0,
-        "end": 700,
-    },
-    "A01_C02": {
-        "label": "nanog",
-        "colormap": "FF00FF",
-        "start": 0,
-        "end": 180,
-    },
-    "A02_C03": {
-        "label": "Lamin B1",
-        "colormap": "FFFF00",
-        "start": 0,
-        "end": 1500,
-    },
-}
-
-num_levels = 6
-coarsening_xy = 2
-
-
 def prepare_3D_zarr(
     zarr_path: Path,
     zenodo_zarr: List[Path],
