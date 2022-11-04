@@ -85,24 +85,28 @@ def validate_labels_and_measurements(
 ):
 
     # FIXME: clean up this test and make asserts as strict as possible
+    # FIXME: move this test at the end of a napari-workflow task
 
     label_path = str(image_zarr / "labels" / label_name / "0")
     table_path = str(image_zarr / "tables" / table_name)
     labels = da.from_zarr(label_path)
+    list_label_values = list(da.unique(labels).compute())
+    assert list_label_values[0] == 0
+    list_label_values = list_label_values[1:]
+
     table = ad.read_zarr(table_path)
-    label_values = list(da.unique(labels).compute())
-    table_label_values = [int(x) for x in list(table.obs["label"])]
+    list_table_label_values = [int(x) for x in list(table.obs["label"])]
 
     debug(labels)
     debug(table)
-    debug(label_values)
-    debug(table_label_values)
+    debug(list_label_values)
+    debug(list_table_label_values)
 
     # Check that labels are unique in measurement dataframe
-    assert len(set(table_label_values)) == len(table_label_values)
+    assert len(set(list_table_label_values)) == len(list_table_label_values)
 
     # Check that labels are the same in measurement dataframe and labels array
-    assert list(table_label_values) == list(label_values)
+    assert list_table_label_values == list_label_values
 
 
 channel_parameters = {
