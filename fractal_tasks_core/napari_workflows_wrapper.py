@@ -476,8 +476,6 @@ def napari_workflows_wrapper(
             aggregation_function=np.max,
         )
 
-    # FIXME: add validation here?
-
 
 if __name__ == "__main__":
     from pydantic import BaseModel
