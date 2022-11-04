@@ -12,7 +12,7 @@
             "metadata_table": "mrf_mlf",
             "channel_parameters": null
         },
-        "executable": "create_ome_zarr",
+        "executable": "create_zarr_structure",
         "meta": {"executor": "cpu-low"}
     },
     {

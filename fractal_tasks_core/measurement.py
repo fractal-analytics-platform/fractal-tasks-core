@@ -45,9 +45,9 @@ def measurement(
     output_path: Path,
     metadata: Dict[str, Any],
     component: str,
-    labeling_channel: str = None,
+    labeling_channel: str,
     level: int = 0,
-    workflow_file: str = None,
+    workflow_file: str,
     ROI_table_name: str = "FOV_ROI_table",
     measurement_table_name: str = "measurement",
 ):
@@ -215,9 +215,9 @@ if __name__ == "__main__":
         output_path: Path
         metadata: Dict[str, Any]
         component: str
-        labeling_channel: str = None
+        labeling_channel: str
         level: int = 0
-        workflow_file: str = None
+        workflow_file: str
         ROI_table_name: str = "FOV_ROI_table"
         measurement_table_name: str = "measurement"
 
