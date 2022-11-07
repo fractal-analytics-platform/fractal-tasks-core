@@ -47,7 +47,7 @@ def test_task_interface(task, tmp_path):
         json.dump(args, fout, indent=4)
 
     executable = task["executable"]
-    task_path = f"{str(module_dir)}/{executable}.py"
+    task_path = f"{str(module_dir)}/{executable}"
     cmd = (
         f"python {task_path} "
         f"-j {tmp_file_args} "
