@@ -164,13 +164,15 @@ def create_zarr_structure(
         tmp_plates = []
         for fn in input_filename_iter:
             try:
-                metadata = parse_filename(fn.name)
-                plate_prefix = metadata["plate_prefix"]
-                plate = metadata["plate"]
+                filename_metadata = parse_filename(fn.name)
+                plate_prefix = filename_metadata["plate_prefix"]
+                plate = filename_metadata["plate"]
                 if plate not in dict_plate_prefixes.keys():
                     dict_plate_prefixes[plate] = plate_prefix
                 tmp_plates.append(plate)
-                tmp_channels.append(f"A{metadata['A']}_C{metadata['C']}")
+                tmp_channels.append(
+                    f"A{filename_metadata['A']}_C{filename_metadata['C']}"
+                )
             except IndexError:
                 logger.info("IndexError for ", fn)
                 pass
@@ -289,8 +291,10 @@ def create_zarr_structure(
             well_channels = []
             for fpath in well_image_iter:
                 try:
-                    metadata = parse_filename(os.path.basename(fpath))
-                    well_channels.append(f"A{metadata['A']}_C{metadata['C']}")
+                    filename_metadata = parse_filename(os.path.basename(fpath))
+                    well_channels.append(
+                        f"A{filename_metadata['A']}_C{filename_metadata['C']}"
+                    )
                 except IndexError:
                     logger.info(f"Skipping {fpath}")
             well_channels = sorted(list(set(well_channels)))
