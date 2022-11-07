@@ -335,8 +335,16 @@ def napari_workflows_wrapper(
                 " label output properties"
             )
             raise OutOfTaskScopeError(msg)
+
+        # Extract label properties from reference_array, and make sure they are
+        # for three dimensions
         label_shape = reference_array.shape
         label_chunksize = reference_array.chunksize
+        if len(label_shape) == 2 and len(label_chunksize) == 2:
+            label_shape = (1, label_shape[0], label_shape[1])
+            label_chunksize = (1, label_chunksize[0], label_chunksize[1])
+        logger.info(f"{label_shape=}")
+        logger.info(f"{label_chunksize=}")
 
         # Create labels zarr group and combine existing/new labels in .zattrs
         new_labels = [params["label_name"] for (name, params) in label_outputs]
@@ -418,6 +426,7 @@ def napari_workflows_wrapper(
     for i_ROI, indices in enumerate(list_indices):
         s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
         region = (slice(s_z, e_z), slice(s_y, e_y), slice(s_x, e_x))
+
         logger.info(f"ROI {i_ROI+1}/{num_ROIs}: {region=}")
 
         # Always re-load napari worfklow
@@ -426,15 +435,28 @@ def napari_workflows_wrapper(
         # Set inputs
         for input_name in input_specs.keys():
             input_type = input_specs[input_name]["type"]
+            # Handle expected_dimensions
+            if input_specs[input_name]["expected_dimensions"] == 2:
+                actual_region = region[1:]
+            else:
+                actual_region = region
+
+            from devtools import debug
+
+            debug(input_name)
+            debug(input_specs[input_name])
+            debug(actual_region)
+            debug(input_image_arrays[input_name])
+
             if input_type == "image":
                 wf.set(
                     input_name,
-                    input_image_arrays[input_name][region].compute(),
+                    input_image_arrays[input_name][actual_region].compute(),
                 )
             elif input_type == "label":
                 wf.set(
                     input_name,
-                    input_label_arrays[input_name][region],
+                    input_label_arrays[input_name][actual_region],
                 )
 
         # Get outputs
