@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import List
+from typing import Union
 
 import pytest
 from devtools import debug
@@ -57,10 +58,10 @@ def test_workflow_napari_worfklow(
 
     # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
-    input_specs = {
+    input_specs: Dict[str, Dict[str, Union[str, int]]] = {
         "input": {"type": "image", "channel": "A01_C01"},
     }
-    output_specs = {
+    output_specs: Dict[str, Dict[str, Union[str, int]]] = {
         "Result of Expand labels (scikit-image, nsbatwm)": {
             "type": "label",
             "label_name": "label_DAPI",
@@ -137,10 +138,10 @@ def test_workflow_napari_worfklow_label_input_only(
 
     # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
-    input_specs = {
+    input_specs: Dict[str, Dict[str, Union[str, int]]] = {
         "input": {"type": "image", "channel": "A01_C01"},
     }
-    output_specs = {
+    output_specs: Dict[str, Dict[str, Union[str, int]]] = {
         "Result of Expand labels (scikit-image, nsbatwm)": {
             "type": "label",
             "label_name": "label_DAPI",
