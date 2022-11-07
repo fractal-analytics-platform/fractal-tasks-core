@@ -267,16 +267,21 @@ def _inspect_ROI_table(
     print(df)
     print()
 
-    list_indices = convert_ROI_table_to_indices(
-        adata,
-        level=level,
-        coarsening_xy=coarsening_xy,
-        full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
-    )
+    try:
+        list_indices = convert_ROI_table_to_indices(
+            adata,
+            level=level,
+            coarsening_xy=coarsening_xy,
+            full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
+        )
 
-    print(f"level:         {level}")
-    print(f"coarsening_xy: {coarsening_xy}")
-    print("list_indices:")
-    for indices in list_indices:
-        print(indices)
-    print()
+        print(f"level:         {level}")
+        print(f"coarsening_xy: {coarsening_xy}")
+        print("list_indices:")
+        for indices in list_indices:
+            print(indices)
+        print()
+    except KeyError as e:
+        print("Something went wrong in convert_ROI_table_to_indices\n", str(e))
+
+    return df
