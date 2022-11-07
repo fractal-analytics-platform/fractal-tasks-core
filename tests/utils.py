@@ -65,8 +65,13 @@ def validate_labels_and_measurements(
     labels = da.from_zarr(label_path)
     list_label_values = list(da.unique(labels).compute())
 
-    # Check that labels are unique
-    assert len(set(list_label_values)) == len(list_label_values)
+    # FIXME: add an actual test that labels are unique across ROIs
+    # ROIs = ...
+    # for ROI_1 in ROIs:
+    #     labels_ROI_1 = da.unique(...).compute()
+    #     for ROI_2 in ROIs:
+    #         labels_ROI_2 = da.unique(...).compute()
+    #         check intersection is empty
 
     # Load measurements
     try:
