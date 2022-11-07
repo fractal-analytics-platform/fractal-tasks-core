@@ -21,6 +21,7 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Sequence
+from typing import Union
 
 import anndata as ad
 import dask.array as da
@@ -59,11 +60,12 @@ def napari_workflows_wrapper(
     metadata: Dict[str, Any],
     # Task-specific arguments:
     workflow_file: str,
-    input_specs: Dict[str, Dict[str, str]],
-    output_specs: Dict[str, Dict[str, str]],
+    input_specs: Dict[str, Dict[str, Union[str, int]]],
+    output_specs: Dict[str, Dict[str, Union[str, int]]],
     ROI_table_name: str = "FOV_ROI_table",
     level: int = 0,
     relabeling: bool = True,
+    expected_dimensions: int = 3,
 ):
     """
     Description
@@ -82,6 +84,7 @@ def napari_workflows_wrapper(
                           task applies the napari-worfklow
     :param level: TBD
     :param relabeling: TBD
+    :param expected_dimensions: TBD
     """
 
     wf: napari_workflows.Worfklow = load_workflow(workflow_file)
@@ -188,6 +191,26 @@ def napari_workflows_wrapper(
                 raise ValueError(f"{channel_name=} not in {chl_list}")
             channel_index = chl_list.index(channel_name)
             input_image_arrays[name] = img_array[channel_index]
+
+            # Handle dimensions
+            shape = input_image_arrays[name].shape
+            if expected_dimensions == 3 and shape[0] == 1:
+                logger.warning(
+                    f"Input {name} has shape {shape} "
+                    f"but {expected_dimensions=}"
+                )
+            if expected_dimensions == 2:
+                if shape[0] == 1:
+                    input_image_arrays[name] = input_image_arrays[name][
+                        0, :, :
+                    ]
+                else:
+                    msg = (
+                        f"Input {name} has shape {shape} "
+                        f"but {expected_dimensions=}"
+                    )
+                    logger.error(msg)
+                    raise ValueError(msg)
             logger.info(f"Prepared input with {name=} and {params=}")
         logger.info(f"{input_image_arrays=}")
 
@@ -215,14 +238,32 @@ def napari_workflows_wrapper(
             label_array_raw = da.from_zarr(
                 f"{in_path}/{component}/labels/{label_name}/{level}"
             )
+            input_label_arrays[name] = label_array_raw
             if upscale_labels:
                 input_label_arrays[name] = upscale_array(
-                    array=label_array_raw,
+                    array=input_label_arrays[name],
                     target_shape=target_shape,
                     axis=[1, 2],
                 )
-            else:
-                input_label_arrays[name] = label_array_raw
+            # Handle dimensions
+            shape = input_label_arrays[name].shape
+            if expected_dimensions == 3 and shape[0] == 1:
+                logger.warning(
+                    f"Input {name} has shape {shape} "
+                    f"but {expected_dimensions=}"
+                )
+            if expected_dimensions == 2:
+                if shape[0] == 1:
+                    input_label_arrays[name] = input_label_arrays[name][
+                        0, :, :
+                    ]
+                else:
+                    msg = (
+                        f"Input {name} has shape {shape} "
+                        f"but {expected_dimensions=}"
+                    )
+                    logger.error(msg)
+                    raise ValueError(msg)
             logger.info(f"Prepared input with {name=} and {params=}")
         logger.info(f"{input_label_arrays=}")
 
@@ -285,8 +326,21 @@ def napari_workflows_wrapper(
                 " label output properties"
             )
             raise OutOfTaskScopeError(msg)
+
+        # Extract label properties from reference_array, and make sure they are
+        # for three dimensions
         label_shape = reference_array.shape
         label_chunksize = reference_array.chunksize
+        if len(label_shape) == 2 and len(label_chunksize) == 2:
+            if expected_dimensions == 3:
+                raise ValueError(
+                    f"Something wrong: {label_shape=} but "
+                    f"{expected_dimensions=}"
+                )
+            label_shape = (1, label_shape[0], label_shape[1])
+            label_chunksize = (1, label_chunksize[0], label_chunksize[1])
+        logger.info(f"{label_shape=}")
+        logger.info(f"{label_chunksize=}")
 
         # Create labels zarr group and combine existing/new labels in .zattrs
         new_labels = [params["label_name"] for (name, params) in label_outputs]
@@ -368,6 +422,7 @@ def napari_workflows_wrapper(
     for i_ROI, indices in enumerate(list_indices):
         s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
         region = (slice(s_z, e_z), slice(s_y, e_y), slice(s_x, e_x))
+
         logger.info(f"ROI {i_ROI+1}/{num_ROIs}: {region=}")
 
         # Always re-load napari worfklow
@@ -376,15 +431,21 @@ def napari_workflows_wrapper(
         # Set inputs
         for input_name in input_specs.keys():
             input_type = input_specs[input_name]["type"]
+            # Handle expected_dimensions
+            if expected_dimensions == 2:
+                actual_region = region[1:]
+            else:
+                actual_region = region
+
             if input_type == "image":
                 wf.set(
                     input_name,
-                    input_image_arrays[input_name][region].compute(),
+                    input_image_arrays[input_name][actual_region].compute(),
                 )
             elif input_type == "label":
                 wf.set(
                     input_name,
-                    input_label_arrays[input_name][region],
+                    input_label_arrays[input_name][actual_region],
                 )
 
         # Get outputs
@@ -413,8 +474,22 @@ def napari_workflows_wrapper(
                 continue
             mask = outputs[ind_output]
 
+            # Check dimensions
+            if len(mask.shape) != expected_dimensions:
+                msg = (
+                    f"Output {output_name} has shape {mask.shape} "
+                    f"but {expected_dimensions=}"
+                )
+                logger.error(msg)
+                raise ValueError(msg)
+            elif expected_dimensions == 2:
+                mask = np.expand_dims(mask, axis=0)
+
             # Sanity check: issue warning for non-consecutive labels
-            num_unique_labels_in_this_ROI = len(np.unique(mask)) - 1
+            unique_labels = np.unique(mask)
+            num_unique_labels_in_this_ROI = len(unique_labels)
+            if np.min(unique_labels) == 0:
+                num_unique_labels_in_this_ROI -= 1
             num_labels_in_this_ROI = int(np.max(mask))
             if num_labels_in_this_ROI != num_unique_labels_in_this_ROI:
                 logger.warning(

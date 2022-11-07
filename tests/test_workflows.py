@@ -12,7 +12,11 @@ Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
 import logging
+import shutil
 from pathlib import Path
+from typing import Any
+from typing import Dict
+from typing import List
 
 import anndata as ad
 import numpy as np
@@ -100,33 +104,23 @@ def test_workflow_yokogawa_to_zarr(tmp_path: Path, zenodo_images: Path):
     check_file_number(zarr_path=image_zarr)
 
 
-def test_workflow_MIP(tmp_path: Path, zenodo_images: Path):
+def test_workflow_MIP(
+    tmp_path: Path,
+    zenodo_zarr: List[Path],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+):
 
     # Init
-    img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
-    metadata = {}
 
-    # Create zarr structure
-    metadata_update = create_zarr_structure(
-        input_paths=[img_path],
-        output_path=zarr_path,
-        channel_parameters=channel_parameters,
-        num_levels=num_levels,
-        coarsening_xy=coarsening_xy,
-        metadata_table="mrf_mlf",
+    # Load zarr array from zenodo
+    zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
+    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
+    shutil.copytree(
+        str(zenodo_zarr_3D), str(zarr_path.parent / zenodo_zarr_3D.name)
     )
-    metadata.update(metadata_update)
-
-    # Yokogawa to zarr
-    for component in metadata["well"]:
-        yokogawa_to_zarr(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
-            metadata=metadata,
-            component=component,
-        )
+    metadata = metadata_3D.copy()
 
     # Replicate
     metadata_update = replicate_zarr_structure(
@@ -440,6 +434,38 @@ def test_workflow_with_per_FOV_labeling_2D(
             diameter_level0=80.0,
         )
 
+    # OME-NGFF JSON validation
+    image_zarr = Path(zarr_path_mip.parent / metadata["well"][0])
+    debug(image_zarr)
+    well_zarr = image_zarr.parent
+    plate_zarr = image_zarr.parents[2]
+    validate_schema(path=str(image_zarr), type="image")
+    validate_schema(path=str(well_zarr), type="well")
+    validate_schema(path=str(plate_zarr), type="plate")
+
+    check_file_number(zarr_path=image_zarr)
+
+
+def test_workflow_measurement_2D(
+    tmp_path: Path,
+    testdata_path: Path,
+    zenodo_images: Path,
+    zenodo_zarr: List[Path],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+):
+
+    # Init
+    zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
+    metadata = {}
+
+    # Load zarr array from zenodo
+    zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
+    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
+    shutil.copytree(
+        str(zenodo_zarr_2D), str(zarr_path_mip.parent / zenodo_zarr_2D.name)
+    )
+    metadata = metadata_2D.copy()
+
     # Per-FOV measurement
     for component in metadata["well"]:
         measurement(
@@ -463,17 +489,6 @@ def test_workflow_with_per_FOV_labeling_2D(
     print(meas.var_names)
     assert "area" in meas.var_names
     assert "bbox_area" in meas.var_names
-
-    # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path_mip.parent / metadata["well"][0])
-    debug(image_zarr)
-    well_zarr = image_zarr.parent
-    plate_zarr = image_zarr.parents[2]
-    validate_schema(path=str(image_zarr), type="image")
-    validate_schema(path=str(well_zarr), type="well")
-    validate_schema(path=str(plate_zarr), type="plate")
-
-    check_file_number(zarr_path=image_zarr)
 
 
 def test_workflow_with_per_well_labeling_2D(
