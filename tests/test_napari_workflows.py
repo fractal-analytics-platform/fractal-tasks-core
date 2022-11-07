@@ -43,6 +43,27 @@ def prepare_3D_zarr(
     return metadata
 
 
+def prepare_2D_zarr(
+    zarr_path: Path,
+    zenodo_zarr: List[Path],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+    remove_labels: bool = False,
+):
+    zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
+    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
+    shutil.copytree(
+        str(zenodo_zarr_2D), str(zarr_path.parent / zenodo_zarr_2D.name)
+    )
+    if remove_labels:
+        label_dir = str(
+            zarr_path.parent / zenodo_zarr_2D.name / "B/03/0/labels"
+        )
+        debug(label_dir)
+        shutil.rmtree(label_dir)
+    metadata = metadata_2D.copy()
+    return metadata
+
+
 def test_workflow_napari_worfklow(
     tmp_path: Path,
     testdata_path: Path,
@@ -299,3 +320,71 @@ def test_relabeling(
     validate_labels_and_measurements(
         image_zarr, label_name=LABEL_NAME, table_name=TABLE_NAME
     )
+
+
+cases = [
+    (2, 2, True),
+    (2, 3, False),
+    (3, 3, True),
+    (3, 2, True),
+]
+
+
+@pytest.mark.parametrize(
+    "expected_dimensions,zarr_dimensions,expected_success", cases
+)
+def test_expected_dimensions(
+    expected_dimensions: int,
+    zarr_dimensions: int,
+    expected_success: bool,
+    tmp_path: Path,
+    testdata_path: Path,
+    zenodo_zarr: List[Path],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+):
+
+    # Prepare zarr
+    zarr_path = tmp_path / "tmp_out/*.zarr"
+    if zarr_dimensions == 2:
+        metadata = prepare_2D_zarr(
+            zarr_path, zenodo_zarr, zenodo_zarr_metadata, remove_labels=True
+        )
+    else:
+        metadata = prepare_3D_zarr(
+            zarr_path, zenodo_zarr, zenodo_zarr_metadata
+        )
+    debug(zarr_path)
+    debug(metadata)
+
+    # First napari-workflows task (labeling)
+    workflow_file = str(
+        testdata_path / "napari_workflows/wf_5-labeling_only.yaml"
+    )
+    input_specs: Dict[str, Dict[str, Union[str, int]]] = {
+        "input_image": {"type": "image", "channel": "A01_C01"},
+    }
+    output_specs: Dict[str, Dict[str, Union[str, int]]] = {
+        "output_label": {
+            "type": "label",
+            "label_name": "label_DAPI",
+        },
+    }
+
+    for component in metadata["well"]:
+        arguments = dict(
+            input_paths=[zarr_path],
+            output_path=zarr_path,
+            metadata=metadata,
+            component=component,
+            input_specs=input_specs,
+            output_specs=output_specs,
+            workflow_file=workflow_file,
+            ROI_table_name="FOV_ROI_table",
+            level=3,
+            expected_dimensions=expected_dimensions,
+        )
+        if expected_success:
+            napari_workflows_wrapper(**arguments)
+        else:
+            with pytest.raises(ValueError):
+                napari_workflows_wrapper(**arguments)
