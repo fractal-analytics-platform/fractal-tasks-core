@@ -1,6 +1,16 @@
 Changelog
 =========
 
+
+0.3.1
+-----
+
+Other changes
+~~~~~~~~~~~~~
+* Fix `executable`` fields in manifest.
+* Remove ``graphviz`` dependency.
+
+
 0.3.0
 -----
 
