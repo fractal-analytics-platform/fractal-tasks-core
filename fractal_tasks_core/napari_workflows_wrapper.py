@@ -486,7 +486,10 @@ def napari_workflows_wrapper(
                 mask = np.expand_dims(mask, axis=0)
 
             # Sanity check: issue warning for non-consecutive labels
-            num_unique_labels_in_this_ROI = len(np.unique(mask)) - 1
+            unique_labels = np.unique(mask)
+            num_unique_labels_in_this_ROI = len(unique_labels)
+            if np.min(unique_labels) == 0:
+                num_unique_labels_in_this_ROI -= 1
             num_labels_in_this_ROI = int(np.max(mask))
             if num_labels_in_this_ROI != num_unique_labels_in_this_ROI:
                 logger.warning(
