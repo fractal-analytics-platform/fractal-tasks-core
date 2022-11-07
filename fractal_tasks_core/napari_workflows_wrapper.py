@@ -65,6 +65,7 @@ def napari_workflows_wrapper(
     ROI_table_name: str = "FOV_ROI_table",
     level: int = 0,
     relabeling: bool = True,
+    expected_dimensions: int = 3,
 ):
     """
     Description
@@ -83,6 +84,7 @@ def napari_workflows_wrapper(
                           task applies the napari-worfklow
     :param level: TBD
     :param relabeling: TBD
+    :param expected_dimensions: TBD
     """
 
     wf: napari_workflows.Worfklow = load_workflow(workflow_file)
@@ -128,15 +130,6 @@ def napari_workflows_wrapper(
         relabeling = False
     if relabeling:
         max_label_for_relabeling = 0
-
-    # Add expected_dimensions key to all I/O items
-    for (name, params) in input_specs.items():
-        if "expected_dimensions" not in params.keys():
-            params["expected_dimensions"] = 3
-    for (name, params) in output_specs.items():
-        if params["type"] != "dataframe":
-            if "expected_dimensions" not in params.keys():
-                params["expected_dimensions"] = 3
 
     # Pre-processing of task inputs
     if len(input_paths) > 1:
@@ -200,7 +193,6 @@ def napari_workflows_wrapper(
             input_image_arrays[name] = img_array[channel_index]
 
             # Handle dimensions
-            expected_dimensions = params["expected_dimensions"]
             shape = input_image_arrays[name].shape
             if expected_dimensions == 3 and shape[0] == 1:
                 logger.warning(
@@ -254,7 +246,6 @@ def napari_workflows_wrapper(
                     axis=[1, 2],
                 )
             # Handle dimensions
-            expected_dimensions = params["expected_dimensions"]
             shape = input_label_arrays[name].shape
             if expected_dimensions == 3 and shape[0] == 1:
                 logger.warning(
@@ -341,6 +332,11 @@ def napari_workflows_wrapper(
         label_shape = reference_array.shape
         label_chunksize = reference_array.chunksize
         if len(label_shape) == 2 and len(label_chunksize) == 2:
+            if expected_dimensions == 3:
+                raise ValueError(
+                    f"Something wrong: {label_shape=} but "
+                    f"{expected_dimensions=}"
+                )
             label_shape = (1, label_shape[0], label_shape[1])
             label_chunksize = (1, label_chunksize[0], label_chunksize[1])
         logger.info(f"{label_shape=}")
@@ -436,17 +432,10 @@ def napari_workflows_wrapper(
         for input_name in input_specs.keys():
             input_type = input_specs[input_name]["type"]
             # Handle expected_dimensions
-            if input_specs[input_name]["expected_dimensions"] == 2:
+            if expected_dimensions == 2:
                 actual_region = region[1:]
             else:
                 actual_region = region
-
-            from devtools import debug
-
-            debug(input_name)
-            debug(input_specs[input_name])
-            debug(actual_region)
-            debug(input_image_arrays[input_name])
 
             if input_type == "image":
                 wf.set(
@@ -486,9 +475,6 @@ def napari_workflows_wrapper(
             mask = outputs[ind_output]
 
             # Check dimensions
-            expected_dimensions = output_specs[output_name][
-                "expected_dimensions"
-            ]
             if len(mask.shape) != expected_dimensions:
                 msg = (
                     f"Output {output_name} has shape {mask.shape} "
