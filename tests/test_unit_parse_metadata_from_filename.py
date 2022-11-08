@@ -46,19 +46,27 @@ C4 = "04"
 C5 = "01"
 C6 = "01"
 
+Z1 = "18"
+Z2 = "14"
+Z3 = "07"
+Z4 = "01"
+Z5 = "01"
+Z6 = "000000001"
+
 parameters = [
-    (f1, p1, A1, C1),
-    (f2, p2, A2, C2),
-    (f3, p3, A3, C3),
-    (f4, p4, A4, C4),
-    (f5, p5, A5, C5),
-    (f6, p6, A6, C6),
+    (f1, p1, A1, C1, Z1),
+    (f2, p2, A2, C2, Z2),
+    (f3, p3, A3, C3, Z3),
+    (f4, p4, A4, C4, Z4),
+    (f5, p5, A5, C5, Z5),
+    (f6, p6, A6, C6, Z6),
 ]
 
 
-@pytest.mark.parametrize("filename,plate,A,C", parameters)
-def test_parse_metadata_from_image_filename(filename, plate, A, C):
+@pytest.mark.parametrize("filename,plate,A,C,Z", parameters)
+def test_parse_metadata_from_image_filename(filename, plate, A, C, Z):
     metadata = parse_filename(filename)
     assert metadata["plate"] == plate
     assert metadata["A"] == A
     assert metadata["C"] == C
+    assert metadata["Z"] == Z
