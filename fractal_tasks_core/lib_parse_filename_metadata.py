@@ -19,95 +19,58 @@ from pathlib import Path
 from typing import Dict
 
 
-def old_parse_filename(filename: str) -> Dict[str, str]:
+def get_plate_name(plate_prefix: str) -> str:
     """
-    Parse metadata from image filename to parameter dictionary.
+    Two kinds of plate_prefix values are handled in a special way:
 
-    Three kinds of filenames are supported:
-
-    1) Filenames from UZH:
-       20200812-Cardio[...]Cycle1_B03_T0001F036L01A01Z18C01.png
-       with plate name 20200812-Cardio[...]Cycle1
-    2) Filenames from FMI, with successful barcode reading:
-       210305NAR005AAN_210416_164828_B11_T0001F006L01A04Z14C01.tif
+    1) Filenames from FMI, with successful barcode reading:
+       210305NAR005AAN_210416_164828
        with plate name 210305NAR005AAN
-    3) Filenames from FMI, with failed barcode reading:
-       yymmdd_hhmmss_210416_164828_B11_T0001F006L01A04Z14C01.tif
+    2) Filenames from FMI, with failed barcode reading:
+       yymmdd_hhmmss_210416_164828
        with plate name RS{yymmddhhmmss}
 
-    Some code::
+    For all non-matching filenames, plate name is plate_prefix.
 
-        print(1)
-        print(2)
-
-
-    :param filename: name of the image
-    :returns: metadata dictionary
+    :param plate_prefix: TBD
     """
 
-    if "/" in filename:
-        raise Exception(
-            "ERROR: parse_filename may fail when filename "
-            f'includes "/". Please check that {filename} is '
-            "correct."
-        )
-    f = filename.rsplit(".", 1)[0]
-    well = re.findall(r"_(.*)_T", f)[0].split("_")[-1]
-    plate_prefix = f.split(f"_{well}_")[0]
     fields = plate_prefix.split("_")
+
+    # FMI (successful barcode reading)
     if (
+        len(fields) == 3
+        and len(fields[1]) == 6
+        and len(fields[2]) == 6
+        and fields[1].isdigit()
+        and fields[2].isdigit()
+    ):
+        barcode, img_date, img_time = fields[:]
+        plate = barcode
+    # FMI (failed barcode reading)
+    elif (
         len(fields) == 4
         and len(fields[0]) == 6
         and len(fields[1]) == 6
         and len(fields[2]) == 6
+        and len(fields[3]) == 6
+        and fields[0].isdigit()
+        and fields[1].isdigit()
+        and fields[2].isdigit()
+        and fields[3].isdigit()
     ):
-        # FMI (failed barcode reading)
         scan_date, scan_time, img_date, img_time = fields[:]
         plate = f"RS{scan_date + scan_time}"
-    elif len(fields) == 3:
-        # FMI (correct barcode reading)
-        barcode, img_date, img_time = fields[:]
-        if len(img_date) != 6 or len(img_time) != 6:
-            raise Exception(
-                f"Failure in metadata parsing of {plate_prefix}, with"
-                f" img_date={img_date} and img_time={img_time}"
-            )
-        plate = barcode
-    elif len(fields) == 1:
-        # UZH
-        plate = fields[0]
+    # All non-matching cases
+    else:
+        plate = plate_prefix
 
-    # Parse filename for additional fields
-    # Example of f_without_prefix: B03_T0001F001L01A01Z06C01.png
-    f_without_prefix = f.split(plate_prefix + "_")[1]
-    T = re.findall(r"_T(.*)F", f_without_prefix)[0]
-    F = re.findall(rf"_T{T}F(.*)L", f_without_prefix)[0]
-    L = re.findall(rf"_T{T}F{F}L(.*)A", f_without_prefix)[0]
-    A = re.findall(rf"_T{T}F{F}L{L}A(.*)Z", f_without_prefix)[0]
-    Z = re.findall(rf"_T{T}F{F}L{L}A{A}Z(.*)C", f_without_prefix)[0]
-    C = re.findall(rf"_T{T}F{F}L{L}A{A}Z{Z}C(.*)", f_without_prefix)[0]
-
-    result = dict(
-        plate=plate,
-        plate_prefix=plate_prefix,
-        well=well,
-        T=T,
-        F=F,
-        L=L,
-        A=A,
-        Z=Z,
-        C=C,
-    )
-    return result
+    return plate
 
 
 def parse_filename(filename: str) -> Dict[str, str]:
     """
-    Parse metadata from image filename to parameter dictionary.
-
-    Given the input
-        /some/path/ANYTHING_B03_T0001F036L01A01Z18C01.png
-    return ANYTHING + all metadata
+    Parse image metadata from filename
 
     :param filename: name of the image
     :returns: metadata dictionary
@@ -123,7 +86,7 @@ def parse_filename(filename: str) -> Dict[str, str]:
     if len(filename_fields) < 3:
         raise ValueError(f"{filename} not valid")
     output["plate_prefix"] = "_".join(filename_fields[:-2])
-    output["plate"] = "_".join(filename_fields[:-2])  # FIXME: update this
+    output["plate"] = get_plate_name(output["plate_prefix"])
 
     # Assign well
     output["well"] = filename_fields[-2]
