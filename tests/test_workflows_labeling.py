@@ -63,6 +63,41 @@ num_levels = 6
 coarsening_xy = 2
 
 
+def prepare_3D_zarr(
+    zarr_path: Path,
+    zenodo_zarr: List[Path],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+):
+    zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
+    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
+    shutil.copytree(
+        str(zenodo_zarr_3D), str(zarr_path.parent / zenodo_zarr_3D.name)
+    )
+    metadata = metadata_3D.copy()
+    return metadata
+
+
+def prepare_2D_zarr(
+    zarr_path: Path,
+    zenodo_zarr: List[Path],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+    remove_labels: bool = False,
+):
+    zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
+    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
+    shutil.copytree(
+        str(zenodo_zarr_2D), str(zarr_path.parent / zenodo_zarr_2D.name)
+    )
+    if remove_labels:
+        label_dir = str(
+            zarr_path.parent / zenodo_zarr_2D.name / "B/03/0/labels"
+        )
+        debug(label_dir)
+        shutil.rmtree(label_dir)
+    metadata = metadata_2D.copy()
+    return metadata
+
+
 def patched_segment_FOV(
     column, do_3D=True, label_dtype=None, well_id=None, **kwargs
 ):
@@ -91,7 +126,8 @@ def patched_segment_FOV(
 def test_workflow_with_per_FOV_labeling(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_images: Path,
+    zenodo_zarr: List[Path],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -114,34 +150,11 @@ def test_workflow_with_per_FOV_labeling(
     # https://docs.pytest.org/en/stable/how-to/logging.html#caplog-fixture
     caplog.set_level(logging.INFO)
 
-    # Init
-    img_path = zenodo_images / "*.png"
+    # Use pre-made 3D zarr
     zarr_path = tmp_path / "tmp_out/*.zarr"
-    metadata = {}
-
-    # Create zarr structure
-    metadata_update = create_zarr_structure(
-        input_paths=[img_path],
-        output_path=zarr_path,
-        channel_parameters=channel_parameters,
-        num_levels=num_levels,
-        coarsening_xy=coarsening_xy,
-        metadata_table="mrf_mlf",
-    )
-    metadata.update(metadata_update)
-    print(caplog.text)
-    caplog.clear()
-
-    # Yokogawa to zarr
-    for component in metadata["well"]:
-        yokogawa_to_zarr(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
-            metadata=metadata,
-            component=component,
-        )
-    print(caplog.text)
-    caplog.clear()
+    metadata = prepare_3D_zarr(zarr_path, zenodo_zarr, zenodo_zarr_metadata)
+    debug(zarr_path)
+    debug(metadata)
 
     # Per-FOV labeling
     for component in metadata["well"]:
@@ -196,7 +209,8 @@ def test_workflow_with_per_FOV_labeling(
 def test_workflow_with_per_FOV_labeling_2D(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_images: Path,
+    zenodo_zarr: List[Path],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -216,51 +230,11 @@ def test_workflow_with_per_FOV_labeling_2D(
         patched_segment_FOV,
     )
 
-    # Init
-    img_path = zenodo_images / "*.png"
-    zarr_path = tmp_path / "tmp_out/*.zarr"
+    # Load pre-made 2D zarr array
     zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
-    metadata = {}
-
-    # Create zarr structure
-    metadata_update = create_zarr_structure(
-        input_paths=[img_path],
-        output_path=zarr_path,
-        channel_parameters=channel_parameters,
-        num_levels=num_levels,
-        coarsening_xy=coarsening_xy,
-        metadata_table="mrf_mlf",
+    metadata = prepare_2D_zarr(
+        zarr_path_mip, zenodo_zarr, zenodo_zarr_metadata, remove_labels=True
     )
-    metadata.update(metadata_update)
-
-    # Yokogawa to zarr
-    for component in metadata["well"]:
-        yokogawa_to_zarr(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
-            metadata=metadata,
-            component=component,
-        )
-
-    # Replicate
-    metadata_update = replicate_zarr_structure(
-        input_paths=[zarr_path],
-        output_path=zarr_path_mip,
-        metadata=metadata,
-        project_to_2D=True,
-        suffix="mip",
-    )
-    metadata.update(metadata_update)
-    debug(metadata)
-
-    # MIP
-    for component in metadata["well"]:
-        maximum_intensity_projection(
-            input_paths=[zarr_path_mip],
-            output_path=zarr_path_mip,
-            metadata=metadata,
-            component=component,
-        )
 
     # Per-FOV labeling
     for component in metadata["well"]:
@@ -290,7 +264,6 @@ def test_workflow_with_per_FOV_labeling_2D(
 def test_workflow_measurement_2D(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_images: Path,
     zenodo_zarr: List[Path],
     zenodo_zarr_metadata: List[Dict[str, Any]],
 ):
@@ -300,12 +273,9 @@ def test_workflow_measurement_2D(
     metadata = {}
 
     # Load zarr array from zenodo
-    zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
-    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
-    shutil.copytree(
-        str(zenodo_zarr_2D), str(zarr_path_mip.parent / zenodo_zarr_2D.name)
+    metadata = prepare_2D_zarr(
+        zarr_path_mip, zenodo_zarr, zenodo_zarr_metadata, remove_labels=False
     )
-    metadata = metadata_2D.copy()
 
     # Per-FOV measurement
     for component in metadata["well"]:
