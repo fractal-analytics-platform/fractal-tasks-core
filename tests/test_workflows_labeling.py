@@ -419,3 +419,58 @@ def test_workflow_with_per_well_labeling_2D(
     validate_schema(path=str(plate_zarr), type="plate")
 
     check_file_number(zarr_path=image_zarr)
+
+
+def test_workflow_bounding_box(
+    tmp_path: Path,
+    testdata_path: Path,
+    zenodo_zarr: List[Path],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+    caplog: pytest.LogCaptureFixture,
+    monkeypatch: MonkeyPatch,
+):
+
+    # Never look for a gpu
+    def patched_use_gpu(*args, **kwargs):
+        debug("WARNING: using patched_use_gpu")
+        return False
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.cellpose_segmentation.use_gpu", patched_use_gpu
+    )
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.cellpose_segmentation.segment_FOV",
+        patched_segment_FOV,
+    )
+
+    # Setup caplog fixture, see
+    # https://docs.pytest.org/en/stable/how-to/logging.html#caplog-fixture
+    caplog.set_level(logging.INFO)
+
+    # Use pre-made 3D zarr
+    zarr_path = tmp_path / "tmp_out/*.zarr"
+    metadata = prepare_3D_zarr(zarr_path, zenodo_zarr, zenodo_zarr_metadata)
+    debug(zarr_path)
+    debug(metadata)
+
+    # Per-FOV labeling
+    for component in metadata["well"]:
+        cellpose_segmentation(
+            input_paths=[zarr_path],
+            output_path=zarr_path,
+            metadata=metadata,
+            component=component,
+            labeling_channel="A01_C01",
+            labeling_level=3,
+            relabeling=True,
+            diameter_level0=80.0,
+            # FIXME: add bbox ROI table
+        )
+
+    # FIXME add assertions
+    # bbox_ROIs = ad.read_zarr(
+    #    zarr_path_mip.parent / metadata["well"][0] / "tables/XXXXX/"
+    # )
+    # print(meas.var_names)
+    # assert something..
