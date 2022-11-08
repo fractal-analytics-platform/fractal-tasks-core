@@ -287,7 +287,7 @@ def _inspect_ROI_table(
     return df
 
 
-def array_to_ROI_table(
+def array_to_bounding_box_table(
     mask_array: np.ndarray, pxl_sizes_zyx: List[float]
 ) -> pd.DataFrame:
 
