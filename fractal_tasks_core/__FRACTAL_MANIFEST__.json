@@ -9,8 +9,7 @@
         "default_args": {
             "num_levels": 2,
             "coarsening_xy": 2,
-            "metadata_table": "mrf_mlf",
-            "channel_parameters": null
+            "metadata_table": "mrf_mlf"
         },
         "executable": "create_zarr_structure.py",
         "meta": {"executor": "cpu-low"}
@@ -19,18 +18,14 @@
         "name": "Yokogawa to Zarr",
         "input_type": "zarr",
         "output_type": "zarr",
-        "default_args": {"parallelization_level": "well"},
         "executable": "yokogawa_to_zarr.py",
-        "meta": {"executor": "cpu-low"}
+        "meta": {"executor": "cpu-low", "parallelization_level": "well"}
     },
     {
         "name": "Replicate Zarr structure",
         "input_type": "zarr",
         "output_type": "zarr",
-        "default_args": {
-            "project_to_2D": true,
-            "suffix": "mip"
-        },
+        "default_args": {"project_to_2D": true, "suffix": "mip"},
         "executable": "replicate_zarr_structure.py",
         "meta": {"executor": "cpu-low"}
     },
@@ -38,20 +33,16 @@
         "name": "Maximum Intensity Projection",
         "input_type": "zarr",
         "output_type": "zarr",
-        "default_args": {"parallelization_level": "well"},
         "executable": "maximum_intensity_projection.py",
-        "meta": {"executor": "cpu-low"}
+        "meta": {"executor": "cpu-low", "parallelization_level": "well"}
     },
     {
         "name": "Cellpose Segmentation",
         "input_type": "zarr",
         "output_type": "zarr",
-        "default_args": {
-            "labeling_channel": "A01_C01",
-            "parallelization_level": "well"
-        },
+        "default_args": {"labeling_channel": "A01_C01"},
         "executable": "cellpose_segmentation.py",
-        "meta": {"executor": "gpu"}
+        "meta": {"executor": "gpu", "parallelization_level": "well"}
     },
     {
         "name": "Measurement",
@@ -60,24 +51,18 @@
         "default_args": {
             "labeling_channel": "A01_C01",
             "level": 0,
-            "measurement_table_name": "nuclei",
-            "parallelization_level": "well"
+            "measurement_table_name": "nuclei"
         },
         "executable": "measurement.py",
-        "meta": {"executor": "cpu-low"}
+        "meta": {"executor": "cpu-low", "parallelization_level": "well"}
     },
     {
         "name": "Illumination correction",
         "input_type": "zarr",
         "output_type": "zarr",
-        "default_args": {
-            "overwrite": false,
-            "dict_corr": null,
-            "background": 100,
-            "parallelization_level": "well"
-        },
+        "default_args": {"overwrite": false, "background": 100},
         "executable": "illumination_correction.py",
-        "meta": {"executor": "cpu-low"}
+        "meta": {"executor": "cpu-low", "parallelization_level": "well"}
     }
 ]
 }
