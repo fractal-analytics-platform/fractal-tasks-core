@@ -285,3 +285,41 @@ def _inspect_ROI_table(
         print("Something went wrong in convert_ROI_table_to_indices\n", str(e))
 
     return df
+
+
+def array_to_ROI_table(
+    mask_array: np.ndarray, pxl_sizes_zyx: List[float]
+) -> pd.DataFrame:
+
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
+
+    labels = np.unique(mask_array)
+    labels = labels[labels > 0]
+    elem_list = []
+    for label in labels:
+        label_match = np.where(mask_array == label)
+        zmin, ymin, xmin = np.min(label_match, axis=1) * pxl_sizes_zyx
+        zmax, ymax, xmax = (np.max(label_match, axis=1) + 1) * pxl_sizes_zyx
+
+        length_x = xmax - xmin
+        length_y = ymax - ymin
+        length_z = zmax - zmin
+        elem_list.append((xmin, ymin, zmin, length_x, length_y, length_z))
+
+    df_columns = [
+        "x_micrometer",
+        "y_micrometer",
+        "z_micrometer",
+        "len_x_micrometer",
+        "len_y_micrometer",
+        "len_z_micrometer",
+    ]
+
+    ann_df = pd.DataFrame(np.array(elem_list), columns=df_columns)
+
+    return ann_df
