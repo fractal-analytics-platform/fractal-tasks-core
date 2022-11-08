@@ -130,7 +130,7 @@ def parse_filename(filename: str) -> Dict[str, str]:
 
     # Assign TFLAZC
     TFLAZC = filename_fields[-1]
-    metadata = re.split(r"(\d+)", TFLAZC)
+    metadata = re.split(r"([0-9]+)", TFLAZC)
     if metadata[-1] != "" or len(metadata) != 13:
         raise ValueError(f"Something wrong with {filename=}, {TFLAZC=}")
     metadata = metadata[:-1]
