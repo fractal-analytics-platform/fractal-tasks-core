@@ -465,12 +465,13 @@ def test_workflow_bounding_box(
             labeling_level=3,
             relabeling=True,
             diameter_level0=80.0,
-            # FIXME: add bbox ROI table
+            bounding_box_ROI_table_name="bbox_table",
         )
 
     # FIXME add assertions
-    # bbox_ROIs = ad.read_zarr(
-    #    zarr_path_mip.parent / metadata["well"][0] / "tables/XXXXX/"
-    # )
-    # print(meas.var_names)
-    # assert something..
+    bbox_ROIs = ad.read_zarr(
+        zarr_path.parent / metadata["well"][0] / "tables/bbox_table/"
+    )
+    assert bbox_ROIs.shape == (4, 6)
+    assert len(bbox_ROIs) > 0
+    assert np.max(bbox_ROIs.X) == float(208)
