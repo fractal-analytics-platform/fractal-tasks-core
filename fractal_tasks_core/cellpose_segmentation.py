@@ -26,7 +26,9 @@ from typing import Sequence
 import anndata as ad
 import dask.array as da
 import numpy as np
+import pandas as pd
 import zarr
+from anndata.experimental import write_elem
 from cellpose import models
 from cellpose.core import use_gpu
 
@@ -121,6 +123,7 @@ def cellpose_segmentation(
     flow_threshold: float = 0.4,
     model_type: str = "nuclei",
     ROI_table_name: str = "FOV_ROI_table",
+    bounding_box_ROI_table_name: str = None,
 ) -> Dict[str, Any]:
     """
     Example inputs:
@@ -166,6 +169,9 @@ def cellpose_segmentation(
         f"{zarrurl}.zattrs", level=0
     )
 
+    actual_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
+        f"{zarrurl}.zattrs", level=labeling_level
+    )
     # Create list of indices for 3D FOVs spanning the entire Z direction
     list_indices = convert_ROI_table_to_indices(
         ROI_table,
@@ -308,6 +314,10 @@ def cellpose_segmentation(
 
     # Iterate over ROIs
     num_ROIs = len(list_indices)
+
+    if bounding_box_ROI_table_name:
+        bbox_dataframe_list = []
+
     logger.info(f"[{well_id}] Now starting loop over {num_ROIs} ROIs")
     for i_ROI, indices in enumerate(list_indices):
         # Define region
@@ -353,6 +363,38 @@ def cellpose_segmentation(
                     f"but dtype={label_dtype}"
                 )
 
+        if bounding_box_ROI_table_name:
+            labels = np.unique(fov_mask)
+            labels = labels[labels > 0]
+            bbox_list = []
+            for label in labels:
+                label_match = np.where(fov_mask == label)
+                zmin, ymin, xmin = (
+                    np.min(label_match, axis=1) * actual_res_pxl_sizes_zyx
+                )
+                zmax, ymax, xmax = (
+                    np.max(label_match, axis=1) + 1
+                ) * actual_res_pxl_sizes_zyx
+
+                length_x = xmax - xmin
+                length_y = ymax - ymin
+                length_z = zmax - zmin
+                bbox_list.append(
+                    (xmin, ymin, zmin, length_x, length_y, length_z)
+                )
+
+            bbox_columns = [
+                "x_micrometer",
+                "y_micrometer",
+                "z_micrometer",
+                "len_x_micrometer",
+                "len_y_micrometer",
+                "len_z_micrometer",
+            ]
+            bbox_df = pd.DataFrame(np.array(bbox_list), columns=bbox_columns)
+
+            bbox_dataframe_list.append(bbox_df)
+
         # Compute and store 0-th level to disk
         da.array(fov_mask).to_zarr(
             url=mask_zarr,
@@ -378,6 +420,20 @@ def cellpose_segmentation(
 
     logger.info(f"[{well_id}] End building pyramids, exit")
 
+    if bounding_box_ROI_table_name:
+        logger.info(f"[{well_id}] Writing bounding box table, exit")
+        # Concatenate all FOV dataframes
+        df_well = pd.concat(bbox_dataframe_list, axis=0, ignore_index=True)
+        df_well.index = df_well.index.astype(str)
+        # Convert all to float (warning: some would be int, in principle)
+        bbox_dtype = np.float32
+        df_well = df_well.astype(bbox_dtype)
+        # Convert to anndata
+        bbox_table = ad.AnnData(df_well, dtype=bbox_dtype)
+        # Write to zarr group
+        group_tables = zarr.group(f"{in_path}/{component}/tables/")
+        write_elem(group_tables, bounding_box_ROI_table_name, bbox_table)
+
     return {}
 
 
@@ -402,6 +458,7 @@ if __name__ == "__main__":
         flow_threshold: float = 0.4
         model_type: str = "nuclei"
         ROI_table_name: str = "FOV_ROI_table"
+        bounding_box_ROI_table_name: Optional[str] = None
 
     run_fractal_task(
         task_function=cellpose_segmentation, TaskArgsModel=TaskArguments
