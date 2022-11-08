@@ -34,6 +34,7 @@ from cellpose.core import use_gpu
 
 import fractal_tasks_core
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
+from fractal_tasks_core.lib_regions_of_interest import array_to_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
@@ -364,34 +365,8 @@ def cellpose_segmentation(
                 )
 
         if bounding_box_ROI_table_name:
-            labels = np.unique(fov_mask)
-            labels = labels[labels > 0]
-            bbox_list = []
-            for label in labels:
-                label_match = np.where(fov_mask == label)
-                zmin, ymin, xmin = (
-                    np.min(label_match, axis=1) * actual_res_pxl_sizes_zyx
-                )
-                zmax, ymax, xmax = (
-                    np.max(label_match, axis=1) + 1
-                ) * actual_res_pxl_sizes_zyx
 
-                length_x = xmax - xmin
-                length_y = ymax - ymin
-                length_z = zmax - zmin
-                bbox_list.append(
-                    (xmin, ymin, zmin, length_x, length_y, length_z)
-                )
-
-            bbox_columns = [
-                "x_micrometer",
-                "y_micrometer",
-                "z_micrometer",
-                "len_x_micrometer",
-                "len_y_micrometer",
-                "len_z_micrometer",
-            ]
-            bbox_df = pd.DataFrame(np.array(bbox_list), columns=bbox_columns)
+            bbox_df = array_to_ROI_table(fov_mask, actual_res_pxl_sizes_zyx)
 
             bbox_dataframe_list.append(bbox_df)
 
