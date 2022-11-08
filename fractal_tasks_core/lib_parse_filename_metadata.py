@@ -123,6 +123,7 @@ def parse_filename(filename: str) -> Dict[str, str]:
     if len(filename_fields) < 3:
         raise ValueError(f"{filename} not valid")
     output["plate_prefix"] = "_".join(filename_fields[:-2])
+    output["plate"] = "_".join(filename_fields[:-2])  # FIXME: update this
 
     # Assign well
     output["well"] = filename_fields[-2]
