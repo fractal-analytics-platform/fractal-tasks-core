@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Dict
 
 
-def get_plate_name(plate_prefix: str) -> str:
+def _get_plate_name(plate_prefix: str) -> str:
     """
     Two kinds of plate_prefix values are handled in a special way:
 
@@ -86,7 +86,7 @@ def parse_filename(filename: str) -> Dict[str, str]:
     if len(filename_fields) < 3:
         raise ValueError(f"{filename} not valid")
     output["plate_prefix"] = "_".join(filename_fields[:-2])
-    output["plate"] = get_plate_name(output["plate_prefix"])
+    output["plate"] = _get_plate_name(output["plate_prefix"])
 
     # Assign well
     output["well"] = filename_fields[-2]
