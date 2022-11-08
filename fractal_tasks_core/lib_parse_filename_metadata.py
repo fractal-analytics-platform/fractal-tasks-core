@@ -15,10 +15,11 @@ Copyright 2022 (C)
 Extract metadata from image filename
 """
 import re
+from pathlib import Path
 from typing import Dict
 
 
-def parse_filename(filename: str) -> Dict[str, str]:
+def old_parse_filename(filename: str) -> Dict[str, str]:
     """
     Parse metadata from image filename to parameter dictionary.
 
@@ -98,3 +99,41 @@ def parse_filename(filename: str) -> Dict[str, str]:
         C=C,
     )
     return result
+
+
+def parse_filename(filename: str) -> Dict[str, str]:
+    """
+    Parse metadata from image filename to parameter dictionary.
+
+    Given the input
+        /some/path/ANYTHING_B03_T0001F036L01A01Z18C01.png
+    return ANYTHING + all metadata
+
+    :param filename: name of the image
+    :returns: metadata dictionary
+    """
+
+    # Remove extension and folder from filename
+    filename = Path(filename).with_suffix("").name
+
+    filename_fields = filename.split("_")
+    if len(filename_fields) < 3:
+        raise ValueError(f"{filename} not valid")
+
+    # Assign well
+    output = dict(well=filename_fields[-2])
+
+    # Assign TFLAZC
+    TFLAZC = filename_fields[-1]
+    metadata = re.split("(\d+)", TFLAZC)  # noqa
+    if metadata[-1] != "" or len(metadata) != 13:
+        raise ValueError(f"Something wrong with {filename=}, {TFLAZC=}")
+    metadata = metadata[:-1]
+    for ind, key in enumerate(metadata[::2]):
+        value = metadata[2 * ind + 1]
+        if key.isdigit() or not value.isdigit():
+            raise ValueError(
+                f"Something wrong with {filename=}, " f"for {key=} {value=}"
+            )
+        output[key] = value
+    return output
