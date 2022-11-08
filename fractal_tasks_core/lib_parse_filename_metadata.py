@@ -96,12 +96,14 @@ def parse_filename(filename: str) -> Dict[str, str]:
     metadata = re.split(r"([0-9]+)", TFLAZC)
     if metadata[-1] != "" or len(metadata) != 13:
         raise ValueError(f"Something wrong with {filename=}, {TFLAZC=}")
+    # Remove 13-th (and last) element of the metadata list (an empty string)
     metadata = metadata[:-1]
+    # Fill output dictionary
     for ind, key in enumerate(metadata[::2]):
         value = metadata[2 * ind + 1]
         if key.isdigit() or not value.isdigit():
             raise ValueError(
-                f"Something wrong with {filename=}, " f"for {key=} {value=}"
+                f"Something wrong with {filename=}, for {key=} {value=}"
             )
         output[key] = value
     return output
