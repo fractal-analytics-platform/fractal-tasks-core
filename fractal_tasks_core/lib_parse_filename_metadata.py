@@ -116,12 +116,16 @@ def parse_filename(filename: str) -> Dict[str, str]:
     # Remove extension and folder from filename
     filename = Path(filename).with_suffix("").name
 
+    output = {}
+
+    # Split filename into plate_prefix + well + TFLAZC
     filename_fields = filename.split("_")
     if len(filename_fields) < 3:
         raise ValueError(f"{filename} not valid")
+    output["plate_prefix"] = "_".join(filename_fields[:-2])
 
     # Assign well
-    output = dict(well=filename_fields[-2])
+    output["well"] = filename_fields[-2]
 
     # Assign TFLAZC
     TFLAZC = filename_fields[-1]
