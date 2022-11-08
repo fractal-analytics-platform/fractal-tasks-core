@@ -34,7 +34,9 @@ from cellpose.core import use_gpu
 
 import fractal_tasks_core
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
-from fractal_tasks_core.lib_regions_of_interest import array_to_ROI_table
+from fractal_tasks_core.lib_regions_of_interest import (
+    array_to_bounding_box_table,
+)
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
@@ -140,8 +142,8 @@ def cellpose_segmentation(
     # Set input path
     if len(input_paths) > 1:
         raise NotImplementedError
-    in_path = input_paths[0]
-    zarrurl = (in_path.parent.resolve() / component).as_posix() + "/"
+    in_path = input_paths[0].parent
+    zarrurl = (in_path.resolve() / component).as_posix() + "/"
     logger.info(zarrurl)
 
     # Read useful parameters from metadata
@@ -366,7 +368,9 @@ def cellpose_segmentation(
 
         if bounding_box_ROI_table_name:
 
-            bbox_df = array_to_ROI_table(fov_mask, actual_res_pxl_sizes_zyx)
+            bbox_df = array_to_bounding_box_table(
+                fov_mask, actual_res_pxl_sizes_zyx
+            )
 
             bbox_dataframe_list.append(bbox_df)
 
@@ -408,6 +412,9 @@ def cellpose_segmentation(
         # Write to zarr group
         group_tables = zarr.group(f"{in_path}/{component}/tables/")
         write_elem(group_tables, bounding_box_ROI_table_name, bbox_table)
+        logger.info(
+            f"[{in_path}/{component}/tables/{bounding_box_ROI_table_name}"
+        )
 
     return {}
 
