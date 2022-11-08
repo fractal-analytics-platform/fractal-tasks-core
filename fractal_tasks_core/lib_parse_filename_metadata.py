@@ -69,7 +69,7 @@ def parse_filename(filename: str) -> Dict[str, str]:
         if len(img_date) != 6 or len(img_time) != 6:
             raise Exception(
                 f"Failure in metadata parsing of {plate_prefix}, with"
-                " img_date={img_date} and img_time={img_time}"
+                f" img_date={img_date} and img_time={img_time}"
             )
         plate = barcode
     elif len(fields) == 1:
