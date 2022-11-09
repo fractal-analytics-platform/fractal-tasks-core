@@ -15,86 +15,95 @@ Copyright 2022 (C)
 Extract metadata from image filename
 """
 import re
+from pathlib import Path
 from typing import Dict
+
+
+def _get_plate_name(plate_prefix: str) -> str:
+    """
+    Two kinds of plate_prefix values are handled in a special way:
+
+    1) Filenames from FMI, with successful barcode reading:
+       210305NAR005AAN_210416_164828
+       with plate name 210305NAR005AAN
+    2) Filenames from FMI, with failed barcode reading:
+       yymmdd_hhmmss_210416_164828
+       with plate name RS{yymmddhhmmss}
+
+    For all non-matching filenames, plate name is plate_prefix.
+
+    :param plate_prefix: TBD
+    """
+
+    fields = plate_prefix.split("_")
+
+    # FMI (successful barcode reading)
+    if (
+        len(fields) == 3
+        and len(fields[1]) == 6
+        and len(fields[2]) == 6
+        and fields[1].isdigit()
+        and fields[2].isdigit()
+    ):
+        barcode, img_date, img_time = fields[:]
+        plate = barcode
+    # FMI (failed barcode reading)
+    elif (
+        len(fields) == 4
+        and len(fields[0]) == 6
+        and len(fields[1]) == 6
+        and len(fields[2]) == 6
+        and len(fields[3]) == 6
+        and fields[0].isdigit()
+        and fields[1].isdigit()
+        and fields[2].isdigit()
+        and fields[3].isdigit()
+    ):
+        scan_date, scan_time, img_date, img_time = fields[:]
+        plate = f"RS{scan_date + scan_time}"
+    # All non-matching cases
+    else:
+        plate = plate_prefix
+
+    return plate
 
 
 def parse_filename(filename: str) -> Dict[str, str]:
     """
-    Parse metadata from image filename to parameter dictionary.
-
-    Three kinds of filenames are supported:
-
-    1) Filenames from UZH:
-       20200812-Cardio[...]Cycle1_B03_T0001F036L01A01Z18C01.png
-       with plate name 20200812-Cardio[...]Cycle1
-    2) Filenames from FMI, with successful barcode reading:
-       210305NAR005AAN_210416_164828_B11_T0001F006L01A04Z14C01.tif
-       with plate name 210305NAR005AAN
-    3) Filenames from FMI, with failed barcode reading:
-       yymmdd_hhmmss_210416_164828_B11_T0001F006L01A04Z14C01.tif
-       with plate name RS{yymmddhhmmss}
-
-    Some code::
-
-        print(1)
-        print(2)
-
+    Parse image metadata from filename
 
     :param filename: name of the image
     :returns: metadata dictionary
     """
 
-    if "/" in filename:
-        raise Exception(
-            "ERROR: parse_filename may fail when filename "
-            f'includes "/". Please check that {filename} is '
-            "correct."
-        )
-    f = filename.rsplit(".", 1)[0]
-    well = re.findall(r"_(.*)_T", f)[0].split("_")[-1]
-    plate_prefix = f.split(f"_{well}_")[0]
-    fields = plate_prefix.split("_")
-    if (
-        len(fields) == 4
-        and len(fields[0]) == 6
-        and len(fields[1]) == 6
-        and len(fields[2]) == 6
-    ):
-        # FMI (failed barcode reading)
-        scan_date, scan_time, img_date, img_time = fields[:]
-        plate = f"RS{scan_date + scan_time}"
-    elif len(fields) == 3:
-        # FMI (correct barcode reading)
-        barcode, img_date, img_time = fields[:]
-        if len(img_date) != 6 or len(img_time) != 6:
-            raise Exception(
-                f"Failure in metadata parsing of {plate_prefix}, with"
-                f" img_date={img_date} and img_time={img_time}"
+    # Remove extension and folder from filename
+    filename = Path(filename).with_suffix("").name
+
+    output = {}
+
+    # Split filename into plate_prefix + well + TFLAZC
+    filename_fields = filename.split("_")
+    if len(filename_fields) < 3:
+        raise ValueError(f"{filename} not valid")
+    output["plate_prefix"] = "_".join(filename_fields[:-2])
+    output["plate"] = _get_plate_name(output["plate_prefix"])
+
+    # Assign well
+    output["well"] = filename_fields[-2]
+
+    # Assign TFLAZC
+    TFLAZC = filename_fields[-1]
+    metadata = re.split(r"([0-9]+)", TFLAZC)
+    if metadata[-1] != "" or len(metadata) != 13:
+        raise ValueError(f"Something wrong with {filename=}, {TFLAZC=}")
+    # Remove 13-th (and last) element of the metadata list (an empty string)
+    metadata = metadata[:-1]
+    # Fill output dictionary
+    for ind, key in enumerate(metadata[::2]):
+        value = metadata[2 * ind + 1]
+        if key.isdigit() or not value.isdigit():
+            raise ValueError(
+                f"Something wrong with {filename=}, for {key=} {value=}"
             )
-        plate = barcode
-    elif len(fields) == 1:
-        # UZH
-        plate = fields[0]
-
-    # Parse filename for additional fields
-    # Example of f_without_prefix: B03_T0001F001L01A01Z06C01.png
-    f_without_prefix = f.split(plate_prefix + "_")[1]
-    T = re.findall(r"_T(.*)F", f_without_prefix)[0]
-    F = re.findall(rf"_T{T}F(.*)L", f_without_prefix)[0]
-    L = re.findall(rf"_T{T}F{F}L(.*)A", f_without_prefix)[0]
-    A = re.findall(rf"_T{T}F{F}L{L}A(.*)Z", f_without_prefix)[0]
-    Z = re.findall(rf"_T{T}F{F}L{L}A{A}Z(.*)C", f_without_prefix)[0]
-    C = re.findall(rf"_T{T}F{F}L{L}A{A}Z{Z}C(.*)", f_without_prefix)[0]
-
-    result = dict(
-        plate=plate,
-        plate_prefix=plate_prefix,
-        well=well,
-        T=T,
-        F=F,
-        L=L,
-        A=A,
-        Z=Z,
-        C=C,
-    )
-    return result
+        output[key] = value
+    return output
