@@ -2,6 +2,17 @@ Changelog
 =========
 
 
+0.3.2
+-----
+
+New features
+~~~~~~~~~~~~
+* Compute bounding boxes of labels, in ``cellpose_segmentation`` (#192).
+
+Other changes
+~~~~~~~~~~~~~
+* Parse image filenames in a more robust way (#191).
+
 0.3.1
 -----
 
