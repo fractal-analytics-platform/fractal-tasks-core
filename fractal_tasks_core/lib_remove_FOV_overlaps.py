@@ -48,6 +48,27 @@ def is_overlapping_2D(box1, box2, tol=0):
     return overlap_x and overlap_y
 
 
+def is_overlapping_3D(box1, box2, tol=0):
+    """
+    Based on https://stackoverflow.com/a/70023212/19085332
+
+    box: (xmin, ymin, zmin, xmax, ymax, zmax)
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
+    overlap_x = is_overlapping_1D(
+        [box1[0], box1[3]], [box2[0], box2[3]], tol=tol
+    )
+    overlap_y = is_overlapping_1D(
+        [box1[1], box1[4]], [box2[1], box2[4]], tol=tol
+    )
+    overlap_z = is_overlapping_1D(
+        [box1[2], box1[5]], [box2[2], box2[5]], tol=tol
+    )
+    return overlap_x and overlap_y and overlap_z
+
+
 def get_overlapping_pair(tmp_df, tol=0):
     """
     Description
@@ -64,6 +85,49 @@ def get_overlapping_pair(tmp_df, tol=0):
             ):
                 return (pos_ind_1, pos_ind_2)
     return False
+
+
+def get_overlapping_pairs_3D(tmp_df, pixel_sizes):
+    """
+    Description
+
+    :param dummy: this is just a placeholder
+    :type dummy: int
+    """
+    # NOTE: here we use positional indices (i.e. starting from 0)
+    tol = 10e-10
+    if tol > min(pixel_sizes) / 1e3:
+        raise Exception(f"{tol=} but {pixel_sizes=}")
+    new_tmp_df = tmp_df.copy()
+
+    new_tmp_df["x_micrometer_max"] = (
+        new_tmp_df["x_micrometer"] + new_tmp_df["len_x_micrometer"]
+    )
+    new_tmp_df["y_micrometer_max"] = (
+        new_tmp_df["y_micrometer"] + new_tmp_df["len_y_micrometer"]
+    )
+    new_tmp_df["z_micrometer_max"] = (
+        new_tmp_df["z_micrometer"] + new_tmp_df["len_z_micrometer"]
+    )
+
+    new_tmp_df.drop(labels=["len_x_micrometer"], axis=1, inplace=True)
+    new_tmp_df.drop(labels=["len_y_micrometer"], axis=1, inplace=True)
+    new_tmp_df.drop(labels=["len_z_micrometer"], axis=1, inplace=True)
+    num_lines = len(new_tmp_df.index)
+    overlapping_list = []
+    # pos_ind_1 and pos_ind_2 are labels value
+    for pos_ind_1 in range(num_lines):
+        for pos_ind_2 in range(pos_ind_1):
+            if is_overlapping_3D(
+                new_tmp_df.iloc[pos_ind_1], new_tmp_df.iloc[pos_ind_2], tol=tol
+            ):
+                # we accumulate tuples of overlapping labels
+                overlapping_list.append((pos_ind_1, pos_ind_2))
+    if len(overlapping_list) > 0:
+        raise ValueError(
+            f"{overlapping_list} " f"List of pair of bounding box overlaps"
+        )
+    return overlapping_list
 
 
 def remove_FOV_overlaps(df):

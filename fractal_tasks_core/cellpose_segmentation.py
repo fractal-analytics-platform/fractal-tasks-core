@@ -26,14 +26,22 @@ from typing import Sequence
 import anndata as ad
 import dask.array as da
 import numpy as np
+import pandas as pd
 import zarr
+from anndata.experimental import write_elem
 from cellpose import models
 from cellpose.core import use_gpu
 
 import fractal_tasks_core
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
+    array_to_bounding_box_table,
+)
+from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
+)
+from fractal_tasks_core.lib_remove_FOV_overlaps import (
+    get_overlapping_pairs_3D,
 )
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
@@ -121,6 +129,7 @@ def cellpose_segmentation(
     flow_threshold: float = 0.4,
     model_type: str = "nuclei",
     ROI_table_name: str = "FOV_ROI_table",
+    bounding_box_ROI_table_name: str = None,
 ) -> Dict[str, Any]:
     """
     Example inputs:
@@ -136,8 +145,8 @@ def cellpose_segmentation(
     # Set input path
     if len(input_paths) > 1:
         raise NotImplementedError
-    in_path = input_paths[0]
-    zarrurl = (in_path.parent.resolve() / component).as_posix() + "/"
+    in_path = input_paths[0].parent
+    zarrurl = (in_path.resolve() / component).as_posix() + "/"
     logger.info(zarrurl)
 
     # Read useful parameters from metadata
@@ -166,6 +175,9 @@ def cellpose_segmentation(
         f"{zarrurl}.zattrs", level=0
     )
 
+    actual_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
+        f"{zarrurl}.zattrs", level=labeling_level
+    )
     # Create list of indices for 3D FOVs spanning the entire Z direction
     list_indices = convert_ROI_table_to_indices(
         ROI_table,
@@ -308,6 +320,10 @@ def cellpose_segmentation(
 
     # Iterate over ROIs
     num_ROIs = len(list_indices)
+
+    if bounding_box_ROI_table_name:
+        bbox_dataframe_list = []
+
     logger.info(f"[{well_id}] Now starting loop over {num_ROIs} ROIs")
     for i_ROI, indices in enumerate(list_indices):
         # Define region
@@ -353,6 +369,20 @@ def cellpose_segmentation(
                     f"but dtype={label_dtype}"
                 )
 
+        if bounding_box_ROI_table_name:
+
+            bbox_df = array_to_bounding_box_table(
+                fov_mask, actual_res_pxl_sizes_zyx
+            )
+
+            bbox_dataframe_list.append(bbox_df)
+
+            overlap_list = []
+            for df in bbox_dataframe_list:
+                overlap_list.append(
+                    get_overlapping_pairs_3D(df, full_res_pxl_sizes_zyx)
+                )
+
         # Compute and store 0-th level to disk
         da.array(fov_mask).to_zarr(
             url=mask_zarr,
@@ -378,6 +408,23 @@ def cellpose_segmentation(
 
     logger.info(f"[{well_id}] End building pyramids, exit")
 
+    if bounding_box_ROI_table_name:
+        logger.info(f"[{well_id}] Writing bounding box table, exit")
+        # Concatenate all FOV dataframes
+        df_well = pd.concat(bbox_dataframe_list, axis=0, ignore_index=True)
+        df_well.index = df_well.index.astype(str)
+        # Convert all to float (warning: some would be int, in principle)
+        bbox_dtype = np.float32
+        df_well = df_well.astype(bbox_dtype)
+        # Convert to anndata
+        bbox_table = ad.AnnData(df_well, dtype=bbox_dtype)
+        # Write to zarr group
+        group_tables = zarr.group(f"{in_path}/{component}/tables/")
+        write_elem(group_tables, bounding_box_ROI_table_name, bbox_table)
+        logger.info(
+            f"[{in_path}/{component}/tables/{bounding_box_ROI_table_name}"
+        )
+
     return {}
 
 
@@ -402,6 +449,7 @@ if __name__ == "__main__":
         flow_threshold: float = 0.4
         model_type: str = "nuclei"
         ROI_table_name: str = "FOV_ROI_table"
+        bounding_box_ROI_table_name: Optional[str] = None
 
     run_fractal_task(
         task_function=cellpose_segmentation, TaskArgsModel=TaskArguments
