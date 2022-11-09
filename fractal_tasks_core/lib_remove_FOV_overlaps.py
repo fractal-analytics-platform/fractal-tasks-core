@@ -87,7 +87,7 @@ def get_overlapping_pair(tmp_df, tol=0):
     return False
 
 
-def get_bbox_overlapping_pair(tmp_df, tol=10e-10):
+def get_overlapping_pairs_3D(tmp_df, pixel_sizes):
     """
     Description
 
@@ -95,6 +95,9 @@ def get_bbox_overlapping_pair(tmp_df, tol=10e-10):
     :type dummy: int
     """
     # NOTE: here we use positional indices (i.e. starting from 0)
+    tol = 10e-10
+    if tol > min(pixel_sizes) / 1e3:
+        raise Exception(f"{tol=} but {pixel_sizes=}")
     new_tmp_df = tmp_df.copy()
 
     new_tmp_df["x_micrometer_max"] = (
