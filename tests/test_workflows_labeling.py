@@ -123,6 +123,33 @@ def patched_segment_FOV(
     return mask.astype(label_dtype)
 
 
+def patched_segment_FOV_overlapping_organoids(
+    column, label_dtype=None, well_id=None, **kwargs
+):
+
+    import logging
+
+    logger = logging.getLogger("cellpose_segmentation.py")
+    logger.info(f"[{well_id}][patched_segment_FOV] START")
+
+    # Actual labeling
+    mask = np.zeros_like(column)
+    nz, ny, nx = mask.shape
+    indices = np.arange(0, nx // 2)
+    mask[:, indices, indices] = 1  # noqa
+    mask[:, indices + 10, indices + 20] = 2  # noqa
+    np.save("tmp.npy", mask)
+
+    logger.info(f"[{well_id}][patched_segment_FOV] END")
+
+    return mask.astype(label_dtype)
+
+
+def patched_use_gpu(*args, **kwargs):
+    debug("WARNING: using patched_use_gpu")
+    return False
+
+
 def test_workflow_with_per_FOV_labeling(
     tmp_path: Path,
     testdata_path: Path,
@@ -131,11 +158,6 @@ def test_workflow_with_per_FOV_labeling(
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
-
-    # Never look for a gpu
-    def patched_use_gpu(*args, **kwargs):
-        debug("WARNING: using patched_use_gpu")
-        return False
 
     monkeypatch.setattr(
         "fractal_tasks_core.cellpose_segmentation.use_gpu", patched_use_gpu
@@ -214,11 +236,6 @@ def test_workflow_with_per_FOV_labeling_2D(
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
-
-    # Never look for a gpu
-    def patched_use_gpu(*args, **kwargs):
-        debug("WARNING: using patched_use_gpu")
-        return False
 
     monkeypatch.setattr(
         "fractal_tasks_core.cellpose_segmentation.use_gpu", patched_use_gpu
@@ -309,11 +326,6 @@ def test_workflow_with_per_well_labeling_2D(
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
-
-    # Never look for a gpu
-    def patched_use_gpu(*args, **kwargs):
-        debug("WARNING: using patched_use_gpu")
-        return False
 
     monkeypatch.setattr(
         "fractal_tasks_core.cellpose_segmentation.use_gpu", patched_use_gpu
@@ -430,11 +442,6 @@ def test_workflow_bounding_box(
     monkeypatch: MonkeyPatch,
 ):
 
-    # Never look for a gpu
-    def patched_use_gpu(*args, **kwargs):
-        debug("WARNING: using patched_use_gpu")
-        return False
-
     monkeypatch.setattr(
         "fractal_tasks_core.cellpose_segmentation.use_gpu", patched_use_gpu
     )
@@ -468,10 +475,53 @@ def test_workflow_bounding_box(
             bounding_box_ROI_table_name="bbox_table",
         )
 
-    # FIXME add assertions
     bbox_ROIs = ad.read_zarr(
         zarr_path.parent / metadata["well"][0] / "tables/bbox_table/"
     )
     assert bbox_ROIs.shape == (4, 6)
     assert len(bbox_ROIs) > 0
     assert np.max(bbox_ROIs.X) == float(208)
+
+
+def test_workflow_bounding_box_with_overlap(
+    tmp_path: Path,
+    testdata_path: Path,
+    zenodo_zarr: List[Path],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+    caplog: pytest.LogCaptureFixture,
+    monkeypatch: MonkeyPatch,
+):
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.cellpose_segmentation.use_gpu", patched_use_gpu
+    )
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.cellpose_segmentation.segment_FOV",
+        patched_segment_FOV_overlapping_organoids,
+    )
+
+    # Setup caplog fixture, see
+    # https://docs.pytest.org/en/stable/how-to/logging.html#caplog-fixture
+    caplog.set_level(logging.INFO)
+
+    # Use pre-made 3D zarr
+    zarr_path = tmp_path / "tmp_out/*.zarr"
+    metadata = prepare_3D_zarr(zarr_path, zenodo_zarr, zenodo_zarr_metadata)
+    debug(zarr_path)
+    debug(metadata)
+
+    # Per-FOV labeling
+    for component in metadata["well"]:
+        with pytest.raises(ValueError):
+            cellpose_segmentation(
+                input_paths=[zarr_path],
+                output_path=zarr_path,
+                metadata=metadata,
+                component=component,
+                labeling_channel="A01_C01",
+                labeling_level=3,
+                relabeling=True,
+                diameter_level0=80.0,
+                bounding_box_ROI_table_name="bbox_table",
+            )
