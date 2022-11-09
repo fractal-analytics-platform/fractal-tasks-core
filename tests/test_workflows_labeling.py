@@ -138,7 +138,6 @@ def patched_segment_FOV_overlapping_organoids(
     indices = np.arange(0, nx // 2)
     mask[:, indices, indices] = 1  # noqa
     mask[:, indices + 10, indices + 20] = 2  # noqa
-    np.save("tmp.npy", mask)
 
     logger.info(f"[{well_id}][patched_segment_FOV] END")
 
