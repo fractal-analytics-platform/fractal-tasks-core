@@ -41,7 +41,7 @@ from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
 from fractal_tasks_core.lib_remove_FOV_overlaps import (
-    get_bbox_overlapping_pair,
+    get_overlapping_pairs_3D,
 )
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
@@ -379,11 +379,9 @@ def cellpose_segmentation(
 
             overlap_list = []
             for df in bbox_dataframe_list:
-                overlap_list.append(get_bbox_overlapping_pair(df))
-
-            # if len(overlap_list) > 0:
-            #     raise ValueError(f"{overlap_list} "
-            #                      f"List of pair of bounding box overlaps")
+                overlap_list.append(
+                    get_overlapping_pairs_3D(df, full_res_pxl_sizes_zyx)
+                )
 
         # Compute and store 0-th level to disk
         da.array(fov_mask).to_zarr(
