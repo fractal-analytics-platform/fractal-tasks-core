@@ -12,6 +12,7 @@ New features
 Other changes
 ~~~~~~~~~~~~~
 * Parse image filenames in a more robust way (#191).
+* Update manifest, moving ``parallelization_level`` and ``executor`` to ``meta`` attribute.
 
 0.3.1
 -----
