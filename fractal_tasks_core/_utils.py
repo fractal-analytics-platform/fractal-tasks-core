@@ -26,7 +26,10 @@ class TaskParameterEncoder(JSONEncoder):
 
 
 def run_fractal_task(
-    *, task_function: Callable, TaskArgsModel: type[BaseModel] = None
+    *,
+    task_function: Callable,
+    TaskArgsModel: type[BaseModel] = None,
+    logger_name: str = None,
 ):
     """
     Implement standard task interface and call task_function. If TaskArgsModel
@@ -48,9 +51,12 @@ def run_fractal_task(
     )
     args = parser.parse_args()
 
+    # Set logger
+    logger = logging.getLogger(logger_name)
+
     # Preliminary check
     if Path(args.metadata_out).exists():
-        logging.error(
+        logger.error(
             f"Output file {args.metadata_out} already exists. Terminating"
         )
         exit(1)
@@ -61,7 +67,9 @@ def run_fractal_task(
 
     if TaskArgsModel is None:
         # Run task without validating arguments' types
+        logger.info(f"START {task_function.__name__} task")
         metadata_update = task_function(**pars)
+        logger.info(f"END {task_function.__name__} task")
     else:
         # Check match of type hints in task_function and TaskArgsModel
         task_function_type_hints = get_type_hints(task_function)
@@ -77,7 +85,9 @@ def run_fractal_task(
             )
         # Validating arguments' types and run task
         task_args = TaskArgsModel(**pars)
+        logger.info(f"START {task_function.__name__} task")
         metadata_update = task_function(**task_args.dict())
+        logger.info(f"END {task_function.__name__} task")
 
     # Write output metadata to file, with custom JSON encoder
     with open(args.metadata_out, "w") as fout:

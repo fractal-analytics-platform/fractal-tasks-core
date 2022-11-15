@@ -206,5 +206,7 @@ if __name__ == "__main__":
         suffix: Optional[str] = None
 
     run_fractal_task(
-        task_function=replicate_zarr_structure, TaskArgsModel=TaskArguments
+        task_function=replicate_zarr_structure,
+        TaskArgsModel=TaskArguments,
+        logger_name=logger.name,
     )

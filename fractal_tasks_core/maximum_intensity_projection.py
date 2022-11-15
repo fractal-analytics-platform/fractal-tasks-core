@@ -141,5 +141,7 @@ if __name__ == "__main__":
         component: str
 
     run_fractal_task(
-        task_function=maximum_intensity_projection, TaskArgsModel=TaskArguments
+        task_function=maximum_intensity_projection,
+        TaskArgsModel=TaskArguments,
+        logger_name=logger.name,
     )
