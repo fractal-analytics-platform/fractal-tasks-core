@@ -92,8 +92,7 @@ def napari_workflows_wrapper(
     # Validation of input/output specs
     if not (set(wf.leafs()) <= set(output_specs.keys())):
         msg = f"Some item of {wf.leafs()=} is not part of {output_specs=}."
-        logger.error(msg)
-        raise ValueError(msg)
+        logger.warning(msg)
     if not (set(wf.roots()) <= set(input_specs.keys())):
         msg = f"Some item of {wf.roots()=} is not part of {input_specs=}."
         logger.error(msg)

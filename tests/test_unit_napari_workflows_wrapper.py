@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 
 from fractal_tasks_core.napari_workflows_wrapper import (
@@ -7,22 +9,17 @@ from fractal_tasks_core.napari_workflows_wrapper import (
 
 def test_input_specs(tmp_path, testdata_path):
     """
-    WHEN calling napari_workflows_wrapper with invalid input_specs or
-         output_specs
+    WHEN calling napari_workflows_wrapper with invalid input_specs
     THEN raise ValueError
     """
 
     # napari-workflows
-    workflow_file = str(testdata_path / "napari_workflows/wf_3.yaml")
-    print(workflow_file)
-    input_specs = {
-        "input": {"type": "image", "channel": "A01_C01"},
-    }
+    workflow_file = str(
+        testdata_path / "napari_workflows/wf_5-labeling_only.yaml"
+    )
+    input_specs = {"asd": "asd"}
     output_specs = {
-        "Result of Expand labels (scikit-image, nsbatwm)": {
-            "type": "label",
-            "label_name": "label_DAPI",
-        },
+        "output_label": {"type": "label", "label_name": "label_DAPI"}
     }
     with pytest.raises(ValueError):
         napari_workflows_wrapper(
@@ -35,6 +32,41 @@ def test_input_specs(tmp_path, testdata_path):
             workflow_file=workflow_file,
             ROI_table_name="FOV_ROI_table",
         )
+
+
+def test_output_specs(tmp_path, testdata_path, caplog):
+    """
+    WHEN calling napari_workflows_wrapper with invalid output_specs
+    THEN raise a Warning
+    """
+    caplog.set_level(logging.WARNING)
+
+    # napari-workflows
+    workflow_file = str(
+        testdata_path / "napari_workflows/wf_5-labeling_only.yaml"
+    )
+    input_specs = {"input_image": {"type": "image", "channel": "A01_C01"}}
+    output_specs = {"asd": "asd"}
+
+    try:
+        napari_workflows_wrapper(
+            input_paths=[tmp_path],
+            output_path=tmp_path,
+            metadata={},
+            component="component",
+            input_specs=input_specs,
+            output_specs=output_specs,
+            workflow_file=workflow_file,
+            ROI_table_name="FOV_ROI_table",
+        )
+    except Exception:
+        # The task will now fail for some other reason (its arguments are not
+        # valid), but we only care about the warning
+        pass
+
+    assert "WARNING" in caplog.text
+    assert "Some item of wf.leafs" in caplog.text
+    assert "is not part of output_specs" in caplog.text
 
 
 def test_level_setting_in_non_labeling_worfklow(tmp_path, testdata_path):
