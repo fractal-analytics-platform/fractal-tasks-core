@@ -67,9 +67,9 @@ def run_fractal_task(
 
     if TaskArgsModel is None:
         # Run task without validating arguments' types
-        logger.info("START {task_function.__name__} task")
+        logger.info(f"START {task_function.__name__} task")
         metadata_update = task_function(**pars)
-        logger.info("END {task_function.__name__} task")
+        logger.info(f"END {task_function.__name__} task")
     else:
         # Check match of type hints in task_function and TaskArgsModel
         task_function_type_hints = get_type_hints(task_function)
@@ -85,9 +85,9 @@ def run_fractal_task(
             )
         # Validating arguments' types and run task
         task_args = TaskArgsModel(**pars)
-        logger.info("START {task_function.__name__} task")
+        logger.info(f"START {task_function.__name__} task")
         metadata_update = task_function(**task_args.dict())
-        logger.info("END {task_function.__name__} task")
+        logger.info(f"END {task_function.__name__} task")
 
     # Write output metadata to file, with custom JSON encoder
     with open(args.metadata_out, "w") as fout:
