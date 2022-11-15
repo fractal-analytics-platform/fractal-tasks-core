@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.3.4
+-----
+
+Other changes
+~~~~~~~~~~~~~
+* Always log START/END times for each task.
+
 0.3.3
 -----
 
