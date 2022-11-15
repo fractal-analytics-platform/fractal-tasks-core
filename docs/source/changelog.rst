@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.3.3
+-----
+
+New features
+~~~~~~~~~~~~
+* Added ``napari_worfklows_wrapper`` to manifest.
+
 
 0.3.2
 -----
@@ -30,7 +37,7 @@ New features
 ~~~~~~~~~~~~
 * Conform to Fractal v1, through new task manifest (#162) and standard input/output interface (#155, #157).
 * Add several type hints (#148) and validate them in the standard task interface (#175).
-* Update ``napari_worfklow_wrapper``: pyramid level for labeling worfklows (#148), label-only inputs (#163, #171), relabeling (#167), 2D/3D handling (#166).
+* Update ``napari_worfklows_wrapper``: pyramid level for labeling worfklows (#148), label-only inputs (#163, #171), relabeling (#167), 2D/3D handling (#166).
 
 Other changes
 ~~~~~~~~~~~~~
