@@ -436,5 +436,7 @@ if __name__ == "__main__":
         metadata_table: str = "mrf_mlf"
 
     run_fractal_task(
-        task_function=create_zarr_structure, TaskArgsModel=TaskArguments
+        task_function=create_zarr_structure,
+        TaskArgsModel=TaskArguments,
+        logger_name=logger.name,
     )

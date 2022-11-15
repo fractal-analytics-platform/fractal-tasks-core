@@ -194,5 +194,7 @@ if __name__ == "__main__":
         delete_input: bool = False
 
     run_fractal_task(
-        task_function=yokogawa_to_zarr, TaskArgsModel=TaskArguments
+        task_function=yokogawa_to_zarr,
+        TaskArgsModel=TaskArguments,
+        logger_name=logger.name,
     )

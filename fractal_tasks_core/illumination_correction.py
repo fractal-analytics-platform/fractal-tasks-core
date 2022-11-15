@@ -281,5 +281,7 @@ if __name__ == "__main__":
         background: int = 100
 
     run_fractal_task(
-        task_function=illumination_correction, TaskArgsModel=TaskArguments
+        task_function=illumination_correction,
+        TaskArgsModel=TaskArguments,
+        logger_name=logger.name,
     )

@@ -221,4 +221,8 @@ if __name__ == "__main__":
         ROI_table_name: str = "FOV_ROI_table"
         measurement_table_name: str = "measurement"
 
-    run_fractal_task(task_function=measurement, TaskArgsModel=TaskArguments)
+    run_fractal_task(
+        task_function=measurement,
+        TaskArgsModel=TaskArguments,
+        logger_name=logger.name,
+    )

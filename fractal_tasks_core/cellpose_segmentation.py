@@ -452,5 +452,7 @@ if __name__ == "__main__":
         bounding_box_ROI_table_name: Optional[str] = None
 
     run_fractal_task(
-        task_function=cellpose_segmentation, TaskArgsModel=TaskArguments
+        task_function=cellpose_segmentation,
+        TaskArgsModel=TaskArguments,
+        logger_name=logger.name,
     )

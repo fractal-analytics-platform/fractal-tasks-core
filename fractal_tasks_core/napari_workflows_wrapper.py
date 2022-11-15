@@ -569,5 +569,7 @@ if __name__ == "__main__":
         expected_dimensions: int = 3
 
     run_fractal_task(
-        task_function=napari_workflows_wrapper, TaskArgsModel=TaskArguments
+        task_function=napari_workflows_wrapper,
+        TaskArgsModel=TaskArguments,
+        logger_name=logger.name,
     )
