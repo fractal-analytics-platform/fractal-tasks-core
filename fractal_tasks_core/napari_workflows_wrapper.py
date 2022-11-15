@@ -21,7 +21,6 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Sequence
-from typing import Union
 
 import anndata as ad
 import dask.array as da
@@ -60,8 +59,8 @@ def napari_workflows_wrapper(
     metadata: Dict[str, Any],
     # Task-specific arguments:
     workflow_file: str,
-    input_specs: Dict[str, Dict[str, Union[str, int]]],
-    output_specs: Dict[str, Dict[str, Union[str, int]]],
+    input_specs: Dict[str, Dict[str, str]],
+    output_specs: Dict[str, Dict[str, str]],
     ROI_table_name: str = "FOV_ROI_table",
     level: int = 0,
     relabeling: bool = True,
@@ -567,6 +566,7 @@ if __name__ == "__main__":
         ROI_table_name: str = "FOV_ROI_table"
         level: int = 0
         relabeling: bool = True
+        expected_dimensions: int = 3
 
     run_fractal_task(
         task_function=napari_workflows_wrapper, TaskArgsModel=TaskArguments
