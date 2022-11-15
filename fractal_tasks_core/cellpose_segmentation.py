@@ -129,7 +129,8 @@ def cellpose_segmentation(
     flow_threshold: float = 0.4,
     model_type: str = "nuclei",
     ROI_table_name: str = "FOV_ROI_table",
-    bounding_box_ROI_table_name: str = None,
+    bounding_box_ROI_table_name: Optional[str] = None,
+    label_name: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Example inputs:
@@ -249,11 +250,12 @@ def cellpose_segmentation(
         )
 
     # Set channel label
-    try:
-        omero_label = zattrs["omero"]["channels"][ind_channel]["label"]
-        label_name = f"label_{omero_label}"
-    except (KeyError, IndexError):
-        label_name = f"label_{ind_channel}"
+    if label_name is None:
+        try:
+            omero_label = zattrs["omero"]["channels"][ind_channel]["label"]
+            label_name = f"label_{omero_label}"
+        except (KeyError, IndexError):
+            label_name = f"label_{ind_channel}"
 
     # Rescale datasets (only relevant for labeling_level>0)
     new_datasets = rescale_datasets(
@@ -450,6 +452,7 @@ if __name__ == "__main__":
         model_type: str = "nuclei"
         ROI_table_name: str = "FOV_ROI_table"
         bounding_box_ROI_table_name: Optional[str] = None
+        label_name: Optional[str] = None
 
     run_fractal_task(
         task_function=cellpose_segmentation,
