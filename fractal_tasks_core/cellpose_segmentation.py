@@ -16,10 +16,12 @@ Image segmentation via cellpose library
 """
 import json
 import logging
+import os
 import time
 from pathlib import Path
 from typing import Any
 from typing import Dict
+from typing import Literal
 from typing import Optional
 from typing import Sequence
 
@@ -127,10 +129,11 @@ def cellpose_segmentation(
     diameter_level0: float = 80.0,
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
-    model_type: str = "nuclei",
     ROI_table_name: str = "FOV_ROI_table",
     bounding_box_ROI_table_name: Optional[str] = None,
     label_name: Optional[str] = None,
+    model_type: Literal["nuclei", "cyto", "cyto2"] = "nuclei",
+    pretrained_model: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Example inputs:
@@ -139,8 +142,24 @@ def cellpose_segmentation(
       component: myplate.zarr/B/03/0/
       metadata: {...}
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    :param input_paths: TBD (fractal default arg)
+    :param output_path: TBD (fractal default arg)
+    :param metadata: TBD (fractal default arg)
+    :param component: TBD (fractal default arg)
+    :type labeling_channel: TBD
+    :type : TBD
+    :type labeling_level: TBD
+    :type relabeling: TBD
+    :type anisotropy: TBD
+    :type diameter_level0: TBD
+    :type cellprob_threshold: TBD
+    :type flow_threshold: TBD
+    :type ROI_table_name: TBD
+    :type bounding_box_ROI_table_name: TBD
+    :type label_name: TBD
+    :type model_type: TBD
+    :type pretrained_model: TBD. If not ``None``, this takes precedence
+                            over ``model_type``.
     """
 
     # Set input path
@@ -227,9 +246,13 @@ def cellpose_segmentation(
                 )
             anisotropy = pixel_size_z / pixel_size_x
 
-    # Check model_type
-    if model_type not in ["nuclei", "cyto2", "cyto"]:
-        raise Exception(f"ERROR model_type={model_type} is not allowed.")
+    # Prelminary checks on Cellpose model
+    if pretrained_model is None:
+        if model_type not in ["nuclei", "cyto2", "cyto"]:
+            raise ValueError(f"ERROR model_type={model_type} is not allowed.")
+    else:
+        if not os.path.exists(pretrained_model):
+            raise ValueError(f"{pretrained_model=} does not exist.")
 
     # Load zattrs file
     zattrs_file = f"{zarrurl}.zattrs"
@@ -303,7 +326,11 @@ def cellpose_segmentation(
     )
 
     # Initialize cellpose
-    model = models.Cellpose(gpu=use_gpu(), model_type=model_type)
+    gpu = use_gpu()
+    if pretrained_model:
+        model = models.Cellpose(gpu=gpu, pretrained_model=pretrained_model)
+    else:
+        model = models.Cellpose(gpu=gpu, model_type=model_type)
 
     # Initialize other things
     logger.info(f"[{well_id}] Start cellpose_segmentation task for {zarrurl}")
@@ -311,6 +338,7 @@ def cellpose_segmentation(
     logger.info(f"[{well_id}] do_3D: {do_3D}")
     logger.info(f"[{well_id}] labeling_level: {labeling_level}")
     logger.info(f"[{well_id}] model_type: {model_type}")
+    logger.info(f"[{well_id}] pretrained_model: {pretrained_model}")
     logger.info(f"[{well_id}] anisotropy: {anisotropy}")
     logger.info(f"[{well_id}] Total well shape/chunks:")
     logger.info(f"[{well_id}] {data_zyx.shape}")
@@ -449,10 +477,11 @@ if __name__ == "__main__":
         diameter_level0: float = 80.0
         cellprob_threshold: float = 0.0
         flow_threshold: float = 0.4
-        model_type: str = "nuclei"
         ROI_table_name: str = "FOV_ROI_table"
         bounding_box_ROI_table_name: Optional[str] = None
         label_name: Optional[str] = None
+        model_type: Literal["nuclei", "cyto", "cyto2"] = "nuclei"
+        pretrained_model: Optional[str] = None
 
     run_fractal_task(
         task_function=cellpose_segmentation,
