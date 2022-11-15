@@ -69,7 +69,7 @@ def segment_FOV(
     Description
 
     :param dummy: this is a placeholder
-    :type dummy: int
+    :param dummy: int
     """
 
     # Write some debugging info
@@ -146,19 +146,19 @@ def cellpose_segmentation(
     :param output_path: TBD (fractal default arg)
     :param metadata: TBD (fractal default arg)
     :param component: TBD (fractal default arg)
-    :type labeling_channel: TBD
-    :type labeling_level: TBD
-    :type relabeling: TBD
-    :type anisotropy: TBD
-    :type diameter_level0: TBD
-    :type cellprob_threshold: TBD
-    :type flow_threshold: TBD
-    :type ROI_table_name: TBD
-    :type bounding_box_ROI_table_name: TBD
-    :type label_name: TBD
-    :type model_type: TBD
-    :type pretrained_model: TBD. If not ``None``, this takes precedence
-                            over ``model_type``.
+    :param labeling_channel: TBD
+    :param labeling_level: TBD
+    :param relabeling: TBD
+    :param anisotropy: TBD
+    :param diameter_level0: TBD
+    :param cellprob_threshold: TBD
+    :param flow_threshold: TBD
+    :param ROI_table_name: TBD
+    :param bounding_box_ROI_table_name: TBD
+    :param label_name: TBD
+    :param model_type: TBD
+    :param pretrained_model: TBD. If not ``None``, this takes precedence
+                             over ``model_type``.
     """
 
     # Set input path
