@@ -76,8 +76,6 @@
         },
         "executable": "napari_workflows_wrapper.py",
         "meta": {"executor": "cpu-low", "parallelization_level": "well"}
-
     }
-
 ]
 }
