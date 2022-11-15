@@ -33,7 +33,7 @@ Other changes
 
 Other changes
 ~~~~~~~~~~~~~
-* Fix `executable`` fields in manifest.
+* Fix ``executable`` fields in manifest.
 * Remove ``graphviz`` dependency.
 
 
@@ -48,7 +48,7 @@ New features
 
 Other changes
 ~~~~~~~~~~~~~
-* Deprecate `dummy` and `dummy_fail` tasks.
+* Deprecate ``dummy`` and ``dummy_fail`` tasks.
 
 0.2.6
 -----
