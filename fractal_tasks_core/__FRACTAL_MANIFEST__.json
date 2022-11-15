@@ -65,7 +65,6 @@
         "meta": {"executor": "cpu-low", "parallelization_level": "well"}
     },
     {
-
         "name": "Napari workflows wrapper",
         "input_type": "zarr",
         "output_type": "zarr",
@@ -75,7 +74,7 @@
             "relabeling": true,
             "expected_dimensions": 3
         },
-        "executable": "napari_workflow_wrapper.py",
+        "executable": "napari_workflows_wrapper.py",
         "meta": {"executor": "cpu-low", "parallelization_level": "well"}
 
     }
