@@ -7,7 +7,8 @@ Changelog
 Other changes
 ~~~~~~~~~~~~~
 * Always log START/END times for each task (#204).
-* Add ``label_name`` optional argument to ``cellpose_segmentation`` (#207).
+* Add ``label_name`` argument to ``cellpose_segmentation`` (#207).
+* Add ``pretrained_model`` argument to ``cellpose_segmentation`` (#207).
 
 0.3.3
 -----
