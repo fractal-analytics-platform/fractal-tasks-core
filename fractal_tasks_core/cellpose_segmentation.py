@@ -147,7 +147,6 @@ def cellpose_segmentation(
     :param metadata: TBD (fractal default arg)
     :param component: TBD (fractal default arg)
     :type labeling_channel: TBD
-    :type : TBD
     :type labeling_level: TBD
     :type relabeling: TBD
     :type anisotropy: TBD
