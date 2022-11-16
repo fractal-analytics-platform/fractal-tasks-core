@@ -1,6 +1,15 @@
 Changelog
 =========
 
+
+0.3.5
+-----
+
+Other changes
+~~~~~~~~~~~~~
+* Relax constraint about outputs in ``napari_worfklows_wrapper`` (#209).
+
+
 0.3.4
 -----
 
