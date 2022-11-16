@@ -96,7 +96,7 @@ def define_omero_channels(
     return omero_channels
 
 
-def create_zarr_structure(
+def create_zarr_structure_multiplex(
     *,
     input_paths: Sequence[Path],
     output_path: Path,
@@ -197,7 +197,7 @@ def create_zarr_structure(
 
         # Check that plate matches with all other plates already present
         current_plates = [item["plate"] for item in dict_acquisitions.values()]
-        if plate not in current_plates:
+        if current_plates and (plate not in current_plates):
             raise ValueError(f"{plate=}, {current_plates=}")
 
         # Check that all channels are in the allowed_channels
@@ -220,28 +220,30 @@ def create_zarr_structure(
         dict_acquisitions[acquisition]["actual_channels"] = actual_channels
 
     debug(dict_acquisitions)
+    acquisitions = sorted(list(dict_acquisitions.keys()))
+    current_plates = [item["plate"] for item in dict_acquisitions.values()]
+    if len(set(current_plates)) > 1:
+        raise ValueError(f"{current_plates=}")
 
-    raise NotImplementedError("Nothing implemented from here on")
+    zarrurl = dict_acquisitions[acquisitions[0]]["plate"] + ".zarr"
+    full_zarrurl = str(output_path.parent / zarrurl)
+    logger.info(f"Creating {full_zarrurl=}")
+    group_plate = zarr.group(full_zarrurl)
 
     zarrurls: Dict[str, List[str]] = {"plate": [], "well": []}
+    zarrurls["plate"].append(zarrurl)
 
     ################################################################
-    for plate in plates:
+    for acquisition in acquisitions:
         # Define plate zarr
-        zarrurl = f"{plate}.zarr"
-        in_path = dict_plate_paths[plate]
-        logger.info(f"Creating {zarrurl}")
-        group_plate = zarr.group(output_path.parent / zarrurl)
-        zarrurls["plate"].append(zarrurl)
+        image_folder = dict_acquisitions[acquisition]["image_folder"]
+        logger.info(f"Looking at {image_folder=}")
 
         # Obtain FOV-metadata dataframe
         try:
-            # FIXME
-            # Find a smart way to include these metadata files in the dataset
-            # e.g., as resources
             if metadata_table == "mrf_mlf":
-                mrf_path = f"{in_path}/MeasurementDetail.mrf"
-                mlf_path = f"{in_path}/MeasurementData.mlf"
+                mrf_path = f"{image_folder}/MeasurementDetail.mrf"
+                mlf_path = f"{image_folder}/MeasurementData.mlf"
                 site_metadata, total_files = parse_yokogawa_metadata(
                     mrf_path, mlf_path
                 )
@@ -261,21 +263,23 @@ def create_zarr_structure(
             raise Exception(pixel_size_z, pixel_size_y, pixel_size_x)
 
         # Identify all wells
-        # plate_prefix = dict_plate_prefixes[plate]
-        plate_prefix = None  # FIXME
-
-        plate_image_iter = glob(f"{in_path}/{plate_prefix}_{ext_glob_pattern}")
+        plate_prefix = dict_acquisitions[acquisition]["plate_prefix"]
+        glob_string = f"{image_folder}/{plate_prefix}_{ext_glob_pattern}"
+        logger.info(f"{glob_string=}")
+        plate_image_iter = glob(glob_string)
 
         wells = [
             parse_filename(os.path.basename(fn))["well"]
             for fn in plate_image_iter
         ]
         wells = sorted(list(set(wells)))
+        logger.info(f"{wells=}")
 
         # Verify that all wells have all channels
+        actual_channels = dict_acquisitions[acquisition]["actual_channels"]
         for well in wells:
             well_image_iter = glob(
-                f"{in_path}/{plate_prefix}_{well}{ext_glob_pattern}"
+                f"{image_folder}/{plate_prefix}_{well}{ext_glob_pattern}"
             )
             well_channels = []
             for fpath in well_image_iter:
@@ -308,7 +312,7 @@ def create_zarr_structure(
         col_list = sorted(list(set(col_list)))
 
         group_plate.attrs["plate"] = {
-            "acquisitions": [{"id": 1, "name": plate}],
+            "acquisitions": [{"id": acquisition, "name": plate}],
             "columns": [{"name": col} for col in col_list],
             "rows": [{"name": row} for row in row_list],
             "wells": [
@@ -400,6 +404,8 @@ def create_zarr_structure(
                 write_elem(group_tables, "FOV_ROI_table", FOV_ROIs_table)
                 write_elem(group_tables, "well_ROI_table", well_ROIs_table)
 
+    raise NotImplementedError("Nothing implemented from here on")
+
     metadata_update = dict(
         plate=zarrurls["plate"],
         well=zarrurls["well"],
@@ -425,7 +431,7 @@ if __name__ == "__main__":
         metadata_table: str = "mrf_mlf"
 
     run_fractal_task(
-        task_function=create_zarr_structure,
+        task_function=create_zarr_structure_multiplex,
         TaskArgsModel=TaskArguments,
         logger_name=logger.name,
     )
