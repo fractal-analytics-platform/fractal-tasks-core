@@ -81,9 +81,15 @@ def yokogawa_to_zarr(
     from devtools import debug
 
     debug(metadata)
-    acquisition = metadata["image_to_acquisition"][component]
-    chl_list = metadata["channel_list"][acquisition]
-    original_path_list = metadata["original_paths"][acquisition]
+    # FIXME
+    try:
+        acquisition = metadata["image_to_acquisition"][component]
+        chl_list = metadata["channel_list"][acquisition]
+        original_path_list = metadata["original_paths"][acquisition]
+    except KeyError:
+        chl_list = metadata["channel_list"]
+        original_path_list = metadata["original_paths"]
+
     in_path = Path(original_path_list[0]).parent
     ext = Path(original_path_list[0]).name
     num_levels = metadata["num_levels"]
