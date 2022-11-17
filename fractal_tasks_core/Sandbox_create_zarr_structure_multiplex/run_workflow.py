@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from devtools import debug
+from lib_validate_schema import validate_schema
 
 from fractal_tasks_core.create_zarr_structure_multiplex import (
     create_zarr_structure_multiplex,
@@ -52,6 +53,17 @@ metadata_update = create_zarr_structure_multiplex(
 )
 metadata.update(metadata_update)
 debug(metadata)
+
+
+# OME-NGFF JSON validation
+
+image_zarr = Path(zarr_path.parent / metadata["image"][0])
+well_zarr = image_zarr.parent
+plate_zarr = image_zarr.parents[2]
+validate_schema(path=str(image_zarr), type="image")
+validate_schema(path=str(well_zarr), type="well")
+validate_schema(path=str(plate_zarr), type="plate")
+
 
 # Yokogawa to zarr
 for component in metadata["image"]:
