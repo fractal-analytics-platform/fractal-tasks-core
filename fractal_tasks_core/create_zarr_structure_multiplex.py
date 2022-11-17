@@ -151,12 +151,12 @@ def create_zarr_structure_multiplex(
     # Identify all plates and all channels, per input folders
     dict_acquisitions: Dict[int, Dict] = {}
 
-    # FIXME
-    # find a smart way to remove it
     ext_glob_pattern = input_paths[0].name
+    debug(ext_glob_pattern)
 
-    for ind_in_path, in_path in enumerate(input_paths):
-        acquisition = ind_in_path + 1
+    for ind_in_path, in_path in enumerate(sorted(input_paths)):
+        acquisition = ind_in_path
+        dict_acquisitions[acquisition] = {}
 
         channels = []
         plates = []
@@ -164,9 +164,10 @@ def create_zarr_structure_multiplex(
         dict_plate_paths: Dict = {}
 
         # Loop over all images
-        input_filename_iter = in_path.parent.glob(in_path.name)
+        input_filename_iter = in_path.parent.glob(ext_glob_pattern)
         for fn in input_filename_iter:
             try:
+                debug(fn)
                 filename_metadata = parse_filename(fn.name)
                 plate = filename_metadata["plate"]
                 plates.append(plate)
@@ -187,18 +188,19 @@ def create_zarr_structure_multiplex(
             f"Channels: {channels}\n"
         )
 
-        # Check that only one (plate,plate_prefix) is found
+        # Check that a folder includes a single plate
         if len(plates) > 1:
-            raise ValueError(f"{info}ERROR: {len(plates)} plates detected")
+            raise (f"{info}ERROR: {len(plates)} plates detected")
         elif len(plates) == 0:
             raise Exception(f"{info}ERROR: No plates detected")
-        plate = plates[0]
+        original_plate = plates[0]
         plate_prefix = plate_prefixes[0]
 
-        # Check that plate matches with all other plates already present
-        current_plates = [item["plate"] for item in dict_acquisitions.values()]
-        if current_plates and (plate not in current_plates):
-            raise ValueError(f"{plate=}, {current_plates=}")
+        # Replace plate with the one of acquisition 0, if needed
+        if acquisition > 0:
+            old_plate = plate
+            plate = dict_acquisitions[0]["plate"]
+            logger.warning(f"For {acquisition=}, we replace {original_plate=} with {plate=} (the one for acquisition 0)")
 
         # Check that all channels are in the allowed_channels
         if not set(channels).issubset(set(channel_parameters.keys())):
@@ -211,12 +213,15 @@ def create_zarr_structure_multiplex(
         actual_channels = []
         for ind_ch, ch in enumerate(channels):
             actual_channels.append(ch)
+        logger.info(f"plate: {plate}")
         logger.info(f"actual_channels: {actual_channels}")
 
         dict_acquisitions[acquisition] = {}
         dict_acquisitions[acquisition]["plate"] = plate
+        dict_acquisitions[acquisition]["original_plate"] = original_plate
         dict_acquisitions[acquisition]["plate_prefix"] = plate_prefix
         dict_acquisitions[acquisition]["image_folder"] = str(in_path.parent)
+        dict_acquisitions[acquisition]["original_paths"] = [str(in_path)]
         dict_acquisitions[acquisition]["actual_channels"] = actual_channels
 
     debug(dict_acquisitions)
@@ -224,17 +229,25 @@ def create_zarr_structure_multiplex(
     current_plates = [item["plate"] for item in dict_acquisitions.values()]
     if len(set(current_plates)) > 1:
         raise ValueError(f"{current_plates=}")
+    plate = current_plates[0]
 
     zarrurl = dict_acquisitions[acquisitions[0]]["plate"] + ".zarr"
     full_zarrurl = str(output_path.parent / zarrurl)
     logger.info(f"Creating {full_zarrurl=}")
     group_plate = zarr.group(full_zarrurl)
+    group_plate.attrs["plate"] = {"acquisitions" : [{"id": acquisition, "name": original_plate} for acquisition in acquisitions]}
 
-    zarrurls: Dict[str, List[str]] = {"plate": [], "well": []}
+    zarrurls: Dict[str, List[str]] = {"plate": [], "image": []}
+    dict_acquisitions["image-to-acquisition"] = {}
     zarrurls["plate"].append(zarrurl)
 
     ################################################################
+    debug(acquisitions)
+
     for acquisition in acquisitions:
+
+        debug(acquisition)
+
         # Define plate zarr
         image_folder = dict_acquisitions[acquisition]["image_folder"]
         logger.info(f"Looking at {image_folder=}")
@@ -311,33 +324,43 @@ def create_zarr_structure_multiplex(
         row_list = sorted(list(set(row_list)))
         col_list = sorted(list(set(col_list)))
 
-        group_plate.attrs["plate"] = {
-            "acquisitions": [{"id": acquisition, "name": plate}],
-            "columns": [{"name": col} for col in col_list],
-            "rows": [{"name": row} for row in row_list],
-            "wells": [
+        group_plate.attrs["plate"]["columns"] = [{"name": col} for col in col_list]
+        group_plate.attrs["plate"]["rows"] = [{"name": row} for row in row_list]
+        group_plate.attrs["plate"]["wells"] = [
                 {
                     "path": well_row_column[0] + "/" + well_row_column[1],
                     "rowIndex": row_list.index(well_row_column[0]),
                     "columnIndex": col_list.index(well_row_column[1]),
                 }
                 for well_row_column in well_rows_columns
-            ],
-        }
+            ]
 
         for row, column in well_rows_columns:
 
-            group_well = group_plate.create_group(f"{row}/{column}/")
+            from zarr.errors import ContainsGroupError
+            try:
+                group_well = group_plate.create_group(f"{row}/{column}/")
+                logging.info(f"Created new group_well at {row}/{column}/")
+                group_well.attrs["well"] = {
+                    "images": [{"path": f"{acquisition}"}],
+                    "version": __OME_NGFF_VERSION__,
+                }
+            except ContainsGroupError:
+                group_well = zarr.open_group(f"{full_zarrurl}/{row}/{column}/", mode="a")
+                logging.info(f"Loaded existing group_well from {full_zarrurl}/{row}/{column}")
+                debug(group_well.attrs["well"]["images"])
+                current_images = group_well.attrs["well"]["images"] + [{"path": f"{acquisition}"}]
+                group_well.attrs["well"] = dict(
+                                          images=current_images,
+                                          version=group_well.attrs["well"]["version"])
 
-            group_well.attrs["well"] = {
-                "images": [{"path": "0"}],
-                "version": __OME_NGFF_VERSION__,
-            }
+            group_image = group_well.create_group(f"{acquisition}/")  # noqa: F841
+            logging.info(f"Created image group {row}/{column}/{acquisition}")
+            image = f"{plate}.zarr/{row}/{column}/{acquisition}"
+            zarrurls["image"].append(image)
+            dict_acquisitions["image-to-acquisition"][image] = acquisition
 
-            group_FOV = group_well.create_group("0/")  # noqa: F841
-            zarrurls["well"].append(f"{plate}.zarr/{row}/{column}/0/")
-
-            group_FOV.attrs["multiscales"] = [
+            group_image.attrs["multiscales"] = [
                 {
                     "version": __OME_NGFF_VERSION__,
                     "axes": [
@@ -379,7 +402,7 @@ def create_zarr_structure_multiplex(
                 }
             ]
 
-            group_FOV.attrs["omero"] = {
+            group_image.attrs["omero"] = {
                 "id": 1,  # FIXME does this depend on the plate number?
                 "name": "TBD",
                 "version": __OME_NGFF_VERSION__,
@@ -388,11 +411,10 @@ def create_zarr_structure_multiplex(
                 ),
             }
 
-            # FIXME
             if has_mrf_mlf_metadata:
-                group_tables = group_FOV.create_group("tables/")  # noqa: F841
+                group_tables = group_image.create_group("tables/")  # noqa: F841
 
-                # Prepare FOV/well tables
+                # Prepare image/well tables
                 FOV_ROIs_table = prepare_FOV_ROI_table(
                     site_metadata.loc[f"{row+column}"],
                 )
@@ -404,15 +426,20 @@ def create_zarr_structure_multiplex(
                 write_elem(group_tables, "FOV_ROI_table", FOV_ROIs_table)
                 write_elem(group_tables, "well_ROI_table", well_ROIs_table)
 
-    raise NotImplementedError("Nothing implemented from here on")
+
+    debug(dict_acquisitions)
+
+    channel_list = {acquisition: dict_acquisitions[acquisition]["actual_channels"] for acquisition in acquisitions}
+    original_paths = {acquisition: dict_acquisitions[acquisition]["original_paths"] for acquisition in acquisitions}
 
     metadata_update = dict(
         plate=zarrurls["plate"],
-        well=zarrurls["well"],
+        image=zarrurls["image"],
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        channel_list=actual_channels,
-        original_paths=[str(p) for p in input_paths],
+        channel_list=channel_list,
+        original_paths=original_paths,
+        image_to_acquisition=dict_acquisitions["image-to-acquisition"],
     )
     return metadata_update
 
