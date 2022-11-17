@@ -94,7 +94,7 @@ def create_zarr_structure_multiplex(
         )
 
     # Identify all plates and all channels, per input folders
-    dict_acquisitions: Dict[int, Dict] = {}
+    dict_acquisitions: Dict = {}
 
     ext_glob_pattern = input_paths[0].name
 
@@ -132,9 +132,9 @@ def create_zarr_structure_multiplex(
 
         # Check that a folder includes a single plate
         if len(plates) > 1:
-            raise (f"{info}ERROR: {len(plates)} plates detected")
+            raise ValueError(f"{info}ERROR: {len(plates)} plates detected")
         elif len(plates) == 0:
-            raise Exception(f"{info}ERROR: No plates detected")
+            raise ValueError(f"{info}ERROR: No plates detected")
         original_plate = plates[0]
         plate_prefix = plate_prefixes[0]
 
@@ -270,13 +270,10 @@ def create_zarr_structure_multiplex(
         row_list = sorted(list(set(row_list)))
         col_list = sorted(list(set(col_list)))
 
-        group_plate.attrs["plate"]["columns"] = [
-            {"name": col} for col in col_list
-        ]
-        group_plate.attrs["plate"]["rows"] = [
-            {"name": row} for row in row_list
-        ]
-        group_plate.attrs["plate"]["wells"] = [
+        plate_attrs = group_plate.attrs["plate"]
+        plate_attrs["columns"] = [{"name": col} for col in col_list]
+        plate_attrs["rows"] = [{"name": row} for row in row_list]
+        plate_attrs["wells"] = [
             {
                 "path": well_row_column[0] + "/" + well_row_column[1],
                 "rowIndex": row_list.index(well_row_column[0]),
@@ -284,6 +281,7 @@ def create_zarr_structure_multiplex(
             }
             for well_row_column in well_rows_columns
         ]
+        group_plate.attrs["plate"] = plate_attrs
 
         for row, column in well_rows_columns:
 
