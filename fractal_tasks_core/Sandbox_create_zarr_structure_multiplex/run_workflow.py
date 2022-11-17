@@ -3,7 +3,9 @@ from pathlib import Path
 
 from devtools import debug
 
-from fractal_tasks_core.create_zarr_structure_multiplex import create_zarr_structure_multiplex
+from fractal_tasks_core.create_zarr_structure_multiplex import (
+    create_zarr_structure_multiplex,
+)
 from fractal_tasks_core.yokogawa_to_zarr import yokogawa_to_zarr
 
 
@@ -33,8 +35,11 @@ coarsening_xy = 2
 
 
 # Init
-#input_paths = [Path("./images/10.5281_zenodo.7059515/*.png")]
-input_paths = list(folder / "*.png" for folder in Path("images/tiny_multiplexing/").glob("cycle*"))
+# input_paths = [Path("./images/10.5281_zenodo.7059515/*.png")]
+input_paths = list(
+    folder / "*.png"
+    for folder in Path("images/tiny_multiplexing/").glob("cycle*")
+)
 
 zarr_path = Path("tmp_out/*.zarr")
 metadata = {}
