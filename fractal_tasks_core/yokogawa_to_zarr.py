@@ -78,12 +78,19 @@ def yokogawa_to_zarr(
     if len(input_paths) > 1:
         raise NotImplementedError
 
-    chl_list = metadata["channel_list"]
-    original_path_list = metadata["original_paths"]
+    from devtools import debug
+
+    debug(metadata)
+    acquisition = metadata["image_to_acquisition"][component]
+    chl_list = metadata["channel_list"][acquisition]
+    original_path_list = metadata["original_paths"][acquisition]
     in_path = Path(original_path_list[0]).parent
     ext = Path(original_path_list[0]).name
     num_levels = metadata["num_levels"]
     coarsening_xy = metadata["coarsening_xy"]
+
+    debug(chl_list)
+    debug(original_path_list)
 
     # Define well
     component_split = component.split("/")
@@ -112,6 +119,7 @@ def yokogawa_to_zarr(
     max_x = well_indices[0][5]
 
     # Load a single image, to retrieve useful information
+    debug(f"{in_path}/*_{well_ID}_*{ext}")
     sample = imread(glob(f"{in_path}/*_{well_ID}_*{ext}")[0])
 
     # Initialize zarr
