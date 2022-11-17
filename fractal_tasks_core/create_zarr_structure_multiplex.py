@@ -27,6 +27,7 @@ import zarr
 from anndata.experimental import write_elem
 
 import fractal_tasks_core
+from fractal_tasks_core.lib_omero import define_omero_channels
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
@@ -38,61 +39,6 @@ __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 import logging
 
 logger = logging.getLogger(__name__)
-
-
-def define_omero_channels(
-    actual_channels: Sequence[str],
-    channel_parameters: Dict[str, Any],
-    bit_depth: int,
-) -> List[Dict[str, Any]]:
-    """
-    Description
-
-    :param actual_channels: TBD
-    :param channel_parameters: TBD
-    :param bit_depth: TBD
-    :returns: omero_channels
-    """
-
-    omero_channels = []
-    default_colormaps = ["00FFFF", "FF00FF", "FFFF00"]
-    for channel in actual_channels:
-
-        # Set colormap. If missing, use the default ones (for the first three
-        # channels) or gray
-        colormap = channel_parameters[channel].get("colormap", None)
-        if colormap is None:
-            try:
-                colormap = default_colormaps.pop()
-            except IndexError:
-                colormap = "808080"
-
-        omero_channels.append(
-            {
-                "active": True,
-                "coefficient": 1,
-                "color": colormap,
-                "family": "linear",
-                "inverted": False,
-                "label": channel_parameters[channel].get("label", channel),
-                "window": {
-                    "min": 0,
-                    "max": 2**bit_depth - 1,
-                },
-            }
-        )
-
-        try:
-            omero_channels[-1]["window"]["start"] = channel_parameters[
-                channel
-            ]["start"]
-            omero_channels[-1]["window"]["end"] = channel_parameters[channel][
-                "end"
-            ]
-        except KeyError:
-            pass
-
-    return omero_channels
 
 
 def create_zarr_structure_multiplex(
