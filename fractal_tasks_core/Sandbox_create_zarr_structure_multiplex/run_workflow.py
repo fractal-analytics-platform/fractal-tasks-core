@@ -9,7 +9,29 @@ from fractal_tasks_core.create_zarr_structure_multiplex import (
 from fractal_tasks_core.yokogawa_to_zarr import yokogawa_to_zarr
 
 
-channel_parameters = {
+channel_parameters_1 = {
+    "A01_C01": {
+        "label": "DAPI",
+        "colormap": "00FFFF",
+        "start": 0,
+        "end": 700,
+    },
+}
+channel_parameters_2 = {
+    "A01_C01": {
+        "label": "DAPI",
+        "colormap": "00FFFF",
+        "start": 0,
+        "end": 700,
+    },
+    "A02_C03": {
+        "label": "Na/K ATPase",
+        "colormap": "FFFF00",
+        "start": 0,
+        "end": 1500,
+    },
+}
+channel_parameters_3 = {
     "A01_C01": {
         "label": "DAPI",
         "colormap": "00FFFF",
@@ -17,17 +39,22 @@ channel_parameters = {
         "end": 700,
     },
     "A01_C02": {
-        "label": "nanog",
+        "label": "HSP60",
         "colormap": "FF00FF",
         "start": 0,
         "end": 180,
     },
     "A02_C03": {
-        "label": "Lamin B1",
+        "label": "Tubulin",
         "colormap": "FFFF00",
         "start": 0,
         "end": 1500,
     },
+}
+channel_parameters = {
+    0: channel_parameters_1,
+    1: channel_parameters_2,
+    2: channel_parameters_3,
 }
 
 num_levels = 2

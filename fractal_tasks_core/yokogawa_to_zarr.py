@@ -27,6 +27,7 @@ import dask.array as da
 import zarr
 from anndata import read_zarr
 from dask.array.image import imread
+from lib_read_fractal_metadata import get_parameter_from_metadata
 
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
@@ -78,19 +79,16 @@ def yokogawa_to_zarr(
     if len(input_paths) > 1:
         raise NotImplementedError
 
-    # FIXME: choose a more rigid structure?
-    try:
-        acquisition = metadata["image_to_acquisition"][component]
-        chl_list = metadata["channel_list"][acquisition]
-        original_path_list = metadata["original_paths"][acquisition]
-    except KeyError:
-        chl_list = metadata["channel_list"]
-        original_path_list = metadata["original_paths"]
+    parameters = get_parameter_from_metadata(
+        ["channel_list", "original_paths", "num_levels", "coarsening_xy"],
+        metadata,
+        output_path,
+        component,
+    )
+    chl_list, original_path_list, num_levels, coarsening_xy = parameters[:]
 
     in_path = Path(original_path_list[0]).parent
     ext = Path(original_path_list[0]).name
-    num_levels = metadata["num_levels"]
-    coarsening_xy = metadata["coarsening_xy"]
 
     # Define well
     component_split = component.split("/")

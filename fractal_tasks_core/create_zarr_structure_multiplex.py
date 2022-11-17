@@ -46,7 +46,7 @@ def create_zarr_structure_multiplex(
     input_paths: Sequence[Path],
     output_path: Path,
     metadata: Dict[str, Any] = None,
-    channel_parameters: Dict[str, Any],
+    channel_parameters: Dict[int, Dict[str, Any]],
     num_levels: int = 2,
     coarsening_xy: int = 2,
     metadata_table: str = "mrf_mlf",
@@ -147,10 +147,14 @@ def create_zarr_structure_multiplex(
             )
 
         # Check that all channels are in the allowed_channels
-        if not set(channels).issubset(set(channel_parameters.keys())):
+        if not set(channels).issubset(
+            set(channel_parameters[acquisition].keys())
+        ):
             msg = "ERROR in create_zarr_structure\n"
             msg += f"channels: {channels}\n"
-            msg += f"allowed_channels: {channel_parameters.keys()}\n"
+            msg += (
+                f"allowed_channels: {channel_parameters[acquisition].keys()}\n"
+            )
             raise Exception(msg)
 
         # Create actual_channels, i.e. a list of entries like "A01_C01"
@@ -180,14 +184,15 @@ def create_zarr_structure_multiplex(
     group_plate = zarr.group(full_zarrurl)
     group_plate.attrs["plate"] = {
         "acquisitions": [
-            {"id": acquisition, "name": original_plate}
+            {
+                "id": acquisition,
+                "name": dict_acquisitions[acquisition]["original_plate"],
+            }
             for acquisition in acquisitions
         ]
     }
 
-    zarrurls: Dict[str, List[str]] = {"plate": [], "image": []}
-    dict_acquisitions["image-to-acquisition"] = {}
-    zarrurls["plate"].append(zarrurl)
+    zarrurls: Dict[str, List[str]] = {"well": [], "image": []}
 
     ################################################################
     logging.info(f"{acquisitions=}")
@@ -291,9 +296,12 @@ def create_zarr_structure_multiplex(
                 group_well = group_plate.create_group(f"{row}/{column}/")
                 logging.info(f"Created new group_well at {row}/{column}/")
                 group_well.attrs["well"] = {
-                    "images": [{"path": f"{acquisition}"}],
+                    "images": [
+                        {"path": f"{acquisition}", "acquisition": acquisition}
+                    ],
                     "version": __OME_NGFF_VERSION__,
                 }
+                zarrurls["well"].append(f"{row}/{column}")
             except ContainsGroupError:
                 group_well = zarr.open_group(
                     f"{full_zarrurl}/{row}/{column}/", mode="a"
@@ -302,7 +310,7 @@ def create_zarr_structure_multiplex(
                     f"Loaded group_well from {full_zarrurl}/{row}/{column}"
                 )
                 current_images = group_well.attrs["well"]["images"] + [
-                    {"path": f"{acquisition}"}
+                    {"path": f"{acquisition}", "acquisition": acquisition}
                 ]
                 group_well.attrs["well"] = dict(
                     images=current_images,
@@ -315,7 +323,6 @@ def create_zarr_structure_multiplex(
             logging.info(f"Created image group {row}/{column}/{acquisition}")
             image = f"{plate}.zarr/{row}/{column}/{acquisition}"
             zarrurls["image"].append(image)
-            dict_acquisitions["image-to-acquisition"][image] = acquisition
 
             group_image.attrs["multiscales"] = [
                 {
@@ -364,7 +371,7 @@ def create_zarr_structure_multiplex(
                 "name": "TBD",
                 "version": __OME_NGFF_VERSION__,
                 "channels": define_omero_channels(
-                    actual_channels, channel_parameters, bit_depth
+                    actual_channels, channel_parameters[acquisition], bit_depth
                 ),
             }
 
@@ -395,13 +402,12 @@ def create_zarr_structure_multiplex(
     }
 
     metadata_update = dict(
-        plate=zarrurls["plate"],
+        well=zarrurls["well"],
         image=zarrurls["image"],
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         channel_list=channel_list,
         original_paths=original_paths,
-        image_to_acquisition=dict_acquisitions["image-to-acquisition"],
     )
     return metadata_update
 
@@ -414,7 +420,7 @@ if __name__ == "__main__":
         input_paths: Sequence[Path]
         output_path: Path
         metadata: Optional[Dict[str, Any]]
-        channel_parameters: Dict[str, Any]
+        channel_parameters: Dict[int, Dict[str, Any]]
         num_levels: int = 2
         coarsening_xy: int = 2
         metadata_table: str = "mrf_mlf"
