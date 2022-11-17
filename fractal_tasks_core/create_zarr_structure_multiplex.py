@@ -25,7 +25,6 @@ from typing import Sequence
 import pandas as pd
 import zarr
 from anndata.experimental import write_elem
-from devtools import debug
 
 import fractal_tasks_core
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
@@ -152,7 +151,6 @@ def create_zarr_structure_multiplex(
     dict_acquisitions: Dict[int, Dict] = {}
 
     ext_glob_pattern = input_paths[0].name
-    debug(ext_glob_pattern)
 
     for ind_in_path, in_path in enumerate(sorted(input_paths)):
         acquisition = ind_in_path
@@ -161,13 +159,11 @@ def create_zarr_structure_multiplex(
         channels = []
         plates = []
         plate_prefixes = []
-        dict_plate_paths: Dict = {}
 
         # Loop over all images
         input_filename_iter = in_path.parent.glob(ext_glob_pattern)
         for fn in input_filename_iter:
             try:
-                debug(fn)
                 filename_metadata = parse_filename(fn.name)
                 plate = filename_metadata["plate"]
                 plates.append(plate)
@@ -198,10 +194,10 @@ def create_zarr_structure_multiplex(
 
         # Replace plate with the one of acquisition 0, if needed
         if acquisition > 0:
-            old_plate = plate
             plate = dict_acquisitions[0]["plate"]
             logger.warning(
-                f"For {acquisition=}, we replace {original_plate=} with {plate=} (the one for acquisition 0)"
+                f"For {acquisition=}, we replace {original_plate=} with "
+                f"{plate=} (the one for acquisition 0)"
             )
 
         # Check that all channels are in the allowed_channels
@@ -226,7 +222,6 @@ def create_zarr_structure_multiplex(
         dict_acquisitions[acquisition]["original_paths"] = [str(in_path)]
         dict_acquisitions[acquisition]["actual_channels"] = actual_channels
 
-    debug(dict_acquisitions)
     acquisitions = sorted(list(dict_acquisitions.keys()))
     current_plates = [item["plate"] for item in dict_acquisitions.values()]
     if len(set(current_plates)) > 1:
@@ -249,11 +244,9 @@ def create_zarr_structure_multiplex(
     zarrurls["plate"].append(zarrurl)
 
     ################################################################
-    debug(acquisitions)
+    logging.info(f"{acquisitions=}")
 
     for acquisition in acquisitions:
-
-        debug(acquisition)
 
         # Define plate zarr
         image_folder = dict_acquisitions[acquisition]["image_folder"]
@@ -362,9 +355,8 @@ def create_zarr_structure_multiplex(
                     f"{full_zarrurl}/{row}/{column}/", mode="a"
                 )
                 logging.info(
-                    f"Loaded existing group_well from {full_zarrurl}/{row}/{column}"
+                    f"Loaded group_well from {full_zarrurl}/{row}/{column}"
                 )
-                debug(group_well.attrs["well"]["images"])
                 current_images = group_well.attrs["well"]["images"] + [
                     {"path": f"{acquisition}"}
                 ]
@@ -448,8 +440,6 @@ def create_zarr_structure_multiplex(
                 # Write tables
                 write_elem(group_tables, "FOV_ROI_table", FOV_ROIs_table)
                 write_elem(group_tables, "well_ROI_table", well_ROIs_table)
-
-    debug(dict_acquisitions)
 
     channel_list = {
         acquisition: dict_acquisitions[acquisition]["actual_channels"]

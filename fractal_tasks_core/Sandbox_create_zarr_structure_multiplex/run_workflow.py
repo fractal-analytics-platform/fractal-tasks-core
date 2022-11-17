@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 from devtools import debug
@@ -35,12 +34,10 @@ coarsening_xy = 2
 
 
 # Init
-# input_paths = [Path("./images/10.5281_zenodo.7059515/*.png")]
 input_paths = list(
     folder / "*.png"
     for folder in Path("images/tiny_multiplexing/").glob("cycle*")
 )
-
 zarr_path = Path("tmp_out/*.zarr")
 metadata = {}
 
@@ -55,7 +52,6 @@ metadata_update = create_zarr_structure_multiplex(
 )
 metadata.update(metadata_update)
 debug(metadata)
-assert metadata["image"]
 
 # Yokogawa to zarr
 for component in metadata["image"]:
