@@ -27,9 +27,11 @@ import dask.array as da
 import zarr
 from anndata import read_zarr
 from dask.array.image import imread
-from lib_read_fractal_metadata import get_parameter_from_metadata
 
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
+from fractal_tasks_core.lib_read_fractal_metadata import (
+    get_parameter_from_metadata,
+)
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
