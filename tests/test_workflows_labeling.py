@@ -178,7 +178,7 @@ def test_workflow_with_per_FOV_labeling(
     debug(metadata)
 
     # Per-FOV labeling
-    for component in metadata["well"]:
+    for component in metadata["image"]:
         cellpose_segmentation(
             input_paths=[zarr_path],
             output_path=zarr_path,
@@ -191,7 +191,7 @@ def test_workflow_with_per_FOV_labeling(
         )
 
     # Per-FOV measurement
-    for component in metadata["well"]:
+    for component in metadata["image"]:
         measurement(
             input_paths=[zarr_path],
             output_path=zarr_path,
@@ -208,14 +208,14 @@ def test_workflow_with_per_FOV_labeling(
 
     # Load measurements
     meas = ad.read_zarr(
-        zarr_path.parent / metadata["well"][0] / "tables/measurement/"
+        zarr_path.parent / metadata["image"][0] / "tables/measurement/"
     )
     print(meas.var_names)
     assert "area" in meas.var_names
     assert "bbox_area" in meas.var_names
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path.parent / metadata["well"][0])
+    image_zarr = Path(zarr_path.parent / metadata["image"][0])
     label_zarr = image_zarr / "labels/label_DAPI"
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
@@ -253,7 +253,7 @@ def test_workflow_with_per_FOV_labeling_2D(
     )
 
     # Per-FOV labeling
-    for component in metadata["well"]:
+    for component in metadata["image"]:
         cellpose_segmentation(
             input_paths=[zarr_path_mip],
             output_path=zarr_path_mip,
@@ -266,7 +266,7 @@ def test_workflow_with_per_FOV_labeling_2D(
         )
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path_mip.parent / metadata["well"][0])
+    image_zarr = Path(zarr_path_mip.parent / metadata["image"][0])
     debug(image_zarr)
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
@@ -294,7 +294,7 @@ def test_workflow_measurement_2D(
     )
 
     # Per-FOV measurement
-    for component in metadata["well"]:
+    for component in metadata["image"]:
         measurement(
             input_paths=[zarr_path_mip],
             output_path=zarr_path_mip,
@@ -311,7 +311,7 @@ def test_workflow_measurement_2D(
 
     # Load measurements
     meas = ad.read_zarr(
-        zarr_path_mip.parent / metadata["well"][0] / "tables/measurement/"
+        zarr_path_mip.parent / metadata["image"][0] / "tables/measurement/"
     )
     print(meas.var_names)
     assert "area" in meas.var_names
@@ -354,7 +354,7 @@ def test_workflow_with_per_well_labeling_2D(
     metadata.update(metadata_update)
 
     # Yokogawa to zarr
-    for component in metadata["well"]:
+    for component in metadata["image"]:
         yokogawa_to_zarr(
             input_paths=[zarr_path],
             output_path=zarr_path,
@@ -374,7 +374,7 @@ def test_workflow_with_per_well_labeling_2D(
     debug(metadata)
 
     # MIP
-    for component in metadata["well"]:
+    for component in metadata["image"]:
         maximum_intensity_projection(
             input_paths=[zarr_path_mip],
             output_path=zarr_path_mip,
@@ -383,7 +383,7 @@ def test_workflow_with_per_well_labeling_2D(
         )
 
     # Whole-well labeling
-    for component in metadata["well"]:
+    for component in metadata["image"]:
         cellpose_segmentation(
             input_paths=[zarr_path_mip],
             output_path=zarr_path_mip,
@@ -397,7 +397,7 @@ def test_workflow_with_per_well_labeling_2D(
         )
 
     # Per-FOV measurement
-    for component in metadata["well"]:
+    for component in metadata["image"]:
         measurement(
             input_paths=[zarr_path_mip],
             output_path=zarr_path_mip,
@@ -414,14 +414,14 @@ def test_workflow_with_per_well_labeling_2D(
 
     # Load measurements
     meas = ad.read_zarr(
-        zarr_path_mip.parent / metadata["well"][0] / "tables/measurement/"
+        zarr_path_mip.parent / metadata["image"][0] / "tables/measurement/"
     )
     print(meas.var_names)
     assert "area" in meas.var_names
     assert "bbox_area" in meas.var_names
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path_mip.parent / metadata["well"][0])
+    image_zarr = Path(zarr_path_mip.parent / metadata["image"][0])
     debug(image_zarr)
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
@@ -461,7 +461,7 @@ def test_workflow_bounding_box(
     debug(metadata)
 
     # Per-FOV labeling
-    for component in metadata["well"]:
+    for component in metadata["image"]:
         cellpose_segmentation(
             input_paths=[zarr_path],
             output_path=zarr_path,
@@ -475,7 +475,7 @@ def test_workflow_bounding_box(
         )
 
     bbox_ROIs = ad.read_zarr(
-        zarr_path.parent / metadata["well"][0] / "tables/bbox_table/"
+        zarr_path.parent / metadata["image"][0] / "tables/bbox_table/"
     )
     assert bbox_ROIs.shape == (4, 6)
     assert len(bbox_ROIs) > 0
@@ -511,7 +511,7 @@ def test_workflow_bounding_box_with_overlap(
     debug(metadata)
 
     # Per-FOV labeling
-    for component in metadata["well"]:
+    for component in metadata["image"]:
         with pytest.raises(ValueError):
             cellpose_segmentation(
                 input_paths=[zarr_path],
