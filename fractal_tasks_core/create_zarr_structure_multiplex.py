@@ -193,6 +193,7 @@ def create_zarr_structure_multiplex(
     }
 
     zarrurls: Dict[str, List[str]] = {"well": [], "image": []}
+    zarrurls["plate"] = [plate]
 
     ################################################################
     logging.info(f"{acquisitions=}")
@@ -402,6 +403,7 @@ def create_zarr_structure_multiplex(
     }
 
     metadata_update = dict(
+        plate=zarrurls["plate"],
         well=zarrurls["well"],
         image=zarrurls["image"],
         num_levels=num_levels,
