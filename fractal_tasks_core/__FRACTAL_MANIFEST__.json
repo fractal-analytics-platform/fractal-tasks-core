@@ -19,7 +19,7 @@
         "input_type": "zarr",
         "output_type": "zarr",
         "executable": "yokogawa_to_zarr.py",
-        "meta": {"executor": "cpu-low", "parallelization_level": "well"}
+        "meta": {"executor": "cpu-low", "parallelization_level": "image"}
     },
     {
         "name": "Replicate Zarr structure",
@@ -34,7 +34,7 @@
         "input_type": "zarr",
         "output_type": "zarr",
         "executable": "maximum_intensity_projection.py",
-        "meta": {"executor": "cpu-low", "parallelization_level": "well"}
+        "meta": {"executor": "cpu-low", "parallelization_level": "image"}
     },
     {
         "name": "Cellpose Segmentation",
@@ -42,7 +42,7 @@
         "output_type": "zarr",
         "default_args": {"labeling_channel": "A01_C01"},
         "executable": "cellpose_segmentation.py",
-        "meta": {"executor": "gpu", "parallelization_level": "well"}
+        "meta": {"executor": "gpu", "parallelization_level": "image"}
     },
     {
         "name": "Measurement",
@@ -54,7 +54,7 @@
             "measurement_table_name": "nuclei"
         },
         "executable": "measurement.py",
-        "meta": {"executor": "cpu-low", "parallelization_level": "well"}
+        "meta": {"executor": "cpu-low", "parallelization_level": "image"}
     },
     {
         "name": "Illumination correction",
@@ -62,7 +62,7 @@
         "output_type": "zarr",
         "default_args": {"overwrite": false, "background": 100},
         "executable": "illumination_correction.py",
-        "meta": {"executor": "cpu-low", "parallelization_level": "well"}
+        "meta": {"executor": "cpu-low", "parallelization_level": "image"}
     },
     {
         "name": "Napari workflows wrapper",
@@ -75,7 +75,7 @@
             "expected_dimensions": 3
         },
         "executable": "napari_workflows_wrapper.py",
-        "meta": {"executor": "cpu-low", "parallelization_level": "well"}
+        "meta": {"executor": "cpu-low", "parallelization_level": "image"}
     }
 ]
 }

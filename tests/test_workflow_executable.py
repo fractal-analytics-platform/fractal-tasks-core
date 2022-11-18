@@ -87,7 +87,7 @@ def test_workflow_yokogawa_to_zarr(tmp_path: Path, zenodo_images: Path):
     debug(metadata)
 
     # Yokogawa to zarr
-    for component in metadata["well"]:
+    for component in metadata["image"]:
         args_yokogawa = dict(
             input_paths=[zarr_path],
             output_path=zarr_path,

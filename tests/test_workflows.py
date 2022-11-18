@@ -79,7 +79,7 @@ def test_workflow_yokogawa_to_zarr(tmp_path: Path, zenodo_images: Path):
     debug(metadata)
 
     # Yokogawa to zarr
-    for component in metadata["well"]:
+    for component in metadata["image"]:
         yokogawa_to_zarr(
             input_paths=[zarr_path],
             output_path=zarr_path,
@@ -89,7 +89,7 @@ def test_workflow_yokogawa_to_zarr(tmp_path: Path, zenodo_images: Path):
     debug(metadata)
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path.parent / metadata["well"][0])
+    image_zarr = Path(zarr_path.parent / metadata["image"][0])
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
     validate_schema(path=str(image_zarr), type="image")
@@ -129,7 +129,7 @@ def test_workflow_MIP(
     debug(metadata)
 
     # MIP
-    for component in metadata["well"]:
+    for component in metadata["image"]:
         maximum_intensity_projection(
             input_paths=[zarr_path_mip],
             output_path=zarr_path_mip,
@@ -138,7 +138,7 @@ def test_workflow_MIP(
         )
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path_mip.parent / metadata["well"][0])
+    image_zarr = Path(zarr_path_mip.parent / metadata["image"][0])
     debug(image_zarr)
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
@@ -183,7 +183,7 @@ def test_workflow_illumination_correction(
     caplog.clear()
 
     # Yokogawa to zarr
-    for component in metadata["well"]:
+    for component in metadata["image"]:
         yokogawa_to_zarr(
             input_paths=[zarr_path],
             output_path=zarr_path,
@@ -194,7 +194,7 @@ def test_workflow_illumination_correction(
     caplog.clear()
 
     # Illumination correction
-    for component in metadata["well"]:
+    for component in metadata["image"]:
         illumination_correction(
             input_paths=[zarr_path],
             output_path=zarr_path,
@@ -207,7 +207,7 @@ def test_workflow_illumination_correction(
     caplog.clear()
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path.parent / metadata["well"][0])
+    image_zarr = Path(zarr_path.parent / metadata["image"][0])
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
     validate_schema(path=str(image_zarr), type="image")

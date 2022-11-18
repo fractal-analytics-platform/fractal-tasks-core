@@ -88,7 +88,7 @@ def test_workflow_napari_worfklow(
             "label_name": "label_DAPI",
         },
     }
-    for component in metadata["well"]:
+    for component in metadata["image"]:
         napari_workflows_wrapper(
             input_paths=[zarr_path],
             output_path=zarr_path,
@@ -114,7 +114,7 @@ def test_workflow_napari_worfklow(
             "table_name": "regionprops_DAPI",
         },
     }
-    for component in metadata["well"]:
+    for component in metadata["image"]:
         napari_workflows_wrapper(
             input_paths=[zarr_path],
             output_path=zarr_path,
@@ -128,7 +128,7 @@ def test_workflow_napari_worfklow(
     debug(metadata)
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path.parent / metadata["well"][0])
+    image_zarr = Path(zarr_path.parent / metadata["image"][0])
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
     label_zarr = image_zarr / "labels/label_DAPI"
@@ -168,7 +168,7 @@ def test_workflow_napari_worfklow_label_input_only(
             "label_name": "label_DAPI",
         },
     }
-    for component in metadata["well"]:
+    for component in metadata["image"]:
         napari_workflows_wrapper(
             input_paths=[zarr_path],
             output_path=zarr_path,
@@ -195,7 +195,7 @@ def test_workflow_napari_worfklow_label_input_only(
             "label_name": "label_DAPI_expanded",
         },
     }
-    for component in metadata["well"]:
+    for component in metadata["image"]:
         napari_workflows_wrapper(
             input_paths=[zarr_path],
             output_path=zarr_path,
@@ -209,7 +209,7 @@ def test_workflow_napari_worfklow_label_input_only(
     debug(metadata)
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path.parent / metadata["well"][0])
+    image_zarr = Path(zarr_path.parent / metadata["image"][0])
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
     label_zarr = image_zarr / "labels/label_DAPI"
@@ -280,7 +280,7 @@ def test_relabeling(
         workflow_file = str(
             testdata_path / "napari_workflows" / RELABELING_CASE_1[0]
         )
-        for component in metadata["well"]:
+        for component in metadata["image"]:
             napari_workflows_wrapper(
                 input_paths=[zarr_path],
                 output_path=zarr_path,
@@ -299,7 +299,7 @@ def test_relabeling(
     debug(workflow_file)
     debug(input_specs)
     debug(output_specs)
-    for component in metadata["well"]:
+    for component in metadata["image"]:
         napari_workflows_wrapper(
             input_paths=[zarr_path],
             output_path=zarr_path,
@@ -312,7 +312,7 @@ def test_relabeling(
         )
     debug(metadata)
 
-    image_zarr = Path(zarr_path.parent / metadata["well"][0])
+    image_zarr = Path(zarr_path.parent / metadata["image"][0])
     validate_labels_and_measurements(
         image_zarr, label_name=LABEL_NAME, table_name=TABLE_NAME
     )
@@ -339,7 +339,7 @@ def test_fail_if_no_relabeling(
     debug(workflow_file)
     debug(input_specs)
     debug(output_specs)
-    for component in metadata["well"]:
+    for component in metadata["image"]:
         napari_workflows_wrapper(
             input_paths=[zarr_path],
             output_path=zarr_path,
@@ -353,7 +353,7 @@ def test_fail_if_no_relabeling(
         )
     debug(metadata)
 
-    image_zarr = Path(zarr_path.parent / metadata["well"][0])
+    image_zarr = Path(zarr_path.parent / metadata["image"][0])
     with pytest.raises(AssertionError):
         validate_labels_and_measurements(
             image_zarr, label_name=LABEL_NAME, table_name=TABLE_NAME
@@ -408,7 +408,7 @@ def test_expected_dimensions(
         },
     }
 
-    for component in metadata["well"]:
+    for component in metadata["image"]:
         arguments = dict(
             input_paths=[zarr_path],
             output_path=zarr_path,

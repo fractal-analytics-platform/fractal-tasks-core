@@ -79,7 +79,8 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
 def zenodo_zarr_metadata(testdata_path):
     metadata_3D = {
         "plate": ["plate.zarr"],
-        "well": ["plate.zarr/B/03/0/"],
+        "well": ["plate.zarr/B/03"],
+        "image": ["plate.zarr/B/03/0/"],
         "num_levels": 6,
         "coarsening_xy": 2,
         "channel_list": ["A01_C01"],
@@ -90,7 +91,8 @@ def zenodo_zarr_metadata(testdata_path):
 
     metadata_2D = {
         "plate": ["plate.zarr"],
-        "well": ["plate_mip.zarr/B/03/0/"],
+        "well": ["plate_mip.zarr/B/03/"],
+        "image": ["plate_mip.zarr/B/03/0/"],
         "num_levels": 6,
         "coarsening_xy": 2,
         "channel_list": ["A01_C01"],
