@@ -181,7 +181,7 @@ def create_zarr_structure(
 
     # Clean up dictionary channel_parameters
 
-    zarrurls: Dict[str, List[str]] = {"plate": [], "well": []}
+    zarrurls: Dict[str, List[str]] = {"plate": [], "well": [], "image": []}
 
     ################################################################
     for plate in plates:
@@ -265,7 +265,7 @@ def create_zarr_structure(
         col_list = sorted(list(set(col_list)))
 
         group_plate.attrs["plate"] = {
-            "acquisitions": [{"id": 1, "name": plate}],
+            "acquisitions": [{"id": 0, "name": plate}],
             "columns": [{"name": col} for col in col_list],
             "rows": [{"name": row} for row in row_list],
             "wells": [
@@ -288,7 +288,8 @@ def create_zarr_structure(
             }
 
             group_FOV = group_well.create_group("0/")  # noqa: F841
-            zarrurls["well"].append(f"{plate}.zarr/{row}/{column}/0/")
+            zarrurls["well"].append(f"{plate}.zarr/{row}/{column}/")
+            zarrurls["image"].append(f"{plate}.zarr/{row}/{column}/0/")
 
             group_FOV.attrs["multiscales"] = [
                 {
@@ -360,6 +361,7 @@ def create_zarr_structure(
     metadata_update = dict(
         plate=zarrurls["plate"],
         well=zarrurls["well"],
+        image=zarrurls["image"],
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         channel_list=actual_channels,
