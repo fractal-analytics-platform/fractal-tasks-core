@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.3.5
+0.4.0
 -----
+
+New features
+~~~~~~~~~~~~
+* Rename ``well`` to ``image`` (both in metadata list and in manifest) and add an actual ``well`` field (#210).
+* Add ``create_ome_zarr_multiplexing``, and adapt ``yokogawa_to_zarr`` (#210).
 
 Other changes
 ~~~~~~~~~~~~~
