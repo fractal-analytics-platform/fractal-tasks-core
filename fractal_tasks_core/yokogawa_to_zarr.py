@@ -91,10 +91,6 @@ def yokogawa_to_zarr(
     num_levels = parameters["num_levels"]
     coarsening_xy = parameters["coarsening_xy"]
 
-    from devtools import debug
-
-    debug(original_path_list)
-
     in_path = Path(original_path_list[0]).parent
     ext = Path(original_path_list[0]).name
 
