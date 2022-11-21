@@ -1,60 +1,94 @@
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import List
 from typing import Sequence
+from typing import Union
 
 import zarr
 
 
 def discover_acquisition_from_ome_zarr(
-    well_zarr_path: Path, component: str
-) -> int:
+    image_zarr_path: Path,
+) -> Union[int, None]:
     """
-    FIXME: write docstring
+    Discover the acquisition index based on OME-NGFF metadata
 
-    : param well_zarr_path: TBD
-    : param component: TBD
+    Given the path to a zarr image folder (e.g. ``/path/plate.zarr/B/03/0``),
+    extract the acquisition index from the ``.zattrs`` file of the parent
+    folder (i.e. at the well level)
+
+    Notes:
+    1. For non-multiplexing datasets, acquisition is not a required
+    information in the metadata. If it is not there, this function
+    returns ``None``.
+    2. This function fails if we use an image that does not belong to
+    an OME-NGFF well.
+
+    :param image_zarr_path: full path to an OME-NGFF image folder
     """
-    well_path = Path(component).parent
-    image_path = Path(component).name
-    well_group = zarr.open_group(str(well_zarr_path.parent / well_path))
-    try:
-        acquisition = next(
-            item["acquisition"]
-            for item in well_group.attrs["well"]["images"]
-            if item["path"] == image_path
+
+    # Identify well plate and attrs
+    well_zarr_path = image_zarr_path.parent
+    if not (well_zarr_path / ".zattrs").exists():
+        raise ValueError(
+            f"{str(well_zarr_path)} must be an OME-NGFF plate "
+            "folder, but it does not include a .zattrs file."
         )
-        return acquisition
-    except KeyError:
-        return None
+    well_group = zarr.open_group(str(well_zarr_path))
+    attrs_images = well_group.attrs["well"]["images"]
+
+    # Loook for the acqusition of the current image (if any)
+    acquisition = None
+    for img_dict in attrs_images:
+        if (
+            img_dict["path"] == image_zarr_path.name
+            and "acquisition" in img_dict.keys()
+        ):
+            acquisition = img_dict["acquisition"]
+            break
+
+    return acquisition
 
 
-def get_parameter_from_metadata(
+def get_parameters_from_metadata(
+    *,
     keys: Sequence[str],
     metadata: Dict[str, Any],
-    well_zarr_path: Path,
-    component: str,
-) -> List:
-
+    image_zarr_path: Path,
+) -> Dict[str, Any]:
     """
-    FIXME: write docstring
+    Flexibly extract parameters from dictionary
 
-    : param keys: TBD
-    : param metadata: TBD
-    : param well_zarr_path: TBD
-    : param component: TBD
+    This covers both parameters which are acquisition-specific (if the image
+    belongs to an OME-NGFF array and its acquisition is specified) or simply
+    available in the dictionary. The two cases are handled as
+
+        # Case 1
+        metadata[acquisition]["some_parameter"]
+        # Case 2
+        metadata["some_parameter"]
+
+
+    : param keys: list of parameter keys to extract
+    : param metadata: metadata dictionary
+    : param image_zarr_path: full path to image, e.g.
+                             ``/path/plate.zarr/B/03/0``
     """
 
-    parameters = []
-    acquisition = discover_acquisition_from_ome_zarr(well_zarr_path, component)
+    parameters = {}
+    acquisition = discover_acquisition_from_ome_zarr(image_zarr_path)
+    if acquisition is not None:
+        parameters["acquisition"] = acquisition
 
     for key in keys:
-        try:
-            parameter = metadata[key][acquisition]
-        except KeyError:
+        if acquisition is None:
             parameter = metadata[key]
-        except TypeError:
-            parameter = metadata[key]
-        parameters.append(parameter)
+        else:
+            try:
+                parameter = metadata[key][acquisition]
+            except TypeError:
+                parameter = metadata[key]
+            except KeyError:
+                parameter = metadata[key]
+        parameters[key] = parameter
     return parameters
