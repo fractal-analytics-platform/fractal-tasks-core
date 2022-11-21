@@ -45,8 +45,8 @@ single_cycle_channel_parameters = {
     },
 }
 channel_parameters = {
-    0: single_cycle_channel_parameters,
-    1: single_cycle_channel_parameters,
+    "0": single_cycle_channel_parameters,
+    "1": single_cycle_channel_parameters,
 }
 
 num_levels = 6

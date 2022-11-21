@@ -2,6 +2,14 @@ Changelog
 =========
 
 
+0.4.1
+-----
+
+Other changes
+~~~~~~~~~~~~~
+* Only use strings as keys of ``channel_parameters`` (in ``create_zarr_structure_multiplex``).
+
+
 0.4.0
 -----
 

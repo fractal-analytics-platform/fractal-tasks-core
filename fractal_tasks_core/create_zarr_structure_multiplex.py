@@ -46,7 +46,7 @@ def create_zarr_structure_multiplex(
     input_paths: Sequence[Path],
     output_path: Path,
     metadata: Dict[str, Any] = None,
-    channel_parameters: Dict[int, Dict[str, Any]],
+    channel_parameters: Dict[str, Dict[str, Any]],
     num_levels: int = 2,
     coarsening_xy: int = 2,
     metadata_table: str = "mrf_mlf",
@@ -146,13 +146,12 @@ def create_zarr_structure_multiplex(
 
         # Check that all channels are in the allowed_channels
         if not set(channels).issubset(
-            set(channel_parameters[acquisition].keys())
+            set(channel_parameters[str(acquisition)].keys())
         ):
             msg = "ERROR in create_zarr_structure\n"
             msg += f"channels: {channels}\n"
-            msg += (
-                f"allowed_channels: {channel_parameters[acquisition].keys()}\n"
-            )
+            msg += "allowed_channels: "
+            msg += f"{channel_parameters[str(acquisition)].keys()}\n"
             raise Exception(msg)
 
         # Create actual_channels, i.e. a list of entries like "A01_C01"
@@ -370,7 +369,9 @@ def create_zarr_structure_multiplex(
                 "name": "TBD",
                 "version": __OME_NGFF_VERSION__,
                 "channels": define_omero_channels(
-                    actual_channels, channel_parameters[acquisition], bit_depth
+                    actual_channels,
+                    channel_parameters[str(acquisition)],
+                    bit_depth,
                 ),
             }
 
@@ -420,7 +421,7 @@ if __name__ == "__main__":
         input_paths: Sequence[Path]
         output_path: Path
         metadata: Optional[Dict[str, Any]]
-        channel_parameters: Dict[int, Dict[str, Any]]
+        channel_parameters: Dict[str, Dict[str, Any]]
         num_levels: int = 2
         coarsening_xy: int = 2
         metadata_table: str = "mrf_mlf"
