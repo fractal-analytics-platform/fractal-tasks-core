@@ -10,7 +10,7 @@ copyright = (
     "2022, Friedrich Miescher Institute for Biomedical Research and "
     "University of Zurich"
 )
-version = "0.4.0"
+version = "0.4.1"
 language = "en"
 
 extensions = [
