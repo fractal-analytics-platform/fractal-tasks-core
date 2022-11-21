@@ -76,6 +76,18 @@
         },
         "executable": "napari_workflows_wrapper.py",
         "meta": {"executor": "cpu-low", "parallelization_level": "image"}
+    },
+    {
+        "name": "Create OME-ZARR structure (multiplexing)",
+        "input_type": "image",
+        "output_type": "zarr",
+        "default_args": {
+            "num_levels": 2,
+            "coarsening_xy": 2,
+            "metadata_table": "mrf_mlf"
+        },
+        "executable": "create_zarr_structure_multiplex.py",
+        "meta": {"executor": "cpu-low"}
     }
 ]
 }
