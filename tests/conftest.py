@@ -47,6 +47,21 @@ def zenodo_images(testdata_path):
 
 
 @pytest.fixture(scope="session")
+def zenodo_images_multiplex(testdata_path, zenodo_images):
+    folder = str(testdata_path / "fake_multiplex")
+    cycle_folder_1 = Path(folder) / "cycle1"
+    cycle_folder_2 = Path(folder) / "cycle2"
+    cycle_folders = [cycle_folder_1, cycle_folder_2]
+    if os.path.isdir(folder):
+        print(f"{folder} already exists, skip zenodo_images_multiplex")
+    else:
+        os.makedirs(folder)
+        for cycle_folder in cycle_folders:
+            shutil.copytree(zenodo_images, cycle_folder)
+    return cycle_folders
+
+
+@pytest.fixture(scope="session")
 def zenodo_zarr(testdata_path, tmpdir_factory):
 
     doi = "10.5281/zenodo.7274533"
@@ -79,7 +94,8 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
 def zenodo_zarr_metadata(testdata_path):
     metadata_3D = {
         "plate": ["plate.zarr"],
-        "well": ["plate.zarr/B/03/0/"],
+        "well": ["plate.zarr/B/03"],
+        "image": ["plate.zarr/B/03/0/"],
         "num_levels": 6,
         "coarsening_xy": 2,
         "channel_list": ["A01_C01"],
@@ -90,7 +106,8 @@ def zenodo_zarr_metadata(testdata_path):
 
     metadata_2D = {
         "plate": ["plate.zarr"],
-        "well": ["plate_mip.zarr/B/03/0/"],
+        "well": ["plate_mip.zarr/B/03/"],
+        "image": ["plate_mip.zarr/B/03/0/"],
         "num_levels": 6,
         "coarsening_xy": 2,
         "channel_list": ["A01_C01"],

@@ -186,10 +186,11 @@ def replicate_zarr_structure(
             write_elem(group_tables, "FOV_ROI_table", FOV_ROI_table)
             write_elem(group_tables, "well_ROI_table", well_ROI_table)
 
-    meta_update["well"] = [
-        component.replace(".zarr", f"_{suffix}.zarr")
-        for component in metadata["well"]
-    ]
+    for key in ["plate", "well", "image"]:
+        meta_update[key] = [
+            component.replace(".zarr", f"_{suffix}.zarr")
+            for component in metadata[key]
+        ]
 
     return meta_update
 

@@ -29,6 +29,9 @@ from anndata import read_zarr
 from dask.array.image import imread
 
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
+from fractal_tasks_core.lib_read_fractal_metadata import (
+    get_parameters_from_metadata,
+)
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
@@ -78,12 +81,22 @@ def yokogawa_to_zarr(
     if len(input_paths) > 1:
         raise NotImplementedError
 
-    chl_list = metadata["channel_list"]
-    original_path_list = metadata["original_paths"]
+    parameters = get_parameters_from_metadata(
+        keys=["channel_list", "original_paths", "num_levels", "coarsening_xy"],
+        metadata=metadata,
+        image_zarr_path=(output_path.parent / component),
+    )
+    chl_list = parameters["channel_list"]
+    original_path_list = parameters["original_paths"]
+    num_levels = parameters["num_levels"]
+    coarsening_xy = parameters["coarsening_xy"]
+
+    from devtools import debug
+
+    debug(original_path_list)
+
     in_path = Path(original_path_list[0]).parent
     ext = Path(original_path_list[0]).name
-    num_levels = metadata["num_levels"]
-    coarsening_xy = metadata["coarsening_xy"]
 
     # Define well
     component_split = component.split("/")

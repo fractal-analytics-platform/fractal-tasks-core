@@ -11,7 +11,7 @@ Copyright 2022 (C)
     Miescher Institute for Biomedical Research and Pelkmans Lab from the
     University of Zurich.
 
-Create structure for OME-NGFF zarr array
+Create OME-NGFF zarr group, for multiplexing dataset
 """
 import os
 from glob import glob
@@ -41,33 +41,31 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def create_zarr_structure(
+def create_zarr_structure_multiplex(
     *,
     input_paths: Sequence[Path],
     output_path: Path,
     metadata: Dict[str, Any] = None,
-    channel_parameters: Dict[str, Any],
+    channel_parameters: Dict[int, Dict[str, Any]],
     num_levels: int = 2,
     coarsening_xy: int = 2,
     metadata_table: str = "mrf_mlf",
 ) -> Dict[str, Any]:
     """
-    Create a OME-NGFF zarr folder, without reading/writing image data
+    Create OME-NGFF structure and metadata to host a multiplexing dataset
 
-    Find plates (for each folder in input_paths)
-        * glob image files
-        * parse metadata from image filename to identify plates
-        * identify populated channels
+    This task takes a set of image folders (i.e. different acquisition cycles)
+    and build the internal structure and metadata of a OME-NGFF zarr group,
+    without actually loading/writing the image data.
 
-    Create a zarr folder (for each plate)
-        * parse mlf metadata
-        * identify wells and field of view (FOV)
-        * create FOV ZARR
-        * verify that channels are uniform (i.e., same channels)
+    Each input_paths should be treated as a different acquisition
 
-    :param input_paths: TBD (common to all tasks)
-    :param output_path: TBD (common to all tasks)
-    :param metadata: TBD (common to all tasks)
+    :param input_paths: list of image folders for different acquisition
+                        cycles, e.g. in the form ``["/path/cycle1/*.png",
+                        "/path/cycle2/*.png"]``
+    :param output_path: parent folder for the output path, e.g.
+                        ``"/outputpath/*.zarr"``
+    :param metadata: standard fractal argument, not used in this task
     :param channel_parameters: TBD
     :param num_levels: number of resolution-pyramid levels
     :param coarsening_xy: linear coarsening factor between subsequent levels
@@ -90,116 +88,125 @@ def create_zarr_structure(
         )
     if channel_parameters is None:
         raise Exception(
-            "Missing channel_parameters argument in " "create_zarr_structure"
+            "Missing channel_parameters argument in create_zarr_structure"
         )
 
-    # Identify all plates and all channels, across all input folders
-    plates = []
-    channels = None
-    dict_plate_paths = {}
-    dict_plate_prefixes: Dict[str, Any] = {}
+    # Identify all plates and all channels, per input folders
+    dict_acquisitions: Dict = {}
 
-    # FIXME
-    # find a smart way to remove it
     ext_glob_pattern = input_paths[0].name
 
-    for in_path in input_paths:
-        input_filename_iter = in_path.parent.glob(in_path.name)
+    for ind_in_path, in_path in enumerate(sorted(input_paths)):
+        acquisition = ind_in_path
+        dict_acquisitions[acquisition] = {}
 
-        tmp_channels = []
-        tmp_plates = []
+        channels = []
+        plates = []
+        plate_prefixes = []
+
+        # Loop over all images
+        input_filename_iter = in_path.parent.glob(ext_glob_pattern)
         for fn in input_filename_iter:
             try:
                 filename_metadata = parse_filename(fn.name)
-                plate_prefix = filename_metadata["plate_prefix"]
                 plate = filename_metadata["plate"]
-                if plate not in dict_plate_prefixes.keys():
-                    dict_plate_prefixes[plate] = plate_prefix
-                tmp_plates.append(plate)
-                tmp_channels.append(
+                plates.append(plate)
+                plate_prefix = filename_metadata["plate_prefix"]
+                plate_prefixes.append(plate_prefix)
+                channels.append(
                     f"A{filename_metadata['A']}_C{filename_metadata['C']}"
                 )
             except IndexError:
                 logger.info("IndexError for ", fn)
                 pass
-        tmp_plates = sorted(list(set(tmp_plates)))
-        tmp_channels = sorted(list(set(tmp_channels)))
+        plates = sorted(list(set(plates)))
+        channels = sorted(list(set(channels)))
 
         info = (
             f"Listing all plates/channels from {in_path.as_posix()}\n"
-            f"Plates:   {tmp_plates}\n"
-            f"Channels: {tmp_channels}\n"
+            f"Plates:   {plates}\n"
+            f"Channels: {channels}\n"
         )
 
-        # Check that only one plate is found
-        if len(tmp_plates) > 1:
-            raise Exception(f"{info}ERROR: {len(tmp_plates)} plates detected")
-        elif len(tmp_plates) == 0:
-            raise Exception(f"{info}ERROR: No plates detected")
-        plate = tmp_plates[0]
+        # Check that a folder includes a single plate
+        if len(plates) > 1:
+            raise ValueError(f"{info}ERROR: {len(plates)} plates detected")
+        elif len(plates) == 0:
+            raise ValueError(f"{info}ERROR: No plates detected")
+        original_plate = plates[0]
+        plate_prefix = plate_prefixes[0]
 
-        # If plate already exists in other folder, add suffix
-        if plate in plates:
-            ind = 1
-            new_plate = f"{plate}_{ind}"
-            while new_plate in plates:
-                new_plate = f"{plate}_{ind}"
-                ind += 1
-            logger.info(
-                f"WARNING: {plate} already exists, renaming it as {new_plate}"
+        # Replace plate with the one of acquisition 0, if needed
+        if acquisition > 0:
+            plate = dict_acquisitions[0]["plate"]
+            logger.warning(
+                f"For {acquisition=}, we replace {original_plate=} with "
+                f"{plate=} (the one for acquisition 0)"
             )
-            plates.append(new_plate)
-            dict_plate_prefixes[new_plate] = dict_plate_prefixes[plate]
-            plate = new_plate
-        else:
-            plates.append(plate)
 
-        # Check that channels are the same as in previous plates
-        if channels is None:
-            channels = tmp_channels[:]
-        else:
-            if channels != tmp_channels:
-                raise Exception(
-                    f"ERROR\n{info}\nERROR: expected channels {channels}"
-                )
+        # Check that all channels are in the allowed_channels
+        if not set(channels).issubset(
+            set(channel_parameters[acquisition].keys())
+        ):
+            msg = "ERROR in create_zarr_structure\n"
+            msg += f"channels: {channels}\n"
+            msg += (
+                f"allowed_channels: {channel_parameters[acquisition].keys()}\n"
+            )
+            raise Exception(msg)
 
-        # Update dict_plate_paths
-        dict_plate_paths[plate] = in_path.parent
+        # Create actual_channels, i.e. a list of entries like "A01_C01"
+        actual_channels = []
+        for ind_ch, ch in enumerate(channels):
+            actual_channels.append(ch)
+        logger.info(f"plate: {plate}")
+        logger.info(f"actual_channels: {actual_channels}")
 
-    # Check that all channels are in the allowed_channels
-    if not set(channels).issubset(set(channel_parameters.keys())):
-        msg = "ERROR in create_zarr_structure\n"
-        msg += f"channels: {channels}\n"
-        msg += f"allowed_channels: {channel_parameters.keys()}\n"
-        raise Exception(msg)
+        dict_acquisitions[acquisition] = {}
+        dict_acquisitions[acquisition]["plate"] = plate
+        dict_acquisitions[acquisition]["original_plate"] = original_plate
+        dict_acquisitions[acquisition]["plate_prefix"] = plate_prefix
+        dict_acquisitions[acquisition]["image_folder"] = str(in_path.parent)
+        dict_acquisitions[acquisition]["original_paths"] = [str(in_path)]
+        dict_acquisitions[acquisition]["actual_channels"] = actual_channels
 
-    # Create actual_channels, i.e. a list of entries like "A01_C01"
-    actual_channels = []
-    for ind_ch, ch in enumerate(channels):
-        actual_channels.append(ch)
-    logger.info(f"actual_channels: {actual_channels}")
+    acquisitions = sorted(list(dict_acquisitions.keys()))
+    current_plates = [item["plate"] for item in dict_acquisitions.values()]
+    if len(set(current_plates)) > 1:
+        raise ValueError(f"{current_plates=}")
+    plate = current_plates[0]
 
-    # Clean up dictionary channel_parameters
+    zarrurl = dict_acquisitions[acquisitions[0]]["plate"] + ".zarr"
+    full_zarrurl = str(output_path.parent / zarrurl)
+    logger.info(f"Creating {full_zarrurl=}")
+    group_plate = zarr.group(full_zarrurl)
+    group_plate.attrs["plate"] = {
+        "acquisitions": [
+            {
+                "id": acquisition,
+                "name": dict_acquisitions[acquisition]["original_plate"],
+            }
+            for acquisition in acquisitions
+        ]
+    }
 
-    zarrurls: Dict[str, List[str]] = {"plate": [], "well": [], "image": []}
+    zarrurls: Dict[str, List[str]] = {"well": [], "image": []}
+    zarrurls["plate"] = [plate]
 
     ################################################################
-    for plate in plates:
+    logging.info(f"{acquisitions=}")
+
+    for acquisition in acquisitions:
+
         # Define plate zarr
-        zarrurl = f"{plate}.zarr"
-        in_path = dict_plate_paths[plate]
-        logger.info(f"Creating {zarrurl}")
-        group_plate = zarr.group(output_path.parent / zarrurl)
-        zarrurls["plate"].append(zarrurl)
+        image_folder = dict_acquisitions[acquisition]["image_folder"]
+        logger.info(f"Looking at {image_folder=}")
 
         # Obtain FOV-metadata dataframe
         try:
-            # FIXME
-            # Find a smart way to include these metadata files in the dataset
-            # e.g., as resources
             if metadata_table == "mrf_mlf":
-                mrf_path = f"{in_path}/MeasurementDetail.mrf"
-                mlf_path = f"{in_path}/MeasurementData.mlf"
+                mrf_path = f"{image_folder}/MeasurementDetail.mrf"
+                mlf_path = f"{image_folder}/MeasurementData.mlf"
                 site_metadata, total_files = parse_yokogawa_metadata(
                     mrf_path, mlf_path
                 )
@@ -219,20 +226,23 @@ def create_zarr_structure(
             raise Exception(pixel_size_z, pixel_size_y, pixel_size_x)
 
         # Identify all wells
-        plate_prefix = dict_plate_prefixes[plate]
-
-        plate_image_iter = glob(f"{in_path}/{plate_prefix}_{ext_glob_pattern}")
+        plate_prefix = dict_acquisitions[acquisition]["plate_prefix"]
+        glob_string = f"{image_folder}/{plate_prefix}_{ext_glob_pattern}"
+        logger.info(f"{glob_string=}")
+        plate_image_iter = glob(glob_string)
 
         wells = [
             parse_filename(os.path.basename(fn))["well"]
             for fn in plate_image_iter
         ]
         wells = sorted(list(set(wells)))
+        logger.info(f"{wells=}")
 
         # Verify that all wells have all channels
+        actual_channels = dict_acquisitions[acquisition]["actual_channels"]
         for well in wells:
             well_image_iter = glob(
-                f"{in_path}/{plate_prefix}_{well}{ext_glob_pattern}"
+                f"{image_folder}/{plate_prefix}_{well}{ext_glob_pattern}"
             )
             well_channels = []
             for fpath in well_image_iter:
@@ -264,34 +274,56 @@ def create_zarr_structure(
         row_list = sorted(list(set(row_list)))
         col_list = sorted(list(set(col_list)))
 
-        group_plate.attrs["plate"] = {
-            "acquisitions": [{"id": 0, "name": plate}],
-            "columns": [{"name": col} for col in col_list],
-            "rows": [{"name": row} for row in row_list],
-            "wells": [
-                {
-                    "path": well_row_column[0] + "/" + well_row_column[1],
-                    "rowIndex": row_list.index(well_row_column[0]),
-                    "columnIndex": col_list.index(well_row_column[1]),
-                }
-                for well_row_column in well_rows_columns
-            ],
-        }
+        plate_attrs = group_plate.attrs["plate"]
+        plate_attrs["columns"] = [{"name": col} for col in col_list]
+        plate_attrs["rows"] = [{"name": row} for row in row_list]
+        plate_attrs["wells"] = [
+            {
+                "path": well_row_column[0] + "/" + well_row_column[1],
+                "rowIndex": row_list.index(well_row_column[0]),
+                "columnIndex": col_list.index(well_row_column[1]),
+            }
+            for well_row_column in well_rows_columns
+        ]
+        group_plate.attrs["plate"] = plate_attrs
 
         for row, column in well_rows_columns:
 
-            group_well = group_plate.create_group(f"{row}/{column}/")
+            from zarr.errors import ContainsGroupError
 
-            group_well.attrs["well"] = {
-                "images": [{"path": "0"}],
-                "version": __OME_NGFF_VERSION__,
-            }
+            try:
+                group_well = group_plate.create_group(f"{row}/{column}/")
+                logging.info(f"Created new group_well at {row}/{column}/")
+                group_well.attrs["well"] = {
+                    "images": [
+                        {"path": f"{acquisition}", "acquisition": acquisition}
+                    ],
+                    "version": __OME_NGFF_VERSION__,
+                }
+                zarrurls["well"].append(f"{row}/{column}")
+            except ContainsGroupError:
+                group_well = zarr.open_group(
+                    f"{full_zarrurl}/{row}/{column}/", mode="a"
+                )
+                logging.info(
+                    f"Loaded group_well from {full_zarrurl}/{row}/{column}"
+                )
+                current_images = group_well.attrs["well"]["images"] + [
+                    {"path": f"{acquisition}", "acquisition": acquisition}
+                ]
+                group_well.attrs["well"] = dict(
+                    images=current_images,
+                    version=group_well.attrs["well"]["version"],
+                )
 
-            group_FOV = group_well.create_group("0/")  # noqa: F841
-            zarrurls["well"].append(f"{plate}.zarr/{row}/{column}/")
-            zarrurls["image"].append(f"{plate}.zarr/{row}/{column}/0/")
+            group_image = group_well.create_group(
+                f"{acquisition}/"
+            )  # noqa: F841
+            logging.info(f"Created image group {row}/{column}/{acquisition}")
+            image = f"{plate}.zarr/{row}/{column}/{acquisition}"
+            zarrurls["image"].append(image)
 
-            group_FOV.attrs["multiscales"] = [
+            group_image.attrs["multiscales"] = [
                 {
                     "version": __OME_NGFF_VERSION__,
                     "axes": [
@@ -333,20 +365,21 @@ def create_zarr_structure(
                 }
             ]
 
-            group_FOV.attrs["omero"] = {
+            group_image.attrs["omero"] = {
                 "id": 1,  # FIXME does this depend on the plate number?
                 "name": "TBD",
                 "version": __OME_NGFF_VERSION__,
                 "channels": define_omero_channels(
-                    actual_channels, channel_parameters, bit_depth
+                    actual_channels, channel_parameters[acquisition], bit_depth
                 ),
             }
 
-            # FIXME
             if has_mrf_mlf_metadata:
-                group_tables = group_FOV.create_group("tables/")  # noqa: F841
+                group_tables = group_image.create_group(
+                    "tables/"
+                )  # noqa: F841
 
-                # Prepare FOV/well tables
+                # Prepare image/well tables
                 FOV_ROIs_table = prepare_FOV_ROI_table(
                     site_metadata.loc[f"{row+column}"],
                 )
@@ -358,14 +391,23 @@ def create_zarr_structure(
                 write_elem(group_tables, "FOV_ROI_table", FOV_ROIs_table)
                 write_elem(group_tables, "well_ROI_table", well_ROIs_table)
 
+    channel_list = {
+        acquisition: dict_acquisitions[acquisition]["actual_channels"]
+        for acquisition in acquisitions
+    }
+    original_paths = {
+        acquisition: dict_acquisitions[acquisition]["original_paths"]
+        for acquisition in acquisitions
+    }
+
     metadata_update = dict(
         plate=zarrurls["plate"],
         well=zarrurls["well"],
         image=zarrurls["image"],
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        channel_list=actual_channels,
-        original_paths=[str(p) for p in input_paths],
+        channel_list=channel_list,
+        original_paths=original_paths,
     )
     return metadata_update
 
@@ -378,13 +420,13 @@ if __name__ == "__main__":
         input_paths: Sequence[Path]
         output_path: Path
         metadata: Optional[Dict[str, Any]]
-        channel_parameters: Dict[str, Any]
+        channel_parameters: Dict[int, Dict[str, Any]]
         num_levels: int = 2
         coarsening_xy: int = 2
         metadata_table: str = "mrf_mlf"
 
     run_fractal_task(
-        task_function=create_zarr_structure,
+        task_function=create_zarr_structure_multiplex,
         TaskArgsModel=TaskArguments,
         logger_name=logger.name,
     )
