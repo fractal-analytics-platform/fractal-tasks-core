@@ -93,7 +93,7 @@ def create_zarr_structure_multiplex(
     else:
         for key in channel_parameters.keys():
             if not isinstance(key, str):
-                raise ValueError("{channel_parameters=} has non-string keys")
+                raise ValueError(f"{channel_parameters=} has non-string keys")
 
     # Identify all plates and all channels, per input folders
     dict_acquisitions: Dict = {}
