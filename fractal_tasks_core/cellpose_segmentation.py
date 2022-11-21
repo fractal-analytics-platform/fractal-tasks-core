@@ -335,6 +335,7 @@ def cellpose_segmentation(
     logger.info(f"[{well_id}] Start cellpose_segmentation task for {zarrurl}")
     logger.info(f"[{well_id}] relabeling: {relabeling}")
     logger.info(f"[{well_id}] do_3D: {do_3D}")
+    logger.info(f"[{well_id}] use_gpu: {gpu}")
     logger.info(f"[{well_id}] labeling_level: {labeling_level}")
     logger.info(f"[{well_id}] model_type: {model_type}")
     logger.info(f"[{well_id}] pretrained_model: {pretrained_model}")
