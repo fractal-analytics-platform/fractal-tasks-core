@@ -11,7 +11,7 @@ Copyright 2022 (C)
     Miescher Institute for Biomedical Research and Pelkmans Lab from the
     University of Zurich.
 
-Create structure for OME-NGFF zarr array
+Create OME-NGFF zarr group, for multiplexing dataset
 """
 import os
 from glob import glob
@@ -52,22 +52,20 @@ def create_zarr_structure_multiplex(
     metadata_table: str = "mrf_mlf",
 ) -> Dict[str, Any]:
     """
+    Create OME-NGFF structure and metadata to host a multiplexing dataset
+
+    This task takes a set of image folders (i.e. different acquisition cycles)
+    and build the internal structure and metadata of a OME-NGFF zarr group,
+    without actually loading/writing the image data.
+
     Each input_paths should be treated as a different acquisition
 
-    Find plates (for each folder in input_paths)
-        * glob image files
-        * parse metadata from image filename to identify plates
-        * identify populated channels
-
-    Create a zarr folder (for each plate)
-        * parse mlf metadata
-        * identify wells and field of view (FOV)
-        * create FOV ZARR
-        * verify that channels are uniform (i.e., same channels)
-
-    :param input_paths: TBD (common to all tasks)
-    :param output_path: TBD (common to all tasks)
-    :param metadata: TBD (common to all tasks)
+    :param input_paths: list of image folders for different acquisition
+                        cycles, e.g. in the form ``["/path/cycle1/*.png",
+                        "/path/cycle2/*.png"]``
+    :param output_path: parent folder for the output path, e.g.
+                        ``"/outputpath/*.zarr"``
+    :param metadata: standard fractal argument, not used in this task
     :param channel_parameters: TBD
     :param num_levels: number of resolution-pyramid levels
     :param coarsening_xy: linear coarsening factor between subsequent levels
