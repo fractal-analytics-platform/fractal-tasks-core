@@ -37,7 +37,7 @@ def find_omengff_acquisition(image_zarr_path: Path) -> Union[int, None]:
     well_group = zarr.open_group(str(well_zarr_path))
     attrs_images = well_group.attrs["well"]["images"]
 
-    # Loook for the acqusition of the current image (if any)
+    # Loook for the acquisition of the current image (if any)
     acquisition = None
     for img_dict in attrs_images:
         if (
