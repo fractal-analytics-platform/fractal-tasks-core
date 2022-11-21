@@ -8,4 +8,4 @@ sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.5
 autodocsumm==0.2.9
 sphinx_autodoc_defaultargs==0.1.2
-fractal-tasks-core==0.4.1
+fractal-tasks-core==0.4.2
