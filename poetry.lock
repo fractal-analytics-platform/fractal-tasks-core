@@ -249,7 +249,7 @@ heapdict = "*"
 
 [[package]]
 name = "cellpose"
-version = "2.0"
+version = "2.1.1"
 description = "anatomical segmentation algorithm"
 category = "main"
 optional = false
@@ -257,8 +257,10 @@ python-versions = "*"
 
 [package.dependencies]
 fastremap = "*"
+imagecodecs = "*"
+llvmlite = "*"
 natsort = "*"
-numba = "*"
+numba = ">=0.53.0"
 numpy = ">=1.20.0"
 opencv-python-headless = "*"
 scipy = "*"
@@ -2964,7 +2966,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "18469a54c01c6aa26a90d552794aba1aed54ea8aa82b4c3ffde53d2e5ec8c42f"
+content-hash = "8f230c5b23cd4a1bbddd4eb532283d45000354c661ab6c12c1f102f0af257801"
 
 [metadata.files]
 alabaster = [
@@ -3062,8 +3064,8 @@ cachey = [
     {file = "cachey-0.2.1.tar.gz", hash = "sha256:0310ba8afe52729fa7626325c8d8356a8421c434bf887ac851e58dcf7cf056a6"},
 ]
 cellpose = [
-    {file = "cellpose-2.0-py3-none-any.whl", hash = "sha256:16f8934ee374a80abdf245ac16c76adc0a37f56d684f561c985ade5ee8f544e4"},
-    {file = "cellpose-2.0.tar.gz", hash = "sha256:692676a919d42e98d85dfe60b655a327d2b3b9f91ef187b731b0eb04e4ef0322"},
+    {file = "cellpose-2.1.1-py3-none-any.whl", hash = "sha256:58aa39f52331e1d844e62a5ef523ab9aa1b599cd0359d06786267dceaa425261"},
+    {file = "cellpose-2.1.1.tar.gz", hash = "sha256:3eb595c0909cc880f5fffec0d551634a8710a31e8cfc6ea8b52ccd881b1ff687"},
 ]
 certifi = [
     {file = "certifi-2022.6.15.2-py3-none-any.whl", hash = "sha256:0aa1a42fbd57645fabeb6290a7687c21755b0344ecaeaa05f4e9f6207ae2e9a8"},
