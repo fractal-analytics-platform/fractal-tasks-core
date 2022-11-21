@@ -91,6 +91,8 @@ def create_zarr_structure_multiplex(
             "Missing channel_parameters argument in create_zarr_structure"
         )
     else:
+        # Note that in metadata the keys of dictionary arguments should be
+        # strings, so that they can be read from a JSON file
         for key in channel_parameters.keys():
             if not isinstance(key, str):
                 raise ValueError(f"{channel_parameters=} has non-string keys")
@@ -399,8 +401,6 @@ def create_zarr_structure_multiplex(
                 write_elem(group_tables, "FOV_ROI_table", FOV_ROIs_table)
                 write_elem(group_tables, "well_ROI_table", well_ROIs_table)
 
-    # Note that in metadata the keys of dictionary arguments should be strings,
-    # so that they can be read from a JSON file
     channel_list = {
         acquisition: dict_acquisitions[acquisition]["actual_channels"]
         for acquisition in acquisitions
