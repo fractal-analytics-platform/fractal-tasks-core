@@ -85,7 +85,7 @@ def get_parameters_from_metadata(
             parameter = metadata[key]
         else:
             try:
-                parameter = metadata[key][acquisition]
+                parameter = metadata[key][str(acquisition)]
             except TypeError:
                 parameter = metadata[key]
             except KeyError:
