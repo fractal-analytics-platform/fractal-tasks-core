@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.4.3
+-----
+
+Other changes
+~~~~~~~~~~~~~
+* In ``create_zarr_structure_multiplex``, always use/require strings for ``acquisition`` field (#217).
+
+
 0.4.2
 -----
 

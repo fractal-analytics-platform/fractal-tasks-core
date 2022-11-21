@@ -87,9 +87,15 @@ def create_zarr_structure_multiplex(
             f"and not {metadata_table}"
         )
     if channel_parameters is None:
-        raise Exception(
+        raise ValueError(
             "Missing channel_parameters argument in create_zarr_structure"
         )
+    else:
+        # Note that in metadata the keys of dictionary arguments should be
+        # strings, so that they can be read from a JSON file
+        for key in channel_parameters.keys():
+            if not isinstance(key, str):
+                raise ValueError(f"{channel_parameters=} has non-string keys")
 
     # Identify all plates and all channels, per input folders
     dict_acquisitions: Dict = {}
@@ -97,7 +103,7 @@ def create_zarr_structure_multiplex(
     ext_glob_pattern = input_paths[0].name
 
     for ind_in_path, in_path in enumerate(sorted(input_paths)):
-        acquisition = ind_in_path
+        acquisition = str(ind_in_path)
         dict_acquisitions[acquisition] = {}
 
         channels = []
@@ -137,8 +143,8 @@ def create_zarr_structure_multiplex(
         plate_prefix = plate_prefixes[0]
 
         # Replace plate with the one of acquisition 0, if needed
-        if acquisition > 0:
-            plate = dict_acquisitions[0]["plate"]
+        if int(acquisition) > 0:
+            plate = dict_acquisitions["0"]["plate"]
             logger.warning(
                 f"For {acquisition=}, we replace {original_plate=} with "
                 f"{plate=} (the one for acquisition 0)"
@@ -146,12 +152,12 @@ def create_zarr_structure_multiplex(
 
         # Check that all channels are in the allowed_channels
         if not set(channels).issubset(
-            set(channel_parameters[str(acquisition)].keys())
+            set(channel_parameters[acquisition].keys())
         ):
             msg = "ERROR in create_zarr_structure\n"
             msg += f"channels: {channels}\n"
             msg += "allowed_channels: "
-            msg += f"{channel_parameters[str(acquisition)].keys()}\n"
+            msg += f"{channel_parameters[acquisition].keys()}\n"
             raise Exception(msg)
 
         # Create actual_channels, i.e. a list of entries like "A01_C01"
@@ -182,7 +188,7 @@ def create_zarr_structure_multiplex(
     group_plate.attrs["plate"] = {
         "acquisitions": [
             {
-                "id": acquisition,
+                "id": int(acquisition),
                 "name": dict_acquisitions[acquisition]["original_plate"],
             }
             for acquisition in acquisitions
@@ -295,7 +301,10 @@ def create_zarr_structure_multiplex(
                 logging.info(f"Created new group_well at {row}/{column}/")
                 group_well.attrs["well"] = {
                     "images": [
-                        {"path": f"{acquisition}", "acquisition": acquisition}
+                        {
+                            "path": f"{acquisition}",
+                            "acquisition": int(acquisition),
+                        }
                     ],
                     "version": __OME_NGFF_VERSION__,
                 }
@@ -308,7 +317,7 @@ def create_zarr_structure_multiplex(
                     f"Loaded group_well from {full_zarrurl}/{row}/{column}"
                 )
                 current_images = group_well.attrs["well"]["images"] + [
-                    {"path": f"{acquisition}", "acquisition": acquisition}
+                    {"path": f"{acquisition}", "acquisition": int(acquisition)}
                 ]
                 group_well.attrs["well"] = dict(
                     images=current_images,
@@ -370,7 +379,7 @@ def create_zarr_structure_multiplex(
                 "version": __OME_NGFF_VERSION__,
                 "channels": define_omero_channels(
                     actual_channels,
-                    channel_parameters[str(acquisition)],
+                    channel_parameters[acquisition],
                     bit_depth,
                 ),
             }
