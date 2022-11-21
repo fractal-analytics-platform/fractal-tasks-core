@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.4.2
+-----
+
+Other changes
+~~~~~~~~~~~~~
+* Bugfixes
+
 
 0.4.1
 -----
