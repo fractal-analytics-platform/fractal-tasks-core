@@ -7,6 +7,7 @@ Changelog
 Other changes
 ~~~~~~~~~~~~~
 * Skip image files if filename is not parsable (#219).
+* Preserve order of ``input_paths`` for multiplexing subfolders (#222).
 
 
 0.4.5
