@@ -1,6 +1,16 @@
 Changelog
 =========
 
+0.4.4
+-----
+
+New features
+~~~~~~~~~~~~
+* Replace ``Cellpose`` wrapper with ``CellposeModel``, to support ``pretrained_model`` argument (#218).
+* Update cellpose version (it was pinned to 2.0, in previous versions) (#218).
+* Pin ``torch`` dependency to version 1.12.1, to support CUDA version 10.2 (#218).
+
+
 0.4.3
 -----
 

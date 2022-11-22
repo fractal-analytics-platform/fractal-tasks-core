@@ -68,7 +68,7 @@ metadata.update(metadata_update)
 debug(metadata)
 
 # Yokogawa to zarr
-for component in metadata["well"]:
+for component in metadata["image"]:
     yokogawa_to_zarr(
         input_paths=[zarr_path],
         output_path=zarr_path,

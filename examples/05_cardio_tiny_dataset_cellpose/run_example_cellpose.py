@@ -16,8 +16,8 @@ from pathlib import Path
 
 from devtools import debug
 
+from fractal_tasks_core.cellpose_segmentation import cellpose_segmentation
 from fractal_tasks_core.create_zarr_structure import create_zarr_structure
-from fractal_tasks_core.illumination_correction import illumination_correction
 from fractal_tasks_core.yokogawa_to_zarr import yokogawa_to_zarr
 
 
@@ -42,7 +42,7 @@ channel_parameters = {
     },
 }
 
-num_levels = 4
+num_levels = 6
 coarsening_xy = 2
 
 
@@ -78,22 +78,16 @@ for component in metadata["image"]:
     )
 debug(metadata)
 
-# Illumination correction
-cwd = Path(__file__).parent.resolve().as_posix()
-dict_corr = {
-    "root_path_corr": f"{cwd}/parameters",
-    "A01_C01": "illum_corr_matrix.png",
-    "A01_C02": "illum_corr_matrix.png",
-    "A02_C03": "illum_corr_matrix.png",
-}
+# Per-FOV labeling
 for component in metadata["image"]:
-    illumination_correction(
+    cellpose_segmentation(
         input_paths=[zarr_path],
         output_path=zarr_path,
         metadata=metadata,
         component=component,
-        overwrite=True,
-        dict_corr=dict_corr,
-        background=100,
+        labeling_channel="A01_C01",
+        labeling_level=0,
+        relabeling=True,
+        diameter_level0=80.0,
     )
 debug(metadata)
