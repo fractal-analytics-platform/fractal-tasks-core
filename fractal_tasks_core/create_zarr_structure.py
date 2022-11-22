@@ -119,9 +119,8 @@ def create_zarr_structure(
                 tmp_channels.append(
                     f"A{filename_metadata['A']}_C{filename_metadata['C']}"
                 )
-            except IndexError:
-                logger.info("IndexError for ", fn)
-                pass
+            except ValueError as e:
+                logger.warning(f"Skipping {fn.name}" + str(e))
         tmp_plates = sorted(list(set(tmp_plates)))
         tmp_channels = sorted(list(set(tmp_channels)))
 
