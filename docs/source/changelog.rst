@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.4.4
+0.4.5
 -----
 
 New features
@@ -10,6 +10,10 @@ New features
 * Update cellpose version (it was pinned to 2.0, in previous versions) (#218).
 * Pin ``torch`` dependency to version 1.12.1, to support CUDA version 10.2 (#218).
 
+0.4.4
+-----
+
+Missing due to releasing error.
 
 0.4.3
 -----
