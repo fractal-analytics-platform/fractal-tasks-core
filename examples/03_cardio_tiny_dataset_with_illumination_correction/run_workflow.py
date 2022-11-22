@@ -69,7 +69,7 @@ metadata.update(metadata_update)
 debug(metadata)
 
 # Yokogawa to zarr
-for component in metadata["well"]:
+for component in metadata["image"]:
     yokogawa_to_zarr(
         input_paths=[zarr_path],
         output_path=zarr_path,
@@ -86,7 +86,7 @@ dict_corr = {
     "A01_C02": "illum_corr_matrix.png",
     "A02_C03": "illum_corr_matrix.png",
 }
-for component in metadata["well"]:
+for component in metadata["image"]:
     illumination_correction(
         input_paths=[zarr_path],
         output_path=zarr_path,

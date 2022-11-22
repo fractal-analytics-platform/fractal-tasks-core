@@ -71,7 +71,7 @@ metadata.update(metadata_update)
 debug(metadata)
 
 # Yokogawa to zarr
-for component in metadata["well"]:
+for component in metadata["image"]:
     yokogawa_to_zarr(
         input_paths=[zarr_path],
         output_path=zarr_path,
@@ -96,7 +96,7 @@ output_specs = {
         "table_name": "regionprops_DAPI",
     },
 }
-for component in metadata["well"]:
+for component in metadata["image"]:
     napari_workflows_wrapper(
         input_paths=[zarr_path],
         output_path=zarr_path,
