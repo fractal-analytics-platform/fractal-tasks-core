@@ -1,2 +1,4 @@
 images
 tmp*
+slurm-*.out
+slurm-*.err

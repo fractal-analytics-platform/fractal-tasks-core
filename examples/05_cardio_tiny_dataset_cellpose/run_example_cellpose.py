@@ -86,7 +86,7 @@ for component in metadata["image"]:
         metadata=metadata,
         component=component,
         labeling_channel="A01_C01",
-        labeling_level=4,
+        labeling_level=0,
         relabeling=True,
         diameter_level0=80.0,
     )
