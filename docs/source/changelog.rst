@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.4.6
+-----
+
+Other changes
+~~~~~~~~~~~~~
+* Skip image files if filename is not parsable (#219).
+
+
 0.4.5
 -----
 

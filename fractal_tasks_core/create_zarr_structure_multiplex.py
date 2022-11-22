@@ -122,9 +122,10 @@ def create_zarr_structure_multiplex(
                 channels.append(
                     f"A{filename_metadata['A']}_C{filename_metadata['C']}"
                 )
-            except IndexError:
-                logger.info("IndexError for ", fn)
-                pass
+            except ValueError as e:
+                logger.warning(
+                    f'Skipping "{fn.name}". Original error: ' + str(e)
+                )
         plates = sorted(list(set(plates)))
         channels = sorted(list(set(channels)))
 
