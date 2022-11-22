@@ -43,6 +43,11 @@ def zenodo_images(testdata_path):
         link = unquote(link)
         wget.download(link, out=folder)
         print()
+
+    # Add an image with invalid name, that should be skipped during parsing
+    with open(f"{folder}/invalid_path.png", "w") as f:
+        f.write("This file has an invalid filename, which cannot be parsed.")
+
     return Path(folder)
 
 
