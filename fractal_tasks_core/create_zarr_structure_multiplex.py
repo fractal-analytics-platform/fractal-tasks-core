@@ -102,7 +102,7 @@ def create_zarr_structure_multiplex(
 
     ext_glob_pattern = input_paths[0].name
 
-    for ind_in_path, in_path in enumerate(sorted(input_paths)):
+    for ind_in_path, in_path in enumerate(input_paths):
         acquisition = str(ind_in_path)
         dict_acquisitions[acquisition] = {}
 
