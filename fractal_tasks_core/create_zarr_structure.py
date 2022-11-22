@@ -120,7 +120,9 @@ def create_zarr_structure(
                     f"A{filename_metadata['A']}_C{filename_metadata['C']}"
                 )
             except ValueError as e:
-                logger.warning(f"Skipping {fn.name}" + str(e))
+                logger.warning(
+                    f'Skipping "{fn.name}". Original error: ' + str(e)
+                )
         tmp_plates = sorted(list(set(tmp_plates)))
         tmp_channels = sorted(list(set(tmp_channels)))
 
