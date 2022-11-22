@@ -84,7 +84,7 @@ def segment_FOV(
 
     # Actual labeling
     t0 = time.perf_counter()
-    mask, flows, styles, diams = model.eval(
+    mask, flows, styles = model.eval(
         column,
         channels=[0, 0],
         do_3D=do_3D,
@@ -327,9 +327,11 @@ def cellpose_segmentation(
     # Initialize cellpose
     gpu = use_gpu()
     if pretrained_model:
-        model = models.Cellpose(gpu=gpu, pretrained_model=pretrained_model)
+        model = models.CellposeModel(
+            gpu=gpu, pretrained_model=pretrained_model
+        )
     else:
-        model = models.Cellpose(gpu=gpu, model_type=model_type)
+        model = models.CellposeModel(gpu=gpu, model_type=model_type)
 
     # Initialize other things
     logger.info(f"[{well_id}] Start cellpose_segmentation task for {zarrurl}")
