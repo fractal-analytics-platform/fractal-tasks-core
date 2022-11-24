@@ -14,9 +14,7 @@ Copyright 2022 (C)
 
 Task that copies the structure of an OME-NGFF zarr array to a new one
 """
-import json
 import logging
-from glob import glob
 from pathlib import Path
 from typing import Any
 from typing import Dict
@@ -45,13 +43,27 @@ def replicate_zarr_structure(
     output_path: Path,
     metadata: Dict[str, Any],
     project_to_2D: bool = True,
-    suffix: str = None,
+    suffix: Optional[str] = None,
+    ROI_table_names: Optional[Sequence[str]] = None,
 ) -> Dict[str, Any]:
 
     """
     Duplicate an input zarr structure to a new path.
-    If project_to_2D=True, adapt it to host a maximum-intensity projection
-    (that is, with a single Z layer).
+
+
+    If ``project_to_2D=True``, adapt the new to host a maximum-intensity
+    projection (that is, with a single Z layer).
+
+
+    More detailed description (TODO)
+    1. For each plate zarr, create a new one.
+    2. For each well (in each plate), copy its zattrs over (to the new zarr).
+    3. For each image (in each well), copy its zattrs over.
+    4. Re-create relevant FOV/well ROI tables.
+
+
+
+    Ref for Attributes https://zarr.readthedocs.io/en/stable/api/attrs.html
 
     Examples
       input_paths[0] = /tmp/out/*.zarr    (Path)
@@ -62,6 +74,7 @@ def replicate_zarr_structure(
     :param metadata: TBD
     :param project_to_2D: TBD
     :param suffix: TBD
+    :param ROI_table_names: TBD
     """
 
     # Preliminary check
@@ -70,6 +83,9 @@ def replicate_zarr_structure(
     if suffix is None:
         # FIXME create a standard suffix (with timestamp)
         raise NotImplementedError
+
+    if ROI_table_names is None:
+        ROI_table_names = ["FOV_ROI_table", "well_ROI_table"]
 
     # List all plates
     in_path = input_paths[0]
@@ -95,96 +111,65 @@ def replicate_zarr_structure(
         logger.info(f"{zarrurl_new=}")
         logger.info(f"{meta_update=}")
 
-        # Identify properties of input zarr file
-        well_rows_columns = sorted(
-            [rc.split("/")[-2:] for rc in glob(zarrurl_old + "/*/*")]
-        )
-        row_list = [
-            well_row_column[0] for well_row_column in well_rows_columns
+        # Replicate plate attrs
+        old_plate_group = zarr.open_group(zarrurl_old, mode="r")
+        new_plate_group = zarr.open(zarrurl_new)
+        new_plate_group.attrs.put(old_plate_group.attrs.asdict())
+
+        well_paths = [
+            well["path"] for well in new_plate_group.attrs["plate"]["wells"]
         ]
-        col_list = [
-            well_row_column[1] for well_row_column in well_rows_columns
-        ]
-        row_list = sorted(list(set(row_list)))
-        col_list = sorted(list(set(col_list)))
+        logger.info(f"{well_paths=}")
+        for well_path in well_paths:
 
-        group_plate = zarr.group(zarrurl_new)
-        plate = zarrurl_old.replace(".zarr", "").split("/")[-1]
-        logger.info(f"{plate=}")
-        group_plate.attrs["plate"] = {
-            "acquisitions": [{"id": 0, "name": plate}],
-            "columns": [{"name": col} for col in col_list],
-            "rows": [{"name": row} for row in row_list],
-            "wells": [
-                {
-                    "path": well_row_column[0] + "/" + well_row_column[1],
-                    "rowIndex": row_list.index(well_row_column[0]),
-                    "columnIndex": col_list.index(well_row_column[1]),
-                }
-                for well_row_column in well_rows_columns
-            ],
-        }
+            # Replicate well attrs
+            old_well_group = zarr.open_group(f"{zarrurl_old}/{well_path}")
+            new_well_group = zarr.group(f"{zarrurl_new}/{well_path}")
+            new_well_group.attrs.put(old_well_group.attrs.asdict())
 
-        for row, column in well_rows_columns:
+            image_paths = [
+                image["path"]
+                for image in new_well_group.attrs["well"]["images"]
+            ]
+            logger.info(f"{image_paths=}")
 
-            # Find FOVs in COL/ROW/.zattrs
-            path_well_zattrs = f"{zarrurl_old}/{row}/{column}/.zattrs"
-            with open(path_well_zattrs) as well_zattrs_file:
-                well_zattrs = json.load(well_zattrs_file)
-            well_images = well_zattrs["well"]["images"]
-            list_FOVs = sorted([img["path"] for img in well_images])
+            for image_path in image_paths:
 
-            # Create well group
-            group_well = group_plate.create_group(f"{row}/{column}/")
-            group_well.attrs["well"] = {
-                "images": well_images,
-                "version": __OME_NGFF_VERSION__,
-            }
-
-            # Check that only the 0-th FOV exists
-            FOV = 0
-            if len(list_FOVs) > 1:
-                raise Exception(
-                    "ERROR: we are in a single-merged-FOV scheme, "
-                    f"but there are {len(list_FOVs)} FOVs."
+                # Replicate image attrs
+                old_image_group = zarr.open_group(
+                    f"{zarrurl_old}/{well_path}/{image_path}"
                 )
-
-            # Create FOV group
-            group_FOV = group_well.create_group(f"{FOV}/")
-
-            # Copy .zattrs file at the COL/ROW/FOV level
-            path_FOV_zattrs = f"{zarrurl_old}/{row}/{column}/{FOV}/.zattrs"
-            with open(path_FOV_zattrs) as FOV_zattrs_file:
-                FOV_zattrs = json.load(FOV_zattrs_file)
-            for key in FOV_zattrs.keys():
-                group_FOV.attrs[key] = FOV_zattrs[key]
-
-            # Read FOV ROI table
-            FOV_ROI_table = ad.read_zarr(
-                f"{zarrurl_old}/{row}/{column}/0/tables/FOV_ROI_table"
-            )
-            well_ROI_table = ad.read_zarr(
-                f"{zarrurl_old}/{row}/{column}/0/tables/well_ROI_table"
-            )
-
-            # Convert 3D FOVs to 2D
-            if project_to_2D:
-                # Read pixel sizes from zattrs file
-                pxl_sizes_zyx = extract_zyx_pixel_sizes(
-                    path_FOV_zattrs, level=0
+                new_image_group = zarr.group(
+                    f"{zarrurl_new}/{well_path}/{image_path}"
                 )
-                pxl_size_z = pxl_sizes_zyx[0]
-                FOV_ROI_table = convert_ROIs_from_3D_to_2D(
-                    FOV_ROI_table, pxl_size_z
-                )
-                well_ROI_table = convert_ROIs_from_3D_to_2D(
-                    well_ROI_table, pxl_size_z
-                )
+                new_image_group.attrs.put(old_image_group.attrs.asdict())
 
-            # Create table group and write new table
-            group_tables = group_FOV.create_group("tables/")
-            write_elem(group_tables, "FOV_ROI_table", FOV_ROI_table)
-            write_elem(group_tables, "well_ROI_table", well_ROI_table)
+                # Extract pixel sizes, if needed
+                if ROI_table_names:
+
+                    group_tables = new_image_group.create_group("tables/")
+                    if project_to_2D:
+                        path_FOV_zattrs = (
+                            f"{zarrurl_old}/{well_path}/{image_path}/.zattrs"
+                        )
+                        pxl_sizes_zyx = extract_zyx_pixel_sizes(
+                            path_FOV_zattrs, level=0
+                        )
+                        pxl_size_z = pxl_sizes_zyx[0]
+
+                    # Copy the tables in ROI_table_names
+                    for ROI_table_name in ROI_table_names:
+                        ROI_table = ad.read_zarr(
+                            f"{zarrurl_old}/{well_path}/{image_path}/"
+                            f"tables/{ROI_table_name}"
+                        )
+                        # Convert 3D FOVs to 2D
+                        if project_to_2D:
+                            ROI_table = convert_ROIs_from_3D_to_2D(
+                                ROI_table, pxl_size_z
+                            )
+                        # Write new table
+                        write_elem(group_tables, ROI_table_name, ROI_table)
 
     for key in ["plate", "well", "image"]:
         meta_update[key] = [
@@ -205,6 +190,7 @@ if __name__ == "__main__":
         metadata: Dict[str, Any]
         project_to_2D: bool = True
         suffix: Optional[str] = None
+        ROI_table_names: Optional[Sequence[str]] = None
 
     run_fractal_task(
         task_function=replicate_zarr_structure,
