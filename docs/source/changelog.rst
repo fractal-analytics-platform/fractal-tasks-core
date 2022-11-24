@@ -13,7 +13,7 @@ Other changes
 ~~~~~~~~~~~~~
 * Skip image files if filename is not parsable (#219).
 * Preserve order of ``input_paths`` for multiplexing subfolders (#222).
-* Major refactor of ``replicate_zarr_structure``, to support multiplexing zarr files (#223).
+* Major refactor of ``replicate_zarr_structure``, also enabling support for zarr files with multiple images (#223).
 
 
 0.4.5
