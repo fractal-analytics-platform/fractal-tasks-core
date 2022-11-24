@@ -61,8 +61,6 @@ def replicate_zarr_structure(
     3. For each image (in each well), copy its zattrs over.
     4. Re-create relevant FOV/well ROI tables.
 
-
-
     Ref for Attributes https://zarr.readthedocs.io/en/stable/api/attrs.html
 
     Examples
@@ -74,8 +72,9 @@ def replicate_zarr_structure(
     :param metadata: TBD
     :param project_to_2D: TBD
     :param suffix: TBD
-    :param ROI_table_names: TBD
-    """
+    :param ROI_table_names: List of ROI-table names to be copied. Note: this
+                            may fail for non-ROI tables, if
+                            ``project_to_2D=True``."""
 
     # Preliminary check
     if len(input_paths) > 1:
