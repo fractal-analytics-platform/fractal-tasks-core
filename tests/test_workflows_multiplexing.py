@@ -21,14 +21,13 @@ from .utils import validate_schema
 from fractal_tasks_core.create_zarr_structure_multiplex import (
     create_zarr_structure_multiplex,
 )
+from fractal_tasks_core.maximum_intensity_projection import (
+    maximum_intensity_projection,
+)  # noqa
 from fractal_tasks_core.replicate_zarr_structure import (
     replicate_zarr_structure,
 )  # noqa
 from fractal_tasks_core.yokogawa_to_zarr import yokogawa_to_zarr
-
-# from fractal_tasks_core.maximum_intensity_projection import (
-#    maximum_intensity_projection,
-# )  # noqa
 
 
 single_cycle_channel_parameters = {
@@ -154,7 +153,6 @@ def test_workflow_multiplexing_MIP(
     metadata.update(metadata_update)
     debug(metadata)
 
-    """
     # MIP
     for component in metadata["image"]:
         maximum_intensity_projection(
@@ -164,10 +162,9 @@ def test_workflow_multiplexing_MIP(
             component=component,
         )
 
-
     # OME-NGFF JSON validation
-    image_zarr_0 = Path(zarr_path.parent / metadata["image"][0])
-    image_zarr_1 = Path(zarr_path.parent / metadata["image"][1])
+    image_zarr_0 = Path(zarr_path_mip.parent / metadata["image"][0])
+    image_zarr_1 = Path(zarr_path_mip.parent / metadata["image"][1])
     well_zarr = image_zarr_0.parent
     plate_zarr = image_zarr_0.parents[2]
     validate_schema(path=str(image_zarr_0), type="image")
@@ -177,4 +174,3 @@ def test_workflow_multiplexing_MIP(
 
     check_file_number(zarr_path=image_zarr_0)
     check_file_number(zarr_path=image_zarr_1)
-    """
