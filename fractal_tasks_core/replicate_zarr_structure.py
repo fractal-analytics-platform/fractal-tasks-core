@@ -76,7 +76,7 @@ def replicate_zarr_structure(
     list_plates = [
         p.as_posix() for p in in_path.parent.resolve().glob(in_path.name)
     ]
-    logger.info("{list_plates=}")
+    logger.info(f"{list_plates=}")
 
     meta_update: Dict[str, Any] = {"replicate_zarr": {}}
     meta_update["replicate_zarr"]["suffix"] = suffix
