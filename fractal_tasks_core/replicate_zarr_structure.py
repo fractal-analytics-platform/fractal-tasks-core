@@ -50,31 +50,38 @@ def replicate_zarr_structure(
     """
     Duplicate an input zarr structure to a new path.
 
+    More detailed description:
 
-    If ``project_to_2D=True``, adapt the new to host a maximum-intensity
-    projection (that is, with a single Z layer).
+    1. For each plate, create a new zarr group with the same attributes as the
+    original one.
+    2. For each well (in each plate), create a new zarr subgroup with the same
+    attributes as the original one.
+    3. For each image (in each well), create a new zarr subgroup with the same
+    attributes as the original one.
+    4. For each image (in each well), copy the relevant AnnData tables from the
+    original source.
 
+    Note: this task makes use of methods from the ``Attributes`` class, see
+    https://zarr.readthedocs.io/en/stable/api/attrs.html.
 
-    More detailed description (TODO)
-    1. For each plate zarr, create a new one.
-    2. For each well (in each plate), copy its zattrs over (to the new zarr).
-    3. For each image (in each well), copy its zattrs over.
-    4. Re-create relevant FOV/well ROI tables.
-
-    Ref for Attributes https://zarr.readthedocs.io/en/stable/api/attrs.html
-
-    Examples
-      input_paths[0] = /tmp/out/*.zarr    (Path)
-      output_path = /tmp/out_mip/*.zarr   (Path)
+    Examples of some inputs::
+      input_paths = ["/tmp/out/*.zarr"]
+      output_path = "/tmp/out_mip/*.zarr"
 
     :param input_paths: TBD
     :param output_path: TBD
     :param metadata: TBD
-    :param project_to_2D: TBD
-    :param suffix: TBD
-    :param ROI_table_names: List of ROI-table names to be copied. Note: this
-                            may fail for non-ROI tables, if
-                            ``project_to_2D=True``."""
+    :param project_to_2D: If ``True``, apply a 3D->2D projection to the ROI
+                          tables that are copied to the new zarr.
+    :param suffix: The suffix that is used to transform ``plate.zarr`` into
+                   ``plate_suffix.zarr``. Note that `None` is not currently
+                   supported.
+
+    :param ROI_table_names: List of ROI-table names to be copied. If ``None``,
+                            it is replaced by ``["FOV_ROI_table",
+                            "well_ROI_table"]``. Note: copying non-ROI tables
+                            may fail if ``project_to_2D=True``.
+    """
 
     # Preliminary check
     if len(input_paths) > 1:
