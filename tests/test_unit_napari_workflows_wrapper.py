@@ -7,12 +7,6 @@ from fractal_tasks_core.napari_workflows_wrapper import (
 )
 
 
-def test_imports():
-    import napari_workflows
-    import napari_segment_blobs_and_things_with_membranes
-    import napari_skimage_regionprops
-
-
 def test_input_specs(tmp_path, testdata_path):
     """
     WHEN calling napari_workflows_wrapper with invalid input_specs
