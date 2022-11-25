@@ -3,7 +3,7 @@
     "task_list":
 [
     {
-        "name": "Create OME-ZARR structure",
+        "name": "Create OME-Zarr structure",
         "input_type": "image",
         "output_type": "zarr",
         "default_args": {
@@ -11,7 +11,7 @@
             "coarsening_xy": 2,
             "metadata_table": "mrf_mlf"
         },
-        "executable": "create_zarr_structure.py",
+        "executable": "create_ome_zarr.py",
         "meta": {"executor": "cpu-low"}
     },
     {
@@ -22,11 +22,11 @@
         "meta": {"executor": "cpu-low", "parallelization_level": "image"}
     },
     {
-        "name": "Replicate Zarr structure",
+        "name": "Copy OME-Zarr structure",
         "input_type": "zarr",
         "output_type": "zarr",
         "default_args": {"project_to_2D": true, "suffix": "mip"},
-        "executable": "replicate_zarr_structure.py",
+        "executable": "copy_ome_zarr.py",
         "meta": {"executor": "cpu-low"}
     },
     {
@@ -86,7 +86,7 @@
             "coarsening_xy": 2,
             "metadata_table": "mrf_mlf"
         },
-        "executable": "create_zarr_structure_multiplex.py",
+        "executable": "create_ome_zarr_multiplex.py",
         "meta": {"executor": "cpu-low"}
     }
 ]

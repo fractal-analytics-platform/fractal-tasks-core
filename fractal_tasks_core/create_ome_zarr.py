@@ -41,7 +41,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def create_zarr_structure(
+def create_ome_zarr(
     *,
     input_paths: Sequence[Path],
     output_path: Path,
@@ -90,7 +90,7 @@ def create_zarr_structure(
         )
     if channel_parameters is None:
         raise Exception(
-            "Missing channel_parameters argument in " "create_zarr_structure"
+            "Missing channel_parameters argument in " "create_ome_zarr"
         )
 
     # Identify all plates and all channels, across all input folders
@@ -169,7 +169,7 @@ def create_zarr_structure(
 
     # Check that all channels are in the allowed_channels
     if not set(channels).issubset(set(channel_parameters.keys())):
-        msg = "ERROR in create_zarr_structure\n"
+        msg = "ERROR in create_ome_zarr\n"
         msg += f"channels: {channels}\n"
         msg += f"allowed_channels: {channel_parameters.keys()}\n"
         raise Exception(msg)
@@ -385,7 +385,7 @@ if __name__ == "__main__":
         metadata_table: str = "mrf_mlf"
 
     run_fractal_task(
-        task_function=create_zarr_structure,
+        task_function=create_ome_zarr,
         TaskArgsModel=TaskArguments,
         logger_name=logger.name,
     )
