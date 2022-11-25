@@ -23,9 +23,7 @@ from devtools import debug
 
 from .utils import check_file_number
 from .utils import validate_schema
-from fractal_tasks_core.copy_ome_zarr import (
-    copy_ome_zarr,
-)  # noqa
+from fractal_tasks_core.copy_ome_zarr import copy_ome_zarr
 from fractal_tasks_core.create_ome_zarr import create_ome_zarr
 from fractal_tasks_core.illumination_correction import illumination_correction
 from fractal_tasks_core.maximum_intensity_projection import (
