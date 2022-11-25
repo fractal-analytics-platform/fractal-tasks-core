@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
 
-def copy_zarr_structure(
+def copy_ome_zarr(
     *,
     input_paths: Sequence[Path],
     output_path: Path,
@@ -199,7 +199,7 @@ if __name__ == "__main__":
         ROI_table_names: Optional[Sequence[str]] = None
 
     run_fractal_task(
-        task_function=copy_zarr_structure,
+        task_function=copy_ome_zarr,
         TaskArgsModel=TaskArguments,
         logger_name=logger.name,
     )
