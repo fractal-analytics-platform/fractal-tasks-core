@@ -1,13 +1,21 @@
 import json
+from pathlib import Path
 
 from devtools import debug
 
-from fractal_tasks_core import __FRACTAL_MANIFEST__
+import fractal_tasks_core
 from fractal_tasks_core.create_zarr_structure import create_zarr_structure
 
+
+# Load manifest
+module_dir = Path(fractal_tasks_core.__file__).parent
+with (module_dir / "__FRACTAL_MANIFEST__.json").open("r") as fin:
+    __FRACTAL_MANIFEST__ = json.load(fin)
+
+# Select a task
 create_zarr_structure_manifest = next(
     item
-    for item in __FRACTAL_MANIFEST__
+    for item in __FRACTAL_MANIFEST__["task_list"]
     if item["name"] == "Create OME-ZARR structure"
 )
 
