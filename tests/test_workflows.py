@@ -23,13 +23,13 @@ from devtools import debug
 
 from .utils import check_file_number
 from .utils import validate_schema
-from fractal_tasks_core.create_zarr_structure import create_zarr_structure
+from fractal_tasks_core.copy_ome_zarr import (
+    copy_ome_zarr,
+)  # noqa
+from fractal_tasks_core.create_ome_zarr import create_ome_zarr
 from fractal_tasks_core.illumination_correction import illumination_correction
 from fractal_tasks_core.maximum_intensity_projection import (
     maximum_intensity_projection,
-)  # noqa
-from fractal_tasks_core.replicate_zarr_structure import (
-    replicate_zarr_structure,
 )  # noqa
 from fractal_tasks_core.yokogawa_to_zarr import yokogawa_to_zarr
 
@@ -67,7 +67,7 @@ def test_workflow_yokogawa_to_zarr(tmp_path: Path, zenodo_images: Path):
     metadata = {}
 
     # Create zarr structure
-    metadata_update = create_zarr_structure(
+    metadata_update = create_ome_zarr(
         input_paths=[img_path],
         output_path=zarr_path,
         channel_parameters=channel_parameters,
@@ -118,7 +118,7 @@ def test_workflow_MIP(
     metadata = metadata_3D.copy()
 
     # Replicate
-    metadata_update = replicate_zarr_structure(
+    metadata_update = copy_ome_zarr(
         input_paths=[zarr_path],
         output_path=zarr_path_mip,
         metadata=metadata,
@@ -170,7 +170,7 @@ def test_workflow_illumination_correction(
     }
 
     # Create zarr structure
-    metadata_update = create_zarr_structure(
+    metadata_update = create_ome_zarr(
         input_paths=[img_path],
         output_path=zarr_path,
         channel_parameters=channel_parameters,
