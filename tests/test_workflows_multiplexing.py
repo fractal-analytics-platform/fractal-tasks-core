@@ -27,7 +27,7 @@ from fractal_tasks_core.create_ome_zarr_multiplex import (
 from fractal_tasks_core.maximum_intensity_projection import (
     maximum_intensity_projection,
 )  # noqa
-from fractal_tasks_core.yokogawa_to_zarr import yokogawa_to_zarr
+from fractal_tasks_core.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 
 
 single_cycle_channel_parameters = {
@@ -85,7 +85,7 @@ def test_workflow_multiplexing(
 
     # Yokogawa to zarr
     for component in metadata["image"]:
-        yokogawa_to_zarr(
+        yokogawa_to_ome_zarr(
             input_paths=[zarr_path],
             output_path=zarr_path,
             metadata=metadata,
@@ -134,7 +134,7 @@ def test_workflow_multiplexing_MIP(
 
     # Yokogawa to zarr
     for component in metadata["image"]:
-        yokogawa_to_zarr(
+        yokogawa_to_ome_zarr(
             input_paths=[zarr_path],
             output_path=zarr_path,
             metadata=metadata,

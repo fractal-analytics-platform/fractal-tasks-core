@@ -34,7 +34,7 @@ from fractal_tasks_core.create_ome_zarr import create_ome_zarr
 from fractal_tasks_core.maximum_intensity_projection import (
     maximum_intensity_projection,
 )  # noqa
-from fractal_tasks_core.yokogawa_to_zarr import yokogawa_to_zarr
+from fractal_tasks_core.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 
 
 channel_parameters = {
@@ -289,7 +289,7 @@ def test_workflow_with_per_well_labeling_2D(
 
     # Yokogawa to zarr
     for component in metadata["image"]:
-        yokogawa_to_zarr(
+        yokogawa_to_ome_zarr(
             input_paths=[zarr_path],
             output_path=zarr_path,
             metadata=metadata,

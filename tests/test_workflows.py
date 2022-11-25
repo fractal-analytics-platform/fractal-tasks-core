@@ -29,7 +29,7 @@ from fractal_tasks_core.illumination_correction import illumination_correction
 from fractal_tasks_core.maximum_intensity_projection import (
     maximum_intensity_projection,
 )  # noqa
-from fractal_tasks_core.yokogawa_to_zarr import yokogawa_to_zarr
+from fractal_tasks_core.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 
 
 channel_parameters = {
@@ -57,7 +57,7 @@ num_levels = 6
 coarsening_xy = 2
 
 
-def test_workflow_yokogawa_to_zarr(tmp_path: Path, zenodo_images: Path):
+def test_workflow_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: Path):
 
     # Init
     img_path = zenodo_images / "*.png"
@@ -78,7 +78,7 @@ def test_workflow_yokogawa_to_zarr(tmp_path: Path, zenodo_images: Path):
 
     # Yokogawa to zarr
     for component in metadata["image"]:
-        yokogawa_to_zarr(
+        yokogawa_to_ome_zarr(
             input_paths=[zarr_path],
             output_path=zarr_path,
             metadata=metadata,
@@ -182,7 +182,7 @@ def test_workflow_illumination_correction(
 
     # Yokogawa to zarr
     for component in metadata["image"]:
-        yokogawa_to_zarr(
+        yokogawa_to_ome_zarr(
             input_paths=[zarr_path],
             output_path=zarr_path,
             metadata=metadata,
