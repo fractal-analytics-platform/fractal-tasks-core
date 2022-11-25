@@ -74,7 +74,7 @@ def test_workflow_yokogawa_to_zarr(tmp_path: Path, zenodo_images: Path):
     with open(input_json_path, "w") as js:
         json.dump(args_create_zarr, js, cls=TaskParameterEncoder)
     cmd = (
-        f"python {tasks_path}/create_zarr_structure.py "
+        f"python {tasks_path}/create_ome_zarr.py "
         f"-j {input_json_path} "
         f"--metadata-out {output_json_path}"
     )
