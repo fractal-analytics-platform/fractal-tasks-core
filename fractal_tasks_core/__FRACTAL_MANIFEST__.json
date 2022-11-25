@@ -45,18 +45,6 @@
         "meta": {"executor": "gpu", "parallelization_level": "image"}
     },
     {
-        "name": "Measurement",
-        "input_type": "zarr",
-        "output_type": "zarr",
-        "default_args": {
-            "labeling_channel": "A01_C01",
-            "level": 0,
-            "measurement_table_name": "nuclei"
-        },
-        "executable": "measurement.py",
-        "meta": {"executor": "cpu-low", "parallelization_level": "image"}
-    },
-    {
         "name": "Illumination correction",
         "input_type": "zarr",
         "output_type": "zarr",

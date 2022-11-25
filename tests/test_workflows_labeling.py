@@ -34,7 +34,6 @@ from fractal_tasks_core.create_ome_zarr import create_ome_zarr
 from fractal_tasks_core.maximum_intensity_projection import (
     maximum_intensity_projection,
 )  # noqa
-from fractal_tasks_core.measurement import measurement
 from fractal_tasks_core.yokogawa_to_zarr import yokogawa_to_zarr
 
 
@@ -190,30 +189,6 @@ def test_workflow_with_per_FOV_labeling(
             diameter_level0=80.0,
         )
 
-    # Per-FOV measurement
-    for component in metadata["image"]:
-        measurement(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
-            metadata=metadata,
-            component=component,
-            labeling_channel="A01_C01",
-            level=0,
-            workflow_file=str(
-                testdata_path / "napari_workflows/regionprops.yaml"
-            ),
-            ROI_table_name="FOV_ROI_table",
-            measurement_table_name="measurement",
-        )
-
-    # Load measurements
-    meas = ad.read_zarr(
-        zarr_path.parent / metadata["image"][0] / "tables/measurement/"
-    )
-    print(meas.var_names)
-    assert "area" in meas.var_names
-    assert "bbox_area" in meas.var_names
-
     # OME-NGFF JSON validation
     image_zarr = Path(zarr_path.parent / metadata["image"][0])
     label_zarr = image_zarr / "labels/label_DAPI"
@@ -275,47 +250,6 @@ def test_workflow_with_per_FOV_labeling_2D(
     validate_schema(path=str(plate_zarr), type="plate")
 
     check_file_number(zarr_path=image_zarr)
-
-
-def test_workflow_measurement_2D(
-    tmp_path: Path,
-    testdata_path: Path,
-    zenodo_zarr: List[Path],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
-):
-
-    # Init
-    zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
-    metadata = {}
-
-    # Load zarr array from zenodo
-    metadata = prepare_2D_zarr(
-        zarr_path_mip, zenodo_zarr, zenodo_zarr_metadata, remove_labels=False
-    )
-
-    # Per-FOV measurement
-    for component in metadata["image"]:
-        measurement(
-            input_paths=[zarr_path_mip],
-            output_path=zarr_path_mip,
-            metadata=metadata,
-            component=component,
-            labeling_channel="A01_C01",
-            level=0,
-            workflow_file=str(
-                testdata_path / "napari_workflows/regionprops.yaml"
-            ),
-            ROI_table_name="FOV_ROI_table",
-            measurement_table_name="measurement",
-        )
-
-    # Load measurements
-    meas = ad.read_zarr(
-        zarr_path_mip.parent / metadata["image"][0] / "tables/measurement/"
-    )
-    print(meas.var_names)
-    assert "area" in meas.var_names
-    assert "bbox_area" in meas.var_names
 
 
 def test_workflow_with_per_well_labeling_2D(
@@ -395,30 +329,6 @@ def test_workflow_with_per_well_labeling_2D(
             relabeling=True,
             diameter_level0=80.0,
         )
-
-    # Per-FOV measurement
-    for component in metadata["image"]:
-        measurement(
-            input_paths=[zarr_path_mip],
-            output_path=zarr_path_mip,
-            metadata=metadata,
-            component=component,
-            labeling_channel="A01_C01",
-            level=0,
-            workflow_file=str(
-                testdata_path / "napari_workflows/regionprops.yaml"
-            ),
-            ROI_table_name="well_ROI_table",
-            measurement_table_name="measurement",
-        )
-
-    # Load measurements
-    meas = ad.read_zarr(
-        zarr_path_mip.parent / metadata["image"][0] / "tables/measurement/"
-    )
-    print(meas.var_names)
-    assert "area" in meas.var_names
-    assert "bbox_area" in meas.var_names
 
     # OME-NGFF JSON validation
     image_zarr = Path(zarr_path_mip.parent / metadata["image"][0])
