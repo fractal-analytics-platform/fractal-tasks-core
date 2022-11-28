@@ -7,8 +7,14 @@ Changelog
 
 
 
-0.4.7
+0.5.0
 -----
+
+
+New features
+~~~~~~~~~~~~
+* **(major)** Deprecate ``measurement`` task (#235).
+* **(major)** Use more uniform names for tasks, both in python modules and manifest (#235).
 
 Other changes
 ~~~~~~~~~~~~~
@@ -67,7 +73,7 @@ Other changes
 
 New features
 ~~~~~~~~~~~~
-* Rename ``well`` to ``image`` (both in metadata list and in manifest) and add an actual ``well`` field (#210).
+* **(major)** Rename ``well`` to ``image`` (both in metadata list and in manifest) and add an actual ``well`` field (#210).
 * Add ``create_ome_zarr_multiplexing``, and adapt ``yokogawa_to_zarr`` (#210).
 
 Other changes
