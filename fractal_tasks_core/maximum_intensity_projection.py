@@ -63,7 +63,7 @@ def maximum_intensity_projection(
     coarsening_xy = metadata["coarsening_xy"]
     plate, well = component.split(".zarr/")
 
-    zarrurl_old = metadata["replicate_zarr"]["sources"][plate] + "/" + well
+    zarrurl_old = metadata["copy_zarr"]["sources"][plate] + "/" + well
     clean_output_path = output_path.parent.resolve()
     zarrurl_new = (clean_output_path / component).as_posix()
     logger.info(f"{zarrurl_old=}")

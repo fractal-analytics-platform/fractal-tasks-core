@@ -53,7 +53,7 @@ def sort_fun(s: str):
     return [site, zind]
 
 
-def yokogawa_to_zarr(
+def yokogawa_to_ome_zarr(
     *,
     input_paths: Sequence[Path],
     output_path: Path,
@@ -143,7 +143,7 @@ def yokogawa_to_zarr(
         filenames = sorted(glob(glob_path), key=sort_fun)
         if len(filenames) == 0:
             raise Exception(
-                "Error in yokogawa_to_zarr: len(filenames)=0.\n"
+                "Error in yokogawa_to_ome_zarr: len(filenames)=0.\n"
                 f"  in_path: {in_path}\n"
                 f"  ext: {ext}\n"
                 f"  well_ID: {well_ID}\n"
@@ -203,7 +203,7 @@ if __name__ == "__main__":
         delete_input: bool = False
 
     run_fractal_task(
-        task_function=yokogawa_to_zarr,
+        task_function=yokogawa_to_ome_zarr,
         TaskArgsModel=TaskArguments,
         logger_name=logger.name,
     )

@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
 
-def replicate_zarr_structure(
+def copy_ome_zarr(
     *,
     input_paths: Sequence[Path],
     output_path: Path,
@@ -100,9 +100,9 @@ def replicate_zarr_structure(
     ]
     logger.info(f"{list_plates=}")
 
-    meta_update: Dict[str, Any] = {"replicate_zarr": {}}
-    meta_update["replicate_zarr"]["suffix"] = suffix
-    meta_update["replicate_zarr"]["sources"] = {}
+    meta_update: Dict[str, Any] = {"copy_zarr": {}}
+    meta_update["copy_zarr"]["suffix"] = suffix
+    meta_update["copy_zarr"]["sources"] = {}
 
     # Loop over all plates
     for zarrurl_old in list_plates:
@@ -111,7 +111,7 @@ def replicate_zarr_structure(
         new_plate_name = f"{old_plate_name}_{suffix}"
         new_plate_dir = output_path.resolve().parent
         zarrurl_new = f"{(new_plate_dir / new_plate_name).as_posix()}.zarr"
-        meta_update["replicate_zarr"]["sources"][new_plate_name] = zarrurl_old
+        meta_update["copy_zarr"]["sources"][new_plate_name] = zarrurl_old
 
         logger.info(f"{zarrurl_old=}")
         logger.info(f"{zarrurl_new=}")
@@ -199,7 +199,7 @@ if __name__ == "__main__":
         ROI_table_names: Optional[Sequence[str]] = None
 
     run_fractal_task(
-        task_function=replicate_zarr_structure,
+        task_function=copy_ome_zarr,
         TaskArgsModel=TaskArguments,
         logger_name=logger.name,
     )

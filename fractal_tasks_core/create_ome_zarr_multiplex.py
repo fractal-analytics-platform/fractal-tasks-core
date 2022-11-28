@@ -27,11 +27,11 @@ import zarr
 from anndata.experimental import write_elem
 
 import fractal_tasks_core
+from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
 from fractal_tasks_core.lib_omero import define_omero_channels
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
-from fractal_tasks_core.metadata_parsing import parse_yokogawa_metadata
 
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
@@ -41,7 +41,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def create_zarr_structure_multiplex(
+def create_ome_zarr_multiplex(
     *,
     input_paths: Sequence[Path],
     output_path: Path,
@@ -88,7 +88,7 @@ def create_zarr_structure_multiplex(
         )
     if channel_parameters is None:
         raise ValueError(
-            "Missing channel_parameters argument in create_zarr_structure"
+            "Missing channel_parameters argument in create_ome_zarr"
         )
     else:
         # Note that in metadata the keys of dictionary arguments should be
@@ -155,7 +155,7 @@ def create_zarr_structure_multiplex(
         if not set(channels).issubset(
             set(channel_parameters[acquisition].keys())
         ):
-            msg = "ERROR in create_zarr_structure\n"
+            msg = "ERROR in create_ome_zarr\n"
             msg += f"channels: {channels}\n"
             msg += "allowed_channels: "
             msg += f"{channel_parameters[acquisition].keys()}\n"
@@ -437,7 +437,7 @@ if __name__ == "__main__":
         metadata_table: str = "mrf_mlf"
 
     run_fractal_task(
-        task_function=create_zarr_structure_multiplex,
+        task_function=create_ome_zarr_multiplex,
         TaskArgsModel=TaskArguments,
         logger_name=logger.name,
     )
