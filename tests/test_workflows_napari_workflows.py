@@ -18,6 +18,7 @@ from typing import Dict
 from typing import List
 from typing import Union
 
+import anndata as ad
 import pytest
 from devtools import debug
 
@@ -142,6 +143,14 @@ def test_workflow_napari_worfklow(
     validate_labels_and_measurements(
         image_zarr, label_name="label_DAPI", table_name="regionprops_DAPI"
     )
+
+    # Load measurements
+    meas = ad.read_zarr(
+        zarr_path.parent / metadata["image"][0] / "tables/regionprops_DAPI/"
+    )
+    debug(meas.var_names)
+    assert "area" in meas.var_names
+    assert "bbox_area" in meas.var_names
 
 
 def test_workflow_napari_worfklow_label_input_only(
@@ -316,6 +325,15 @@ def test_relabeling(
     validate_labels_and_measurements(
         image_zarr, label_name=LABEL_NAME, table_name=TABLE_NAME
     )
+
+    if [item["type"] == "dataframe" for item in output_specs.values()]:
+        # Load measurements
+        meas = ad.read_zarr(
+            zarr_path.parent / metadata["image"][0] / f"tables/{TABLE_NAME}/"
+        )
+        debug(meas.var_names)
+        assert "area" in meas.var_names
+        assert "bbox_area" in meas.var_names
 
 
 def test_fail_if_no_relabeling(
