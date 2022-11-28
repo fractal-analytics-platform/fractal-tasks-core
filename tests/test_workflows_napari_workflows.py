@@ -326,8 +326,10 @@ def test_relabeling(
         image_zarr, label_name=LABEL_NAME, table_name=TABLE_NAME
     )
 
-    if [item["type"] == "dataframe" for item in output_specs.values()]:
-        # Load measurements
+    dataframe_outputs = [
+        item for item in output_specs.values() if item["type"] == "dataframe"
+    ]
+    if dataframe_outputs:
         meas = ad.read_zarr(
             zarr_path.parent / metadata["image"][0] / f"tables/{TABLE_NAME}/"
         )
