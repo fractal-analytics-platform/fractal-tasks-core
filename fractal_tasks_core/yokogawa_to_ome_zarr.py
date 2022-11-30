@@ -43,10 +43,10 @@ logger = logging.getLogger(__name__)
 
 def sort_fun(filename: str):
     """
-    sort_fun takes a string (filename of a yokogawa images),
-    extract site and z-index metadata and returns them as a list.
+    sort_fun takes a string (filename of a yokogawa images), extract site and
+    z-index metadata and returns them as a list of integers
 
-    :param s: filename
+    :param filename: name of the image file
     """
 
     filename_metadata = parse_filename(filename)
