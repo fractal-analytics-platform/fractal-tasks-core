@@ -7,9 +7,16 @@ Changelog
 
 
 
-0.5.0
+0.5.1
 -----
 
+New features
+~~~~~~~~~~~~
+* Fix sorting of image files when number of Z planes passes 100 (#237)
+
+
+0.5.0
+-----
 
 New features
 ~~~~~~~~~~~~
