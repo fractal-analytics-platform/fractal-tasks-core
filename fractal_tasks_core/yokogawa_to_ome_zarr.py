@@ -16,7 +16,6 @@ Task that writes image data to an existing OME-NGFF zarr array
 """
 import logging
 import os
-import re
 from glob import glob
 from pathlib import Path
 from typing import Any
@@ -28,6 +27,7 @@ import zarr
 from anndata import read_zarr
 from dask.array.image import imread
 
+from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_read_fractal_metadata import (
     get_parameters_from_metadata,
@@ -37,10 +37,11 @@ from fractal_tasks_core.lib_regions_of_interest import (
 )
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
+
 logger = logging.getLogger(__name__)
 
 
-def sort_fun(s: str):
+def sort_fun(filename: str):
     """
     sort_fun takes a string (filename of a yokogawa images),
     extract site and z-index metadata and returns them as a list.
@@ -48,9 +49,10 @@ def sort_fun(s: str):
     :param s: filename
     """
 
-    site = re.findall(r"F(.*)L", s)[0]
-    zind = re.findall(r"Z(.*)C", s)[0]
-    return [site, zind]
+    filename_metadata = parse_filename(filename)
+    site = int(filename_metadata["F"])
+    z_index = int(filename_metadata["Z"])
+    return [site, z_index]
 
 
 def yokogawa_to_ome_zarr(
