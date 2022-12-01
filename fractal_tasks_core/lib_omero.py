@@ -37,6 +37,11 @@ def define_omero_channels(
     default_colormaps = ["00FFFF", "FF00FF", "FFFF00"]
     for channel in actual_channels:
 
+        if channel not in channel_parameters.keys():
+            raise ValueError(
+                f"{channel=} is not part of {channel_parameters=}"
+            )
+
         # Set colormap. If missing, use the default ones (for the first three
         # channels) or gray
         colormap = channel_parameters[channel].get("colormap", None)
