@@ -6,13 +6,20 @@ Changelog
    Numbers like (#123) point to `closed Pull Requests on the fractal-tasks-core repository <https://github.com/fractal-analytics-platform/fractal-tasks-core/pulls?q=is%3Apr+is%3Aclosed>`_.
 
 
+0.6.0
+-----
+
+New features
+~~~~~~~~~~~~
+* **(major)** Refactor of how to address channels (#239).
+
 
 0.5.1
 -----
 
 New features
 ~~~~~~~~~~~~
-* Fix sorting of image files when number of Z planes passes 100 (#237)
+* Fix sorting of image files when number of Z planes passes 100 (#237).
 
 
 0.5.0
