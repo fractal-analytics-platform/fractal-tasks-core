@@ -361,15 +361,6 @@ def create_ome_zarr(
                 write_elem(group_tables, "FOV_ROI_table", FOV_ROIs_table)
                 write_elem(group_tables, "well_ROI_table", well_ROIs_table)
 
-    # FIXME: check that labels are unique within each well
-    # for plate in plates:
-    #    list images
-    #    collect paths
-    #    call check_unique_labels
-    from devtools import debug
-
-    debug("MISSING CHECK HERE")
-
     metadata_update = dict(
         plate=zarrurls["plate"],
         well=zarrurls["well"],
