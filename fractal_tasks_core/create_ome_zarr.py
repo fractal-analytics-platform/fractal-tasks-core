@@ -91,7 +91,7 @@ def create_ome_zarr(
 
     # Identify all plates and all channels, across all input folders
     plates = []
-    channels = None
+    actual_wavelength_ids = None
     dict_plate_paths = {}
     dict_plate_prefixes: Dict[str, Any] = {}
 
@@ -102,7 +102,7 @@ def create_ome_zarr(
     for in_path in input_paths:
         input_filename_iter = in_path.parent.glob(in_path.name)
 
-        tmp_channels = []
+        tmp_wavelength_ids = []
         tmp_plates = []
         for fn in input_filename_iter:
             try:
@@ -112,20 +112,20 @@ def create_ome_zarr(
                 if plate not in dict_plate_prefixes.keys():
                     dict_plate_prefixes[plate] = plate_prefix
                 tmp_plates.append(plate)
-                tmp_channels.append(
-                    f"A{filename_metadata['A']}_C{filename_metadata['C']}"
-                )
+                A = filename_metadata["A"]
+                C = filename_metadata["C"]
+                tmp_wavelength_ids.append(f"A{A}_C{C}")
             except ValueError as e:
                 logger.warning(
                     f'Skipping "{fn.name}". Original error: ' + str(e)
                 )
         tmp_plates = sorted(list(set(tmp_plates)))
-        tmp_channels = sorted(list(set(tmp_channels)))
+        tmp_wavelength_ids = sorted(list(set(tmp_wavelength_ids)))
 
         info = (
             f"Listing all plates/channels from {in_path.as_posix()}\n"
             f"Plates:   {tmp_plates}\n"
-            f"Channels: {tmp_channels}\n"
+            f"Channels: {tmp_wavelength_ids}\n"
         )
 
         # Check that only one plate is found
@@ -152,12 +152,13 @@ def create_ome_zarr(
             plates.append(plate)
 
         # Check that channels are the same as in previous plates
-        if channels is None:
-            channels = tmp_channels[:]
+        if actual_wavelength_ids is None:
+            actual_wavelength_ids = tmp_wavelength_ids[:]
         else:
-            if channels != tmp_channels:
+            if actual_wavelength_ids != tmp_wavelength_ids:
                 raise Exception(
-                    f"ERROR\n{info}\nERROR: expected channels {channels}"
+                    f"ERROR\n{info}\nERROR:"
+                    f" expected channels {actual_wavelength_ids}"
                 )
 
         # Update dict_plate_paths
@@ -167,17 +168,19 @@ def create_ome_zarr(
     allowed_wavelength_ids = [
         channel["wavelength_id"] for channel in allowed_channels
     ]
-    if not set(channels).issubset(set(allowed_wavelength_ids)):
+    if not set(actual_wavelength_ids).issubset(set(allowed_wavelength_ids)):
         msg = "ERROR in create_ome_zarr\n"
-        msg += f"channels: {channels}\n"
-        msg += f"allowed_channels: {allowed_wavelength_ids}\n"
+        msg += f"actual_wavelength_ids: {actual_wavelength_ids}\n"
+        msg += f"allowed_wavelength_ids: {allowed_wavelength_ids}\n"
         raise Exception(msg)
 
-    # Create actual_channels, i.e. a list of entries like "A01_C01"
-    actual_channels = []
-    for ind_ch, ch in enumerate(channels):
-        actual_channels.append(ch)
-    logger.info(f"actual_channels: {actual_channels}")
+    # Create actual_channels, i.e. a list of the channel dictionaries which are
+    # present
+    actual_channels = [
+        channel
+        for channel in allowed_channels
+        if channel["wavelength_id"] in actual_wavelength_ids
+    ]
 
     zarrurls: Dict[str, List[str]] = {"plate": [], "well": [], "image": []}
 
@@ -232,22 +235,22 @@ def create_ome_zarr(
             well_image_iter = glob(
                 f"{in_path}/{plate_prefix}_{well}{ext_glob_pattern}"
             )
-            well_channels = []
+            well_wavelength_ids = []
             for fpath in well_image_iter:
                 try:
                     filename_metadata = parse_filename(os.path.basename(fpath))
-                    well_channels.append(
+                    well_wavelength_ids.append(
                         f"A{filename_metadata['A']}_C{filename_metadata['C']}"
                     )
                 except IndexError:
                     logger.info(f"Skipping {fpath}")
-            well_channels = sorted(list(set(well_channels)))
-            if well_channels != actual_channels:
+            well_wavelength_ids = sorted(list(set(well_wavelength_ids)))
+            if well_wavelength_ids != actual_wavelength_ids:
                 raise Exception(
                     f"ERROR: well {well} in plate {plate} (prefix: "
                     f"{plate_prefix}) has missing channels.\n"
                     f"Expected: {actual_channels}\n"
-                    f"Found: {well_channels}.\n"
+                    f"Found: {well_wavelength_ids}.\n"
                 )
 
         well_rows_columns = [
@@ -362,7 +365,7 @@ def create_ome_zarr(
         image=zarrurls["image"],
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        channel_list=actual_channels,
+        channel_list=actual_wavelength_ids,  # FIXME: remove this
         original_paths=[str(p) for p in input_paths],
     )
     return metadata_update

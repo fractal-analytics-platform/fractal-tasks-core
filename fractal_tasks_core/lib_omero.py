@@ -38,7 +38,8 @@ def define_omero_channels(
 
     omero_channels = []
     default_colormaps = ["00FFFF", "FF00FF", "FFFF00"]
-    for wavelength_id in actual_channels:
+    for channel in actual_channels:
+        wavelength_id = channel["wavelength_id"]
 
         channel = _get_channel_from_list(
             channels=channel_parameters, wavelength_id=wavelength_id
