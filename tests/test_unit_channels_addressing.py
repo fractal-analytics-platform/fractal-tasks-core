@@ -11,22 +11,26 @@ def test_get_channel(testdata_path: Path):
         omero_channels = json.load(f)
     debug(omero_channels)
 
-    label, wl_id, index = _get_channel_from_list(
-        channels=omero_channels, label="label_1"
-    )
-    assert wl_id == "wavelength_id_1"
-    assert index == 0
-    label, wl_id, index = _get_channel_from_list(
+    channel = _get_channel_from_list(channels=omero_channels, label="label_1")
+    debug(channel)
+    assert channel["label"] == "label_1"
+    assert channel["wavelength_id"] == "wavelength_id_1"
+    assert channel["index"] == 0
+
+    channel = _get_channel_from_list(
         channels=omero_channels, wavelength_id="wavelength_id_2"
     )
-    assert label == "label_2"
-    assert index == 1
+    debug(channel)
+    assert channel["label"] == "label_2"
+    assert channel["wavelength_id"] == "wavelength_id_2"
+    assert channel["index"] == 1
 
-    label, wl_id, index = _get_channel_from_list(
+    channel = _get_channel_from_list(
         channels=omero_channels,
         label="label_2",
         wavelength_id="wavelength_id_2",
     )
-    assert label == "label_2"
-    assert wl_id == "wavelength_id_2"
-    assert index == 1
+    debug(channel)
+    assert channel["label"] == "label_2"
+    assert channel["wavelength_id"] == "wavelength_id_2"
+    assert channel["index"] == 1
