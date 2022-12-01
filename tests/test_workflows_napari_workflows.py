@@ -65,7 +65,7 @@ def prepare_2D_zarr(
     return metadata
 
 
-def test_workflow_napari_worfklow(
+def test_napari_worfklow(
     tmp_path: Path,
     testdata_path: Path,
     zenodo_zarr: List[Path],
@@ -153,7 +153,7 @@ def test_workflow_napari_worfklow(
     assert "bbox_area" in meas.var_names
 
 
-def test_workflow_napari_worfklow_label_input_only(
+def test_napari_worfklow_label_input_only(
     tmp_path: Path,
     testdata_path: Path,
     zenodo_zarr: List[Path],
