@@ -49,7 +49,5 @@ def _get_channel_from_list(
         )
 
     channel = matching_channels[0]
-    label = channel["label"]
-    wavelength_id = channel["wavelength_id"]
-    array_index = channels.index(channel)
-    return label, wavelength_id, array_index
+    channel["index"] = channels.index(channel)
+    return channel
