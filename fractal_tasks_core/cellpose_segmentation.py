@@ -36,6 +36,8 @@ from cellpose import models
 from cellpose.core import use_gpu
 
 import fractal_tasks_core
+from fractal_tasks_core.lib_channels import _get_channel_from_list
+from fractal_tasks_core.lib_channels import get_omero_channel_list
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     array_to_bounding_box_table,
@@ -172,16 +174,18 @@ def cellpose_segmentation(
     # Read useful parameters from metadata
     num_levels = metadata["num_levels"]
     coarsening_xy = metadata["coarsening_xy"]
-    chl_list = metadata["channel_list"]
+
     plate, well = component.split(".zarr/")
 
     # Find well ID
     well_id = well.replace("/", "_")[:-1]
 
     # Find channel index
-    if labeling_channel not in chl_list:
-        raise Exception(f"ERROR: {labeling_channel} not in {chl_list}")
-    ind_channel = chl_list.index(labeling_channel)
+    channels = get_omero_channel_list(image_zarr_path=zarrurl)
+    channel = _get_channel_from_list(
+        channels=channels, wavelength_id=labeling_channel
+    )
+    ind_channel = channel["index"]
 
     # Load ZYX data
     data_zyx = da.from_zarr(f"{zarrurl}{labeling_level}")[ind_channel]
