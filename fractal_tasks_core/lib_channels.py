@@ -36,9 +36,10 @@ def get_channel_from_image_zarr(
     :param wavelength_id: TBD
     """
     omero_channels = get_omero_channel_list(image_zarr_path=image_zarr_path)
-    get_omero_channel_list(
+    channel = get_channel_from_list(
         channels=omero_channels, label=label, wavelength_id=wavelength_id
     )
+    return channel
 
 
 def get_omero_channel_list(*, image_zarr_path: str) -> List[Dict[str, Any]]:
