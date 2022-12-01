@@ -181,4 +181,9 @@ def define_omero_channels(
         except KeyError:
             pass
 
+    # Check that channel labels are unique for this image
+    labels = [c["label"] for c in omero_channels]
+    if len(set(labels)) < len(labels):
+        raise ValueError(f"Non-unique labels in {omero_channels=}")
+
     return omero_channels
