@@ -18,6 +18,8 @@ from typing import Dict
 from typing import List
 from typing import Sequence
 
+from fractal_tasks_core.lib_channels import _get_channel_from_list
+
 
 def define_omero_channels(
     actual_channels: Sequence[str],
@@ -35,16 +37,18 @@ def define_omero_channels(
 
     omero_channels = []
     default_colormaps = ["00FFFF", "FF00FF", "FFFF00"]
-    for channel in actual_channels:
+    for wavelength_id in actual_channels:
 
-        if channel not in channel_parameters.keys():
-            raise ValueError(
-                f"{channel=} is not part of {channel_parameters=}"
-            )
+        channel = _get_channel_from_list(
+            channels=channel_parameters, wavelength_id=wavelength_id
+        )
+
+        # FIXME handle missing label
+        label = channel["label"]
 
         # Set colormap. If missing, use the default ones (for the first three
         # channels) or gray
-        colormap = channel_parameters[channel].get("colormap", None)
+        colormap = channel.get("colormap", None)
         if colormap is None:
             try:
                 colormap = default_colormaps.pop()
@@ -58,7 +62,7 @@ def define_omero_channels(
                 "color": colormap,
                 "family": "linear",
                 "inverted": False,
-                "label": channel_parameters[channel].get("label", channel),
+                "label": label,
                 "window": {
                     "min": 0,
                     "max": 2**bit_depth - 1,
@@ -67,12 +71,8 @@ def define_omero_channels(
         )
 
         try:
-            omero_channels[-1]["window"]["start"] = channel_parameters[
-                channel
-            ]["start"]
-            omero_channels[-1]["window"]["end"] = channel_parameters[channel][
-                "end"
-            ]
+            omero_channels[-1]["window"]["start"] = channel["start"]
+            omero_channels[-1]["window"]["end"] = channel["end"]
         except KeyError:
             pass
 

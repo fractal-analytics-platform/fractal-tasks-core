@@ -46,7 +46,7 @@ def create_ome_zarr(
     input_paths: Sequence[Path],
     output_path: Path,
     metadata: Dict[str, Any] = None,
-    channel_parameters: Dict[str, Any],
+    channel_parameters: Sequence[Dict[str, str]],
     num_levels: int = 2,
     coarsening_xy: int = 2,
     metadata_table: str = "mrf_mlf",
@@ -90,7 +90,7 @@ def create_ome_zarr(
         )
     if channel_parameters is None:
         raise Exception(
-            "Missing channel_parameters argument in " "create_ome_zarr"
+            "Missing channel_parameters argument in create_ome_zarr"
         )
 
     # Identify all plates and all channels, across all input folders
@@ -168,10 +168,13 @@ def create_ome_zarr(
         dict_plate_paths[plate] = in_path.parent
 
     # Check that all channels are in the allowed_channels
-    if not set(channels).issubset(set(channel_parameters.keys())):
+    allowed_wavelength_ids = [
+        channel["wavelength_id"] for channel in channel_parameters
+    ]
+    if not set(channels).issubset(set(allowed_wavelength_ids)):
         msg = "ERROR in create_ome_zarr\n"
         msg += f"channels: {channels}\n"
-        msg += f"allowed_channels: {channel_parameters.keys()}\n"
+        msg += f"allowed_channels: {allowed_wavelength_ids}\n"
         raise Exception(msg)
 
     # Create actual_channels, i.e. a list of entries like "A01_C01"
