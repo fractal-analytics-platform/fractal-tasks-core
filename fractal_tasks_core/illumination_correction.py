@@ -29,6 +29,7 @@ import numpy as np
 import zarr
 from skimage.io import imread
 
+from fractal_tasks_core.lib_channels import get_omero_channel_list
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
@@ -133,7 +134,6 @@ def illumination_correction(
         raise NotImplementedError(msg)
 
     # Read some parameters from metadata
-    chl_list = metadata["channel_list"]
     num_levels = metadata["num_levels"]
     coarsening_xy = metadata["coarsening_xy"]
 
@@ -154,6 +154,10 @@ def illumination_correction(
     logger.info(f"  {overwrite=}")
     logger.info(f"  {zarrurl_old=}")
     logger.info(f"  {zarrurl_new=}")
+
+    # Read channels from .zattrs
+    channels = get_omero_channel_list(image_zarr_path=zarrurl_old)
+    num_channels = len(channels)
 
     # Read FOV ROIs
     FOV_ROI_table = ad.read_zarr(f"{zarrurl_old}/tables/FOV_ROI_table")
@@ -192,9 +196,12 @@ def illumination_correction(
 
     # Assemble dictionary of matrices and check their shapes
     corrections = {}
-    for ind_ch, ch in enumerate(chl_list):
-        corrections[ch] = imread(root_path_corr + dict_corr[ch])
-        if corrections[ch].shape != (img_size_y, img_size_x):
+    for channel in channels:
+        wavelength_id = channel["wavelength_id"]
+        corrections[wavelength_id] = imread(
+            root_path_corr + dict_corr[wavelength_id]
+        )
+        if corrections[wavelength_id].shape != (img_size_y, img_size_x):
             raise Exception(
                 "Error in illumination_correction, "
                 "correction matrix has wrong shape."
@@ -220,7 +227,7 @@ def illumination_correction(
 
     # Iterate over FOV ROIs
     num_ROIs = len(list_indices)
-    for i_c, channel in enumerate(chl_list):
+    for i_c, channel in enumerate(channels):
         for i_ROI, indices in enumerate(list_indices):
             # Define region
             s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
@@ -232,12 +239,12 @@ def illumination_correction(
             )
             logger.info(
                 f"Now processing ROI {i_ROI+1}/{num_ROIs} "
-                f"for channel {i_c+1}/{len(chl_list)}"
+                f"for channel {i_c+1}/{num_channels}"
             )
             # Execute illumination correction
             corrected_fov = correct(
                 data_czyx[region].compute(),
-                corrections[channel],
+                corrections[channel["wavelength_id"]],
                 background=background,
             )
             # Write to disk
