@@ -19,6 +19,8 @@ from typing import Dict
 from typing import List
 from typing import Sequence
 
+import zarr
+
 from fractal_tasks_core.lib_channels import _get_channel_from_list
 
 
@@ -66,12 +68,13 @@ def define_omero_channels(
 
         omero_channels.append(
             {
+                "label": label,
+                "wavelength_id": wavelength_id,
                 "active": True,
                 "coefficient": 1,
                 "color": colormap,
                 "family": "linear",
                 "inverted": False,
-                "label": label,
                 "window": {
                     "min": 0,
                     "max": 2**bit_depth - 1,
@@ -86,3 +89,8 @@ def define_omero_channels(
             pass
 
     return omero_channels
+
+
+def get_omero_channel_list(*, image_zarr_path: str) -> List[Dict[str, str]]:
+    group = zarr.open_group(image_zarr_path, mode="r")
+    return group.attrs["omero"]["channels"]
