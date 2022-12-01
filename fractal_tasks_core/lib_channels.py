@@ -25,6 +25,16 @@ import zarr
 def get_channel_from_image_zarr(
     *, image_zarr_path: str, label: str = None, wavelength_id: str = None
 ) -> Dict[str, Any]:
+    """
+    Directly extract channel from .zattrs file
+
+    This is a helper function that combines ``get_omero_channel_list`` with
+    ``get_channel_from_list``.
+
+    :param image_zarr_path: TBD
+    :param label: TBD
+    :param wavelength_id: TBD
+    """
     omero_channels = get_omero_channel_list(image_zarr_path=image_zarr_path)
     get_omero_channel_list(
         channels=omero_channels, label=label, wavelength_id=wavelength_id
@@ -32,6 +42,11 @@ def get_channel_from_image_zarr(
 
 
 def get_omero_channel_list(*, image_zarr_path: str) -> List[Dict[str, Any]]:
+    """
+    Extract the list of channels from .zattrs file
+
+    :param image_zarr_path: TBD
+    """
     group = zarr.open_group(image_zarr_path, mode="r")
     return group.attrs["omero"]["channels"]
 
