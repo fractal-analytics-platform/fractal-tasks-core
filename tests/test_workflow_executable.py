@@ -8,26 +8,30 @@ from devtools import debug
 import fractal_tasks_core
 
 
-channel_parameters = {
-    "A01_C01": {
+allowed_channels = [
+    {
         "label": "DAPI",
+        "wavelength_id": "A01_C01",
         "colormap": "00FFFF",
         "start": 0,
         "end": 700,
     },
-    "A01_C02": {
+    {
+        "wavelength_id": "A01_C02",
         "label": "nanog",
         "colormap": "FF00FF",
         "start": 0,
         "end": 180,
     },
-    "A02_C03": {
+    {
+        "wavelength_id": "A02_C03",
         "label": "Lamin B1",
         "colormap": "FFFF00",
         "start": 0,
         "end": 1500,
     },
-}
+]
+
 
 num_levels = 6
 coarsening_xy = 2
@@ -61,7 +65,7 @@ def test_workflow_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: Path):
     args_create_zarr = dict(
         input_paths=[img_path],
         output_path=zarr_path,
-        channel_parameters=channel_parameters,
+        allowed_channels=allowed_channels,
         metadata={},
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
