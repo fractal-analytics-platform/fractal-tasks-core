@@ -380,9 +380,9 @@ def create_ome_zarr_multiplex(
                 "name": "TBD",
                 "version": __OME_NGFF_VERSION__,
                 "channels": define_omero_channels(
-                    actual_channels,
-                    allowed_channels[acquisition],
-                    bit_depth,
+                    channels=actual_channels,
+                    bit_depth=bit_depth,
+                    label_prefix=acquisition,
                 ),
             }
 

@@ -22,6 +22,19 @@ from typing import Sequence
 import zarr
 
 
+def check_unique_labels(list_channels: Sequence[Sequence[Dict[str, Any]]]):
+    for ind_1, channels_1 in enumerate(list_channels):
+        labels_1 = set([c["label"] for c in channels_1])
+        for ind_2 in range(ind_1):
+            channels_2 = list_channels[ind_2]
+            labels_2 = set([c["label"] for c in channels_2])
+            intersection = labels_1 & labels_2
+            if intersection:
+                raise ValueError(
+                    "Non-unique channel labels\n" f"{labels_1=}\n{labels_2=}"
+                )
+
+
 def get_channel_from_image_zarr(
     *, image_zarr_path: str, label: str = None, wavelength_id: str = None
 ) -> Dict[str, Any]:
@@ -104,33 +117,34 @@ def get_channel_from_list(
 
 
 def define_omero_channels(
-    actual_channels: Sequence[str],
-    channel_parameters: Dict[str, Any],
+    *,
+    channels: Sequence[Dict[str, Any]],
     bit_depth: int,
+    label_prefix: str = None,
 ) -> List[Dict[str, Any]]:
     """
     Prepare the .attrs["omero"]["channels"] attribute of an image group
 
-    :param actual_channels: TBD
-    :param channel_parameters: TBD
+    :param channels: TBD
     :param bit_depth: TBD
     :returns: omero_channels
     """
 
     omero_channels = []
     default_colormaps = ["00FFFF", "FF00FF", "FFFF00"]
-    for channel in actual_channels:
+    for channel in channels:
         wavelength_id = channel["wavelength_id"]
 
         channel = get_channel_from_list(
-            channels=channel_parameters, wavelength_id=wavelength_id
+            channels=channels, wavelength_id=wavelength_id
         )
 
         try:
             label = channel["label"]
         except KeyError:
-            # FIXME better handling of missing label
             default_label = wavelength_id
+            if label_prefix:
+                default_label = f"{label_prefix}_{default_label}"
             logging.warning(
                 f"Missing label for {channel=}, using {default_label=}"
             )
