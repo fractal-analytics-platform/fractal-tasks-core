@@ -13,6 +13,7 @@ Copyright 2022 (C)
 
 Handle OMERO-related metadata
 """
+import logging
 from typing import Any
 from typing import Dict
 from typing import List
@@ -43,8 +44,15 @@ def define_omero_channels(
             channels=channel_parameters, wavelength_id=wavelength_id
         )
 
-        # FIXME handle missing label
-        label = channel["label"]
+        try:
+            label = channel["label"]
+        except KeyError:
+            # FIXME better handling of missing label
+            default_label = wavelength_id
+            logging.warning(
+                f"Missing label for {channel=}, using {default_label=}"
+            )
+            label = default_label
 
         # Set colormap. If missing, use the default ones (for the first three
         # channels) or gray
