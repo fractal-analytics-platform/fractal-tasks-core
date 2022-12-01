@@ -60,26 +60,29 @@ num_levels = 6
 coarsening_xy = 2
 
 
-def test_create_ome_zarr(tmp_path: Path, zenodo_images: Path):
+def test_create_ome_zarr_fail(tmp_path: Path, zenodo_images: Path):
+
+    allowed_channels = [
+        {"label": "repeated label", "wavelength_id": "A01_C01"},
+        {"label": "repeated label", "wavelength_id": "A01_C02"},
+        {"label": "repeated label", "wavelength_id": "A02_C03"},
+    ]
 
     # Init
     img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
-    metadata = {}
 
     # Create zarr structure
-    metadata_update = create_ome_zarr(
-        input_paths=[img_path],
-        output_path=zarr_path,
-        allowed_channels=allowed_channels,
-        num_levels=num_levels,
-        coarsening_xy=coarsening_xy,
-        metadata_table="mrf_mlf",
-    )
-    metadata.update(metadata_update)
-    debug(metadata)
-
-    # FIXME: assert something (e.g. about channels)
+    with pytest.raises(ValueError):
+        _ = create_ome_zarr(
+            input_paths=[img_path],
+            metadata={},
+            output_path=zarr_path,
+            allowed_channels=allowed_channels,
+            num_levels=num_levels,
+            coarsening_xy=coarsening_xy,
+            metadata_table="mrf_mlf",
+        )
 
 
 def test_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: Path):
