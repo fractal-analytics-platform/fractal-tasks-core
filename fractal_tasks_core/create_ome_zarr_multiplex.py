@@ -46,7 +46,7 @@ def create_ome_zarr_multiplex(
     input_paths: Sequence[Path],
     output_path: Path,
     metadata: Dict[str, Any],
-    allowed_channels: Dict[str, Sequence[Dict[str, str]]],
+    allowed_channels: Dict[str, Sequence[Dict[str, Any]]],
     num_levels: int = 2,
     coarsening_xy: int = 2,
     metadata_table: str = "mrf_mlf",
@@ -407,7 +407,9 @@ def create_ome_zarr_multiplex(
     # Check that the different images (e.g. different cycles) in the each well
     # have unique labels
     for well_path in zarrurls["well"]:
-        check_well_channel_labels(well_zarr_path=well_path)
+        check_well_channel_labels(
+            well_zarr_path=str(output_path.parent / well_path)
+        )
 
     original_paths = {
         acquisition: dict_acquisitions[acquisition]["original_paths"]
@@ -433,7 +435,7 @@ if __name__ == "__main__":
         input_paths: Sequence[Path]
         output_path: Path
         metadata: Dict[str, Any]
-        allowed_channels: Dict[str, Dict[str, Any]]
+        allowed_channels: Dict[str, Sequence[Dict[str, Any]]]
         num_levels: int = 2
         coarsening_xy: int = 2
         metadata_table: str = "mrf_mlf"

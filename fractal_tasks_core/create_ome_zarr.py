@@ -19,7 +19,6 @@ from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import List
-from typing import Optional
 from typing import Sequence
 
 import pandas as pd
@@ -46,8 +45,8 @@ def create_ome_zarr(
     *,
     input_paths: Sequence[Path],
     output_path: Path,
-    metadata: Dict[str, Any] = None,
-    allowed_channels: Sequence[Dict[str, str]],
+    metadata: Dict[str, Any],
+    allowed_channels: Sequence[Dict[str, Any]],
     num_levels: int = 2,
     coarsening_xy: int = 2,
     metadata_table: str = "mrf_mlf",
@@ -367,7 +366,9 @@ def create_ome_zarr(
     # is useless. It should remain there to catch an error in case we switch
     # back to one-image-per-field-of-view mode
     for well_path in zarrurls["well"]:
-        check_well_channel_labels(well_zarr_path=well_path)
+        check_well_channel_labels(
+            well_zarr_path=str(output_path.parent / well_path)
+        )
 
     metadata_update = dict(
         plate=zarrurls["plate"],
@@ -387,8 +388,8 @@ if __name__ == "__main__":
     class TaskArguments(BaseModel):
         input_paths: Sequence[Path]
         output_path: Path
-        metadata: Optional[Dict[str, Any]]
-        allowed_channels: Sequence[Dict[str, str]]
+        metadata: Dict[str, Any]
+        allowed_channels: Sequence[Dict[str, Any]]
         num_levels: int = 2
         coarsening_xy: int = 2
         metadata_table: str = "mrf_mlf"
