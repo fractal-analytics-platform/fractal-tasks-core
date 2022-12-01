@@ -11,7 +11,7 @@ Copyright 2022 (C)
     Miescher Institute for Biomedical Research and Pelkmans Lab from the
     University of Zurich.
 
-Helper functions to address channels
+Helper functions to address channels via OME-NGFF/OMERO metadata
 """
 import logging
 from typing import Any
@@ -22,9 +22,14 @@ from typing import Sequence
 import zarr
 
 
-def check_well_channel_labels(*, well_zarr_path: str):
+def check_well_channel_labels(*, well_zarr_path: str) -> None:
     """
-    FIXME
+    Check that the channel labels for a well are unique
+
+    First identify the channel-labels list for each image in the well, then
+    compare lists and verify their intersection is empty
+
+    :params well_zarr_path: path to an OME-NGFF well zarr group
     """
 
     # Iterate over all images (multiplexing cycles, multi-FOVs, ...)
@@ -37,6 +42,7 @@ def check_well_channel_labels(*, well_zarr_path: str):
         )
         list_of_channel_lists.append(channels[:])
 
+    # For each pair of channel-labels lists, verify they do not overlap
     for ind_1, channels_1 in enumerate(list_of_channel_lists):
         labels_1 = set([c["label"] for c in channels_1])
         for ind_2 in range(ind_1):
@@ -59,14 +65,16 @@ def get_channel_from_image_zarr(
     *, image_zarr_path: str, label: str = None, wavelength_id: str = None
 ) -> Dict[str, Any]:
     """
-    Directly extract channel from .zattrs file
+    Extract a channel from OME-NGFF zarr attributes
 
     This is a helper function that combines ``get_omero_channel_list`` with
     ``get_channel_from_list``.
 
-    :param image_zarr_path: TBD
-    :param label: TBD
-    :param wavelength_id: TBD
+    :param image_zarr_path: Path to an OME-NGFF image zarr group
+    :param label: ``label`` attribute of the channel to be extracted
+    :param wavelength_id: ``wavelength_id`` attribute of the channel to be
+                          extracted
+    :returns: A single channel dictionary
     """
     omero_channels = get_omero_channel_list(image_zarr_path=image_zarr_path)
     channel = get_channel_from_list(
@@ -77,9 +85,10 @@ def get_channel_from_image_zarr(
 
 def get_omero_channel_list(*, image_zarr_path: str) -> List[Dict[str, Any]]:
     """
-    Extract the list of channels from .zattrs file
+    Extract the list of channels from OME-NGFF zarr attributes
 
-    :param image_zarr_path: TBD
+    :param image_zarr_path: Path to an OME-NGFF image zarr group
+    :returns: A list of channel dictionaries
     """
     group = zarr.open_group(image_zarr_path, mode="r+")
     return group.attrs["omero"]["channels"]
@@ -100,8 +109,10 @@ def get_channel_from_list(
     :param label: The label to look for in the list of channels.
     :param wavelength_id: The wavelength_id to look for in the list of
                           channels.
-
+    :returns: A single channel dictionary
     """
+
+    # Identify matching channels
     if label:
         if wavelength_id:
             matching_channels = [
@@ -124,6 +135,7 @@ def get_channel_from_list(
                 "arguments"
             )
 
+    # Verify that there is one and only one matching channel
     if len(matching_channels) > 1:
         raise ValueError(f"Inconsistent set of channels: {channels}")
     elif len(matching_channels) == 0:
@@ -145,8 +157,9 @@ def define_omero_channels(
     """
     Prepare the .attrs["omero"]["channels"] attribute of an image group
 
-    :param channels: TBD
-    :param bit_depth: TBD
+    :param channels: A list of channel dictionaries (each one must include the
+                     ``wavelength_id` key).
+    :param bit_depth: bit depth
     :returns: omero_channels
     """
 
