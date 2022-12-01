@@ -367,7 +367,6 @@ def create_ome_zarr(
         image=zarrurls["image"],
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        channel_list=actual_wavelength_ids,  # FIXME: remove this
         original_paths=[str(p) for p in input_paths],
     )
     return metadata_update

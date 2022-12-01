@@ -103,7 +103,6 @@ def zenodo_zarr_metadata(testdata_path):
         "image": ["plate.zarr/B/03/0/"],
         "num_levels": 6,
         "coarsening_xy": 2,
-        "channel_list": ["A01_C01"],
         "original_paths": [
             str(testdata_path / "10_5281_zenodo_7059515/*.png")
         ],
@@ -115,7 +114,6 @@ def zenodo_zarr_metadata(testdata_path):
         "image": ["plate_mip.zarr/B/03/0/"],
         "num_levels": 6,
         "coarsening_xy": 2,
-        "channel_list": ["A01_C01"],
         "original_paths": [
             str(testdata_path / "10_5281_zenodo_7059515/*.png")
         ],

@@ -70,7 +70,7 @@ def yokogawa_to_ome_zarr(
     Example arguments:
       input_paths[0] = /tmp/output/*.zarr  (Path)
       output_path = /tmp/output/*.zarr      (Path)
-      metadata = {"channel_list": [...], "num_levels": ..., }
+      metadata = {"num_levels": ..., }
       component = plate.zarr/B/03/0/
 
     :param input_paths: TBD
