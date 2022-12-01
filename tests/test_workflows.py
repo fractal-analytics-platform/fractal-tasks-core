@@ -60,6 +60,7 @@ num_levels = 6
 coarsening_xy = 2
 
 
+@pytest.mark.xfail("This would fail for a dataset with N>1 channels")
 def test_create_ome_zarr_fail(tmp_path: Path, zenodo_images: Path):
 
     allowed_channels = [
