@@ -27,7 +27,7 @@ import zarr
 from anndata import read_zarr
 from dask.array.image import imread
 
-from fractal_tasks_core.lib_omero import get_omero_channel_list
+from fractal_tasks_core.lib_channels import get_omero_channel_list
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_read_fractal_metadata import (

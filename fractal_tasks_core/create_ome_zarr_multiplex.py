@@ -27,8 +27,8 @@ import zarr
 from anndata.experimental import write_elem
 
 import fractal_tasks_core
+from fractal_tasks_core.lib_channels import define_omero_channels
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
-from fractal_tasks_core.lib_omero import define_omero_channels
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
