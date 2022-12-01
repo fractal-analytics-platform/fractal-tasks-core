@@ -32,6 +32,7 @@ from anndata.experimental import write_elem
 from napari_workflows._io_yaml_v1 import load_workflow
 
 import fractal_tasks_core
+from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
@@ -39,6 +40,7 @@ from fractal_tasks_core.lib_regions_of_interest import (
 from fractal_tasks_core.lib_upscale_array import upscale_array
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
+
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
@@ -135,7 +137,6 @@ def napari_workflows_wrapper(
     in_path = input_paths[0].parent.as_posix()
     num_levels = metadata["num_levels"]
     coarsening_xy = metadata["coarsening_xy"]
-    chl_list = metadata["channel_list"]
     label_dtype = np.uint32
 
     # Load zattrs file and multiscales
@@ -185,9 +186,11 @@ def napari_workflows_wrapper(
         # Loop over image inputs and assign corresponding channel of the image
         for (name, params) in image_inputs:
             channel_name = params["channel"]
-            if channel_name not in chl_list:
-                raise ValueError(f"{channel_name=} not in {chl_list}")
-            channel_index = chl_list.index(channel_name)
+            channel = get_channel_from_image_zarr(
+                image_zarr_path=f"{in_path}/{component}",
+                wavelength_id=channel_name,
+            )
+            channel_index = channel["index"]
             input_image_arrays[name] = img_array[channel_index]
 
             # Handle dimensions

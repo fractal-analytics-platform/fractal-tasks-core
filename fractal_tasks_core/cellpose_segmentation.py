@@ -36,8 +36,7 @@ from cellpose import models
 from cellpose.core import use_gpu
 
 import fractal_tasks_core
-from fractal_tasks_core.lib_channels import _get_channel_from_list
-from fractal_tasks_core.lib_channels import get_omero_channel_list
+from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     array_to_bounding_box_table,
@@ -181,9 +180,8 @@ def cellpose_segmentation(
     well_id = well.replace("/", "_")[:-1]
 
     # Find channel index
-    channels = get_omero_channel_list(image_zarr_path=zarrurl)
-    channel = _get_channel_from_list(
-        channels=channels, wavelength_id=labeling_channel
+    channel = get_channel_from_image_zarr(
+        image_zarr_path=zarrurl, wavelength_id=labeling_channel
     )
     ind_channel = channel["index"]
 

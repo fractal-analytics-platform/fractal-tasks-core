@@ -22,9 +22,23 @@ from typing import Sequence
 import zarr
 
 
-def _get_channel_from_list(
+def get_channel_from_image_zarr(
+    *, image_zarr_path: str, label: str = None, wavelength_id: str = None
+) -> Dict[str, Any]:
+    omero_channels = get_omero_channel_list(image_zarr_path=image_zarr_path)
+    get_omero_channel_list(
+        channels=omero_channels, label=label, wavelength_id=wavelength_id
+    )
+
+
+def get_omero_channel_list(*, image_zarr_path: str) -> List[Dict[str, Any]]:
+    group = zarr.open_group(image_zarr_path, mode="r")
+    return group.attrs["omero"]["channels"]
+
+
+def get_channel_from_list(
     *, channels: Sequence[Dict], label: str = None, wavelength_id: str = None
-):
+) -> Dict[str, Any]:
     """
     Find matching channel in a list
 
@@ -92,7 +106,7 @@ def define_omero_channels(
     for channel in actual_channels:
         wavelength_id = channel["wavelength_id"]
 
-        channel = _get_channel_from_list(
+        channel = get_channel_from_list(
             channels=channel_parameters, wavelength_id=wavelength_id
         )
 
@@ -138,8 +152,3 @@ def define_omero_channels(
             pass
 
     return omero_channels
-
-
-def get_omero_channel_list(*, image_zarr_path: str) -> List[Dict[str, str]]:
-    group = zarr.open_group(image_zarr_path, mode="r")
-    return group.attrs["omero"]["channels"]

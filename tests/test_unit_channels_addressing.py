@@ -3,7 +3,7 @@ from pathlib import Path
 
 from devtools import debug
 
-from fractal_tasks_core.lib_channels import _get_channel_from_list
+from fractal_tasks_core.lib_channels import get_channel_from_list
 
 
 def test_get_channel(testdata_path: Path):
@@ -11,13 +11,13 @@ def test_get_channel(testdata_path: Path):
         omero_channels = json.load(f)
     debug(omero_channels)
 
-    channel = _get_channel_from_list(channels=omero_channels, label="label_1")
+    channel = get_channel_from_list(channels=omero_channels, label="label_1")
     debug(channel)
     assert channel["label"] == "label_1"
     assert channel["wavelength_id"] == "wavelength_id_1"
     assert channel["index"] == 0
 
-    channel = _get_channel_from_list(
+    channel = get_channel_from_list(
         channels=omero_channels, wavelength_id="wavelength_id_2"
     )
     debug(channel)
@@ -25,7 +25,7 @@ def test_get_channel(testdata_path: Path):
     assert channel["wavelength_id"] == "wavelength_id_2"
     assert channel["index"] == 1
 
-    channel = _get_channel_from_list(
+    channel = get_channel_from_list(
         channels=omero_channels,
         label="label_2",
         wavelength_id="wavelength_id_2",
