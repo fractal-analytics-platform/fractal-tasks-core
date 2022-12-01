@@ -22,16 +22,36 @@ from typing import Sequence
 import zarr
 
 
-def check_unique_labels(list_channels: Sequence[Sequence[Dict[str, Any]]]):
-    for ind_1, channels_1 in enumerate(list_channels):
+def check_well_channel_labels(*, well_zarr_path: str):
+    """
+    FIXME
+    """
+
+    # Iterate over all images (multiplexing cycles, multi-FOVs, ...)
+    group = zarr.open_group(well_zarr_path, mode="r")
+    image_paths = [image["path"] for image in group.attrs["well"]["images"]]
+    list_of_channel_lists = []
+    for image_path in image_paths:
+        channels = get_omero_channel_list(
+            image_zarr_path=f"{well_zarr_path}/{image_path}"
+        )
+        list_of_channel_lists.append(channels[:])
+
+    for ind_1, channels_1 in enumerate(list_of_channel_lists):
         labels_1 = set([c["label"] for c in channels_1])
         for ind_2 in range(ind_1):
-            channels_2 = list_channels[ind_2]
+            channels_2 = list_of_channel_lists[ind_2]
             labels_2 = set([c["label"] for c in channels_2])
             intersection = labels_1 & labels_2
             if intersection:
+                hint = (
+                    "Are you parsing fields of view into separate OME-Zarr"
+                    " images? This could lead to non-unique channel labels"
+                    ", and then could be the reason of the error"
+                )
                 raise ValueError(
-                    "Non-unique channel labels\n" f"{labels_1=}\n{labels_2=}"
+                    "Non-unique channel labels\n"
+                    f"{labels_1=}\n{labels_2=}\n{hint}"
                 )
 
 

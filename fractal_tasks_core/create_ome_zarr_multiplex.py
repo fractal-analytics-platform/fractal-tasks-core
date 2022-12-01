@@ -26,6 +26,7 @@ import zarr
 from anndata.experimental import write_elem
 
 import fractal_tasks_core
+from fractal_tasks_core.lib_channels import check_well_channel_labels
 from fractal_tasks_core.lib_channels import define_omero_channels
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
@@ -310,7 +311,7 @@ def create_ome_zarr_multiplex(
                     ],
                     "version": __OME_NGFF_VERSION__,
                 }
-                zarrurls["well"].append(f"{row}/{column}")
+                zarrurls["well"].append(f"{plate}.zarr/{row}/{column}")
             except ContainsGroupError:
                 group_well = zarr.open_group(
                     f"{full_zarrurl}/{row}/{column}/", mode="a"
@@ -402,6 +403,11 @@ def create_ome_zarr_multiplex(
                 # Write tables
                 write_elem(group_tables, "FOV_ROI_table", FOV_ROIs_table)
                 write_elem(group_tables, "well_ROI_table", well_ROIs_table)
+
+    # Check that the different images (e.g. different cycles) in the each well
+    # have unique labels
+    for well_path in zarrurls["well"]:
+        check_well_channel_labels(well_zarr_path=well_path)
 
     original_paths = {
         acquisition: dict_acquisitions[acquisition]["original_paths"]

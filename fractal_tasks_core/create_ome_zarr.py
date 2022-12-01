@@ -27,6 +27,7 @@ import zarr
 from anndata.experimental import write_elem
 
 import fractal_tasks_core
+from fractal_tasks_core.lib_channels import check_well_channel_labels
 from fractal_tasks_core.lib_channels import define_omero_channels
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
@@ -360,6 +361,13 @@ def create_ome_zarr(
                 # Write tables
                 write_elem(group_tables, "FOV_ROI_table", FOV_ROIs_table)
                 write_elem(group_tables, "well_ROI_table", well_ROIs_table)
+
+    # Check that the different images in the each well have unique labels.
+    # Since we currently merge all fields of view in the same image, this check
+    # is useless. It should remain there to catch an error in case we switch
+    # back to one-image-per-field-of-view mode
+    for well_path in zarrurls["well"]:
+        check_well_channel_labels(well_zarr_path=well_path)
 
     metadata_update = dict(
         plate=zarrurls["plate"],
