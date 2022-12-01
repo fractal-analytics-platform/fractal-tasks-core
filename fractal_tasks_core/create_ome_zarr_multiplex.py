@@ -314,7 +314,7 @@ def create_ome_zarr_multiplex(
                 zarrurls["well"].append(f"{plate}.zarr/{row}/{column}")
             except ContainsGroupError:
                 group_well = zarr.open_group(
-                    f"{full_zarrurl}/{row}/{column}/", mode="a"
+                    f"{full_zarrurl}/{row}/{column}/", mode="r+"
                 )
                 logging.info(
                     f"Loaded group_well from {full_zarrurl}/{row}/{column}"

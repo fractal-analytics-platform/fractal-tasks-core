@@ -28,7 +28,7 @@ def check_well_channel_labels(*, well_zarr_path: str):
     """
 
     # Iterate over all images (multiplexing cycles, multi-FOVs, ...)
-    group = zarr.open_group(well_zarr_path, mode="r")
+    group = zarr.open_group(well_zarr_path, mode="r+")
     image_paths = [image["path"] for image in group.attrs["well"]["images"]]
     list_of_channel_lists = []
     for image_path in image_paths:
@@ -81,7 +81,7 @@ def get_omero_channel_list(*, image_zarr_path: str) -> List[Dict[str, Any]]:
 
     :param image_zarr_path: TBD
     """
-    group = zarr.open_group(image_zarr_path, mode="r")
+    group = zarr.open_group(image_zarr_path, mode="r+")
     return group.attrs["omero"]["channels"]
 
 
