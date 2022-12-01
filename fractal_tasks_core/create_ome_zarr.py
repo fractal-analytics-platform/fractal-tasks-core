@@ -46,7 +46,7 @@ def create_ome_zarr(
     input_paths: Sequence[Path],
     output_path: Path,
     metadata: Dict[str, Any] = None,
-    channel_parameters: Sequence[Dict[str, str]],
+    allowed_channels: Sequence[Dict[str, str]],
     num_levels: int = 2,
     coarsening_xy: int = 2,
     metadata_table: str = "mrf_mlf",
@@ -68,7 +68,7 @@ def create_ome_zarr(
     :param input_paths: TBD (common to all tasks)
     :param output_path: TBD (common to all tasks)
     :param metadata: TBD (common to all tasks)
-    :param channel_parameters: TBD
+    :param allowed_channels: TBD
     :param num_levels: number of resolution-pyramid levels
     :param coarsening_xy: linear coarsening factor between subsequent levels
     :param metadata_table: TBD
@@ -87,10 +87,6 @@ def create_ome_zarr(
             "We currently only support "
             'metadata_table="mrf_mlf", '
             f"and not {metadata_table}"
-        )
-    if channel_parameters is None:
-        raise Exception(
-            "Missing channel_parameters argument in create_ome_zarr"
         )
 
     # Identify all plates and all channels, across all input folders
@@ -169,7 +165,7 @@ def create_ome_zarr(
 
     # Check that all channels are in the allowed_channels
     allowed_wavelength_ids = [
-        channel["wavelength_id"] for channel in channel_parameters
+        channel["wavelength_id"] for channel in allowed_channels
     ]
     if not set(channels).issubset(set(allowed_wavelength_ids)):
         msg = "ERROR in create_ome_zarr\n"
@@ -182,8 +178,6 @@ def create_ome_zarr(
     for ind_ch, ch in enumerate(channels):
         actual_channels.append(ch)
     logger.info(f"actual_channels: {actual_channels}")
-
-    # Clean up dictionary channel_parameters
 
     zarrurls: Dict[str, List[str]] = {"plate": [], "well": [], "image": []}
 
@@ -342,7 +336,7 @@ def create_ome_zarr(
                 "name": "TBD",
                 "version": __OME_NGFF_VERSION__,
                 "channels": define_omero_channels(
-                    actual_channels, channel_parameters, bit_depth
+                    actual_channels, allowed_channels, bit_depth
                 ),
             }
 
@@ -382,7 +376,7 @@ if __name__ == "__main__":
         input_paths: Sequence[Path]
         output_path: Path
         metadata: Optional[Dict[str, Any]]
-        channel_parameters: Dict[str, Any]
+        allowed_channels: Sequence[Dict[str, str]]
         num_levels: int = 2
         coarsening_xy: int = 2
         metadata_table: str = "mrf_mlf"
