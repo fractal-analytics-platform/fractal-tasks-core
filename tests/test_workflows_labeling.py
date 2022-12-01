@@ -284,6 +284,7 @@ def test_workflow_with_per_well_labeling_2D(
     metadata_update = create_ome_zarr(
         input_paths=[img_path],
         output_path=zarr_path,
+        metadata=metadata,
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,

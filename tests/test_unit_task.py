@@ -39,7 +39,10 @@ def test_create_ome_zarr(tmp_path, testdata_path):
     debug(default_args)
 
     dummy = create_ome_zarr(
-        input_paths=input_paths, output_path=output_path, **default_args
+        input_paths=input_paths,
+        output_path=output_path,
+        metadata={},
+        **default_args
     )
     debug(dummy)
 

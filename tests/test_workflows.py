@@ -60,7 +60,7 @@ num_levels = 6
 coarsening_xy = 2
 
 
-@pytest.mark.xfail("This would fail for a dataset with N>1 channels")
+@pytest.mark.xfail(reason="This would fail for a dataset with N>1 channels")
 def test_create_ome_zarr_fail(tmp_path: Path, zenodo_images: Path):
 
     allowed_channels = [
@@ -91,12 +91,13 @@ def test_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: Path):
     # Init
     img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
-    metadata = {}
 
     # Create zarr structure
+    metadata = {}
     metadata_update = create_ome_zarr(
         input_paths=[img_path],
         output_path=zarr_path,
+        metadata=metadata,
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
@@ -200,6 +201,7 @@ def test_illumination_correction(
     metadata_update = create_ome_zarr(
         input_paths=[img_path],
         output_path=zarr_path,
+        metadata=metadata,
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
