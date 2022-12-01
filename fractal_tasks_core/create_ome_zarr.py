@@ -288,11 +288,11 @@ def create_ome_zarr(
                 "version": __OME_NGFF_VERSION__,
             }
 
-            group_FOV = group_well.create_group("0/")  # noqa: F841
+            group_image = group_well.create_group("0/")  # noqa: F841
             zarrurls["well"].append(f"{plate}.zarr/{row}/{column}/")
             zarrurls["image"].append(f"{plate}.zarr/{row}/{column}/0/")
 
-            group_FOV.attrs["multiscales"] = [
+            group_image.attrs["multiscales"] = [
                 {
                     "version": __OME_NGFF_VERSION__,
                     "axes": [
@@ -334,7 +334,7 @@ def create_ome_zarr(
                 }
             ]
 
-            group_FOV.attrs["omero"] = {
+            group_image.attrs["omero"] = {
                 "id": 1,  # FIXME does this depend on the plate number?
                 "name": "TBD",
                 "version": __OME_NGFF_VERSION__,
@@ -345,7 +345,9 @@ def create_ome_zarr(
 
             # FIXME
             if has_mrf_mlf_metadata:
-                group_tables = group_FOV.create_group("tables/")  # noqa: F841
+                group_tables = group_image.create_group(
+                    "tables/"
+                )  # noqa: F841
 
                 # Prepare FOV/well tables
                 FOV_ROIs_table = prepare_FOV_ROI_table(
