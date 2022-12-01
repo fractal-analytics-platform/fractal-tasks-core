@@ -2,7 +2,7 @@ from typing import Dict
 from typing import Sequence
 
 
-def get_channel(
+def _get_channel_from_list(
     *, channels: Sequence[Dict], label: str = None, wavelength_id: str = None
 ):
     """
