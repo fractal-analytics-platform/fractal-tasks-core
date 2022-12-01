@@ -155,10 +155,10 @@ def define_omero_channels(
     label_prefix: str = None,
 ) -> List[Dict[str, Any]]:
     """
-    Prepare the .attrs["omero"]["channels"] attribute of an image group
+    Prepare the ``attrs["omero"]["channels"]`` attribute of an image group
 
     :param channels: A list of channel dictionaries (each one must include the
-                     ``wavelength_id` key).
+                     ``wavelength_id`` key).
     :param bit_depth: bit depth
     :returns: omero_channels
     """
