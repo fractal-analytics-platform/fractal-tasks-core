@@ -76,8 +76,10 @@ def test_create_ome_zarr(tmp_path: Path, zenodo_images: Path):
     metadata.update(metadata_update)
     debug(metadata)
 
+    # FIXME: assert something (e.g. about channels)
 
-def test_workflow_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: Path):
+
+def test_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: Path):
 
     # Init
     img_path = zenodo_images / "*.png"
@@ -117,7 +119,7 @@ def test_workflow_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: Path):
     check_file_number(zarr_path=image_zarr)
 
 
-def test_workflow_MIP(
+def test_MIP(
     tmp_path: Path,
     zenodo_zarr: List[Path],
     zenodo_zarr_metadata: List[Dict[str, Any]],
@@ -165,7 +167,7 @@ def test_workflow_MIP(
     validate_schema(path=str(plate_zarr), type="plate")
 
 
-def test_workflow_illumination_correction(
+def test_illumination_correction(
     tmp_path: Path,
     testdata_path: Path,
     zenodo_images: Path,
