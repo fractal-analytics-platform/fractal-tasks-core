@@ -57,6 +57,26 @@ num_levels = 6
 coarsening_xy = 2
 
 
+def test_create_ome_zarr(tmp_path: Path, zenodo_images: Path):
+
+    # Init
+    img_path = zenodo_images / "*.png"
+    zarr_path = tmp_path / "tmp_out/*.zarr"
+    metadata = {}
+
+    # Create zarr structure
+    metadata_update = create_ome_zarr(
+        input_paths=[img_path],
+        output_path=zarr_path,
+        channel_parameters=channel_parameters,
+        num_levels=num_levels,
+        coarsening_xy=coarsening_xy,
+        metadata_table="mrf_mlf",
+    )
+    metadata.update(metadata_update)
+    debug(metadata)
+
+
 def test_workflow_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: Path):
 
     # Init
