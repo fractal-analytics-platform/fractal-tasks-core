@@ -125,7 +125,7 @@ def cellpose_segmentation(
     metadata: Dict[str, Any],
     # Task-specific arguments
     labeling_channel: str,
-    labeling_level: int = 1,
+    labeling_level: int,
     relabeling: bool = True,
     anisotropy: Optional[float] = None,
     diameter_level0: float = 80.0,
@@ -476,7 +476,7 @@ if __name__ == "__main__":
         metadata: Dict[str, Any]
         # Task-specific arguments
         labeling_channel: str
-        labeling_level: int = 1
+        labeling_level: int
         relabeling: bool = True
         anisotropy: Optional[float] = None
         diameter_level0: float = 80.0
