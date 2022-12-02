@@ -124,8 +124,9 @@ def cellpose_segmentation(
     component: str,
     metadata: Dict[str, Any],
     # Task-specific arguments
-    labeling_channel: str,
-    labeling_level: int,
+    wavelength_id: Optional[str] = None,
+    channel_name: Optional[str] = None,
+    level: int,
     relabeling: bool = True,
     anisotropy: Optional[float] = None,
     diameter_level0: float = 80.0,
@@ -148,8 +149,9 @@ def cellpose_segmentation(
     :param output_path: TBD (fractal default arg)
     :param metadata: TBD (fractal default arg)
     :param component: TBD (fractal default arg)
-    :param labeling_channel: TBD
-    :param labeling_level: TBD
+    :param wavelength_id: TBD
+    :param channel_name: TBD
+    :param level: TBD
     :param relabeling: TBD
     :param anisotropy: TBD
     :param diameter_level0: TBD
@@ -170,6 +172,15 @@ def cellpose_segmentation(
     zarrurl = (in_path.resolve() / component).as_posix() + "/"
     logger.info(zarrurl)
 
+    # Preliminary check
+    if (channel_name is None and wavelength_id is None) or (
+        channel_name and wavelength_id
+    ):
+        raise ValueError(
+            f"One and only one of {channel_name=} and "
+            f"{wavelength_id=} arguments can be provided"
+        )
+
     # Read useful parameters from metadata
     num_levels = metadata["num_levels"]
     coarsening_xy = metadata["coarsening_xy"]
@@ -181,12 +192,12 @@ def cellpose_segmentation(
 
     # Find channel index
     channel = get_channel_from_image_zarr(
-        image_zarr_path=zarrurl, wavelength_id=labeling_channel
+        image_zarr_path=zarrurl, wavelength_id=wavelength_id
     )
     ind_channel = channel["index"]
 
     # Load ZYX data
-    data_zyx = da.from_zarr(f"{zarrurl}{labeling_level}")[ind_channel]
+    data_zyx = da.from_zarr(f"{zarrurl}{level}")[ind_channel]
     logger.info(f"[{well_id}] {data_zyx.shape=}")
 
     # Read ROI table
@@ -198,12 +209,12 @@ def cellpose_segmentation(
     )
 
     actual_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
-        f"{zarrurl}.zattrs", level=labeling_level
+        f"{zarrurl}.zattrs", level=level
     )
     # Create list of indices for 3D FOVs spanning the entire Z direction
     list_indices = convert_ROI_table_to_indices(
         ROI_table,
-        level=labeling_level,
+        level=level,
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
     )
@@ -235,9 +246,7 @@ def cellpose_segmentation(
     if do_3D:
         if anisotropy is None:
             # Read pixel sizes from zattrs file
-            pxl_zyx = extract_zyx_pixel_sizes(
-                zarrurl + ".zattrs", level=labeling_level
-            )
+            pxl_zyx = extract_zyx_pixel_sizes(zarrurl + ".zattrs", level=level)
             pixel_size_z, pixel_size_y, pixel_size_x = pxl_zyx[:]
             logger.info(f"[{well_id}] {pxl_zyx=}")
             if not np.allclose(pixel_size_x, pixel_size_y):
@@ -282,11 +291,11 @@ def cellpose_segmentation(
         except (KeyError, IndexError):
             label_name = f"label_{ind_channel}"
 
-    # Rescale datasets (only relevant for labeling_level>0)
+    # Rescale datasets (only relevant for level>0)
     new_datasets = rescale_datasets(
         datasets=multiscales[0]["datasets"],
         coarsening_xy=coarsening_xy,
-        reference_level=labeling_level,
+        reference_level=level,
     )
 
     # Write zattrs for labels and for specific label
@@ -341,7 +350,7 @@ def cellpose_segmentation(
     logger.info(f"[{well_id}] relabeling: {relabeling}")
     logger.info(f"[{well_id}] do_3D: {do_3D}")
     logger.info(f"[{well_id}] use_gpu: {gpu}")
-    logger.info(f"[{well_id}] labeling_level: {labeling_level}")
+    logger.info(f"[{well_id}] level: {level}")
     logger.info(f"[{well_id}] model_type: {model_type}")
     logger.info(f"[{well_id}] pretrained_model: {pretrained_model}")
     logger.info(f"[{well_id}] anisotropy: {anisotropy}")
@@ -376,7 +385,7 @@ def cellpose_segmentation(
             do_3D=do_3D,
             anisotropy=anisotropy,
             label_dtype=label_dtype,
-            diameter=diameter_level0 / coarsening_xy**labeling_level,
+            diameter=diameter_level0 / coarsening_xy**level,
             cellprob_threshold=cellprob_threshold,
             flow_threshold=flow_threshold,
             well_id=well_id,
@@ -475,8 +484,9 @@ if __name__ == "__main__":
         component: str
         metadata: Dict[str, Any]
         # Task-specific arguments
-        labeling_channel: str
-        labeling_level: int
+        channel_name: Optional[str] = None
+        wavelength_id: Optional[str] = None
+        level: int
         relabeling: bool = True
         anisotropy: Optional[float] = None
         diameter_level0: float = 80.0
