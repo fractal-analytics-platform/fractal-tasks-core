@@ -28,6 +28,7 @@ from anndata.experimental import write_elem
 import fractal_tasks_core
 from fractal_tasks_core.lib_channels import check_well_channel_labels
 from fractal_tasks_core.lib_channels import define_omero_channels
+from fractal_tasks_core.lib_channels import validate_allowed_channel_input
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
@@ -94,6 +95,9 @@ def create_ome_zarr(
     actual_wavelength_ids = None
     dict_plate_paths = {}
     dict_plate_prefixes: Dict[str, Any] = {}
+
+    # Preliminary checks on allowed_channels argument
+    validate_allowed_channel_input(allowed_channels)
 
     # FIXME
     # find a smart way to remove it

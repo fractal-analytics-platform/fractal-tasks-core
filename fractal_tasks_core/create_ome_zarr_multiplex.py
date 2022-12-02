@@ -28,6 +28,7 @@ from anndata.experimental import write_elem
 import fractal_tasks_core
 from fractal_tasks_core.lib_channels import check_well_channel_labels
 from fractal_tasks_core.lib_channels import define_omero_channels
+from fractal_tasks_core.lib_channels import validate_allowed_channel_input
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
@@ -86,12 +87,14 @@ def create_ome_zarr_multiplex(
             'metadata_table="mrf_mlf", '
             f"and not {metadata_table}"
         )
-    else:
-        # Note that in metadata the keys of dictionary arguments should be
-        # strings (and not integers), so that they can be read from a JSON file
-        for key in allowed_channels.keys():
-            if not isinstance(key, str):
-                raise ValueError(f"{allowed_channels=} has non-string keys")
+
+    # Preliminary checks on allowed_channels
+    # Note that in metadata the keys of dictionary arguments should be
+    # strings (and not integers), so that they can be read from a JSON file
+    for key, value in allowed_channels.items():
+        if not isinstance(key, str):
+            raise ValueError(f"{allowed_channels=} has non-string keys")
+        validate_allowed_channel_input(value)
 
     # Identify all plates and all channels, per input folders
     dict_acquisitions: Dict = {}

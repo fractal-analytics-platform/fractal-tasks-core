@@ -22,6 +22,14 @@ from typing import Sequence
 import zarr
 
 
+def validate_allowed_channel_input(allowed_channels: Sequence[Dict[str, Any]]):
+    wavelength_ids = [c["wavelength_id"] for c in allowed_channels]
+    if len(set(wavelength_ids)) < len(wavelength_ids):
+        raise ValueError(
+            f"Non-unique labels in {wavelength_ids}\n" f"{allowed_channels=}"
+        )
+
+
 def check_well_channel_labels(*, well_zarr_path: str) -> None:
     """
     Check that the channel labels for a well are unique
