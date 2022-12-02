@@ -69,23 +69,43 @@ def napari_workflows_wrapper(
     expected_dimensions: int = 3,
 ):
     """
-    Description
+    Run a napari-workflow on the ROIs of a single OME-NGFF image
 
-    Example of some arguments::
-        asd
+    Full documentation for all arguments is still TBD, especially because some
+    of them are standard arguments for Fractal tasks that should be documented
+    in a standard way. Here are some examples::
 
-    :param input_paths: TBD (fractal arg)
-    :param output_path: TBD (fractal arg)
-    :param component: TBD (fractal arg)
-    :param metadata: TBD (fractal arg)
-    :param workflow_file: absolute path to napari-workflows YAML file
-    :param input_specs: TBD
-    :param output_specs: TBD
+        input_paths = ["/some/path/*.zarr"]
+        output_path = "/some/path/*.zarr"
+        component = "some_plate.zarr/B/03/0"
+        metadata = {"num_levels": 4, "coarsening_xy": 2}
+
+        # Examples of allowed entries for input_specs and output_specs
+        input_specs = {
+            "in_1": {"type": "image", "wavelength_id": "A01_C02"},
+            "in_2": {"type": "image", "channel_label": "DAPI"},
+            "in_3": {"type": "label", "label_name": "label_DAPI"},
+        }
+        output_specs = {
+            "out_1": {"type": "label", "label_name": "label_DAPI_new"},
+            "out_2": {"type": "dataframe", "table_name": "measurements"},
+        }
+
+    :param input_paths: TBD (default arg for Fractal tasks)
+    :param output_path: TBD (default arg for Fractal tasks)
+    :param metadata: TBD (default arg for Fractal tasks)
+    :param component: TBD (default arg for Fractal tasks)
+    :param workflow_file: Absolute path to napari-workflows YAML file
+    :param input_specs: See examples above.
+    :param output_specs: See examples above.
+
+    :param level: Pyramid level of the image to be segmented.
+    :param expected_dimensions: Expected dimensions (either 2 or 3).
+
+    :param relabeling: If ``True``, apply relabeling so that label values are
+                       unique across ROIs.
     :param ROI_table_name: name of the table that contains ROIs to which the\
                           task applies the napari-worfklow
-    :param level: TBD
-    :param relabeling: TBD
-    :param expected_dimensions: TBD
     """
 
     wf: napari_workflows.Worfklow = load_workflow(workflow_file)
@@ -185,10 +205,10 @@ def napari_workflows_wrapper(
         img_array = da.from_zarr(f"{in_path}/{component}/{level}")
         # Loop over image inputs and assign corresponding channel of the image
         for (name, params) in image_inputs:
-            channel_name = params["channel"]
+            wavelength_id = params["channel"]
             channel = get_channel_from_image_zarr(
                 image_zarr_path=f"{in_path}/{component}",
-                wavelength_id=channel_name,
+                wavelength_id=wavelength_id,
             )
             channel_index = channel["index"]
             input_image_arrays[name] = img_array[channel_index]
