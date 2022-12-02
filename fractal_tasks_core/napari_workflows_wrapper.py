@@ -49,6 +49,10 @@ logger = logging.getLogger(__name__)
 
 
 class OutOfTaskScopeError(NotImplementedError):
+    """
+    Encapsulates features that are out-of-scope for the current wrapper task
+    """
+
     pass
 
 

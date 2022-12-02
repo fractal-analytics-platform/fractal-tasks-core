@@ -23,6 +23,11 @@ import zarr
 
 
 class ChannelNotFoundError(ValueError):
+    """
+    Custom error for when ``get_channel_from_list`` fails, that can be captured
+    and handled upstream if needed.
+    """
+
     pass
 
 
