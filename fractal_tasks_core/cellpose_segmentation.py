@@ -201,7 +201,7 @@ def cellpose_segmentation(
     ):
         raise ValueError(
             f"One and only one of {channel_label=} and "
-            f"{wavelength_id=} arguments can be provided"
+            f"{wavelength_id=} arguments must be provided"
         )
 
     # Read useful parameters from metadata
