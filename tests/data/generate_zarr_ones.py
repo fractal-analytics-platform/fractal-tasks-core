@@ -71,12 +71,24 @@ zattrs = {
                 }
                 for level in range(num_levels)
             ],
-            "version": "0.3",
+            "version": "0.4",
         }
-    ]
+    ],
+    "omero": {
+        "channels": [
+            {
+                "wavelength_id": "A01_C01",
+                "label": "some-label-1",
+            },
+            {
+                "wavelength_id": "A01_C02",
+                "label": "some-label-2",
+            },
+        ]
+    },
 }
 with open(f"{zarrurl}{component}.zattrs", "w") as jsonfile:
-    json.dump(zattrs, jsonfile)
+    json.dump(zattrs, jsonfile, indent=4)
 
 
 pixel_size_z = 1.0
@@ -86,8 +98,8 @@ pixel_size_x = 0.1625
 df = pd.DataFrame(np.zeros((2, 10)), dtype=int)
 df.index = ["FOV1", "FOV2"]
 df.columns = [
-    "x_micrometer",
-    "y_micrometer",
+    "x_micrometer_original",
+    "y_micrometer_original",
     "z_micrometer",
     "x_pixel",
     "y_pixel",

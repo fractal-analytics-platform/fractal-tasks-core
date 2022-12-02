@@ -129,7 +129,9 @@ def copy_ome_zarr(
         for well_path in well_paths:
 
             # Replicate well attrs
-            old_well_group = zarr.open_group(f"{zarrurl_old}/{well_path}")
+            old_well_group = zarr.open_group(
+                f"{zarrurl_old}/{well_path}", mode="r"
+            )
             new_well_group = zarr.group(f"{zarrurl_new}/{well_path}")
             new_well_group.attrs.put(old_well_group.attrs.asdict())
 
@@ -143,7 +145,7 @@ def copy_ome_zarr(
 
                 # Replicate image attrs
                 old_image_group = zarr.open_group(
-                    f"{zarrurl_old}/{well_path}/{image_path}"
+                    f"{zarrurl_old}/{well_path}/{image_path}", mode="r"
                 )
                 new_image_group = zarr.group(
                     f"{zarrurl_new}/{well_path}/{image_path}"

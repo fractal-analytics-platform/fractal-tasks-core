@@ -13,7 +13,7 @@ Copyright 2022 (C)
     Miescher Institute for Biomedical Research and Pelkmans Lab from the
     University of Zurich.
 
-Image segmentation via cellpose library
+Image segmentation via Cellpose library
 """
 import json
 import logging
@@ -36,6 +36,8 @@ from cellpose import models
 from cellpose.core import use_gpu
 
 import fractal_tasks_core
+from fractal_tasks_core.lib_channels import ChannelNotFoundError
+from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     array_to_bounding_box_table,
@@ -56,21 +58,28 @@ __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
 
 def segment_FOV(
-    column,
+    column: np.ndarray,
     model=None,
-    do_3D=True,
+    do_3D: bool = True,
     anisotropy=None,
-    diameter=40.0,
-    cellprob_threshold=0.0,
-    flow_threshold=0.4,
+    diameter: float = 40.0,
+    cellprob_threshold: float = 0.0,
+    flow_threshold: float = 0.4,
     label_dtype=None,
-    well_id=None,
+    well_id: str = None,
 ):
     """
-    Description
+    Internal function that runs Cellpose segmentation for a single ROI.
 
-    :param dummy: this is a placeholder
-    :param dummy: int
+    :param column: Three-dimensional numpy array
+    :param model: TBD
+    :param do_3D: TBD
+    :param anisotropy: TBD
+    :param diameter: TBD
+    :param cellprob_threshold: TBD
+    :param flow_threshold: TBD
+    :param label_dtype: TBD
+    :param well_id: TBD
     """
 
     # Write some debugging info
@@ -123,8 +132,9 @@ def cellpose_segmentation(
     component: str,
     metadata: Dict[str, Any],
     # Task-specific arguments
-    labeling_channel: str,
-    labeling_level: int = 1,
+    level: int,
+    wavelength_id: Optional[str] = None,
+    channel_label: Optional[str] = None,
     relabeling: bool = True,
     anisotropy: Optional[float] = None,
     diameter_level0: float = 80.0,
@@ -132,34 +142,50 @@ def cellpose_segmentation(
     flow_threshold: float = 0.4,
     ROI_table_name: str = "FOV_ROI_table",
     bounding_box_ROI_table_name: Optional[str] = None,
-    label_name: Optional[str] = None,
+    output_label_name: Optional[str] = None,
     model_type: Literal["nuclei", "cyto", "cyto2"] = "nuclei",
     pretrained_model: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
-    Example inputs:
-      input_paths: PosixPath('tmp_out_mip/*.zarr')
-      output_path: PosixPath('tmp_out_mip/*.zarr')
-      component: myplate.zarr/B/03/0/
-      metadata: {...}
+    Run cellpose segmentation on the ROIs of a single OME-NGFF image
 
-    :param input_paths: TBD (fractal default arg)
-    :param output_path: TBD (fractal default arg)
-    :param metadata: TBD (fractal default arg)
-    :param component: TBD (fractal default arg)
-    :param labeling_channel: TBD
-    :param labeling_level: TBD
-    :param relabeling: TBD
-    :param anisotropy: TBD
-    :param diameter_level0: TBD
-    :param cellprob_threshold: TBD
-    :param flow_threshold: TBD
-    :param ROI_table_name: TBD
+    Full documentation for all arguments is still TBD, especially because some
+    of them are standard arguments for Fractal tasks that should be documented
+    in a standard way. Here are some examples of valid arguments::
+
+        input_paths = ["/some/path/*.zarr"]
+        output_path = "/some/path/*.zarr"
+        component = "some_plate.zarr/B/03/0"
+        metadata = {"num_levels": 4, "coarsening_xy": 2}
+
+    :param input_paths: TBD (default arg for Fractal tasks)
+    :param output_path: TBD (default arg for Fractal tasks)
+    :param metadata: TBD (default arg for Fractal tasks)
+    :param component: TBD (default arg for Fractal tasks)
+    :param level: Pyramid level of the image to be segmented.
+    :param wavelength_id: Identifier of a channel based on the
+                          wavelength (e.g. ``A01_C01``). If not ``None``, then
+                          ``channel_label` must be ``None``.
+    :param channel_label: Identifier of a channel based on its label (e.g.
+                          ``DAPI``). If not ``None``, then ``wavelength_id``
+                          must be ``None``.
+    :param relabeling: If ``True``, apply relabeling so that label values are
+                       unique across ROIs.
+    :param anisotropy: Ratio of the pixel sizes along Z and XY axis (ignored if
+                       the image is not three-dimensional). If `None`, it is
+                       inferred from the OME-NGFF metadata.
+    :param diameter_level0: Initial diameter to be passed to
+                            ``CellposeModel.eval`` method (after rescaling from
+                            full-resolution to ``level``).
+    :param ROI_table_name: name of the table that contains ROIs to which the
+                           task applies Cellpose segmentation
     :param bounding_box_ROI_table_name: TBD
-    :param label_name: TBD
-    :param model_type: TBD
-    :param pretrained_model: TBD. If not ``None``, this takes precedence
-                             over ``model_type``.
+    :param output_label_name: TBD
+    :param cellprob_threshold: Parameter of ``CellposeModel.eval`` method.
+    :param flow_threshold: Parameter of ``CellposeModel.eval`` method.
+    :param model_type: Parameter of ``CellposeModel`` class.
+    :param pretrained_model: Parameter of ``CellposeModel`` class (takes
+                             precedence over ``model_type``).
     """
 
     # Set input path
@@ -169,22 +195,41 @@ def cellpose_segmentation(
     zarrurl = (in_path.resolve() / component).as_posix() + "/"
     logger.info(zarrurl)
 
+    # Preliminary check
+    if (channel_label is None and wavelength_id is None) or (
+        channel_label and wavelength_id
+    ):
+        raise ValueError(
+            f"One and only one of {channel_label=} and "
+            f"{wavelength_id=} arguments must be provided"
+        )
+
     # Read useful parameters from metadata
     num_levels = metadata["num_levels"]
     coarsening_xy = metadata["coarsening_xy"]
-    chl_list = metadata["channel_list"]
+
     plate, well = component.split(".zarr/")
 
     # Find well ID
     well_id = well.replace("/", "_")[:-1]
 
     # Find channel index
-    if labeling_channel not in chl_list:
-        raise Exception(f"ERROR: {labeling_channel} not in {chl_list}")
-    ind_channel = chl_list.index(labeling_channel)
+    try:
+        channel = get_channel_from_image_zarr(
+            image_zarr_path=zarrurl,
+            wavelength_id=wavelength_id,
+            label=channel_label,
+        )
+    except ChannelNotFoundError as e:
+        logger.warning(
+            "Channel not found, exit from the task.\n"
+            f"Original error: {str(e)}"
+        )
+        return {}
+    ind_channel = channel["index"]
 
     # Load ZYX data
-    data_zyx = da.from_zarr(f"{zarrurl}{labeling_level}")[ind_channel]
+    data_zyx = da.from_zarr(f"{zarrurl}{level}")[ind_channel]
     logger.info(f"[{well_id}] {data_zyx.shape=}")
 
     # Read ROI table
@@ -196,12 +241,12 @@ def cellpose_segmentation(
     )
 
     actual_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
-        f"{zarrurl}.zattrs", level=labeling_level
+        f"{zarrurl}.zattrs", level=level
     )
     # Create list of indices for 3D FOVs spanning the entire Z direction
     list_indices = convert_ROI_table_to_indices(
         ROI_table,
-        level=labeling_level,
+        level=level,
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
     )
@@ -233,9 +278,7 @@ def cellpose_segmentation(
     if do_3D:
         if anisotropy is None:
             # Read pixel sizes from zattrs file
-            pxl_zyx = extract_zyx_pixel_sizes(
-                zarrurl + ".zattrs", level=labeling_level
-            )
+            pxl_zyx = extract_zyx_pixel_sizes(zarrurl + ".zattrs", level=level)
             pixel_size_z, pixel_size_y, pixel_size_x = pxl_zyx[:]
             logger.info(f"[{well_id}] {pxl_zyx=}")
             if not np.allclose(pixel_size_x, pixel_size_y):
@@ -272,30 +315,30 @@ def cellpose_segmentation(
             "level are not currently supported"
         )
 
-    # Set channel label
-    if label_name is None:
+    # Set channel label - FIXME: adapt to new channels structure
+    if output_label_name is None:
         try:
             omero_label = zattrs["omero"]["channels"][ind_channel]["label"]
-            label_name = f"label_{omero_label}"
+            output_label_name = f"label_{omero_label}"
         except (KeyError, IndexError):
-            label_name = f"label_{ind_channel}"
+            output_label_name = f"label_{ind_channel}"
 
-    # Rescale datasets (only relevant for labeling_level>0)
+    # Rescale datasets (only relevant for level>0)
     new_datasets = rescale_datasets(
         datasets=multiscales[0]["datasets"],
         coarsening_xy=coarsening_xy,
-        reference_level=labeling_level,
+        reference_level=level,
     )
 
     # Write zattrs for labels and for specific label
     # FIXME deal with: (1) many channels, (2) overwriting
     labels_group = zarr.group(f"{zarrurl}labels")
-    labels_group.attrs["labels"] = [label_name]
-    label_group = labels_group.create_group(label_name)
+    labels_group.attrs["labels"] = [output_label_name]
+    label_group = labels_group.create_group(output_label_name)
     label_group.attrs["image-label"] = {"version": __OME_NGFF_VERSION__}
     label_group.attrs["multiscales"] = [
         {
-            "name": label_name,
+            "name": output_label_name,
             "version": __OME_NGFF_VERSION__,
             "axes": [
                 ax for ax in multiscales[0]["axes"] if ax["type"] != "channel"
@@ -305,10 +348,10 @@ def cellpose_segmentation(
     ]
 
     # Open new zarr group for mask 0-th level
-    logger.info(f"[{well_id}] {zarrurl}labels/{label_name}/0")
+    logger.info(f"[{well_id}] {zarrurl}labels/{output_label_name}/0")
     zarr.group(f"{zarrurl}/labels")
-    zarr.group(f"{zarrurl}/labels/{label_name}")
-    store = da.core.get_mapper(f"{zarrurl}labels/{label_name}/0")
+    zarr.group(f"{zarrurl}/labels/{output_label_name}")
+    store = da.core.get_mapper(f"{zarrurl}labels/{output_label_name}/0")
     label_dtype = np.uint32
     mask_zarr = zarr.create(
         shape=data_zyx.shape,
@@ -339,7 +382,7 @@ def cellpose_segmentation(
     logger.info(f"[{well_id}] relabeling: {relabeling}")
     logger.info(f"[{well_id}] do_3D: {do_3D}")
     logger.info(f"[{well_id}] use_gpu: {gpu}")
-    logger.info(f"[{well_id}] labeling_level: {labeling_level}")
+    logger.info(f"[{well_id}] level: {level}")
     logger.info(f"[{well_id}] model_type: {model_type}")
     logger.info(f"[{well_id}] pretrained_model: {pretrained_model}")
     logger.info(f"[{well_id}] anisotropy: {anisotropy}")
@@ -374,7 +417,7 @@ def cellpose_segmentation(
             do_3D=do_3D,
             anisotropy=anisotropy,
             label_dtype=label_dtype,
-            diameter=diameter_level0 / coarsening_xy**labeling_level,
+            diameter=diameter_level0 / coarsening_xy**level,
             cellprob_threshold=cellprob_threshold,
             flow_threshold=flow_threshold,
             well_id=well_id,
@@ -431,7 +474,7 @@ def cellpose_segmentation(
     # Starting from on-disk highest-resolution data, build and write to disk a
     # pyramid of coarser levels
     build_pyramid(
-        zarrurl=f"{zarrurl}labels/{label_name}",
+        zarrurl=f"{zarrurl}labels/{output_label_name}",
         overwrite=False,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
@@ -473,8 +516,9 @@ if __name__ == "__main__":
         component: str
         metadata: Dict[str, Any]
         # Task-specific arguments
-        labeling_channel: str
-        labeling_level: int = 1
+        channel_label: Optional[str] = None
+        wavelength_id: Optional[str] = None
+        level: int
         relabeling: bool = True
         anisotropy: Optional[float] = None
         diameter_level0: float = 80.0
@@ -482,7 +526,7 @@ if __name__ == "__main__":
         flow_threshold: float = 0.4
         ROI_table_name: str = "FOV_ROI_table"
         bounding_box_ROI_table_name: Optional[str] = None
-        label_name: Optional[str] = None
+        output_label_name: Optional[str] = None
         model_type: Literal["nuclei", "cyto", "cyto2"] = "nuclei"
         pretrained_model: Optional[str] = None
 

@@ -27,6 +27,7 @@ import zarr
 from anndata import read_zarr
 from dask.array.image import imread
 
+from fractal_tasks_core.lib_channels import get_omero_channel_list
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_read_fractal_metadata import (
@@ -69,7 +70,7 @@ def yokogawa_to_ome_zarr(
     Example arguments:
       input_paths[0] = /tmp/output/*.zarr  (Path)
       output_path = /tmp/output/*.zarr      (Path)
-      metadata = {"channel_list": [...], "num_levels": ..., }
+      metadata = {"num_levels": ..., }
       component = plate.zarr/B/03/0/
 
     :param input_paths: TBD
@@ -82,16 +83,19 @@ def yokogawa_to_ome_zarr(
     # Preliminary checks
     if len(input_paths) > 1:
         raise NotImplementedError
+    zarrurl = input_paths[0].parent.as_posix() + f"/{component}"
 
     parameters = get_parameters_from_metadata(
-        keys=["channel_list", "original_paths", "num_levels", "coarsening_xy"],
+        keys=["original_paths", "num_levels", "coarsening_xy"],
         metadata=metadata,
         image_zarr_path=(output_path.parent / component),
     )
-    chl_list = parameters["channel_list"]
     original_path_list = parameters["original_paths"]
     num_levels = parameters["num_levels"]
     coarsening_xy = parameters["coarsening_xy"]
+
+    channels = get_omero_channel_list(image_zarr_path=zarrurl)
+    wavelength_ids = [c["wavelength_id"] for c in channels]
 
     in_path = Path(original_path_list[0]).parent
     ext = Path(original_path_list[0]).name
@@ -103,7 +107,6 @@ def yokogawa_to_ome_zarr(
     well_ID = well_row + well_column
 
     # Read useful information from ROI table and .zattrs
-    zarrurl = input_paths[0].parent.as_posix() + f"/{component}"
     adata = read_zarr(f"{zarrurl}/tables/FOV_ROI_table")
     pxl_size = extract_zyx_pixel_sizes(f"{zarrurl}/.zattrs")
     fov_indices = convert_ROI_table_to_indices(
@@ -128,7 +131,7 @@ def yokogawa_to_ome_zarr(
     # Initialize zarr
     chunksize = (1, 1, sample.shape[1], sample.shape[2])
     canvas_zarr = zarr.create(
-        shape=(len(chl_list), max_z, max_y, max_x),
+        shape=(len(wavelength_ids), max_z, max_y, max_x),
         chunks=chunksize,
         dtype=sample.dtype,
         store=da.core.get_mapper(zarrurl + "/0"),
@@ -137,8 +140,8 @@ def yokogawa_to_ome_zarr(
     )
 
     # Loop over channels
-    for i_c, chl in enumerate(chl_list):
-        A, C = chl.split("_")
+    for i_c, wavelength_id in enumerate(wavelength_ids):
+        A, C = wavelength_id.split("_")
 
         glob_path = f"{in_path}/*_{well_ID}_*{A}*{C}{ext}"
         logger.info(f"glob path: {glob_path}")
@@ -149,7 +152,7 @@ def yokogawa_to_ome_zarr(
                 f"  in_path: {in_path}\n"
                 f"  ext: {ext}\n"
                 f"  well_ID: {well_ID}\n"
-                f"  channel: {chl},\n"
+                f"  wavelength_id: {wavelength_id},\n"
                 f"  glob_path: {glob_path}"
             )
         # Loop over 3D FOV ROIs

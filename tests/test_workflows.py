@@ -32,43 +32,73 @@ from fractal_tasks_core.maximum_intensity_projection import (
 from fractal_tasks_core.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 
 
-channel_parameters = {
-    "A01_C01": {
+allowed_channels = [
+    {
         "label": "DAPI",
+        "wavelength_id": "A01_C01",
         "colormap": "00FFFF",
         "start": 0,
         "end": 700,
     },
-    "A01_C02": {
+    {
+        "wavelength_id": "A01_C02",
         "label": "nanog",
         "colormap": "FF00FF",
         "start": 0,
         "end": 180,
     },
-    "A02_C03": {
+    {
+        "wavelength_id": "A02_C03",
         "label": "Lamin B1",
         "colormap": "FFFF00",
         "start": 0,
         "end": 1500,
     },
-}
+]
 
 num_levels = 6
 coarsening_xy = 2
 
 
-def test_workflow_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: Path):
+@pytest.mark.xfail(reason="This would fail for a dataset with N>1 channels")
+def test_create_ome_zarr_fail(tmp_path: Path, zenodo_images: Path):
+
+    allowed_channels = [
+        {"label": "repeated label", "wavelength_id": "A01_C01"},
+        {"label": "repeated label", "wavelength_id": "A01_C02"},
+        {"label": "repeated label", "wavelength_id": "A02_C03"},
+    ]
 
     # Init
     img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
-    metadata = {}
 
     # Create zarr structure
+    with pytest.raises(ValueError):
+        _ = create_ome_zarr(
+            input_paths=[img_path],
+            metadata={},
+            output_path=zarr_path,
+            allowed_channels=allowed_channels,
+            num_levels=num_levels,
+            coarsening_xy=coarsening_xy,
+            metadata_table="mrf_mlf",
+        )
+
+
+def test_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: Path):
+
+    # Init
+    img_path = zenodo_images / "*.png"
+    zarr_path = tmp_path / "tmp_out/*.zarr"
+
+    # Create zarr structure
+    metadata = {}
     metadata_update = create_ome_zarr(
         input_paths=[img_path],
         output_path=zarr_path,
-        channel_parameters=channel_parameters,
+        metadata=metadata,
+        allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         metadata_table="mrf_mlf",
@@ -97,7 +127,7 @@ def test_workflow_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: Path):
     check_file_number(zarr_path=image_zarr)
 
 
-def test_workflow_MIP(
+def test_MIP(
     tmp_path: Path,
     zenodo_zarr: List[Path],
     zenodo_zarr_metadata: List[Dict[str, Any]],
@@ -145,7 +175,7 @@ def test_workflow_MIP(
     validate_schema(path=str(plate_zarr), type="plate")
 
 
-def test_workflow_illumination_correction(
+def test_illumination_correction(
     tmp_path: Path,
     testdata_path: Path,
     zenodo_images: Path,
@@ -171,7 +201,8 @@ def test_workflow_illumination_correction(
     metadata_update = create_ome_zarr(
         input_paths=[img_path],
         output_path=zarr_path,
-        channel_parameters=channel_parameters,
+        metadata=metadata,
+        allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         metadata_table="mrf_mlf",

@@ -37,26 +37,30 @@ from fractal_tasks_core.maximum_intensity_projection import (
 from fractal_tasks_core.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 
 
-channel_parameters = {
-    "A01_C01": {
+allowed_channels = [
+    {
         "label": "DAPI",
+        "wavelength_id": "A01_C01",
         "colormap": "00FFFF",
         "start": 0,
         "end": 700,
     },
-    "A01_C02": {
+    {
+        "wavelength_id": "A01_C02",
         "label": "nanog",
         "colormap": "FF00FF",
         "start": 0,
         "end": 180,
     },
-    "A02_C03": {
+    {
+        "wavelength_id": "A02_C03",
         "label": "Lamin B1",
         "colormap": "FFFF00",
         "start": 0,
         "end": 1500,
     },
-}
+]
+
 
 num_levels = 6
 coarsening_xy = 2
@@ -148,6 +152,66 @@ def patched_use_gpu(*args, **kwargs):
     return False
 
 
+def test_failures(
+    tmp_path: Path,
+    testdata_path: Path,
+    zenodo_zarr: List[Path],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+    caplog: pytest.LogCaptureFixture,
+    monkeypatch: MonkeyPatch,
+):
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.cellpose_segmentation.use_gpu", patched_use_gpu
+    )
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.cellpose_segmentation.segment_FOV",
+        patched_segment_FOV,
+    )
+
+    caplog.set_level(logging.WARNING)
+
+    # Use pre-made 3D zarr
+    zarr_path = tmp_path / "tmp_out/*.zarr"
+    metadata = prepare_3D_zarr(zarr_path, zenodo_zarr, zenodo_zarr_metadata)
+    debug(zarr_path)
+    debug(metadata)
+
+    # A sequence of invalid attempts
+    for component in metadata["image"]:
+
+        kwargs = dict(
+            input_paths=[zarr_path],
+            output_path=zarr_path,
+            metadata=metadata,
+            component=component,
+            level=3,
+        )
+        # Attempt 1
+        cellpose_segmentation(
+            **kwargs,
+            wavelength_id="invalid_wavelength_id",
+        )
+        assert "ChannelNotFoundError" in caplog.records[0].msg
+
+        # Attempt 2
+        cellpose_segmentation(
+            **kwargs,
+            channel_label="invalid_channel_name",
+        )
+        assert "ChannelNotFoundError" in caplog.records[0].msg
+        assert "ChannelNotFoundError" in caplog.records[1].msg
+
+        # Attempt 3
+        with pytest.raises(ValueError):
+            cellpose_segmentation(
+                **kwargs,
+                wavelength_id="A01_C01",
+                channel_label="invalid_channel_name",
+            )
+
+
 def test_workflow_with_per_FOV_labeling(
     tmp_path: Path,
     testdata_path: Path,
@@ -183,8 +247,8 @@ def test_workflow_with_per_FOV_labeling(
             output_path=zarr_path,
             metadata=metadata,
             component=component,
-            labeling_channel="A01_C01",
-            labeling_level=3,
+            wavelength_id="A01_C01",
+            level=3,
             relabeling=True,
             diameter_level0=80.0,
         )
@@ -234,8 +298,8 @@ def test_workflow_with_per_FOV_labeling_2D(
             output_path=zarr_path_mip,
             metadata=metadata,
             component=component,
-            labeling_channel="A01_C01",
-            labeling_level=2,
+            wavelength_id="A01_C01",
+            level=2,
             relabeling=True,
             diameter_level0=80.0,
         )
@@ -280,7 +344,8 @@ def test_workflow_with_per_well_labeling_2D(
     metadata_update = create_ome_zarr(
         input_paths=[img_path],
         output_path=zarr_path,
-        channel_parameters=channel_parameters,
+        metadata=metadata,
+        allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         metadata_table="mrf_mlf",
@@ -323,8 +388,8 @@ def test_workflow_with_per_well_labeling_2D(
             output_path=zarr_path_mip,
             metadata=metadata,
             component=component,
-            labeling_channel="A01_C01",
-            labeling_level=2,
+            wavelength_id="A01_C01",
+            level=2,
             ROI_table_name="well_ROI_table",
             relabeling=True,
             diameter_level0=80.0,
@@ -377,8 +442,8 @@ def test_workflow_bounding_box(
             output_path=zarr_path,
             metadata=metadata,
             component=component,
-            labeling_channel="A01_C01",
-            labeling_level=3,
+            wavelength_id="A01_C01",
+            level=3,
             relabeling=True,
             diameter_level0=80.0,
             bounding_box_ROI_table_name="bbox_table",
@@ -428,8 +493,8 @@ def test_workflow_bounding_box_with_overlap(
                 output_path=zarr_path,
                 metadata=metadata,
                 component=component,
-                labeling_channel="A01_C01",
-                labeling_level=3,
+                wavelength_id="A01_C01",
+                level=3,
                 relabeling=True,
                 diameter_level0=80.0,
                 bounding_box_ROI_table_name="bbox_table",

@@ -56,8 +56,8 @@ def test_illumination_correction(
     metadata: Dict = {
         "num_levels": num_levels,
         "coarsening_xy": 2,
-        "channel_list": ["A01_C01", "A01_C02"],
     }
+    num_channels = 2
     num_levels = metadata["num_levels"]
 
     # Read FOV ROIs and create corresponding indices
@@ -69,7 +69,6 @@ def test_illumination_correction(
     num_FOVs = len(list_indices)
 
     # Prepared expected number of calls
-    num_channels = len(metadata["channel_list"])
     expected_tot_calls_correct = num_channels * num_FOVs
 
     # Patch correct() function, to keep track of the number of calls

@@ -19,7 +19,6 @@ from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import List
-from typing import Optional
 from typing import Sequence
 
 import pandas as pd
@@ -27,8 +26,10 @@ import zarr
 from anndata.experimental import write_elem
 
 import fractal_tasks_core
+from fractal_tasks_core.lib_channels import check_well_channel_labels
+from fractal_tasks_core.lib_channels import define_omero_channels
+from fractal_tasks_core.lib_channels import validate_allowed_channel_input
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
-from fractal_tasks_core.lib_omero import define_omero_channels
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
@@ -45,8 +46,8 @@ def create_ome_zarr_multiplex(
     *,
     input_paths: Sequence[Path],
     output_path: Path,
-    metadata: Dict[str, Any] = None,
-    channel_parameters: Dict[str, Dict[str, Any]],
+    metadata: Dict[str, Any],
+    allowed_channels: Dict[str, Sequence[Dict[str, Any]]],
     num_levels: int = 2,
     coarsening_xy: int = 2,
     metadata_table: str = "mrf_mlf",
@@ -86,16 +87,14 @@ def create_ome_zarr_multiplex(
             'metadata_table="mrf_mlf", '
             f"and not {metadata_table}"
         )
-    if channel_parameters is None:
-        raise ValueError(
-            "Missing channel_parameters argument in create_ome_zarr"
-        )
-    else:
-        # Note that in metadata the keys of dictionary arguments should be
-        # strings, so that they can be read from a JSON file
-        for key in channel_parameters.keys():
-            if not isinstance(key, str):
-                raise ValueError(f"{channel_parameters=} has non-string keys")
+
+    # Preliminary checks on allowed_channels
+    # Note that in metadata the keys of dictionary arguments should be
+    # strings (and not integers), so that they can be read from a JSON file
+    for key, value in allowed_channels.items():
+        if not isinstance(key, str):
+            raise ValueError(f"{allowed_channels=} has non-string keys")
+        validate_allowed_channel_input(value)
 
     # Identify all plates and all channels, per input folders
     dict_acquisitions: Dict = {}
@@ -106,7 +105,7 @@ def create_ome_zarr_multiplex(
         acquisition = str(ind_in_path)
         dict_acquisitions[acquisition] = {}
 
-        channels = []
+        actual_wavelength_ids = []
         plates = []
         plate_prefixes = []
 
@@ -119,20 +118,20 @@ def create_ome_zarr_multiplex(
                 plates.append(plate)
                 plate_prefix = filename_metadata["plate_prefix"]
                 plate_prefixes.append(plate_prefix)
-                channels.append(
-                    f"A{filename_metadata['A']}_C{filename_metadata['C']}"
-                )
+                A = filename_metadata["A"]
+                C = filename_metadata["C"]
+                actual_wavelength_ids.append(f"A{A}_C{C}")
             except ValueError as e:
                 logger.warning(
                     f'Skipping "{fn.name}". Original error: ' + str(e)
                 )
         plates = sorted(list(set(plates)))
-        channels = sorted(list(set(channels)))
+        actual_wavelength_ids = sorted(list(set(actual_wavelength_ids)))
 
         info = (
             f"Listing all plates/channels from {in_path.as_posix()}\n"
             f"Plates:   {plates}\n"
-            f"Channels: {channels}\n"
+            f"Actual wavelength IDs: {actual_wavelength_ids}\n"
         )
 
         # Check that a folder includes a single plate
@@ -152,19 +151,25 @@ def create_ome_zarr_multiplex(
             )
 
         # Check that all channels are in the allowed_channels
-        if not set(channels).issubset(
-            set(channel_parameters[acquisition].keys())
+        allowed_wavelength_ids = [
+            c["wavelength_id"] for c in allowed_channels[acquisition]
+        ]
+        if not set(actual_wavelength_ids).issubset(
+            set(allowed_wavelength_ids)
         ):
             msg = "ERROR in create_ome_zarr\n"
-            msg += f"channels: {channels}\n"
-            msg += "allowed_channels: "
-            msg += f"{channel_parameters[acquisition].keys()}\n"
-            raise Exception(msg)
+            msg += f"actual_wavelength_ids: {actual_wavelength_ids}\n"
+            msg += f"allowed_wavelength_ids: {allowed_wavelength_ids}\n"
+            raise ValueError(msg)
 
-        # Create actual_channels, i.e. a list of entries like "A01_C01"
-        actual_channels = []
-        for ind_ch, ch in enumerate(channels):
-            actual_channels.append(ch)
+        # Create actual_channels, i.e. a list of the channel dictionaries which
+        # are present
+        actual_channels = [
+            channel
+            for channel in allowed_channels[acquisition]
+            if channel["wavelength_id"] in actual_wavelength_ids
+        ]
+
         logger.info(f"plate: {plate}")
         logger.info(f"actual_channels: {actual_channels}")
 
@@ -250,22 +255,22 @@ def create_ome_zarr_multiplex(
             well_image_iter = glob(
                 f"{image_folder}/{plate_prefix}_{well}{ext_glob_pattern}"
             )
-            well_channels = []
+            well_wavelength_ids = []
             for fpath in well_image_iter:
                 try:
                     filename_metadata = parse_filename(os.path.basename(fpath))
-                    well_channels.append(
-                        f"A{filename_metadata['A']}_C{filename_metadata['C']}"
-                    )
+                    A = filename_metadata["A"]
+                    C = filename_metadata["C"]
+                    well_wavelength_ids.append(f"A{A}_C{C}")
                 except IndexError:
                     logger.info(f"Skipping {fpath}")
-            well_channels = sorted(list(set(well_channels)))
-            if well_channels != actual_channels:
+            well_wavelength_ids = sorted(list(set(well_wavelength_ids)))
+            if well_wavelength_ids != actual_wavelength_ids:
                 raise Exception(
                     f"ERROR: well {well} in plate {plate} (prefix: "
                     f"{plate_prefix}) has missing channels.\n"
-                    f"Expected: {actual_channels}\n"
-                    f"Found: {well_channels}.\n"
+                    f"Expected: {actual_wavelength_ids}\n"
+                    f"Found: {well_wavelength_ids}.\n"
                 )
 
         well_rows_columns = [
@@ -309,10 +314,10 @@ def create_ome_zarr_multiplex(
                     ],
                     "version": __OME_NGFF_VERSION__,
                 }
-                zarrurls["well"].append(f"{row}/{column}")
+                zarrurls["well"].append(f"{plate}.zarr/{row}/{column}")
             except ContainsGroupError:
                 group_well = zarr.open_group(
-                    f"{full_zarrurl}/{row}/{column}/", mode="a"
+                    f"{full_zarrurl}/{row}/{column}/", mode="r+"
                 )
                 logging.info(
                     f"Loaded group_well from {full_zarrurl}/{row}/{column}"
@@ -379,9 +384,9 @@ def create_ome_zarr_multiplex(
                 "name": "TBD",
                 "version": __OME_NGFF_VERSION__,
                 "channels": define_omero_channels(
-                    actual_channels,
-                    channel_parameters[acquisition],
-                    bit_depth,
+                    channels=actual_channels,
+                    bit_depth=bit_depth,
+                    label_prefix=acquisition,
                 ),
             }
 
@@ -402,10 +407,13 @@ def create_ome_zarr_multiplex(
                 write_elem(group_tables, "FOV_ROI_table", FOV_ROIs_table)
                 write_elem(group_tables, "well_ROI_table", well_ROIs_table)
 
-    channel_list = {
-        acquisition: dict_acquisitions[acquisition]["actual_channels"]
-        for acquisition in acquisitions
-    }
+    # Check that the different images (e.g. different cycles) in the each well
+    # have unique labels
+    for well_path in zarrurls["well"]:
+        check_well_channel_labels(
+            well_zarr_path=str(output_path.parent / well_path)
+        )
+
     original_paths = {
         acquisition: dict_acquisitions[acquisition]["original_paths"]
         for acquisition in acquisitions
@@ -417,7 +425,6 @@ def create_ome_zarr_multiplex(
         image=zarrurls["image"],
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        channel_list=channel_list,
         original_paths=original_paths,
     )
     return metadata_update
@@ -430,8 +437,8 @@ if __name__ == "__main__":
     class TaskArguments(BaseModel):
         input_paths: Sequence[Path]
         output_path: Path
-        metadata: Optional[Dict[str, Any]]
-        channel_parameters: Dict[str, Dict[str, Any]]
+        metadata: Dict[str, Any]
+        allowed_channels: Dict[str, Sequence[Dict[str, Any]]]
         num_levels: int = 2
         coarsening_xy: int = 2
         metadata_table: str = "mrf_mlf"

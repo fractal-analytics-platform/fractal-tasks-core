@@ -92,6 +92,18 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
             )
             shutil.move(str(rootfolder / zarrname), str(folder))
 
+            # FIXME: this is a workaround, and should be fixed directly in the
+            # zenodo dataset
+            import zarr
+            from devtools import debug
+
+            image_path = str(folder / "B/03/0")
+            group = zarr.open_group(image_path, mode="r+")
+            attrs = group.attrs.asdict()
+            attrs["omero"]["channels"][0]["wavelength_id"] = "A01_C01"
+            group.attrs.put(attrs)
+            debug(f"Adding A01_C01 in omero metadata, in {image_path}")
+
     return folders
 
 
@@ -103,7 +115,6 @@ def zenodo_zarr_metadata(testdata_path):
         "image": ["plate.zarr/B/03/0/"],
         "num_levels": 6,
         "coarsening_xy": 2,
-        "channel_list": ["A01_C01"],
         "original_paths": [
             str(testdata_path / "10_5281_zenodo_7059515/*.png")
         ],
@@ -115,7 +126,6 @@ def zenodo_zarr_metadata(testdata_path):
         "image": ["plate_mip.zarr/B/03/0/"],
         "num_levels": 6,
         "coarsening_xy": 2,
-        "channel_list": ["A01_C01"],
         "original_paths": [
             str(testdata_path / "10_5281_zenodo_7059515/*.png")
         ],

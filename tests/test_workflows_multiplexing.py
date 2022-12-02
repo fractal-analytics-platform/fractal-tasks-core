@@ -14,6 +14,7 @@ Zurich.
 from pathlib import Path
 from typing import Sequence
 
+import pytest
 from devtools import debug
 
 from .utils import check_file_number
@@ -30,36 +31,69 @@ from fractal_tasks_core.maximum_intensity_projection import (
 from fractal_tasks_core.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 
 
-single_cycle_channel_parameters = {
-    "A01_C01": {
-        "label": "DAPI",
+single_cycle_allowed_channels_no_label = [
+    {
+        "wavelength_id": "A01_C01",
         "colormap": "00FFFF",
         "start": 0,
         "end": 700,
     },
-    "A01_C02": {
-        "label": "nanog",
+    {
+        "wavelength_id": "A01_C02",
         "colormap": "FF00FF",
         "start": 0,
         "end": 180,
     },
-    "A02_C03": {
-        "label": "Lamin B1",
+    {
+        "wavelength_id": "A02_C03",
         "colormap": "FFFF00",
         "start": 0,
         "end": 1500,
     },
-}
-channel_parameters = {
-    "0": single_cycle_channel_parameters,
-    "1": single_cycle_channel_parameters,
+]
+
+allowed_channels = {
+    "0": single_cycle_allowed_channels_no_label,
+    "1": single_cycle_allowed_channels_no_label,
 }
 
 num_levels = 6
 coarsening_xy = 2
 
 
-def test_workflow_multiplexing(
+def test_multiplexing_create_ome_zarr_fail(
+    tmp_path: Path, zenodo_images_multiplex: Sequence[Path]
+):
+
+    single_cycle_allowed_channels = [
+        {"wavelength_id": "A01_C01", "label": "my label"}
+    ]
+    allowed_channels = {
+        "0": single_cycle_allowed_channels,
+        "1": single_cycle_allowed_channels,
+    }
+
+    # Init
+    img_paths = [
+        cycle_folder / "*.png" for cycle_folder in zenodo_images_multiplex
+    ]
+    zarr_path = tmp_path / "tmp_out/*.zarr"
+
+    # Create zarr structure
+    debug(img_paths)
+    with pytest.raises(ValueError):
+        _ = create_ome_zarr_multiplex(
+            input_paths=img_paths,
+            output_path=zarr_path,
+            metadata={},
+            allowed_channels=allowed_channels,
+            num_levels=num_levels,
+            coarsening_xy=coarsening_xy,
+            metadata_table="mrf_mlf",
+        )
+
+
+def test_multiplexing_yokogawa_to_ome_zarr(
     tmp_path: Path, zenodo_images_multiplex: Sequence[Path]
 ):
 
@@ -75,7 +109,8 @@ def test_workflow_multiplexing(
     metadata_update = create_ome_zarr_multiplex(
         input_paths=img_paths,
         output_path=zarr_path,
-        channel_parameters=channel_parameters,
+        metadata=metadata,
+        allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         metadata_table="mrf_mlf",
@@ -107,7 +142,7 @@ def test_workflow_multiplexing(
     check_file_number(zarr_path=image_zarr_1)
 
 
-def test_workflow_multiplexing_MIP(
+def test_multiplexing_MIP(
     tmp_path: Path, zenodo_images_multiplex: Sequence[Path]
 ):
 
@@ -124,7 +159,8 @@ def test_workflow_multiplexing_MIP(
     metadata_update = create_ome_zarr_multiplex(
         input_paths=img_paths,
         output_path=zarr_path,
-        channel_parameters=channel_parameters,
+        metadata=metadata,
+        allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         metadata_table="mrf_mlf",

@@ -19,7 +19,6 @@ from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import List
-from typing import Optional
 from typing import Sequence
 
 import pandas as pd
@@ -27,8 +26,10 @@ import zarr
 from anndata.experimental import write_elem
 
 import fractal_tasks_core
+from fractal_tasks_core.lib_channels import check_well_channel_labels
+from fractal_tasks_core.lib_channels import define_omero_channels
+from fractal_tasks_core.lib_channels import validate_allowed_channel_input
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
-from fractal_tasks_core.lib_omero import define_omero_channels
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
@@ -45,8 +46,8 @@ def create_ome_zarr(
     *,
     input_paths: Sequence[Path],
     output_path: Path,
-    metadata: Dict[str, Any] = None,
-    channel_parameters: Dict[str, Any],
+    metadata: Dict[str, Any],
+    allowed_channels: Sequence[Dict[str, Any]],
     num_levels: int = 2,
     coarsening_xy: int = 2,
     metadata_table: str = "mrf_mlf",
@@ -68,7 +69,7 @@ def create_ome_zarr(
     :param input_paths: TBD (common to all tasks)
     :param output_path: TBD (common to all tasks)
     :param metadata: TBD (common to all tasks)
-    :param channel_parameters: TBD
+    :param allowed_channels: TBD
     :param num_levels: number of resolution-pyramid levels
     :param coarsening_xy: linear coarsening factor between subsequent levels
     :param metadata_table: TBD
@@ -88,16 +89,15 @@ def create_ome_zarr(
             'metadata_table="mrf_mlf", '
             f"and not {metadata_table}"
         )
-    if channel_parameters is None:
-        raise Exception(
-            "Missing channel_parameters argument in " "create_ome_zarr"
-        )
 
     # Identify all plates and all channels, across all input folders
     plates = []
-    channels = None
+    actual_wavelength_ids = None
     dict_plate_paths = {}
     dict_plate_prefixes: Dict[str, Any] = {}
+
+    # Preliminary checks on allowed_channels argument
+    validate_allowed_channel_input(allowed_channels)
 
     # FIXME
     # find a smart way to remove it
@@ -106,7 +106,7 @@ def create_ome_zarr(
     for in_path in input_paths:
         input_filename_iter = in_path.parent.glob(in_path.name)
 
-        tmp_channels = []
+        tmp_wavelength_ids = []
         tmp_plates = []
         for fn in input_filename_iter:
             try:
@@ -116,20 +116,20 @@ def create_ome_zarr(
                 if plate not in dict_plate_prefixes.keys():
                     dict_plate_prefixes[plate] = plate_prefix
                 tmp_plates.append(plate)
-                tmp_channels.append(
-                    f"A{filename_metadata['A']}_C{filename_metadata['C']}"
-                )
+                A = filename_metadata["A"]
+                C = filename_metadata["C"]
+                tmp_wavelength_ids.append(f"A{A}_C{C}")
             except ValueError as e:
                 logger.warning(
                     f'Skipping "{fn.name}". Original error: ' + str(e)
                 )
         tmp_plates = sorted(list(set(tmp_plates)))
-        tmp_channels = sorted(list(set(tmp_channels)))
+        tmp_wavelength_ids = sorted(list(set(tmp_wavelength_ids)))
 
         info = (
             f"Listing all plates/channels from {in_path.as_posix()}\n"
             f"Plates:   {tmp_plates}\n"
-            f"Channels: {tmp_channels}\n"
+            f"Channels: {tmp_wavelength_ids}\n"
         )
 
         # Check that only one plate is found
@@ -156,31 +156,35 @@ def create_ome_zarr(
             plates.append(plate)
 
         # Check that channels are the same as in previous plates
-        if channels is None:
-            channels = tmp_channels[:]
+        if actual_wavelength_ids is None:
+            actual_wavelength_ids = tmp_wavelength_ids[:]
         else:
-            if channels != tmp_channels:
+            if actual_wavelength_ids != tmp_wavelength_ids:
                 raise Exception(
-                    f"ERROR\n{info}\nERROR: expected channels {channels}"
+                    f"ERROR\n{info}\nERROR:"
+                    f" expected channels {actual_wavelength_ids}"
                 )
 
         # Update dict_plate_paths
         dict_plate_paths[plate] = in_path.parent
 
     # Check that all channels are in the allowed_channels
-    if not set(channels).issubset(set(channel_parameters.keys())):
+    allowed_wavelength_ids = [
+        channel["wavelength_id"] for channel in allowed_channels
+    ]
+    if not set(actual_wavelength_ids).issubset(set(allowed_wavelength_ids)):
         msg = "ERROR in create_ome_zarr\n"
-        msg += f"channels: {channels}\n"
-        msg += f"allowed_channels: {channel_parameters.keys()}\n"
+        msg += f"actual_wavelength_ids: {actual_wavelength_ids}\n"
+        msg += f"allowed_wavelength_ids: {allowed_wavelength_ids}\n"
         raise Exception(msg)
 
-    # Create actual_channels, i.e. a list of entries like "A01_C01"
-    actual_channels = []
-    for ind_ch, ch in enumerate(channels):
-        actual_channels.append(ch)
-    logger.info(f"actual_channels: {actual_channels}")
-
-    # Clean up dictionary channel_parameters
+    # Create actual_channels, i.e. a list of the channel dictionaries which are
+    # present
+    actual_channels = [
+        channel
+        for channel in allowed_channels
+        if channel["wavelength_id"] in actual_wavelength_ids
+    ]
 
     zarrurls: Dict[str, List[str]] = {"plate": [], "well": [], "image": []}
 
@@ -235,22 +239,22 @@ def create_ome_zarr(
             well_image_iter = glob(
                 f"{in_path}/{plate_prefix}_{well}{ext_glob_pattern}"
             )
-            well_channels = []
+            well_wavelength_ids = []
             for fpath in well_image_iter:
                 try:
                     filename_metadata = parse_filename(os.path.basename(fpath))
-                    well_channels.append(
+                    well_wavelength_ids.append(
                         f"A{filename_metadata['A']}_C{filename_metadata['C']}"
                     )
                 except IndexError:
                     logger.info(f"Skipping {fpath}")
-            well_channels = sorted(list(set(well_channels)))
-            if well_channels != actual_channels:
+            well_wavelength_ids = sorted(list(set(well_wavelength_ids)))
+            if well_wavelength_ids != actual_wavelength_ids:
                 raise Exception(
                     f"ERROR: well {well} in plate {plate} (prefix: "
                     f"{plate_prefix}) has missing channels.\n"
                     f"Expected: {actual_channels}\n"
-                    f"Found: {well_channels}.\n"
+                    f"Found: {well_wavelength_ids}.\n"
                 )
 
         well_rows_columns = [
@@ -288,11 +292,11 @@ def create_ome_zarr(
                 "version": __OME_NGFF_VERSION__,
             }
 
-            group_FOV = group_well.create_group("0/")  # noqa: F841
+            group_image = group_well.create_group("0/")  # noqa: F841
             zarrurls["well"].append(f"{plate}.zarr/{row}/{column}/")
             zarrurls["image"].append(f"{plate}.zarr/{row}/{column}/0/")
 
-            group_FOV.attrs["multiscales"] = [
+            group_image.attrs["multiscales"] = [
                 {
                     "version": __OME_NGFF_VERSION__,
                     "axes": [
@@ -334,18 +338,20 @@ def create_ome_zarr(
                 }
             ]
 
-            group_FOV.attrs["omero"] = {
+            group_image.attrs["omero"] = {
                 "id": 1,  # FIXME does this depend on the plate number?
                 "name": "TBD",
                 "version": __OME_NGFF_VERSION__,
                 "channels": define_omero_channels(
-                    actual_channels, channel_parameters, bit_depth
+                    channels=actual_channels, bit_depth=bit_depth
                 ),
             }
 
             # FIXME
             if has_mrf_mlf_metadata:
-                group_tables = group_FOV.create_group("tables/")  # noqa: F841
+                group_tables = group_image.create_group(
+                    "tables/"
+                )  # noqa: F841
 
                 # Prepare FOV/well tables
                 FOV_ROIs_table = prepare_FOV_ROI_table(
@@ -359,13 +365,21 @@ def create_ome_zarr(
                 write_elem(group_tables, "FOV_ROI_table", FOV_ROIs_table)
                 write_elem(group_tables, "well_ROI_table", well_ROIs_table)
 
+    # Check that the different images in each well have unique channel labels.
+    # Since we currently merge all fields of view in the same image, this check
+    # is useless. It should remain there to catch an error in case we switch
+    # back to one-image-per-field-of-view mode
+    for well_path in zarrurls["well"]:
+        check_well_channel_labels(
+            well_zarr_path=str(output_path.parent / well_path)
+        )
+
     metadata_update = dict(
         plate=zarrurls["plate"],
         well=zarrurls["well"],
         image=zarrurls["image"],
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        channel_list=actual_channels,
         original_paths=[str(p) for p in input_paths],
     )
     return metadata_update
@@ -378,8 +392,8 @@ if __name__ == "__main__":
     class TaskArguments(BaseModel):
         input_paths: Sequence[Path]
         output_path: Path
-        metadata: Optional[Dict[str, Any]]
-        channel_parameters: Dict[str, Any]
+        metadata: Dict[str, Any]
+        allowed_channels: Sequence[Dict[str, Any]]
         num_levels: int = 2
         coarsening_xy: int = 2
         metadata_table: str = "mrf_mlf"
