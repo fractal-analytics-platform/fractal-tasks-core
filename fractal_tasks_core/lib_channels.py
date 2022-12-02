@@ -41,7 +41,7 @@ def check_well_channel_labels(*, well_zarr_path: str) -> None:
     First identify the channel-labels list for each image in the well, then
     compare lists and verify their intersection is empty
 
-    :params well_zarr_path: path to an OME-NGFF well zarr group
+    :param well_zarr_path: path to an OME-NGFF well zarr group
     """
 
     # Iterate over all images (multiplexing cycles, multi-FOVs, ...)
