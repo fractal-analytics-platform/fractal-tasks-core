@@ -361,7 +361,7 @@ def create_ome_zarr(
                 write_elem(group_tables, "FOV_ROI_table", FOV_ROIs_table)
                 write_elem(group_tables, "well_ROI_table", well_ROIs_table)
 
-    # Check that the different images in the each well have unique labels.
+    # Check that the different images in each well have unique channel labels.
     # Since we currently merge all fields of view in the same image, this check
     # is useless. It should remain there to catch an error in case we switch
     # back to one-image-per-field-of-view mode
