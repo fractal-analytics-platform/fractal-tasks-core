@@ -205,10 +205,16 @@ def napari_workflows_wrapper(
         img_array = da.from_zarr(f"{in_path}/{component}/{level}")
         # Loop over image inputs and assign corresponding channel of the image
         for (name, params) in image_inputs:
-            wavelength_id = params["channel"]
+            if "wavelength_id" in params and "channel_label" in params:
+                raise ValueError(
+                    "One and only one among channel_label and wavelength_id"
+                    f" attributes must be provided, but input {name} in "
+                    f"input_specs has {params=}."
+                )
             channel = get_channel_from_image_zarr(
                 image_zarr_path=f"{in_path}/{component}",
-                wavelength_id=wavelength_id,
+                wavelength_id=params.get("wavelength_id", None),
+                label=params.get("channel_label", None),
             )
             channel_index = channel["index"]
             input_image_arrays[name] = img_array[channel_index]
