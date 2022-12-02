@@ -147,7 +147,7 @@ def cellpose_segmentation(
     pretrained_model: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
-    Run cellpose segmentation on a single OME-NGFF image
+    Run cellpose segmentation on the ROIs of a single OME-NGFF image
 
     Full documentation for all arguments is still TBD, especially because some
     of them are standard arguments for Fractal tasks that should be documented
@@ -177,7 +177,8 @@ def cellpose_segmentation(
     :param diameter_level0: Initial diameter to be passed to
                             ``CellposeModel.eval`` method (after rescaling from
                             full-resolution to ``level``).
-    :param ROI_table_name: TBD
+    :param ROI_table_name: name of the table that contains ROIs to which the
+                           task applies Cellpose segmentation
     :param bounding_box_ROI_table_name: TBD
     :param output_label_name: TBD
     :param cellprob_threshold: Parameter of ``CellposeModel.eval`` method.
