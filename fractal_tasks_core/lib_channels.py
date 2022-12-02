@@ -155,23 +155,31 @@ def define_omero_channels(
     label_prefix: str = None,
 ) -> List[Dict[str, Any]]:
     """
-    Prepare the ``attrs["omero"]["channels"]`` attribute of an image group
+    Update a channel list to use it in the OMERO/channels metadata
+
+    Given a list of channel dictionaries, update each one of them by:
+        1. Adding a label (if missing);
+        2. Adding a set of OMERO-specific attributes;
+        3. Discarding all other attributes.
+
+    The ``new_channels`` output can be used in the
+    ``attrs["omero"]["channels"]`` attribute of an image group.
 
     :param channels: A list of channel dictionaries (each one must include the
                      ``wavelength_id`` key).
     :param bit_depth: bit depth
-    :returns: omero_channels
+    :returns: ``new_channels``, a new list of consistent channel dictionaries
+              that can be written to OMERO metadata.
+
     """
 
-    omero_channels = []
+    new_channels = []
     default_colormaps = ["00FFFF", "FF00FF", "FFFF00"]
+
     for channel in channels:
         wavelength_id = channel["wavelength_id"]
 
-        channel = get_channel_from_list(
-            channels=channels, wavelength_id=wavelength_id
-        )
-
+        # Always set a label
         try:
             label = channel["label"]
         except KeyError:
@@ -183,8 +191,8 @@ def define_omero_channels(
             )
             label = default_label
 
-        # Set colormap. If missing, use the default ones (for the first three
-        # channels) or gray
+        # Set colormap attribute. If not specificed, use the default ones (for
+        # the first three channels) or gray
         colormap = channel.get("colormap", None)
         if colormap is None:
             try:
@@ -192,31 +200,30 @@ def define_omero_channels(
             except IndexError:
                 colormap = "808080"
 
-        omero_channels.append(
-            {
-                "label": label,
-                "wavelength_id": wavelength_id,
-                "active": True,
-                "coefficient": 1,
-                "color": colormap,
-                "family": "linear",
-                "inverted": False,
-                "window": {
-                    "min": 0,
-                    "max": 2**bit_depth - 1,
-                },
-            }
-        )
+        # Set window attribute
+        window = {
+            "min": 0,
+            "max": 2**bit_depth - 1,
+        }
+        if "start" in channel.keys() and "end" in channel.keys():
+            window["start"] = channel["start"]
+            window["end"] = channel["end"]
 
-        try:
-            omero_channels[-1]["window"]["start"] = channel["start"]
-            omero_channels[-1]["window"]["end"] = channel["end"]
-        except KeyError:
-            pass
+        new_channel = {
+            "label": label,
+            "wavelength_id": wavelength_id,
+            "active": True,
+            "coefficient": 1,
+            "color": colormap,
+            "family": "linear",
+            "inverted": False,
+            "window": window,
+        }
+        new_channels.append(new_channel)
 
     # Check that channel labels are unique for this image
-    labels = [c["label"] for c in omero_channels]
+    labels = [c["label"] for c in new_channels]
     if len(set(labels)) < len(labels):
-        raise ValueError(f"Non-unique labels in {omero_channels=}")
+        raise ValueError(f"Non-unique labels in {new_channels=}")
 
-    return omero_channels
+    return new_channels
