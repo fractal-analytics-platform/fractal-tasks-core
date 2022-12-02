@@ -152,6 +152,66 @@ def patched_use_gpu(*args, **kwargs):
     return False
 
 
+def test_failures(
+    tmp_path: Path,
+    testdata_path: Path,
+    zenodo_zarr: List[Path],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+    caplog: pytest.LogCaptureFixture,
+    monkeypatch: MonkeyPatch,
+):
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.cellpose_segmentation.use_gpu", patched_use_gpu
+    )
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.cellpose_segmentation.segment_FOV",
+        patched_segment_FOV,
+    )
+
+    caplog.set_level(logging.WARNING)
+
+    # Use pre-made 3D zarr
+    zarr_path = tmp_path / "tmp_out/*.zarr"
+    metadata = prepare_3D_zarr(zarr_path, zenodo_zarr, zenodo_zarr_metadata)
+    debug(zarr_path)
+    debug(metadata)
+
+    # A sequence of invalid attempts
+    for component in metadata["image"]:
+
+        kwargs = dict(
+            input_paths=[zarr_path],
+            output_path=zarr_path,
+            metadata=metadata,
+            component=component,
+            level=3,
+        )
+        # Attempt 1
+        cellpose_segmentation(
+            **kwargs,
+            wavelength_id="invalid_wavelength_id",
+        )
+        assert "ChannelNotFoundError" in caplog.records[0].msg
+
+        # Attempt 2
+        cellpose_segmentation(
+            **kwargs,
+            channel_label="invalid_channel_name",
+        )
+        assert "ChannelNotFoundError" in caplog.records[0].msg
+        assert "ChannelNotFoundError" in caplog.records[1].msg
+
+        # Attempt 3
+        with pytest.raises(ValueError):
+            cellpose_segmentation(
+                **kwargs,
+                wavelength_id="A01_C01",
+                channel_label="invalid_channel_name",
+            )
+
+
 def test_workflow_with_per_FOV_labeling(
     tmp_path: Path,
     testdata_path: Path,

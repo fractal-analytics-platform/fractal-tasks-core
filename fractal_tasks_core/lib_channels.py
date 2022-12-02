@@ -22,6 +22,10 @@ from typing import Sequence
 import zarr
 
 
+class ChannelNotFoundError(ValueError):
+    pass
+
+
 def validate_allowed_channel_input(allowed_channels: Sequence[Dict[str, Any]]):
     wavelength_ids = [c["wavelength_id"] for c in allowed_channels]
     if len(set(wavelength_ids)) < len(wavelength_ids):
@@ -144,12 +148,20 @@ def get_channel_from_list(
             )
 
     # Verify that there is one and only one matching channel
+    if len(matching_channels) == 0:
+        required_match = [f"{label=}", f"{wavelength_id=}"]
+        required_match_string = " and ".join(
+            [x for x in required_match if "None" not in x]
+        )
+        raise ChannelNotFoundError(
+            f"ChannelNotFoundError: No channel found in {channels}"
+            f" for {required_match_string}"
+        )
+        from devtools import debug
+
+        debug("RAISE")
     if len(matching_channels) > 1:
         raise ValueError(f"Inconsistent set of channels: {channels}")
-    elif len(matching_channels) == 0:
-        raise ValueError(
-            f"No channel found in {channels} for {label=} and {wavelength_id=}"
-        )
 
     channel = matching_channels[0]
     channel["index"] = channels.index(channel)

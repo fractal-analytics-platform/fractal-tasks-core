@@ -36,6 +36,7 @@ from cellpose import models
 from cellpose.core import use_gpu
 
 import fractal_tasks_core
+from fractal_tasks_core.lib_channels import ChannelNotFoundError
 from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
@@ -125,7 +126,7 @@ def cellpose_segmentation(
     metadata: Dict[str, Any],
     # Task-specific arguments
     wavelength_id: Optional[str] = None,
-    channel_name: Optional[str] = None,
+    channel_label: Optional[str] = None,
     level: int,
     relabeling: bool = True,
     anisotropy: Optional[float] = None,
@@ -150,7 +151,7 @@ def cellpose_segmentation(
     :param metadata: TBD (fractal default arg)
     :param component: TBD (fractal default arg)
     :param wavelength_id: TBD
-    :param channel_name: TBD
+    :param channel_label: TBD
     :param level: TBD
     :param relabeling: TBD
     :param anisotropy: TBD
@@ -173,11 +174,11 @@ def cellpose_segmentation(
     logger.info(zarrurl)
 
     # Preliminary check
-    if (channel_name is None and wavelength_id is None) or (
-        channel_name and wavelength_id
+    if (channel_label is None and wavelength_id is None) or (
+        channel_label and wavelength_id
     ):
         raise ValueError(
-            f"One and only one of {channel_name=} and "
+            f"One and only one of {channel_label=} and "
             f"{wavelength_id=} arguments can be provided"
         )
 
@@ -191,9 +192,18 @@ def cellpose_segmentation(
     well_id = well.replace("/", "_")[:-1]
 
     # Find channel index
-    channel = get_channel_from_image_zarr(
-        image_zarr_path=zarrurl, wavelength_id=wavelength_id
-    )
+    try:
+        channel = get_channel_from_image_zarr(
+            image_zarr_path=zarrurl,
+            wavelength_id=wavelength_id,
+            label=channel_label,
+        )
+    except ChannelNotFoundError as e:
+        logger.warning(
+            "Channel not found, exit from the task.\n"
+            f"Original error: {str(e)}"
+        )
+        return {}
     ind_channel = channel["index"]
 
     # Load ZYX data
@@ -484,7 +494,7 @@ if __name__ == "__main__":
         component: str
         metadata: Dict[str, Any]
         # Task-specific arguments
-        channel_name: Optional[str] = None
+        channel_label: Optional[str] = None
         wavelength_id: Optional[str] = None
         level: int
         relabeling: bool = True
