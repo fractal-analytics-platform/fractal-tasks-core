@@ -4,6 +4,7 @@ from typing import Tuple
 
 import numpy as np
 import pytest
+from devtools import debug
 
 from fractal_tasks_core.lib_upscale_array import upscale_array
 
@@ -42,3 +43,26 @@ def test_upscale_array_fail(
     old_array = np.ones(old_shape)
     with pytest.raises(ValueError):
         upscale_array(target_shape=target_shape, array=old_array, axis=axis)
+
+
+def test_incommensurable_upscaling():
+    """
+    GIVEN an array with shape incommensurable with respect to a target shape
+    WHEN calling upscale_array
+    THEN
+      * Fail as expected, if fail_on_mismatch=True
+      * Return an upscaled array with the correct (target) shape otherwise
+    """
+    array = np.ones((3, 2))
+    target_shape = (5, 5)
+
+    # If fail_on_mismatch is not explicitly False, fail
+    with pytest.raises(ValueError):
+        upscaled_array = upscale_array(array=array, target_shape=target_shape)
+
+    # When fail_on_mismatch=False, the array should have the right shape
+    upscaled_array = upscale_array(
+        array=array, target_shape=target_shape, fail_on_mismatch=False
+    )
+    assert upscaled_array.shape == target_shape
+    debug(upscaled_array)
