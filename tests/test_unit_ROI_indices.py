@@ -1,6 +1,9 @@
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytest
+from devtools import debug
 
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
@@ -9,6 +12,7 @@ from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROIs_from_3D_to_2D,
 )  # noqa
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
+from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
 
 
 PIXEL_SIZE_X = 0.1625
@@ -177,3 +181,24 @@ def test_ROI_indices_2D(level, coarsening_xy, full_res_pxl_sizes_zyx):
     for indices in list_indices:
         assert indices[0] == 0
         assert indices[1] == 1
+
+
+def test_prepare_well_ROI_table(testdata_path: Path):
+    big_df = pd.read_csv(str(testdata_path / "site_metadata_x_pos_bug.csv"))
+    well_ids = big_df.well_id.unique()
+    for well_id in well_ids:
+        debug(well_id)
+        # Select a specific well from big_df
+        df = big_df.loc[big_df["well_id"] == well_id, :].copy()
+        # Construct the AnnData tables for FOVs and for the whole well
+        table_FOVs = prepare_FOV_ROI_table(df)
+        table_well = prepare_well_ROI_table(df)
+        # Check that the well table has a single row
+        assert table_well.shape[0] == 1
+        # Check that the minima of the first three columns (x/y/z min
+        # positions) for the well and for the FOVs are the same
+        for ind in [0, 1, 2]:
+            assert (
+                abs(min(table_FOVs.X[:, ind]) - min(table_well.X[:, ind]))
+                < 1e-12
+            )
