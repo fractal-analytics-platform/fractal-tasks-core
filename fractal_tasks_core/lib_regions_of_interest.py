@@ -112,6 +112,7 @@ def prepare_well_ROI_table(
             df[f"{mu}_micrometer"] + df[f"len_{mu}_micrometer"]
         ).max()
         df[f"len_{mu}_micrometer"] = max_micrometers[mu]
+        df[f"{mu}_micrometer"] = min_micrometers[mu]
 
     # Select only the numeric positional columns needed to define ROIs
     # (to avoid) casting things like the data column to float32
