@@ -201,6 +201,8 @@ def test_prepare_well_ROI_table(testdata_path: Path):
         assert table_well.shape[0] == 1
         # Check that the minima of the first three columns (x/y/z min
         # positions) for the well and for the FOVs are the same
+        # NOTE this assumes that columns are sorted in a specific way, we will
+        # have to adapt the test otherwise
         for ind in [0, 1, 2]:
             assert (
                 abs(min(table_FOVs.X[:, ind]) - min(table_well.X[:, ind]))
