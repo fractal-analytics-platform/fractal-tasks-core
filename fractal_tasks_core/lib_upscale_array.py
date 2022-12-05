@@ -13,6 +13,7 @@ Copyright 2022 (C)
 
 Function to increase the shape of an array by replicating it
 """
+import logging
 import warnings
 from typing import Sequence
 
@@ -24,6 +25,7 @@ def upscale_array(
     array,
     target_shape: Sequence[int],
     axis: Sequence[int] = None,
+    pad_with_zeros: bool = False,
 ) -> np.ndarray:
     """
     Upscale an array along a given list of axis (through repeated application
@@ -33,18 +35,20 @@ def upscale_array(
     :param target_shape: the shape of the rescaled array
     :param axis: the axis along which to upscale the array (if ``None``, then \
                  all axis are used)
+    :param pad_with_zeros: if ``True``, pad the upscaled array with zeros to
+                           match ``target_shape``.
     :returns: upscaled array, with shape ``target_shape``
     """
+
+    # Default behavior: use all axis
+    if axis is None:
+        axis = list(range(len(target_shape)))
 
     array_shape = array.shape
     info = (
         f"Trying to upscale from {array_shape=} to {target_shape=}, "
         f"acting on {axis=}."
     )
-
-    # Default behavior: use all axis
-    if axis is None:
-        axis = list(range(len(target_shape)))
 
     if len(array_shape) != len(target_shape):
         raise ValueError(f"{info} Dimensions-number mismatch.")
@@ -88,6 +92,26 @@ def upscale_array(
 
     # Check that final shape is correct
     if not upscaled_array.shape == target_shape:
-        raise Exception(f"{info} {upscaled_array.shape=}.")
+        if pad_with_zeros:
+            pad_width = []
+            for ax in list(range(len(target_shape))):
+                missing = target_shape[ax] - upscaled_array.shape[ax]
+                if missing < 0 or (missing > 0 and ax not in axis):
+                    raise ValueError(
+                        f"{info} " "Something wrong during zero-padding"
+                    )
+                pad_width.append([0, missing])
+            upscaled_array = np.pad(
+                upscaled_array,
+                pad_width=pad_width,
+                mode="constant",
+                constant_values=0,
+            )
+            logging.warning(f"{info} {upscaled_array.shape=}.")
+            logging.warning(
+                f"Padding upscaled_array with zeros with {pad_width=}"
+            )
+        else:
+            raise ValueError(f"{info} {upscaled_array.shape=}.")
 
     return upscaled_array
