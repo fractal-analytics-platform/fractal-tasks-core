@@ -5,7 +5,6 @@ Changelog
 
    Numbers like (#123) point to `closed Pull Requests on the fractal-tasks-core repository <https://github.com/fractal-analytics-platform/fractal-tasks-core/pulls?q=is%3Apr+is%3Aclosed>`_.
 
-
 0.6.0
 -----
 
@@ -13,6 +12,9 @@ New features
 ~~~~~~~~~~~~
 * **(major)** Refactor of how to address channels (#239).
 
+Other changes
+~~~~~~~~~~~~~
+* Fix bug in well ROI table (#245).
 
 0.5.1
 -----

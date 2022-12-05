@@ -32,6 +32,9 @@ def prepare_FOV_ROI_table(
     :type dummy: int
     """
 
+    # Make a local copy of the dataframe, to avoid SettingWithCopyWarning
+    df = df.copy()
+
     # Convert DataFrame index to str, to avoid
     # >> ImplicitModificationWarning: Transforming to str index
     # when creating AnnData object.
@@ -92,6 +95,9 @@ def prepare_well_ROI_table(
     :type dummy: int
     """
 
+    # Make a local copy of the dataframe, to avoid SettingWithCopyWarning
+    df = df.copy()
+
     # Convert DataFrame index to str, to avoid
     # >> ImplicitModificationWarning: Transforming to str index
     # when creating AnnData object.
@@ -99,19 +105,18 @@ def prepare_well_ROI_table(
     df.index = df.index.astype(str)
 
     # Calculate bounding box extents in physical units
-    min_micrometers = {}
-    max_micrometers = {}
     for mu in ["x", "y", "z"]:
-        # Reset reference values for coordinates
-        df[f"{mu}_micrometer"] -= df[f"{mu}_micrometer"].min()
-        # Obtain FOV box size in physical units
-        df[f"len_{mu}_micrometer"] = df[f"{mu}_pixel"] * df[f"pixel_size_{mu}"]
+        # Obtain per-FOV properties in physical units.
+        # NOTE: a FOV ROI is defined here as the interval [min_micrometer,
+        # max_micrometer], with max_micrometer=min_micrometer+len_micrometer
+        min_micrometer = df[f"{mu}_micrometer"]
+        len_micrometer = df[f"{mu}_pixel"] * df[f"pixel_size_{mu}"]
+        max_micrometer = min_micrometer + len_micrometer
         # Obtain well bounding box, in physical units
-        min_micrometers[mu] = df[f"{mu}_micrometer"].min()
-        max_micrometers[mu] = (
-            df[f"{mu}_micrometer"] + df[f"len_{mu}_micrometer"]
-        ).max()
-        df[f"len_{mu}_micrometer"] = max_micrometers[mu]
+        min_min_micrometer = min_micrometer.min()
+        max_max_micrometer = max_micrometer.max()
+        df[f"{mu}_micrometer"] = min_min_micrometer
+        df[f"len_{mu}_micrometer"] = max_max_micrometer - min_min_micrometer
 
     # Select only the numeric positional columns needed to define ROIs
     # (to avoid) casting things like the data column to float32
