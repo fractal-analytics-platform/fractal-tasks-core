@@ -162,9 +162,6 @@ def get_channel_from_list(
             f"ChannelNotFoundError: No channel found in {channels}"
             f" for {required_match_string}"
         )
-        from devtools import debug
-
-        debug("RAISE")
     if len(matching_channels) > 1:
         raise ValueError(f"Inconsistent set of channels: {channels}")
 
