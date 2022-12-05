@@ -184,6 +184,10 @@ def test_ROI_indices_2D(level, coarsening_xy, full_res_pxl_sizes_zyx):
 
 
 def test_prepare_well_ROI_table(testdata_path: Path):
+    """
+    See
+    https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/243
+    """
     big_df = pd.read_csv(str(testdata_path / "site_metadata_x_pos_bug.csv"))
     well_ids = big_df.well_id.unique()
     for well_id in well_ids:
