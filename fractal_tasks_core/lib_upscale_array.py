@@ -25,7 +25,7 @@ def upscale_array(
     array,
     target_shape: Sequence[int],
     axis: Sequence[int] = None,
-    fail_on_mismatch: bool = True,
+    pad_with_zeros: bool = False,
 ) -> np.ndarray:
     """
     Upscale an array along a given list of axis (through repeated application
@@ -35,6 +35,8 @@ def upscale_array(
     :param target_shape: the shape of the rescaled array
     :param axis: the axis along which to upscale the array (if ``None``, then \
                  all axis are used)
+    :param pad_with_zeros: if ``True``, pad the upscaled array with zeros to
+                           match ``target_shape``.
     :returns: upscaled array, with shape ``target_shape``
     """
 
@@ -90,9 +92,7 @@ def upscale_array(
 
     # Check that final shape is correct
     if not upscaled_array.shape == target_shape:
-        if fail_on_mismatch:
-            raise ValueError(f"{info} {upscaled_array.shape=}.")
-        else:
+        if pad_with_zeros:
             pad_width = []
             for ax in list(range(len(target_shape))):
                 missing = target_shape[ax] - upscaled_array.shape[ax]
@@ -111,5 +111,7 @@ def upscale_array(
             logging.warning(
                 f"Padding upscaled_array with zeros with {pad_width=}"
             )
+        else:
+            raise ValueError(f"{info} {upscaled_array.shape=}.")
 
     return upscaled_array

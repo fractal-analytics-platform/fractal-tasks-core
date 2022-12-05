@@ -50,7 +50,7 @@ def test_incommensurable_upscaling():
     GIVEN an array with shape incommensurable with respect to a target shape
     WHEN calling upscale_array
     THEN
-      * Fail as expected, if fail_on_mismatch=True
+      * Fail as expected, if pad_with_zeros=False
       * Return an upscaled array with the correct (target) shape otherwise
     """
     array = np.ones((3, 2))
@@ -62,7 +62,9 @@ def test_incommensurable_upscaling():
 
     # When fail_on_mismatch=False, the array should have the right shape
     upscaled_array = upscale_array(
-        array=array, target_shape=target_shape, fail_on_mismatch=False
+        array=array,
+        target_shape=target_shape,
+        pad_with_zeros=True,
     )
     assert upscaled_array.shape == target_shape
     debug(upscaled_array)

@@ -275,7 +275,7 @@ def napari_workflows_wrapper(
                     array=input_label_arrays[name],
                     target_shape=target_shape,
                     axis=[1, 2],
-                    fail_on_mismatch=False,
+                    pad_with_zeros=True,
                 )
             # Handle dimensions
             shape = input_label_arrays[name].shape
