@@ -5,6 +5,15 @@ Changelog
 
    Numbers like (#123) point to `closed Pull Requests on the fractal-tasks-core repository <https://github.com/fractal-analytics-platform/fractal-tasks-core/pulls?q=is%3Apr+is%3Aclosed>`_.
 
+
+0.6.1
+-----
+
+Other changes
+~~~~~~~~~~~~~
+* Simplified ``imagecodecs`` and ``PyQt5`` dependencies (#248).
+
+
 0.6.0
 -----
 
