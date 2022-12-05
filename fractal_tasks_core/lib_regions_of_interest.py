@@ -102,8 +102,6 @@ def prepare_well_ROI_table(
     min_micrometers = {}
     max_micrometers = {}
     for mu in ["x", "y", "z"]:
-        # Reset reference values for coordinates
-        df[f"{mu}_micrometer"] -= df[f"{mu}_micrometer"].min()
         # Obtain FOV box size in physical units
         df[f"len_{mu}_micrometer"] = df[f"{mu}_pixel"] * df[f"pixel_size_{mu}"]
         # Obtain well bounding box, in physical units
