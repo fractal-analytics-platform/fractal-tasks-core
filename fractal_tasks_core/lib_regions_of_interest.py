@@ -32,6 +32,9 @@ def prepare_FOV_ROI_table(
     :type dummy: int
     """
 
+    # Make a local copy of the dataframe, to avoid SettingWithCopyWarning
+    df = df.copy()
+
     # Convert DataFrame index to str, to avoid
     # >> ImplicitModificationWarning: Transforming to str index
     # when creating AnnData object.
@@ -91,6 +94,9 @@ def prepare_well_ROI_table(
     :param dummy: this is just a placeholder
     :type dummy: int
     """
+
+    # Make a local copy of the dataframe, to avoid SettingWithCopyWarning
+    df = df.copy()
 
     # Convert DataFrame index to str, to avoid
     # >> ImplicitModificationWarning: Transforming to str index
