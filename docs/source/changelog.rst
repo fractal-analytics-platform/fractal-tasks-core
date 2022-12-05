@@ -9,6 +9,11 @@ Changelog
 0.6.1
 -----
 
+New features
+~~~~~~~~~~~~
+* Add option for padding an array with zeros in ``upscale_array`` (#251).
+
+
 Other changes
 ~~~~~~~~~~~~~
 * Simplified ``imagecodecs`` and ``PyQt5`` dependencies (#248).
