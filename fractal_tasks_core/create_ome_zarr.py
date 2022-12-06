@@ -70,15 +70,15 @@ def create_ome_zarr(
     :param input_paths: TBD (common to all tasks)
     :param output_path: TBD (common to all tasks)
     :param metadata: TBD (common to all tasks)
-    :param allowed_channels: List of channel dictionaries (TBD)
     :param num_levels: Number of resolution-pyramid levels
-    :param coarsening_xy: A list of channel dictionaries, where each channel
-                          must include the ``wavelength_id`` key and where the
-                          corresponding values should be unique across
-                          channels.
+    :param coarsening_xy: Linear coarsening factor between subsequent levels
+    :param allowed_channels: A list of channel dictionaries, where each channel
+                             must include the ``wavelength_id`` key and where
+                             the corresponding values should be unique across
+                             channels.
     :param metadata_table: If equal to ``"mrf_mlf"``, parse Yokogawa metadata
                            from mrf/mlf files in the input_path folder; else,
-                           the full path to a csv file are in the containing
+                           the full path to a csv file containing
                            the parsed metadata table.
     """
 
