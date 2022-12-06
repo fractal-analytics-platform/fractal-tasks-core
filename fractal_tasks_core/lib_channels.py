@@ -32,10 +32,18 @@ class ChannelNotFoundError(ValueError):
 
 
 def validate_allowed_channel_input(allowed_channels: Sequence[Dict[str, Any]]):
-    wavelength_ids = [c["wavelength_id"] for c in allowed_channels]
+    try:
+        wavelength_ids = [c["wavelength_id"] for c in allowed_channels]
+    except KeyError as e:
+        raise KeyError(
+            "Missing wavelength_id key in some channel.\n"
+            f"{allowed_channels=}\n"
+            f"Original error: {str(e)}"
+        )
     if len(set(wavelength_ids)) < len(wavelength_ids):
         raise ValueError(
-            f"Non-unique labels in {wavelength_ids}\n" f"{allowed_channels=}"
+            f"Non-unique wavelength_id's in {wavelength_ids}\n"
+            f"{allowed_channels=}"
         )
 
 
