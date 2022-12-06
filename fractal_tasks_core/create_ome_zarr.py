@@ -33,6 +33,7 @@ from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
+from fractal_tasks_core.lib_remove_FOV_overlaps import remove_FOV_overlaps
 
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
@@ -69,26 +70,26 @@ def create_ome_zarr(
     :param input_paths: TBD (common to all tasks)
     :param output_path: TBD (common to all tasks)
     :param metadata: TBD (common to all tasks)
-    :param allowed_channels: TBD
-    :param num_levels: number of resolution-pyramid levels
-    :param coarsening_xy: linear coarsening factor between subsequent levels
-    :param metadata_table: TBD
+    :param num_levels: Number of resolution-pyramid levels
+    :param coarsening_xy: Linear coarsening factor between subsequent levels
+    :param allowed_channels: A list of channel dictionaries, where each channel
+                             must include the ``wavelength_id`` key and where
+                             the corresponding values should be unique across
+                             channels.
+    :param metadata_table: If equal to ``"mrf_mlf"``, parse Yokogawa metadata
+                           from mrf/mlf files in the input_path folder; else,
+                           the full path to a csv file containing
+                           the parsed metadata table.
     """
 
     # Preliminary checks on metadata_table
-    if metadata_table != "mrf_mlf" and not isinstance(
-        metadata_table, pd.core.frame.DataFrame
-    ):
-        raise Exception(
-            "ERROR: metadata_table must be a known string or a "
-            "pandas DataFrame}"
+    if metadata_table != "mrf_mlf" and not metadata_table.endswith(".csv"):
+        raise ValueError(
+            "metadata_table must be a known string or a "
+            "csv file containing a pandas dataframe"
         )
-    if metadata_table != "mrf_mlf":
-        raise NotImplementedError(
-            "We currently only support "
-            'metadata_table="mrf_mlf", '
-            f"and not {metadata_table}"
-        )
+    if metadata_table.endswith(".csv") and not os.path.isfile(metadata_table):
+        raise FileNotFoundError(f"Missing file: {metadata_table=}")
 
     # Identify all plates and all channels, across all input folders
     plates = []
@@ -198,27 +199,31 @@ def create_ome_zarr(
         zarrurls["plate"].append(zarrurl)
 
         # Obtain FOV-metadata dataframe
-        try:
-            # FIXME
-            # Find a smart way to include these metadata files in the dataset
-            # e.g., as resources
-            if metadata_table == "mrf_mlf":
-                mrf_path = f"{in_path}/MeasurementDetail.mrf"
-                mlf_path = f"{in_path}/MeasurementData.mlf"
-                site_metadata, total_files = parse_yokogawa_metadata(
-                    mrf_path, mlf_path
-                )
-                has_mrf_mlf_metadata = True
 
-                # Extract pixel sizes and bit_depth
-                pixel_size_z = site_metadata["pixel_size_z"][0]
-                pixel_size_y = site_metadata["pixel_size_y"][0]
-                pixel_size_x = site_metadata["pixel_size_x"][0]
-                bit_depth = site_metadata["bit_depth"][0]
-        except FileNotFoundError:
-            logger.info("Missing metadata files")
-            has_mrf_mlf_metadata = False
-            pixel_size_x = pixel_size_y = pixel_size_z = 1
+        if metadata_table == "mrf_mlf":
+            mrf_path = f"{in_path}/MeasurementDetail.mrf"
+            mlf_path = f"{in_path}/MeasurementData.mlf"
+            site_metadata, total_files = parse_yokogawa_metadata(
+                mrf_path, mlf_path
+            )
+            site_metadata = remove_FOV_overlaps(site_metadata)
+
+            # Extract pixel sizes and bit_depth
+            pixel_size_z = site_metadata["pixel_size_z"][0]
+            pixel_size_y = site_metadata["pixel_size_y"][0]
+            pixel_size_x = site_metadata["pixel_size_x"][0]
+            bit_depth = site_metadata["bit_depth"][0]
+
+        # If a metadata table was passed, load it and use it directly
+        elif metadata_table.endswith(".csv"):
+            site_metadata = pd.read_csv(metadata_table)
+            site_metadata.set_index(["well_id", "FieldIndex"], inplace=True)
+
+            # Extract pixel sizes and bit_depth
+            pixel_size_z = site_metadata["pixel_size_z"][0]
+            pixel_size_y = site_metadata["pixel_size_y"][0]
+            pixel_size_x = site_metadata["pixel_size_x"][0]
+            bit_depth = site_metadata["bit_depth"][0]
 
         if min(pixel_size_z, pixel_size_y, pixel_size_x) < 1e-9:
             raise Exception(pixel_size_z, pixel_size_y, pixel_size_x)
@@ -347,23 +352,19 @@ def create_ome_zarr(
                 ),
             }
 
-            # FIXME
-            if has_mrf_mlf_metadata:
-                group_tables = group_image.create_group(
-                    "tables/"
-                )  # noqa: F841
+            # Create tables zarr group for ROI tables
+            group_tables = group_image.create_group("tables/")  # noqa: F841
+            well_id = row + column
 
-                # Prepare FOV/well tables
-                FOV_ROIs_table = prepare_FOV_ROI_table(
-                    site_metadata.loc[f"{row+column}"],
-                )
-                # Prepare and write anndata table of well ROIs
-                well_ROIs_table = prepare_well_ROI_table(
-                    site_metadata.loc[f"{row+column}"],
-                )
-                # Write tables
-                write_elem(group_tables, "FOV_ROI_table", FOV_ROIs_table)
-                write_elem(group_tables, "well_ROI_table", well_ROIs_table)
+            # Prepare AnnData tables for FOV/well ROIs
+            FOV_ROIs_table = prepare_FOV_ROI_table(site_metadata.loc[well_id])
+            well_ROIs_table = prepare_well_ROI_table(
+                site_metadata.loc[well_id]
+            )
+
+            # Write AnnData tables in the tables zarr group
+            write_elem(group_tables, "FOV_ROI_table", FOV_ROIs_table)
+            write_elem(group_tables, "well_ROI_table", well_ROIs_table)
 
     # Check that the different images in each well have unique channel labels.
     # Since we currently merge all fields of view in the same image, this check
