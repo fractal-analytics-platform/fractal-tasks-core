@@ -71,7 +71,10 @@ def create_ome_zarr_multiplex(
     :param allowed_channels: TBD
     :param num_levels: number of resolution-pyramid levels
     :param coarsening_xy: linear coarsening factor between subsequent levels
-    :param metadata_table: TBD
+    :param metadata_table: "mrf_mlf" if a Yokogawa mrf & mlf file are in the 
+                            input_path folder. Alternatively, a dict with acquisitions
+                            as keys and full paths to a csv file containing the parsed 
+                            metadata as values
     """
     # TODO: add option to provide a dict of metadata_table strings => 1 per acquisition
 

@@ -75,7 +75,7 @@ def create_ome_zarr(
     :param coarsening_xy: linear coarsening factor between subsequent levels
     :param metadata_table: mrf_mlf if a Yokogawa mrf & mlf file are in the 
                             input_path folder. Alternatively, full path to 
-                            a csv file containing the parsed 
+                            a csv file containing the parsed metadata table
     """
 
     # Preliminary checks on metadata_table
