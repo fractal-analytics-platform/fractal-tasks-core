@@ -15,6 +15,7 @@ Bla bla bla bla
    :caption: Contents:
 
    intro
+   task_howto
    manifest
    changelog
    api_files/fractal_tasks_core
