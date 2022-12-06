@@ -76,10 +76,15 @@ def create_ome_zarr_multiplex(
     # TODO: add option to provide a dict of metadata_table strings => 1 per acquisition
 
     # Preliminary checks on metadata_table
-    if metadata_table != "mrf_mlf" and not metadata_table.endswith('.csv'):
+    if metadata_table != "mrf_mlf" and not isinstance(
+        metadata_table, Dict
+    ):
+        # FIXME: Extra checks on the dict: acquisitions as keys 
+        # (same as keys of allowed_channels) 
+        # .csv strings as values
         raise Exception(
             "ERROR: metadata_table must be a known string or a "
-            "csv file containing a pandas dataframe"
+            "dict of csv file containing a pandas dataframe"
         )
 
     # Preliminary checks on allowed_channels
@@ -224,9 +229,23 @@ def create_ome_zarr_multiplex(
                 pixel_size_x = site_metadata["pixel_size_x"][0]
                 bit_depth = site_metadata["bit_depth"][0]
         except FileNotFoundError:
+            # FIXME: Why are we letting this pass? If no metadata file is 
+            # present, the task should fail, because we don't know where to 
+            # place the FOVs
             logger.info("Missing metadata files")
             has_mrf_mlf_metadata = False
             pixel_size_x = pixel_size_y = pixel_size_z = 1
+
+        if isinstance(metadata_table, Dict):
+            site_metadata = pd.read_csv(metadata_table[acquisition])
+            site_metadata.set_index(['well_id', 'FieldIndex'], inplace=True)
+            # FIXME: Remove this boolean
+            has_mrf_mlf_metadata = True
+            # Extract pixel sizes and bit_depth
+            pixel_size_z = site_metadata["pixel_size_z"][0]
+            pixel_size_y = site_metadata["pixel_size_y"][0]
+            pixel_size_x = site_metadata["pixel_size_x"][0]
+            bit_depth = site_metadata["bit_depth"][0]
 
         if min(pixel_size_z, pixel_size_y, pixel_size_x) < 1e-9:
             raise Exception(pixel_size_z, pixel_size_y, pixel_size_x)
