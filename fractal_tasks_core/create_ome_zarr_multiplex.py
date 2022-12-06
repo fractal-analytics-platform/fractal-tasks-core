@@ -70,12 +70,13 @@ def create_ome_zarr_multiplex(
     :param metadata: standard fractal argument, not used in this task
     :param allowed_channels: TBD
     :param num_levels: number of resolution-pyramid levels
-    :param coarsening_xy: linear coarsening factor between subsequent levels
-    :param metadata_table: "mrf_mlf" if a Yokogawa mrf & mlf file are in the
-                            input_path folder. Alternatively, a dict with
-                            acquisitions as keys (as str) and full paths to
-                            a csv file containing the parsed metadata
-                            as values
+    :param coarsening_xy: Linear coarsening factor between subsequent levels
+    :param metadata_table: If equal to ``"mrf_mlf"``, parse Yokogawa metadata
+                           from mrf/mlf files in the ``input_paths`` folders;
+                           else, a dictionary of key-value pairs like
+                           ``(acquisition, path)`` with ``acquisition`` a
+                           string and ``path`` pointing to a csv file
+                           containing the parsed metadata table.
     """
 
     # Preliminary checks on metadata_table
