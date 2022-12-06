@@ -87,30 +87,26 @@ def create_ome_zarr_multiplex(
             f"The metadata_table provided was {metadata_table}"
         )
     elif isinstance(metadata_table, Dict):
-        # Checks on the dict: acquisitions as keys
-        # (same as keys of allowed_channels)
-        # .csv strings as values
-        acquisition_keys_equal = set(allowed_channels.keys()) == set(
-            metadata_table.keys()
-        )
+        # Check that acquisition keys are string
+        for key, value in metadata_table.items():
+            if not isinstance(key, str):
+                raise ValueError(f"{metadata_table=} has non-string keys")
 
-        try:
-            all_csvs = all(
-                [x.endswith(".csv") for x in metadata_table.values()]
-            )
-
-            if not (acquisition_keys_equal and all_csvs):
-                raise ValueError(
-                    "ERROR: When a dictionary of "
-                    "dict of csv file containing a pandas dataframe"
-                )
-
-        except AttributeError:
+        # Checks on the dict:
+        # 1. Acquisitions as keys (same as keys of allowed_channels)
+        # 2. Files end with ".csv"
+        # 3. Files exist.
+        if set(allowed_channels.keys()) != set(metadata_table.keys()):
             raise ValueError(
-                "ERROR: When a dictionary of metadata_tables is "
-                "provided, all values must be str. "
-                f"The metadata_table provided was {metadata_table}"
+                "Mismatch in acquisition keys between "
+                f"{allowed_channels.keys()=} and {metadata_table.keys()=}"
             )
+        if not all([x.endswith(".csv") for x in metadata_table.values()]):
+            raise ValueError(
+                f"Some files in {metadata_table=} do not end with csv."
+            )
+        if not all([os.path.isfile(x) for x in metadata_table.values()]):
+            raise ValueError(f"Some files in {metadata_table=} do not exist.")
 
     # Preliminary checks on allowed_channels
     # Note that in metadata the keys of dictionary arguments should be
