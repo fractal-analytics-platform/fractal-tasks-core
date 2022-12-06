@@ -242,7 +242,6 @@ def create_ome_zarr_multiplex(
                 mrf_path, mlf_path
             )
             site_metadata = remove_FOV_overlaps(site_metadata)
-            has_mrf_mlf_metadata = True
 
             # Extract pixel sizes and bit_depth
             pixel_size_z = site_metadata["pixel_size_z"][0]
@@ -253,8 +252,7 @@ def create_ome_zarr_multiplex(
         elif isinstance(metadata_table, Dict):
             site_metadata = pd.read_csv(metadata_table[acquisition])
             site_metadata.set_index(["well_id", "FieldIndex"], inplace=True)
-            # FIXME: Remove this boolean
-            has_mrf_mlf_metadata = True
+
             # Extract pixel sizes and bit_depth
             pixel_size_z = site_metadata["pixel_size_z"][0]
             pixel_size_y = site_metadata["pixel_size_y"][0]
@@ -418,22 +416,19 @@ def create_ome_zarr_multiplex(
                 ),
             }
 
-            if has_mrf_mlf_metadata:
-                group_tables = group_image.create_group(
-                    "tables/"
-                )  # noqa: F841
+            # Create tables zarr group for ROI tables
+            group_tables = group_image.create_group("tables/")  # noqa: F841
+            well_id = row + column
 
-                # Prepare image/well tables
-                FOV_ROIs_table = prepare_FOV_ROI_table(
-                    site_metadata.loc[f"{row+column}"],
-                )
-                # Prepare and write anndata table of well ROIs
-                well_ROIs_table = prepare_well_ROI_table(
-                    site_metadata.loc[f"{row+column}"],
-                )
-                # Write tables
-                write_elem(group_tables, "FOV_ROI_table", FOV_ROIs_table)
-                write_elem(group_tables, "well_ROI_table", well_ROIs_table)
+            # Prepare AnnData tables for FOV/well ROIs
+            FOV_ROIs_table = prepare_FOV_ROI_table(site_metadata.loc[well_id])
+            well_ROIs_table = prepare_well_ROI_table(
+                site_metadata.loc[well_id]
+            )
+
+            # Write AnnData tables in the tables zarr group
+            write_elem(group_tables, "FOV_ROI_table", FOV_ROIs_table)
+            write_elem(group_tables, "well_ROI_table", well_ROIs_table)
 
     # Check that the different images (e.g. different cycles) in the each well
     # have unique labels
