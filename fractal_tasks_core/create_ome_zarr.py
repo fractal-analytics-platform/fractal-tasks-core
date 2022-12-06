@@ -82,7 +82,7 @@ def create_ome_zarr(
     if metadata_table != "mrf_mlf" and not metadata_table.endswith('.csv'):
         raise Exception(
             "ERROR: metadata_table must be a known string or a "
-            "pandas DataFrame}"
+            "csv file containing a pandas dataframe"
         )
 
     # Identify all plates and all channels, across all input folders

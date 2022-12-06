@@ -33,6 +33,7 @@ from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
+from fractal_tasks_core.lib_remove_FOV_overlaps import remove_FOV_overlaps
 
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
@@ -67,25 +68,18 @@ def create_ome_zarr_multiplex(
     :param output_path: parent folder for the output path, e.g.
                         ``"/outputpath/*.zarr"``
     :param metadata: standard fractal argument, not used in this task
-    :param channel_parameters: TBD
+    :param allowed_channels: TBD
     :param num_levels: number of resolution-pyramid levels
     :param coarsening_xy: linear coarsening factor between subsequent levels
     :param metadata_table: TBD
     """
+    # TODO: add option to provide a dict of metadata_table strings => 1 per acquisition
 
     # Preliminary checks on metadata_table
-    if metadata_table != "mrf_mlf" and not isinstance(
-        metadata_table, pd.core.frame.DataFrame
-    ):
+    if metadata_table != "mrf_mlf" and not metadata_table.endswith('.csv'):
         raise Exception(
             "ERROR: metadata_table must be a known string or a "
-            "pandas DataFrame}"
-        )
-    if metadata_table != "mrf_mlf":
-        raise NotImplementedError(
-            "We currently only support "
-            'metadata_table="mrf_mlf", '
-            f"and not {metadata_table}"
+            "csv file containing a pandas dataframe"
         )
 
     # Preliminary checks on allowed_channels
@@ -221,6 +215,7 @@ def create_ome_zarr_multiplex(
                 site_metadata, total_files = parse_yokogawa_metadata(
                     mrf_path, mlf_path
                 )
+                site_metadata = remove_FOV_overlaps(site_metadata)
                 has_mrf_mlf_metadata = True
 
                 # Extract pixel sizes and bit_depth
