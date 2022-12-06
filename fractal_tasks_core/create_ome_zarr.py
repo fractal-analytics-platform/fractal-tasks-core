@@ -70,20 +70,26 @@ def create_ome_zarr(
     :param input_paths: TBD (common to all tasks)
     :param output_path: TBD (common to all tasks)
     :param metadata: TBD (common to all tasks)
-    :param allowed_channels: TBD
-    :param num_levels: number of resolution-pyramid levels
-    :param coarsening_xy: linear coarsening factor between subsequent levels
-    :param metadata_table: mrf_mlf if a Yokogawa mrf & mlf file are in the
-                            input_path folder. Alternatively, full path to
-                            a csv file containing the parsed metadata table
+    :param allowed_channels: List of channel dictionaries (TBD)
+    :param num_levels: Number of resolution-pyramid levels
+    :param coarsening_xy: A list of channel dictionaries, where each channel
+                          must include the ``wavelength_id`` key and where the
+                          corresponding values should be unique across
+                          channels.
+    :param metadata_table: If equal to ``"mrf_mlf"``, parse Yokogawa metadata
+                           from mrf/mlf files in the input_path folder; else,
+                           the full path to a csv file are in the containing
+                           the parsed metadata table.
     """
 
     # Preliminary checks on metadata_table
     if metadata_table != "mrf_mlf" and not metadata_table.endswith(".csv"):
         raise ValueError(
-            "ERROR: metadata_table must be a known string or a "
+            "metadata_table must be a known string or a "
             "csv file containing a pandas dataframe"
         )
+    if metadata_table.endswith(".csv") and not os.path.isfile(metadata_table):
+        raise FileNotFoundError(f"Missing file: {metadata_table=}")
 
     # Identify all plates and all channels, across all input folders
     plates = []
