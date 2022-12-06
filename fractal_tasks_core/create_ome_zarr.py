@@ -193,34 +193,24 @@ def create_ome_zarr(
         zarrurls["plate"].append(zarrurl)
 
         # Obtain FOV-metadata dataframe
-        try:
-            # FIXME
-            # Find a smart way to include these metadata files in the dataset
-            # e.g., as resources
-            if metadata_table == "mrf_mlf":
-                mrf_path = f"{in_path}/MeasurementDetail.mrf"
-                mlf_path = f"{in_path}/MeasurementData.mlf"
-                site_metadata, total_files = parse_yokogawa_metadata(
-                    mrf_path, mlf_path
-                )
-                site_metadata = remove_FOV_overlaps(site_metadata)
-                has_mrf_mlf_metadata = True
 
-                # Extract pixel sizes and bit_depth
-                pixel_size_z = site_metadata["pixel_size_z"][0]
-                pixel_size_y = site_metadata["pixel_size_y"][0]
-                pixel_size_x = site_metadata["pixel_size_x"][0]
-                bit_depth = site_metadata["bit_depth"][0]
-        except FileNotFoundError:
-            # FIXME: Why are we letting this pass? If no metadata file is 
-            # present, the task should fail, because we don't know where to 
-            # place the FOVs
-            logger.info("Missing metadata files")
-            has_mrf_mlf_metadata = False
-            pixel_size_x = pixel_size_y = pixel_size_z = 1
+        if metadata_table == "mrf_mlf":
+            mrf_path = f"{in_path}/MeasurementDetail.mrf"
+            mlf_path = f"{in_path}/MeasurementData.mlf"
+            site_metadata, total_files = parse_yokogawa_metadata(
+                mrf_path, mlf_path
+            )
+            site_metadata = remove_FOV_overlaps(site_metadata)
+            has_mrf_mlf_metadata = True
+
+            # Extract pixel sizes and bit_depth
+            pixel_size_z = site_metadata["pixel_size_z"][0]
+            pixel_size_y = site_metadata["pixel_size_y"][0]
+            pixel_size_x = site_metadata["pixel_size_x"][0]
+            bit_depth = site_metadata["bit_depth"][0]
         
         # If a metadata table was passed, load it and use it directly
-        if metadata_table.endswith('.csv'):
+        elif metadata_table.endswith('.csv'):
             site_metadata = pd.read_csv(metadata_table)
             site_metadata.set_index(['well_id', 'FieldIndex'], inplace=True)
             # FIXME: Remove this boolean

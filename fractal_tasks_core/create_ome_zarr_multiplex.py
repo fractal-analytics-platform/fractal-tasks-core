@@ -216,30 +216,23 @@ def create_ome_zarr_multiplex(
         logger.info(f"Looking at {image_folder=}")
 
         # Obtain FOV-metadata dataframe
-        try:
-            if metadata_table == "mrf_mlf":
-                mrf_path = f"{image_folder}/MeasurementDetail.mrf"
-                mlf_path = f"{image_folder}/MeasurementData.mlf"
-                site_metadata, total_files = parse_yokogawa_metadata(
-                    mrf_path, mlf_path
-                )
-                site_metadata = remove_FOV_overlaps(site_metadata)
-                has_mrf_mlf_metadata = True
 
-                # Extract pixel sizes and bit_depth
-                pixel_size_z = site_metadata["pixel_size_z"][0]
-                pixel_size_y = site_metadata["pixel_size_y"][0]
-                pixel_size_x = site_metadata["pixel_size_x"][0]
-                bit_depth = site_metadata["bit_depth"][0]
-        except FileNotFoundError:
-            # FIXME: Why are we letting this pass? If no metadata file is 
-            # present, the task should fail, because we don't know where to 
-            # place the FOVs
-            logger.info("Missing metadata files")
-            has_mrf_mlf_metadata = False
-            pixel_size_x = pixel_size_y = pixel_size_z = 1
+        if metadata_table == "mrf_mlf":
+            mrf_path = f"{image_folder}/MeasurementDetail.mrf"
+            mlf_path = f"{image_folder}/MeasurementData.mlf"
+            site_metadata, total_files = parse_yokogawa_metadata(
+                mrf_path, mlf_path
+            )
+            site_metadata = remove_FOV_overlaps(site_metadata)
+            has_mrf_mlf_metadata = True
 
-        if isinstance(metadata_table, Dict):
+            # Extract pixel sizes and bit_depth
+            pixel_size_z = site_metadata["pixel_size_z"][0]
+            pixel_size_y = site_metadata["pixel_size_y"][0]
+            pixel_size_x = site_metadata["pixel_size_x"][0]
+            bit_depth = site_metadata["bit_depth"][0]
+
+        elif isinstance(metadata_table, Dict):
             site_metadata = pd.read_csv(metadata_table[acquisition])
             site_metadata.set_index(['well_id', 'FieldIndex'], inplace=True)
             # FIXME: Remove this boolean
