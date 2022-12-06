@@ -71,24 +71,44 @@ def create_ome_zarr_multiplex(
     :param allowed_channels: TBD
     :param num_levels: number of resolution-pyramid levels
     :param coarsening_xy: linear coarsening factor between subsequent levels
-    :param metadata_table: "mrf_mlf" if a Yokogawa mrf & mlf file are in the 
-                            input_path folder. Alternatively, a dict with acquisitions
-                            as keys and full paths to a csv file containing the parsed 
-                            metadata as values
+    :param metadata_table: "mrf_mlf" if a Yokogawa mrf & mlf file are in the
+                            input_path folder. Alternatively, a dict with
+                            acquisitions as keys and full paths to a csv file
+                            containing the parsed metadata as values
     """
-    # TODO: add option to provide a dict of metadata_table strings => 1 per acquisition
 
     # Preliminary checks on metadata_table
-    if metadata_table != "mrf_mlf" and not isinstance(
-        metadata_table, Dict
-    ):
-        # FIXME: Extra checks on the dict: acquisitions as keys 
-        # (same as keys of allowed_channels) 
-        # .csv strings as values
-        raise Exception(
+    if metadata_table != "mrf_mlf" and not isinstance(metadata_table, Dict):
+        raise ValueError(
             "ERROR: metadata_table must be a known string or a "
-            "dict of csv file containing a pandas dataframe"
+            "dict of csv file containing a pandas dataframe."
+            f"The metadata_table provided was {metadata_table}"
         )
+    elif isinstance(metadata_table, Dict):
+        # Checks on the dict: acquisitions as keys
+        # (same as keys of allowed_channels)
+        # .csv strings as values
+        acquisition_keys_equal = set(allowed_channels.keys()) == set(
+            metadata_table.keys()
+        )
+
+        try:
+            all_csvs = all(
+                [x.endswith(".csv") for x in metadata_table.values()]
+            )
+
+            if not (acquisition_keys_equal and all_csvs):
+                raise ValueError(
+                    "ERROR: When a dictionary of "
+                    "dict of csv file containing a pandas dataframe"
+                )
+
+        except AttributeError:
+            raise ValueError(
+                "ERROR: When a dictionary of metadata_tables is "
+                "provided, all values must be str. "
+                f"The metadata_table provided was {metadata_table}"
+            )
 
     # Preliminary checks on allowed_channels
     # Note that in metadata the keys of dictionary arguments should be
@@ -234,7 +254,7 @@ def create_ome_zarr_multiplex(
 
         elif isinstance(metadata_table, Dict):
             site_metadata = pd.read_csv(metadata_table[acquisition])
-            site_metadata.set_index(['well_id', 'FieldIndex'], inplace=True)
+            site_metadata.set_index(["well_id", "FieldIndex"], inplace=True)
             # FIXME: Remove this boolean
             has_mrf_mlf_metadata = True
             # Extract pixel sizes and bit_depth
