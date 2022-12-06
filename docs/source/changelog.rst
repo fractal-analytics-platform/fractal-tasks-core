@@ -6,6 +6,15 @@ Changelog
    Numbers like (#123) point to `closed Pull Requests on the fractal-tasks-core repository <https://github.com/fractal-analytics-platform/fractal-tasks-core/pulls?q=is%3Apr+is%3Aclosed>`_.
 
 
+0.6.2
+-----
+
+New features
+~~~~~~~~~~~~
+
+* Support passing a pre-made metadata table to tasks creating the OME-Zarr structure (#252).
+
+
 0.6.1
 -----
 
