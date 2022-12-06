@@ -80,7 +80,7 @@ def create_ome_zarr(
 
     # Preliminary checks on metadata_table
     if metadata_table != "mrf_mlf" and not metadata_table.endswith('.csv'):
-        raise Exception(
+        raise ValueError(
             "ERROR: metadata_table must be a known string or a "
             "csv file containing a pandas dataframe"
         )
