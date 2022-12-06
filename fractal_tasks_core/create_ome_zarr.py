@@ -33,6 +33,7 @@ from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
+from fractal_tasks_core.lib_remove_FOV_overlaps import remove_FOV_overlaps
 
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
@@ -72,22 +73,16 @@ def create_ome_zarr(
     :param allowed_channels: TBD
     :param num_levels: number of resolution-pyramid levels
     :param coarsening_xy: linear coarsening factor between subsequent levels
-    :param metadata_table: TBD
+    :param metadata_table: mrf_mlf if a Yokogawa mrf & mlf file are in the 
+                            input_path folder. Alternatively, full path to 
+                            a csv file containing the parsed 
     """
 
     # Preliminary checks on metadata_table
-    if metadata_table != "mrf_mlf" and not isinstance(
-        metadata_table, pd.core.frame.DataFrame
-    ):
+    if metadata_table != "mrf_mlf" and not metadata_table.endswith('.csv'):
         raise Exception(
             "ERROR: metadata_table must be a known string or a "
             "pandas DataFrame}"
-        )
-    if metadata_table != "mrf_mlf":
-        raise NotImplementedError(
-            "We currently only support "
-            'metadata_table="mrf_mlf", '
-            f"and not {metadata_table}"
         )
 
     # Identify all plates and all channels, across all input folders
@@ -208,6 +203,7 @@ def create_ome_zarr(
                 site_metadata, total_files = parse_yokogawa_metadata(
                     mrf_path, mlf_path
                 )
+                site_metadata = remove_FOV_overlaps(site_metadata)
                 has_mrf_mlf_metadata = True
 
                 # Extract pixel sizes and bit_depth
@@ -216,9 +212,24 @@ def create_ome_zarr(
                 pixel_size_x = site_metadata["pixel_size_x"][0]
                 bit_depth = site_metadata["bit_depth"][0]
         except FileNotFoundError:
+            # FIXME: Why are we letting this pass? If no metadata file is 
+            # present, the task should fail, because we don't know where to 
+            # place the FOVs
             logger.info("Missing metadata files")
             has_mrf_mlf_metadata = False
             pixel_size_x = pixel_size_y = pixel_size_z = 1
+        
+        # If a metadata table was passed, load it and use it directly
+        if metadata_table.endswith('.csv'):
+            site_metadata = pd.read_csv(metadata_table)
+            site_metadata.set_index(['well_id', 'FieldIndex'], inplace=True)
+            # FIXME: Remove this boolean
+            has_mrf_mlf_metadata = True
+            # Extract pixel sizes and bit_depth
+            pixel_size_z = site_metadata["pixel_size_z"][0]
+            pixel_size_y = site_metadata["pixel_size_y"][0]
+            pixel_size_x = site_metadata["pixel_size_x"][0]
+            bit_depth = site_metadata["bit_depth"][0]
 
         if min(pixel_size_z, pixel_size_y, pixel_size_x) < 1e-9:
             raise Exception(pixel_size_z, pixel_size_y, pixel_size_x)
