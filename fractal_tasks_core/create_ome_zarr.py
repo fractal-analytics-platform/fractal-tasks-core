@@ -73,13 +73,13 @@ def create_ome_zarr(
     :param allowed_channels: TBD
     :param num_levels: number of resolution-pyramid levels
     :param coarsening_xy: linear coarsening factor between subsequent levels
-    :param metadata_table: mrf_mlf if a Yokogawa mrf & mlf file are in the 
-                            input_path folder. Alternatively, full path to 
+    :param metadata_table: mrf_mlf if a Yokogawa mrf & mlf file are in the
+                            input_path folder. Alternatively, full path to
                             a csv file containing the parsed metadata table
     """
 
     # Preliminary checks on metadata_table
-    if metadata_table != "mrf_mlf" and not metadata_table.endswith('.csv'):
+    if metadata_table != "mrf_mlf" and not metadata_table.endswith(".csv"):
         raise ValueError(
             "ERROR: metadata_table must be a known string or a "
             "csv file containing a pandas dataframe"
@@ -208,11 +208,11 @@ def create_ome_zarr(
             pixel_size_y = site_metadata["pixel_size_y"][0]
             pixel_size_x = site_metadata["pixel_size_x"][0]
             bit_depth = site_metadata["bit_depth"][0]
-        
+
         # If a metadata table was passed, load it and use it directly
-        elif metadata_table.endswith('.csv'):
+        elif metadata_table.endswith(".csv"):
             site_metadata = pd.read_csv(metadata_table)
-            site_metadata.set_index(['well_id', 'FieldIndex'], inplace=True)
+            site_metadata.set_index(["well_id", "FieldIndex"], inplace=True)
             # FIXME: Remove this boolean
             has_mrf_mlf_metadata = True
             # Extract pixel sizes and bit_depth
