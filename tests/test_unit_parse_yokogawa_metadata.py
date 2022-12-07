@@ -18,7 +18,7 @@ from pandas import Timestamp
 
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
 
-# General variables and paths (relative to mwe_fractal folder)
+# General variables and paths (relative to the test folder)
 testdir = os.path.dirname(__file__)
 
 path = f"{testdir}/data/metadata_files/"

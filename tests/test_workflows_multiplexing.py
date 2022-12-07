@@ -11,6 +11,7 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
+import os
 from pathlib import Path
 from typing import Sequence
 
@@ -59,6 +60,9 @@ allowed_channels = {
 
 num_levels = 6
 coarsening_xy = 2
+
+# General variables and paths (relative to test folder folder)
+testdir = os.path.dirname(__file__)
 
 
 def test_multiplexing_create_ome_zarr_fail(
@@ -201,6 +205,61 @@ def test_multiplexing_MIP(
     # OME-NGFF JSON validation
     image_zarr_0 = Path(zarr_path_mip.parent / metadata["image"][0])
     image_zarr_1 = Path(zarr_path_mip.parent / metadata["image"][1])
+    well_zarr = image_zarr_0.parent
+    plate_zarr = image_zarr_0.parents[2]
+    validate_schema(path=str(image_zarr_0), type="image")
+    validate_schema(path=str(image_zarr_1), type="image")
+    validate_schema(path=str(well_zarr), type="well")
+    validate_schema(path=str(plate_zarr), type="plate")
+
+    check_file_number(zarr_path=image_zarr_0)
+    check_file_number(zarr_path=image_zarr_1)
+
+
+def test_multiplexing_yokogawa_to_ome_zarr_from_table(
+    tmp_path: Path, zenodo_images_multiplex: Sequence[Path]
+):
+    # Init
+    img_paths = [
+        cycle_folder / "*.png" for cycle_folder in zenodo_images_multiplex
+    ]
+    zarr_path = tmp_path / "tmp_out/*.zarr"
+    metadata = {}
+
+    metadata_table_path = {
+        "0": f"{testdir}/data/metadata_files/"
+        "corrected_site_metadata_tiny_test.csv",
+        "1": f"{testdir}/data/metadata_files/"
+        "corrected_site_metadata_tiny_test.csv",
+    }
+
+    # Create zarr structure
+    debug(img_paths)
+    metadata_update = create_ome_zarr_multiplex(
+        input_paths=img_paths,
+        output_path=zarr_path,
+        metadata=metadata,
+        allowed_channels=allowed_channels,
+        num_levels=num_levels,
+        coarsening_xy=coarsening_xy,
+        metadata_table=metadata_table_path,
+    )
+    metadata.update(metadata_update)
+    debug(metadata)
+
+    # Yokogawa to zarr
+    for component in metadata["image"]:
+        yokogawa_to_ome_zarr(
+            input_paths=[zarr_path],
+            output_path=zarr_path,
+            metadata=metadata,
+            component=component,
+        )
+    debug(metadata)
+
+    # OME-NGFF JSON validation
+    image_zarr_0 = Path(zarr_path.parent / metadata["image"][0])
+    image_zarr_1 = Path(zarr_path.parent / metadata["image"][1])
     well_zarr = image_zarr_0.parent
     plate_zarr = image_zarr_0.parents[2]
     validate_schema(path=str(image_zarr_0), type="image")

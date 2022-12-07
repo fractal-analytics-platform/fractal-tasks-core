@@ -12,6 +12,7 @@ Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
 import logging
+import os
 import shutil
 from pathlib import Path
 from typing import Any
@@ -58,6 +59,9 @@ allowed_channels = [
 
 num_levels = 6
 coarsening_xy = 2
+
+# General variables and paths (relative to the test folder)
+testdir = os.path.dirname(__file__)
 
 
 @pytest.mark.xfail(reason="This would fail for a dataset with N>1 channels")
@@ -234,6 +238,52 @@ def test_illumination_correction(
         )
     print(caplog.text)
     caplog.clear()
+
+    # OME-NGFF JSON validation
+    image_zarr = Path(zarr_path.parent / metadata["image"][0])
+    well_zarr = image_zarr.parent
+    plate_zarr = image_zarr.parents[2]
+    validate_schema(path=str(image_zarr), type="image")
+    validate_schema(path=str(well_zarr), type="well")
+    validate_schema(path=str(plate_zarr), type="plate")
+
+    check_file_number(zarr_path=image_zarr)
+
+
+def test_yokogawa_to_ome_zarr_from_table(tmp_path: Path, zenodo_images: Path):
+
+    # Init
+    img_path = zenodo_images / "*.png"
+    zarr_path = tmp_path / "tmp_out/*.zarr"
+
+    metadata_table_path = (
+        f"{testdir}/data/metadata_files/"
+        "corrected_site_metadata_tiny_test.csv"
+    )
+
+    # Create zarr structure
+    metadata = {}
+    metadata_update = create_ome_zarr(
+        input_paths=[img_path],
+        output_path=zarr_path,
+        metadata=metadata,
+        allowed_channels=allowed_channels,
+        num_levels=num_levels,
+        coarsening_xy=coarsening_xy,
+        metadata_table=metadata_table_path,
+    )
+    metadata.update(metadata_update)
+    debug(metadata)
+
+    # Yokogawa to zarr
+    for component in metadata["image"]:
+        yokogawa_to_ome_zarr(
+            input_paths=[zarr_path],
+            output_path=zarr_path,
+            metadata=metadata,
+            component=component,
+        )
+    debug(metadata)
 
     # OME-NGFF JSON validation
     image_zarr = Path(zarr_path.parent / metadata["image"][0])
