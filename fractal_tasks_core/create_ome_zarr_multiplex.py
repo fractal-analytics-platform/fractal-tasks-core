@@ -235,7 +235,6 @@ def create_ome_zarr_multiplex(
         logger.info(f"Looking at {image_folder=}")
 
         # Obtain FOV-metadata dataframe
-
         if metadata_table == "mrf_mlf":
             mrf_path = f"{image_folder}/MeasurementDetail.mrf"
             mlf_path = f"{image_folder}/MeasurementData.mlf"
@@ -244,21 +243,15 @@ def create_ome_zarr_multiplex(
             )
             site_metadata = remove_FOV_overlaps(site_metadata)
 
-            # Extract pixel sizes and bit_depth
-            pixel_size_z = site_metadata["pixel_size_z"][0]
-            pixel_size_y = site_metadata["pixel_size_y"][0]
-            pixel_size_x = site_metadata["pixel_size_x"][0]
-            bit_depth = site_metadata["bit_depth"][0]
-
         elif isinstance(metadata_table, Dict):
             site_metadata = pd.read_csv(metadata_table[acquisition])
             site_metadata.set_index(["well_id", "FieldIndex"], inplace=True)
 
-            # Extract pixel sizes and bit_depth
-            pixel_size_z = site_metadata["pixel_size_z"][0]
-            pixel_size_y = site_metadata["pixel_size_y"][0]
-            pixel_size_x = site_metadata["pixel_size_x"][0]
-            bit_depth = site_metadata["bit_depth"][0]
+        # Extract pixel sizes and bit_depth
+        pixel_size_z = site_metadata["pixel_size_z"][0]
+        pixel_size_y = site_metadata["pixel_size_y"][0]
+        pixel_size_x = site_metadata["pixel_size_x"][0]
+        bit_depth = site_metadata["bit_depth"][0]
 
         if min(pixel_size_z, pixel_size_y, pixel_size_x) < 1e-9:
             raise Exception(pixel_size_z, pixel_size_y, pixel_size_x)
