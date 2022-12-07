@@ -20,6 +20,7 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Sequence
+from typing import Union
 
 import pandas as pd
 import zarr
@@ -51,7 +52,7 @@ def create_ome_zarr_multiplex(
     allowed_channels: Dict[str, Sequence[Dict[str, Any]]],
     num_levels: int = 2,
     coarsening_xy: int = 2,
-    metadata_table: str = "mrf_mlf",
+    metadata_table: Union[str, Dict[str, str]] = "mrf_mlf",
 ) -> Dict[str, Any]:
     """
     Create OME-NGFF structure and metadata to host a multiplexing dataset
@@ -464,7 +465,7 @@ if __name__ == "__main__":
         allowed_channels: Dict[str, Sequence[Dict[str, Any]]]
         num_levels: int = 2
         coarsening_xy: int = 2
-        metadata_table: str = "mrf_mlf"
+        metadata_table: Union[str, Dict[str, str]] = "mrf_mlf"
 
     run_fractal_task(
         task_function=create_ome_zarr_multiplex,
