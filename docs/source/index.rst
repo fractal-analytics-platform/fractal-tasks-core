@@ -5,7 +5,8 @@ Welcome to Fractal Tasks Core's documentation!
 
 .. note::
 
-   This project is under active development, see https://github.com/fractal-analytics-platform/fractal-tasks-core
+   This project is under active development, see https://github.com/fractal-analytics-platform/fractal-tasks-core. If you need help or if you found a bug, please `open an issue here <https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/new>`_.
+
 
 
 .. toctree::
