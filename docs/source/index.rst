@@ -5,7 +5,7 @@ Welcome to Fractal Tasks Core's documentation!
 
 .. note::
 
-   This project is under active development.
+   This project is under active development, see https://github.com/fractal-analytics-platform/fractal-tasks-core
 
 
 .. toctree::
@@ -13,9 +13,9 @@ Welcome to Fractal Tasks Core's documentation!
    :caption: Contents:
 
    Homepage <self>
-   install_howto
-   changelog
-   manifest
-   task_howto
+   How to install <install_howto>
+   Changelog <changelog>
+   Task manifest <manifest>
+   How to write a custom task <task_howto>
    api_files/fractal_tasks_core
    api_files/fractal_tasks_core.tools
