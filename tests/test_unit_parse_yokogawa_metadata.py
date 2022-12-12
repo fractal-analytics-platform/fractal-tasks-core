@@ -11,14 +11,17 @@ Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
 import os
+from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import pytest
 from pandas import Timestamp
 
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
+from fractal_tasks_core.tools.lib_metadata_checks import run_overlap_check
 
-# General variables and paths (relative to mwe_fractal folder)
+# General variables and paths (relative to the test folder)
 testdir = os.path.dirname(__file__)
 
 path = f"{testdir}/data/metadata_files/"
@@ -27,7 +30,7 @@ path = f"{testdir}/data/metadata_files/"
 mlf_path_1 = f"{path}MeasurementData_SingleWell2Sites_MultiZ.mlf"
 mrf_path_1 = f"{path}MeasurementDetail.mrf"
 expected_files_1 = 4
-expected_shape_1 = (2, 13)
+expected_shape_1 = (2, 11)
 x_mic_pos_1 = (-1448.3, -1032.3)
 y_mic_pos_1 = -1517.7
 pixel_size_z_1 = 1.0
@@ -46,7 +49,7 @@ time_1 = [
 mlf_path_2 = f"{path}MeasurementData_2x2_well.mlf"
 mrf_path_2 = f"{path}MeasurementDetail_2x2_well.mrf"
 expected_files_2 = 120
-expected_shape_2 = (4, 13)
+expected_shape_2 = (4, 11)
 x_mic_pos_2 = (-1448.3, -1032.3)
 y_mic_pos_2 = (-1517.7, -1166.7)
 pixel_size_z_2 = 1.0
@@ -62,7 +65,7 @@ time_2 = [
 mlf_path_3 = f"{path}MeasurementData_SingleWell2Sites_SingleZ.mlf"
 mrf_path_3 = f"{path}MeasurementDetail.mrf"
 expected_files_3 = 2
-expected_shape_3 = (2, 13)
+expected_shape_3 = (2, 11)
 x_mic_pos_3 = (-1448.3, -1032.3)
 y_mic_pos_3 = -1517.7
 pixel_size_z_3 = 1.0
@@ -159,3 +162,29 @@ def test_parse_yokogawa_metadata(
     assert np.allclose(site_metadata["y_pixel"], y_pixel)
     assert np.allclose(site_metadata["bit_depth"], bit_depth)
     assert list(site_metadata["Time"]) == Time
+
+
+def test_manually_removing_overlap():
+    # Tests the overlap detection and manually removing the overlaps
+    site_metadata, _ = parse_yokogawa_metadata(mrf_path_1, mlf_path_1)
+    site_metadata["x_micrometer_original"] = site_metadata["x_micrometer"]
+    site_metadata["y_micrometer_original"] = site_metadata["y_micrometer"]
+    overlapping_FOVs = run_overlap_check(site_metadata)
+
+    expected_overlaps = [{"B03": [2, 1]}]
+    assert overlapping_FOVs == expected_overlaps
+    site_metadata.loc[("B03", 2), "x_micrometer"] = -1032.2
+
+    # Check that overlap has been successfully removed
+    overlapping_FOVs_empty = run_overlap_check(site_metadata)
+    assert len(overlapping_FOVs_empty) == 0
+
+    # Load expected dataframe and set index + types correctly
+    expected_site_metadata = pd.read_csv(
+        Path(path) / "corrected_site_metadata_tiny_test.csv"
+    )
+    expected_site_metadata.set_index(["well_id", "FieldIndex"], inplace=True)
+    expected_site_metadata["Time"] = pd.to_datetime(
+        expected_site_metadata["Time"]
+    )
+    pd.testing.assert_frame_equal(site_metadata, expected_site_metadata)

@@ -1,5 +1,5 @@
-Tasks manifest
-==============
+Task manifest
+=============
 
 To be imported automatically within Fractal, tasks must be included in a standard manifest. Here is the one for ``fractal-task-core``'s tasks.
 
