@@ -11,7 +11,6 @@ Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
 import os
-import unittest
 from pathlib import Path
 
 import numpy as np
@@ -173,8 +172,7 @@ def test_manually_removing_overlap():
     overlapping_FOVs = run_overlap_check(site_metadata)
 
     expected_overlaps = [{"B03": [2, 1]}]
-    tc = unittest.TestCase()
-    tc.assertListEqual(overlapping_FOVs, expected_overlaps)
+    assert overlapping_FOVs == expected_overlaps
     site_metadata.loc[("B03", 2), "x_micrometer"] = -1032.2
 
     # Check that overlap has been successfully removed
