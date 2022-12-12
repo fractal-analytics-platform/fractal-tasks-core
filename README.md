@@ -19,9 +19,10 @@ Here is an example of the interactive visualization in napari using the newly-pr
 ![napari_plate_overview](https://user-images.githubusercontent.com/18033446/190983839-afb9743f-530c-4b00-bde7-23ad62404ee8.gif)
 
 
-## Installation instructions
+## Documentation
 
-TBD
+See https://fractal-tasks-core.readthedocs.io.
+
 
 ## Available tasks
 
