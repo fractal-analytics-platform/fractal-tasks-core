@@ -1445,7 +1445,7 @@ numpy = "*"
 
 [[package]]
 name = "napari-workflows"
-version = "0.2.3"
+version = "0.2.8"
 description = "Data structures for managing image processing workflows in napari"
 category = "main"
 optional = false
@@ -2969,7 +2969,7 @@ tools = ["matplotlib"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "1f1b8a5a60c7420e5712c7a08be9e0ec6fdab6406b5c6b06c4c61e16928ad32d"
+content-hash = "baf9a598ec1164f19dc2e0fcdba0004e3027b8eaedf5d805d26ff5137953229e"
 
 [metadata.files]
 alabaster = [
@@ -3972,8 +3972,8 @@ napari-tools-menu = [
     {file = "napari_tools_menu-0.1.17-py3-none-any.whl", hash = "sha256:60e85d3954405cda242bbd1d33a6a5241f04c99b41d89302e98677541755ad79"},
 ]
 napari-workflows = [
-    {file = "napari-workflows-0.2.3.tar.gz", hash = "sha256:613ff6e6cec9bf9bc29c802ba3491092a207407ea46b7d993f25e120802e9646"},
-    {file = "napari_workflows-0.2.3-py3-none-any.whl", hash = "sha256:040316053b135fceb1c15b435fdffc8aa48724093e2a6879523630077f34af30"},
+    {file = "napari-workflows-0.2.8.tar.gz", hash = "sha256:048558d60e8f82ec7a6ab759e8fb03388d42f44f8385581a4303f143b741c184"},
+    {file = "napari_workflows-0.2.8-py3-none-any.whl", hash = "sha256:2e8587c85d59d38b862bc52a57cf4fc07f36295d74c71ac2127bc6b472874e0c"},
 ]
 natsort = [
     {file = "natsort-8.2.0-py3-none-any.whl", hash = "sha256:04fe18fdd2b9e5957f19f687eb117f102ef8dde6b574764e536e91194bed4f5f"},
