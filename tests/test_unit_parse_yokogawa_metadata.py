@@ -18,8 +18,8 @@ import pandas as pd
 import pytest
 from pandas import Timestamp
 
-from fractal_tasks_core.lib_metadata_checks import run_overlap_check
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
+from fractal_tasks_core.tools.lib_metadata_checks import run_overlap_check
 
 # General variables and paths (relative to the test folder)
 testdir = os.path.dirname(__file__)
