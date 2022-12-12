@@ -12,7 +12,6 @@ Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
 import logging
-import os
 import shutil
 from pathlib import Path
 from typing import Any
@@ -59,9 +58,6 @@ allowed_channels = [
 
 num_levels = 6
 coarsening_xy = 2
-
-# General variables and paths (relative to the test folder)
-testdir = os.path.dirname(__file__)
 
 
 @pytest.mark.xfail(reason="This would fail for a dataset with N>1 channels")
@@ -250,14 +246,17 @@ def test_illumination_correction(
     check_file_number(zarr_path=image_zarr)
 
 
-def test_yokogawa_to_ome_zarr_from_table(tmp_path: Path, zenodo_images: Path):
+def test_yokogawa_to_ome_zarr_from_table(
+    tmp_path: Path, zenodo_images: Path, testdata_path: Path
+):
 
     # Init
     img_path = zenodo_images / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
 
+    testdata_str = testdata_path.as_posix()
     metadata_table_path = (
-        f"{testdir}/data/metadata_files/"
+        f"{testdata_str}/metadata_files/"
         "corrected_site_metadata_tiny_test.csv"
     )
 
