@@ -93,9 +93,30 @@ def test_multiplexing_create_ome_zarr_fail(
         )
 
 
+metadata_inputs = ["use_mrf_mlf_files", "use_existing_csv_files"]
+
+
+@pytest.mark.parametrize("metadata_input", metadata_inputs)
 def test_multiplexing_yokogawa_to_ome_zarr(
-    tmp_path: Path, zenodo_images_multiplex: Sequence[Path]
+    tmp_path: Path,
+    zenodo_images_multiplex: Sequence[Path],
+    metadata_input: str,
+    testdata_path: Path,
 ):
+
+    # Select the kind of metadata_table input
+    if metadata_input == "use_mrf_mlf_files":
+        metadata_table = "mrf_mlf"
+    if metadata_input == "use_existing_csv_files":
+        testdata_str = testdata_path.as_posix()
+        metadata_table = {
+            "0": f"{testdata_str}/metadata_files/"
+            "corrected_site_metadata_tiny_test.csv",
+            "1": f"{testdata_str}/metadata_files/"
+            "corrected_site_metadata_tiny_test.csv",
+        }
+
+    debug(metadata_table)
 
     # Init
     img_paths = [
@@ -113,7 +134,7 @@ def test_multiplexing_yokogawa_to_ome_zarr(
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        metadata_table="mrf_mlf",
+        metadata_table=metadata_table,
     )
     metadata.update(metadata_update)
     debug(metadata)
