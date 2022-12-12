@@ -11,7 +11,6 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
-import os
 from pathlib import Path
 from typing import Sequence
 
@@ -60,9 +59,6 @@ allowed_channels = {
 
 num_levels = 6
 coarsening_xy = 2
-
-# General variables and paths (relative to test folder folder)
-testdir = os.path.dirname(__file__)
 
 
 def test_multiplexing_create_ome_zarr_fail(
@@ -217,7 +213,9 @@ def test_multiplexing_MIP(
 
 
 def test_multiplexing_yokogawa_to_ome_zarr_from_table(
-    tmp_path: Path, zenodo_images_multiplex: Sequence[Path]
+    tmp_path: Path,
+    zenodo_images_multiplex: Sequence[Path],
+    testdata_path: Path,
 ):
     # Init
     img_paths = [
@@ -226,10 +224,11 @@ def test_multiplexing_yokogawa_to_ome_zarr_from_table(
     zarr_path = tmp_path / "tmp_out/*.zarr"
     metadata = {}
 
+    testdata_str = testdata_path.as_posix()
     metadata_table_path = {
-        "0": f"{testdir}/data/metadata_files/"
+        "0": f"{testdata_str}/metadata_files/"
         "corrected_site_metadata_tiny_test.csv",
-        "1": f"{testdir}/data/metadata_files/"
+        "1": f"{testdata_str}/metadata_files/"
         "corrected_site_metadata_tiny_test.csv",
     }
 
