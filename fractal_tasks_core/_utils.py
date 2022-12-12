@@ -1,5 +1,20 @@
+"""
+Copyright 2022 (C)
+    Friedrich Miescher Institute for Biomedical Research and
+    University of Zurich
+
+    Original authors:
+    Tommaso Comparin <tommaso.comparin@exact-lab.it>
+
+    This file is part of Fractal and was originally developed by eXact lab
+    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
+    Miescher Institute for Biomedical Research and Pelkmans Lab from the
+    University of Zurich.
+
+Standard input/output interface for tasks
+"""
 # Starting from Python 3.9 (see PEP 585) we can use type hints like
-# `type[BaseModel`. For versions 3.7 and 3.8, this is available through an
+# `type[BaseModel]`. For versions 3.7 and 3.8, this is available through an
 # additional import
 from __future__ import annotations
 
