@@ -86,7 +86,27 @@ def test_create_ome_zarr_fail(tmp_path: Path, zenodo_images: Path):
         )
 
 
-def test_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: Path):
+metadata_inputs = ["use_mrf_mlf_files", "use_existing_csv_files"]
+
+
+@pytest.mark.parametrize("metadata_input", metadata_inputs)
+def test_yokogawa_to_ome_zarr(
+    tmp_path: Path,
+    zenodo_images: Path,
+    testdata_path: Path,
+    metadata_input: str,
+):
+
+    # Select the kind of metadata_table input
+    if metadata_input == "use_mrf_mlf_files":
+        metadata_table = "mrf_mlf"
+    if metadata_input == "use_existing_csv_files":
+        testdata_str = testdata_path.as_posix()
+        metadata_table = (
+            f"{testdata_str}/metadata_files/"
+            + "corrected_site_metadata_tiny_test.csv"
+        )
+    debug(metadata_table)
 
     # Init
     img_path = zenodo_images / "*.png"
@@ -101,7 +121,7 @@ def test_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: Path):
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        metadata_table="mrf_mlf",
+        metadata_table=metadata_table,
     )
     metadata.update(metadata_update)
     debug(metadata)
@@ -234,55 +254,6 @@ def test_illumination_correction(
         )
     print(caplog.text)
     caplog.clear()
-
-    # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path.parent / metadata["image"][0])
-    well_zarr = image_zarr.parent
-    plate_zarr = image_zarr.parents[2]
-    validate_schema(path=str(image_zarr), type="image")
-    validate_schema(path=str(well_zarr), type="well")
-    validate_schema(path=str(plate_zarr), type="plate")
-
-    check_file_number(zarr_path=image_zarr)
-
-
-def test_yokogawa_to_ome_zarr_from_table(
-    tmp_path: Path, zenodo_images: Path, testdata_path: Path
-):
-
-    # Init
-    img_path = zenodo_images / "*.png"
-    zarr_path = tmp_path / "tmp_out/*.zarr"
-
-    testdata_str = testdata_path.as_posix()
-    metadata_table_path = (
-        f"{testdata_str}/metadata_files/"
-        "corrected_site_metadata_tiny_test.csv"
-    )
-
-    # Create zarr structure
-    metadata = {}
-    metadata_update = create_ome_zarr(
-        input_paths=[img_path],
-        output_path=zarr_path,
-        metadata=metadata,
-        allowed_channels=allowed_channels,
-        num_levels=num_levels,
-        coarsening_xy=coarsening_xy,
-        metadata_table=metadata_table_path,
-    )
-    metadata.update(metadata_update)
-    debug(metadata)
-
-    # Yokogawa to zarr
-    for component in metadata["image"]:
-        yokogawa_to_ome_zarr(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
-            metadata=metadata,
-            component=component,
-        )
-    debug(metadata)
 
     # OME-NGFF JSON validation
     image_zarr = Path(zarr_path.parent / metadata["image"][0])
