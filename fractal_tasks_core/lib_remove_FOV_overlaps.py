@@ -24,26 +24,36 @@ logger = logging.getLogger(__name__)
 
 def is_overlapping_1D(
     line1: Sequence[float], line2: Sequence[float], tol: float = 0
-):
+) -> bool:
     """
-    Based on https://stackoverflow.com/a/70023212/19085332
+    Given two intervals, finds whether they overlap
 
-    line: (xmin, xmax)
+    This is based on https://stackoverflow.com/a/70023212/19085332, and we
+    additionally use a finite tolerance for floating-point comparisons.
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    :param line1: The boundaries of the first interval , written as ``[x_min,
+                  x_max]``.
+    :param line2: The boundaries of the second interval , written as ``[x_min,
+                  x_max]``.
+    :param tol: Finite tolerance for comparisons.
     """
     return line1[0] <= line2[1] - tol and line2[0] <= line1[1] - tol
 
 
-def is_overlapping_2D(box1, box2, tol=0):
+def is_overlapping_2D(
+    box1: Sequence[float], box2: Sequence[float], tol: float = 0
+) -> bool:
     """
-    Based on https://stackoverflow.com/a/70023212/19085332
+    Given two rectangular boxes, finds whether they overlap
 
-    box: (xmin, ymin, xmax, ymax)
+    This is based on https://stackoverflow.com/a/70023212/19085332, and we
+    additionally use a finite tolerance for floating-point comparisons.
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    :param box1: The boundaries of the first rectangle, written as ``[x_min,
+                 y_min, x_max, y_max]``.
+    :param box2: The boundaries of the second rectangle, written as ``[x_min,
+                 y_min, x_max, y_max]``.
+    :param tol: Finite tolerance for comparisons.
     """
     overlap_x = is_overlapping_1D(
         [box1[0], box1[2]], [box2[0], box2[2]], tol=tol
