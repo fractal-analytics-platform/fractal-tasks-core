@@ -4,14 +4,22 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+
+      - name: Install and configure Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.2.1
+          virtualenvs-create: true
+          virtualenvs-in-project: false
+          installer-parallel: true
+
       - name: Install dependencies
-        run: |
-          pip install sphinx sphinx_rtd_theme
+        run: poetry install --with dev --all-extras --no-interaction
       - name: Sphinx build
         run: |
-          sphinx-build docs/source _build
+          poetry run sphinx-build docs/source _build
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
