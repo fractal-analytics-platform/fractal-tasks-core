@@ -6,6 +6,14 @@ Changelog
    Numbers like (#123) point to `closed Pull Requests on the fractal-tasks-core repository <https://github.com/fractal-analytics-platform/fractal-tasks-core/pulls?q=is%3Apr+is%3Aclosed>`_.
 
 
+0.6.5
+-----
+
+New features
+~~~~~~~~~~~~
+* Remove FOV overlaps with more flexibility (#265).
+
+
 0.6.4
 -----
 
