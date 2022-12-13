@@ -19,6 +19,7 @@ import pytest
 from pandas import Timestamp
 
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
+from fractal_tasks_core.lib_remove_FOV_overlaps import remove_FOV_overlaps
 from fractal_tasks_core.tools.lib_metadata_checks import run_overlap_check
 
 # General variables and paths (relative to the test folder)
@@ -188,3 +189,12 @@ def test_manually_removing_overlap():
         expected_site_metadata["Time"]
     )
     pd.testing.assert_frame_equal(site_metadata, expected_site_metadata)
+
+
+def test_remove_overlap_when_sharing_corner(testdata_path: Path):
+    csvfile = str(testdata_path / "metadata_files/metadata_issue_264.csv")
+    site_metadata = pd.read_csv(csvfile)
+    site_metadata.set_index(["well_id", "FieldIndex"], inplace=True)
+    site_metadata = remove_FOV_overlaps(site_metadata)
+
+    print(site_metadata)
