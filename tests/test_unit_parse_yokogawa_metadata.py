@@ -196,5 +196,5 @@ def test_remove_overlap_when_sharing_corner(testdata_path: Path):
     site_metadata = pd.read_csv(csvfile)
     site_metadata.set_index(["well_id", "FieldIndex"], inplace=True)
     site_metadata = remove_FOV_overlaps(site_metadata)
-
+    assert not site_metadata.isnull().values.any()
     print(site_metadata)
