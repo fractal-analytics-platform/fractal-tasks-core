@@ -5,5 +5,5 @@ logging.basicConfig(
 )
 
 
-__VERSION__ = "0.6.4"
+__VERSION__ = "0.6.5"
 __OME_NGFF_VERSION__ = "0.4"
