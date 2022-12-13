@@ -16,7 +16,7 @@ documentation = "https://fractal-tasks-core.readthedocs.io"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-dask = ">=2022.6,<2022.8"
+dask = ">=2022.6"
 scikit-image = "^0.19.3"
 cellpose = "^2"
 pandas = "^1.2.0"
