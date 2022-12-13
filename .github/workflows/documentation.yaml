@@ -19,7 +19,7 @@ jobs:
           cache: 'poetry'
 
       - name: Install dependencies
-        run: poetry install --with dev --no-interaction
+        run: poetry install --with doc --without dev --no-interaction
 
       - name: Sphinx build
         run: |
