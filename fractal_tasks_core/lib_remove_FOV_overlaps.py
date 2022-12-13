@@ -14,8 +14,8 @@ Copyright 2022 (C)
 Functions to identify and remove overlaps between regions of interest
 """
 import logging
-from typing import List
 from typing import Sequence
+from typing import Tuple
 
 import pandas as pd
 
@@ -31,11 +31,11 @@ def is_overlapping_1D(
     This is based on https://stackoverflow.com/a/70023212/19085332, and we
     additionally use a finite tolerance for floating-point comparisons.
 
-    :param line1: The boundaries of the first interval , written as ``[x_min,
-                  x_max]``.
-    :param line2: The boundaries of the second interval , written as ``[x_min,
-                  x_max]``.
-    :param tol: Finite tolerance for comparisons.
+    :param line1: The boundaries of the first interval , written as
+                  ``[x_min, x_max]``.
+    :param line2: The boundaries of the second interval , written as
+                  ``[x_min, x_max]``.
+    :param tol: Finite tolerance for floating-point comparisons.
     """
     return line1[0] <= line2[1] - tol and line2[0] <= line1[1] - tol
 
@@ -49,11 +49,11 @@ def is_overlapping_2D(
     This is based on https://stackoverflow.com/a/70023212/19085332, and we
     additionally use a finite tolerance for floating-point comparisons.
 
-    :param box1: The boundaries of the first rectangle, written as ``[x_min,
-                 y_min, x_max, y_max]``.
-    :param box2: The boundaries of the second rectangle, written as ``[x_min,
-                 y_min, x_max, y_max]``.
-    :param tol: Finite tolerance for comparisons.
+    :param box1: The boundaries of the first rectangle, written as
+                 ``[x_min, y_min, x_max, y_max]``.
+    :param box2: The boundaries of the second rectangle, written as
+                 ``[x_min, y_min, x_max, y_max]``.
+    :param tol: Finite tolerance for floating-point comparisons.
     """
     overlap_x = is_overlapping_1D(
         [box1[0], box1[2]], [box2[0], box2[2]], tol=tol
@@ -66,13 +66,18 @@ def is_overlapping_2D(
 
 def is_overlapping_3D(box1, box2, tol=0):
     """
-    Based on https://stackoverflow.com/a/70023212/19085332
+    Given two three-dimensional boxes, finds whether they overlap
 
-    box: (xmin, ymin, zmin, xmax, ymax, zmax)
+    This is based on https://stackoverflow.com/a/70023212/19085332, and we
+    additionally use a finite tolerance for floating-point comparisons.
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    :param box1: The boundaries of the first box, written as
+                 ``[x_min, y_min, z_min, x_max, y_max, z_max]``.
+    :param box2: The boundaries of the second box, written as
+                 ``[x_min, y_min, z_min, x_max, y_max, z_max]``.
+    :param tol: Finite tolerance for floating-point comparisons.
     """
+
     overlap_x = is_overlapping_1D(
         [box1[0], box1[3]], [box2[0], box2[3]], tol=tol
     )
@@ -85,15 +90,16 @@ def is_overlapping_3D(box1, box2, tol=0):
     return overlap_x and overlap_y and overlap_z
 
 
-def get_overlapping_pair(tmp_df: pd.DataFrame, tol: float = 0):
+def get_overlapping_pair(tmp_df: pd.DataFrame, tol: float = 0) -> Tuple[int]:
     """
-    FIXME
+    Finds the indices for the next overlapping FOVs pair
 
-    :param tmp_df: TBD
-    :type tol: int
+    Note: the returned indices are positional indices, starting from 0
+
+    :param tmp_df: Dataframe with columns `["xmin", "ymin", "xmax", "ymax"]`.
+    :param tol: Finite tolerance for floating-point comparisons.
     """
 
-    # NOTE: here we use positional indices (i.e. starting from 0)
     num_lines = len(tmp_df.index)
     for pos_ind_1 in range(num_lines):
         for pos_ind_2 in range(pos_ind_1):
@@ -106,14 +112,15 @@ def get_overlapping_pair(tmp_df: pd.DataFrame, tol: float = 0):
 
 def get_overlapping_pairs_3D(tmp_df: pd.DataFrame, pixel_sizes):
     """
-    Description
+    Finds the indices for the next overlapping FOVs pair, in three dimensions
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    Note: the returned indices are positional indices, starting from 0
+
+    :param tmp_df: Dataframe with columns ``{x,y,z}_micrometer`` and
+                   ``len_{x,y,z}_micrometer``.
+    :param tol: Finite tolerance for floating-point comparisons.
     """
-
-    # NOTE: here we use positional indices (i.e. starting from 0)
-    tol = 10e-10
+    tol = 1e-10
     if tol > min(pixel_sizes) / 1e3:
         raise Exception(f"{tol=} but {pixel_sizes=}")
     new_tmp_df = tmp_df.copy()
@@ -127,7 +134,6 @@ def get_overlapping_pairs_3D(tmp_df: pd.DataFrame, pixel_sizes):
     new_tmp_df["z_micrometer_max"] = (
         new_tmp_df["z_micrometer"] + new_tmp_df["len_z_micrometer"]
     )
-
     new_tmp_df.drop(labels=["len_x_micrometer"], axis=1, inplace=True)
     new_tmp_df.drop(labels=["len_y_micrometer"], axis=1, inplace=True)
     new_tmp_df.drop(labels=["len_z_micrometer"], axis=1, inplace=True)
@@ -150,8 +156,8 @@ def get_overlapping_pairs_3D(tmp_df: pd.DataFrame, pixel_sizes):
 
 def apply_shift_in_one_direction(
     tmp_df_well: pd.DataFrame,
-    line_1: List[float],
-    line_2: List[float],
+    line_1: Sequence[float],
+    line_2: Sequence[float],
     mu: str,
     tol: float = 0,
 ):
@@ -175,10 +181,9 @@ def apply_shift_in_one_direction(
 
 def remove_FOV_overlaps(df: pd.DataFrame):
     """
-    Description FIXME
+    Given a metadata dataframe, shift its columns to remove FOV overlaps
 
-    :param df: this is just a placeholder
-    :type dummy: int
+    :param df: Metadata dataframe
     """
 
     # Set tolerance (this should be much smaller than pixel size or expected
