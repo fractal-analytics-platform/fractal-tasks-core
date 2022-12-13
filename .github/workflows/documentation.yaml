@@ -4,7 +4,9 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
+
       - uses: actions/setup-python@v3
 
       - name: Install and configure Poetry
@@ -15,11 +17,21 @@ jobs:
           virtualenvs-in-project: false
           installer-parallel: true
 
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+
+
       - name: Install dependencies
         run: poetry install --with dev --all-extras --no-interaction
+
       - name: Sphinx build
         run: |
           poetry run sphinx-build docs/source _build
+
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
