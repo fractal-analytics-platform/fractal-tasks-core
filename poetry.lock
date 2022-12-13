@@ -2969,7 +2969,7 @@ tools = ["matplotlib"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "baf9a598ec1164f19dc2e0fcdba0004e3027b8eaedf5d805d26ff5137953229e"
+content-hash = "e95013c8ba4bd574a924c086c6533ac092acd1e69f542d86f3dd79db8cc3b2d7"
 
 [metadata.files]
 alabaster = [
