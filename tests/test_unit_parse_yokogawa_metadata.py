@@ -170,14 +170,14 @@ def test_manually_removing_overlap():
     site_metadata, _ = parse_yokogawa_metadata(mrf_path_1, mlf_path_1)
     site_metadata["x_micrometer_original"] = site_metadata["x_micrometer"]
     site_metadata["y_micrometer_original"] = site_metadata["y_micrometer"]
-    overlapping_FOVs = run_overlap_check(site_metadata)
+    overlapping_FOVs = run_overlap_check(site_metadata, tol=1e-10)
 
     expected_overlaps = [{"B03": [2, 1]}]
     assert overlapping_FOVs == expected_overlaps
     site_metadata.loc[("B03", 2), "x_micrometer"] = -1032.2
 
     # Check that overlap has been successfully removed
-    overlapping_FOVs_empty = run_overlap_check(site_metadata)
+    overlapping_FOVs_empty = run_overlap_check(site_metadata, tol=1e-10)
     assert len(overlapping_FOVs_empty) == 0
 
     # Load expected dataframe and set index + types correctly
@@ -195,6 +195,9 @@ def test_remove_overlap_when_sharing_corner(testdata_path: Path):
     csvfile = str(testdata_path / "metadata_files/metadata_issue_264.csv")
     site_metadata = pd.read_csv(csvfile)
     site_metadata.set_index(["well_id", "FieldIndex"], inplace=True)
+    print(site_metadata.loc["A01"])
     site_metadata = remove_FOV_overlaps(site_metadata)
+    print(site_metadata.loc["A01"])
     assert not site_metadata.isnull().values.any()
-    print(site_metadata)
+    overlapping_FOVs = run_overlap_check(site_metadata, tol=1e-10)
+    assert not overlapping_FOVs
