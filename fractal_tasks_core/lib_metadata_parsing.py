@@ -170,9 +170,7 @@ def read_mlf_file(mlf_path: str) -> Tuple[pd.DataFrame, int]:
     :param mlf_path: Full path to MeasurementData.mlf metadata file
     """
 
-    print(f"NOW READING {mlf_path=}")
     mlf_frame_raw = pd.read_xml(mlf_path)
-    print("NOW DONE")
 
     # Create a well ID column
     row_str = [chr(x) for x in (mlf_frame_raw["Row"] + 64)]
