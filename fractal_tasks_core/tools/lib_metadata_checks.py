@@ -11,9 +11,10 @@ Copyright 2022 (C)
     Miescher Institute for Biomedical Research and Pelkmans Lab from the
     University of Zurich.
 
-Functions to create a metadata dataframe from Yokogawa files
+Helper functions to inspect a metadata dataframe from Yokogawa files
 """
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from fractal_tasks_core.lib_remove_FOV_overlaps import is_overlapping_2D
 
@@ -28,7 +29,10 @@ def _plot_rectangle(min_x, min_y, max_x, max_y, overlapping):
 
 
 def check_well_for_FOV_overlap(
-    site_metadata, selected_well, always_plot=False
+    site_metadata: pd.DataFrame,
+    selected_well: str,
+    always_plot: bool = False,
+    tol: float = 0,
 ):
     df = site_metadata.loc[selected_well].copy()
     df["xmin"] = df["x_micrometer"]
@@ -52,6 +56,7 @@ def check_well_for_FOV_overlap(
             overlap = is_overlapping_2D(
                 (min_x_1, min_y_1, max_x_1, max_y_1),
                 (min_x_2, min_y_2, max_x_2, max_y_2),
+                tol=tol,
             )
             if overlap:
                 list_overlapping_FOVs.append(line_1)
@@ -84,7 +89,7 @@ def check_well_for_FOV_overlap(
         return {selected_well: [x + 1 for x in list_overlapping_FOVs]}
 
 
-def run_overlap_check(site_metadata):
+def run_overlap_check(site_metadata: pd.DataFrame, tol: float = 0):
     """
     Runs an overlap check over all wells, plots overlaps & returns
     """
@@ -93,9 +98,10 @@ def run_overlap_check(site_metadata):
     overlapping_FOVs = []
     for selected_well in wells:
         overlap_curr_well = check_well_for_FOV_overlap(
-            site_metadata, selected_well=selected_well
+            site_metadata, selected_well=selected_well, tol=tol
         )
         if overlap_curr_well:
+            print(selected_well)
             overlapping_FOVs.append(overlap_curr_well)
 
     return overlapping_FOVs

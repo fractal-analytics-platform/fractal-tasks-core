@@ -14,6 +14,9 @@ Copyright 2022 (C)
 Functions to create a metadata dataframe from Yokogawa files
 """
 import logging
+from pathlib import Path
+from typing import Tuple
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -22,16 +25,21 @@ from defusedxml import ElementTree
 logger = logging.getLogger(__name__)
 
 
-def parse_yokogawa_metadata(mrf_path, mlf_path):
+def parse_yokogawa_metadata(
+    mrf_path: Union[str, Path], mlf_path: Union[str, Path]
+):
     """
     Parse Yokogawa CV7000 metadata files and prepare site-level metadata
 
     :param mrf_path: Full path to MeasurementDetail.mrf metadata file
-    :type mrf_path: Union(str, pathlib.Path)
     :param mlf_path: Full path to MeasurementData.mlf metadata file
-    :type mlf_path: Union(str, pathlib.Path)
     """
-    mrf_frame, mlf_frame, error_count = read_metadata_files(mrf_path, mlf_path)
+
+    # Convert paths to strings
+    mrf_str = Path(mrf_path).as_posix()
+    mlf_str = Path(mlf_path).as_posix()
+
+    mrf_frame, mlf_frame, error_count = read_metadata_files(mrf_str, mlf_str)
 
     # Aggregate information from the mlf file
     per_site_parameters = ["X", "Y"]
@@ -86,12 +94,14 @@ def parse_yokogawa_metadata(mrf_path, mlf_path):
     return site_metadata, total_files
 
 
-def read_metadata_files(mrf_path, mlf_path):
+def read_metadata_files(
+    mrf_path: str, mlf_path: str
+) -> Tuple[pd.DataFrame, pd.DataFrame, int]:
     """
-    Description
+    TBD
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    :param mrf_path: Full path to MeasurementDetail.mrf metadata file
+    :param mlf_path: Full path to MeasurementData.mlf metadata file
     """
 
     # parsing of mrf & mlf files are based on the
@@ -111,12 +121,11 @@ def read_metadata_files(mrf_path, mlf_path):
     return mrf_frame, mlf_frame, error_count
 
 
-def read_mrf_file(mrf_path):
+def read_mrf_file(mrf_path: str):
     """
-    Description
+    TBD
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    :param mrf_path: Full path to MeasurementDetail.mrf metadata file
     """
 
     # Prepare mrf dataframe
@@ -154,12 +163,11 @@ def read_mrf_file(mrf_path):
     return mrf_frame
 
 
-def read_mlf_file(mlf_path):
+def read_mlf_file(mlf_path: str) -> Tuple[pd.DataFrame, int]:
     """
-    Description
+    TBD
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    :param mlf_path: Full path to MeasurementData.mlf metadata file
     """
 
     mlf_frame_raw = pd.read_xml(mlf_path)
@@ -184,10 +192,9 @@ def read_mlf_file(mlf_path):
 
 def calculate_steps(site_series: pd.Series):
     """
-    Description
+    TBD
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    :param site_series: TBD
     """
 
     # site_series is the z_micrometer series for a given site of a given
@@ -206,10 +213,9 @@ def calculate_steps(site_series: pd.Series):
 
 def get_z_steps(mlf_frame):
     """
-    Description
+    TBD
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    :param mlf_frame: TBD
     """
 
     # Process mlf_frame to extract Z information (pixel size & steps).
@@ -264,10 +270,9 @@ def get_z_steps(mlf_frame):
 
 def get_earliest_time_per_site(mlf_frame) -> pd.DataFrame:
     """
-    Description
+    TBD
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    :param mlf_frame: TBD
     """
 
     # Get the time information per site
@@ -279,12 +284,12 @@ def get_earliest_time_per_site(mlf_frame) -> pd.DataFrame:
     )
 
 
-def check_group_consistency(grouped_df, message=""):
+def check_group_consistency(grouped_df, message: str = ""):
     """
-    Description
+    TBD
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    :param grouped_df: TBD
+    :param message: TBD
     """
 
     # Check consistency in grouped df for multi-index, multi-column dataframes
