@@ -22,7 +22,7 @@ jobs:
 
 
       - name: Install dependencies
-        run: poetry install --with dev --all-extras --no-interaction
+        run: poetry install --with dev --no-interaction
 
       - name: Sphinx build
         run: |
