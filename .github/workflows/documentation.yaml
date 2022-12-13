@@ -1,10 +1,15 @@
 name: docs
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
 
 jobs:
 
   docs:
+    name: "Documentation"
     runs-on: ubuntu-latest
     steps:
 
