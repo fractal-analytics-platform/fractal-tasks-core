@@ -10,3 +10,5 @@ It can also be installed with the ``tools`` extra, as in::
     pip install fractal-tasks-core[tools]
 
 to have access to additional tools (see ``fractal_tasks_core.tools package`` in the menu on the left).
+
+**Note**: this package is tested with python version 3.8 and 3.9.
