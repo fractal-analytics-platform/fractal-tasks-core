@@ -21,7 +21,7 @@ Here is an example of the interactive visualization in napari using the newly-pr
 
 ## Documentation
 
-See https://fractal-tasks-core.readthedocs.io.
+See https://fractal-analytics-platform.github.io/fractal-tasks-core
 
 
 ## Available tasks
