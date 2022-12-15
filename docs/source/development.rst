@@ -9,7 +9,7 @@ Development
 Setting up environment
 ~~~~~~~~~~~~~~~~~~~~~~
 
-We use `poetry <https://python-poetry.org/docs>`_ v1.3 to manage the development environment and the dependencies.
+We use `poetry <https://python-poetry.org/docs>`_ v1.3 to manage the development environment and the dependencies. A simple way to install it is ``pipx install poetry==1.3``, or you can look at the installation section `here <https://python-poetry.org/docs#installation>`_.
 Running::
 
     poetry install [--with dev] [--with docs]
