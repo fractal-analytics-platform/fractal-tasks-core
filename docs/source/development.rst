@@ -1,10 +1,6 @@
 Development
 ===========
 
-.. note::
-
-   This page is still in progress.
-
 
 Setting up environment
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -24,8 +20,6 @@ We use `pytest <https://docs.pytest.org>`_ for unit and integration testing of F
     poetry run pytest
 
 The tests files are in the ``tests`` folder of the repository, and they are also run on GitHub (with both python 3.8 and 3.9 versions).
-
-
 
 How to release
 ~~~~~~~~~~~~~~
