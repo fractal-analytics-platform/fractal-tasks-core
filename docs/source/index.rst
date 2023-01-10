@@ -32,7 +32,7 @@ Currently, the following tasks are available:
 * Maximum Intensity Projection: Creates a maximum intensity projection of the whole plate.
 * Measurement: Make some standard measurements (intensity & morphology) using napari workflows, saving results to AnnData tables.
 
-Some additional tasks are currently being worked on and some older tasks are still present in the ``fractal_tasks_core`` folder. See `the GitHub repository <https://fractal-analytics-platform.github.io/fractal-tasks-core>`_ for the detailed description of all tasks.
+Some additional tasks are currently being worked on and some older tasks are still present in the ``fractal_tasks_core`` folder. See `the package page <https://fractal-analytics-platform.github.io/fractal-tasks-core/api_files/fractal_tasks_core.html>`_ for the detailed description of all tasks.
 
 Contributors
 ~~~~~~~~~~~~
