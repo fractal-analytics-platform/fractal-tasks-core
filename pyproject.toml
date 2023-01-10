@@ -63,6 +63,7 @@ sphinx-rtd-theme = "^1.1.1"
 sphinx-autodoc-typehints = "^1.19.5"
 autodocsumm = "^0.2.9"
 sphinx-autodoc-defaultargs = "^0.1.2"
+myst-parser = "^0.18.1"
 
 
 [build-system]
@@ -84,9 +85,6 @@ push = true
 ]
 "docs/source/conf.py" = [
     'version = "{version}"',
-]
-"docs/requirements.txt" = [
-    'fractal-tasks-core=={version}',
 ]
 "fractal_tasks_core/__init__.py" = [
     '__VERSION__ = "{version}"'

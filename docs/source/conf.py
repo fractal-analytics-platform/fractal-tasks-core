@@ -21,6 +21,7 @@ extensions = [
     "sphinx_autodoc_typehints",
     "autodocsumm",
     "sphinx_autodoc_defaultargs",
+    "myst_parser",
 ]
 
 autodoc_default_options = {"autosummary": True}
