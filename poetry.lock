@@ -755,14 +755,14 @@ files = [
 
 [[package]]
 name = "dask"
-version = "2022.12.0"
+version = "2023.1.0"
 description = "Parallel PyData with Task Scheduling"
 category = "main"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "dask-2022.12.0-py3-none-any.whl", hash = "sha256:3995d2b856920f90bc9bba7329cbe839fe0d45b4e674da22320f37a2d0e3e4f8"},
-    {file = "dask-2022.12.0.tar.gz", hash = "sha256:159acc4a65f2ea042b453f12dee66fd515a159f4b3b9ca0d08c18cae485a2be0"},
+    {file = "dask-2023.1.0-py3-none-any.whl", hash = "sha256:ea313767b3d11e0610fbe7c57f7a01b1f8990bb6c699456ba910d9b31da2c9c0"},
+    {file = "dask-2023.1.0.tar.gz", hash = "sha256:397b07a0de718f7c87d12ceb1700048aa085a14059847a33ecbdc57132c01eed"},
 ]
 
 [package.dependencies]
@@ -777,10 +777,10 @@ toolz = ">=0.8.2"
 
 [package.extras]
 array = ["numpy (>=1.18)"]
-complete = ["bokeh (>=2.4.2,<3)", "distributed (==2022.12.0)", "jinja2", "numpy (>=1.18)", "pandas (>=1.0)"]
+complete = ["bokeh (>=2.4.2,<3)", "distributed (==2023.1.0)", "jinja2", "numpy (>=1.18)", "pandas (>=1.0)"]
 dataframe = ["numpy (>=1.18)", "pandas (>=1.0)"]
 diagnostics = ["bokeh (>=2.4.2,<3)", "jinja2"]
-distributed = ["distributed (==2022.12.0)"]
+distributed = ["distributed (==2023.1.0)"]
 test = ["pandas[test]", "pre-commit", "pytest", "pytest-rerunfailures", "pytest-xdist"]
 
 [[package]]
@@ -5264,24 +5264,24 @@ files = [
 
 [[package]]
 name = "zarr"
-version = "2.13.3"
-description = "An implementation of chunked, compressed, N-dimensional arrays for Python."
+version = "2.13.6"
+description = "An implementation of chunked, compressed, N-dimensional arrays for Python"
 category = "main"
 optional = false
-python-versions = ">=3.8, <4"
+python-versions = ">=3.8"
 files = [
-    {file = "zarr-2.13.3-py3-none-any.whl", hash = "sha256:883305e8ded972e25992269b0355436f11d7057b2943d278bf33cdcd2debfe2d"},
-    {file = "zarr-2.13.3.tar.gz", hash = "sha256:db24b090616c638f65e33a6bc5d956d642221182961515ccbc28b17fb0d0b48c"},
+    {file = "zarr-2.13.6-py3-none-any.whl", hash = "sha256:ce5d88e5e0e07487d7872e381e69593edb18b750c216a961d838a818c54bb6ed"},
+    {file = "zarr-2.13.6.tar.gz", hash = "sha256:f079444d5126db7ba5895a682797d86d02813f49b35854ee2d89c7503dc3677e"},
 ]
 
 [package.dependencies]
 asciitree = "*"
 fasteners = "*"
 numcodecs = ">=0.10.0"
-numpy = ">=1.7"
+numpy = ">=1.20"
 
 [package.extras]
-jupyter = ["ipytree", "notebook"]
+jupyter = ["ipytree (>=0.2.2)", "ipywidgets (>=8.0.0)", "notebook"]
 
 [[package]]
 name = "zenodo-get"
@@ -5321,4 +5321,4 @@ tools = ["matplotlib"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "4f428744ad48a4e083e20af6e8678c554c2994d67ae2802a4cace2450e4e4ddb"
+content-hash = "844f97631369f525f3a60c04624a635421cd50c1b7294661c69eb57bd45e1b02"
