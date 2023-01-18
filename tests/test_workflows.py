@@ -147,6 +147,71 @@ def test_yokogawa_to_ome_zarr(
     check_file_number(zarr_path=image_zarr)
 
 
+def test_MIP_without_zenodo_zarr(
+    tmp_path: Path,
+    zenodo_images: Path,
+    testdata_path: Path,
+):
+
+    # Init
+    img_path = zenodo_images / "*.png"
+    zarr_path = tmp_path / "tmp_out/*.zarr"
+    zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
+
+    # Create zarr structure
+    metadata = {}
+    metadata_update = create_ome_zarr(
+        input_paths=[img_path],
+        output_path=zarr_path,
+        metadata=metadata,
+        allowed_channels=allowed_channels,
+        num_levels=num_levels,
+        coarsening_xy=coarsening_xy,
+        metadata_table="mrf_mlf",
+    )
+    metadata.update(metadata_update)
+    debug(metadata)
+
+    # Yokogawa to zarr
+    for component in metadata["image"]:
+        yokogawa_to_ome_zarr(
+            input_paths=[zarr_path],
+            output_path=zarr_path,
+            metadata=metadata,
+            component=component,
+        )
+    debug(metadata)
+
+    # Replicate
+    metadata_update = copy_ome_zarr(
+        input_paths=[zarr_path],
+        output_path=zarr_path_mip,
+        metadata=metadata,
+        project_to_2D=True,
+        suffix="mip",
+    )
+    metadata.update(metadata_update)
+    debug(metadata)
+
+    # MIP
+    for component in metadata["image"]:
+        maximum_intensity_projection(
+            input_paths=[zarr_path_mip],
+            output_path=zarr_path_mip,
+            metadata=metadata,
+            component=component,
+        )
+
+    # OME-NGFF JSON validation
+    image_zarr = Path(zarr_path_mip.parent / metadata["image"][0])
+    debug(image_zarr)
+    well_zarr = image_zarr.parent
+    plate_zarr = image_zarr.parents[2]
+    validate_schema(path=str(image_zarr), type="image")
+    validate_schema(path=str(well_zarr), type="well")
+    validate_schema(path=str(plate_zarr), type="plate")
+
+
 def test_MIP(
     tmp_path: Path,
     zenodo_zarr: List[Path],
