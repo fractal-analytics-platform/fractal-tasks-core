@@ -422,7 +422,7 @@ def napari_workflows_wrapper(
                 }
             ]
             # (2) Create zarr group at level=0
-            store = da.core.get_mapper(
+            store = zarr.storage.FSStore(
                 f"{in_path}/{component}/labels/{label_name}/0"
             )
             mask_zarr = zarr.create(

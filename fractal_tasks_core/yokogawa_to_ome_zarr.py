@@ -134,7 +134,7 @@ def yokogawa_to_ome_zarr(
         shape=(len(wavelength_ids), max_z, max_y, max_x),
         chunks=chunksize,
         dtype=sample.dtype,
-        store=da.core.get_mapper(zarrurl + "/0"),
+        store=zarr.storage.FSStore(zarrurl + "/0"),
         overwrite=False,
         dimension_separator="/",
     )
