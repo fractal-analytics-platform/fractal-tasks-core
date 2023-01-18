@@ -351,7 +351,7 @@ def cellpose_segmentation(
     logger.info(f"[{well_id}] {zarrurl}labels/{output_label_name}/0")
     zarr.group(f"{zarrurl}/labels")
     zarr.group(f"{zarrurl}/labels/{output_label_name}")
-    store = da.core.get_mapper(f"{zarrurl}labels/{output_label_name}/0")
+    store = zarr.storage.FSStore(f"{zarrurl}labels/{output_label_name}/0")
     label_dtype = np.uint32
     mask_zarr = zarr.create(
         shape=data_zyx.shape,

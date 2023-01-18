@@ -1,3 +1,12 @@
+# 0.7.0
+
+- Replace `dask.array.core.get_mapper()` with `zarr.storage.FSStore()` (\#282).
+- Pin dask version to >=2023.1.0, <2023.2.
+- Pin zarr version to >=2.13.6, <2.14.
+- Pin numpy version to >=1.23.5,<1.24.
+- Pin cellpose version to >=2.2,<2.3.
+
+
 # 0.6.5
 
   - Remove FOV overlaps with more flexibility (\#265).

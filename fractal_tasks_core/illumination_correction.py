@@ -220,7 +220,7 @@ def illumination_correction(
             shape=data_czyx.shape,
             chunks=data_czyx.chunksize,
             dtype=data_czyx.dtype,
-            store=da.core.get_mapper(f"{zarrurl_new}/0"),
+            store=zarr.storage.FSStore(f"{zarrurl_new}/0"),
             overwrite=False,
             dimension_separator="/",
         )
