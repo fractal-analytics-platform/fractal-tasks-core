@@ -41,7 +41,7 @@ Actual release
 
 5. Use::
 
-    poetry run bumpver update --dry --[tag-num|patch|minor] --tag-commit --commit
+    poetry run bumpver update --[tag-num|patch|minor] --tag-commit --commit --dry
 
   to test updating the version bump.
 
