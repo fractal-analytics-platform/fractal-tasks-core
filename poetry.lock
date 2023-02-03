@@ -1533,22 +1533,23 @@ test = ["nbval", "pytest", "pytest-cov"]
 
 [[package]]
 name = "ipykernel"
-version = "6.20.2"
+version = "6.21.1"
 description = "IPython Kernel for Jupyter"
 category = "main"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "ipykernel-6.20.2-py3-none-any.whl", hash = "sha256:5d0675d5f48bf6a95fd517d7b70bcb3b2c5631b2069949b5c2d6e1d7477fb5a0"},
-    {file = "ipykernel-6.20.2.tar.gz", hash = "sha256:1893c5b847033cd7a58f6843b04a9349ffb1031bc6588401cadc9adb58da428e"},
+    {file = "ipykernel-6.21.1-py3-none-any.whl", hash = "sha256:1a04bb359212e23e46adc0116ec82ea128c1e5bd532fde4fbe679787ff36f0cf"},
+    {file = "ipykernel-6.21.1.tar.gz", hash = "sha256:a0f8eece39cab1ee352c9b59ec67bbe44d8299f8238e4c16ff7f4cf0052d3378"},
 ]
 
 [package.dependencies]
 appnope = {version = "*", markers = "platform_system == \"Darwin\""}
 comm = ">=0.1.1"
-debugpy = ">=1.0"
+debugpy = ">=1.6.5"
 ipython = ">=7.23.1"
 jupyter-client = ">=6.1.12"
+jupyter-core = ">=4.12,<5.0.0 || >=5.1.0"
 matplotlib-inline = ">=0.1"
 nest-asyncio = "*"
 packaging = "*"
@@ -1847,18 +1848,18 @@ test = ["click", "coverage", "pre-commit", "pytest (>=7.0)", "pytest-asyncio (>=
 
 [[package]]
 name = "jupyter-server"
-version = "2.2.0"
+version = "2.2.1"
 description = "The backend—i.e. core services, APIs, and REST endpoints—to Jupyter web applications."
 category = "main"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "jupyter_server-2.2.0-py3-none-any.whl", hash = "sha256:9c79b7227a7e3974856265908da40715ab49b7014ac39478d80b07e164b5a70e"},
-    {file = "jupyter_server-2.2.0.tar.gz", hash = "sha256:f901efcb4adce2370c64dc5942be587bd181119644660a1eb123435c3cd01f95"},
+    {file = "jupyter_server-2.2.1-py3-none-any.whl", hash = "sha256:854fb7d49f6b7f545d4f8354172b004dcda887ba0699def7112daf785ba3c9ce"},
+    {file = "jupyter_server-2.2.1.tar.gz", hash = "sha256:5afb8a0cdfee37d02d69bdf470ae9cbb1dee5d4788f9bc6cc8e54bd8c83fb096"},
 ]
 
 [package.dependencies]
-anyio = ">=3.1.0,<4"
+anyio = ">=3.1.0"
 argon2-cffi = "*"
 jinja2 = "*"
 jupyter-client = ">=7.4.4"
@@ -2641,21 +2642,21 @@ stackview = ">=0.3.2"
 
 [[package]]
 name = "napari-skimage-regionprops"
-version = "0.8.0"
+version = "0.8.1"
 description = "A regionprops table widget plugin for napari"
 category = "main"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "napari-skimage-regionprops-0.8.0.tar.gz", hash = "sha256:51a42aaef2a24b7668a7f10a00ca4a972757bd36e91fe4db179364dc8e2033c2"},
-    {file = "napari_skimage_regionprops-0.8.0-py3-none-any.whl", hash = "sha256:e8ea0c8915ae31b5291d018a9d5f64a7746301e571982c3336032768587fae09"},
+    {file = "napari-skimage-regionprops-0.8.1.tar.gz", hash = "sha256:9f9910f36345d849f6e16204453d01d9f6c5e3a5d716b4a8cb61907248de5db6"},
+    {file = "napari_skimage_regionprops-0.8.1-py3-none-any.whl", hash = "sha256:67e9390d30212d520f5d75e383b806f1b8f8ddd5cf0393d36044c4bbd8e09d3c"},
 ]
 
 [package.dependencies]
 imageio = "!=2.22.1"
 napari = "*"
 napari-plugin-engine = ">=0.1.4"
-napari-tools-menu = ">=0.1.18"
+napari-tools-menu = ">=0.1.19"
 napari-workflows = "*"
 numpy = "*"
 pandas = "*"
@@ -4818,14 +4819,14 @@ test = ["pre-commit", "pytest (>=7.0)", "pytest-timeout"]
 
 [[package]]
 name = "tifffile"
-version = "2023.1.23.1"
+version = "2023.2.2"
 description = "Read and write TIFF files"
 category = "main"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "tifffile-2023.1.23.1-py3-none-any.whl", hash = "sha256:2b626a8ee81b692e1fa5320201a4b70f1915d2567945e68665621a75a12b3730"},
-    {file = "tifffile-2023.1.23.1.tar.gz", hash = "sha256:a3d0c149cc7faef796fd598856314f43fdcd0895c79c3cb662a38c1c1bd49572"},
+    {file = "tifffile-2023.2.2-py3-none-any.whl", hash = "sha256:e0ae7c27b18215fed3a766ed30cbe77bbb30b0a7e5440317280259944d693f4e"},
+    {file = "tifffile-2023.2.2.tar.gz", hash = "sha256:d734e70a7ef855cc75410accea67c37f1c1b4b3f8fd5197a44c0396328ec5ab1"},
 ]
 
 [package.dependencies]
@@ -5337,4 +5338,4 @@ tools = ["matplotlib"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "105d5983c4a7108d195466dfa52aaa25e38b693035276ba37fa4b0cee6448e72"
+content-hash = "c9fc21cbb185125481e48f71ef4e11e754aa05144857f5e174261342d55f825f"
