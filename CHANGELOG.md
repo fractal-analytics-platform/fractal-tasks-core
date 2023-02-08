@@ -1,6 +1,10 @@
-# 0.7.1
+# 0.7.2
 
 - Remove pyqt5-related dependencies (\#288).
+
+# 0.7.1
+
+Missing
 
 # 0.7.0
 
