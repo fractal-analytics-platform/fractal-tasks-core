@@ -1,3 +1,7 @@
+# 0.7.1
+
+- Remove pyqt5-related dependencies (\#288).
+
 # 0.7.0
 
 - Replace `dask.array.core.get_mapper()` with `zarr.storage.FSStore()` (\#282).

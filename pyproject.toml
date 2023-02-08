@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fractal-tasks-core"
-version = "0.7.0"
+version = "0.7.1a0"
 description = ""
 authors = [
     "Jacopo Nespolo <jacopo.nespolo@exact-lab.it>",
@@ -23,10 +23,9 @@ scikit-image = "^0.19.3"
 cellpose = "~2.2"
 pandas = "^1.2.0"
 defusedxml = "^0.7.1"
-napari = "0.4.16"
 napari-workflows = "^0.2.8"
-napari-skimage-regionprops = "^0.5.3"
-PyQt5 = "*"
+napari-skimage-regionprops = "^0.8.1"
+napari-tools-menu = "^0.1.19"
 anndata = "^0.8.0"
 llvmlite = "^0.39.1"
 imageio-ffmpeg = "^0.4.7"
@@ -72,7 +71,7 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.bumpver]
-current_version = "0.7.0"
+current_version = "0.7.1a0"
 version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true
