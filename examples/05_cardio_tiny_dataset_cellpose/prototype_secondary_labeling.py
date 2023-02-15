@@ -342,14 +342,57 @@ def cellpose_segmentation_bis(
 
     logger.info(f"[{well_id}] Now starting loop over {num_ROIs} ROIs")
     for i_ROI, indices in enumerate(list_indices):
+
+        if i_ROI > 100:
+            continue
         logger.info(f"[{well_id}] Now processing ROI {i_ROI+1}/{num_ROIs}")
 
         # Define region
         s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
+        print()
+        print(f"indices: {indices}")
+        print()
 
-        # Execute illumination correction
+        # Prepare input for cellpose
+        input_image_array = data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].compute()
+        print("input_image_array:")
+        print(input_image_array.shape)
+        print(input_image_array)
+        print()
+
+        # Load current fov_mask
+        organoid_labels = da.from_zarr(
+            f"{zarrurl}labels/label_DAPI/0"  # FIXME
+        )[s_z:e_z, s_y:e_y, s_x:e_x].compute()
+        print("organoid_labels:")
+        print(organoid_labels.shape)
+        print(organoid_labels)
+        print()
+
+        label_value = int(ROI_table.obs.index[i_ROI]) + 1
+        debug(label_value)
+        debug(organoid_labels)
+        organoid_mask = organoid_labels == label_value
+        background_mask = organoid_labels != label_value
+
+        # Execute illumination correctio
+        old_mask = da.from_zarr(
+            f"{zarrurl}labels/{output_label_name}/0"  # FIXME
+        )[s_z:e_z, s_y:e_y, s_x:e_x].compute()
+        new_mask = np.zeros_like(input_image_array)
+        print("new_mask:")
+        print(new_mask.shape)
+        print(new_mask)
+        print()
+
+        new_mask[organoid_mask] = np.random.randint(
+            0, 100, size=new_mask.shape
+        )[organoid_mask]
+        new_mask[background_mask] = old_mask[background_mask]
+
+        """
         fov_mask = segment_FOV(
-            data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].compute(),
+            input_image_array,
             model=model,
             do_3D=do_3D,
             anisotropy=anisotropy,
@@ -359,8 +402,9 @@ def cellpose_segmentation_bis(
             flow_threshold=flow_threshold,
             well_id=well_id,
         )
+        """
 
-        print(fov_mask)
+        print(new_mask)
 
         region = (
             slice(s_z, e_z),
@@ -368,7 +412,7 @@ def cellpose_segmentation_bis(
             slice(s_x, e_x),
         )
         # Compute and store 0-th level to disk
-        da.array(fov_mask).to_zarr(
+        da.array(new_mask).to_zarr(
             url=mask_zarr,
             region=region,
             compute=True,
@@ -429,6 +473,7 @@ for component in metadata["image"]:
         metadata=metadata,
         component=component,
         wavelength_id="A01_C01",
+        ROI_table_name="label_DAPI_bbox",
         output_label_name="label_DAPI_secondary",
         level=3,
         relabeling=True,
