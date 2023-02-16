@@ -1,0 +1,7 @@
+images
+model
+output
+backup
+tmp*
+slurm-*.out
+slurm-*.err
