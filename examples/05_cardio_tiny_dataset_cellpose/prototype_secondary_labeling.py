@@ -323,6 +323,7 @@ def cellpose_segmentation_bis(
         )
     else:
         model = models.CellposeModel(gpu=gpu, model_type=model_type)
+        print(model)
 
     # Initialize other things
     logger.info(f"[{well_id}] Start cellpose_segmentation task for {zarrurl}")
@@ -385,8 +386,8 @@ def cellpose_segmentation_bis(
         print(new_mask)
         print()
 
-        new_mask[organoid_mask] = np.random.randint(
-            0, 100, size=new_mask.shape
+        new_mask[organoid_mask] = np.random.choice(
+            (label_value, 0), size=new_mask.shape
         )[organoid_mask]
         new_mask[background_mask] = old_mask[background_mask]
 
