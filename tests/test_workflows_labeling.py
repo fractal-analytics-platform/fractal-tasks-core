@@ -67,33 +67,35 @@ coarsening_xy = 2
 
 
 def prepare_3D_zarr(
-    zarr_path: Path,
-    zenodo_zarr: List[Path],
+    zarr_path: str,
+    zenodo_zarr: List[str],
     zenodo_zarr_metadata: List[Dict[str, Any]],
 ):
     zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
     metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
     shutil.copytree(
-        str(zenodo_zarr_3D), str(zarr_path.parent / zenodo_zarr_3D.name)
+        zenodo_zarr_3D, str(Path(zarr_path).parent / Path(zenodo_zarr_3D).name)
     )
     metadata = metadata_3D.copy()
     return metadata
 
 
 def prepare_2D_zarr(
-    zarr_path: Path,
-    zenodo_zarr: List[Path],
+    zarr_path: str,
+    zenodo_zarr: List[str],
     zenodo_zarr_metadata: List[Dict[str, Any]],
     remove_labels: bool = False,
 ):
     zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
     metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
     shutil.copytree(
-        str(zenodo_zarr_2D), str(zarr_path.parent / zenodo_zarr_2D.name)
+        zenodo_zarr_2D, str(Path(zarr_path).parent / Path(zenodo_zarr_2D).name)
     )
     if remove_labels:
         label_dir = str(
-            zarr_path.parent / zenodo_zarr_2D.name / "B/03/0/labels"
+            Path(zarr_path).parent
+            / Path(zenodo_zarr_2D).name
+            / "B/03/0/labels"
         )
         debug(label_dir)
         shutil.rmtree(label_dir)
@@ -155,7 +157,7 @@ def patched_use_gpu(*args, **kwargs):
 def test_failures(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[Path],
+    zenodo_zarr: List[str],
     zenodo_zarr_metadata: List[Dict[str, Any]],
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
@@ -174,7 +176,9 @@ def test_failures(
 
     # Use pre-made 3D zarr
     zarr_path = tmp_path / "tmp_out/*.zarr"
-    metadata = prepare_3D_zarr(zarr_path, zenodo_zarr, zenodo_zarr_metadata)
+    metadata = prepare_3D_zarr(
+        str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
+    )
     debug(zarr_path)
     debug(metadata)
 
@@ -182,8 +186,8 @@ def test_failures(
     for component in metadata["image"]:
 
         kwargs = dict(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
             metadata=metadata,
             component=component,
             level=3,
@@ -215,7 +219,7 @@ def test_failures(
 def test_workflow_with_per_FOV_labeling(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[Path],
+    zenodo_zarr: List[str],
     zenodo_zarr_metadata: List[Dict[str, Any]],
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
@@ -236,15 +240,17 @@ def test_workflow_with_per_FOV_labeling(
 
     # Use pre-made 3D zarr
     zarr_path = tmp_path / "tmp_out/*.zarr"
-    metadata = prepare_3D_zarr(zarr_path, zenodo_zarr, zenodo_zarr_metadata)
+    metadata = prepare_3D_zarr(
+        str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
+    )
     debug(zarr_path)
     debug(metadata)
 
     # Per-FOV labeling
     for component in metadata["image"]:
         cellpose_segmentation(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
             metadata=metadata,
             component=component,
             wavelength_id="A01_C01",
@@ -269,7 +275,7 @@ def test_workflow_with_per_FOV_labeling(
 def test_workflow_with_per_FOV_labeling_2D(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[Path],
+    zenodo_zarr: List[str],
     zenodo_zarr_metadata: List[Dict[str, Any]],
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
@@ -288,14 +294,17 @@ def test_workflow_with_per_FOV_labeling_2D(
     # Load pre-made 2D zarr array
     zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
     metadata = prepare_2D_zarr(
-        zarr_path_mip, zenodo_zarr, zenodo_zarr_metadata, remove_labels=True
+        str(zarr_path_mip),
+        zenodo_zarr,
+        zenodo_zarr_metadata,
+        remove_labels=True,
     )
 
     # Per-FOV labeling
     for component in metadata["image"]:
         cellpose_segmentation(
-            input_paths=[zarr_path_mip],
-            output_path=zarr_path_mip,
+            input_paths=[str(zarr_path_mip)],
+            output_path=str(zarr_path_mip),
             metadata=metadata,
             component=component,
             wavelength_id="A01_C01",
@@ -319,7 +328,7 @@ def test_workflow_with_per_FOV_labeling_2D(
 def test_workflow_with_per_well_labeling_2D(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_images: Path,
+    zenodo_images: str,
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -335,15 +344,15 @@ def test_workflow_with_per_well_labeling_2D(
     )
 
     # Init
-    img_path = zenodo_images / "*.png"
+    img_path = Path(zenodo_images) / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
     metadata = {}
 
     # Create zarr structure
     metadata_update = create_ome_zarr(
-        input_paths=[img_path],
-        output_path=zarr_path,
+        input_paths=[str(img_path)],
+        output_path=str(zarr_path),
         metadata=metadata,
         allowed_channels=allowed_channels,
         num_levels=num_levels,
@@ -355,16 +364,16 @@ def test_workflow_with_per_well_labeling_2D(
     # Yokogawa to zarr
     for component in metadata["image"]:
         yokogawa_to_ome_zarr(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
             metadata=metadata,
             component=component,
         )
 
     # Replicate
     metadata_update = copy_ome_zarr(
-        input_paths=[zarr_path],
-        output_path=zarr_path_mip,
+        input_paths=[str(zarr_path)],
+        output_path=str(zarr_path_mip),
         metadata=metadata,
         project_to_2D=True,
         suffix="mip",
@@ -375,8 +384,8 @@ def test_workflow_with_per_well_labeling_2D(
     # MIP
     for component in metadata["image"]:
         maximum_intensity_projection(
-            input_paths=[zarr_path_mip],
-            output_path=zarr_path_mip,
+            input_paths=[str(zarr_path_mip)],
+            output_path=str(zarr_path_mip),
             metadata=metadata,
             component=component,
         )
@@ -384,8 +393,8 @@ def test_workflow_with_per_well_labeling_2D(
     # Whole-well labeling
     for component in metadata["image"]:
         cellpose_segmentation(
-            input_paths=[zarr_path_mip],
-            output_path=zarr_path_mip,
+            input_paths=[str(zarr_path_mip)],
+            output_path=str(zarr_path_mip),
             metadata=metadata,
             component=component,
             wavelength_id="A01_C01",
@@ -410,7 +419,7 @@ def test_workflow_with_per_well_labeling_2D(
 def test_workflow_bounding_box(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[Path],
+    zenodo_zarr: List[str],
     zenodo_zarr_metadata: List[Dict[str, Any]],
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
@@ -431,15 +440,17 @@ def test_workflow_bounding_box(
 
     # Use pre-made 3D zarr
     zarr_path = tmp_path / "tmp_out/*.zarr"
-    metadata = prepare_3D_zarr(zarr_path, zenodo_zarr, zenodo_zarr_metadata)
+    metadata = prepare_3D_zarr(
+        str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
+    )
     debug(zarr_path)
     debug(metadata)
 
     # Per-FOV labeling
     for component in metadata["image"]:
         cellpose_segmentation(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
             metadata=metadata,
             component=component,
             wavelength_id="A01_C01",
@@ -450,7 +461,7 @@ def test_workflow_bounding_box(
         )
 
     bbox_ROIs = ad.read_zarr(
-        zarr_path.parent / metadata["image"][0] / "tables/bbox_table/"
+        str(zarr_path.parent / metadata["image"][0] / "tables/bbox_table/")
     )
     assert bbox_ROIs.shape == (4, 6)
     assert len(bbox_ROIs) > 0
@@ -460,7 +471,7 @@ def test_workflow_bounding_box(
 def test_workflow_bounding_box_with_overlap(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[Path],
+    zenodo_zarr: List[str],
     zenodo_zarr_metadata: List[Dict[str, Any]],
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
@@ -481,7 +492,9 @@ def test_workflow_bounding_box_with_overlap(
 
     # Use pre-made 3D zarr
     zarr_path = tmp_path / "tmp_out/*.zarr"
-    metadata = prepare_3D_zarr(zarr_path, zenodo_zarr, zenodo_zarr_metadata)
+    metadata = prepare_3D_zarr(
+        str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
+    )
     debug(zarr_path)
     debug(metadata)
 
@@ -489,8 +502,8 @@ def test_workflow_bounding_box_with_overlap(
     for component in metadata["image"]:
         with pytest.raises(ValueError):
             cellpose_segmentation(
-                input_paths=[zarr_path],
-                output_path=zarr_path,
+                input_paths=[str(zarr_path)],
+                output_path=str(zarr_path),
                 metadata=metadata,
                 component=component,
                 wavelength_id="A01_C01",

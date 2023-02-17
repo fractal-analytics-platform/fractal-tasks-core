@@ -24,7 +24,7 @@ def zenodo_images(testdata_path):
     folder = str(testdata_path / (url.replace(".", "_").replace("/", "_")))
     if os.path.isdir(folder):
         print(f"{folder} already exists, skip")
-        return Path(folder)
+        return folder
     os.makedirs(folder)
     url = "https://doi.org/" + url
     print(f"I will download {url} files to {folder}")
