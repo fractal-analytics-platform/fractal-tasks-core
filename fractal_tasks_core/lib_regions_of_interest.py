@@ -15,6 +15,7 @@ Copyright 2022 (C)
 Functions to handle regions of interests (via pandas and AnnData)
 """
 from typing import List
+from typing import Optional
 from typing import Sequence
 
 import anndata as ad
@@ -190,22 +191,25 @@ def convert_ROIs_from_3D_to_2D(
 
 def convert_ROI_table_to_indices(
     ROI: ad.AnnData,
-    level: int = 0,
-    coarsening_xy: int = 2,
-    full_res_pxl_sizes_zyx: Sequence[float] = None,
+    level: Optional[int] = 0,
+    coarsening_xy: Optional[int] = 2,
+    full_res_pxl_sizes_zyx: Optional[Sequence[float]] = None,
     cols_xyz_pos: Sequence[str] = [
         "x_micrometer",
         "y_micrometer",
         "z_micrometer",
     ],
-    cols_xyz_len: Sequence[str] = [
+    cols_xyz_len: Optional[Sequence[str]] = [
         "len_x_micrometer",
         "len_y_micrometer",
         "len_z_micrometer",
     ],
+    origin_xyz: Optional[Sequence[float]] = None,
 ) -> List[List[int]]:
     """
     Description
+
+    FIXME add docstring
 
     :param dummy: this is just a placeholder
     :type dummy: int
@@ -220,9 +224,12 @@ def convert_ROI_table_to_indices(
     x_pos, y_pos, z_pos = cols_xyz_pos[:]
     x_len, y_len, z_len = cols_xyz_len[:]
 
-    origin_x = min(ROI[:, x_pos].X[:, 0])
-    origin_y = min(ROI[:, y_pos].X[:, 0])
-    origin_z = min(ROI[:, z_pos].X[:, 0])
+    if origin_xyz is None:
+        origin_x = min(ROI[:, x_pos].X[:, 0])
+        origin_y = min(ROI[:, y_pos].X[:, 0])
+        origin_z = min(ROI[:, z_pos].X[:, 0])
+    else:
+        origin_x, origin_y, origin_z = origin_xyz
 
     list_indices = []
     for FOV in ROI.obs_names:
@@ -257,7 +264,7 @@ def _inspect_ROI_table(
     path: str = None,
     level: int = 0,
     coarsening_xy: int = 2,
-    full_res_pxl_sizes_zyx=[1.0, 0.1625, 0.1625],
+    full_res_pxl_sizes_zyx: Sequence[float] = None,  # =[1.0, 0.1625, 0.1625],
 ) -> None:
     """
     Description
@@ -265,6 +272,8 @@ def _inspect_ROI_table(
     :param dummy: this is just a placeholder
     :type dummy: int
     """
+
+    print(f"{full_res_pxl_sizes_zyx=}")
 
     adata = ad.read_zarr(path)
     df = adata.to_df()
@@ -278,8 +287,9 @@ def _inspect_ROI_table(
             level=level,
             coarsening_xy=coarsening_xy,
             full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
+            # verbose=True,
         )
-
+        print()
         print(f"level:         {level}")
         print(f"coarsening_xy: {coarsening_xy}")
         print("list_indices:")
@@ -306,8 +316,11 @@ def array_to_bounding_box_table(
     labels = np.unique(mask_array)
     labels = labels[labels > 0]
     elem_list = []
+    print()
     for label in labels:
+        print(f"{label=}")
         label_match = np.where(mask_array == label)
+        # FIXME: multiplication of np.ndarray with list
         zmin, ymin, xmin = np.min(label_match, axis=1) * pxl_sizes_zyx
         zmax, ymax, xmax = (np.max(label_match, axis=1) + 1) * pxl_sizes_zyx
 
@@ -325,6 +338,6 @@ def array_to_bounding_box_table(
         "len_z_micrometer",
     ]
 
-    ann_df = pd.DataFrame(np.array(elem_list), columns=df_columns)
+    df = pd.DataFrame(np.array(elem_list), columns=df_columns)
 
-    return ann_df
+    return df
