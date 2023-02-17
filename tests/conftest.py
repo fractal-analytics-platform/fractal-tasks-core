@@ -48,14 +48,14 @@ def zenodo_images(testdata_path):
     with open(f"{folder}/invalid_path.png", "w") as f:
         f.write("This file has an invalid filename, which cannot be parsed.")
 
-    return Path(folder)
+    return folder
 
 
 @pytest.fixture(scope="session")
 def zenodo_images_multiplex(testdata_path, zenodo_images):
     folder = str(testdata_path / "fake_multiplex")
-    cycle_folder_1 = Path(folder) / "cycle1"
-    cycle_folder_2 = Path(folder) / "cycle2"
+    cycle_folder_1 = str(Path(folder) / "cycle1")
+    cycle_folder_2 = str(Path(folder) / "cycle2")
     cycle_folders = [cycle_folder_1, cycle_folder_2]
     if os.path.isdir(folder):
         print(f"{folder} already exists, skip zenodo_images_multiplex")
@@ -103,6 +103,8 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
             attrs["omero"]["channels"][0]["wavelength_id"] = "A01_C01"
             group.attrs.put(attrs)
             debug(f"Adding A01_C01 in omero metadata, in {image_path}")
+
+    folders = [str(f) for f in folders]
 
     return folders
 
