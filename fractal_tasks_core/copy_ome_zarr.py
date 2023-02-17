@@ -39,7 +39,7 @@ __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
 def copy_ome_zarr(
     *,
-    input_paths: Sequence[Path],
+    input_paths: Sequence[str],
     output_path: str,
     metadata: Dict[str, Any],
     project_to_2D: bool = True,
