@@ -40,7 +40,7 @@ __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 def copy_ome_zarr(
     *,
     input_paths: Sequence[Path],
-    output_path: Path,
+    output_path: str,
     metadata: Dict[str, Any],
     project_to_2D: bool = True,
     suffix: Optional[str] = None,
@@ -94,7 +94,7 @@ def copy_ome_zarr(
         ROI_table_names = ["FOV_ROI_table", "well_ROI_table"]
 
     # List all plates
-    in_path = input_paths[0]
+    in_path = Path(input_paths[0])
     list_plates = [
         p.as_posix() for p in in_path.parent.resolve().glob(in_path.name)
     ]
@@ -109,7 +109,7 @@ def copy_ome_zarr(
         zarrfile = zarrurl_old.split("/")[-1]
         old_plate_name = zarrfile.split(".zarr")[0]
         new_plate_name = f"{old_plate_name}_{suffix}"
-        new_plate_dir = output_path.resolve().parent
+        new_plate_dir = Path(output_path).resolve().parent
         zarrurl_new = f"{(new_plate_dir / new_plate_name).as_posix()}.zarr"
         meta_update["copy_zarr"]["sources"][new_plate_name] = zarrurl_old
 
@@ -193,8 +193,8 @@ if __name__ == "__main__":
     from fractal_tasks_core._utils import run_fractal_task
 
     class TaskArguments(BaseModel):
-        input_paths: Sequence[Path]
-        output_path: Path
+        input_paths: Sequence[str]
+        output_path: str
         metadata: Dict[str, Any]
         project_to_2D: bool = True
         suffix: Optional[str] = None

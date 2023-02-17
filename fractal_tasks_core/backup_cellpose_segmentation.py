@@ -45,11 +45,12 @@ from fractal_tasks_core.lib_regions_of_interest import (
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
-from fractal_tasks_core.lib_remove_FOV_overlaps import (
-    get_overlapping_pairs_3D,
-)
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
+
+# from fractal_tasks_core.lib_remove_FOV_overlaps import (
+#     get_overlapping_pairs_3D,
+# )
 
 logger = logging.getLogger(__name__)
 
@@ -127,8 +128,8 @@ def segment_FOV(
 def cellpose_segmentation(
     *,
     # Fractal arguments
-    input_paths: Sequence[str],
-    output_path: str,
+    input_paths: Sequence[Path],
+    output_path: Path,
     component: str,
     metadata: Dict[str, Any],
     # Task-specific arguments
@@ -191,7 +192,7 @@ def cellpose_segmentation(
     # Set input path
     if len(input_paths) > 1:
         raise NotImplementedError
-    in_path = Path(input_paths[0]).parent
+    in_path = input_paths[0].parent
     zarrurl = (in_path.resolve() / component).as_posix() + "/"
     logger.info(zarrurl)
 
@@ -227,10 +228,11 @@ def cellpose_segmentation(
         )
         return {}
     ind_channel = channel["index"]
+    logger.warning(f"Channel was found: {channel=}, {ind_channel=}")
 
     # Load ZYX data
-    data_zyx = da.from_zarr(f"{zarrurl}{level}")[ind_channel]
-    logger.info(f"[{well_id}] {data_zyx.shape=}")
+    data_czyx = da.from_zarr(f"{zarrurl}{level}")
+    logger.info(f"[{well_id}] {data_czyx.shape=}")
 
     # Read ROI table
     ROI_table = ad.read_zarr(f"{zarrurl}tables/{ROI_table_name}")
@@ -274,7 +276,7 @@ def cellpose_segmentation(
     img_size_y, img_size_x = img_size[:]
 
     # Select 2D/3D behavior and set some parameters
-    do_3D = data_zyx.shape[0] > 1
+    do_3D = data_czyx.shape[1] > 1
     if do_3D:
         if anisotropy is None:
             # Read pixel sizes from zattrs file
@@ -353,19 +355,21 @@ def cellpose_segmentation(
     zarr.group(f"{zarrurl}/labels/{output_label_name}")
     store = zarr.storage.FSStore(f"{zarrurl}labels/{output_label_name}/0")
     label_dtype = np.uint32
+    logger.warning(f"SHAPE: {data_czyx.shape=}")
     mask_zarr = zarr.create(
-        shape=data_zyx.shape,
-        chunks=data_zyx.chunksize,
+        shape=data_czyx[0:1].shape,
+        chunks=data_czyx[0:1].chunksize,
         dtype=label_dtype,
         store=store,
         overwrite=False,
         dimension_separator="/",
     )
+    logger.warning(f"SHAPE: {mask_zarr.shape=}")
 
     logger.info(
         f"[{well_id}] "
-        f"mask will have shape {data_zyx.shape} "
-        f"and chunks {data_zyx.chunks}"
+        f"mask will have shape {data_czyx.shape[1:]} "
+        f"and chunks {data_czyx.chunks[1:]}"
     )
 
     # Initialize cellpose
@@ -387,8 +391,8 @@ def cellpose_segmentation(
     logger.info(f"[{well_id}] pretrained_model: {pretrained_model}")
     logger.info(f"[{well_id}] anisotropy: {anisotropy}")
     logger.info(f"[{well_id}] Total well shape/chunks:")
-    logger.info(f"[{well_id}] {data_zyx.shape}")
-    logger.info(f"[{well_id}] {data_zyx.chunks}")
+    logger.info(f"[{well_id}] {data_czyx.shape}")
+    logger.info(f"[{well_id}] {data_czyx.chunks}")
 
     # Counters for relabeling
     if relabeling:
@@ -404,7 +408,8 @@ def cellpose_segmentation(
     for i_ROI, indices in enumerate(list_indices):
         # Define region
         s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
-        region = (
+        czyx_region = (
+            slice(0, 1),
             slice(s_z, e_z),
             slice(s_y, e_y),
             slice(s_x, e_x),
@@ -412,7 +417,7 @@ def cellpose_segmentation(
         logger.info(f"[{well_id}] Now processing ROI {i_ROI+1}/{num_ROIs}")
         # Execute illumination correction
         fov_mask = segment_FOV(
-            data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].compute(),
+            data_czyx[ind_channel][s_z:e_z, s_y:e_y, s_x:e_x].compute(),
             model=model,
             do_3D=do_3D,
             anisotropy=anisotropy,
@@ -453,16 +458,23 @@ def cellpose_segmentation(
 
             bbox_dataframe_list.append(bbox_df)
 
-            overlap_list = []
-            for df in bbox_dataframe_list:
-                overlap_list.append(
-                    get_overlapping_pairs_3D(df, full_res_pxl_sizes_zyx)
-                )
+            # FIXME
+            # FIXME: review this check
+            # FIXME
+
+            # overlap_list = []
+            # for df in bbox_dataframe_list:
+            #     overlap_list.append(
+            #         get_overlapping_pairs_3D(df, full_res_pxl_sizes_zyx)
+            #    )
 
         # Compute and store 0-th level to disk
-        da.array(fov_mask).to_zarr(
+        logger.warning(f"{da.array([fov_mask])=}")
+        logger.warning(f"{mask_zarr=}")
+        logger.warning(f"{czyx_region=}")
+        da.array([fov_mask]).to_zarr(
             url=mask_zarr,
-            region=region,
+            region=czyx_region,
             compute=True,
         )
 
@@ -478,7 +490,7 @@ def cellpose_segmentation(
         overwrite=False,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        chunksize=data_zyx.chunksize,
+        chunksize=data_czyx.chunksize,
         aggregation_function=np.max,
     )
 
@@ -511,8 +523,8 @@ if __name__ == "__main__":
 
     class TaskArguments(BaseModel):
         # Fractal arguments
-        input_paths: Sequence[str]
-        output_path: str
+        input_paths: Sequence[Path]
+        output_path: Path
         component: str
         metadata: Dict[str, Any]
         # Task-specific arguments

@@ -93,8 +93,8 @@ def correct(
 
 def illumination_correction(
     *,
-    input_paths: Sequence[Path],
-    output_path: Path,
+    input_paths: Sequence[str],
+    output_path: str,
     component: str,
     metadata: Dict[str, Any],
     overwrite: bool = False,
@@ -107,8 +107,8 @@ def illumination_correction(
     FIXME
 
     Example inputs:
-    input_paths: [PosixPath('some_path/*.zarr')]
-    output_path: PosixPath('same_or_other_path/*.zarr')
+    input_paths: ["some_path/*.zarr"]
+    output_path: "same_or_other_path/*.zarr"
     component: myplate.zarr/B/03/0/
     new_component: myplate_new_name.zarr/B/03/0/
     metadata: {...}
@@ -139,7 +139,7 @@ def illumination_correction(
 
     # Defione old/new zarrurls
     plate, well = component.split(".zarr/")
-    in_path = input_paths[0]
+    in_path = Path(input_paths[0])
     zarrurl_old = (in_path.parent / component).as_posix()
     if overwrite:
         zarrurl_new = zarrurl_old
@@ -147,7 +147,7 @@ def illumination_correction(
         new_plate, new_well = new_component.split(".zarr/")
         if new_well != well:
             raise Exception(f"{well=}, {new_well=}")
-        zarrurl_new = (output_path.parent / new_component).as_posix()
+        zarrurl_new = (Path(output_path).parent / new_component).as_posix()
 
     t_start = time.perf_counter()
     logger.info("Start illumination_correction")
@@ -277,8 +277,8 @@ if __name__ == "__main__":
 
     class TaskArguments(BaseModel):
         # Fractal arguments
-        input_paths: Sequence[Path]
-        output_path: Path
+        input_paths: Sequence[str]
+        output_path: str
         component: str
         metadata: Dict[str, Any]
         # Task-specific arguments

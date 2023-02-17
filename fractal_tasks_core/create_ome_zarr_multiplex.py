@@ -47,8 +47,8 @@ logger = logging.getLogger(__name__)
 
 def create_ome_zarr_multiplex(
     *,
-    input_paths: Sequence[Path],
-    output_path: Path,
+    input_paths: Sequence[str],
+    output_path: str,
     metadata: Dict[str, Any],
     allowed_channels: Dict[str, Sequence[Dict[str, Any]]],
     num_levels: int = 2,
@@ -121,10 +121,11 @@ def create_ome_zarr_multiplex(
     # Identify all plates and all channels, per input folders
     dict_acquisitions: Dict = {}
 
-    ext_glob_pattern = input_paths[0].name
+    ext_glob_pattern = Path(input_paths[0]).name
 
-    for ind_in_path, in_path in enumerate(input_paths):
+    for ind_in_path, in_path_str in enumerate(input_paths):
         acquisition = str(ind_in_path)
+        in_path = Path(in_path_str)
         dict_acquisitions[acquisition] = {}
 
         actual_wavelength_ids = []
@@ -210,7 +211,7 @@ def create_ome_zarr_multiplex(
     plate = current_plates[0]
 
     zarrurl = dict_acquisitions[acquisitions[0]]["plate"] + ".zarr"
-    full_zarrurl = str(output_path.parent / zarrurl)
+    full_zarrurl = str(Path(output_path).parent / zarrurl)
     logger.info(f"Creating {full_zarrurl=}")
     group_plate = zarr.group(full_zarrurl)
     group_plate.attrs["plate"] = {
@@ -429,7 +430,7 @@ def create_ome_zarr_multiplex(
     # have unique labels
     for well_path in zarrurls["well"]:
         check_well_channel_labels(
-            well_zarr_path=str(output_path.parent / well_path)
+            well_zarr_path=str(Path(output_path).parent / well_path)
         )
 
     original_paths = {
@@ -453,8 +454,8 @@ if __name__ == "__main__":
     from fractal_tasks_core._utils import run_fractal_task
 
     class TaskArguments(BaseModel):
-        input_paths: Sequence[Path]
-        output_path: Path
+        input_paths: Sequence[str]
+        output_path: str
         metadata: Dict[str, Any]
         allowed_channels: Dict[str, Sequence[Dict[str, Any]]]
         num_levels: int = 2
