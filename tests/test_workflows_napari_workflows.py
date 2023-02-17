@@ -57,7 +57,9 @@ def prepare_2D_zarr(
     )
     if remove_labels:
         label_dir = str(
-            Path(zarr_path).parent / zenodo_zarr_2D.name / "B/03/0/labels"
+            Path(zarr_path).parent
+            / Path(zenodo_zarr_2D).name
+            / "B/03/0/labels"
         )
         debug(label_dir)
         shutil.rmtree(label_dir)
