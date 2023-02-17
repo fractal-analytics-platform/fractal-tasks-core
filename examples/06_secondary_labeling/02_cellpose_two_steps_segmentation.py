@@ -4,9 +4,9 @@ import shutil
 from pathlib import Path
 
 from devtools import debug
+from prototype_secondary_labeling import cellpose_segmentation_bis
 
 from fractal_tasks_core.cellpose_segmentation import cellpose_segmentation
-from prototype_secondary_labeling import cellpose_segmentation_bis
 
 
 if os.path.exists("tmp"):
@@ -60,4 +60,4 @@ for component in metadata["image"]:
         model_type="nuclei",
         # cellprob_threshold=-3.0,
         flow_threshold=0.4,
-        )
+    )

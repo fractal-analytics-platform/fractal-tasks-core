@@ -43,7 +43,7 @@ allowed_channels = [
 ]
 
 
-num_levels = 5
+num_levels = 4
 coarsening_xy = 2
 
 
@@ -66,6 +66,7 @@ metadata_update = create_ome_zarr(
 metadata.update(metadata_update)
 debug(metadata)
 
+
 # Yokogawa to zarr
 for component in metadata["image"]:
     yokogawa_to_ome_zarr(
@@ -83,9 +84,11 @@ metadata_update = copy_ome_zarr(
     metadata=metadata,
     project_to_2D=True,
     suffix="mip",
+    ROI_table_names=["well_ROI_table", "FOV_ROI_table"],
 )
 metadata.update(metadata_update)
 debug(metadata)
+
 
 # MIP
 for component in metadata["image"]:

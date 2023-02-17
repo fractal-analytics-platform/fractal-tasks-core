@@ -184,11 +184,13 @@ def cellpose_segmentation_bis(
         level=level,
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
+        origin_xyz=(0, 0, 0),
     )
 
     # Extract image size from FOV-ROI indices
     # Note: this works at level=0, where FOVs should all be of the exact same
     #       size (in pixels)
+    """
     FOV_ROI_table = ad.read_zarr(f"{zarrurl}tables/FOV_ROI_table")
     list_FOV_indices_level0 = convert_ROI_table_to_indices(
         FOV_ROI_table,
@@ -207,6 +209,7 @@ def cellpose_segmentation_bis(
                     f"{list_FOV_indices_level0=}"
                 )
     img_size_y, img_size_x = img_size[:]
+    """
 
     # Select 2D/3D behavior and set some parameters
     do_3D = data_zyx.shape[0] > 1
@@ -380,23 +383,23 @@ def cellpose_segmentation_bis(
         # Filter out background from input
         input_image_array[background_mask] = 0
 
-        # Execute illumination correction
+        # FIXME which level should we load here?
         old_mask = da.from_zarr(
             f"{zarrurl}labels/{output_label_name}/0"
-        )[s_z:e_z, s_y:e_y, s_x:e_x].compute()
+        )[  # noqa
+            s_z:e_z, s_y:e_y, s_x:e_x
+        ].compute()
         new_mask = np.zeros_like(input_image_array)
         print("new_mask:")
         print(new_mask.shape)
         print(new_mask)
         print()
 
-        # new_mask[organoid_mask] = np.random.choice(
-        #     (label_value, 0), size=new_mask.shape
-        # )[organoid_mask]
-
-        this_debug = True
+        this_debug = False
         if this_debug:
-            new_mask = np.ones_like(input_image_array)
+            # new_mask = np.ones_like(input_image_array)
+            size = input_image_array.shape
+            new_mask = np.random.choice((label_value, 0), size=size)
         else:
             new_mask = segment_FOV(
                 input_image_array,
@@ -410,7 +413,7 @@ def cellpose_segmentation_bis(
                 well_id=well_id,
             )
 
-        # new_mask[background_mask] = old_mask[background_mask]
+        new_mask[background_mask] = old_mask[background_mask]
 
         print(new_mask)
 
