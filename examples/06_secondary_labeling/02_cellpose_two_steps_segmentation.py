@@ -53,7 +53,7 @@ for component in metadata["image"]:
         wavelength_id="A01_C01",
         level=2,
         relabeling=True,
-        diameter_level0=50.0,
+        diameter_level0=20.0,
         ROI_table_name="organoids_bbox_table",
         primary_label_ROI_table_name="organoids_ROI_table",
         output_label_name="nuclei_ROI_table",
