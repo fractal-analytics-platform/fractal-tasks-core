@@ -196,9 +196,9 @@ if __name__ == "__main__":
         input_paths: Sequence[str]
         output_path: str
         metadata: Dict[str, Any]
-        project_to_2D: bool = True
-        suffix: Optional[str] = None
-        ROI_table_names: Optional[Sequence[str]] = None
+        project_to_2D: Optional[bool]
+        suffix: Optional[str]
+        ROI_table_names: Optional[Sequence[str]]
 
     run_fractal_task(
         task_function=copy_ome_zarr,

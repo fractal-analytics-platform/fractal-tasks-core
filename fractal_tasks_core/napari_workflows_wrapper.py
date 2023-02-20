@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import List
+from typing import Optional
 from typing import Sequence
 
 import anndata as ad
@@ -596,10 +597,10 @@ if __name__ == "__main__":
         workflow_file: str
         input_specs: Dict[str, Dict[str, str]]
         output_specs: Dict[str, Dict[str, str]]
-        ROI_table_name: str = "FOV_ROI_table"
-        level: int = 0
-        relabeling: bool = True
-        expected_dimensions: int = 3
+        ROI_table_name: Optional[str]
+        level: Optional[int]
+        relabeling: Optional[bool]
+        expected_dimensions: Optional[int]
 
     run_fractal_task(
         task_function=napari_workflows_wrapper,

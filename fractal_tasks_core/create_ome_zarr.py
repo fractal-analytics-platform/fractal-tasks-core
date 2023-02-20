@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import List
+from typing import Optional
 from typing import Sequence
 
 import pandas as pd
@@ -390,9 +391,9 @@ if __name__ == "__main__":
         output_path: str
         metadata: Dict[str, Any]
         allowed_channels: Sequence[Dict[str, Any]]
-        num_levels: int = 2
-        coarsening_xy: int = 2
-        metadata_table: str = "mrf_mlf"
+        num_levels: Optional[int]
+        coarsening_xy: Optional[int]
+        metadata_table: Optional[str]
 
     run_fractal_task(
         task_function=create_ome_zarr,

@@ -98,7 +98,7 @@ def illumination_correction(
     component: str,
     metadata: Dict[str, Any],
     overwrite: bool = False,
-    new_component: str = None,
+    new_component: Optional[str] = None,
     dict_corr: dict,
     background: int = 100,
 ) -> Dict[str, Any]:
@@ -282,10 +282,10 @@ if __name__ == "__main__":
         component: str
         metadata: Dict[str, Any]
         # Task-specific arguments
-        overwrite: bool = False
-        new_component: Optional[str] = None
+        overwrite: Optional[bool]
+        new_component: Optional[str]
         dict_corr: dict
-        background: int = 100
+        background: Optional[int]
 
     run_fractal_task(
         task_function=illumination_correction,

@@ -20,6 +20,7 @@ from glob import glob
 from pathlib import Path
 from typing import Any
 from typing import Dict
+from typing import Optional
 from typing import Sequence
 
 import dask.array as da
@@ -205,7 +206,7 @@ if __name__ == "__main__":
         output_path: str
         metadata: Dict[str, Any]
         component: str
-        delete_input: bool = False
+        delete_input: Optional[bool]
 
     run_fractal_task(
         task_function=yokogawa_to_ome_zarr,
