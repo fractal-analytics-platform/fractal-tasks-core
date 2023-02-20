@@ -477,7 +477,7 @@ def test_workflow_bounding_box_with_overlap(
 
     # Setup caplog fixture, see
     # https://docs.pytest.org/en/stable/how-to/logging.html#caplog-fixture
-    caplog.set_level(logging.INFO)
+    caplog.set_level(logging.WARNING)
 
     # Use pre-made 3D zarr
     zarr_path = tmp_path / "tmp_out/*.zarr"
@@ -487,15 +487,16 @@ def test_workflow_bounding_box_with_overlap(
 
     # Per-FOV labeling
     for component in metadata["image"]:
-        with pytest.raises(ValueError):
-            cellpose_segmentation(
-                input_paths=[zarr_path],
-                output_path=zarr_path,
-                metadata=metadata,
-                component=component,
-                wavelength_id="A01_C01",
-                level=3,
-                relabeling=True,
-                diameter_level0=80.0,
-                bounding_box_ROI_table_name="bbox_table",
-            )
+        cellpose_segmentation(
+            input_paths=[zarr_path],
+            output_path=zarr_path,
+            metadata=metadata,
+            component=component,
+            wavelength_id="A01_C01",
+            level=3,
+            relabeling=True,
+            diameter_level0=80.0,
+            bounding_box_ROI_table_name="bbox_table",
+        )
+        debug(caplog.text)
+        assert "bounding-box pairs overlap" in caplog.text
