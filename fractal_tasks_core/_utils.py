@@ -101,7 +101,7 @@ def run_fractal_task(
         # Validating arguments' types and run task
         task_args = TaskArgsModel(**pars)
         logger.info(f"START {task_function.__name__} task")
-        metadata_update = task_function(**task_args.dict())
+        metadata_update = task_function(**task_args.dict(exclude_unset=True))
         logger.info(f"END {task_function.__name__} task")
 
     # Write output metadata to file, with custom JSON encoder
