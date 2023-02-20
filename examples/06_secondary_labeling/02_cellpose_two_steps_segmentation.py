@@ -4,8 +4,10 @@ import shutil
 from pathlib import Path
 
 from devtools import debug
-from prototype_secondary_labeling import cellpose_segmentation_bis
 
+from fractal_tasks_core.cellpose_secondary_segmentation import (
+    cellpose_secondary_segmentation,
+)  # noqa
 from fractal_tasks_core.cellpose_segmentation import cellpose_segmentation
 
 
@@ -45,7 +47,7 @@ for component in metadata["image"]:
 print("\n--------------------\n")
 
 for component in metadata["image"]:
-    cellpose_segmentation_bis(
+    cellpose_secondary_segmentation(
         input_paths=[zarr_path_mip],
         output_path=zarr_path_mip,
         metadata=metadata,
