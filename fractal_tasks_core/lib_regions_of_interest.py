@@ -204,7 +204,7 @@ def convert_ROI_table_to_indices(
         "len_y_micrometer",
         "len_z_micrometer",
     ],
-    origin_xyz: Optional[Sequence[float]] = None,
+    reset_origin: Optional[bool] = True,
 ) -> List[List[int]]:
     """
     Description
@@ -224,12 +224,14 @@ def convert_ROI_table_to_indices(
     x_pos, y_pos, z_pos = cols_xyz_pos[:]
     x_len, y_len, z_len = cols_xyz_len[:]
 
-    if origin_xyz is None:
+    if reset_origin:
         origin_x = min(ROI[:, x_pos].X[:, 0])
         origin_y = min(ROI[:, y_pos].X[:, 0])
         origin_z = min(ROI[:, z_pos].X[:, 0])
     else:
-        origin_x, origin_y, origin_z = origin_xyz
+        origin_x = 0.0
+        origin_y = 0.0
+        origin_z = 0.0
 
     list_indices = []
     for FOV in ROI.obs_names:

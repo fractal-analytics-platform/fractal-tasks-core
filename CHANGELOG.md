@@ -1,3 +1,7 @@
+# Unreleased
+
+- Add `reset_origin` argument to `convert_ROI_table_to_indices` (\#305).
+
 # 0.7.2
 
 - Remove pyqt5-related dependencies (\#288).
@@ -13,7 +17,6 @@ Missing
 - Pin zarr version to >=2.13.6, <2.14.
 - Pin numpy version to >=1.23.5,<1.24.
 - Pin cellpose version to >=2.2,<2.3.
-
 
 # 0.6.5
 
