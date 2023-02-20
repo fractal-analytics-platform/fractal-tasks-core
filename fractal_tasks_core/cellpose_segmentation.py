@@ -45,12 +45,11 @@ from fractal_tasks_core.lib_regions_of_interest import (
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
+from fractal_tasks_core.lib_remove_FOV_overlaps import (
+    get_overlapping_pairs_3D,
+)
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
-
-# from fractal_tasks_core.lib_remove_FOV_overlaps import (
-#     get_overlapping_pairs_3D,
-# )
 
 logger = logging.getLogger(__name__)
 
@@ -454,15 +453,16 @@ def cellpose_segmentation(
 
             bbox_dataframe_list.append(bbox_df)
 
-            # FIXME
-            # FIXME: review this check
-            # FIXME
-
-            # overlap_list = []
-            # for df in bbox_dataframe_list:
-            #     overlap_list.append(
-            #         get_overlapping_pairs_3D(df, full_res_pxl_sizes_zyx)
-            #    )
+            overlap_list = []
+            for df in bbox_dataframe_list:
+                overlap_list.extend(
+                    get_overlapping_pairs_3D(df, full_res_pxl_sizes_zyx)
+                )
+            if len(overlap_list) > 0:
+                logger.warning(
+                    f"[{well_id}] "
+                    f"{len(overlap_list)} bounding-box pairs overlap"
+                )
 
         # Compute and store 0-th level to disk
         da.array(fov_mask).to_zarr(
