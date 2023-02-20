@@ -15,6 +15,7 @@ Copyright 2022 (C)
 Functions to handle regions of interests (via pandas and AnnData)
 """
 from typing import List
+from typing import Optional
 from typing import Sequence
 
 import anndata as ad
@@ -203,6 +204,7 @@ def convert_ROI_table_to_indices(
         "len_y_micrometer",
         "len_z_micrometer",
     ],
+    reset_origin: Optional[bool] = True,
 ) -> List[List[int]]:
     """
     Description
@@ -220,9 +222,14 @@ def convert_ROI_table_to_indices(
     x_pos, y_pos, z_pos = cols_xyz_pos[:]
     x_len, y_len, z_len = cols_xyz_len[:]
 
-    origin_x = min(ROI[:, x_pos].X[:, 0])
-    origin_y = min(ROI[:, y_pos].X[:, 0])
-    origin_z = min(ROI[:, z_pos].X[:, 0])
+    if reset_origin:
+        origin_x = min(ROI[:, x_pos].X[:, 0])
+        origin_y = min(ROI[:, y_pos].X[:, 0])
+        origin_z = min(ROI[:, z_pos].X[:, 0])
+    else:
+        origin_x = 0.0
+        origin_y = 0.0
+        origin_z = 0.0
 
     list_indices = []
     for FOV in ROI.obs_names:
