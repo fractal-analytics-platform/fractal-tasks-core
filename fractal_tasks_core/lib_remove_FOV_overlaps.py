@@ -110,19 +110,24 @@ def get_overlapping_pair(tmp_df: pd.DataFrame, tol: float = 0) -> Tuple[int]:
     return False
 
 
-def get_overlapping_pairs_3D(tmp_df: pd.DataFrame, pixel_sizes):
+def get_overlapping_pairs_3D(
+    tmp_df: pd.DataFrame,
+    full_res_pxl_sizes_zyx: Sequence[float],
+):
     """
-    Finds the indices for the next overlapping FOVs pair, in three dimensions
+    Finds the indices for the all overlapping FOVs pair, in three dimensions
 
     Note: the returned indices are positional indices, starting from 0
 
     :param tmp_df: Dataframe with columns ``{x,y,z}_micrometer`` and
                    ``len_{x,y,z}_micrometer``.
-    :param tol: Finite tolerance for floating-point comparisons.
+    :param pixel_sizes: TBD
     """
+
     tol = 1e-10
-    if tol > min(pixel_sizes) / 1e3:
-        raise Exception(f"{tol=} but {pixel_sizes=}")
+    if tol > min(full_res_pxl_sizes_zyx) / 1e3:
+        raise ValueError(f"{tol=} but {full_res_pxl_sizes_zyx=}")
+
     new_tmp_df = tmp_df.copy()
 
     new_tmp_df["x_micrometer_max"] = (
@@ -137,20 +142,17 @@ def get_overlapping_pairs_3D(tmp_df: pd.DataFrame, pixel_sizes):
     new_tmp_df.drop(labels=["len_x_micrometer"], axis=1, inplace=True)
     new_tmp_df.drop(labels=["len_y_micrometer"], axis=1, inplace=True)
     new_tmp_df.drop(labels=["len_z_micrometer"], axis=1, inplace=True)
+
+    # Loop over all pairs, and construct list of overlapping ones
     num_lines = len(new_tmp_df.index)
     overlapping_list = []
-    # pos_ind_1 and pos_ind_2 are labels value
     for pos_ind_1 in range(num_lines):
         for pos_ind_2 in range(pos_ind_1):
-            if is_overlapping_3D(
+            overlap = is_overlapping_3D(
                 new_tmp_df.iloc[pos_ind_1], new_tmp_df.iloc[pos_ind_2], tol=tol
-            ):
-                # we accumulate tuples of overlapping labels
+            )
+            if overlap:
                 overlapping_list.append((pos_ind_1, pos_ind_2))
-    if len(overlapping_list) > 0:
-        raise ValueError(
-            f"{overlapping_list} " f"List of pair of bounding box overlaps"
-        )
     return overlapping_list
 
 
