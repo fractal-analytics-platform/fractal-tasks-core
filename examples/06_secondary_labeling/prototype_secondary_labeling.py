@@ -184,7 +184,7 @@ def cellpose_segmentation_bis(
         level=level,
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
-        origin_xyz=(0, 0, 0),
+        reset_origin=False,
     )
 
     # Extract image size from FOV-ROI indices
