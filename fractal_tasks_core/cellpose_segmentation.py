@@ -139,10 +139,10 @@ def cellpose_segmentation(
     metadata: Dict[str, Any],
     # Task-specific arguments
     level: int,
-    wavelength_id: Optional[str],
-    channel_label: Optional[str],
-    wavelength_id_c2: Optional[str],
-    channel_label_c2: Optional[str],
+    wavelength_id: Optional[str] = None,
+    channel_label: Optional[str] = None,
+    wavelength_id_c2: Optional[str] = None,
+    channel_label_c2: Optional[str] = None,
     relabeling: bool = True,
     anisotropy: Optional[float] = None,
     diameter_level0: float = 80.0,
@@ -598,10 +598,10 @@ if __name__ == "__main__":
         component: str
         metadata: Dict[str, Any]
         # Task-specific arguments
-        channel_label: Optional[str] = None
-        wavelength_id: Optional[str] = None
-        channel_label_c2: Optional[str] = None
-        channel_label_c2: Optional[str] = None
+        channel_label: Optional[str]
+        wavelength_id: Optional[str]
+        channel_label_c2: Optional[str]
+        channel_label_c2: Optional[str]
         level: int
         relabeling: bool = True
         anisotropy: Optional[float] = None
