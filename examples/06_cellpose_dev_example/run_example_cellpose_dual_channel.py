@@ -17,10 +17,12 @@ from pathlib import Path
 from devtools import debug
 
 from fractal_tasks_core.cellpose_segmentation import cellpose_segmentation
-from fractal_tasks_core.create_ome_zarr import create_ome_zarr
-from fractal_tasks_core.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 from fractal_tasks_core.copy_ome_zarr import copy_ome_zarr
-from fractal_tasks_core.maximum_intensity_projection import maximum_intensity_projection
+from fractal_tasks_core.create_ome_zarr import create_ome_zarr
+from fractal_tasks_core.maximum_intensity_projection import (
+    maximum_intensity_projection,
+)
+from fractal_tasks_core.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 
 
 allowed_channels = [
@@ -91,7 +93,7 @@ metadata_update = copy_ome_zarr(
     input_paths=[zarr_path],
     output_path=zarr_path,
     metadata=metadata,
-    suffix='mip'
+    suffix="mip",
 )
 metadata.update(metadata_update)
 
