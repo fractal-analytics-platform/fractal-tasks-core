@@ -228,6 +228,14 @@ def cellpose_segmentation(
         return {}
     ind_channel = channel["index"]
 
+    # Set channel label
+    if output_label_name is None:
+        try:
+            channel_label = channel["label"]
+            output_label_name = f"label_{channel_label}"
+        except (KeyError, IndexError):
+            output_label_name = f"label_{ind_channel}"
+
     # Load ZYX data
     data_zyx = da.from_zarr(f"{zarrurl}{level}")[ind_channel]
     logger.info(f"[{well_id}] {data_zyx.shape=}")
@@ -314,14 +322,6 @@ def cellpose_segmentation(
             "global coordinateTransformations at the multiscales "
             "level are not currently supported"
         )
-
-    # Set channel label - FIXME: adapt to new channels structure
-    if output_label_name is None:
-        try:
-            omero_label = zattrs["omero"]["channels"][ind_channel]["label"]
-            output_label_name = f"label_{omero_label}"
-        except (KeyError, IndexError):
-            output_label_name = f"label_{ind_channel}"
 
     # Rescale datasets (only relevant for level>0)
     new_datasets = rescale_datasets(
