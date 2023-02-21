@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import List
+from typing import Optional
 from typing import Sequence
 
 import pandas as pd
@@ -45,8 +46,8 @@ logger = logging.getLogger(__name__)
 
 def create_ome_zarr(
     *,
-    input_paths: Sequence[Path],
-    output_path: Path,
+    input_paths: Sequence[str],
+    output_path: str,
     metadata: Dict[str, Any],
     allowed_channels: Sequence[Dict[str, Any]],
     num_levels: int = 2,
@@ -102,9 +103,10 @@ def create_ome_zarr(
 
     # FIXME
     # find a smart way to remove it
-    ext_glob_pattern = input_paths[0].name
+    ext_glob_pattern = Path(input_paths[0]).name
 
-    for in_path in input_paths:
+    for in_path_str in input_paths:
+        in_path = Path(in_path_str)
         input_filename_iter = in_path.parent.glob(in_path.name)
 
         tmp_wavelength_ids = []
@@ -195,7 +197,7 @@ def create_ome_zarr(
         zarrurl = f"{plate}.zarr"
         in_path = dict_plate_paths[plate]
         logger.info(f"Creating {zarrurl}")
-        group_plate = zarr.group(output_path.parent / zarrurl)
+        group_plate = zarr.group(Path(output_path).parent / zarrurl)
         zarrurls["plate"].append(zarrurl)
 
         # Obtain FOV-metadata dataframe
@@ -366,7 +368,7 @@ def create_ome_zarr(
     # back to one-image-per-field-of-view mode
     for well_path in zarrurls["well"]:
         check_well_channel_labels(
-            well_zarr_path=str(output_path.parent / well_path)
+            well_zarr_path=str(Path(output_path).parent / well_path)
         )
 
     metadata_update = dict(
@@ -375,7 +377,7 @@ def create_ome_zarr(
         image=zarrurls["image"],
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        original_paths=[str(p) for p in input_paths],
+        original_paths=input_paths[:],
     )
     return metadata_update
 
@@ -385,13 +387,13 @@ if __name__ == "__main__":
     from fractal_tasks_core._utils import run_fractal_task
 
     class TaskArguments(BaseModel):
-        input_paths: Sequence[Path]
-        output_path: Path
+        input_paths: Sequence[str]
+        output_path: str
         metadata: Dict[str, Any]
         allowed_channels: Sequence[Dict[str, Any]]
-        num_levels: int = 2
-        coarsening_xy: int = 2
-        metadata_table: str = "mrf_mlf"
+        num_levels: Optional[int]
+        coarsening_xy: Optional[int]
+        metadata_table: Optional[str]
 
     run_fractal_task(
         task_function=create_ome_zarr,
