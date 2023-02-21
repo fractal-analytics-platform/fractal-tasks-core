@@ -61,7 +61,7 @@ def segment_FOV(
     x: np.ndarray,
     model=None,
     do_3D: bool = True,
-    channels = [0, 0],
+    channels=[0, 0],
     anisotropy=None,
     diameter: float = 40.0,
     cellprob_threshold: float = 0.0,
@@ -75,10 +75,10 @@ def segment_FOV(
     :param x: numpy array
     :param model: TBD
     :param do_3D: TBD
-    :param channels: Which channels to use. If only one channel is provided, 
-                     [0, 0] should be used. If two channels are provided 
-                     (the first dimension of x has lenth of 2), [[1, 2]] 
-                     should be used (x[0, :, :, :] contains the membrane 
+    :param channels: Which channels to use. If only one channel is provided,
+                     [0, 0] should be used. If two channels are provided
+                     (the first dimension of x has lenth of 2), [[1, 2]]
+                     should be used (x[0, :, :, :] contains the membrane
                      channel first & x[1, :, :, :] the nuclear channel).
     :param anisotropy: TBD
     :param diameter: TBD
@@ -91,7 +91,7 @@ def segment_FOV(
     # Write some debugging info
     logger.info(
         f"[{well_id}][segment_FOV] START Cellpose |"
-        #f" x: {type(x)}, {x.shape} |"
+        # f" x: {type(x)}, {x.shape} |"
         f" do_3D: {do_3D} |"
         f" model.diam_mean: {model.diam_mean} |"
         f" diameter: {diameter} |"
@@ -177,17 +177,17 @@ def cellpose_segmentation(
     :param channel_label: Identifier of a channel based on its label (e.g.
                           ``DAPI``). If not ``None``, then ``wavelength_id``
                           must be ``None``.
-    :param wavelength_id_c2: Identifier of a second channel in the same format 
-                          as the first wavelength_id. If specified, cellpose 
-                          runs in dual channel mode. 
-                          For dual channel segmentation of cells, the first 
-                          channel should contain the membrane marker, 
+    :param wavelength_id_c2: Identifier of a second channel in the same format
+                          as the first wavelength_id. If specified, cellpose
+                          runs in dual channel mode.
+                          For dual channel segmentation of cells, the first
+                          channel should contain the membrane marker,
                           the second channel should contain the nuclear marker.
-    :param channel_label_c2: Identifier of a second channel in the same 
-                          format as the first wavelength_id. If specified, 
+    :param channel_label_c2: Identifier of a second channel in the same
+                          format as the first wavelength_id. If specified,
                           cellpose runs in dual channel mode.
-                          For dual channel segmentation of cells, 
-                          the first channel should contain the membrane marker, 
+                          For dual channel segmentation of cells,
+                          the first channel should contain the membrane marker,
                           the second channel should contain the nuclear marker.
     :param relabeling: If ``True``, apply relabeling so that label values are
                        unique across ROIs.
@@ -444,7 +444,7 @@ def cellpose_segmentation(
     logger.info(f"[{well_id}] {data_zyx.shape}")
     logger.info(f"[{well_id}] {data_zyx.chunks}")
     if wavelength_id_c2 or channel_label_c2:
-        logger.info(f"Dual channel input for cellpose model")
+        logger.info("Dual channel input for cellpose model")
         logger.info(f"[{well_id}] {data_zyx_c2.shape}")
         logger.info(f"[{well_id}] {data_zyx_c2.chunks}")
 
@@ -471,40 +471,29 @@ def cellpose_segmentation(
         # Execute cellpose segmentation
         if wavelength_id_c2 or channel_label_c2:
             # Dual channel mode, first channel is the membrane channel
-            combined_data = np.zeros((2, *data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].shape))
-            combined_data[0, :, :, :] = data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].compute()
-            combined_data[1, :, :, :] = data_zyx_c2[s_z:e_z, s_y:e_y, s_x:e_x].compute()
-            fov_mask = segment_FOV(
-                # [
-                #     data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].compute(),
-                #     data_zyx_c2[s_z:e_z, s_y:e_y, s_x:e_x].compute()
-                # ],
-                combined_data,
-                model=model,
-                # channels=[[0, 0], [0, 0]],
-                channels=[1, 2],
-                do_3D=do_3D,
-                anisotropy=anisotropy,
-                label_dtype=label_dtype,
-                diameter=diameter_level0 / coarsening_xy**level,
-                cellprob_threshold=cellprob_threshold,
-                flow_threshold=flow_threshold,
-                well_id=well_id,
-            )            
+            img_np = np.zeros((2, *data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].shape))
+            img_np[0, :, :, :] = data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].compute()
+            img_np[1, :, :, :] = data_zyx_c2[
+                s_z:e_z, s_y:e_y, s_x:e_x
+            ].compute()
+            channels = [1, 2]
         else:
-            fov_mask = segment_FOV(
-                data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].compute(),
-                model=model,
-                channels=[0, 0],
-                do_3D=do_3D,
-                anisotropy=anisotropy,
-                label_dtype=label_dtype,
-                diameter=diameter_level0 / coarsening_xy**level,
-                cellprob_threshold=cellprob_threshold,
-                flow_threshold=flow_threshold,
-                well_id=well_id,
-            )
-        
+            img_np = data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].compute()
+            channels = [0, 0]
+
+        fov_mask = segment_FOV(
+            img_np,
+            model=model,
+            channels=channels,
+            do_3D=do_3D,
+            anisotropy=anisotropy,
+            label_dtype=label_dtype,
+            diameter=diameter_level0 / coarsening_xy**level,
+            cellprob_threshold=cellprob_threshold,
+            flow_threshold=flow_threshold,
+            well_id=well_id,
+        )
+
         # Shift labels and update relabeling counters
         if relabeling:
             num_labels_fov = np.max(fov_mask)

@@ -274,7 +274,7 @@ def test_workflow_with_multi_channel_input(
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
-    # Testing by providing the same channel twice as wavelength_id & 
+    # Testing by providing the same channel twice as wavelength_id &
     # wavelength_id_c2
 
     monkeypatch.setattr(
