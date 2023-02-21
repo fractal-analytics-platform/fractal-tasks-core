@@ -31,9 +31,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
 
-      #- name: Run pre-commit
-      #  if: ${{ matrix.python-version == '3.10' }}
-      #  uses: pre-commit/action@v3.0.0
+      - name: Run pre-commit
+        if: ${{ matrix.python-version == '3.10' }}
+        uses: pre-commit/action@v3.0.0
 
       - name: Install dependencies
         run: poetry install --with dev --all-extras --no-interaction
