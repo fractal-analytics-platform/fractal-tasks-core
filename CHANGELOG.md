@@ -1,3 +1,7 @@
+# Unreleased
+
+- Add tests for python 3.10 (\#309).
+
 # 0.7.3
 
 - Add `reset_origin` argument to `convert_ROI_table_to_indices` (\#305).
