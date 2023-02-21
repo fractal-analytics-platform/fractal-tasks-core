@@ -331,7 +331,6 @@ def cellpose_segmentation(
     )
 
     # Write zattrs for labels and for specific label
-    # FIXME deal with: (1) many channels
     new_labels = [output_label_name]
     try:
         with open(f"{zarrurl}labels/.zattrs", "r") as f_zattrs:
