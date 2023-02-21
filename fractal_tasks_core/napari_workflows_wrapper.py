@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import List
+from typing import Optional
 from typing import Sequence
 
 import anndata as ad
@@ -59,8 +60,8 @@ class OutOfTaskScopeError(NotImplementedError):
 def napari_workflows_wrapper(
     *,
     # Default arguments for fractal tasks:
-    input_paths: Sequence[Path],
-    output_path: Path,
+    input_paths: Sequence[str],
+    output_path: str,
     component: str,
     metadata: Dict[str, Any],
     # Task-specific arguments:
@@ -158,7 +159,7 @@ def napari_workflows_wrapper(
     # Pre-processing of task inputs
     if len(input_paths) > 1:
         raise NotImplementedError("We currently only support a single in_path")
-    in_path = input_paths[0].parent.as_posix()
+    in_path = Path(input_paths[0]).parent.as_posix()
     num_levels = metadata["num_levels"]
     coarsening_xy = metadata["coarsening_xy"]
     label_dtype = np.uint32
@@ -589,17 +590,17 @@ if __name__ == "__main__":
     from fractal_tasks_core._utils import run_fractal_task
 
     class TaskArguments(BaseModel):
-        input_paths: Sequence[Path]
-        output_path: Path
+        input_paths: Sequence[str]
+        output_path: str
         metadata: Dict[str, Any]
         component: str
         workflow_file: str
         input_specs: Dict[str, Dict[str, str]]
         output_specs: Dict[str, Dict[str, str]]
-        ROI_table_name: str = "FOV_ROI_table"
-        level: int = 0
-        relabeling: bool = True
-        expected_dimensions: int = 3
+        ROI_table_name: Optional[str]
+        level: Optional[int]
+        relabeling: Optional[bool]
+        expected_dimensions: Optional[int]
 
     run_fractal_task(
         task_function=napari_workflows_wrapper,
