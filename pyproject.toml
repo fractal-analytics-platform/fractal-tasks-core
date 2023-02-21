@@ -95,7 +95,3 @@ push = true
 exclude = [
   'tests', 'examples', 'docs'
 ]
-
-[tool.black]
-line-length = 79
-force-exclude = "tests/data/"
