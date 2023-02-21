@@ -1,4 +1,4 @@
-# Unreleased
+# 0.7.3
 
 - Add `reset_origin` argument to `convert_ROI_table_to_indices` (\#305).
 - Do not overwrite existing labels in `cellpose_segmentation` task (\#308).
