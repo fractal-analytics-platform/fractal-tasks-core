@@ -24,7 +24,6 @@ from argparse import ArgumentParser
 from json import JSONEncoder
 from pathlib import Path
 from typing import Callable
-from typing import get_type_hints
 
 from pydantic import BaseModel
 
@@ -86,18 +85,6 @@ def run_fractal_task(
         metadata_update = task_function(**pars)
         logger.info(f"END {task_function.__name__} task")
     else:
-        # Check match of type hints in task_function and TaskArgsModel
-        task_function_type_hints = get_type_hints(task_function)
-        task_function_type_hints.pop("return", None)
-        TaskArgsModel_type_hints = get_type_hints(TaskArgsModel)
-        if task_function_type_hints != TaskArgsModel_type_hints:
-            raise ValueError(
-                "task_function_type_hints differs from "
-                "TaskArgsModel_type_hints. Please check that "
-                "they are up-to-date.\n"
-                f"{sorted(task_function_type_hints.items())}\n"
-                f"{sorted(TaskArgsModel_type_hints.items())}"
-            )
         # Validating arguments' types and run task
         task_args = TaskArgsModel(**pars)
         logger.info(f"START {task_function.__name__} task")
