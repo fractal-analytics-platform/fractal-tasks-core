@@ -343,7 +343,7 @@ def cellpose_segmentation(
     logger.info(f"{existing_labels=}")
     if intersection:
         raise RuntimeError(
-            f"Labels {intersection} already exist " "but are part of outputs"
+            f"Labels {intersection} already exist but are also part of outputs"
         )
     labels_group = zarr.group(f"{zarrurl}labels")
     labels_group.attrs["labels"] = existing_labels + new_labels
