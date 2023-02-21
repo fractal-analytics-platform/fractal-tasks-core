@@ -331,9 +331,23 @@ def cellpose_segmentation(
     )
 
     # Write zattrs for labels and for specific label
-    # FIXME deal with: (1) many channels, (2) overwriting
+    # FIXME deal with: (1) many channels
+    new_labels = [output_label_name]
+    try:
+        with open(f"{zarrurl}labels/.zattrs", "r") as f_zattrs:
+            existing_labels = json.load(f_zattrs)["labels"]
+    except FileNotFoundError:
+        existing_labels = []
+    intersection = set(new_labels) & set(existing_labels)
+    logger.info(f"{new_labels=}")
+    logger.info(f"{existing_labels=}")
+    if intersection:
+        raise RuntimeError(
+            f"Labels {intersection} already exist " "but are part of outputs"
+        )
     labels_group = zarr.group(f"{zarrurl}labels")
-    labels_group.attrs["labels"] = [output_label_name]
+    labels_group.attrs["labels"] = existing_labels + new_labels
+
     label_group = labels_group.create_group(output_label_name)
     label_group.attrs["image-label"] = {"version": __OME_NGFF_VERSION__}
     label_group.attrs["multiscales"] = [
