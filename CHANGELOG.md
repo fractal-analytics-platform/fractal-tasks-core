@@ -1,6 +1,12 @@
 # Unreleased
 
+- Add tests for python 3.10 (\#309).
+- Update task interface: use string arguments instead of `pathlib.Path`, and only set defaults in function call signatures (\#303).
+
+# 0.7.3
+
 - Add `reset_origin` argument to `convert_ROI_table_to_indices` (\#305).
+- Do not overwrite existing labels in `cellpose_segmentation` task (\#308).
 
 # 0.7.2
 

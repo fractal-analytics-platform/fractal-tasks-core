@@ -53,18 +53,18 @@ def run_command(cmd: str):
     assert completed_process.stderr is None
 
 
-def test_workflow_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: Path):
+def test_workflow_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: str):
 
     # Init
-    img_path = zenodo_images / "*.png"
+    img_path = Path(zenodo_images) / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     metadata = {}
     tasks_path = str(Path(fractal_tasks_core.__file__).parent)
 
     # Create zarr structure
     args_create_zarr = dict(
-        input_paths=[img_path],
-        output_path=zarr_path,
+        input_paths=[str(img_path)],
+        output_path=str(zarr_path),
         allowed_channels=allowed_channels,
         metadata={},
         num_levels=num_levels,

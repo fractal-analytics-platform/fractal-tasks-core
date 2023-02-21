@@ -127,8 +127,8 @@ def segment_FOV(
 def cellpose_segmentation(
     *,
     # Fractal arguments
-    input_paths: Sequence[Path],
-    output_path: Path,
+    input_paths: Sequence[str],
+    output_path: str,
     component: str,
     metadata: Dict[str, Any],
     # Task-specific arguments
@@ -191,7 +191,7 @@ def cellpose_segmentation(
     # Set input path
     if len(input_paths) > 1:
         raise NotImplementedError
-    in_path = input_paths[0].parent
+    in_path = Path(input_paths[0]).parent
     zarrurl = (in_path.resolve() / component).as_posix() + "/"
     logger.info(zarrurl)
 
@@ -227,6 +227,14 @@ def cellpose_segmentation(
         )
         return {}
     ind_channel = channel["index"]
+
+    # Set channel label
+    if output_label_name is None:
+        try:
+            channel_label = channel["label"]
+            output_label_name = f"label_{channel_label}"
+        except (KeyError, IndexError):
+            output_label_name = f"label_{ind_channel}"
 
     # Load ZYX data
     data_zyx = da.from_zarr(f"{zarrurl}{level}")[ind_channel]
@@ -315,14 +323,6 @@ def cellpose_segmentation(
             "level are not currently supported"
         )
 
-    # Set channel label - FIXME: adapt to new channels structure
-    if output_label_name is None:
-        try:
-            omero_label = zattrs["omero"]["channels"][ind_channel]["label"]
-            output_label_name = f"label_{omero_label}"
-        except (KeyError, IndexError):
-            output_label_name = f"label_{ind_channel}"
-
     # Rescale datasets (only relevant for level>0)
     new_datasets = rescale_datasets(
         datasets=multiscales[0]["datasets"],
@@ -331,9 +331,22 @@ def cellpose_segmentation(
     )
 
     # Write zattrs for labels and for specific label
-    # FIXME deal with: (1) many channels, (2) overwriting
+    new_labels = [output_label_name]
+    try:
+        with open(f"{zarrurl}labels/.zattrs", "r") as f_zattrs:
+            existing_labels = json.load(f_zattrs)["labels"]
+    except FileNotFoundError:
+        existing_labels = []
+    intersection = set(new_labels) & set(existing_labels)
+    logger.info(f"{new_labels=}")
+    logger.info(f"{existing_labels=}")
+    if intersection:
+        raise RuntimeError(
+            f"Labels {intersection} already exist but are also part of outputs"
+        )
     labels_group = zarr.group(f"{zarrurl}labels")
-    labels_group.attrs["labels"] = [output_label_name]
+    labels_group.attrs["labels"] = existing_labels + new_labels
+
     label_group = labels_group.create_group(output_label_name)
     label_group.attrs["image-label"] = {"version": __OME_NGFF_VERSION__}
     label_group.attrs["multiscales"] = [
@@ -516,24 +529,24 @@ if __name__ == "__main__":
 
     class TaskArguments(BaseModel):
         # Fractal arguments
-        input_paths: Sequence[Path]
-        output_path: Path
+        input_paths: Sequence[str]
+        output_path: str
         component: str
         metadata: Dict[str, Any]
         # Task-specific arguments
-        channel_label: Optional[str] = None
-        wavelength_id: Optional[str] = None
+        channel_label: Optional[str]
+        wavelength_id: Optional[str]
         level: int
         relabeling: bool = True
         anisotropy: Optional[float] = None
-        diameter_level0: float = 80.0
-        cellprob_threshold: float = 0.0
-        flow_threshold: float = 0.4
-        ROI_table_name: str = "FOV_ROI_table"
-        bounding_box_ROI_table_name: Optional[str] = None
-        output_label_name: Optional[str] = None
-        model_type: Literal["nuclei", "cyto", "cyto2"] = "nuclei"
-        pretrained_model: Optional[str] = None
+        diameter_level0: Optional[float]
+        cellprob_threshold: Optional[float]
+        flow_threshold: Optional[float]
+        ROI_table_name: Optional[str]
+        bounding_box_ROI_table_name: Optional[str]
+        output_label_name: Optional[str]
+        model_type: Optional[Literal["nuclei", "cyto", "cyto2"]]
+        pretrained_model: Optional[str]
 
     run_fractal_task(
         task_function=cellpose_segmentation,
