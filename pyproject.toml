@@ -98,3 +98,4 @@ exclude = [
 
 [tool.black]
 line-length = 79
+force-exclude = "tests/data/*"
