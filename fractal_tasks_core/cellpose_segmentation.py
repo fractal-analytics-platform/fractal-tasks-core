@@ -58,9 +58,10 @@ __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
 
 def segment_FOV(
-    column: np.ndarray,
+    x: np.ndarray,
     model=None,
     do_3D: bool = True,
+    channels = [0, 0],
     anisotropy=None,
     diameter: float = 40.0,
     cellprob_threshold: float = 0.0,
@@ -71,9 +72,14 @@ def segment_FOV(
     """
     Internal function that runs Cellpose segmentation for a single ROI.
 
-    :param column: Three-dimensional numpy array
+    :param x: numpy array
     :param model: TBD
     :param do_3D: TBD
+    :param channels: Which channels to use. If only one channel is provided, 
+                     [0, 0] should be used. If two channels are provided 
+                     (the first dimension of x has lenth of 2), [[1, 2]] 
+                     should be used (x[0, :, :, :] contains the membrane 
+                     channel first & x[1, :, :, :] the nuclear channel).
     :param anisotropy: TBD
     :param diameter: TBD
     :param cellprob_threshold: TBD
@@ -85,7 +91,7 @@ def segment_FOV(
     # Write some debugging info
     logger.info(
         f"[{well_id}][segment_FOV] START Cellpose |"
-        f" column: {type(column)}, {column.shape} |"
+        #f" x: {type(x)}, {x.shape} |"
         f" do_3D: {do_3D} |"
         f" model.diam_mean: {model.diam_mean} |"
         f" diameter: {diameter} |"
@@ -94,9 +100,9 @@ def segment_FOV(
 
     # Actual labeling
     t0 = time.perf_counter()
-    mask, flows, styles = model.eval(
-        column,
-        channels=[0, 0],
+    mask, _, _ = model.eval(
+        x,
+        channels=channels,
         do_3D=do_3D,
         net_avg=False,
         augment=False,
@@ -135,6 +141,8 @@ def cellpose_segmentation(
     level: int,
     wavelength_id: Optional[str] = None,
     channel_label: Optional[str] = None,
+    wavelength_id_c2: Optional[str] = None,
+    channel_label_c2: Optional[str] = None,
     relabeling: bool = True,
     anisotropy: Optional[float] = None,
     diameter_level0: float = 80.0,
@@ -169,6 +177,18 @@ def cellpose_segmentation(
     :param channel_label: Identifier of a channel based on its label (e.g.
                           ``DAPI``). If not ``None``, then ``wavelength_id``
                           must be ``None``.
+    :param wavelength_id_c2: Identifier of a second channel in the same format 
+                          as the first wavelength_id. If specified, cellpose 
+                          runs in dual channel mode. 
+                          For dual channel segmentation of cells, the first 
+                          channel should contain the membrane marker, 
+                          the second channel should contain the nuclear marker.
+    :param channel_label_c2: Identifier of a second channel in the same 
+                          format as the first wavelength_id. If specified, 
+                          cellpose runs in dual channel mode.
+                          For dual channel segmentation of cells, 
+                          the first channel should contain the membrane marker, 
+                          the second channel should contain the nuclear marker.
     :param relabeling: If ``True``, apply relabeling so that label values are
                        unique across ROIs.
     :param anisotropy: Ratio of the pixel sizes along Z and XY axis (ignored if
@@ -228,6 +248,24 @@ def cellpose_segmentation(
         return {}
     ind_channel = channel["index"]
 
+    # Find channel index for second channel, if one is provided
+    if wavelength_id_c2 or channel_label_c2:
+        try:
+            channel_c2 = get_channel_from_image_zarr(
+                image_zarr_path=zarrurl,
+                wavelength_id=wavelength_id_c2,
+                label=channel_label_c2,
+            )
+        except ChannelNotFoundError as e:
+            logger.warning(
+                f"Second channel with wavelength_id_c2:{wavelength_id_c2} and "
+                f"channel_label_c2: {channel_label_c2} not found, exit "
+                "from the task.\n"
+                f"Original error: {str(e)}"
+            )
+            return {}
+        ind_channel_c2 = channel_c2["index"]
+
     # Set channel label
     if output_label_name is None:
         try:
@@ -239,6 +277,9 @@ def cellpose_segmentation(
     # Load ZYX data
     data_zyx = da.from_zarr(f"{zarrurl}{level}")[ind_channel]
     logger.info(f"[{well_id}] {data_zyx.shape=}")
+    if wavelength_id_c2 or channel_label_c2:
+        data_zyx_c2 = da.from_zarr(f"{zarrurl}{level}")[ind_channel_c2]
+        logger.info(f"Second channel: [{well_id}] {data_zyx_c2.shape=}")
 
     # Read ROI table
     ROI_table = ad.read_zarr(f"{zarrurl}tables/{ROI_table_name}")
@@ -402,6 +443,10 @@ def cellpose_segmentation(
     logger.info(f"[{well_id}] Total well shape/chunks:")
     logger.info(f"[{well_id}] {data_zyx.shape}")
     logger.info(f"[{well_id}] {data_zyx.chunks}")
+    if wavelength_id_c2 or channel_label_c2:
+        logger.info(f"Dual channel input for cellpose model")
+        logger.info(f"[{well_id}] {data_zyx_c2.shape}")
+        logger.info(f"[{well_id}] {data_zyx_c2.chunks}")
 
     # Counters for relabeling
     if relabeling:
@@ -423,19 +468,43 @@ def cellpose_segmentation(
             slice(s_x, e_x),
         )
         logger.info(f"[{well_id}] Now processing ROI {i_ROI+1}/{num_ROIs}")
-        # Execute illumination correction
-        fov_mask = segment_FOV(
-            data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].compute(),
-            model=model,
-            do_3D=do_3D,
-            anisotropy=anisotropy,
-            label_dtype=label_dtype,
-            diameter=diameter_level0 / coarsening_xy**level,
-            cellprob_threshold=cellprob_threshold,
-            flow_threshold=flow_threshold,
-            well_id=well_id,
-        )
-
+        # Execute cellpose segmentation
+        if wavelength_id_c2 or channel_label_c2:
+            # Dual channel mode, first channel is the membrane channel
+            combined_data = np.zeros((2, *data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].shape))
+            combined_data[0, :, :, :] = data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].compute()
+            combined_data[1, :, :, :] = data_zyx_c2[s_z:e_z, s_y:e_y, s_x:e_x].compute()
+            fov_mask = segment_FOV(
+                # [
+                #     data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].compute(),
+                #     data_zyx_c2[s_z:e_z, s_y:e_y, s_x:e_x].compute()
+                # ],
+                combined_data,
+                model=model,
+                # channels=[[0, 0], [0, 0]],
+                channels=[1, 2],
+                do_3D=do_3D,
+                anisotropy=anisotropy,
+                label_dtype=label_dtype,
+                diameter=diameter_level0 / coarsening_xy**level,
+                cellprob_threshold=cellprob_threshold,
+                flow_threshold=flow_threshold,
+                well_id=well_id,
+            )            
+        else:
+            fov_mask = segment_FOV(
+                data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].compute(),
+                model=model,
+                channels=[0, 0],
+                do_3D=do_3D,
+                anisotropy=anisotropy,
+                label_dtype=label_dtype,
+                diameter=diameter_level0 / coarsening_xy**level,
+                cellprob_threshold=cellprob_threshold,
+                flow_threshold=flow_threshold,
+                well_id=well_id,
+            )
+        
         # Shift labels and update relabeling counters
         if relabeling:
             num_labels_fov = np.max(fov_mask)
@@ -531,6 +600,8 @@ if __name__ == "__main__":
         # Task-specific arguments
         channel_label: Optional[str] = None
         wavelength_id: Optional[str] = None
+        channel_label_c2: Optional[str] = None
+        channel_label_c2: Optional[str] = None
         level: int
         relabeling: bool = True
         anisotropy: Optional[float] = None

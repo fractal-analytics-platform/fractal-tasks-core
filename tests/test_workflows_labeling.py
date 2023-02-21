@@ -102,7 +102,7 @@ def prepare_2D_zarr(
 
 
 def patched_segment_FOV(
-    column, do_3D=True, label_dtype=None, well_id=None, **kwargs
+    x, do_3D=True, label_dtype=None, well_id=None, **kwargs
 ):
 
     import logging
@@ -112,7 +112,7 @@ def patched_segment_FOV(
     logger.info(f"[{well_id}][patched_segment_FOV] START")
 
     # Actual labeling
-    mask = np.zeros_like(column)
+    mask = np.zeros_like(x)
     nz, ny, nx = mask.shape
     if do_3D:
         mask[:, 0 : ny // 4, 0 : nx // 4] = 1  # noqa
@@ -127,7 +127,7 @@ def patched_segment_FOV(
 
 
 def patched_segment_FOV_overlapping_organoids(
-    column, label_dtype=None, well_id=None, **kwargs
+    x, label_dtype=None, well_id=None, **kwargs
 ):
 
     import logging
@@ -136,7 +136,7 @@ def patched_segment_FOV_overlapping_organoids(
     logger.info(f"[{well_id}][patched_segment_FOV] START")
 
     # Actual labeling
-    mask = np.zeros_like(column)
+    mask = np.zeros_like(x)
     nz, ny, nx = mask.shape
     indices = np.arange(0, nx // 2)
     mask[:, indices, indices] = 1  # noqa
@@ -251,6 +251,64 @@ def test_workflow_with_per_FOV_labeling(
             level=3,
             relabeling=True,
             diameter_level0=80.0,
+        )
+
+    # OME-NGFF JSON validation
+    image_zarr = Path(zarr_path.parent / metadata["image"][0])
+    label_zarr = image_zarr / "labels/label_DAPI"
+    well_zarr = image_zarr.parent
+    plate_zarr = image_zarr.parents[2]
+    validate_schema(path=str(image_zarr), type="image")
+    validate_schema(path=str(well_zarr), type="well")
+    validate_schema(path=str(plate_zarr), type="plate")
+    validate_schema(path=str(label_zarr), type="label")
+
+    check_file_number(zarr_path=image_zarr)
+
+
+def test_workflow_with_multi_channel_input(
+    tmp_path: Path,
+    testdata_path: Path,
+    zenodo_zarr: List[Path],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+    caplog: pytest.LogCaptureFixture,
+    monkeypatch: MonkeyPatch,
+):
+    # Testing by providing the same channel twice as wavelength_id & 
+    # wavelength_id_c2
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.cellpose_segmentation.use_gpu", patched_use_gpu
+    )
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.cellpose_segmentation.segment_FOV",
+        patched_segment_FOV,
+    )
+
+    # Setup caplog fixture, see
+    # https://docs.pytest.org/en/stable/how-to/logging.html#caplog-fixture
+    caplog.set_level(logging.INFO)
+
+    # Use pre-made 3D zarr
+    zarr_path = tmp_path / "tmp_out/*.zarr"
+    metadata = prepare_3D_zarr(zarr_path, zenodo_zarr, zenodo_zarr_metadata)
+    debug(zarr_path)
+    debug(metadata)
+
+    # Per-FOV labeling
+    for component in metadata["image"]:
+        cellpose_segmentation(
+            input_paths=[zarr_path],
+            output_path=zarr_path,
+            metadata=metadata,
+            component=component,
+            wavelength_id="A01_C01",
+            wavelength_id_c2="A01_C01",
+            level=3,
+            relabeling=True,
+            diameter_level0=80.0,
+            model_type="cyto2",
         )
 
     # OME-NGFF JSON validation
