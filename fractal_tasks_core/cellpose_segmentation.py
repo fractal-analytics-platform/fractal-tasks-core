@@ -228,6 +228,14 @@ def cellpose_segmentation(
         return {}
     ind_channel = channel["index"]
 
+    # Set channel label
+    if output_label_name is None:
+        try:
+            channel_label = channel["label"]
+            output_label_name = f"label_{channel_label}"
+        except (KeyError, IndexError):
+            output_label_name = f"label_{ind_channel}"
+
     # Load ZYX data
     data_zyx = da.from_zarr(f"{zarrurl}{level}")[ind_channel]
     logger.info(f"[{well_id}] {data_zyx.shape=}")
@@ -315,14 +323,6 @@ def cellpose_segmentation(
             "level are not currently supported"
         )
 
-    # Set channel label - FIXME: adapt to new channels structure
-    if output_label_name is None:
-        try:
-            omero_label = zattrs["omero"]["channels"][ind_channel]["label"]
-            output_label_name = f"label_{omero_label}"
-        except (KeyError, IndexError):
-            output_label_name = f"label_{ind_channel}"
-
     # Rescale datasets (only relevant for level>0)
     new_datasets = rescale_datasets(
         datasets=multiscales[0]["datasets"],
@@ -331,9 +331,22 @@ def cellpose_segmentation(
     )
 
     # Write zattrs for labels and for specific label
-    # FIXME deal with: (1) many channels, (2) overwriting
+    new_labels = [output_label_name]
+    try:
+        with open(f"{zarrurl}labels/.zattrs", "r") as f_zattrs:
+            existing_labels = json.load(f_zattrs)["labels"]
+    except FileNotFoundError:
+        existing_labels = []
+    intersection = set(new_labels) & set(existing_labels)
+    logger.info(f"{new_labels=}")
+    logger.info(f"{existing_labels=}")
+    if intersection:
+        raise RuntimeError(
+            f"Labels {intersection} already exist but are also part of outputs"
+        )
     labels_group = zarr.group(f"{zarrurl}labels")
-    labels_group.attrs["labels"] = [output_label_name]
+    labels_group.attrs["labels"] = existing_labels + new_labels
+
     label_group = labels_group.create_group(output_label_name)
     label_group.attrs["image-label"] = {"version": __OME_NGFF_VERSION__}
     label_group.attrs["multiscales"] = [
