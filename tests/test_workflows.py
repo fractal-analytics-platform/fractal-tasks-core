@@ -61,7 +61,7 @@ coarsening_xy = 2
 
 
 @pytest.mark.xfail(reason="This would fail for a dataset with N>1 channels")
-def test_create_ome_zarr_fail(tmp_path: Path, zenodo_images: Path):
+def test_create_ome_zarr_fail(tmp_path: Path, zenodo_images: str):
 
     allowed_channels = [
         {"label": "repeated label", "wavelength_id": "A01_C01"},
@@ -70,8 +70,8 @@ def test_create_ome_zarr_fail(tmp_path: Path, zenodo_images: Path):
     ]
 
     # Init
-    img_path = zenodo_images / "*.png"
-    zarr_path = tmp_path / "tmp_out/*.zarr"
+    img_path = str(Path(zenodo_images) / "*.png")
+    zarr_path = str(tmp_path / "tmp_out/*.zarr")
 
     # Create zarr structure
     with pytest.raises(ValueError):
@@ -92,7 +92,7 @@ metadata_inputs = ["use_mrf_mlf_files", "use_existing_csv_files"]
 @pytest.mark.parametrize("metadata_input", metadata_inputs)
 def test_yokogawa_to_ome_zarr(
     tmp_path: Path,
-    zenodo_images: Path,
+    zenodo_images: str,
     testdata_path: Path,
     metadata_input: str,
 ):
@@ -109,14 +109,14 @@ def test_yokogawa_to_ome_zarr(
     debug(metadata_table)
 
     # Init
-    img_path = zenodo_images / "*.png"
+    img_path = Path(zenodo_images) / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
 
     # Create zarr structure
     metadata = {}
     metadata_update = create_ome_zarr(
-        input_paths=[img_path],
-        output_path=zarr_path,
+        input_paths=[str(img_path)],
+        output_path=str(zarr_path),
         metadata=metadata,
         allowed_channels=allowed_channels,
         num_levels=num_levels,
@@ -129,8 +129,8 @@ def test_yokogawa_to_ome_zarr(
     # Yokogawa to zarr
     for component in metadata["image"]:
         yokogawa_to_ome_zarr(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
             metadata=metadata,
             component=component,
         )
@@ -149,7 +149,7 @@ def test_yokogawa_to_ome_zarr(
 
 def test_MIP(
     tmp_path: Path,
-    zenodo_zarr: List[Path],
+    zenodo_zarr: List[str],
     zenodo_zarr_metadata: List[Dict[str, Any]],
 ):
 
@@ -161,14 +161,14 @@ def test_MIP(
     zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
     metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
     shutil.copytree(
-        str(zenodo_zarr_3D), str(zarr_path.parent / zenodo_zarr_3D.name)
+        zenodo_zarr_3D, str(zarr_path.parent / Path(zenodo_zarr_3D).name)
     )
     metadata = metadata_3D.copy()
 
     # Replicate
     metadata_update = copy_ome_zarr(
-        input_paths=[zarr_path],
-        output_path=zarr_path_mip,
+        input_paths=[str(zarr_path)],
+        output_path=str(zarr_path_mip),
         metadata=metadata,
         project_to_2D=True,
         suffix="mip",
@@ -198,7 +198,7 @@ def test_MIP(
 def test_illumination_correction(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_images: Path,
+    zenodo_images: str,
     caplog: pytest.LogCaptureFixture,
 ):
 
@@ -207,7 +207,7 @@ def test_illumination_correction(
     caplog.set_level(logging.INFO)
 
     # Init
-    img_path = zenodo_images / "*.png"
+    img_path = Path(zenodo_images) / "*.png"
     zarr_path = tmp_path / "tmp_out/*.zarr"
     metadata = {}
 
@@ -219,8 +219,8 @@ def test_illumination_correction(
 
     # Create zarr structure
     metadata_update = create_ome_zarr(
-        input_paths=[img_path],
-        output_path=zarr_path,
+        input_paths=[str(img_path)],
+        output_path=str(zarr_path),
         metadata=metadata,
         allowed_channels=allowed_channels,
         num_levels=num_levels,
@@ -234,8 +234,8 @@ def test_illumination_correction(
     # Yokogawa to zarr
     for component in metadata["image"]:
         yokogawa_to_ome_zarr(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
             metadata=metadata,
             component=component,
         )
@@ -245,8 +245,8 @@ def test_illumination_correction(
     # Illumination correction
     for component in metadata["image"]:
         illumination_correction(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
             metadata=metadata,
             component=component,
             overwrite=True,

@@ -20,6 +20,7 @@ from glob import glob
 from pathlib import Path
 from typing import Any
 from typing import Dict
+from typing import Optional
 from typing import Sequence
 
 import dask.array as da
@@ -58,8 +59,8 @@ def sort_fun(filename: str):
 
 def yokogawa_to_ome_zarr(
     *,
-    input_paths: Sequence[Path],
-    output_path: Path,
+    input_paths: Sequence[str],
+    output_path: str,
     component: str,
     metadata: Dict[str, Any],
     delete_input: bool = False,
@@ -68,8 +69,8 @@ def yokogawa_to_ome_zarr(
     Convert Yokogawa output (png, tif) to zarr file
 
     Example arguments:
-      input_paths[0] = /tmp/output/*.zarr  (Path)
-      output_path = /tmp/output/*.zarr      (Path)
+      input_paths[0] = "/tmp/output/*.zarr"
+      output_path = "/tmp/output/*.zarr"
       metadata = {"num_levels": ..., }
       component = plate.zarr/B/03/0/
 
@@ -83,12 +84,12 @@ def yokogawa_to_ome_zarr(
     # Preliminary checks
     if len(input_paths) > 1:
         raise NotImplementedError
-    zarrurl = input_paths[0].parent.as_posix() + f"/{component}"
+    zarrurl = Path(input_paths[0]).parent.as_posix() + f"/{component}"
 
     parameters = get_parameters_from_metadata(
         keys=["original_paths", "num_levels", "coarsening_xy"],
         metadata=metadata,
-        image_zarr_path=(output_path.parent / component),
+        image_zarr_path=(Path(output_path).parent / component),
     )
     original_path_list = parameters["original_paths"]
     num_levels = parameters["num_levels"]
@@ -201,11 +202,11 @@ if __name__ == "__main__":
     from fractal_tasks_core._utils import run_fractal_task
 
     class TaskArguments(BaseModel):
-        input_paths: Sequence[Path]
-        output_path: Path
+        input_paths: Sequence[str]
+        output_path: str
         metadata: Dict[str, Any]
         component: str
-        delete_input: bool = False
+        delete_input: Optional[bool]
 
     run_fractal_task(
         task_function=yokogawa_to_ome_zarr,

@@ -34,8 +34,8 @@ logger = logging.getLogger(__name__)
 
 def maximum_intensity_projection(
     *,
-    input_paths: Sequence[Path],
-    output_path: Path,
+    input_paths: Sequence[str],
+    output_path: str,
     component: str,
     metadata: Dict[str, Any],
 ) -> Dict[str, Any]:
@@ -45,8 +45,8 @@ def maximum_intensity_projection(
 
     Examples::
 
-      input_paths[0] = /tmp/out_mip/*.zarr  (Path)
-      output_path = /tmp/out_mip/*.zarr   (Path)
+      input_paths = ["/tmp/out_mip/*.zarr"]
+      output_path = "/tmp/out_mip/*.zarr"
       metadata = {"num_levels": 2, "coarsening_xy": 2, }
       component = plate.zarr/B/03/0     (str)
 
@@ -64,7 +64,7 @@ def maximum_intensity_projection(
     plate, well = component.split(".zarr/")
 
     zarrurl_old = metadata["copy_zarr"]["sources"][plate] + "/" + well
-    clean_output_path = output_path.parent.resolve()
+    clean_output_path = Path(output_path).parent.resolve()
     zarrurl_new = (clean_output_path / component).as_posix()
     logger.info(f"{zarrurl_old=}")
     logger.info(f"{zarrurl_new=}")
@@ -135,8 +135,8 @@ if __name__ == "__main__":
     from fractal_tasks_core._utils import run_fractal_task
 
     class TaskArguments(BaseModel):
-        input_paths: Sequence[Path]
-        output_path: Path
+        input_paths: Sequence[str]
+        output_path: str
         metadata: Dict[str, Any]
         component: str
 

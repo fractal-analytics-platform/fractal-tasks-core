@@ -127,8 +127,8 @@ def segment_FOV(
 def cellpose_segmentation(
     *,
     # Fractal arguments
-    input_paths: Sequence[Path],
-    output_path: Path,
+    input_paths: Sequence[str],
+    output_path: str,
     component: str,
     metadata: Dict[str, Any],
     # Task-specific arguments
@@ -191,7 +191,7 @@ def cellpose_segmentation(
     # Set input path
     if len(input_paths) > 1:
         raise NotImplementedError
-    in_path = input_paths[0].parent
+    in_path = Path(input_paths[0]).parent
     zarrurl = (in_path.resolve() / component).as_posix() + "/"
     logger.info(zarrurl)
 
@@ -524,24 +524,24 @@ if __name__ == "__main__":
 
     class TaskArguments(BaseModel):
         # Fractal arguments
-        input_paths: Sequence[Path]
-        output_path: Path
+        input_paths: Sequence[str]
+        output_path: str
         component: str
         metadata: Dict[str, Any]
         # Task-specific arguments
-        channel_label: Optional[str] = None
-        wavelength_id: Optional[str] = None
+        channel_label: Optional[str]
+        wavelength_id: Optional[str]
         level: int
         relabeling: bool = True
         anisotropy: Optional[float] = None
-        diameter_level0: float = 80.0
-        cellprob_threshold: float = 0.0
-        flow_threshold: float = 0.4
-        ROI_table_name: str = "FOV_ROI_table"
-        bounding_box_ROI_table_name: Optional[str] = None
-        output_label_name: Optional[str] = None
-        model_type: Literal["nuclei", "cyto", "cyto2"] = "nuclei"
-        pretrained_model: Optional[str] = None
+        diameter_level0: Optional[float]
+        cellprob_threshold: Optional[float]
+        flow_threshold: Optional[float]
+        ROI_table_name: Optional[str]
+        bounding_box_ROI_table_name: Optional[str]
+        output_label_name: Optional[str]
+        model_type: Optional[Literal["nuclei", "cyto", "cyto2"]]
+        pretrained_model: Optional[str]
 
     run_fractal_task(
         task_function=cellpose_segmentation,
