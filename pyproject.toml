@@ -15,7 +15,7 @@ homepage = "https://github.com/fractal-analytics-platform/fractal-tasks-core"
 documentation = "https://fractal-tasks-core.readthedocs.io"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 dask = "~2023.1.0"
 zarr = "~2.13.6"
 numpy = "~1.23.5"
