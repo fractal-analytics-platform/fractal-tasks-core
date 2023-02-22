@@ -54,7 +54,6 @@ from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
 logger = logging.getLogger(__name__)
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
-CELLPOSE_MODEL_ZOO = models.MODEL_NAMES
 
 
 def segment_FOV(
@@ -153,7 +152,7 @@ def cellpose_segmentation(
     ROI_table_name: str = "FOV_ROI_table",
     bounding_box_ROI_table_name: Optional[str] = None,
     output_label_name: Optional[str] = None,
-    model_type: Literal[tuple(CELLPOSE_MODEL_ZOO)] = "cyto2",
+    model_type: Literal[tuple(models.MODEL_NAMES)] = "cyto2",
     pretrained_model: Optional[str] = None,
     min_size: int = 15,
     augment: bool = False,
@@ -565,7 +564,7 @@ if __name__ == "__main__":
         bounding_box_ROI_table_name: Optional[str]
         output_label_name: Optional[str]
         # model_type: Optional[Literal["nuclei", "cyto", "cyto2"]]
-        model_type: Optional[Literal[tuple(CELLPOSE_MODEL_ZOO)]]
+        model_type: Optional[Literal[tuple(models.MODEL_NAMES)]]
         pretrained_model: Optional[str]
         min_size: Optional[int]
         augment: Optional[bool]
