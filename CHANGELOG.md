@@ -1,6 +1,7 @@
 # Unreleased
 
 - Add tests for python 3.10 (\#309).
+- Drop support for python 3.8 (\#319).
 - Update task interface: use string arguments instead of `pathlib.Path`, and only set defaults in function call signatures (\#303).
 
 # 0.7.3
