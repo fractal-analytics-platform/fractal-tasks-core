@@ -53,25 +53,8 @@ from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
 
 logger = logging.getLogger(__name__)
 
-
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
-
-CELLPOSE_MODEL_ZOO = [
-    "cyto",
-    "cyto2",
-    "nuclei",
-    "tissuenet",
-    "livecell",
-    "CP",
-    "CPx",
-    "TN1",
-    "TN2",
-    "TN3",
-    "LC1",
-    "LC2",
-    "LC3",
-    "LC4",
-]
+CELLPOSE_MODEL_ZOO = models.MODEL_NAMES
 
 
 def segment_FOV(
@@ -103,8 +86,8 @@ def segment_FOV(
     :param augment: Whether to use cellpose augmentation to tile images
                     with overlap
     :param net_avg: Whether to use cellpose net averaging to run the 4 built-in
-                    networks (useful for nuclei, cyto & cyto, not sure it works
-                    for the others)
+                    networks (useful for nuclei, cyto & cyto2, not sure it
+                    works for the others)
     :param min_size: Minimum size of the segmented objects
     """
 
@@ -221,8 +204,8 @@ def cellpose_segmentation(
     :param agument: Whether to use cellpose augmentation to tile images
                     with overlap
     :param net_avg: Whether to use cellpose net averaging to run the 4 built-in
-                    networks (useful for nuclei, cyto & cyto, not sure it works
-                    for the others)
+                    networks (useful for nuclei, cyto & cyto2, not sure it
+                    works for the others)
 
     """
 
@@ -337,7 +320,7 @@ def cellpose_segmentation(
 
     # Prelminary checks on Cellpose model
     if pretrained_model is None:
-        if model_type not in CELLPOSE_MODEL_ZOO:
+        if model_type not in models.MODEL_NAMES:
             raise ValueError(f"ERROR model_type={model_type} is not allowed.")
     else:
         if not os.path.exists(pretrained_model):
@@ -581,6 +564,7 @@ if __name__ == "__main__":
         ROI_table_name: Optional[str]
         bounding_box_ROI_table_name: Optional[str]
         output_label_name: Optional[str]
+        # model_type: Optional[Literal["nuclei", "cyto", "cyto2"]]
         model_type: Optional[Literal[tuple(CELLPOSE_MODEL_ZOO)]]
         pretrained_model: Optional[str]
         min_size: Optional[int]
