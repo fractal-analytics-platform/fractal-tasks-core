@@ -1,4 +1,4 @@
-# Unreleased
+# 0.7.4
 
 - Add tests for python 3.10 (\#309).
 - Drop support for python 3.8 (\#319).
