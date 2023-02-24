@@ -19,10 +19,10 @@ import json
 import logging
 import os
 import time
+from enum import Enum
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import Literal
 from typing import Optional
 from typing import Sequence
 
@@ -54,17 +54,22 @@ from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
 logger = logging.getLogger(__name__)
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
+ModelInCellposeZoo = Enum(
+    "ModelInCellposeZoo",
+    ((value, value) for value in models.MODEL_NAMES),
+    type=str,
+)
 
 
 def segment_FOV(
     column: np.ndarray,
-    model=None,
+    model: models.CellposeModel = None,
     do_3D: bool = True,
-    anisotropy=None,
+    anisotropy: float = None,
     diameter: float = 30.0,
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
-    label_dtype=None,
+    label_dtype: np.dtype = None,
     well_id: str = None,
     augment: bool = False,
     net_avg: bool = False,
@@ -74,14 +79,15 @@ def segment_FOV(
     Internal function that runs Cellpose segmentation for a single ROI.
 
     :param column: Three-dimensional numpy array
-    :param model: TBD
-    :param do_3D: TBD
-    :param anisotropy: TBD
-    :param diameter: TBD
-    :param cellprob_threshold: TBD
-    :param flow_threshold: TBD
-    :param label_dtype: TBD
-    :param well_id: TBD
+    :param model: An instance of models.CellposeModel
+    :param do_3D: If true, cellpose runs in 3D mode: runs on xy, xz & yz
+                  planes, then averages the flows.
+    :param anisotropy: Set anisotropy rescaling factor for Z dimension
+    :param diameter: Expected object diameter in pixels for cellpose
+    :param cellprob_threshold: Cellpose model parameter
+    :param flow_threshold: Cellpose model parameter
+    :param label_dtype: Label images are cast into this np.dtype
+    :param well_id: well identifier, just used for logging
     :param augment: Whether to use cellpose augmentation to tile images
                     with overlap
     :param net_avg: Whether to use cellpose net averaging to run the 4 built-in
@@ -152,7 +158,7 @@ def cellpose_segmentation(
     ROI_table_name: str = "FOV_ROI_table",
     bounding_box_ROI_table_name: Optional[str] = None,
     output_label_name: Optional[str] = None,
-    model_type: Literal[tuple(models.MODEL_NAMES)] = "cyto2",
+    model_type: ModelInCellposeZoo = "cyto2",
     pretrained_model: Optional[str] = None,
     min_size: int = 15,
     augment: bool = False,
@@ -563,8 +569,7 @@ if __name__ == "__main__":
         ROI_table_name: Optional[str]
         bounding_box_ROI_table_name: Optional[str]
         output_label_name: Optional[str]
-        # model_type: Optional[Literal["nuclei", "cyto", "cyto2"]]
-        model_type: Optional[Literal[tuple(models.MODEL_NAMES)]]
+        model_type: Optional[ModelInCellposeZoo]
         pretrained_model: Optional[str]
         min_size: Optional[int]
         augment: Optional[bool]
