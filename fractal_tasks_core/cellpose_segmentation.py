@@ -111,7 +111,9 @@ def segment_FOV(
         cellprob_threshold=cellprob_threshold,
         flow_threshold=flow_threshold,
     )
-    if not do_3D:
+
+    if mask.ndim == 2:
+        # If we get a 2D image, we still return it as a 3D array
         mask = np.expand_dims(mask, axis=0)
     t1 = time.perf_counter()
 
@@ -478,7 +480,9 @@ def cellpose_segmentation(
             ].compute()
             channels = [1, 2]
         else:
-            img_np = data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].compute()
+            img_np = np.expand_dims(
+                data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].compute(), axis=0
+            )
             channels = [0, 0]
 
         fov_mask = segment_FOV(

@@ -106,15 +106,17 @@ def prepare_2D_zarr(
 def patched_segment_FOV(
     x, do_3D=True, label_dtype=None, well_id=None, **kwargs
 ):
+    # Expects x to always be a 4D image
 
     import logging
 
     logger = logging.getLogger("cellpose_segmentation.py")
 
     logger.info(f"[{well_id}][patched_segment_FOV] START")
-
-    # Actual labeling
-    mask = np.zeros_like(x)
+    assert x.ndim == 4
+    # Actual labeling: segment_FOV returns a 3D mask with the same shape as x
+    # expect the first dimension
+    mask = np.zeros_like(x[0, :, :, :])
     nz, ny, nx = mask.shape
     if do_3D:
         mask[:, 0 : ny // 4, 0 : nx // 4] = 1  # noqa
@@ -137,8 +139,10 @@ def patched_segment_FOV_overlapping_organoids(
     logger = logging.getLogger("cellpose_segmentation.py")
     logger.info(f"[{well_id}][patched_segment_FOV] START")
 
-    # Actual labeling
-    mask = np.zeros_like(x)
+    assert x.ndim == 4
+    # Actual labeling: segment_FOV returns a 3D mask with the same shape as x
+    # expect the first dimension
+    mask = np.zeros_like(x[0, :, :, :])
     nz, ny, nx = mask.shape
     indices = np.arange(0, nx // 2)
     mask[:, indices, indices] = 1  # noqa
