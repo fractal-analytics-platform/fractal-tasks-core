@@ -1,3 +1,8 @@
+# 0.7.5
+
+- Update `cellpose_segmentation` defaults and parse additional parameters (\#316).
+- Add dual-channel input for `cellpose_segmentation` task (\#315).
+
 # 0.7.4
 
 - Add tests for python 3.10 (\#309).
