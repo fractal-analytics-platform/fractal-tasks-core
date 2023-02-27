@@ -114,8 +114,8 @@ def patched_segment_FOV(
 
     logger.info(f"[{well_id}][patched_segment_FOV] START")
     assert x.ndim == 4
-    # Actual labeling: segment_FOV returns a 3D mask with the same shape as x
-    # expect the first dimension
+    # Actual labeling: segment_FOV returns a 3D mask with the same shape as x,
+    # except for the first dimension
     mask = np.zeros_like(x[0, :, :, :])
     nz, ny, nx = mask.shape
     if do_3D:
@@ -140,8 +140,8 @@ def patched_segment_FOV_overlapping_organoids(
     logger.info(f"[{well_id}][patched_segment_FOV] START")
 
     assert x.ndim == 4
-    # Actual labeling: segment_FOV returns a 3D mask with the same shape as x
-    # expect the first dimension
+    # Actual labeling: segment_FOV returns a 3D mask with the same shape as x,
+    # except for the first dimension
     mask = np.zeros_like(x[0, :, :, :])
     nz, ny, nx = mask.shape
     indices = np.arange(0, nx // 2)
