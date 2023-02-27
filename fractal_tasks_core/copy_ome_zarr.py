@@ -65,7 +65,7 @@ def copy_ome_zarr(
     https://zarr.readthedocs.io/en/stable/api/attrs.html.
 
     Examples of some inputs::
-      input_paths = "/tmp/out/"
+      input_paths = ["/tmp/out/"]
       output_path = "/tmp/out_mip/"
 
     :param input_paths: TBD

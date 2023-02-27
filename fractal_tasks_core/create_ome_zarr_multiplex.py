@@ -68,11 +68,13 @@ def create_ome_zarr_multiplex(
     Each input_paths should be treated as a different acquisition
 
     :param input_paths: list of image folders for different acquisition
-                        cycles, e.g. in the form ``["/path/cycle1/*.png",
-                        "/path/cycle2/*.png"]``
+                        cycles, e.g. in the form `["/path/cycle1/",
+                        "/path/cycle2/"]`
     :param output_path: parent folder for the output path, e.g.
-                        ``"/outputpath/*.zarr"``
+                        `"/outputpath/"`
     :param metadata: standard fractal argument, not used in this task
+    :param image_extension: Filename extension of images (e.g. `tif` or `png`)
+    :param image_glob_pattern: TBD
     :param allowed_channels: TBD
     :param num_levels: number of resolution-pyramid levels
     :param coarsening_xy: Linear coarsening factor between subsequent levels

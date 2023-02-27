@@ -107,8 +107,8 @@ def illumination_correction(
     FIXME
 
     Example inputs:
-    input_paths: ["some_path/*.zarr"]
-    output_path: "same_or_other_path/*.zarr"
+    input_paths: ["/some/path"]
+    output_path: "/same/or/other/path/"
     component: myplate.zarr/B/03/0/
     new_component: myplate_new_name.zarr/B/03/0/
     metadata: {...}

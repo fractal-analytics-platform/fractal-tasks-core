@@ -80,8 +80,8 @@ def napari_workflows_wrapper(
     of them are standard arguments for Fractal tasks that should be documented
     in a standard way. Here are some examples::
 
-        input_paths = ["/some/path/*.zarr"]
-        output_path = "/some/path/*.zarr"
+        input_paths = ["/some/path/"]
+        output_path = "/some/path/"
         component = "some_plate.zarr/B/03/0"
         metadata = {"num_levels": 4, "coarsening_xy": 2}
 
