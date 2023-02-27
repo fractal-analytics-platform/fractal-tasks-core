@@ -104,7 +104,7 @@ def yokogawa_to_ome_zarr(
     channels = get_omero_channel_list(image_zarr_path=zarrurl)
     wavelength_ids = [c["wavelength_id"] for c in channels]
 
-    in_path = Path(original_path_list[0]).parent
+    in_path = Path(original_path_list[0])
 
     # Define well
     component_split = component.split("/")
@@ -132,6 +132,9 @@ def yokogawa_to_ome_zarr(
     max_x = well_indices[0][5]
 
     # Load a single image, to retrieve useful information
+    from devtools import debug
+
+    debug(f"{in_path}/*_{well_ID}_*.{image_extension}")
     sample = imread(glob(f"{in_path}/*_{well_ID}_*.{image_extension}")[0])
 
     # Initialize zarr

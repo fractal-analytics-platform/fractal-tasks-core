@@ -109,7 +109,7 @@ def create_ome_zarr(
 
     for in_path_str in input_paths:
         in_path = Path(in_path_str)
-        glob_expression = str(in_path.parent) + f"/*.{image_extension}"
+        glob_expression = str(in_path) + f"/*.{image_extension}"
         input_filenames = glob(glob_expression)
 
         tmp_wavelength_ids = []
@@ -172,7 +172,7 @@ def create_ome_zarr(
                 )
 
         # Update dict_plate_paths
-        dict_plate_paths[plate] = in_path.parent
+        dict_plate_paths[plate] = in_path
 
     # Check that all channels are in the allowed_channels
     allowed_wavelength_ids = [
@@ -400,6 +400,8 @@ if __name__ == "__main__":
         input_paths: Sequence[str]
         output_path: str
         metadata: Dict[str, Any]
+        image_extension: str
+        image_glob_pattern: Optional[str]
         allowed_channels: Sequence[Dict[str, Any]]
         num_levels: Optional[int]
         coarsening_xy: Optional[int]
