@@ -19,10 +19,10 @@ import json
 import logging
 import os
 import time
+from enum import Enum
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import Literal
 from typing import Optional
 from typing import Sequence
 
@@ -53,33 +53,47 @@ from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
 
 logger = logging.getLogger(__name__)
 
-
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
+ModelInCellposeZoo = Enum(
+    "ModelInCellposeZoo",
+    ((value, value) for value in models.MODEL_NAMES),
+    type=str,
+)
 
 
 def segment_FOV(
     column: np.ndarray,
-    model=None,
+    model: models.CellposeModel = None,
     do_3D: bool = True,
-    anisotropy=None,
-    diameter: float = 40.0,
+    anisotropy: Optional[float] = None,
+    diameter: float = 30.0,
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
-    label_dtype=None,
-    well_id: str = None,
+    label_dtype: Optional[np.dtype] = None,
+    well_id: Optional[str] = None,
+    augment: bool = False,
+    net_avg: bool = False,
+    min_size: int = 15,
 ):
     """
     Internal function that runs Cellpose segmentation for a single ROI.
 
     :param column: Three-dimensional numpy array
-    :param model: TBD
-    :param do_3D: TBD
-    :param anisotropy: TBD
-    :param diameter: TBD
-    :param cellprob_threshold: TBD
-    :param flow_threshold: TBD
-    :param label_dtype: TBD
-    :param well_id: TBD
+    :param model: An instance of models.CellposeModel
+    :param do_3D: If true, cellpose runs in 3D mode: runs on xy, xz & yz
+                  planes, then averages the flows.
+    :param anisotropy: Set anisotropy rescaling factor for Z dimension
+    :param diameter: Expected object diameter in pixels for cellpose
+    :param cellprob_threshold: Cellpose model parameter
+    :param flow_threshold: Cellpose model parameter
+    :param label_dtype: Label images are cast into this np.dtype
+    :param well_id: well identifier, just used for logging
+    :param augment: Whether to use cellpose augmentation to tile images
+                    with overlap
+    :param net_avg: Whether to use cellpose net averaging to run the 4 built-in
+                    networks (useful for nuclei, cyto & cyto2, not sure it
+                    works for the others)
+    :param min_size: Minimum size of the segmented objects
     """
 
     # Write some debugging info
@@ -98,12 +112,13 @@ def segment_FOV(
         column,
         channels=[0, 0],
         do_3D=do_3D,
-        net_avg=False,
-        augment=False,
+        net_avg=net_avg,
+        augment=augment,
         diameter=diameter,
         anisotropy=anisotropy,
         cellprob_threshold=cellprob_threshold,
         flow_threshold=flow_threshold,
+        min_size=min_size,
     )
     if not do_3D:
         mask = np.expand_dims(mask, axis=0)
@@ -137,14 +152,17 @@ def cellpose_segmentation(
     channel_label: Optional[str] = None,
     relabeling: bool = True,
     anisotropy: Optional[float] = None,
-    diameter_level0: float = 80.0,
+    diameter_level0: float = 30.0,
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
     ROI_table_name: str = "FOV_ROI_table",
     bounding_box_ROI_table_name: Optional[str] = None,
     output_label_name: Optional[str] = None,
-    model_type: Literal["nuclei", "cyto", "cyto2"] = "nuclei",
+    model_type: ModelInCellposeZoo = "cyto2",
     pretrained_model: Optional[str] = None,
+    min_size: int = 15,
+    augment: bool = False,
+    net_avg: bool = False,
 ) -> Dict[str, Any]:
     """
     Run cellpose segmentation on the ROIs of a single OME-NGFF image
@@ -186,6 +204,14 @@ def cellpose_segmentation(
     :param model_type: Parameter of ``CellposeModel`` class.
     :param pretrained_model: Parameter of ``CellposeModel`` class (takes
                              precedence over ``model_type``).
+    :param min_size: Minimum size of the segmented objects (in pixels).
+                     Use -1 to turn off the size filter
+    :param agument: Whether to use cellpose augmentation to tile images
+                    with overlap
+    :param net_avg: Whether to use cellpose net averaging to run the 4 built-in
+                    networks (useful for nuclei, cyto & cyto2, not sure it
+                    works for the others)
+
     """
 
     # Set input path
@@ -299,7 +325,7 @@ def cellpose_segmentation(
 
     # Prelminary checks on Cellpose model
     if pretrained_model is None:
-        if model_type not in ["nuclei", "cyto2", "cyto"]:
+        if model_type not in models.MODEL_NAMES:
             raise ValueError(f"ERROR model_type={model_type} is not allowed.")
     else:
         if not os.path.exists(pretrained_model):
@@ -434,6 +460,9 @@ def cellpose_segmentation(
             cellprob_threshold=cellprob_threshold,
             flow_threshold=flow_threshold,
             well_id=well_id,
+            min_size=min_size,
+            augment=augment,
+            net_avg=net_avg,
         )
 
         # Shift labels and update relabeling counters
@@ -534,14 +563,17 @@ if __name__ == "__main__":
         level: int
         relabeling: bool = True
         anisotropy: Optional[float] = None
-        diameter_level0: Optional[float]
+        diameter_level0: float
         cellprob_threshold: Optional[float]
         flow_threshold: Optional[float]
         ROI_table_name: Optional[str]
         bounding_box_ROI_table_name: Optional[str]
         output_label_name: Optional[str]
-        model_type: Optional[Literal["nuclei", "cyto", "cyto2"]]
+        model_type: Optional[ModelInCellposeZoo]
         pretrained_model: Optional[str]
+        min_size: Optional[int]
+        augment: Optional[bool]
+        net_avg: Optional[bool]
 
     run_fractal_task(
         task_function=cellpose_segmentation,
