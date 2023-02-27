@@ -85,7 +85,7 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
         ]
         for zarrname, folder in zip(zarrnames, folders):
             zipname = f"{zarrname}.zip"
-            url = f"https://zenodo.org/record/7274533/files/{zipname}"
+            url = f"https://zenodo.org/record/7674545/files/{zipname}"
             wget.download(url, out=str(tmp_path / zipname), bar=None)
             shutil.unpack_archive(
                 str(tmp_path / zipname), extract_dir=rootfolder, format="zip"
