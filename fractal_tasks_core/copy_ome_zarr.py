@@ -65,8 +65,8 @@ def copy_ome_zarr(
     https://zarr.readthedocs.io/en/stable/api/attrs.html.
 
     Examples of some inputs::
-      input_paths = ["/tmp/out/*.zarr"]
-      output_path = "/tmp/out_mip/*.zarr"
+      input_paths = "/tmp/out/"
+      output_path = "/tmp/out_mip/"
 
     :param input_paths: TBD
     :param output_path: TBD
@@ -93,25 +93,28 @@ def copy_ome_zarr(
     if ROI_table_names is None:
         ROI_table_names = ["FOV_ROI_table", "well_ROI_table"]
 
+    from devtools import debug
+
     # List all plates
     in_path = Path(input_paths[0])
-    list_plates = [
-        p.as_posix() for p in in_path.parent.resolve().glob(in_path.name)
-    ]
+    debug(in_path)
+    list_plates = [p.as_posix() for p in Path(in_path).glob("*.zarr")]
     logger.info(f"{list_plates=}")
 
-    meta_update: Dict[str, Any] = {"copy_zarr": {}}
-    meta_update["copy_zarr"]["suffix"] = suffix
-    meta_update["copy_zarr"]["sources"] = {}
+    debug(list_plates)
+
+    meta_update: Dict[str, Any] = {"copy_ome_zarr": {}}
+    meta_update["copy_ome_zarr"]["suffix"] = suffix
+    meta_update["copy_ome_zarr"]["sources"] = {}
 
     # Loop over all plates
     for zarrurl_old in list_plates:
         zarrfile = zarrurl_old.split("/")[-1]
         old_plate_name = zarrfile.split(".zarr")[0]
         new_plate_name = f"{old_plate_name}_{suffix}"
-        new_plate_dir = Path(output_path).resolve().parent
+        new_plate_dir = Path(output_path).resolve()
         zarrurl_new = f"{(new_plate_dir / new_plate_name).as_posix()}.zarr"
-        meta_update["copy_zarr"]["sources"][new_plate_name] = zarrurl_old
+        meta_update["copy_ome_zarr"]["sources"][new_plate_name] = zarrurl_old
 
         logger.info(f"{zarrurl_old=}")
         logger.info(f"{zarrurl_new=}")

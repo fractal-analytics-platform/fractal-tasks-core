@@ -148,7 +148,6 @@ def test_yokogawa_to_ome_zarr(
     check_file_number(zarr_path=image_zarr)
 
 
-@pytest.mark.skip(reason="ongoing refactor - see issue #300")
 def test_MIP(
     tmp_path: Path,
     zenodo_zarr: List[str],
@@ -156,15 +155,13 @@ def test_MIP(
 ):
 
     # Init
-    zarr_path = tmp_path / "tmp_out/*.zarr"
-    zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
+    zarr_path = tmp_path / "tmp_out/"
+    zarr_path_mip = tmp_path / "tmp_out_mip/"
 
     # Load zarr array from zenodo
     zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
     metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
-    shutil.copytree(
-        zenodo_zarr_3D, str(zarr_path.parent / Path(zenodo_zarr_3D).name)
-    )
+    shutil.copytree(zenodo_zarr_3D, str(zarr_path / Path(zenodo_zarr_3D).name))
     metadata = metadata_3D.copy()
 
     # Replicate
@@ -188,7 +185,7 @@ def test_MIP(
         )
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path_mip.parent / metadata["image"][0])
+    image_zarr = Path(zarr_path_mip / metadata["image"][0])
     debug(image_zarr)
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
@@ -197,7 +194,6 @@ def test_MIP(
     validate_schema(path=str(plate_zarr), type="plate")
 
 
-@pytest.mark.skip(reason="ongoing refactor - see issue #300")
 def test_illumination_correction(
     tmp_path: Path,
     testdata_path: Path,
@@ -211,7 +207,7 @@ def test_illumination_correction(
 
     # Init
     img_path = Path(zenodo_images) / "*.png"
-    zarr_path = tmp_path / "tmp_out/*.zarr"
+    zarr_path = tmp_path / "tmp_out"
     metadata = {}
 
     testdata_str = testdata_path.as_posix()
@@ -225,6 +221,7 @@ def test_illumination_correction(
         input_paths=[str(img_path)],
         output_path=str(zarr_path),
         metadata=metadata,
+        image_extension="png",
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
@@ -259,7 +256,7 @@ def test_illumination_correction(
     caplog.clear()
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path.parent / metadata["image"][0])
+    image_zarr = Path(zarr_path / metadata["image"][0])
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
     validate_schema(path=str(image_zarr), type="image")
