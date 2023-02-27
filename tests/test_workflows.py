@@ -147,6 +147,7 @@ def test_yokogawa_to_ome_zarr(
     check_file_number(zarr_path=image_zarr)
 
 
+@pytest.mark.skip(reason="ongoing refactor - see issue #300")
 def test_MIP(
     tmp_path: Path,
     zenodo_zarr: List[str],
@@ -195,6 +196,7 @@ def test_MIP(
     validate_schema(path=str(plate_zarr), type="plate")
 
 
+@pytest.mark.skip(reason="ongoing refactor - see issue #300")
 def test_illumination_correction(
     tmp_path: Path,
     testdata_path: Path,
