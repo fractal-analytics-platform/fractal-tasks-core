@@ -79,7 +79,7 @@ def segment_FOV(
     """
     Internal function that runs Cellpose segmentation for a single ROI.
 
-    :param x: numpy array
+    :param x: 4D numpy array
     :param model: An instance of models.CellposeModel
     :param do_3D: If true, cellpose runs in 3D mode: runs on xy, xz & yz
                   planes, then averages the flows.
