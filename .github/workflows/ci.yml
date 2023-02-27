@@ -39,4 +39,4 @@ jobs:
         run: poetry install --with dev --all-extras --no-interaction
 
       - name: Test with pytest
-        run: poetry run pytest tests/test_workflows.py tests/test_workflows_multiplexing.py
+        run: poetry run pytest tests/test_workflows.py tests/test_workflows_multiplexing.py tests/test_workflows_labeling.py
