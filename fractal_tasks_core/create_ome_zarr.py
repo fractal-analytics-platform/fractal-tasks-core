@@ -49,6 +49,8 @@ def create_ome_zarr(
     input_paths: Sequence[str],
     output_path: str,
     metadata: Dict[str, Any],
+    image_extension: str = "tif",
+    image_glob_pattern: Optional[str] = None,
     allowed_channels: Sequence[Dict[str, Any]],
     num_levels: int = 2,
     coarsening_xy: int = 2,
@@ -71,6 +73,8 @@ def create_ome_zarr(
     :param input_paths: TBD (common to all tasks)
     :param output_path: TBD (common to all tasks)
     :param metadata: TBD (common to all tasks)
+    :param image_extension: Filename extension of images (e.g. `tif` or `png`)
+    :param image_glob_pattern: TBD
     :param num_levels: Number of resolution-pyramid levels
     :param coarsening_xy: Linear coarsening factor between subsequent levels
     :param allowed_channels: A list of channel dictionaries, where each channel
@@ -91,6 +95,8 @@ def create_ome_zarr(
         )
     if metadata_table.endswith(".csv") and not os.path.isfile(metadata_table):
         raise FileNotFoundError(f"Missing file: {metadata_table=}")
+    if image_glob_pattern:
+        raise NotImplementedError
 
     # Identify all plates and all channels, across all input folders
     plates = []
@@ -101,19 +107,16 @@ def create_ome_zarr(
     # Preliminary checks on allowed_channels argument
     validate_allowed_channel_input(allowed_channels)
 
-    # FIXME
-    # find a smart way to remove it
-    ext_glob_pattern = Path(input_paths[0]).name
-
     for in_path_str in input_paths:
         in_path = Path(in_path_str)
-        input_filename_iter = in_path.parent.glob(in_path.name)
+        glob_expression = str(in_path.parent) + f"/*.{image_extension}"
+        input_filenames = glob(glob_expression)
 
         tmp_wavelength_ids = []
         tmp_plates = []
-        for fn in input_filename_iter:
+        for fn in input_filenames:
             try:
-                filename_metadata = parse_filename(fn.name)
+                filename_metadata = parse_filename(Path(fn).name)
                 plate_prefix = filename_metadata["plate_prefix"]
                 plate = filename_metadata["plate"]
                 if plate not in dict_plate_prefixes.keys():
@@ -124,13 +127,13 @@ def create_ome_zarr(
                 tmp_wavelength_ids.append(f"A{A}_C{C}")
             except ValueError as e:
                 logger.warning(
-                    f'Skipping "{fn.name}". Original error: ' + str(e)
+                    f'Skipping "{Path(fn).name}". Original error: ' + str(e)
                 )
         tmp_plates = sorted(list(set(tmp_plates)))
         tmp_wavelength_ids = sorted(list(set(tmp_wavelength_ids)))
 
         info = (
-            f"Listing all plates/channels from {in_path.as_posix()}\n"
+            f"Listing all plates/channels from {glob_expression}\n"
             f"Plates:   {tmp_plates}\n"
             f"Channels: {tmp_wavelength_ids}\n"
         )
@@ -197,7 +200,7 @@ def create_ome_zarr(
         zarrurl = f"{plate}.zarr"
         in_path = dict_plate_paths[plate]
         logger.info(f"Creating {zarrurl}")
-        group_plate = zarr.group(Path(output_path).parent / zarrurl)
+        group_plate = zarr.group(Path(output_path) / zarrurl)
         zarrurls["plate"].append(zarrurl)
 
         # Obtain FOV-metadata dataframe
@@ -227,7 +230,9 @@ def create_ome_zarr(
         # Identify all wells
         plate_prefix = dict_plate_prefixes[plate]
 
-        plate_image_iter = glob(f"{in_path}/{plate_prefix}_{ext_glob_pattern}")
+        plate_image_iter = glob(
+            f"{in_path}/{plate_prefix}_*.{image_extension}"
+        )
 
         wells = [
             parse_filename(os.path.basename(fn))["well"]
@@ -238,7 +243,7 @@ def create_ome_zarr(
         # Verify that all wells have all channels
         for well in wells:
             well_image_iter = glob(
-                f"{in_path}/{plate_prefix}_{well}{ext_glob_pattern}"
+                f"{in_path}/{plate_prefix}_{well}*.{image_extension}"
             )
             well_wavelength_ids = []
             for fpath in well_image_iter:
@@ -368,7 +373,7 @@ def create_ome_zarr(
     # back to one-image-per-field-of-view mode
     for well_path in zarrurls["well"]:
         check_well_channel_labels(
-            well_zarr_path=str(Path(output_path).parent / well_path)
+            well_zarr_path=str(Path(output_path) / well_path)
         )
 
     metadata_update = dict(
@@ -377,7 +382,12 @@ def create_ome_zarr(
         image=zarrurls["image"],
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
+        # create_ome_zarr=dict(
+        # FIXME
+        image_extension=image_extension,
+        image_glob_pattern=image_glob_pattern,
         original_paths=input_paths[:],
+        #    ),
     )
     return metadata_update
 
