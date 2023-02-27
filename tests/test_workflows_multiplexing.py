@@ -78,7 +78,7 @@ def test_multiplexing_create_ome_zarr_fail(
         str(Path(cycle_folder) / "*.png")
         for cycle_folder in zenodo_images_multiplex
     ]
-    zarr_path = tmp_path / "tmp_out/*.zarr"
+    zarr_path = tmp_path / "tmp_out/"
 
     # Create zarr structure
     debug(img_paths)
@@ -120,19 +120,15 @@ def test_multiplexing_yokogawa_to_ome_zarr(
     debug(metadata_table)
 
     # Init
-    img_paths = [
-        str(Path(cycle_folder) / "*.png")
-        for cycle_folder in zenodo_images_multiplex
-    ]
-    zarr_path = tmp_path / "tmp_out/*.zarr"
+    zarr_path = tmp_path / "tmp_out/"
     metadata = {}
 
     # Create zarr structure
-    debug(img_paths)
     metadata_update = create_ome_zarr_multiplex(
-        input_paths=img_paths,
+        input_paths=zenodo_images_multiplex,
         output_path=str(zarr_path),
         metadata=metadata,
+        image_extension="png",
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
@@ -152,8 +148,8 @@ def test_multiplexing_yokogawa_to_ome_zarr(
     debug(metadata)
 
     # OME-NGFF JSON validation
-    image_zarr_0 = zarr_path.parent / metadata["image"][0]
-    image_zarr_1 = zarr_path.parent / metadata["image"][1]
+    image_zarr_0 = zarr_path / metadata["image"][0]
+    image_zarr_1 = zarr_path / metadata["image"][1]
     well_zarr = image_zarr_0.parent
     plate_zarr = image_zarr_0.parents[2]
     validate_schema(path=str(image_zarr_0), type="image")
@@ -170,21 +166,17 @@ def test_multiplexing_MIP(
 ):
 
     # Init
-    img_paths = [
-        str(Path(cycle_folder) / "*.png")
-        for cycle_folder in zenodo_images_multiplex
-    ]
-    zarr_path = tmp_path / "tmp_out/*.zarr"
-    zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
+    zarr_path = tmp_path / "tmp_out/"
+    zarr_path_mip = tmp_path / "tmp_out_mip/"
     metadata = {}
 
     # Create zarr structure
-    debug(img_paths)
     metadata_update = create_ome_zarr_multiplex(
-        input_paths=img_paths,
+        input_paths=zenodo_images_multiplex,
         output_path=str(zarr_path),
         metadata=metadata,
         allowed_channels=allowed_channels,
+        image_extension="png",
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         metadata_table="mrf_mlf",
@@ -223,8 +215,8 @@ def test_multiplexing_MIP(
         )
 
     # OME-NGFF JSON validation
-    image_zarr_0 = zarr_path_mip.parent / metadata["image"][0]
-    image_zarr_1 = zarr_path_mip.parent / metadata["image"][1]
+    image_zarr_0 = zarr_path_mip / metadata["image"][0]
+    image_zarr_1 = zarr_path_mip / metadata["image"][1]
     well_zarr = image_zarr_0.parent
     plate_zarr = image_zarr_0.parents[2]
     validate_schema(path=str(image_zarr_0), type="image")

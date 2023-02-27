@@ -109,7 +109,7 @@ def test_yokogawa_to_ome_zarr(
     debug(metadata_table)
 
     # Init
-    img_path = Path(zenodo_images) / "*.png"
+    img_path = Path(zenodo_images)
     output_path = tmp_path / "output"
 
     # Create zarr structure
@@ -206,7 +206,7 @@ def test_illumination_correction(
     caplog.set_level(logging.INFO)
 
     # Init
-    img_path = Path(zenodo_images) / "*.png"
+    img_path = Path(zenodo_images)
     zarr_path = tmp_path / "tmp_out"
     metadata = {}
 
