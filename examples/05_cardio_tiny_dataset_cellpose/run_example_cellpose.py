@@ -51,13 +51,13 @@ coarsening_xy = 2
 
 
 # Init
-img_path = Path("../images/10.5281_zenodo.7059515/*.png")
-if not os.path.isdir(img_path.parent):
+img_path = "../images/10.5281_zenodo.7059515/"
+if not os.path.isdir(Path(img_path).parent):
     raise FileNotFoundError(
-        f"{img_path.parent} is missing,"
+        f"{Path(img_path).parent} is missing,"
         " try running ./fetch_test_data_from_zenodo.sh"
     )
-zarr_path = Path("tmp_out/*.zarr")
+zarr_path = "tmp_out"
 metadata = {}
 
 # Create zarr structure
@@ -65,6 +65,7 @@ metadata_update = create_ome_zarr(
     input_paths=[img_path],
     output_path=zarr_path,
     metadata=metadata,
+    image_extension="png",
     allowed_channels=allowed_channels,
     num_levels=num_levels,
     coarsening_xy=coarsening_xy,
