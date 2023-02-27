@@ -69,7 +69,7 @@ def zenodo_images_multiplex(testdata_path, zenodo_images):
 @pytest.fixture(scope="session")
 def zenodo_zarr(testdata_path, tmpdir_factory):
 
-    doi = "10.5281/zenodo.7274533"
+    doi = "10.5281/zenodo.7674545"
     rootfolder = testdata_path / (doi.replace(".", "_").replace("/", "_"))
     platenames = ["plate.zarr", "plate_mip.zarr"]
     folders = [rootfolder / plate for plate in platenames]
@@ -91,18 +91,6 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
                 str(tmp_path / zipname), extract_dir=rootfolder, format="zip"
             )
             shutil.move(str(rootfolder / zarrname), str(folder))
-
-            # FIXME: this is a workaround, and should be fixed directly in the
-            # zenodo dataset
-            import zarr
-            from devtools import debug
-
-            image_path = str(folder / "B/03/0")
-            group = zarr.open_group(image_path, mode="r+")
-            attrs = group.attrs.asdict()
-            attrs["omero"]["channels"][0]["wavelength_id"] = "A01_C01"
-            group.attrs.put(attrs)
-            debug(f"Adding A01_C01 in omero metadata, in {image_path}")
 
     folders = [str(f) for f in folders]
 
