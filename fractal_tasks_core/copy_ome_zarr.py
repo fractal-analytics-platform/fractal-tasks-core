@@ -93,15 +93,10 @@ def copy_ome_zarr(
     if ROI_table_names is None:
         ROI_table_names = ["FOV_ROI_table", "well_ROI_table"]
 
-    from devtools import debug
-
     # List all plates
     in_path = Path(input_paths[0])
-    debug(in_path)
     list_plates = [p.as_posix() for p in Path(in_path).glob("*.zarr")]
     logger.info(f"{list_plates=}")
-
-    debug(list_plates)
 
     meta_update: Dict[str, Any] = {"copy_ome_zarr": {}}
     meta_update["copy_ome_zarr"]["suffix"] = suffix

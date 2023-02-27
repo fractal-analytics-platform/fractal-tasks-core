@@ -132,9 +132,6 @@ def yokogawa_to_ome_zarr(
     max_x = well_indices[0][5]
 
     # Load a single image, to retrieve useful information
-    from devtools import debug
-
-    debug(f"{in_path}/*_{well_ID}_*.{image_extension}")
     sample = imread(glob(f"{in_path}/*_{well_ID}_*.{image_extension}")[0])
 
     # Initialize zarr
