@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fractal-tasks-core"
-version = "0.7.3"
+version = "0.7.4"
 description = ""
 authors = [
     "Jacopo Nespolo <jacopo.nespolo@exact-lab.it>",
@@ -15,7 +15,7 @@ homepage = "https://github.com/fractal-analytics-platform/fractal-tasks-core"
 documentation = "https://fractal-tasks-core.readthedocs.io"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 dask = "~2023.1.0"
 zarr = "~2.13.6"
 numpy = "~1.23.5"
@@ -72,7 +72,7 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.bumpver]
-current_version = "0.7.3"
+current_version = "0.7.4"
 version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true

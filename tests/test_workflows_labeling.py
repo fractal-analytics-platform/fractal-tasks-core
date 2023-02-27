@@ -261,6 +261,9 @@ def test_workflow_with_per_FOV_labeling(
             level=3,
             relabeling=True,
             diameter_level0=80.0,
+            augment=True,
+            net_avg=True,
+            min_size=30,
         )
 
     # OME-NGFF JSON validation
