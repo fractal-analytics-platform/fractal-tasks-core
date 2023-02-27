@@ -110,18 +110,19 @@ def test_yokogawa_to_ome_zarr(
 
     # Init
     img_path = Path(zenodo_images) / "*.png"
-    zarr_path = tmp_path / "tmp_out/*.zarr"
+    output_path = tmp_path / "output"
 
     # Create zarr structure
     metadata = {}
     metadata_update = create_ome_zarr(
         input_paths=[str(img_path)],
-        output_path=str(zarr_path),
+        output_path=str(output_path),
         metadata=metadata,
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         metadata_table=metadata_table,
+        image_extension="png",
     )
     metadata.update(metadata_update)
     debug(metadata)
@@ -129,15 +130,15 @@ def test_yokogawa_to_ome_zarr(
     # Yokogawa to zarr
     for component in metadata["image"]:
         yokogawa_to_ome_zarr(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
+            input_paths=[str(output_path)],
+            output_path=str(output_path),
             metadata=metadata,
             component=component,
         )
     debug(metadata)
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path.parent / metadata["image"][0])
+    image_zarr = Path(output_path / metadata["image"][0])
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
     validate_schema(path=str(image_zarr), type="image")
