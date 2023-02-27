@@ -105,7 +105,7 @@ def segment_FOV(
     # Write some debugging info
     logger.info(
         f"[{well_id}][segment_FOV] START Cellpose |"
-        # f" x: {type(x)}, {x.shape} |"
+        f" x: {type(x)}, {x.shape} |"
         f" do_3D: {do_3D} |"
         f" model.diam_mean: {model.diam_mean} |"
         f" diameter: {diameter} |"
