@@ -12,13 +12,14 @@ Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
 import os
-from pathlib import Path
 
 from devtools import debug
 
+from fractal_tasks_core.cellpose_segmentation import cellpose_segmentation
+from fractal_tasks_core.copy_ome_zarr import copy_ome_zarr
 from fractal_tasks_core.create_ome_zarr import create_ome_zarr
-from fractal_tasks_core.napari_workflows_wrapper import (
-    napari_workflows_wrapper,
+from fractal_tasks_core.maximum_intensity_projection import (
+    maximum_intensity_projection,
 )
 from fractal_tasks_core.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 
@@ -47,18 +48,19 @@ allowed_channels = [
     },
 ]
 
+
 num_levels = 6
 coarsening_xy = 2
 
 
 # Init
-img_path = "../images/10.5281_zenodo.7059515/"
-if not os.path.isdir(Path(img_path).parent):
+img_path = "../images/10.5281_zenodo.7057076/"
+if not os.path.isdir(img_path):
     raise FileNotFoundError(
-        f"{Path(img_path).parent} is missing,"
+        f"{img_path} is missing,"
         " try running ./fetch_test_data_from_zenodo.sh"
     )
-zarr_path = "tmp_out/"
+zarr_path = "tmp_out_dual_channel/"
 metadata = {}
 
 # Create zarr structure
@@ -66,8 +68,8 @@ metadata_update = create_ome_zarr(
     input_paths=[img_path],
     output_path=zarr_path,
     metadata=metadata,
-    allowed_channels=allowed_channels,
     image_extension="png",
+    allowed_channels=allowed_channels,
     num_levels=num_levels,
     coarsening_xy=coarsening_xy,
     metadata_table="mrf_mlf",
@@ -85,27 +87,40 @@ for component in metadata["image"]:
     )
 debug(metadata)
 
-# napari-workflows
-workflow_file = "wf_2.yaml"
-input_specs = {
-    "slice_img": {"type": "image", "wavelength_id": "A01_C01"},
-    "slice_img_c2": {"type": "image", "wavelength_id": "A01_C01"},
-}
-output_specs = {
-    "Result of Expand labels (scikit-image, nsbatwm)": {
-        "type": "label",
-        "label_name": "label_DAPI",
-    },
-}
+
+# Copy zarr structure
+metadata_update = copy_ome_zarr(
+    input_paths=[zarr_path],
+    output_path=zarr_path,
+    metadata=metadata,
+    suffix="mip",
+)
+metadata.update(metadata_update)
+
+# Make MIP
 for component in metadata["image"]:
-    napari_workflows_wrapper(
+    metadata_update = maximum_intensity_projection(
         input_paths=[zarr_path],
         output_path=zarr_path,
         metadata=metadata,
         component=component,
-        input_specs=input_specs,
-        output_specs=output_specs,
-        workflow_file=workflow_file,
-        ROI_table_name="FOV_ROI_table",
     )
+    metadata.update(metadata_update)
+
+
+# Per-FOV labeling
+for component in metadata["image"]:
+    cellpose_segmentation(
+        input_paths=[zarr_path],
+        output_path=zarr_path,
+        metadata=metadata,
+        component=component,
+        wavelength_id="A02_C03",
+        wavelength_id_c2="A01_C01",
+        level=1,
+        relabeling=True,
+        diameter_level0=40.0,
+        model_type="cyto2",
+    )
+    metadata.update(metadata_update)
 debug(metadata)

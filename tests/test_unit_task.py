@@ -21,18 +21,15 @@ create_ome_zarr_manifest = next(
 
 
 def test_create_ome_zarr(tmp_path, testdata_path):
-    input_paths = [testdata_path / "png/*.png"]
-    output_path = tmp_path / "*.zarr"
+    input_paths = [str(testdata_path / "png/")]
+    output_path = str(tmp_path)
     default_args = create_ome_zarr_manifest["default_args"]
     default_args["allowed_channels"] = [{"wavelength_id": "A01_C01"}]
+    default_args["image_extension"] = "png"
 
     for key in ["executor", "parallelization_level"]:
         if key in default_args.keys():
             default_args.pop(key)
-
-    from glob import glob
-
-    debug(glob(input_paths[0].as_posix()))
 
     debug(input_paths)
     debug(output_path)
@@ -46,8 +43,7 @@ def test_create_ome_zarr(tmp_path, testdata_path):
     )
     debug(dummy)
 
-    debug(list(output_path.glob("*")))
-    zattrs = output_path.parent / "myplate.zarr/.zattrs"
+    zattrs = Path(output_path) / "myplate.zarr/.zattrs"
     with open(zattrs) as f:
         data = json.load(f)
         debug(data)

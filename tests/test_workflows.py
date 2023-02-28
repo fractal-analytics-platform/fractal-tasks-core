@@ -70,8 +70,8 @@ def test_create_ome_zarr_fail(tmp_path: Path, zenodo_images: str):
     ]
 
     # Init
-    img_path = str(Path(zenodo_images) / "*.png")
-    zarr_path = str(tmp_path / "tmp_out/*.zarr")
+    img_path = zenodo_images
+    zarr_path = str(tmp_path / "tmp_out/")
 
     # Create zarr structure
     with pytest.raises(ValueError):
@@ -109,19 +109,20 @@ def test_yokogawa_to_ome_zarr(
     debug(metadata_table)
 
     # Init
-    img_path = Path(zenodo_images) / "*.png"
-    zarr_path = tmp_path / "tmp_out/*.zarr"
+    img_path = Path(zenodo_images)
+    output_path = tmp_path / "output"
 
     # Create zarr structure
     metadata = {}
     metadata_update = create_ome_zarr(
         input_paths=[str(img_path)],
-        output_path=str(zarr_path),
+        output_path=str(output_path),
         metadata=metadata,
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         metadata_table=metadata_table,
+        image_extension="png",
     )
     metadata.update(metadata_update)
     debug(metadata)
@@ -129,15 +130,15 @@ def test_yokogawa_to_ome_zarr(
     # Yokogawa to zarr
     for component in metadata["image"]:
         yokogawa_to_ome_zarr(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
+            input_paths=[str(output_path)],
+            output_path=str(output_path),
             metadata=metadata,
             component=component,
         )
     debug(metadata)
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path.parent / metadata["image"][0])
+    image_zarr = Path(output_path / metadata["image"][0])
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
     validate_schema(path=str(image_zarr), type="image")
@@ -154,15 +155,13 @@ def test_MIP(
 ):
 
     # Init
-    zarr_path = tmp_path / "tmp_out/*.zarr"
-    zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
+    zarr_path = tmp_path / "tmp_out/"
+    zarr_path_mip = tmp_path / "tmp_out_mip/"
 
     # Load zarr array from zenodo
     zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
     metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
-    shutil.copytree(
-        zenodo_zarr_3D, str(zarr_path.parent / Path(zenodo_zarr_3D).name)
-    )
+    shutil.copytree(zenodo_zarr_3D, str(zarr_path / Path(zenodo_zarr_3D).name))
     metadata = metadata_3D.copy()
 
     # Replicate
@@ -186,7 +185,7 @@ def test_MIP(
         )
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path_mip.parent / metadata["image"][0])
+    image_zarr = Path(zarr_path_mip / metadata["image"][0])
     debug(image_zarr)
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
@@ -207,8 +206,8 @@ def test_illumination_correction(
     caplog.set_level(logging.INFO)
 
     # Init
-    img_path = Path(zenodo_images) / "*.png"
-    zarr_path = tmp_path / "tmp_out/*.zarr"
+    img_path = Path(zenodo_images)
+    zarr_path = tmp_path / "tmp_out"
     metadata = {}
 
     testdata_str = testdata_path.as_posix()
@@ -222,6 +221,7 @@ def test_illumination_correction(
         input_paths=[str(img_path)],
         output_path=str(zarr_path),
         metadata=metadata,
+        image_extension="png",
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
@@ -256,7 +256,7 @@ def test_illumination_correction(
     caplog.clear()
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path.parent / metadata["image"][0])
+    image_zarr = Path(zarr_path / metadata["image"][0])
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
     validate_schema(path=str(image_zarr), type="image")

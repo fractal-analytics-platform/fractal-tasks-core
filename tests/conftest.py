@@ -69,7 +69,7 @@ def zenodo_images_multiplex(testdata_path, zenodo_images):
 @pytest.fixture(scope="session")
 def zenodo_zarr(testdata_path, tmpdir_factory):
 
-    doi = "10.5281/zenodo.7274533"
+    doi = "10.5281/zenodo.7674545"
     rootfolder = testdata_path / (doi.replace(".", "_").replace("/", "_"))
     platenames = ["plate.zarr", "plate_mip.zarr"]
     folders = [rootfolder / plate for plate in platenames]
@@ -85,24 +85,12 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
         ]
         for zarrname, folder in zip(zarrnames, folders):
             zipname = f"{zarrname}.zip"
-            url = f"https://zenodo.org/record/7274533/files/{zipname}"
+            url = f"https://zenodo.org/record/7674545/files/{zipname}"
             wget.download(url, out=str(tmp_path / zipname), bar=None)
             shutil.unpack_archive(
                 str(tmp_path / zipname), extract_dir=rootfolder, format="zip"
             )
             shutil.move(str(rootfolder / zarrname), str(folder))
-
-            # FIXME: this is a workaround, and should be fixed directly in the
-            # zenodo dataset
-            import zarr
-            from devtools import debug
-
-            image_path = str(folder / "B/03/0")
-            group = zarr.open_group(image_path, mode="r+")
-            attrs = group.attrs.asdict()
-            attrs["omero"]["channels"][0]["wavelength_id"] = "A01_C01"
-            group.attrs.put(attrs)
-            debug(f"Adding A01_C01 in omero metadata, in {image_path}")
 
     folders = [str(f) for f in folders]
 
@@ -117,9 +105,8 @@ def zenodo_zarr_metadata(testdata_path):
         "image": ["plate.zarr/B/03/0/"],
         "num_levels": 6,
         "coarsening_xy": 2,
-        "original_paths": [
-            str(testdata_path / "10_5281_zenodo_7059515/*.png")
-        ],
+        "original_paths": [str(testdata_path / "10_5281_zenodo_7059515/")],
+        "image_extension": "png",
     }
 
     metadata_2D = {
@@ -128,9 +115,8 @@ def zenodo_zarr_metadata(testdata_path):
         "image": ["plate_mip.zarr/B/03/0/"],
         "num_levels": 6,
         "coarsening_xy": 2,
-        "original_paths": [
-            str(testdata_path / "10_5281_zenodo_7059515/*.png")
-        ],
+        "original_paths": [str(testdata_path / "10_5281_zenodo_7059515/")],
+        "image_extension": "png",
         "replicate_zarr": {
             "suffix": "mip",
             "sources": {"plate_mip": "/this/should/not/be/used/"},

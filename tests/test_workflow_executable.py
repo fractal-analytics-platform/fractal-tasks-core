@@ -56,8 +56,8 @@ def run_command(cmd: str):
 def test_workflow_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: str):
 
     # Init
-    img_path = Path(zenodo_images) / "*.png"
-    zarr_path = tmp_path / "tmp_out/*.zarr"
+    img_path = zenodo_images
+    zarr_path = str(tmp_path / "tmp_out/")
     metadata = {}
     tasks_path = str(Path(fractal_tasks_core.__file__).parent)
 
@@ -67,6 +67,7 @@ def test_workflow_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: str):
         output_path=str(zarr_path),
         allowed_channels=allowed_channels,
         metadata={},
+        image_extension="png",
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         metadata_table="mrf_mlf",

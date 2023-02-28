@@ -69,8 +69,8 @@ def yokogawa_to_ome_zarr(
     Convert Yokogawa output (png, tif) to zarr file
 
     Example arguments:
-      input_paths[0] = "/tmp/output/*.zarr"
-      output_path = "/tmp/output/*.zarr"
+      input_paths[0] = "/tmp/output/"
+      output_path = "/tmp/output/"
       metadata = {"num_levels": ..., }
       component = plate.zarr/B/03/0/
 
@@ -84,22 +84,27 @@ def yokogawa_to_ome_zarr(
     # Preliminary checks
     if len(input_paths) > 1:
         raise NotImplementedError
-    zarrurl = Path(input_paths[0]).parent.as_posix() + f"/{component}"
+    zarrurl = Path(input_paths[0]).as_posix() + f"/{component}"
 
     parameters = get_parameters_from_metadata(
-        keys=["original_paths", "num_levels", "coarsening_xy"],
+        keys=[
+            "original_paths",
+            "num_levels",
+            "coarsening_xy",
+            "image_extension",
+        ],
         metadata=metadata,
-        image_zarr_path=(Path(output_path).parent / component),
+        image_zarr_path=(Path(output_path) / component),
     )
     original_path_list = parameters["original_paths"]
     num_levels = parameters["num_levels"]
     coarsening_xy = parameters["coarsening_xy"]
+    image_extension = parameters["image_extension"]
 
     channels = get_omero_channel_list(image_zarr_path=zarrurl)
     wavelength_ids = [c["wavelength_id"] for c in channels]
 
-    in_path = Path(original_path_list[0]).parent
-    ext = Path(original_path_list[0]).name
+    in_path = Path(original_path_list[0])
 
     # Define well
     component_split = component.split("/")
@@ -127,7 +132,7 @@ def yokogawa_to_ome_zarr(
     max_x = well_indices[0][5]
 
     # Load a single image, to retrieve useful information
-    sample = imread(glob(f"{in_path}/*_{well_ID}_*{ext}")[0])
+    sample = imread(glob(f"{in_path}/*_{well_ID}_*.{image_extension}")[0])
 
     # Initialize zarr
     chunksize = (1, 1, sample.shape[1], sample.shape[2])
@@ -144,14 +149,14 @@ def yokogawa_to_ome_zarr(
     for i_c, wavelength_id in enumerate(wavelength_ids):
         A, C = wavelength_id.split("_")
 
-        glob_path = f"{in_path}/*_{well_ID}_*{A}*{C}{ext}"
+        glob_path = f"{in_path}/*_{well_ID}_*{A}*{C}*.{image_extension}"
         logger.info(f"glob path: {glob_path}")
         filenames = sorted(glob(glob_path), key=sort_fun)
         if len(filenames) == 0:
             raise Exception(
                 "Error in yokogawa_to_ome_zarr: len(filenames)=0.\n"
                 f"  in_path: {in_path}\n"
-                f"  ext: {ext}\n"
+                f"  image_extension: {image_extension}\n"
                 f"  well_ID: {well_ID}\n"
                 f"  wavelength_id: {wavelength_id},\n"
                 f"  glob_path: {glob_path}"
