@@ -1,7 +1,6 @@
 import json
 import os
 import shutil
-from pathlib import Path
 
 from devtools import debug
 
@@ -15,11 +14,11 @@ if os.path.exists("tmp"):
     shutil.rmtree("tmp")
 os.mkdir("tmp")
 shutil.copytree(
-    "output/RS220304172545_mip.zarr", "tmp/RS220304172545_mip.zarr"
+    "output_mip/RS220304172545_mip.zarr", "tmp/RS220304172545_mip.zarr"
 )
 
 # Init
-zarr_path_mip = Path("tmp/*zarr")
+zarr_path_mip = "tmp/"
 with open("01_final_metadata.json", "r") as f:
     metadata = json.load(f)
 debug(metadata)

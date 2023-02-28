@@ -1,5 +1,4 @@
 import json
-from pathlib import Path
 
 from devtools import debug
 
@@ -48,9 +47,9 @@ coarsening_xy = 2
 
 
 # Init
-img_path = Path("images/*.tif")
-zarr_path = Path("output/*zarr")
-zarr_path_mip = Path("output/*zarr")
+img_path = "images/"
+zarr_path = "output/"
+zarr_path_mip = "output_mip/"
 metadata = {}
 
 # Create zarr structure
@@ -58,6 +57,7 @@ metadata_update = create_ome_zarr(
     input_paths=[img_path],
     output_path=zarr_path,
     metadata=metadata,
+    image_extension="tif",
     allowed_channels=allowed_channels,
     num_levels=num_levels,
     coarsening_xy=coarsening_xy,

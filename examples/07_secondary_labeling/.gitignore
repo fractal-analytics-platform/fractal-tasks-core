@@ -8,3 +8,4 @@ tmp*
 slurm-*.out
 slurm-*.err
 0*metadata.json
+output_mip
