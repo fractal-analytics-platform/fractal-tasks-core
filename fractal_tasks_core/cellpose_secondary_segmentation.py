@@ -534,8 +534,7 @@ def cellpose_secondary_segmentation(
         )
         logger.info(f"{organoid_labels.shape=}")
 
-        # FIXME: use label column
-        label_value = int(ROI_table.obs.index[i_ROI]) + 1
+        label_value = int(ROI_table.obs.label[i_ROI])
         background_mask = organoid_labels != label_value
         logger.info(f"{background_mask.shape=}")
 
