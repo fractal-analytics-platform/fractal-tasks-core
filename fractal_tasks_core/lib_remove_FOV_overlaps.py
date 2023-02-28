@@ -143,7 +143,7 @@ def get_overlapping_pairs_3D(
     list_columns = [
         "len_x_micrometer",
         "len_y_micrometer",
-        "len_y_micrometer",
+        "len_z_micrometer",
         "label",
     ]
     new_tmp_df.drop(labels=list_columns, axis=1, inplace=True)
