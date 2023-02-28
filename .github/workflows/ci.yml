@@ -39,7 +39,7 @@ jobs:
         run: poetry install --with dev --all-extras --no-interaction
 
       - name: Test with pytest
-        run: poetry run coverage run -m pytest test_unit_*
+        run: poetry run coverage run -m pytest tests/test_unit_*
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v3
