@@ -139,9 +139,14 @@ def get_overlapping_pairs_3D(
     new_tmp_df["z_micrometer_max"] = (
         new_tmp_df["z_micrometer"] + new_tmp_df["len_z_micrometer"]
     )
-    new_tmp_df.drop(labels=["len_x_micrometer"], axis=1, inplace=True)
-    new_tmp_df.drop(labels=["len_y_micrometer"], axis=1, inplace=True)
-    new_tmp_df.drop(labels=["len_z_micrometer"], axis=1, inplace=True)
+    # Remove columns which are not necessary for overlap checks
+    list_columns = [
+        "len_x_micrometer",
+        "len_y_micrometer",
+        "len_y_micrometer",
+        "label",
+    ]
+    new_tmp_df.drop(labels=list_columns, axis=1, inplace=True)
 
     # Loop over all pairs, and construct list of overlapping ones
     num_lines = len(new_tmp_df.index)
