@@ -341,5 +341,6 @@ def array_to_bounding_box_table(
     ]
 
     df = pd.DataFrame(np.array(elem_list), columns=df_columns)
+    df["label"] = labels
 
     return df

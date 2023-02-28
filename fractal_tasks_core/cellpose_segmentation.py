@@ -598,11 +598,15 @@ def cellpose_segmentation(
         # Concatenate all FOV dataframes
         df_well = pd.concat(bbox_dataframe_list, axis=0, ignore_index=True)
         df_well.index = df_well.index.astype(str)
+        # Extract labels and drop them from df_well
+        labels = pd.DataFrame(df_well["label"].astype(str))
+        df_well.drop(labels=["label"], axis=1, inplace=True)
         # Convert all to float (warning: some would be int, in principle)
         bbox_dtype = np.float32
         df_well = df_well.astype(bbox_dtype)
         # Convert to anndata
         bbox_table = ad.AnnData(df_well, dtype=bbox_dtype)
+        bbox_table.obs = labels
         # Write to zarr group
         group_tables = zarr.group(f"{in_path}/{component}/tables/")
         write_elem(group_tables, bounding_box_ROI_table_name, bbox_table)
