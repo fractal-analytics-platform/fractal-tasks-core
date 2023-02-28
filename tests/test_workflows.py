@@ -70,8 +70,8 @@ def test_create_ome_zarr_fail(tmp_path: Path, zenodo_images: str):
     ]
 
     # Init
-    img_path = str(Path(zenodo_images) / "*.png")
-    zarr_path = str(tmp_path / "tmp_out/*.zarr")
+    img_path = zenodo_images
+    zarr_path = str(tmp_path / "tmp_out/")
 
     # Create zarr structure
     with pytest.raises(ValueError):

@@ -74,17 +74,13 @@ def test_multiplexing_create_ome_zarr_fail(
     }
 
     # Init
-    img_paths = [
-        str(Path(cycle_folder) / "*.png")
-        for cycle_folder in zenodo_images_multiplex
-    ]
     zarr_path = tmp_path / "tmp_out/"
 
     # Create zarr structure
-    debug(img_paths)
+    debug(zenodo_images_multiplex)
     with pytest.raises(ValueError):
         _ = create_ome_zarr_multiplex(
-            input_paths=img_paths,
+            input_paths=zenodo_images_multiplex,
             output_path=str(zarr_path),
             metadata={},
             allowed_channels=allowed_channels,
