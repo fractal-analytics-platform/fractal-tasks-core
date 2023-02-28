@@ -74,7 +74,7 @@ build-backend = "poetry.core.masonry.api"
 branch = true
 parallel = true
 relative_files = true
-omit = ["tests/*", "examples/*"]
+omit = ["tests/*", "examples/*", "manifest.py"]
 
 [tool.bumpver]
 current_version = "0.7.5"
