@@ -75,7 +75,7 @@ branch = true
 parallel = true
 relative_files = true
 source = ["fractal_tasks_core"]
-omit = ["tests/*", "examples/*", "manifest.py"]
+omit = ["tests/*", "examples/*"]
 
 [tool.bumpver]
 current_version = "0.7.5"
