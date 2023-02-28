@@ -382,12 +382,9 @@ def create_ome_zarr(
         image=zarrurls["image"],
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        # create_ome_zarr=dict(
-        # FIXME
         image_extension=image_extension,
         image_glob_pattern=image_glob_pattern,
         original_paths=input_paths[:],
-        #    ),
     )
     return metadata_update
 
