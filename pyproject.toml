@@ -74,6 +74,7 @@ build-backend = "poetry.core.masonry.api"
 branch = true
 parallel = true
 relative_files = true
+source = ["fractal_tasks_core"]
 omit = ["tests/*", "examples/*", "manifest.py"]
 
 [tool.bumpver]
