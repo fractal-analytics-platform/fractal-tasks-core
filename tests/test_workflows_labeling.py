@@ -497,6 +497,7 @@ def test_workflow_bounding_box(
         "fractal_tasks_core.cellpose_segmentation.segment_FOV",
         patched_segment_FOV,
     )
+    NUM_LABELS = 4
 
     # Setup caplog fixture, see
     # https://docs.pytest.org/en/stable/how-to/logging.html#caplog-fixture
@@ -527,7 +528,10 @@ def test_workflow_bounding_box(
     bbox_ROIs = ad.read_zarr(
         str(zarr_path / metadata["image"][0] / "tables/bbox_table/")
     )
-    assert bbox_ROIs.shape == (4, 6)
+    debug(bbox_ROIs)
+    debug(bbox_ROIs.obs)
+    assert bbox_ROIs.obs.shape == (NUM_LABELS, 1)
+    assert bbox_ROIs.shape == (NUM_LABELS, 6)
     assert len(bbox_ROIs) > 0
     assert np.max(bbox_ROIs.X) == float(208)
 
