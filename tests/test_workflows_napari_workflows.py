@@ -37,9 +37,9 @@ def prepare_3D_zarr(
 ):
     zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
     metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
-    shutil.copytree(
-        zenodo_zarr_3D, str(Path(zarr_path) / Path(zenodo_zarr_3D).name)
-    )
+    source = zenodo_zarr_3D
+    dest = str(Path(zarr_path) / Path(zenodo_zarr_3D).name)
+    shutil.copytree(source, dest)
     metadata = metadata_3D.copy()
     return metadata
 
@@ -57,9 +57,7 @@ def prepare_2D_zarr(
     )
     if remove_labels:
         label_dir = str(
-            Path(zarr_path).parent
-            / Path(zenodo_zarr_2D).name
-            / "B/03/0/labels"
+            Path(zarr_path) / Path(zenodo_zarr_2D).name / "B/03/0/labels"
         )
         debug(label_dir)
         shutil.rmtree(label_dir)
