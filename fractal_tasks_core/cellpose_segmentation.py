@@ -181,8 +181,8 @@ def cellpose_segmentation(
     of them are standard arguments for Fractal tasks that should be documented
     in a standard way. Here are some examples of valid arguments::
 
-        input_paths = ["/some/path/*.zarr"]
-        output_path = "/some/path/*.zarr"
+        input_paths = ["/some/path/"]
+        output_path = "/some/path/"
         component = "some_plate.zarr/B/03/0"
         metadata = {"num_levels": 4, "coarsening_xy": 2}
 
@@ -239,7 +239,7 @@ def cellpose_segmentation(
     # Set input path
     if len(input_paths) > 1:
         raise NotImplementedError
-    in_path = Path(input_paths[0]).parent
+    in_path = Path(input_paths[0])
     zarrurl = (in_path.resolve() / component).as_posix() + "/"
     logger.info(zarrurl)
 

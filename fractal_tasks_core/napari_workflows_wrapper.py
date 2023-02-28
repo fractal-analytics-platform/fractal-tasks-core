@@ -80,8 +80,8 @@ def napari_workflows_wrapper(
     of them are standard arguments for Fractal tasks that should be documented
     in a standard way. Here are some examples::
 
-        input_paths = ["/some/path/*.zarr"]
-        output_path = "/some/path/*.zarr"
+        input_paths = ["/some/path/"]
+        output_path = "/some/path/"
         component = "some_plate.zarr/B/03/0"
         metadata = {"num_levels": 4, "coarsening_xy": 2}
 
@@ -159,7 +159,7 @@ def napari_workflows_wrapper(
     # Pre-processing of task inputs
     if len(input_paths) > 1:
         raise NotImplementedError("We currently only support a single in_path")
-    in_path = Path(input_paths[0]).parent.as_posix()
+    in_path = Path(input_paths[0]).as_posix()
     num_levels = metadata["num_levels"]
     coarsening_xy = metadata["coarsening_xy"]
     label_dtype = np.uint32

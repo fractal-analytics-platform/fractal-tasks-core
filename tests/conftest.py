@@ -105,9 +105,8 @@ def zenodo_zarr_metadata(testdata_path):
         "image": ["plate.zarr/B/03/0/"],
         "num_levels": 6,
         "coarsening_xy": 2,
-        "original_paths": [
-            str(testdata_path / "10_5281_zenodo_7059515/*.png")
-        ],
+        "original_paths": [str(testdata_path / "10_5281_zenodo_7059515/")],
+        "image_extension": "png",
     }
 
     metadata_2D = {
@@ -116,9 +115,8 @@ def zenodo_zarr_metadata(testdata_path):
         "image": ["plate_mip.zarr/B/03/0/"],
         "num_levels": 6,
         "coarsening_xy": 2,
-        "original_paths": [
-            str(testdata_path / "10_5281_zenodo_7059515/*.png")
-        ],
+        "original_paths": [str(testdata_path / "10_5281_zenodo_7059515/")],
+        "image_extension": "png",
         "replicate_zarr": {
             "suffix": "mip",
             "sources": {"plate_mip": "/this/should/not/be/used/"},

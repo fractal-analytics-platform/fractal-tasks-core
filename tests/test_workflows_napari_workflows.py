@@ -37,9 +37,9 @@ def prepare_3D_zarr(
 ):
     zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
     metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
-    shutil.copytree(
-        zenodo_zarr_3D, str(Path(zarr_path).parent / Path(zenodo_zarr_3D).name)
-    )
+    source = zenodo_zarr_3D
+    dest = str(Path(zarr_path) / Path(zenodo_zarr_3D).name)
+    shutil.copytree(source, dest)
     metadata = metadata_3D.copy()
     return metadata
 
@@ -53,13 +53,11 @@ def prepare_2D_zarr(
     zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
     metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
     shutil.copytree(
-        zenodo_zarr_2D, str(Path(zarr_path).parent / Path(zenodo_zarr_2D).name)
+        zenodo_zarr_2D, str(Path(zarr_path) / Path(zenodo_zarr_2D).name)
     )
     if remove_labels:
         label_dir = str(
-            Path(zarr_path).parent
-            / Path(zenodo_zarr_2D).name
-            / "B/03/0/labels"
+            Path(zarr_path) / Path(zenodo_zarr_2D).name / "B/03/0/labels"
         )
         debug(label_dir)
         shutil.rmtree(label_dir)
@@ -67,7 +65,7 @@ def prepare_2D_zarr(
     return metadata
 
 
-def test_napari_worfklow(
+def test_napari_workflow(
     tmp_path: Path,
     testdata_path: Path,
     zenodo_zarr: List[str],
@@ -75,7 +73,7 @@ def test_napari_worfklow(
 ):
 
     # Init
-    zarr_path = tmp_path / "tmp_out/*.zarr"
+    zarr_path = tmp_path / "tmp_out/"
     metadata = prepare_3D_zarr(
         str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
     )
@@ -133,7 +131,7 @@ def test_napari_worfklow(
     debug(metadata)
 
     # OME-NGFF JSON validation
-    image_zarr = zarr_path.parent / metadata["image"][0]
+    image_zarr = zarr_path / metadata["image"][0]
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
     label_zarr = image_zarr / "labels/label_DAPI"
@@ -150,11 +148,7 @@ def test_napari_worfklow(
 
     # Load measurements
     meas = ad.read_zarr(
-        str(
-            zarr_path.parent
-            / metadata["image"][0]
-            / "tables/regionprops_DAPI/"
-        )
+        str(zarr_path / metadata["image"][0] / "tables/regionprops_DAPI/")
     )
     debug(meas.var_names)
     assert "area" in meas.var_names
@@ -169,7 +163,7 @@ def test_napari_worfklow_label_input_only(
 ):
 
     # Prepare 3D zarr
-    zarr_path = tmp_path / "tmp_out/*.zarr"
+    zarr_path = tmp_path / "tmp_out/"
     metadata = prepare_3D_zarr(
         str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
     )
@@ -228,7 +222,7 @@ def test_napari_worfklow_label_input_only(
     debug(metadata)
 
     # OME-NGFF JSON validation
-    image_zarr = zarr_path.parent / metadata["image"][0]
+    image_zarr = zarr_path / metadata["image"][0]
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
     label_zarr = image_zarr / "labels/label_DAPI"
@@ -289,7 +283,7 @@ def test_relabeling(
 ):
 
     # Prepare 3D zarr
-    zarr_path = tmp_path / "tmp_out/*.zarr"
+    zarr_path = tmp_path / "tmp_out/"
     metadata = prepare_3D_zarr(
         str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
     )
@@ -333,7 +327,7 @@ def test_relabeling(
         )
     debug(metadata)
 
-    image_zarr = Path(zarr_path.parent / metadata["image"][0])
+    image_zarr = Path(zarr_path / metadata["image"][0])
     validate_labels_and_measurements(
         image_zarr, label_name=LABEL_NAME, table_name=TABLE_NAME
     )
@@ -343,7 +337,7 @@ def test_relabeling(
     ]
     if dataframe_outputs:
         meas = ad.read_zarr(
-            zarr_path.parent / metadata["image"][0] / f"tables/{TABLE_NAME}/"
+            zarr_path / metadata["image"][0] / f"tables/{TABLE_NAME}/"
         )
         debug(meas.var_names)
         assert "area" in meas.var_names
@@ -358,7 +352,7 @@ def test_fail_if_no_relabeling(
 ):
 
     # Prepare 3D zarr
-    zarr_path = tmp_path / "tmp_out/*.zarr"
+    zarr_path = tmp_path / "tmp_out/"
     metadata = prepare_3D_zarr(
         str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
     )
@@ -387,7 +381,7 @@ def test_fail_if_no_relabeling(
         )
     debug(metadata)
 
-    image_zarr = zarr_path.parent / metadata["image"][0]
+    image_zarr = zarr_path / metadata["image"][0]
     with pytest.raises(AssertionError):
         validate_labels_and_measurements(
             image_zarr, label_name=LABEL_NAME, table_name=TABLE_NAME
@@ -416,7 +410,7 @@ def test_expected_dimensions(
 ):
 
     # Prepare zarr
-    zarr_path = tmp_path / "tmp_out/*.zarr"
+    zarr_path = tmp_path / "tmp_out/"
     if zarr_dimensions == 2:
         metadata = prepare_2D_zarr(
             str(zarr_path),

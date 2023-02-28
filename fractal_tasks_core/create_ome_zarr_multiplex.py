@@ -51,6 +51,8 @@ def create_ome_zarr_multiplex(
     input_paths: Sequence[str],
     output_path: str,
     metadata: Dict[str, Any],
+    image_extension: str = "tif",
+    image_glob_pattern: Optional[str] = None,
     allowed_channels: Dict[str, Sequence[Dict[str, Any]]],
     num_levels: int = 2,
     coarsening_xy: int = 2,
@@ -66,11 +68,13 @@ def create_ome_zarr_multiplex(
     Each input_paths should be treated as a different acquisition
 
     :param input_paths: list of image folders for different acquisition
-                        cycles, e.g. in the form ``["/path/cycle1/*.png",
-                        "/path/cycle2/*.png"]``
+                        cycles, e.g. in the form `["/path/cycle1/",
+                        "/path/cycle2/"]`
     :param output_path: parent folder for the output path, e.g.
-                        ``"/outputpath/*.zarr"``
+                        `"/outputpath/"`
     :param metadata: standard fractal argument, not used in this task
+    :param image_extension: Filename extension of images (e.g. `tif` or `png`)
+    :param image_glob_pattern: TBD
     :param allowed_channels: TBD
     :param num_levels: number of resolution-pyramid levels
     :param coarsening_xy: Linear coarsening factor between subsequent levels
@@ -122,7 +126,8 @@ def create_ome_zarr_multiplex(
     # Identify all plates and all channels, per input folders
     dict_acquisitions: Dict = {}
 
-    ext_glob_pattern = Path(input_paths[0]).name
+    if image_glob_pattern:
+        raise NotImplementedError
 
     for ind_in_path, in_path_str in enumerate(input_paths):
         acquisition = str(ind_in_path)
@@ -134,10 +139,10 @@ def create_ome_zarr_multiplex(
         plate_prefixes = []
 
         # Loop over all images
-        input_filename_iter = in_path.parent.glob(ext_glob_pattern)
-        for fn in input_filename_iter:
+        glob_expression = str(Path(in_path) / f"*.{image_extension}")
+        for fn in glob(glob_expression):
             try:
-                filename_metadata = parse_filename(fn.name)
+                filename_metadata = parse_filename(Path(fn).name)
                 plate = filename_metadata["plate"]
                 plates.append(plate)
                 plate_prefix = filename_metadata["plate_prefix"]
@@ -147,7 +152,7 @@ def create_ome_zarr_multiplex(
                 actual_wavelength_ids.append(f"A{A}_C{C}")
             except ValueError as e:
                 logger.warning(
-                    f'Skipping "{fn.name}". Original error: ' + str(e)
+                    f'Skipping "{Path(fn).name}". Original error: ' + str(e)
                 )
         plates = sorted(list(set(plates)))
         actual_wavelength_ids = sorted(list(set(actual_wavelength_ids)))
@@ -201,8 +206,8 @@ def create_ome_zarr_multiplex(
         dict_acquisitions[acquisition]["plate"] = plate
         dict_acquisitions[acquisition]["original_plate"] = original_plate
         dict_acquisitions[acquisition]["plate_prefix"] = plate_prefix
-        dict_acquisitions[acquisition]["image_folder"] = str(in_path.parent)
-        dict_acquisitions[acquisition]["original_paths"] = [str(in_path)]
+        dict_acquisitions[acquisition]["image_folder"] = in_path
+        dict_acquisitions[acquisition]["original_paths"] = [in_path]
         dict_acquisitions[acquisition]["actual_channels"] = actual_channels
 
     acquisitions = sorted(list(dict_acquisitions.keys()))
@@ -212,7 +217,7 @@ def create_ome_zarr_multiplex(
     plate = current_plates[0]
 
     zarrurl = dict_acquisitions[acquisitions[0]]["plate"] + ".zarr"
-    full_zarrurl = str(Path(output_path).parent / zarrurl)
+    full_zarrurl = str(Path(output_path) / zarrurl)
     logger.info(f"Creating {full_zarrurl=}")
     group_plate = zarr.group(full_zarrurl)
     group_plate.attrs["plate"] = {
@@ -261,7 +266,7 @@ def create_ome_zarr_multiplex(
 
         # Identify all wells
         plate_prefix = dict_acquisitions[acquisition]["plate_prefix"]
-        glob_string = f"{image_folder}/{plate_prefix}_{ext_glob_pattern}"
+        glob_string = f"{image_folder}/{plate_prefix}_*.{image_extension}"
         logger.info(f"{glob_string=}")
         plate_image_iter = glob(glob_string)
 
@@ -276,7 +281,7 @@ def create_ome_zarr_multiplex(
         actual_channels = dict_acquisitions[acquisition]["actual_channels"]
         for well in wells:
             well_image_iter = glob(
-                f"{image_folder}/{plate_prefix}_{well}{ext_glob_pattern}"
+                f"{image_folder}/{plate_prefix}_{well}*.{image_extension}"
             )
             well_wavelength_ids = []
             for fpath in well_image_iter:
@@ -431,7 +436,7 @@ def create_ome_zarr_multiplex(
     # have unique labels
     for well_path in zarrurls["well"]:
         check_well_channel_labels(
-            well_zarr_path=str(Path(output_path).parent / well_path)
+            well_zarr_path=str(Path(output_path) / well_path)
         )
 
     original_paths = {
@@ -446,6 +451,8 @@ def create_ome_zarr_multiplex(
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         original_paths=original_paths,
+        image_extension=image_extension,
+        image_glob_pattern=image_glob_pattern,
     )
     return metadata_update
 
@@ -458,6 +465,8 @@ if __name__ == "__main__":
         input_paths: Sequence[str]
         output_path: str
         metadata: Dict[str, Any]
+        image_extension: str
+        image_glob_pattern: Optional[str]
         allowed_channels: Dict[str, Sequence[Dict[str, Any]]]
         num_levels: Optional[int]
         coarsening_xy: Optional[int]

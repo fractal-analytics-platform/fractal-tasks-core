@@ -74,7 +74,7 @@ def prepare_3D_zarr(
     zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
     metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
     shutil.copytree(
-        zenodo_zarr_3D, str(Path(zarr_path).parent / Path(zenodo_zarr_3D).name)
+        zenodo_zarr_3D, str(Path(zarr_path) / Path(zenodo_zarr_3D).name)
     )
     metadata = metadata_3D.copy()
     return metadata
@@ -89,13 +89,11 @@ def prepare_2D_zarr(
     zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
     metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
     shutil.copytree(
-        zenodo_zarr_2D, str(Path(zarr_path).parent / Path(zenodo_zarr_2D).name)
+        zenodo_zarr_2D, str(Path(zarr_path) / Path(zenodo_zarr_2D).name)
     )
     if remove_labels:
         label_dir = str(
-            Path(zarr_path).parent
-            / Path(zenodo_zarr_2D).name
-            / "B/03/0/labels"
+            Path(zarr_path) / Path(zenodo_zarr_2D).name / "B/03/0/labels"
         )
         debug(label_dir)
         shutil.rmtree(label_dir)
@@ -179,7 +177,7 @@ def test_failures(
     caplog.set_level(logging.WARNING)
 
     # Use pre-made 3D zarr
-    zarr_path = tmp_path / "tmp_out/*.zarr"
+    zarr_path = tmp_path / "tmp_out/"
     metadata = prepare_3D_zarr(
         str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
     )
@@ -243,7 +241,7 @@ def test_workflow_with_per_FOV_labeling(
     caplog.set_level(logging.INFO)
 
     # Use pre-made 3D zarr
-    zarr_path = tmp_path / "tmp_out/*.zarr"
+    zarr_path = tmp_path / "tmp_out/"
     metadata = prepare_3D_zarr(
         str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
     )
@@ -267,7 +265,7 @@ def test_workflow_with_per_FOV_labeling(
         )
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path.parent / metadata["image"][0])
+    image_zarr = Path(zarr_path / metadata["image"][0])
     label_zarr = image_zarr / "labels/label_DAPI"
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
@@ -304,7 +302,7 @@ def test_workflow_with_multi_channel_input(
     caplog.set_level(logging.INFO)
 
     # Use pre-made 3D zarr
-    zarr_path = tmp_path / "tmp_out/*.zarr"
+    zarr_path = tmp_path / "tmp_out/"
     metadata = prepare_3D_zarr(zarr_path, zenodo_zarr, zenodo_zarr_metadata)
     debug(zarr_path)
     debug(metadata)
@@ -325,7 +323,7 @@ def test_workflow_with_multi_channel_input(
         )
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path.parent / metadata["image"][0])
+    image_zarr = Path(zarr_path / metadata["image"][0])
     label_zarr = image_zarr / "labels/label_DAPI"
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
@@ -357,7 +355,7 @@ def test_workflow_with_per_FOV_labeling_2D(
     )
 
     # Load pre-made 2D zarr array
-    zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
+    zarr_path_mip = tmp_path / "tmp_out_mip/"
     metadata = prepare_2D_zarr(
         str(zarr_path_mip),
         zenodo_zarr,
@@ -379,7 +377,7 @@ def test_workflow_with_per_FOV_labeling_2D(
         )
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path_mip.parent / metadata["image"][0])
+    image_zarr = Path(zarr_path_mip / metadata["image"][0])
     debug(image_zarr)
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
@@ -409,9 +407,9 @@ def test_workflow_with_per_well_labeling_2D(
     )
 
     # Init
-    img_path = Path(zenodo_images) / "*.png"
-    zarr_path = tmp_path / "tmp_out/*.zarr"
-    zarr_path_mip = tmp_path / "tmp_out_mip/*.zarr"
+    img_path = Path(zenodo_images)
+    zarr_path = tmp_path / "tmp_out/"
+    zarr_path_mip = tmp_path / "tmp_out_mip/"
     metadata = {}
 
     # Create zarr structure
@@ -419,6 +417,7 @@ def test_workflow_with_per_well_labeling_2D(
         input_paths=[str(img_path)],
         output_path=str(zarr_path),
         metadata=metadata,
+        image_extension="png",
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
@@ -470,7 +469,7 @@ def test_workflow_with_per_well_labeling_2D(
         )
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path_mip.parent / metadata["image"][0])
+    image_zarr = Path(zarr_path_mip / metadata["image"][0])
     debug(image_zarr)
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
@@ -504,7 +503,7 @@ def test_workflow_bounding_box(
     caplog.set_level(logging.INFO)
 
     # Use pre-made 3D zarr
-    zarr_path = tmp_path / "tmp_out/*.zarr"
+    zarr_path = tmp_path / "tmp_out/"
     metadata = prepare_3D_zarr(
         str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
     )
@@ -526,7 +525,7 @@ def test_workflow_bounding_box(
         )
 
     bbox_ROIs = ad.read_zarr(
-        str(zarr_path.parent / metadata["image"][0] / "tables/bbox_table/")
+        str(zarr_path / metadata["image"][0] / "tables/bbox_table/")
     )
     assert bbox_ROIs.shape == (4, 6)
     assert len(bbox_ROIs) > 0
@@ -556,7 +555,7 @@ def test_workflow_bounding_box_with_overlap(
     caplog.set_level(logging.INFO)
 
     # Use pre-made 3D zarr
-    zarr_path = tmp_path / "tmp_out/*.zarr"
+    zarr_path = tmp_path / "tmp_out/"
     metadata = prepare_3D_zarr(
         str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
     )

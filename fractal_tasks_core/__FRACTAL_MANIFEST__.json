@@ -6,6 +6,7 @@
             "input_type": "image",
             "output_type": "zarr",
             "default_args": {
+                "image_extension": "tif",
                 "num_levels": 2,
                 "coarsening_xy": 2,
                 "metadata_table": "mrf_mlf"
@@ -96,6 +97,7 @@
             "input_type": "image",
             "output_type": "zarr",
             "default_args": {
+                "image_extension": "tif",
                 "num_levels": 2,
                 "coarsening_xy": 2,
                 "metadata_table": "mrf_mlf"

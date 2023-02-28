@@ -12,7 +12,6 @@ Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
 import os
-from pathlib import Path
 
 from devtools import debug
 
@@ -55,13 +54,13 @@ coarsening_xy = 2
 
 
 # Init
-img_path = Path("../images/10.5281_zenodo.7057076/*.png")
-if not os.path.isdir(img_path.parent):
+img_path = "../images/10.5281_zenodo.7057076/"
+if not os.path.isdir(img_path):
     raise FileNotFoundError(
-        f"{img_path.parent} is missing,"
+        f"{img_path} is missing,"
         " try running ./fetch_test_data_from_zenodo.sh"
     )
-zarr_path = Path("tmp_out_dual_channel/*.zarr")
+zarr_path = "tmp_out_dual_channel/"
 metadata = {}
 
 # Create zarr structure
@@ -69,6 +68,7 @@ metadata_update = create_ome_zarr(
     input_paths=[img_path],
     output_path=zarr_path,
     metadata=metadata,
+    image_extension="png",
     allowed_channels=allowed_channels,
     num_levels=num_levels,
     coarsening_xy=coarsening_xy,

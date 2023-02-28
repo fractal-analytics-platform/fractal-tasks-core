@@ -16,33 +16,42 @@ from pathlib import Path
 
 from devtools import debug
 
-from fractal_tasks_core.create_zarr_structure import create_zarr_structure
-from fractal_tasks_core.yokogawa_to_zarr import yokogawa_to_zarr
+from fractal_tasks_core.create_ome_zarr import create_ome_zarr
+from fractal_tasks_core.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 
 
-channel_parameters = {
-    "A01_C01": {},
-}
-
+allowed_channels = [
+    {
+        "wavelength_id": "A01_C01",
+    },
+    {
+        "wavelength_id": "A01_C02",
+    },
+    {
+        "wavelength_id": "A02_C03",
+    },
+]
 num_levels = 2
 coarsening_xy = 2
 
 
 # Init
-img_path = Path("../images/10.5281_zenodo.7059515/*.png")
-if not os.path.isdir(img_path.parent):
+img_path = "../images/10.5281_zenodo.7059515/"
+if not os.path.isdir(Path(img_path).parent):
     raise FileNotFoundError(
-        f"{img_path.parent} is missing,"
+        f"{Path(img_path).parent} is missing,"
         " try running ./fetch_test_data_from_zenodo.sh"
     )
-zarr_path = Path("tmp_out/*.zarr")
+zarr_path = "tmp_out/"
 metadata = {}
 
 # Create zarr structure
-metadata_update = create_zarr_structure(
+metadata_update = create_ome_zarr(
     input_paths=[img_path],
     output_path=zarr_path,
-    channel_parameters=channel_parameters,
+    allowed_channels=allowed_channels,
+    image_extension="png",
+    metadata=metadata,
     num_levels=num_levels,
     coarsening_xy=coarsening_xy,
     metadata_table="mrf_mlf",
@@ -52,7 +61,7 @@ debug(metadata)
 
 # Yokogawa to zarr
 for component in metadata["image"]:
-    yokogawa_to_zarr(
+    yokogawa_to_ome_zarr(
         input_paths=[zarr_path],
         output_path=zarr_path,
         metadata=metadata,

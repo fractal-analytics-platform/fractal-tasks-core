@@ -43,7 +43,7 @@ def test_illumination_correction(
     component = "plate.zarr/B/03/0"
 
     # Prepare arguments for illumination_correction function
-    zarr_path = tmp_path / "*.zarr"
+    zarr_path = str(tmp_path)
     testdata_str = testdata_path.as_posix()
     illum_params = {
         "root_path_corr": f"{testdata_str}/illumination_correction/",
