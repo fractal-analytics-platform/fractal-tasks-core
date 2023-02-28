@@ -318,9 +318,7 @@ def array_to_bounding_box_table(
     labels = np.unique(mask_array)
     labels = labels[labels > 0]
     elem_list = []
-    print()
     for label in labels:
-        print(f"{label=}")
         label_match = np.where(mask_array == label)
         # FIXME: multiplication of np.ndarray with list
         zmin, ymin, xmin = np.min(label_match, axis=1) * pxl_sizes_zyx
