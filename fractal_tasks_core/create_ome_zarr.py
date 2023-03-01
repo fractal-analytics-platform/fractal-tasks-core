@@ -50,7 +50,7 @@ def create_ome_zarr(
     output_path: str,
     metadata: Dict[str, Any],
     image_extension: str = "tif",
-    image_glob_patterns: Optional[Sequence[str]] = None,
+    image_glob_patterns: Optional[list[str]] = None,
     allowed_channels: Sequence[Dict[str, Any]],
     num_levels: int = 2,
     coarsening_xy: int = 2,
@@ -141,10 +141,10 @@ def create_ome_zarr(
         tmp_wavelength_ids = sorted(list(set(tmp_wavelength_ids)))
 
         info = (
-            f"Listing all plates/channels:\n"  # FIXME
+            "Listing plates/channels:\n"
+            f"Patterns: {patterns}\n"
             f"Plates:   {tmp_plates}\n"
             f"Channels: {tmp_wavelength_ids}\n"
-            f"Patterns: {patterns}\n"
         )
 
         # Check that only one plate is found
@@ -413,7 +413,7 @@ if __name__ == "__main__":
         output_path: str
         metadata: Dict[str, Any]
         image_extension: str
-        image_glob_patterns: Optional[Sequence[str]]
+        image_glob_patterns: Optional[list[str]]
         allowed_channels: Sequence[Dict[str, Any]]
         num_levels: Optional[int]
         coarsening_xy: Optional[int]
