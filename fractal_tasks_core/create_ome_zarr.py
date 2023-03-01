@@ -14,7 +14,6 @@ Copyright 2022 (C)
 Create structure for OME-NGFF zarr array
 """
 import os
-from glob import glob
 from pathlib import Path
 from typing import Any
 from typing import Dict
@@ -30,6 +29,7 @@ import fractal_tasks_core
 from fractal_tasks_core.lib_channels import check_well_channel_labels
 from fractal_tasks_core.lib_channels import define_omero_channels
 from fractal_tasks_core.lib_channels import validate_allowed_channel_input
+from fractal_tasks_core.lib_glob import glob_with_multiple_patterns
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
@@ -50,7 +50,7 @@ def create_ome_zarr(
     output_path: str,
     metadata: Dict[str, Any],
     image_extension: str = "tif",
-    image_glob_pattern: Optional[str] = None,
+    image_glob_pattern: Optional[str] = None,  # FIXME: take a list?
     allowed_channels: Sequence[Dict[str, Any]],
     num_levels: int = 2,
     coarsening_xy: int = 2,
@@ -111,8 +111,12 @@ def create_ome_zarr(
 
     for in_path_str in input_paths:
         in_path = Path(in_path_str)
-        glob_expression = str(in_path) + f"/*.{image_extension}"
-        input_filenames = glob(glob_expression)
+        glob_expression = str(in_path) + f"/*.{image_extension}"  # FIXME
+        patterns = [f"*.{image_extension}", image_glob_pattern]
+        input_filenames = glob_with_multiple_patterns(
+            folder=in_path_str,
+            patterns=patterns,
+        )
 
         tmp_wavelength_ids = []
         tmp_plates = []
@@ -135,7 +139,7 @@ def create_ome_zarr(
         tmp_wavelength_ids = sorted(list(set(tmp_wavelength_ids)))
 
         info = (
-            f"Listing all plates/channels from {glob_expression}\n"
+            f"Listing all plates/channels from {glob_expression}\n"  # FIXME
             f"Plates:   {tmp_plates}\n"
             f"Channels: {tmp_wavelength_ids}\n"
         )
@@ -232,8 +236,9 @@ def create_ome_zarr(
         # Identify all wells
         plate_prefix = dict_plate_prefixes[plate]
 
-        plate_image_iter = glob(
-            f"{in_path}/{plate_prefix}_*.{image_extension}"
+        patterns = [f"{plate_prefix}_*.{image_extension}", image_glob_pattern]
+        plate_image_iter = glob_with_multiple_patterns(
+            folder=str(in_path), patterns=patterns
         )
 
         wells = [
@@ -244,8 +249,12 @@ def create_ome_zarr(
 
         # Verify that all wells have all channels
         for well in wells:
-            well_image_iter = glob(
-                f"{in_path}/{plate_prefix}_{well}*.{image_extension}"
+            patterns = [
+                f"{plate_prefix}_{well}*.{image_extension}",
+                image_glob_pattern,
+            ]
+            well_image_iter = glob_with_multiple_patterns(
+                folder=str(in_path), patterns=patterns
             )
             well_wavelength_ids = []
             for fpath in well_image_iter:

@@ -20,12 +20,17 @@ def glob_with_multiple_patterns(
         :patterns: TBD
     """
 
+    if folder.endswith("/"):
+        actual_folder = folder[:-1]
+    else:
+        actual_folder = folder[:]
+
     if not patterns:
         patterns = ["*"]
 
     items = None
     for pattern in patterns:
-        new_matches = glob(f"{folder}/{pattern}")
+        new_matches = glob(f"{actual_folder}/{pattern}")
         if items:
             items = items.intersection(new_matches)
         else:
