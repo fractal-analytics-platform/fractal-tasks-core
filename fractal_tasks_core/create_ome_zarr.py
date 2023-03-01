@@ -50,7 +50,7 @@ def create_ome_zarr(
     output_path: str,
     metadata: Dict[str, Any],
     image_extension: str = "tif",
-    image_glob_pattern: Optional[str] = None,  # FIXME: take a list?
+    image_glob_patterns: Optional[Sequence[str]] = None,
     allowed_channels: Sequence[Dict[str, Any]],
     num_levels: int = 2,
     coarsening_xy: int = 2,
@@ -75,10 +75,11 @@ def create_ome_zarr(
     :param metadata: TBD (common to all tasks)
     :param image_extension: Filename extension of images (e.g. `"tif"` or
                             `"png"`)
-    :param image_glob_pattern: Search pattern to only select a subset of
-                               matching images (e.g. if
-                               `image_glob_pattern="*_B03_*"` then only images
-                               with matching filename will be included).
+    :param image_glob_patterns: Search patterns to only select a subset of
+                                matching images (e.g. if
+                                `image_glob_pattern=["*_B03_*"]` then only
+                                images with matching filename will be
+                                included).
     :param num_levels: Number of resolution-pyramid levels
     :param coarsening_xy: Linear coarsening factor between subsequent levels
     :param allowed_channels: A list of channel dictionaries, where each channel
@@ -111,10 +112,9 @@ def create_ome_zarr(
 
     for in_path_str in input_paths:
         in_path = Path(in_path_str)
-        glob_expression = str(in_path) + f"/*.{image_extension}"  # FIXME
         patterns = [f"*.{image_extension}"]
-        if image_glob_pattern:
-            patterns.append(image_glob_pattern)
+        if image_glob_patterns:
+            patterns.extend(image_glob_patterns)
         input_filenames = glob_with_multiple_patterns(
             folder=in_path_str,
             patterns=patterns,
@@ -141,7 +141,7 @@ def create_ome_zarr(
         tmp_wavelength_ids = sorted(list(set(tmp_wavelength_ids)))
 
         info = (
-            f"Listing all plates/channels from {glob_expression}\n"  # FIXME
+            f"Listing all plates/channels:\n"  # FIXME
             f"Plates:   {tmp_plates}\n"
             f"Channels: {tmp_wavelength_ids}\n"
             f"Patterns: {patterns}\n"
@@ -240,8 +240,8 @@ def create_ome_zarr(
         plate_prefix = dict_plate_prefixes[plate]
 
         patterns = [f"{plate_prefix}_*.{image_extension}"]
-        if image_glob_pattern:
-            patterns.append(image_glob_pattern)
+        if image_glob_patterns:
+            patterns.extend(image_glob_patterns)
         plate_image_iter = glob_with_multiple_patterns(
             folder=str(in_path), patterns=patterns
         )
@@ -255,8 +255,8 @@ def create_ome_zarr(
         # Verify that all wells have all channels
         for well in wells:
             patterns = [f"{plate_prefix}_{well}*.{image_extension}"]
-            if image_glob_pattern:
-                patterns.append(image_glob_pattern)
+            if image_glob_patterns:
+                patterns.extend(image_glob_patterns)
             well_image_iter = glob_with_multiple_patterns(
                 folder=str(in_path), patterns=patterns
             )
@@ -398,7 +398,7 @@ def create_ome_zarr(
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         image_extension=image_extension,
-        image_glob_pattern=image_glob_pattern,
+        image_glob_patterns=image_glob_patterns,
         original_paths=input_paths[:],
     )
     return metadata_update
@@ -413,7 +413,7 @@ if __name__ == "__main__":
         output_path: str
         metadata: Dict[str, Any]
         image_extension: str
-        image_glob_pattern: Optional[str]
+        image_glob_patterns: Optional[Sequence[str]]
         allowed_channels: Sequence[Dict[str, Any]]
         num_levels: Optional[int]
         coarsening_xy: Optional[int]

@@ -92,7 +92,7 @@ def yokogawa_to_ome_zarr(
             "num_levels",
             "coarsening_xy",
             "image_extension",
-            "image_glob_pattern",
+            "image_glob_patterns",
         ],
         metadata=metadata,
         image_zarr_path=(Path(output_path) / component),
@@ -101,7 +101,7 @@ def yokogawa_to_ome_zarr(
     num_levels = parameters["num_levels"]
     coarsening_xy = parameters["coarsening_xy"]
     image_extension = parameters["image_extension"]
-    image_glob_pattern = parameters["image_glob_pattern"]
+    image_glob_patterns = parameters["image_glob_patterns"]
 
     channels = get_omero_channel_list(image_zarr_path=zarrurl)
     wavelength_ids = [c["wavelength_id"] for c in channels]
@@ -135,8 +135,8 @@ def yokogawa_to_ome_zarr(
 
     # Load a single image, to retrieve useful information
     patterns = [f"*_{well_ID}_*.{image_extension}"]
-    if image_glob_pattern:
-        patterns.append(image_glob_pattern)
+    if image_glob_patterns:
+        patterns.extend(image_glob_patterns)
     tmp_images = glob_with_multiple_patterns(
         folder=str(in_path),
         patterns=patterns,
@@ -158,14 +158,9 @@ def yokogawa_to_ome_zarr(
     for i_c, wavelength_id in enumerate(wavelength_ids):
         A, C = wavelength_id.split("_")
 
-        # FIXME:
-        # glob_path = f"{in_path}/*_{well_ID}_*{A}*{C}*.{image_extension}"
-        # logger.info(f"glob path: {glob_path}") # FIXME
-        # filenames = sorted(glob(glob_path), key=sort_fun) # FIXME
-
         patterns = [f"*_{well_ID}_*{A}*{C}*.{image_extension}"]
-        if image_glob_pattern:
-            patterns.append(image_glob_pattern)
+        if image_glob_patterns:
+            patterns.extend(image_glob_patterns)
         filenames = glob_with_multiple_patterns(
             folder=str(in_path),
             patterns=patterns,
@@ -178,7 +173,7 @@ def yokogawa_to_ome_zarr(
                 f"  image_extension: {image_extension}\n"
                 f"  well_ID: {well_ID}\n"
                 f"  wavelength_id: {wavelength_id},\n"
-                # f"  glob_path: {glob_path}" #FIXME
+                f"  patterns: {patterns}"
             )
         # Loop over 3D FOV ROIs
         for indices in fov_indices:
