@@ -73,8 +73,12 @@ def create_ome_zarr(
     :param input_paths: TBD (common to all tasks)
     :param output_path: TBD (common to all tasks)
     :param metadata: TBD (common to all tasks)
-    :param image_extension: Filename extension of images (e.g. `tif` or `png`)
-    :param image_glob_pattern: TBD
+    :param image_extension: Filename extension of images (e.g. `"tif"` or
+                            `"png"`)
+    :param image_glob_pattern: Search pattern to only select a subset of
+                               matching images (e.g. if
+                               `image_glob_pattern="*_B03_*"` then only images
+                               with matching filename will be included).
     :param num_levels: Number of resolution-pyramid levels
     :param coarsening_xy: Linear coarsening factor between subsequent levels
     :param allowed_channels: A list of channel dictionaries, where each channel
@@ -95,8 +99,6 @@ def create_ome_zarr(
         )
     if metadata_table.endswith(".csv") and not os.path.isfile(metadata_table):
         raise FileNotFoundError(f"Missing file: {metadata_table=}")
-    if image_glob_pattern:
-        raise NotImplementedError
 
     # Identify all plates and all channels, across all input folders
     plates = []
