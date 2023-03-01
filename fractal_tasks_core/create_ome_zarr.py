@@ -112,7 +112,9 @@ def create_ome_zarr(
     for in_path_str in input_paths:
         in_path = Path(in_path_str)
         glob_expression = str(in_path) + f"/*.{image_extension}"  # FIXME
-        patterns = [f"*.{image_extension}", image_glob_pattern]
+        patterns = [f"*.{image_extension}"]
+        if image_glob_pattern:
+            patterns.append(image_glob_pattern)
         input_filenames = glob_with_multiple_patterns(
             folder=in_path_str,
             patterns=patterns,
@@ -142,6 +144,7 @@ def create_ome_zarr(
             f"Listing all plates/channels from {glob_expression}\n"  # FIXME
             f"Plates:   {tmp_plates}\n"
             f"Channels: {tmp_wavelength_ids}\n"
+            f"Patterns: {patterns}\n"
         )
 
         # Check that only one plate is found
@@ -236,7 +239,9 @@ def create_ome_zarr(
         # Identify all wells
         plate_prefix = dict_plate_prefixes[plate]
 
-        patterns = [f"{plate_prefix}_*.{image_extension}", image_glob_pattern]
+        patterns = [f"{plate_prefix}_*.{image_extension}"]
+        if image_glob_pattern:
+            patterns.append(image_glob_pattern)
         plate_image_iter = glob_with_multiple_patterns(
             folder=str(in_path), patterns=patterns
         )
@@ -249,10 +254,9 @@ def create_ome_zarr(
 
         # Verify that all wells have all channels
         for well in wells:
-            patterns = [
-                f"{plate_prefix}_{well}*.{image_extension}",
-                image_glob_pattern,
-            ]
+            patterns = [f"{plate_prefix}_{well}*.{image_extension}"]
+            if image_glob_pattern:
+                patterns.append(image_glob_pattern)
             well_image_iter = glob_with_multiple_patterns(
                 folder=str(in_path), patterns=patterns
             )
