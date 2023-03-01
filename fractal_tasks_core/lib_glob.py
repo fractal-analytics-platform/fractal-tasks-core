@@ -1,26 +1,37 @@
 """
-Auxiliary functions related to globbing (i.e. listing some files from a
+Auxiliary functions related to globbing (i.e. listing some items from a
 directory)
 """
 from glob import glob
-from typing import Optional
+from typing import Sequence
 
 
-def glob_with_extension_and_pattern(
+def glob_with_multiple_patterns(
     *,
     folder: str,
-    extension: str,
-    pattern: Optional[str] = None,
-):
+    patterns: Sequence[str] = None,
+) -> set[str]:
     """
-    TBD
+    List all file and folders in a folder that simultaneously match a series of
+    glob patterns
+
+    Arguments:
+        :folder: TBD
+        :patterns: TBD
     """
 
-    list_files_extension = glob(f"{folder}/*.{extension}")
-    if pattern:
-        list_files_pattern = glob(f"{folder}/{pattern}")
-        return tuple(
-            set(list_files_extension).intersection(list_files_pattern)
-        )
+    if not patterns:
+        patterns = ["*"]
+
+    items = None
+    for pattern in patterns:
+        new_matches = glob(f"{folder}/{pattern}")
+        if items:
+            items = items.intersection(new_matches)
+        else:
+            items = set(new_matches)
+
+    if items:
+        return items
     else:
-        return list_files_extension
+        return set()
