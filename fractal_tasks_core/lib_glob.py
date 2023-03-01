@@ -2,6 +2,7 @@
 Auxiliary functions related to globbing (i.e. listing some items from a
 directory)
 """
+import logging
 from glob import glob
 from typing import Sequence
 
@@ -12,8 +13,8 @@ def glob_with_multiple_patterns(
     patterns: Sequence[str] = None,
 ) -> set[str]:
     """
-    List all file and folders in a folder that simultaneously match a series of
-    glob patterns
+    List all files and folders in a folder that simultaneously match a series
+    of glob patterns
 
     Arguments:
         :folder: TBD
@@ -27,6 +28,7 @@ def glob_with_multiple_patterns(
 
     if not patterns:
         patterns = ["*"]
+    logging.info(f"[glob_with_multiple_patterns] {patterns=}")
 
     items = None
     for pattern in patterns:
@@ -35,8 +37,7 @@ def glob_with_multiple_patterns(
             items = items.intersection(new_matches)
         else:
             items = set(new_matches)
+    items = items or set()
 
-    if items:
-        return items
-    else:
-        return set()
+    logging.info(f"[glob_with_multiple_patterns] Found {len(items)} items")
+    return items
