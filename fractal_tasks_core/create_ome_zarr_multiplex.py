@@ -278,7 +278,7 @@ def create_ome_zarr_multiplex(
         if image_glob_patterns:
             patterns.extend(image_glob_patterns)
         plate_images = glob_with_multiple_patterns(
-            folder=image_folder,
+            folder=str(image_folder),
             patterns=patterns,
         )
 
@@ -295,7 +295,7 @@ def create_ome_zarr_multiplex(
             if image_glob_patterns:
                 patterns.extend(image_glob_patterns)
             well_images = glob_with_multiple_patterns(
-                folder=image_folder,
+                folder=str(image_folder),
                 patterns=patterns,
             )
 
