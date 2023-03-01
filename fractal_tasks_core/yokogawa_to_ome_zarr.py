@@ -170,6 +170,7 @@ def yokogawa_to_ome_zarr(
             folder=str(in_path),
             patterns=patterns,
         )
+        filenames = sorted(list(filenames), key=sort_fun)
         if len(filenames) == 0:
             raise Exception(
                 "Error in yokogawa_to_ome_zarr: len(filenames)=0.\n"
