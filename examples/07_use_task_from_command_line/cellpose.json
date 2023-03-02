@@ -1,0 +1,26 @@
+{
+    "input_paths": [
+        "output/"
+    ],
+    "output_path": "output/",
+    "metadata": {
+        "plate": ["20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr"],
+        "well": ["20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr/B/03/"],
+        "image": ["20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr/B/03/0/"],
+        "num_levels": 5,
+        "coarsening_xy": 2,
+        "image_extension": "png",
+        "image_glob_pattern": null,
+        "original_paths": ["../images/10.5281_zenodo.7057076"],
+        "copy_ome_zarr": {
+            "suffix": "mip",
+            "sources": {"20200812-CardiomyocyteDifferentiation14-Cycle1_mip": "output/20200812-CardiomyocyteDifferentiation14-Cycle1.zarr"}
+        }
+    },
+    "diameter_level0": 30,
+    "level": 0,
+    "wavelength_id": "A01_C01",
+    "output_label_name": "nuclei",
+    "ROI_table_name": "well_ROI_table",
+    "component": "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr/B/03/0/"
+}

@@ -1,0 +1,17 @@
+{
+    "input_paths": [
+        "output/"
+    ],
+    "output_path": "output/",
+    "metadata": {
+        "plate": ["20200812-CardiomyocyteDifferentiation14-Cycle1.zarr"],
+        "well": ["20200812-CardiomyocyteDifferentiation14-Cycle1.zarr/B/03/"],
+        "image": ["20200812-CardiomyocyteDifferentiation14-Cycle1.zarr/B/03/0/"],
+        "num_levels": 5,
+        "coarsening_xy": 2,
+        "image_extension": "png",
+        "image_glob_pattern": null,
+        "original_paths": ["../images/10.5281_zenodo.7057076"]
+    },
+    "component": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr/B/03/0/"
+}
