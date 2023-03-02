@@ -230,6 +230,10 @@ def create_ome_zarr(
 
         # If a metadata table was passed, load it and use it directly
         elif metadata_table.endswith(".csv"):
+            logger.warning(
+                "Since a custom metadata table was provided, there will "
+                "be no additional check on the number of image files."
+            )
             site_metadata = pd.read_csv(metadata_table)
             site_metadata.set_index(["well_id", "FieldIndex"], inplace=True)
 
