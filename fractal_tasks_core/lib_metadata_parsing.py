@@ -38,7 +38,8 @@ def parse_yokogawa_metadata(
 
     :param mrf_path: Full path to MeasurementDetail.mrf metadata file
     :param mlf_path: Full path to MeasurementData.mlf metadata file
-    :param filename_patterns: FIXME
+    :param filename_patterns: List of patterns to filter the image filenames,
+                              e.g. `["*B03*", "*Z0[1,2,9]*"]`.
     """
 
     # Convert paths to strings
