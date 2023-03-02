@@ -40,3 +40,8 @@ def test_unit_glob_with_multiple_patterns(tmp_path):
     patterns = ["*.tif", "00*", "*invalid_pattern*"]
     items = glob_with_multiple_patterns(folder=folder, patterns=patterns)
     assert len(items) == 0
+
+    # Look for two patterns (one with no matches and one with matches)
+    patterns = ["*invalid_pattern*", "0*"]
+    items = glob_with_multiple_patterns(folder=folder, patterns=patterns)
+    assert len(items) == 0

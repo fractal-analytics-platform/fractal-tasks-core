@@ -33,10 +33,10 @@ def glob_with_multiple_patterns(
     items = None
     for pattern in patterns:
         new_matches = glob(f"{actual_folder}/{pattern}")
-        if items:
-            items = items.intersection(new_matches)
-        else:
+        if items is None:
             items = set(new_matches)
+        else:
+            items = items.intersection(new_matches)
     items = items or set()
 
     logging.info(f"[glob_with_multiple_patterns] Found {len(items)} items")
