@@ -104,7 +104,7 @@ def illumination_correction(
 ) -> Dict[str, Any]:
 
     """
-    FIXME
+    FIXME docstring
 
     Example inputs:
     input_paths: ["/some/path"]
