@@ -221,7 +221,7 @@ def create_ome_zarr(
             mrf_path = f"{in_path}/MeasurementDetail.mrf"
             mlf_path = f"{in_path}/MeasurementData.mlf"
 
-            site_metadata, total_files = parse_yokogawa_metadata(
+            site_metadata, number_images_mlf = parse_yokogawa_metadata(
                 mrf_path,
                 mlf_path,
                 filename_patterns=image_glob_patterns,
@@ -232,8 +232,6 @@ def create_ome_zarr(
         elif metadata_table.endswith(".csv"):
             site_metadata = pd.read_csv(metadata_table)
             site_metadata.set_index(["well_id", "FieldIndex"], inplace=True)
-
-        # FIXME: add check on number of files
 
         # Extract pixel sizes and bit_depth
         pixel_size_z = site_metadata["pixel_size_z"][0]
@@ -250,13 +248,12 @@ def create_ome_zarr(
         patterns = [f"{plate_prefix}_*.{image_extension}"]
         if image_glob_patterns:
             patterns.extend(image_glob_patterns)
-        plate_image_iter = glob_with_multiple_patterns(
+        plate_images = glob_with_multiple_patterns(
             folder=str(in_path), patterns=patterns
         )
 
         wells = [
-            parse_filename(os.path.basename(fn))["well"]
-            for fn in plate_image_iter
+            parse_filename(os.path.basename(fn))["well"] for fn in plate_images
         ]
         wells = sorted(list(set(wells)))
 
@@ -265,11 +262,30 @@ def create_ome_zarr(
             patterns = [f"{plate_prefix}_{well}*.{image_extension}"]
             if image_glob_patterns:
                 patterns.extend(image_glob_patterns)
-            well_image_iter = glob_with_multiple_patterns(
+            well_images = glob_with_multiple_patterns(
                 folder=str(in_path), patterns=patterns
             )
+
+            # Check number of images matches with expected one
+            if metadata_table == "mrf_mlf":
+                num_images_glob = len(well_images)
+                num_images_expected = number_images_mlf[well]
+                from devtools import debug
+
+                debug(num_images_glob)
+                debug(num_images_expected)
+                if num_images_glob != num_images_expected:
+                    raise ValueError(
+                        f"Wrong number of images for {well=}\n"
+                        f"Expected {num_images_expected} (from mlf file)\n"
+                        f"Found {num_images_glob} files\n"
+                        "Other parameters:\n"
+                        f"  {image_extension=}\n"
+                        f"  {image_glob_patterns=}"
+                    )
+
             well_wavelength_ids = []
-            for fpath in well_image_iter:
+            for fpath in well_images:
                 try:
                     filename_metadata = parse_filename(os.path.basename(fpath))
                     well_wavelength_ids.append(

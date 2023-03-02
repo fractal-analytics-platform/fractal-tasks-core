@@ -16,6 +16,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
+from devtools import debug
 from pandas import Timestamp
 
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
@@ -151,7 +152,9 @@ def test_parse_yokogawa_metadata(
     Time,
 ):
     site_metadata, total_files = parse_yokogawa_metadata(mrf_path, mlf_path)
-    assert total_files == expected_files
+    debug(total_files)
+    debug(expected_files)
+    assert total_files == {"B03": expected_files}
     assert site_metadata.shape == expected_shape
     assert np.allclose(site_metadata["x_micrometer"].unique(), x_mic_pos)
     assert np.allclose(site_metadata["y_micrometer"].unique(), y_mic_pos)

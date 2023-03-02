@@ -22,7 +22,6 @@ from typing import Union
 import numpy as np
 import pandas as pd
 from defusedxml import ElementTree
-from devtools import debug
 
 
 logger = logging.getLogger(__name__)
@@ -33,7 +32,7 @@ def parse_yokogawa_metadata(
     mlf_path: Union[str, Path],
     *,
     filename_patterns: Optional[list[str]] = None,
-):
+) -> Tuple[pd.DataFrame, dict[str, int]]:
     """
     Parse Yokogawa CV7000 metadata files and prepare site-level metadata
 
@@ -94,13 +93,26 @@ def parse_yokogawa_metadata(
             f"There were {error_count} ERR entries in the metadatafile. "
             f"Still succesfully parsed {len(site_metadata)} sites. "
         )
-    total_files = len(mlf_frame)
-    # TODO: Check whether the total_files correspond to the number of
-    # relevant input images in the input folder. Returning it for now
-    # Maybe return it here for further checks and produce a warning if it does
-    # not match
 
-    return site_metadata, total_files
+    # Compute expected number of images for each well
+    list_of_wells = set(site_metadata.index.get_level_values("well_id"))
+    number_of_files = {}
+    for well_id in list_of_wells:
+        num_images = mlf_frame.MeasurementRecord.str.contains(well_id).sum()
+        logger.info(
+            f"Expected number of images for well {well_id}: {num_images}"
+        )
+        logger.info(site_metadata.loc[well_id].shape)
+        logger.info(site_metadata.loc[well_id])
+        number_of_files[well_id] = num_images
+    if not sum(number_of_files.values()) == len(mlf_frame):
+        raise ValueError(
+            "Error while counting the number of image files per well.\n"
+            f"{len(mlf_frame)=}\n"
+            f"{number_of_files=}"
+        )
+
+    return site_metadata, number_of_files
 
 
 def read_metadata_files(
@@ -188,18 +200,17 @@ def read_mlf_file(
     mlf_frame_raw = pd.read_xml(mlf_path)
 
     # Remove all rows that do not match the given patterns
-    # FIXME: add logging
+    logger.info(
+        f"Read {mlf_path}, and apply following patterns to "
+        f"image filenames: {filename_patterns}"
+    )
     if filename_patterns:
-        debug(filename_patterns)
         filenames = mlf_frame_raw.MeasurementRecord
-        debug(filenames[:2])
         keep_row = None
         for pattern in filename_patterns:
             actual_pattern = pattern.replace(".", r"\.").replace("*", ".*")
             new_matches = filenames.str.fullmatch(actual_pattern)
             if new_matches.sum() == 0:
-                for x in filenames:
-                    logging.info(x)
                 raise ValueError(
                     f"In {mlf_path} there is no image filename "
                     f'matching "{actual_pattern}".'
@@ -209,8 +220,6 @@ def read_mlf_file(
             else:
                 keep_row = keep_row & new_matches
         if keep_row.sum() == 0:
-            for x in filenames:
-                logging.info(x)
             raise ValueError(
                 f"In {mlf_path} there is no image filename "
                 f"matching {filename_patterns}."
