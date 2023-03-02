@@ -274,10 +274,6 @@ def create_ome_zarr(
             if metadata_table == "mrf_mlf":
                 num_images_glob = len(well_images)
                 num_images_expected = number_images_mlf[well]
-                from devtools import debug
-
-                debug(num_images_glob)
-                debug(num_images_expected)
                 if num_images_glob != num_images_expected:
                     raise ValueError(
                         f"Wrong number of images for {well=}\n"
