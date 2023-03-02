@@ -5,6 +5,7 @@ Copyright 2022 (C)
 
     Original authors:
     Joel Lüthi  <joel.luethi@fmi.ch>
+    Tommaso Comparin <tommaso.comparin@exact-lab.it>
 
     This file is part of Fractal and was originally developed by eXact lab
     S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
@@ -13,6 +14,7 @@ Copyright 2022 (C)
 
 Functions to create a metadata dataframe from Yokogawa files
 """
+import fnmatch
 import logging
 from pathlib import Path
 from typing import Optional
@@ -207,7 +209,7 @@ def read_mlf_file(
         filenames = mlf_frame_raw.MeasurementRecord
         keep_row = None
         for pattern in filename_patterns:
-            actual_pattern = pattern.replace(".", r"\.").replace("*", ".*")
+            actual_pattern = fnmatch.translate(pattern)
             new_matches = filenames.str.fullmatch(actual_pattern)
             if new_matches.sum() == 0:
                 raise ValueError(
