@@ -103,8 +103,6 @@ def parse_yokogawa_metadata(
         logger.info(
             f"Expected number of images for well {well_id}: {num_images}"
         )
-        logger.info(site_metadata.loc[well_id].shape)
-        logger.info(site_metadata.loc[well_id])
         number_of_files[well_id] = num_images
     if not sum(number_of_files.values()) == len(mlf_frame):
         raise ValueError(
