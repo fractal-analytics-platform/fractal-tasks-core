@@ -40,8 +40,10 @@ def parse_yokogawa_metadata(
 
     :param mrf_path: Full path to MeasurementDetail.mrf metadata file
     :param mlf_path: Full path to MeasurementData.mlf metadata file
-    :param filename_patterns: List of patterns to filter the image filenames,
-                              e.g. `["*B03*", "*Z0[1,2,9]*"]`.
+    :param filename_patterns: List of patterns to filter the image filenames in
+                              the mlf metadata table. Patterns must be defined
+                              as in
+                              https://docs.python.org/3/library/fnmatch.html
     """
 
     # Convert paths to strings

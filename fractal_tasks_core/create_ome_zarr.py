@@ -75,11 +75,11 @@ def create_ome_zarr(
     :param metadata: TBD (common to all tasks)
     :param image_extension: Filename extension of images (e.g. `"tif"` or
                             `"png"`)
-    :param image_glob_patterns: Search patterns to only select a subset of
-                                matching images (e.g. if
-                                `image_glob_pattern=["*_B03_*"]` then only
-                                images with matching filename will be
-                                included).
+    :param image_glob_patterns: If specified, only parse images with filenames
+                                that match with *all* these patterns. Patterns
+                                must be defined as in
+                                https://docs.python.org/3/library/fnmatch.html,
+                                e.g. `image_glob_pattern=["*_B03_*"]`.
     :param num_levels: Number of resolution-pyramid levels
     :param coarsening_xy: Linear coarsening factor between subsequent levels
     :param allowed_channels: A list of channel dictionaries, where each channel
