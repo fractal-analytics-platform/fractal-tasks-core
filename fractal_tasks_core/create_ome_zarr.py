@@ -76,7 +76,7 @@ def create_ome_zarr(
     :param image_extension: Filename extension of images (e.g. `"tif"` or
                             `"png"`)
     :param image_glob_patterns: If specified, only parse images with filenames
-                                that match with *all* these patterns. Patterns
+                                that match with all these patterns. Patterns
                                 must be defined as in
                                 https://docs.python.org/3/library/fnmatch.html,
                                 e.g. `image_glob_pattern=["*_B03_*"]`.

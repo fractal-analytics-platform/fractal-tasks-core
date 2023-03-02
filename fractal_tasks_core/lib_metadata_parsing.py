@@ -128,6 +128,10 @@ def read_metadata_files(
 
     :param mrf_path: Full path to MeasurementDetail.mrf metadata file
     :param mlf_path: Full path to MeasurementData.mlf metadata file
+    :param filename_patterns: List of patterns to filter the image filenames in
+                              the mlf metadata table. Patterns must be defined
+                              as in
+                              https://docs.python.org/3/library/fnmatch.html
     """
 
     # parsing of mrf & mlf files are based on the
@@ -197,6 +201,10 @@ def read_mlf_file(
     TBD
 
     :param mlf_path: Full path to MeasurementData.mlf metadata file
+    :param filename_patterns: List of patterns to filter the image filenames in
+                              the mlf metadata table. Patterns must be defined
+                              as in
+                              https://docs.python.org/3/library/fnmatch.html
     """
 
     # Load the whole MeasurementData.mlf file
