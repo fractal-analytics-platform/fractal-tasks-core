@@ -99,15 +99,19 @@ def parse_yokogawa_metadata(
             f"Still succesfully parsed {len(site_metadata)} sites. "
         )
 
-    # Compute expected number of images for each well
+    # Compute expected number of image files for each well
     list_of_wells = set(site_metadata.index.get_level_values("well_id"))
     number_of_files = {}
     for well_id in list_of_wells:
-        num_images = mlf_frame.MeasurementRecord.str.contains(well_id).sum()
+        num_images = mlf_frame.MeasurementRecord.str.contains(
+            f"_{well_id}_"
+        ).sum()
         logger.info(
             f"Expected number of images for well {well_id}: {num_images}"
         )
         number_of_files[well_id] = num_images
+    # Check that the sum of per-well file numbers correspond to the total
+    # file number
     if not sum(number_of_files.values()) == len(mlf_frame):
         raise ValueError(
             "Error while counting the number of image files per well.\n"
