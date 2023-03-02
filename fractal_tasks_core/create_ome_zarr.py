@@ -112,6 +112,8 @@ def create_ome_zarr(
 
     for in_path_str in input_paths:
         in_path = Path(in_path_str)
+
+        # Glob image filenames
         patterns = [f"*.{image_extension}"]
         if image_glob_patterns:
             patterns.extend(image_glob_patterns)
@@ -142,6 +144,7 @@ def create_ome_zarr(
 
         info = (
             "Listing plates/channels:\n"
+            f"Folder:   {in_path_str}\n"
             f"Patterns: {patterns}\n"
             f"Plates:   {tmp_plates}\n"
             f"Channels: {tmp_wavelength_ids}\n"
@@ -217,8 +220,11 @@ def create_ome_zarr(
         if metadata_table == "mrf_mlf":
             mrf_path = f"{in_path}/MeasurementDetail.mrf"
             mlf_path = f"{in_path}/MeasurementData.mlf"
+
             site_metadata, total_files = parse_yokogawa_metadata(
-                mrf_path, mlf_path
+                mrf_path,
+                mlf_path,
+                filename_patterns=image_glob_patterns,
             )
             site_metadata = remove_FOV_overlaps(site_metadata)
 
@@ -226,6 +232,8 @@ def create_ome_zarr(
         elif metadata_table.endswith(".csv"):
             site_metadata = pd.read_csv(metadata_table)
             site_metadata.set_index(["well_id", "FieldIndex"], inplace=True)
+
+        # FIXME: add check on number of files
 
         # Extract pixel sizes and bit_depth
         pixel_size_z = site_metadata["pixel_size_z"][0]
