@@ -1,6 +1,7 @@
 # 0.8.0
 
 * **(major)** Update task interface: remove filename extension from `input_paths` and `output_path` for all tasks, and add new arguments `(image_extension,image_glob_pattern)` to `create_ome_zarr` task (\#323).
+* Implement logic for handling `image_glob_patterns` argument, both when globbing images and in Yokogawa metadata parsing (\#326).
 
 # 0.7.5
 
