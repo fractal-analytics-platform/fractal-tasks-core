@@ -74,11 +74,11 @@ def create_ome_zarr_multiplex(
                         `"/outputpath/"`
     :param metadata: standard fractal argument, not used in this task
     :param image_extension: Filename extension of images (e.g. `tif` or `png`)
-    :param image_glob_patterns: Search patterns to only select a subset of
-                               matching images (e.g. if
-                               `image_glob_pattern=["*_B03_*"]` then only
-                               images with matching filename will be included).
-
+    :param image_glob_patterns: If specified, only parse images with filenames
+                            that match with all these patterns. Patterns
+                            must be defined as in
+                            https://docs.python.org/3/library/fnmatch.html,
+                            e.g. `image_glob_pattern=["*_B03_*"]`.
     :param allowed_channels: TBD
     :param num_levels: number of resolution-pyramid levels
     :param coarsening_xy: Linear coarsening factor between subsequent levels
@@ -255,7 +255,7 @@ def create_ome_zarr_multiplex(
             mrf_path = f"{image_folder}/MeasurementDetail.mrf"
             mlf_path = f"{image_folder}/MeasurementData.mlf"
             site_metadata, total_files = parse_yokogawa_metadata(
-                mrf_path, mlf_path
+                mrf_path, mlf_path, filename_patterns=image_glob_patterns
             )
             site_metadata = remove_FOV_overlaps(site_metadata)
 
