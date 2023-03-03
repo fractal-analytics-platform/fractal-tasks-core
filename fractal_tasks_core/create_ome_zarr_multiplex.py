@@ -14,7 +14,6 @@ Copyright 2022 (C)
 Create OME-NGFF zarr group, for multiplexing dataset
 """
 import os
-from glob import glob
 from pathlib import Path
 from typing import Any
 from typing import Dict
@@ -32,6 +31,7 @@ import fractal_tasks_core
 from fractal_tasks_core.lib_channels import check_well_channel_labels
 from fractal_tasks_core.lib_channels import define_omero_channels
 from fractal_tasks_core.lib_channels import validate_allowed_channel_input
+from fractal_tasks_core.lib_glob import glob_with_multiple_patterns
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
@@ -52,7 +52,7 @@ def create_ome_zarr_multiplex(
     output_path: str,
     metadata: Dict[str, Any],
     image_extension: str = "tif",
-    image_glob_pattern: Optional[str] = None,
+    image_glob_patterns: Optional[list[str]] = None,
     allowed_channels: Dict[str, Sequence[Dict[str, Any]]],
     num_levels: int = 2,
     coarsening_xy: int = 2,
@@ -74,7 +74,11 @@ def create_ome_zarr_multiplex(
                         `"/outputpath/"`
     :param metadata: standard fractal argument, not used in this task
     :param image_extension: Filename extension of images (e.g. `tif` or `png`)
-    :param image_glob_pattern: TBD
+    :param image_glob_patterns: If specified, only parse images with filenames
+                            that match with all these patterns. Patterns
+                            must be defined as in
+                            https://docs.python.org/3/library/fnmatch.html,
+                            e.g. `image_glob_pattern=["*_B03_*"]`.
     :param allowed_channels: TBD
     :param num_levels: number of resolution-pyramid levels
     :param coarsening_xy: Linear coarsening factor between subsequent levels
@@ -126,9 +130,6 @@ def create_ome_zarr_multiplex(
     # Identify all plates and all channels, per input folders
     dict_acquisitions: Dict = {}
 
-    if image_glob_pattern:
-        raise NotImplementedError
-
     for ind_in_path, in_path_str in enumerate(input_paths):
         acquisition = str(ind_in_path)
         in_path = Path(in_path_str)
@@ -139,8 +140,14 @@ def create_ome_zarr_multiplex(
         plate_prefixes = []
 
         # Loop over all images
-        glob_expression = str(Path(in_path) / f"*.{image_extension}")
-        for fn in glob(glob_expression):
+        patterns = [f"*.{image_extension}"]
+        if image_glob_patterns:
+            patterns.extend(image_glob_patterns)
+        input_filenames = glob_with_multiple_patterns(
+            folder=in_path_str,
+            patterns=patterns,
+        )
+        for fn in input_filenames:
             try:
                 filename_metadata = parse_filename(Path(fn).name)
                 plate = filename_metadata["plate"]
@@ -158,7 +165,8 @@ def create_ome_zarr_multiplex(
         actual_wavelength_ids = sorted(list(set(actual_wavelength_ids)))
 
         info = (
-            f"Listing all plates/channels from {in_path.as_posix()}\n"
+            "Listing all plates/channels:\n"
+            f"Patterns: {patterns}\n"
             f"Plates:   {plates}\n"
             f"Actual wavelength IDs: {actual_wavelength_ids}\n"
         )
@@ -247,7 +255,7 @@ def create_ome_zarr_multiplex(
             mrf_path = f"{image_folder}/MeasurementDetail.mrf"
             mlf_path = f"{image_folder}/MeasurementData.mlf"
             site_metadata, total_files = parse_yokogawa_metadata(
-                mrf_path, mlf_path
+                mrf_path, mlf_path, filename_patterns=image_glob_patterns
             )
             site_metadata = remove_FOV_overlaps(site_metadata)
 
@@ -266,13 +274,16 @@ def create_ome_zarr_multiplex(
 
         # Identify all wells
         plate_prefix = dict_acquisitions[acquisition]["plate_prefix"]
-        glob_string = f"{image_folder}/{plate_prefix}_*.{image_extension}"
-        logger.info(f"{glob_string=}")
-        plate_image_iter = glob(glob_string)
+        patterns = [f"{plate_prefix}_*.{image_extension}"]
+        if image_glob_patterns:
+            patterns.extend(image_glob_patterns)
+        plate_images = glob_with_multiple_patterns(
+            folder=str(image_folder),
+            patterns=patterns,
+        )
 
         wells = [
-            parse_filename(os.path.basename(fn))["well"]
-            for fn in plate_image_iter
+            parse_filename(os.path.basename(fn))["well"] for fn in plate_images
         ]
         wells = sorted(list(set(wells)))
         logger.info(f"{wells=}")
@@ -280,11 +291,16 @@ def create_ome_zarr_multiplex(
         # Verify that all wells have all channels
         actual_channels = dict_acquisitions[acquisition]["actual_channels"]
         for well in wells:
-            well_image_iter = glob(
-                f"{image_folder}/{plate_prefix}_{well}*.{image_extension}"
+            patterns = [f"{plate_prefix}_{well}_*.{image_extension}"]
+            if image_glob_patterns:
+                patterns.extend(image_glob_patterns)
+            well_images = glob_with_multiple_patterns(
+                folder=str(image_folder),
+                patterns=patterns,
             )
+
             well_wavelength_ids = []
-            for fpath in well_image_iter:
+            for fpath in well_images:
                 try:
                     filename_metadata = parse_filename(os.path.basename(fpath))
                     A = filename_metadata["A"]
@@ -452,7 +468,7 @@ def create_ome_zarr_multiplex(
         coarsening_xy=coarsening_xy,
         original_paths=original_paths,
         image_extension=image_extension,
-        image_glob_pattern=image_glob_pattern,
+        image_glob_patterns=image_glob_patterns,
     )
     return metadata_update
 
@@ -466,7 +482,7 @@ if __name__ == "__main__":
         output_path: str
         metadata: Dict[str, Any]
         image_extension: str
-        image_glob_pattern: Optional[str]
+        image_glob_pattern: Optional[list[str]]
         allowed_channels: Dict[str, Sequence[Dict[str, Any]]]
         num_levels: Optional[int]
         coarsening_xy: Optional[int]

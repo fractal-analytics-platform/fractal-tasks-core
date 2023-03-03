@@ -16,6 +16,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
+from devtools import debug
 from pandas import Timestamp
 
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
@@ -75,6 +76,7 @@ time_3 = [
     Timestamp("2020-08-12 15:36:36.234000+0000", tz="UTC"),
     Timestamp("2020-08-12 15:36:46.322000+0000", tz="UTC"),
 ]
+
 
 parameters = [
     (
@@ -151,7 +153,9 @@ def test_parse_yokogawa_metadata(
     Time,
 ):
     site_metadata, total_files = parse_yokogawa_metadata(mrf_path, mlf_path)
-    assert total_files == expected_files
+    debug(total_files)
+    debug(expected_files)
+    assert total_files == {"B03": expected_files}
     assert site_metadata.shape == expected_shape
     assert np.allclose(site_metadata["x_micrometer"].unique(), x_mic_pos)
     assert np.allclose(site_metadata["y_micrometer"].unique(), y_mic_pos)
@@ -163,6 +167,28 @@ def test_parse_yokogawa_metadata(
     assert np.allclose(site_metadata["y_pixel"], y_pixel)
     assert np.allclose(site_metadata["bit_depth"], bit_depth)
     assert list(site_metadata["Time"]) == Time
+
+
+def test_parse_yokogawa_metadata_multiwell():
+    """
+    This test checks two (incremental) valid behaviors:
+        1) parse_yokogawa_metadata works for a mlf file spanning multiple wells
+        2) When the images have "ambiguous" filenames (e.g. the plate part also
+           includes a pattern that would match the well_id for another well),
+           parse_yokogawa_metadata still works - and the per-well numbers of
+           files are correct.
+    """
+    mlf_path_4 = (
+        f"{path}MeasurementData_SingleWell2Sites_MultiZ"
+        "_another_well_name_in_plate_name.mlf"
+    )
+    mrf_path_4 = f"{path}MeasurementDetail.mrf"
+
+    site_metadata, file_numbers = parse_yokogawa_metadata(
+        mrf_path_4, mlf_path_4
+    )
+    debug(file_numbers)
+    assert file_numbers == {"C03": 4, "B03": 4, "D04": 8}
 
 
 def test_manually_removing_overlap():
