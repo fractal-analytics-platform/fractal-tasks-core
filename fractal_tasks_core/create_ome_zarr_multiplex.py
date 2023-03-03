@@ -291,7 +291,7 @@ def create_ome_zarr_multiplex(
         # Verify that all wells have all channels
         actual_channels = dict_acquisitions[acquisition]["actual_channels"]
         for well in wells:
-            patterns = [f"{plate_prefix}_{well}*.{image_extension}"]
+            patterns = [f"{plate_prefix}_{well}_*.{image_extension}"]
             if image_glob_patterns:
                 patterns.extend(image_glob_patterns)
             well_images = glob_with_multiple_patterns(
