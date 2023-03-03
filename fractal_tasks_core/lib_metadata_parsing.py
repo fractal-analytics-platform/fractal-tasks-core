@@ -62,6 +62,11 @@ def parse_yokogawa_metadata(
         :, grouping_params + per_site_parameters
     ].groupby(by=grouping_params)
 
+    from devtools import debug
+
+    debug(mlf_frame.columns)
+    debug(grouped_sites)
+
     check_group_consistency(grouped_sites, message="X & Y stage positions")
     site_metadata = grouped_sites.mean()
     site_metadata.columns = ["x_micrometer", "y_micrometer"]
@@ -102,14 +107,12 @@ def parse_yokogawa_metadata(
     # Compute expected number of image files for each well
     list_of_wells = set(site_metadata.index.get_level_values("well_id"))
     number_of_files = {}
-    for well_id in list_of_wells:
-        num_images = mlf_frame.MeasurementRecord.str.contains(
-            f"_{well_id}_"
-        ).sum()
+    for this_well_id in list_of_wells:
+        num_images = (mlf_frame.well_id == this_well_id).sum()
         logger.info(
-            f"Expected number of images for well {well_id}: {num_images}"
+            f"Expected number of images for well {this_well_id}: {num_images}"
         )
-        number_of_files[well_id] = num_images
+        number_of_files[this_well_id] = num_images
     # Check that the sum of per-well file numbers correspond to the total
     # file number
     if not sum(number_of_files.values()) == len(mlf_frame):
