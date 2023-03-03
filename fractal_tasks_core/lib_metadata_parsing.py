@@ -62,11 +62,6 @@ def parse_yokogawa_metadata(
         :, grouping_params + per_site_parameters
     ].groupby(by=grouping_params)
 
-    from devtools import debug
-
-    debug(mlf_frame.columns)
-    debug(grouped_sites)
-
     check_group_consistency(grouped_sites, message="X & Y stage positions")
     site_metadata = grouped_sites.mean()
     site_metadata.columns = ["x_micrometer", "y_micrometer"]
