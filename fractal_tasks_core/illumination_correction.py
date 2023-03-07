@@ -54,7 +54,7 @@ def correct(
     :type dummy: int
     """
 
-    logger.info("Start correct, {img_stack.shape}")
+    logger.info(f"Start correct, {img_stack.shape}")
 
     # Check shapes
     if corr_img.shape != img_stack.shape[2:] or img_stack.shape[0] != 1:
@@ -80,8 +80,8 @@ def correct(
     # that surpass this limit and triggers a warning
     if np.sum(new_img_stack > dtype_max) > 0:
         warnings.warn(
-            "Illumination correction created values beyond the max range of"
-            " the current image type. These have been clipped to {dtype_max=}."
+            "Illumination correction created values beyond the max range of "
+            f"the current image type. These have been clipped to {dtype_max=}."
         )
         new_img_stack[new_img_stack > dtype_max] = dtype_max
 
