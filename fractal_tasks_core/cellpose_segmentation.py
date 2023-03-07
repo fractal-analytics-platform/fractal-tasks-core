@@ -105,12 +105,15 @@ def preprocess_cellpose_input(
             f"image_array argument, but {image_array.shape=}"
         )
     if use_masks:
-        if None in (
-            region,
-            current_label_path,
-            primary_label_path,
-            ROI_table_obs,
-            index_ROI,
+        if (
+            None
+            in (
+                region,
+                current_label_path,
+                primary_label_path,
+                index_ROI,
+            )
+            or ROI_table_obs is None
         ):
             raise ValueError(
                 f"preprocess_cellpose_input called with {use_masks=} but "

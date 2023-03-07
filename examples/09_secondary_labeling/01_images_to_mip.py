@@ -58,6 +58,7 @@ metadata_update = create_ome_zarr(
     output_path=zarr_path,
     metadata=metadata,
     image_extension="tif",
+    image_glob_patterns=["*A01*C01*"],
     allowed_channels=allowed_channels,
     num_levels=num_levels,
     coarsening_xy=coarsening_xy,

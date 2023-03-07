@@ -4,9 +4,6 @@ import shutil
 
 from devtools import debug
 
-from fractal_tasks_core.cellpose_secondary_segmentation import (
-    cellpose_secondary_segmentation,
-)  # noqa
 from fractal_tasks_core.cellpose_segmentation import cellpose_segmentation
 
 
@@ -39,14 +36,15 @@ for component in metadata["image"]:
         cellprob_threshold=-3.0,
         flow_threshold=0.4,
         pretrained_model="model/Hummingbird.331986",
-        output_label_name="organoids_ROI_table",
+        output_label_name="organoids",
         bounding_box_ROI_table_name="organoids_bbox_table",
+        use_masks=False,
     )
 
 print("\n--------------------\n")
 
 for component in metadata["image"]:
-    cellpose_secondary_segmentation(
+    cellpose_segmentation(
         input_paths=[zarr_path_mip],
         output_path=zarr_path_mip,
         metadata=metadata,
@@ -56,8 +54,9 @@ for component in metadata["image"]:
         relabeling=True,
         diameter_level0=20.0,
         ROI_table_name="organoids_bbox_table",
-        primary_label_ROI_table_name="organoids_ROI_table",
-        output_label_name="nuclei_ROI_table",
+        primary_label_name="organoids",
+        output_label_name="nuclei",
         model_type="nuclei",
         flow_threshold=0.4,
+        use_masks=True,
     )
