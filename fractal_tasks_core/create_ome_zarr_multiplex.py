@@ -475,9 +475,10 @@ def create_ome_zarr_multiplex(
 
 if __name__ == "__main__":
     from pydantic import BaseModel
+    from pydantic import Extra
     from fractal_tasks_core._utils import run_fractal_task
 
-    class TaskArguments(BaseModel):
+    class TaskArguments(BaseModel, extra=Extra.forbid):
         input_paths: Sequence[str]
         output_path: str
         metadata: Dict[str, Any]
