@@ -5,6 +5,7 @@ Copyright 2022 (C)
 
     Original authors:
     Joel Lüthi  <joel.luethi@fmi.ch>
+    Tommaso Comparin <tommaso.comparin@exact-lab.it>
 
     This file is part of Fractal and was originally developed by eXact lab
     S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
@@ -13,8 +14,10 @@ Copyright 2022 (C)
 
 Functions to create a metadata dataframe from Yokogawa files
 """
+import fnmatch
 import logging
 from pathlib import Path
+from typing import Optional
 from typing import Tuple
 from typing import Union
 
@@ -26,20 +29,29 @@ logger = logging.getLogger(__name__)
 
 
 def parse_yokogawa_metadata(
-    mrf_path: Union[str, Path], mlf_path: Union[str, Path]
-):
+    mrf_path: Union[str, Path],
+    mlf_path: Union[str, Path],
+    *,
+    filename_patterns: Optional[list[str]] = None,
+) -> Tuple[pd.DataFrame, dict[str, int]]:
     """
     Parse Yokogawa CV7000 metadata files and prepare site-level metadata
 
     :param mrf_path: Full path to MeasurementDetail.mrf metadata file
     :param mlf_path: Full path to MeasurementData.mlf metadata file
+    :param filename_patterns: List of patterns to filter the image filenames in
+                              the mlf metadata table. Patterns must be defined
+                              as in
+                              https://docs.python.org/3/library/fnmatch.html
     """
 
     # Convert paths to strings
     mrf_str = Path(mrf_path).as_posix()
     mlf_str = Path(mlf_path).as_posix()
 
-    mrf_frame, mlf_frame, error_count = read_metadata_files(mrf_str, mlf_str)
+    mrf_frame, mlf_frame, error_count = read_metadata_files(
+        mrf_str, mlf_str, filename_patterns
+    )
 
     # Aggregate information from the mlf file
     per_site_parameters = ["X", "Y"]
@@ -85,23 +97,42 @@ def parse_yokogawa_metadata(
             f"There were {error_count} ERR entries in the metadatafile. "
             f"Still succesfully parsed {len(site_metadata)} sites. "
         )
-    total_files = len(mlf_frame)
-    # TODO: Check whether the total_files correspond to the number of
-    # relevant input images in the input folder. Returning it for now
-    # Maybe return it here for further checks and produce a warning if it does
-    # not match
 
-    return site_metadata, total_files
+    # Compute expected number of image files for each well
+    list_of_wells = set(site_metadata.index.get_level_values("well_id"))
+    number_of_files = {}
+    for this_well_id in list_of_wells:
+        num_images = (mlf_frame.well_id == this_well_id).sum()
+        logger.info(
+            f"Expected number of images for well {this_well_id}: {num_images}"
+        )
+        number_of_files[this_well_id] = num_images
+    # Check that the sum of per-well file numbers correspond to the total
+    # file number
+    if not sum(number_of_files.values()) == len(mlf_frame):
+        raise ValueError(
+            "Error while counting the number of image files per well.\n"
+            f"{len(mlf_frame)=}\n"
+            f"{number_of_files=}"
+        )
+
+    return site_metadata, number_of_files
 
 
 def read_metadata_files(
-    mrf_path: str, mlf_path: str
+    mrf_path: str,
+    mlf_path: str,
+    filename_patterns: Optional[list[str]] = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame, int]:
     """
     TBD
 
     :param mrf_path: Full path to MeasurementDetail.mrf metadata file
     :param mlf_path: Full path to MeasurementData.mlf metadata file
+    :param filename_patterns: List of patterns to filter the image filenames in
+                              the mlf metadata table. Patterns must be defined
+                              as in
+                              https://docs.python.org/3/library/fnmatch.html
     """
 
     # parsing of mrf & mlf files are based on the
@@ -114,7 +145,7 @@ def read_metadata_files(
     # processed further. Figure out how to save them as relevant metadata for
     # use e.g. during illumination correction
 
-    mlf_frame, error_count = read_mlf_file(mlf_path)
+    mlf_frame, error_count = read_mlf_file(mlf_path, filename_patterns)
     # TODO: Time points are parsed as part of the mlf_frame, but currently not
     # processed further. Once we tackle time-resolved data, parse from here.
 
@@ -163,29 +194,66 @@ def read_mrf_file(mrf_path: str):
     return mrf_frame
 
 
-def read_mlf_file(mlf_path: str) -> Tuple[pd.DataFrame, int]:
+def read_mlf_file(
+    mlf_path: str,
+    filename_patterns=None,
+) -> Tuple[pd.DataFrame, int]:
     """
     TBD
 
     :param mlf_path: Full path to MeasurementData.mlf metadata file
+    :param filename_patterns: List of patterns to filter the image filenames in
+                              the mlf metadata table. Patterns must be defined
+                              as in
+                              https://docs.python.org/3/library/fnmatch.html
     """
 
+    # Load the whole MeasurementData.mlf file
     mlf_frame_raw = pd.read_xml(mlf_path)
 
+    # Remove all rows that do not match the given patterns
+    logger.info(
+        f"Read {mlf_path}, and apply following patterns to "
+        f"image filenames: {filename_patterns}"
+    )
+    if filename_patterns:
+        filenames = mlf_frame_raw.MeasurementRecord
+        keep_row = None
+        for pattern in filename_patterns:
+            actual_pattern = fnmatch.translate(pattern)
+            new_matches = filenames.str.fullmatch(actual_pattern)
+            if new_matches.sum() == 0:
+                raise ValueError(
+                    f"In {mlf_path} there is no image filename "
+                    f'matching "{actual_pattern}".'
+                )
+            if keep_row is None:
+                keep_row = new_matches.copy()
+            else:
+                keep_row = keep_row & new_matches
+        if keep_row.sum() == 0:
+            raise ValueError(
+                f"In {mlf_path} there is no image filename "
+                f"matching {filename_patterns}."
+            )
+        mlf_frame_matching = mlf_frame_raw[keep_row.values].copy()
+    else:
+        mlf_frame_matching = mlf_frame_raw.copy()
+
     # Create a well ID column
-    row_str = [chr(x) for x in (mlf_frame_raw["Row"] + 64)]
-    mlf_frame_raw["well_id"] = [
-        "{}{:02}".format(a, b)
-        for a, b in zip(row_str, mlf_frame_raw["Column"])
+    row_str = [chr(x) for x in (mlf_frame_matching["Row"] + 64)]
+    mlf_frame_matching["well_id"] = [
+        f"{a}{b:02}" for a, b in zip(row_str, mlf_frame_matching["Column"])
     ]
 
     # Flip Y axis to align to image coordinate system
-    mlf_frame_raw["Y"] = -mlf_frame_raw["Y"]
+    mlf_frame_matching["Y"] = -mlf_frame_matching["Y"]
+
+    # Compute number or errors
+    error_count = (mlf_frame_matching["Type"] == "ERR").sum()
 
     # We're only interested in the image metadata
-    mlf_frame = mlf_frame_raw[mlf_frame_raw["Type"] == "IMG"]
-
-    error_count = (mlf_frame_raw["Type"] == "ERR").sum()
+    mlf_frame = mlf_frame_matching[mlf_frame_matching["Type"] == "IMG"]
 
     return mlf_frame, error_count
 

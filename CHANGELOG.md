@@ -1,6 +1,12 @@
+# Unreleased
+
+* Raise an error if the user provides an unexpected argument to a task (\#337); this applies to the case of running a task as a script, with a pydantic model for task-argument validation.
+
 # 0.8.0
 
 * **(major)** Update task interface: remove filename extension from `input_paths` and `output_path` for all tasks, and add new arguments `(image_extension,image_glob_pattern)` to `create_ome_zarr` task (\#323).
+* Implement logic for handling `image_glob_patterns` argument, both when globbing images and in Yokogawa metadata parsing (\#326).
+* Fix minor bugs in task arguments (\#329).
 
 # 0.7.5
 

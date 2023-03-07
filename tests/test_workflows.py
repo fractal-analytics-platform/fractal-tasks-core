@@ -63,7 +63,7 @@ coarsening_xy = 2
 @pytest.mark.xfail(reason="This would fail for a dataset with N>1 channels")
 def test_create_ome_zarr_fail(tmp_path: Path, zenodo_images: str):
 
-    allowed_channels = [
+    tmp_allowed_channels = [
         {"label": "repeated label", "wavelength_id": "A01_C01"},
         {"label": "repeated label", "wavelength_id": "A01_C02"},
         {"label": "repeated label", "wavelength_id": "A02_C03"},
@@ -79,10 +79,44 @@ def test_create_ome_zarr_fail(tmp_path: Path, zenodo_images: str):
             input_paths=[img_path],
             metadata={},
             output_path=zarr_path,
+            allowed_channels=tmp_allowed_channels,
+            num_levels=num_levels,
+            coarsening_xy=coarsening_xy,
+            metadata_table="mrf_mlf",
+        )
+
+
+def test_create_ome_zarr_no_images(
+    tmp_path: Path,
+    zenodo_images: str,
+    testdata_path: Path,
+):
+    """
+    For invalid image_extension or image_glob_patterns arguments,
+    create_ome_zarr must fail.
+    """
+    with pytest.raises(ValueError):
+        create_ome_zarr(
+            input_paths=[zenodo_images],
+            output_path=str(tmp_path / "output"),
+            metadata={},
             allowed_channels=allowed_channels,
             num_levels=num_levels,
             coarsening_xy=coarsening_xy,
             metadata_table="mrf_mlf",
+            image_extension="xyz",
+        )
+    with pytest.raises(ValueError):
+        create_ome_zarr(
+            input_paths=[zenodo_images],
+            output_path=str(tmp_path / "output"),
+            metadata={},
+            allowed_channels=allowed_channels,
+            num_levels=num_levels,
+            coarsening_xy=coarsening_xy,
+            metadata_table="mrf_mlf",
+            image_extension="png",
+            image_glob_patterns=["*asdasd*"],
         )
 
 
@@ -163,6 +197,75 @@ def test_MIP(
     metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
     shutil.copytree(zenodo_zarr_3D, str(zarr_path / Path(zenodo_zarr_3D).name))
     metadata = metadata_3D.copy()
+
+    # Replicate
+    metadata_update = copy_ome_zarr(
+        input_paths=[str(zarr_path)],
+        output_path=str(zarr_path_mip),
+        metadata=metadata,
+        project_to_2D=True,
+        suffix="mip",
+    )
+    metadata.update(metadata_update)
+    debug(metadata)
+
+    # MIP
+    for component in metadata["image"]:
+        maximum_intensity_projection(
+            input_paths=[zarr_path_mip],
+            output_path=zarr_path_mip,
+            metadata=metadata,
+            component=component,
+        )
+
+    # OME-NGFF JSON validation
+    image_zarr = Path(zarr_path_mip / metadata["image"][0])
+    debug(image_zarr)
+    well_zarr = image_zarr.parent
+    plate_zarr = image_zarr.parents[2]
+    validate_schema(path=str(image_zarr), type="image")
+    validate_schema(path=str(well_zarr), type="well")
+    validate_schema(path=str(plate_zarr), type="plate")
+
+
+def test_MIP_subset_of_images(
+    tmp_path: Path,
+    zenodo_images: str,
+):
+    """
+    Run a full image-parsing + MIP workflow on a subset of the images (i.e. a
+    single field of view).
+    """
+
+    # Init
+    zarr_path = tmp_path / "tmp_out/"
+    zarr_path_mip = tmp_path / "tmp_out_mip/"
+
+    # Create zarr structure
+    metadata = {}
+    metadata_update = create_ome_zarr(
+        input_paths=[zenodo_images],
+        output_path=str(zarr_path),
+        metadata=metadata,
+        allowed_channels=allowed_channels,
+        num_levels=num_levels,
+        coarsening_xy=coarsening_xy,
+        metadata_table="mrf_mlf",
+        image_extension="png",
+        image_glob_patterns=["*F001*"],
+    )
+    metadata.update(metadata_update)
+    debug(metadata)
+
+    # Yokogawa to zarr
+    for component in metadata["image"]:
+        yokogawa_to_ome_zarr(
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
+            metadata=metadata,
+            component=component,
+        )
+    debug(metadata)
 
     # Replicate
     metadata_update = copy_ome_zarr(

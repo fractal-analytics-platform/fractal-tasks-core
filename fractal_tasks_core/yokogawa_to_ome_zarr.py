@@ -16,7 +16,6 @@ Task that writes image data to an existing OME-NGFF zarr array
 """
 import logging
 import os
-from glob import glob
 from pathlib import Path
 from typing import Any
 from typing import Dict
@@ -29,6 +28,7 @@ from anndata import read_zarr
 from dask.array.image import imread
 
 from fractal_tasks_core.lib_channels import get_omero_channel_list
+from fractal_tasks_core.lib_glob import glob_with_multiple_patterns
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_read_fractal_metadata import (
@@ -92,6 +92,7 @@ def yokogawa_to_ome_zarr(
             "num_levels",
             "coarsening_xy",
             "image_extension",
+            "image_glob_patterns",
         ],
         metadata=metadata,
         image_zarr_path=(Path(output_path) / component),
@@ -100,6 +101,7 @@ def yokogawa_to_ome_zarr(
     num_levels = parameters["num_levels"]
     coarsening_xy = parameters["coarsening_xy"]
     image_extension = parameters["image_extension"]
+    image_glob_patterns = parameters["image_glob_patterns"]
 
     channels = get_omero_channel_list(image_zarr_path=zarrurl)
     wavelength_ids = [c["wavelength_id"] for c in channels]
@@ -132,7 +134,14 @@ def yokogawa_to_ome_zarr(
     max_x = well_indices[0][5]
 
     # Load a single image, to retrieve useful information
-    sample = imread(glob(f"{in_path}/*_{well_ID}_*.{image_extension}")[0])
+    patterns = [f"*_{well_ID}_*.{image_extension}"]
+    if image_glob_patterns:
+        patterns.extend(image_glob_patterns)
+    tmp_images = glob_with_multiple_patterns(
+        folder=str(in_path),
+        patterns=patterns,
+    )
+    sample = imread(tmp_images.pop())
 
     # Initialize zarr
     chunksize = (1, 1, sample.shape[1], sample.shape[2])
@@ -149,9 +158,14 @@ def yokogawa_to_ome_zarr(
     for i_c, wavelength_id in enumerate(wavelength_ids):
         A, C = wavelength_id.split("_")
 
-        glob_path = f"{in_path}/*_{well_ID}_*{A}*{C}*.{image_extension}"
-        logger.info(f"glob path: {glob_path}")
-        filenames = sorted(glob(glob_path), key=sort_fun)
+        patterns = [f"*_{well_ID}_*{A}*{C}*.{image_extension}"]
+        if image_glob_patterns:
+            patterns.extend(image_glob_patterns)
+        filenames = glob_with_multiple_patterns(
+            folder=str(in_path),
+            patterns=patterns,
+        )
+        filenames = sorted(list(filenames), key=sort_fun)
         if len(filenames) == 0:
             raise Exception(
                 "Error in yokogawa_to_ome_zarr: len(filenames)=0.\n"
@@ -159,7 +173,7 @@ def yokogawa_to_ome_zarr(
                 f"  image_extension: {image_extension}\n"
                 f"  well_ID: {well_ID}\n"
                 f"  wavelength_id: {wavelength_id},\n"
-                f"  glob_path: {glob_path}"
+                f"  patterns: {patterns}"
             )
         # Loop over 3D FOV ROIs
         for indices in fov_indices:
@@ -204,9 +218,10 @@ def yokogawa_to_ome_zarr(
 
 if __name__ == "__main__":
     from pydantic import BaseModel
+    from pydantic import Extra
     from fractal_tasks_core._utils import run_fractal_task
 
-    class TaskArguments(BaseModel):
+    class TaskArguments(BaseModel, extra=Extra.forbid):
         input_paths: Sequence[str]
         output_path: str
         metadata: Dict[str, Any]

@@ -1,0 +1,34 @@
+{
+    "input_paths": [
+        "../images/10.5281_zenodo.7057076"
+    ],
+    "output_path": "output/",
+    "metadata": {},
+    "num_levels": 5,
+    "coarsening_xy": 2,
+    "image_extension": "png",
+    "metadata_table": "mrf_mlf",
+    "allowed_channels": [
+        {
+            "colormap": "00FFFF",
+            "wavelength_id": "A01_C01",
+            "end": 800,
+            "label": "DAPI",
+            "start": 110
+        },
+        {
+            "colormap": "FF00FF",
+            "end": 290,
+            "wavelength_id": "A01_C02",
+            "label": "nanog",
+            "start": 110
+        },
+        {
+            "colormap": "FFFF00",
+            "end": 1600,
+            "wavelength_id": "A02_C03",
+            "label": "Lamin B1",
+            "start": 110
+        }
+    ]
+}
