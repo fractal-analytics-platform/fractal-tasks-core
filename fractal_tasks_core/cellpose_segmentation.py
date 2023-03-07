@@ -25,6 +25,7 @@ from typing import Any
 from typing import Dict
 from typing import Optional
 from typing import Sequence
+from typing import Tuple
 
 import anndata as ad
 import dask.array as da
@@ -61,6 +62,132 @@ ModelInCellposeZoo = Enum(
 )
 
 
+def preprocess_cellpose_input(
+    *,
+    image_array: np.ndarray,
+    use_masks: bool = False,
+    region: Optional[Tuple[slice]] = None,
+    current_label_path: Optional[str] = None,
+    primary_label_path: Optional[str] = None,
+    ROI_table_obs: Optional[pd.DataFrame] = None,
+    index_ROI: Optional[int] = None,
+) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray]]:
+    """
+    Preprocess a four-dimensional cellpose input, either in a trivial way (if
+    `use_masks=False`) or by setting the background to zero (if
+    `use_masks=True`).
+
+    All arrays correspond to a given region, as defined in indices (see below).
+
+    FIXME: improve naming of variables
+
+    FIXME: improve docstring
+
+    FIXME: add organoid/nuclei example
+
+    Arguments:
+        image_array: 4D image array - TBD
+        use_masks: TBD
+        region: TBD
+        current_mask_array:
+            the current state of the cellpose output (part of it will be
+            overwritten, part of it will need to be restored afterwards)
+        primary_label_array:
+            label array that is used for masking (e.g. organoid bounding-box
+            ROIs)
+        label_value:
+            The value to be matched, in `primary_label_array` (e.g. the
+            organoid label)
+    """
+    if not image_array.ndim == 4:
+        raise ValueError(
+            "preprocess_cellpose_input requires a four-dimensional "
+            f"image_array argument, but {image_array.shape=}"
+        )
+    if use_masks:
+        if None in (
+            region,
+            current_label_path,
+            primary_label_path,
+            ROI_table_obs,
+            index_ROI,
+        ):
+            raise ValueError(
+                f"preprocess_cellpose_input called with {use_masks=} but "
+                f"{primary_label_path=}, {current_label_path=}, "
+                f"{region=} and {ROI_table_obs=} and {index_ROI=}."
+            )
+        # Check that ROI_table has the obs.label column
+        if "label" not in ROI_table_obs.columns:
+            raise ValueError(
+                'In preprocess_cellpose_input, "label" '
+                f" missing in {ROI_table_obs.columns=}"
+            )
+        label_value = int(ROI_table_obs.label[index_ROI])
+
+        # Load primary label array
+        primary_label_array = da.from_zarr(primary_label_path)[
+            region
+        ].compute()  # noqa
+        if primary_label_array.shape != image_array.shape[1:]:
+            raise ValueError(
+                f"In preprocess_cellpose_input, {image_array.shape=} but "
+                f"{primary_label_array.shape=}."
+            )
+        # Load current label array
+        current_label_array = da.from_zarr(current_label_path)[
+            region
+        ].compute()  # noqa
+
+        # Compute background mask
+        background_3D = primary_label_array != label_value
+        if (primary_label_array == label_value).sum() == 0:
+            raise ValueError
+
+        # Set image background to zero
+        background_4D = np.expand_dims(background_3D, axis=0)
+        image_array[background_4D] = 0
+
+        return (image_array, background_3D, current_label_array)
+    else:
+        return (image_array, None, None)
+
+
+def postprocess_cellpose_output(
+    *,
+    use_masks: bool = False,
+    new_label_array: Optional[np.ndarray] = None,
+    old_label_array: Optional[np.ndarray] = None,
+    background_3D: Optional[np.ndarray] = None,
+) -> np.ndarray:
+    """
+    FIXME docstring
+
+    Main goal of this function, for the moment, is to restore a the old
+    background labels
+    """
+    if use_masks:
+        if not all(
+            (
+                new_label_array.ndim == 3,
+                old_label_array.ndim == 3,
+                old_label_array.shape == new_label_array.shape,
+                background_3D.shape == new_label_array.shape,
+            )
+        ):
+            raise ValueError(
+                "In postprocess_cellpose_output:\n"
+                f"{use_masks=}\n"
+                f"{old_label_array.shape=}\n"
+                f"{new_label_array.shape=}\n"
+                f"{background_3D.shape=}"
+            )
+        new_label_array[background_3D] = old_label_array[background_3D]
+        return new_label_array
+    else:
+        return new_label_array
+
+
 def segment_FOV(
     x: np.ndarray,
     model: models.CellposeModel = None,
@@ -71,11 +198,10 @@ def segment_FOV(
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
     label_dtype: Optional[np.dtype] = None,
-    well_id: Optional[str] = None,
     augment: bool = False,
     net_avg: bool = False,
     min_size: int = 15,
-):
+) -> np.ndarray:
     """
     Internal function that runs Cellpose segmentation for a single ROI.
 
@@ -93,7 +219,6 @@ def segment_FOV(
     :param cellprob_threshold: Cellpose model parameter
     :param flow_threshold: Cellpose model parameter
     :param label_dtype: Label images are cast into this np.dtype
-    :param well_id: well identifier, just used for logging
     :param augment: Whether to use cellpose augmentation to tile images
                     with overlap
     :param net_avg: Whether to use cellpose net averaging to run the 4 built-in
@@ -104,12 +229,12 @@ def segment_FOV(
 
     # Write some debugging info
     logger.info(
-        f"[{well_id}][segment_FOV] START Cellpose |"
+        "[segment_FOV] START |"
         f" x: {type(x)}, {x.shape} |"
-        f" do_3D: {do_3D} |"
-        f" model.diam_mean: {model.diam_mean} |"
-        f" diameter: {diameter} |"
-        f" flow threshold: {flow_threshold}"
+        f" {do_3D=} |"
+        f" {model.diam_mean=} |"
+        f" {diameter=} |"
+        f" {flow_threshold=}"
     )
 
     # Actual labeling
@@ -134,14 +259,14 @@ def segment_FOV(
 
     # Write some debugging info
     logger.info(
-        f"[{well_id}][segment_FOV] END   Cellpose |"
-        f" Elapsed: {t1-t0:.4f} seconds |"
-        f" mask shape: {mask.shape},"
-        f" mask dtype: {mask.dtype} (before recast to {label_dtype}),"
-        f" max(mask): {np.max(mask)} |"
-        f" model.diam_mean: {model.diam_mean} |"
-        f" diameter: {diameter} |"
-        f" flow threshold: {flow_threshold}"
+        "[segment_FOV] END   |"
+        f" Elapsed: {t1-t0:.3f} s |"
+        f" {mask.shape=},"
+        f" {mask.dtype=} (then {label_dtype}),"
+        f" {np.max(mask)=} |"
+        f" {model.diam_mean=} |"
+        f" {diameter=} |"
+        f" {flow_threshold=}"
     )
 
     return mask.astype(label_dtype)
@@ -173,6 +298,8 @@ def cellpose_segmentation(
     min_size: int = 15,
     augment: bool = False,
     net_avg: bool = False,
+    use_masks: bool = False,
+    primary_label_name: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Run cellpose segmentation on the ROIs of a single OME-NGFF image
@@ -233,7 +360,8 @@ def cellpose_segmentation(
     :param net_avg: Whether to use cellpose net averaging to run the 4 built-in
                     networks (useful for nuclei, cyto & cyto2, not sure it
                     works for the others)
-
+    :param primary_label_name: FIXME docstring
+    :param use_masks: FIXME docstring
     """
 
     # Set input path
@@ -241,7 +369,7 @@ def cellpose_segmentation(
         raise NotImplementedError
     in_path = Path(input_paths[0])
     zarrurl = (in_path.resolve() / component).as_posix() + "/"
-    logger.info(zarrurl)
+    logger.info(f"{zarrurl=}")
 
     # Preliminary check
     if (channel_label is None and wavelength_id is None) or (
@@ -257,9 +385,6 @@ def cellpose_segmentation(
     coarsening_xy = metadata["coarsening_xy"]
 
     plate, well = component.split(".zarr/")
-
-    # Find well ID
-    well_id = well.replace("/", "_")[:-1]
 
     # Find channel index
     try:
@@ -304,10 +429,10 @@ def cellpose_segmentation(
 
     # Load ZYX data
     data_zyx = da.from_zarr(f"{zarrurl}{level}")[ind_channel]
-    logger.info(f"[{well_id}] {data_zyx.shape=}")
+    logger.info(f"{data_zyx.shape=}")
     if wavelength_id_c2 or channel_label_c2:
         data_zyx_c2 = da.from_zarr(f"{zarrurl}{level}")[ind_channel_c2]
-        logger.info(f"Second channel: [{well_id}] {data_zyx_c2.shape=}")
+        logger.info(f"Second channel: {data_zyx_c2.shape=}")
 
     # Read ROI table
     ROI_table = ad.read_zarr(f"{zarrurl}tables/{ROI_table_name}")
@@ -321,17 +446,24 @@ def cellpose_segmentation(
         f"{zarrurl}.zattrs", level=level
     )
     # Create list of indices for 3D FOVs spanning the entire Z direction
+    # FIXME: set reset_origin correctly
+    if ROI_table_name in ["FOV_ROI_table", "well_ROI_table"]:
+        reset_origin = True
+    else:
+        reset_origin = False
     list_indices = convert_ROI_table_to_indices(
         ROI_table,
         level=level,
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
+        reset_origin=reset_origin,
     )
 
     # Extract image size from FOV-ROI indices
     # Note: this works at level=0, where FOVs should all be of the exact same
     #       size (in pixels)
     FOV_ROI_table = ad.read_zarr(f"{zarrurl}tables/FOV_ROI_table")
+    logger.info(f"{reset_origin=}")
     list_FOV_indices_level0 = convert_ROI_table_to_indices(
         FOV_ROI_table,
         level=0,
@@ -357,7 +489,7 @@ def cellpose_segmentation(
             # Read pixel sizes from zattrs file
             pxl_zyx = extract_zyx_pixel_sizes(zarrurl + ".zattrs", level=level)
             pixel_size_z, pixel_size_y, pixel_size_x = pxl_zyx[:]
-            logger.info(f"[{well_id}] {pxl_zyx=}")
+            logger.info(f"{pxl_zyx=}")
             if not np.allclose(pixel_size_x, pixel_size_y):
                 raise Exception(
                     "ERROR: XY anisotropy detected"
@@ -430,9 +562,9 @@ def cellpose_segmentation(
     ]
 
     # Open new zarr group for mask 0-th level
-    logger.info(f"[{well_id}] {zarrurl}labels/{output_label_name}/0")
     zarr.group(f"{zarrurl}/labels")
     zarr.group(f"{zarrurl}/labels/{output_label_name}")
+    logger.info(f"Output label path: {zarrurl}labels/{output_label_name}/0")
     store = zarr.storage.FSStore(f"{zarrurl}labels/{output_label_name}/0")
     label_dtype = np.uint32
     mask_zarr = zarr.create(
@@ -445,7 +577,6 @@ def cellpose_segmentation(
     )
 
     logger.info(
-        f"[{well_id}] "
         f"mask will have shape {data_zyx.shape} "
         f"and chunks {data_zyx.chunks}"
     )
@@ -460,21 +591,21 @@ def cellpose_segmentation(
         model = models.CellposeModel(gpu=gpu, model_type=model_type)
 
     # Initialize other things
-    logger.info(f"[{well_id}] Start cellpose_segmentation task for {zarrurl}")
-    logger.info(f"[{well_id}] relabeling: {relabeling}")
-    logger.info(f"[{well_id}] do_3D: {do_3D}")
-    logger.info(f"[{well_id}] use_gpu: {gpu}")
-    logger.info(f"[{well_id}] level: {level}")
-    logger.info(f"[{well_id}] model_type: {model_type}")
-    logger.info(f"[{well_id}] pretrained_model: {pretrained_model}")
-    logger.info(f"[{well_id}] anisotropy: {anisotropy}")
-    logger.info(f"[{well_id}] Total well shape/chunks:")
-    logger.info(f"[{well_id}] {data_zyx.shape}")
-    logger.info(f"[{well_id}] {data_zyx.chunks}")
+    logger.info(f"Start cellpose_segmentation task for {zarrurl}")
+    logger.info(f"relabeling: {relabeling}")
+    logger.info(f"do_3D: {do_3D}")
+    logger.info(f"use_gpu: {gpu}")
+    logger.info(f"level: {level}")
+    logger.info(f"model_type: {model_type}")
+    logger.info(f"pretrained_model: {pretrained_model}")
+    logger.info(f"anisotropy: {anisotropy}")
+    logger.info("Total well shape/chunks:")
+    logger.info(f"{data_zyx.shape}")
+    logger.info(f"{data_zyx.chunks}")
     if wavelength_id_c2 or channel_label_c2:
         logger.info("Dual channel input for cellpose model")
-        logger.info(f"[{well_id}] {data_zyx_c2.shape}")
-        logger.info(f"[{well_id}] {data_zyx_c2.chunks}")
+        logger.info(f"{data_zyx_c2.shape}")
+        logger.info(f"{data_zyx_c2.chunks}")
 
     # Counters for relabeling
     if relabeling:
@@ -486,7 +617,7 @@ def cellpose_segmentation(
     if bounding_box_ROI_table_name:
         bbox_dataframe_list = []
 
-    logger.info(f"[{well_id}] Now starting loop over {num_ROIs} ROIs")
+    logger.info(f"Now starting loop over {num_ROIs} ROIs")
     for i_ROI, indices in enumerate(list_indices):
         # Define region
         s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
@@ -495,7 +626,7 @@ def cellpose_segmentation(
             slice(s_y, e_y),
             slice(s_x, e_x),
         )
-        logger.info(f"[{well_id}] Now processing ROI {i_ROI+1}/{num_ROIs}")
+        logger.info(f"Now processing ROI {i_ROI+1}/{num_ROIs}")
         # Execute cellpose segmentation
         if wavelength_id_c2 or channel_label_c2:
             # Dual channel mode, first channel is the membrane channel
@@ -511,7 +642,17 @@ def cellpose_segmentation(
             )
             channels = [0, 0]
 
-        fov_mask = segment_FOV(
+        img_np, background_3D, current_label = preprocess_cellpose_input(
+            image_array=img_np,
+            use_masks=use_masks,
+            region=region,
+            primary_label_path=f"{zarrurl}labels/{primary_label_name}/0",  # FIXME: which level? # noqa
+            current_label_path=f"{zarrurl}labels/{output_label_name}/0",  # FIXME: which level? # noqa
+            ROI_table_obs=ROI_table.obs,
+            index_ROI=i_ROI,
+        )
+
+        new_mask = segment_FOV(
             img_np,
             model=model,
             channels=channels,
@@ -521,21 +662,26 @@ def cellpose_segmentation(
             diameter=diameter_level0 / coarsening_xy**level,
             cellprob_threshold=cellprob_threshold,
             flow_threshold=flow_threshold,
-            well_id=well_id,
             min_size=min_size,
             augment=augment,
             net_avg=net_avg,
         )
 
+        new_mask = postprocess_cellpose_output(
+            use_masks=use_masks,
+            new_label_array=new_mask,
+            old_label_array=current_label,
+            background_3D=background_3D,
+        )
+
         # Shift labels and update relabeling counters
         if relabeling:
-            num_labels_fov = np.max(fov_mask)
-            fov_mask[fov_mask > 0] += num_labels_tot
+            num_labels_fov = np.max(new_mask)
+            new_mask[new_mask > 0] += num_labels_tot
             num_labels_tot += num_labels_fov
 
             # Write some logs
             logger.info(
-                f"[{well_id}] "
                 f"FOV ROI {indices}, "
                 f"{num_labels_fov=}, "
                 f"{num_labels_tot=}"
@@ -552,7 +698,7 @@ def cellpose_segmentation(
         if bounding_box_ROI_table_name:
 
             bbox_df = array_to_bounding_box_table(
-                fov_mask, actual_res_pxl_sizes_zyx
+                new_mask, actual_res_pxl_sizes_zyx
             )
 
             bbox_dataframe_list.append(bbox_df)
@@ -564,19 +710,18 @@ def cellpose_segmentation(
                 )
             if len(overlap_list) > 0:
                 logger.warning(
-                    f"[{well_id}] "
                     f"{len(overlap_list)} bounding-box pairs overlap"
                 )
 
         # Compute and store 0-th level to disk
-        da.array(fov_mask).to_zarr(
+        da.array(new_mask).to_zarr(
             url=mask_zarr,
             region=region,
             compute=True,
         )
 
     logger.info(
-        f"[{well_id}] End cellpose_segmentation task for {zarrurl}, "
+        f"End cellpose_segmentation task for {zarrurl}, "
         "now building pyramids."
     )
 
@@ -591,10 +736,9 @@ def cellpose_segmentation(
         aggregation_function=np.max,
     )
 
-    logger.info(f"[{well_id}] End building pyramids, exit")
+    logger.info("End building pyramids")
 
     if bounding_box_ROI_table_name:
-        logger.info(f"[{well_id}] Writing bounding box table, exit")
         # Concatenate all FOV dataframes
         df_well = pd.concat(bbox_dataframe_list, axis=0, ignore_index=True)
         df_well.index = df_well.index.astype(str)
@@ -611,7 +755,8 @@ def cellpose_segmentation(
         group_tables = zarr.group(f"{in_path}/{component}/tables/")
         write_elem(group_tables, bounding_box_ROI_table_name, bbox_table)
         logger.info(
-            f"[{in_path}/{component}/tables/{bounding_box_ROI_table_name}"
+            "Bounding box ROI table written to "
+            f"{in_path}/{component}/tables/{bounding_box_ROI_table_name}"
         )
 
     return {}
@@ -648,6 +793,8 @@ if __name__ == "__main__":
         min_size: Optional[int]
         augment: Optional[bool]
         net_avg: Optional[bool]
+        primary_label_name: Optional[str]
+        use_masks: Optional[bool]
 
     run_fractal_task(
         task_function=cellpose_segmentation,
