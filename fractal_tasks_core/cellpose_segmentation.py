@@ -444,13 +444,18 @@ def cellpose_segmentation(
     full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
         f"{zarrurl}.zattrs", level=0
     )
-
     actual_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
         f"{zarrurl}.zattrs", level=level
     )
-    # Create list of indices for 3D ROIs spanning the entire Z direction
-    reset_origin = not use_masks  # FIXME: set reset_origin correctly
+
+    # Heuristic to determine reset_origin #FIXME
+    if ROI_table_name in ["FOV_ROI_table", "well_ROI_table"]:
+        reset_origin = True
+    else:
+        reset_origin = False
     logger.info(f"{reset_origin=}")
+
+    # Create list of indices for 3D ROIs spanning the entire Z direction
     list_indices = convert_ROI_table_to_indices(
         ROI_table,
         level=level,
