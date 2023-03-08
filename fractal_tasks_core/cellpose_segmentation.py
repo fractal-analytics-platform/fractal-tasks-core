@@ -19,7 +19,6 @@ import json
 import logging
 import os
 import time
-from enum import Enum
 from pathlib import Path
 from typing import Any
 from typing import Dict
@@ -54,11 +53,6 @@ from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
 logger = logging.getLogger(__name__)
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
-ModelInCellposeZoo = Enum(
-    "ModelInCellposeZoo",
-    ((value, value) for value in models.MODEL_NAMES),
-    type=str,
-)
 
 
 def segment_FOV(
@@ -168,7 +162,7 @@ def cellpose_segmentation(
     ROI_table_name: str = "FOV_ROI_table",
     bounding_box_ROI_table_name: Optional[str] = None,
     output_label_name: Optional[str] = None,
-    model_type: ModelInCellposeZoo = "cyto2",
+    model_type: str = "cyto2",
     pretrained_model: Optional[str] = None,
     min_size: int = 15,
     augment: bool = False,
@@ -634,7 +628,7 @@ if __name__ == "__main__":
         ROI_table_name: Optional[str]
         bounding_box_ROI_table_name: Optional[str]
         output_label_name: Optional[str]
-        model_type: Optional[ModelInCellposeZoo]
+        model_type: Optional[str]
         pretrained_model: Optional[str]
         min_size: Optional[int]
         augment: Optional[bool]
