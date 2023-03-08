@@ -15,7 +15,6 @@ Copyright 2022 (C)
 Functions to handle regions of interests (via pandas and AnnData)
 """
 from typing import List
-from typing import Optional
 from typing import Sequence
 
 import anndata as ad
@@ -191,20 +190,20 @@ def convert_ROIs_from_3D_to_2D(
 
 def convert_ROI_table_to_indices(
     ROI: ad.AnnData,
-    level: Optional[int] = 0,
-    coarsening_xy: Optional[int] = 2,
-    full_res_pxl_sizes_zyx: Optional[Sequence[float]] = None,
+    level: int = 0,
+    coarsening_xy: int = 2,
+    full_res_pxl_sizes_zyx: Sequence[float] = None,
     cols_xyz_pos: Sequence[str] = [
         "x_micrometer",
         "y_micrometer",
         "z_micrometer",
     ],
-    cols_xyz_len: Optional[Sequence[str]] = [
+    cols_xyz_len: Sequence[str] = [
         "len_x_micrometer",
         "len_y_micrometer",
         "len_z_micrometer",
     ],
-    reset_origin: Optional[bool] = True,
+    reset_origin: bool = True,
 ) -> List[List[int]]:
     """
     Description
