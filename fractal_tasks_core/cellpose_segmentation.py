@@ -459,28 +459,6 @@ def cellpose_segmentation(
         reset_origin=reset_origin,
     )
 
-    # Extract image size from FOV-ROI indices
-    # Note: this works at level=0, where FOVs should all be of the exact same
-    #       size (in pixels)
-    FOV_ROI_table = ad.read_zarr(f"{zarrurl}tables/FOV_ROI_table")
-    list_FOV_indices_level0 = convert_ROI_table_to_indices(
-        FOV_ROI_table,
-        level=0,
-        full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
-    )
-    ref_img_size = None
-    for indices in list_FOV_indices_level0:
-        img_size = (indices[3] - indices[2], indices[5] - indices[4])
-        if ref_img_size is None:
-            ref_img_size = img_size
-        else:
-            if img_size != ref_img_size:
-                raise Exception(
-                    "ERROR: inconsistent image sizes in "
-                    f"{list_FOV_indices_level0=}"
-                )
-    img_size_y, img_size_x = img_size[:]
-
     # Select 2D/3D behavior and set some parameters
     do_3D = data_zyx.shape[0] > 1
     if do_3D:
