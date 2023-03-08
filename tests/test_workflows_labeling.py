@@ -101,7 +101,7 @@ def prepare_2D_zarr(
     return metadata
 
 
-def patched_segment_FOV(
+def patched_segment_ROI(
     x, do_3D=True, label_dtype=None, well_id=None, **kwargs
 ):
     # Expects x to always be a 4D image
@@ -110,9 +110,9 @@ def patched_segment_FOV(
 
     logger = logging.getLogger("cellpose_segmentation.py")
 
-    logger.info(f"[{well_id}][patched_segment_FOV] START")
+    logger.info(f"[{well_id}][patched_segment_ROI] START")
     assert x.ndim == 4
-    # Actual labeling: segment_FOV returns a 3D mask with the same shape as x,
+    # Actual labeling: segment_ROI returns a 3D mask with the same shape as x,
     # except for the first dimension
     mask = np.zeros_like(x[0, :, :, :])
     nz, ny, nx = mask.shape
@@ -123,22 +123,22 @@ def patched_segment_FOV(
         mask[:, 0 : ny // 4, 0 : nx // 4] = 1  # noqa
         mask[:, ny // 4 : ny // 2, 0 : nx // 2] = 2  # noqa
 
-    logger.info(f"[{well_id}][patched_segment_FOV] END")
+    logger.info(f"[{well_id}][patched_segment_ROI] END")
 
     return mask.astype(label_dtype)
 
 
-def patched_segment_FOV_overlapping_organoids(
+def patched_segment_ROI_overlapping_organoids(
     x, label_dtype=None, well_id=None, **kwargs
 ):
 
     import logging
 
     logger = logging.getLogger("cellpose_segmentation.py")
-    logger.info(f"[{well_id}][patched_segment_FOV] START")
+    logger.info(f"[{well_id}][patched_segment_ROI] START")
 
     assert x.ndim == 4
-    # Actual labeling: segment_FOV returns a 3D mask with the same shape as x,
+    # Actual labeling: segment_ROI returns a 3D mask with the same shape as x,
     # except for the first dimension
     mask = np.zeros_like(x[0, :, :, :])
     nz, ny, nx = mask.shape
@@ -146,7 +146,7 @@ def patched_segment_FOV_overlapping_organoids(
     mask[:, indices, indices] = 1  # noqa
     mask[:, indices + 10, indices + 20] = 2  # noqa
 
-    logger.info(f"[{well_id}][patched_segment_FOV] END")
+    logger.info(f"[{well_id}][patched_segment_ROI] END")
 
     return mask.astype(label_dtype)
 
@@ -170,8 +170,8 @@ def test_failures(
     )
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.segment_FOV",
-        patched_segment_FOV,
+        "fractal_tasks_core.cellpose_segmentation.segment_ROI",
+        patched_segment_ROI,
     )
 
     caplog.set_level(logging.WARNING)
@@ -232,8 +232,8 @@ def test_workflow_with_per_FOV_labeling(
     )
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.segment_FOV",
-        patched_segment_FOV,
+        "fractal_tasks_core.cellpose_segmentation.segment_ROI",
+        patched_segment_ROI,
     )
 
     # Setup caplog fixture, see
@@ -293,8 +293,8 @@ def test_workflow_with_multi_channel_input(
     )
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.segment_FOV",
-        patched_segment_FOV,
+        "fractal_tasks_core.cellpose_segmentation.segment_ROI",
+        patched_segment_ROI,
     )
 
     # Setup caplog fixture, see
@@ -350,8 +350,8 @@ def test_workflow_with_per_FOV_labeling_2D(
 
     # Do not use cellpose
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.segment_FOV",
-        patched_segment_FOV,
+        "fractal_tasks_core.cellpose_segmentation.segment_ROI",
+        patched_segment_ROI,
     )
 
     # Load pre-made 2D zarr array
@@ -402,8 +402,8 @@ def test_workflow_with_per_well_labeling_2D(
 
     # Do not use cellpose
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.segment_FOV",
-        patched_segment_FOV,
+        "fractal_tasks_core.cellpose_segmentation.segment_ROI",
+        patched_segment_ROI,
     )
 
     # Init
@@ -494,8 +494,8 @@ def test_workflow_bounding_box(
     )
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.segment_FOV",
-        patched_segment_FOV,
+        "fractal_tasks_core.cellpose_segmentation.segment_ROI",
+        patched_segment_ROI,
     )
     NUM_LABELS = 4
 
@@ -550,8 +550,8 @@ def test_workflow_bounding_box_with_overlap(
     )
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.segment_FOV",
-        patched_segment_FOV_overlapping_organoids,
+        "fractal_tasks_core.cellpose_segmentation.segment_ROI",
+        patched_segment_ROI_overlapping_organoids,
     )
 
     # Setup caplog fixture, see

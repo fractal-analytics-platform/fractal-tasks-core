@@ -191,7 +191,7 @@ def postprocess_cellpose_output(
         return new_label_array
 
 
-def segment_FOV(
+def segment_ROI(
     x: np.ndarray,
     model: models.CellposeModel = None,
     do_3D: bool = True,
@@ -232,7 +232,7 @@ def segment_FOV(
 
     # Write some debugging info
     logger.info(
-        "[segment_FOV] START |"
+        "[segment_ROI] START |"
         f" x: {type(x)}, {x.shape} |"
         f" {do_3D=} |"
         f" {model.diam_mean=} |"
@@ -262,7 +262,7 @@ def segment_FOV(
 
     # Write some debugging info
     logger.info(
-        "[segment_FOV] END   |"
+        "[segment_ROI] END   |"
         f" Elapsed: {t1-t0:.3f} s |"
         f" {mask.shape=},"
         f" {mask.dtype=} (then {label_dtype}),"
@@ -448,12 +448,9 @@ def cellpose_segmentation(
     actual_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
         f"{zarrurl}.zattrs", level=level
     )
-    # Create list of indices for 3D FOVs spanning the entire Z direction
-    # FIXME: set reset_origin correctly
-    if ROI_table_name in ["FOV_ROI_table", "well_ROI_table"]:
-        reset_origin = True
-    else:
-        reset_origin = False
+    # Create list of indices for 3D ROIs spanning the entire Z direction
+    reset_origin = not use_masks  # FIXME: set reset_origin correctly
+    logger.info(f"{reset_origin=}")
     list_indices = convert_ROI_table_to_indices(
         ROI_table,
         level=level,
@@ -466,7 +463,6 @@ def cellpose_segmentation(
     # Note: this works at level=0, where FOVs should all be of the exact same
     #       size (in pixels)
     FOV_ROI_table = ad.read_zarr(f"{zarrurl}tables/FOV_ROI_table")
-    logger.info(f"{reset_origin=}")
     list_FOV_indices_level0 = convert_ROI_table_to_indices(
         FOV_ROI_table,
         level=0,
@@ -655,7 +651,7 @@ def cellpose_segmentation(
             index_ROI=i_ROI,
         )
 
-        new_mask = segment_FOV(
+        new_mask = segment_ROI(
             img_np,
             model=model,
             channels=channels,
