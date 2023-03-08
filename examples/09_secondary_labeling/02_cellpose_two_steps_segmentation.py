@@ -29,7 +29,7 @@ for component in metadata["image"]:
         metadata=metadata,
         component=component,
         wavelength_id="A01_C01",
-        level=2,
+        level=3,
         relabeling=True,
         diameter_level0=400.0,
         ROI_table_name="well_ROI_table",
@@ -43,6 +43,7 @@ for component in metadata["image"]:
 
 print("\n--------------------\n")
 
+# Cellpose for nuclei inside organoids
 for component in metadata["image"]:
     cellpose_segmentation(
         input_paths=[zarr_path_mip],
@@ -55,7 +56,7 @@ for component in metadata["image"]:
         diameter_level0=20.0,
         ROI_table_name="organoids_bbox_table",
         primary_label_name="organoids",
-        output_label_name="nuclei",
+        output_label_name="nuclei_in_organoids",
         model_type="nuclei",
         flow_threshold=0.4,
         use_masks=True,
