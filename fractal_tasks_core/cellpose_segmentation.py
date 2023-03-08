@@ -49,6 +49,8 @@ from fractal_tasks_core.lib_regions_of_interest import (
 from fractal_tasks_core.lib_remove_FOV_overlaps import (
     get_overlapping_pairs_3D,
 )
+from fractal_tasks_core.lib_upscale_array import convert_region_to_low_res
+from fractal_tasks_core.lib_upscale_array import upscale_array
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
 
@@ -70,125 +72,194 @@ def preprocess_cellpose_input(
     current_label_path: Optional[str] = None,
     primary_label_path: Optional[str] = None,
     ROI_table_obs: Optional[pd.DataFrame] = None,
-    index_ROI: Optional[int] = None,
+    ROI_index: Optional[int] = None,
 ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray]]:
     """
-    Preprocess a four-dimensional cellpose input, either in a trivial way (if
-    `use_masks=False`) or by setting the background to zero (if
-    `use_masks=True`).
+    Preprocess a four-dimensional cellpose input
 
-    All arrays correspond to a given region, as defined in indices (see below).
+    If ``use_masks=False`` this is a dummy no-op function; if
+    ``use_masks=True``, then it involves :
 
-    FIXME: improve naming of variables
+    - Loading the primary label array for the appropriate region;
+    - Extracting the appropriate label value from the ``ROI_table_obs``
+      dataframe;
+    - Constructing the background mask, where the primary label matches with a
+      specific label value;
+    - Setting the background of ``image_array`` to ``0``;
+    - Loading the array which will be needed in postprocessing to restore
+      background.
 
-    FIXME: improve docstring
+    **FIXME 1**: review/improve variable names
 
-    FIXME: add organoid/nuclei example
+    **FIXME 2**: make this function more flexible, and move it to a separate
+    module (see `issue 340
+    <https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/340>`_).
 
-    Arguments:
-        image_array: 4D image array - TBD
-        use_masks: TBD
-        region: TBD
-        current_mask_array:
-            the current state of the cellpose output (part of it will be
-            overwritten, part of it will need to be restored afterwards)
-        primary_label_array:
-            label array that is used for masking (e.g. organoid bounding-box
-            ROIs)
-        label_value:
-            The value to be matched, in `primary_label_array` (e.g. the
-            organoid label)
+    Current naming of variables refers to a two-steps labeling ("first identify
+    organoids, then look for nuclei inside each organoid") :
+
+    - "primary" refers to the labels that are used to identify the object vs
+      background (e.g. the organoid labels); these labels already exist.
+    - "current" refers to the labels that are currently being computed in the
+      `cellpose_segmentation` task, e.g. the nuclear labels.
+
+
+    :param image_array: 4D CZYX array with image data for a specific ROI.
+    :param use_masks: If ``False``, this function simply returns
+                      ``image_array`` and some ``None`` values.
+    :param region: The ZYX indices to be used, in a form like ``(slice(0, 1),
+                   slice(1000, 2000), slice(1000, 2000))``.
+    :param current_label_path: Path to the image used as current
+                               label, in a form like
+                               ``/somewhere/plate.zarr/A/01/0/labels/nuclei_in_organoids/0``.
+    :param primary_label_path: Path to the image used as primary
+                               label, in a form like
+                               ``/somewhere/plate.zarr/A/01/0/labels/organoids/0``.
+    :param ROI_table_obs: ``obs`` attribute of the AnnData table for the
+                          primary-label ROIs; this is used (together with
+                          ``ROI_index``) to extract ``label_value``.
+    :param ROI_index: index of the current ROI, which is used to extract
+                      ``label_value`` from ``ROI_table_obs``.
     """
+
+    # If use_masks=False, return immediately
+    if not use_masks:
+        return (image_array, None, None)
+
+    logger.info(f"[preprocess_cellpose_input] {image_array.shape=}")
+    logger.info(f"[preprocess_cellpose_input] {region=}")
+
+    # Check that image data are 4D (CZYX) - FIXME issue 340
     if not image_array.ndim == 4:
         raise ValueError(
-            "preprocess_cellpose_input requires a four-dimensional "
+            "preprocess_cellpose_input requires a 4D "
             f"image_array argument, but {image_array.shape=}"
         )
-    if use_masks:
-        if (
-            None
-            in (
-                region,
-                current_label_path,
-                primary_label_path,
-                index_ROI,
-            )
-            or ROI_table_obs is None
-        ):
-            raise ValueError(
-                f"preprocess_cellpose_input called with {use_masks=} but "
-                f"{primary_label_path=}, {current_label_path=}, "
-                f"{region=} and {ROI_table_obs=} and {index_ROI=}."
-            )
-        # Check that ROI_table has the obs.label column
-        if "label" not in ROI_table_obs.columns:
-            raise ValueError(
-                'In preprocess_cellpose_input, "label" '
-                f" missing in {ROI_table_obs.columns=}"
-            )
-        label_value = int(ROI_table_obs.label[index_ROI])
 
-        # Load primary label array
-        primary_label_array = da.from_zarr(primary_label_path)[
-            region
-        ].compute()  # noqa
-        if primary_label_array.shape != image_array.shape[1:]:
-            raise ValueError(
-                f"In preprocess_cellpose_input, {image_array.shape=} but "
-                f"{primary_label_array.shape=}."
-            )
-        # Load current label array
-        current_label_array = da.from_zarr(current_label_path)[
-            region
-        ].compute()  # noqa
+    # Check that all optional arguments are non-None
+    optional_args = (region, current_label_path, primary_label_path, ROI_index)
+    if None in optional_args or ROI_table_obs is None:
+        raise ValueError(
+            f"Wrong arguments for preprocess_cellpose_input:\n"
+            f"{use_masks=}\n"
+            f"{primary_label_path=}\n"
+            f"{current_label_path=}\n, "
+            f"{ROI_index=}\n"
+            f"{region=}\n"
+            f"{ROI_table_obs=}"
+        )
 
-        # Compute background mask
-        background_3D = primary_label_array != label_value
-        if (primary_label_array == label_value).sum() == 0:
-            raise ValueError
+    # Check that ROI_table_obs has the "label" column and extract label_value
+    if "label" not in ROI_table_obs.columns:
+        raise ValueError(
+            'In preprocess_cellpose_input, "label" '
+            f" missing in {ROI_table_obs.columns=}"
+        )
+    label_value = int(ROI_table_obs.label[ROI_index])
 
-        # Set image background to zero
-        background_4D = np.expand_dims(background_3D, axis=0)
-        image_array[background_4D] = 0
+    # Load primary/current label arrays (lazily), and check shapes
+    primary_label_array = da.from_zarr(primary_label_path)
+    current_label_array = da.from_zarr(current_label_path)
+    logger.info(
+        f"[preprocess_cellpose_input] {primary_label_path=}, "
+        f"{primary_label_array.shape=}"
+    )
+    logger.info(
+        f"[preprocess_cellpose_input] {current_label_path=}, "
+        f"{current_label_array.shape=}"
+    )
 
-        return (image_array, background_3D, current_label_array)
+    # Load ROI data for current label array
+    current_label_region = current_label_array[region].compute()
+
+    # Load ROI data for primary label array, with or without upscaling
+    if primary_label_array.shape != current_label_array.shape:
+        logger.info("Upscaling of primary label is needed")
+        lowres_region = convert_region_to_low_res(
+            highres_region=region,
+            highres_shape=current_label_array.shape,
+            lowres_shape=primary_label_array.shape,
+        )
+        primary_label_region = primary_label_array[lowres_region].compute()
+        primary_label_region = upscale_array(
+            array=primary_label_region,
+            target_shape=current_label_region.shape,
+        )
     else:
-        return (image_array, None, None)
+        primary_label_region = primary_label_array[region].compute()
+
+    # Check that all shapes match
+    shapes = (
+        primary_label_region.shape,
+        current_label_region.shape,
+        image_array.shape[1:],
+    )
+    if len(set(shapes)) > 1:
+        raise ValueError(
+            "Shape mismatch:\n"
+            f"{current_label_region.shape=}\n"
+            f"{primary_label_region.shape=}\n"
+            f"{image_array.shape=}"
+        )
+
+    # Compute background mask
+    background_3D = primary_label_region != label_value
+    if (primary_label_region == label_value).sum() == 0:
+        raise ValueError(f"{(primary_label_region == label_value).sum()=}")
+
+    # Set image background to zero
+    background_4D = np.expand_dims(background_3D, axis=0)
+    image_array[background_4D] = 0
+
+    return (image_array, background_3D, current_label_region)
 
 
 def postprocess_cellpose_output(
     *,
     use_masks: bool = False,
-    new_label_array: Optional[np.ndarray] = None,
-    old_label_array: Optional[np.ndarray] = None,
-    background_3D: Optional[np.ndarray] = None,
+    modified_array: Optional[np.ndarray] = None,
+    original_array: Optional[np.ndarray] = None,
+    background: Optional[np.ndarray] = None,
 ) -> np.ndarray:
     """
-    FIXME docstring
+    Postprocess a cellpose input, mainly to restore its original background
 
-    Main goal of this function, for the moment, is to restore a the old
-    background labels
+    If ``use_masks=False`` this is a dummy no-op function; if
+    ``use_masks=True``, then it involves :
+
+
+    **FIXME 1**: review/improve variable names
+
+    **FIXME 2**: make this function more flexible, and move it to a separate
+    module (see `issue 340
+    <https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/340>`_).
+
+    :param use_masks: If ``False``, this function simply returns
+    :param modified_array: The 3D (ZYX) array with the correct object data and
+                           wrong background data.
+    :param original_array: The 3D (ZYX) array with the wrong object data and
+                           correct background data.
+    :param background: The 3D (ZYX) boolean array that defines the
+                       background.
     """
-    if use_masks:
-        if not all(
-            (
-                new_label_array.ndim == 3,
-                old_label_array.ndim == 3,
-                old_label_array.shape == new_label_array.shape,
-                background_3D.shape == new_label_array.shape,
-            )
-        ):
-            raise ValueError(
-                "In postprocess_cellpose_output:\n"
-                f"{use_masks=}\n"
-                f"{old_label_array.shape=}\n"
-                f"{new_label_array.shape=}\n"
-                f"{background_3D.shape=}"
-            )
-        new_label_array[background_3D] = old_label_array[background_3D]
-        return new_label_array
-    else:
-        return new_label_array
+
+    # If use_masks=False, return immediately
+    if not use_masks:
+        return modified_array
+
+    # Check that all optional arguments are non-None
+    if modified_array is None or original_array is None or background is None:
+        raise ValueError(
+            f"Wrong arguments for postprocess_cellpose_output:\n"
+            f"{use_masks=}\n"
+            f"{modified_array=}\n"
+            f"{original_array=}\n, "
+            f"{background=}"
+        )
+
+    # Restore background
+    modified_array[background] = original_array[background]
+    return modified_array
 
 
 def segment_ROI(
@@ -603,6 +674,7 @@ def cellpose_segmentation(
     for i_ROI, indices in enumerate(list_indices):
         # Define region
         s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
+        # FIXME: use "region", below, instead of the indices
         region = (
             slice(s_z, e_z),
             slice(s_y, e_y),
@@ -631,7 +703,7 @@ def cellpose_segmentation(
             primary_label_path=f"{zarrurl}labels/{primary_label_name}/0",  # FIXME: which level? # noqa
             current_label_path=f"{zarrurl}labels/{output_label_name}/0",  # FIXME: which level? # noqa
             ROI_table_obs=ROI_table.obs,
-            index_ROI=i_ROI,
+            ROI_index=i_ROI,
         )
 
         new_mask = segment_ROI(
@@ -651,9 +723,9 @@ def cellpose_segmentation(
 
         new_mask = postprocess_cellpose_output(
             use_masks=use_masks,
-            new_label_array=new_mask,
-            old_label_array=current_label,
-            background_3D=background_3D,
+            modified_array=new_mask,
+            original_array=current_label,
+            background=background_3D,
         )
 
         # Shift labels and update relabeling counters
