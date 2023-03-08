@@ -4245,6 +4245,22 @@ pytest = ">=5.0"
 dev = ["pre-commit", "pytest-asyncio", "tox"]
 
 [[package]]
+name = "pytest-pretty"
+version = "1.1.0"
+description = "pytest plugin for printing summary data as I want it"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "pytest_pretty-1.1.0-py3-none-any.whl", hash = "sha256:e7e63e0437694e5a7c557d99c81d6e29e0dcaab3b6b9dcb3ba23ddf3eebb5b42"},
+    {file = "pytest_pretty-1.1.0.tar.gz", hash = "sha256:425e116c1ed10ce67eeb688f22d1bcb91ca58a97986026bf42c0717da80740b3"},
+]
+
+[package.dependencies]
+pytest = ">=7"
+rich = ">=12"
+
+[[package]]
 name = "python-dateutil"
 version = "2.8.2"
 description = "Extensions to the standard Python datetime module"
@@ -5883,4 +5899,4 @@ tools = ["matplotlib"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "717c639ff8efc80177a50fc3eee27898bf851adccbb3395926be9a9865631cf0"
+content-hash = "932e6913d12fad065e13f535e7863121ae67583499bc0ad4e77480fb011e5726"
