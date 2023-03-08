@@ -16,14 +16,15 @@ Function to increase the shape of an array by replicating it
 import logging
 import warnings
 from typing import Sequence
+from typing import Tuple
 
 import numpy as np
 
 
 def upscale_array(
     *,
-    array,
-    target_shape: Sequence[int],
+    array: np.ndarray,
+    target_shape: Tuple[int],
     axis: Sequence[int] = None,
     pad_with_zeros: bool = False,
 ) -> np.ndarray:
@@ -73,6 +74,11 @@ def upscale_array(
     # Compute upscaling factors
     upscale_factors = {}
     for ax in axis:
+        if (target_shape[ax] % array_shape[ax]) > 0 and not pad_with_zeros:
+            raise ValueError(
+                "Incommensurable upscale attempt, "
+                f"from {array_shape=} to {target_shape=}."
+            )
         upscale_factors[ax] = target_shape[ax] // array_shape[ax]
         # Check that this is not downscaling
         if upscale_factors[ax] < 1:
@@ -115,3 +121,72 @@ def upscale_array(
             raise ValueError(f"{info} {upscaled_array.shape=}.")
 
     return upscaled_array
+
+
+def upscale_region(
+    *,
+    region: Tuple[slice],
+    array_shape: Tuple[int],
+    target_shape: Tuple[int],
+) -> Tuple[slice]:
+    """
+    FIXME
+
+    :param array: the array to be upscaled
+    :param target_shape: the shape of the rescaled array
+    :param axis: the axis along which to upscale the array (if ``None``, then \
+                 all axis are used)
+    :param pad_with_zeros: if ``True``, pad the upscaled array with zeros to
+                           match ``target_shape``.
+    :returns: upscaled array, with shape ``target_shape``
+    """
+
+    ndim = len(array_shape)
+
+    info = f"Upscaling {region=} from {array_shape=} to {target_shape=}."
+
+    if len(array_shape) != len(target_shape):
+        raise ValueError(f"{info} Dimensions-number mismatch.")
+
+    # Check that upscale is doable
+    for ind, dim in enumerate(array_shape):
+        # Check that array is not larger than target (downscaling)
+        if dim > target_shape[ind]:
+            raise ValueError(
+                f"{info} {ind}-th array dimension is larger than target."
+            )
+
+    # Compute upscaling factors
+    upscale_factors = {}
+    for ax in range(ndim):
+        if (target_shape[ax] % array_shape[ax]) > 0:
+            raise ValueError(
+                "Incommensurable upscale attempt, "
+                f"from {array_shape=} to {target_shape=}."
+            )
+        upscale_factors[ax] = target_shape[ax] // array_shape[ax]
+        # Check that this is not downscaling
+        if upscale_factors[ax] < 1:
+            raise ValueError(info)
+    info = f"{info} Upscale factors: {upscale_factors}."
+
+    # Raise a warning if upscaling is non-homogeneous across all axis
+    if len(set(upscale_factors.values())) > 1:
+        warnings.warn(
+            f"Upscaling factors are not homogeneous across axis. {info}"
+        )
+
+    # Upscale region
+    upscaled_region = []
+    for ax in range(ndim):
+        old_slice = region[ax]
+        new_slice_start = old_slice.start * upscale_factors[ax]
+        new_slice_stop = old_slice.stop * upscale_factors[ax]
+        if old_slice.step:
+            new_slice_step = old_slice.step * upscale_factors[ax]
+            new_slice = slice(new_slice_start, new_slice_stop, new_slice_step)
+        else:
+            new_slice = slice(new_slice_start, new_slice_stop)
+        upscaled_region.append(new_slice)
+
+    return tuple(upscaled_region)

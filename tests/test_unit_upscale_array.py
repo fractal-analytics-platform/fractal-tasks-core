@@ -7,6 +7,7 @@ import pytest
 from devtools import debug
 
 from fractal_tasks_core.lib_upscale_array import upscale_array
+from fractal_tasks_core.lib_upscale_array import upscale_region
 
 
 list_success: List[Tuple] = []
@@ -68,3 +69,24 @@ def test_incommensurable_upscaling():
     )
     assert upscaled_array.shape == target_shape
     debug(upscaled_array)
+
+
+def test_upscale_region():
+
+    # Successful upscale
+    old_region = (slice(0, 1), slice(10, 20), slice(100, 200))
+    expected_new_region = (slice(0, 2), slice(30, 60), slice(100, 200))
+    new_region = upscale_region(
+        region=old_region, array_shape=(1, 30, 300), target_shape=(2, 90, 300)
+    )
+    debug(old_region)
+    debug(new_region)
+    assert new_region == expected_new_region
+
+    # Incommensurable upscale
+    with pytest.raises(ValueError):
+        new_region = upscale_region(
+            region=old_region,
+            array_shape=(1, 30, 300),
+            target_shape=(2, 85, 300),
+        )
