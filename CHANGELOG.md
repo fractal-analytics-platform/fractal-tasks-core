@@ -1,5 +1,6 @@
 # Unreleased
 
+* Remove bugged input validation for `model_type` (\#344).
 * Raise an error if the user provides an unexpected argument to a task (\#337); this applies to the case of running a task as a script, with a pydantic model for task-argument validation.
 
 # 0.8.0
