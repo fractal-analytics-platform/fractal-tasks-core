@@ -319,7 +319,7 @@ def test_workflow_with_multi_channel_input(
             level=3,
             relabeling=True,
             diameter_level0=80.0,
-            model_type="nuclei",
+            model_type="cyto2",
         )
 
     # OME-NGFF JSON validation
