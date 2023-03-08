@@ -246,6 +246,14 @@ def cellpose_segmentation(
             f"{wavelength_id=} arguments must be provided"
         )
 
+    # Prelminary checks on Cellpose model
+    if pretrained_model is None:
+        if model_type not in models.MODEL_NAMES:
+            raise ValueError(f"ERROR model_type={model_type} is not allowed.")
+    else:
+        if not os.path.exists(pretrained_model):
+            raise ValueError(f"{pretrained_model=} does not exist.")
+
     # Read useful parameters from metadata
     num_levels = metadata["num_levels"]
     coarsening_xy = metadata["coarsening_xy"]
@@ -359,14 +367,6 @@ def cellpose_segmentation(
                     f"pixel_size_y={pixel_size_y}"
                 )
             anisotropy = pixel_size_z / pixel_size_x
-
-    # Prelminary checks on Cellpose model
-    if pretrained_model is None:
-        if model_type not in models.MODEL_NAMES:
-            raise ValueError(f"ERROR model_type={model_type} is not allowed.")
-    else:
-        if not os.path.exists(pretrained_model):
-            raise ValueError(f"{pretrained_model=} does not exist.")
 
     # Load zattrs file
     zattrs_file = f"{zarrurl}.zattrs"
