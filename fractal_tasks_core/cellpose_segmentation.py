@@ -233,6 +233,7 @@ def postprocess_cellpose_output(
     <https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/340>`_).
 
     :param use_masks: If ``False``, this function simply returns
+                      ``modified_array``.
     :param modified_array: The 3D (ZYX) array with the correct object data and
                            wrong background data.
     :param original_array: The 3D (ZYX) array with the wrong object data and
