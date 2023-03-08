@@ -224,9 +224,7 @@ def postprocess_cellpose_output(
     """
     Postprocess a cellpose input, mainly to restore its original background
 
-    If ``use_masks=False`` this is a dummy no-op function; if
-    ``use_masks=True``, then it involves :
-
+    If ``use_masks=False`` this is a dummy no-op function.
 
     **FIXME 1**: review/improve variable names
 
