@@ -6,8 +6,8 @@ import numpy as np
 import pytest
 from devtools import debug
 
+from fractal_tasks_core.lib_upscale_array import convert_region_to_low_res
 from fractal_tasks_core.lib_upscale_array import upscale_array
-from fractal_tasks_core.lib_upscale_array import upscale_region
 
 
 list_success: List[Tuple] = []
@@ -71,22 +71,48 @@ def test_incommensurable_upscaling():
     debug(upscaled_array)
 
 
-def test_upscale_region():
+def test_convert_region_to_low_res():
 
-    # Successful upscale
-    old_region = (slice(0, 1), slice(10, 20), slice(100, 200))
-    expected_new_region = (slice(0, 2), slice(30, 60), slice(100, 200))
-    new_region = upscale_region(
-        region=old_region, array_shape=(1, 30, 300), target_shape=(2, 90, 300)
+    # Successful conversion
+    highres_shape = (8,)
+    lowres_shape = (4,)
+    highres_region = (slice(2, 6),)
+    expected_lowres_region = (slice(1, 3),)
+    lowres_region = convert_region_to_low_res(
+        highres_shape=highres_shape,
+        lowres_shape=lowres_shape,
+        highres_region=highres_region,
     )
-    debug(old_region)
-    debug(new_region)
-    assert new_region == expected_new_region
+    debug(highres_region)
+    debug(lowres_region)
+    assert lowres_region == expected_lowres_region
 
-    # Incommensurable upscale
+    # Conversion in the wrong direction
     with pytest.raises(ValueError):
-        new_region = upscale_region(
-            region=old_region,
-            array_shape=(1, 30, 300),
-            target_shape=(2, 85, 300),
+        convert_region_to_low_res(
+            highres_shape=lowres_shape,
+            lowres_shape=highres_shape,
+            highres_region=highres_region,
+        )
+
+    # Incommensurability error (1/2)
+    with pytest.raises(ValueError):
+        highres_shape = (9,)
+        lowres_shape = (4,)
+        highres_region = (slice(2, 6),)
+        convert_region_to_low_res(
+            highres_shape=highres_shape,
+            lowres_shape=lowres_shape,
+            highres_region=highres_region,
+        )
+
+    # Incommensurability error (2/2)
+    with pytest.raises(ValueError):
+        highres_shape = (8,)
+        lowres_shape = (4,)
+        highres_region = (slice(3, 7),)
+        convert_region_to_low_res(
+            highres_shape=highres_shape,
+            lowres_shape=lowres_shape,
+            highres_region=highres_region,
         )

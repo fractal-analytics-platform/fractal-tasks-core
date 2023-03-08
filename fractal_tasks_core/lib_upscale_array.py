@@ -27,18 +27,22 @@ def upscale_array(
     target_shape: Tuple[int],
     axis: Sequence[int] = None,
     pad_with_zeros: bool = False,
+    warn_if_inhomogeneous: bool = False,
 ) -> np.ndarray:
     """
     Upscale an array along a given list of axis (through repeated application
     of ``np.repeat``), to match a target shape.
 
-    :param array: the array to be upscaled
-    :param target_shape: the shape of the rescaled array
-    :param axis: the axis along which to upscale the array (if ``None``, then \
+    :param array: The array to be upscaled
+    :param target_shape: The shape of the rescaled array
+    :param axis: The axis along which to upscale the array (if ``None``, then \
                  all axis are used)
-    :param pad_with_zeros: if ``True``, pad the upscaled array with zeros to
+    :param pad_with_zeros: If ``True``, pad the upscaled array with zeros to
                            match ``target_shape``.
-    :returns: upscaled array, with shape ``target_shape``
+    :param warn_if_inhomogeneous: If ``True``, raise a warning when the
+                                  conversion factors are not identical across
+                                  all dimensions.
+    :returns: The upscaled array, with shape ``target_shape``.
     """
 
     # Default behavior: use all axis
@@ -86,8 +90,9 @@ def upscale_array(
     info = f"{info} Upscale factors: {upscale_factors}"
 
     # Raise a warning if upscaling is non-homogeneous across all axis
-    if len(set(upscale_factors.values())) > 1:
-        warnings.warn(info)
+    if warn_if_inhomogeneous:
+        if len(set(upscale_factors.values())) > 1:
+            warnings.warn(info)
 
     # Upscale array, via np.repeat
     upscaled_array = array
@@ -123,70 +128,72 @@ def upscale_array(
     return upscaled_array
 
 
-def upscale_region(
+def convert_region_to_low_res(
     *,
-    region: Tuple[slice],
-    array_shape: Tuple[int],
-    target_shape: Tuple[int],
+    highres_region: Tuple[slice],
+    lowres_shape: Tuple[int],
+    highres_shape: Tuple[int],
 ) -> Tuple[slice]:
     """
-    FIXME
+    Convert a region defined for a high-resolution array to the corresponding
+    region for a low-resolution array
 
-    :param array: the array to be upscaled
-    :param target_shape: the shape of the rescaled array
-    :param axis: the axis along which to upscale the array (if ``None``, then \
-                 all axis are used)
-    :param pad_with_zeros: if ``True``, pad the upscaled array with zeros to
-                           match ``target_shape``.
-    :returns: upscaled array, with shape ``target_shape``
+    :param highres_region: A region of the high-resolution array, defined in a
+                           form like ``(slice(0, 2), slice(1000, 2000),
+                           slice(1000, 2000))``.
+    :param highres_shape: The shape of the high-resolution array.
+    :param lowres_shape: The shape of the low-resolution array.
+    :return: Region for low-resolution array.
     """
 
-    ndim = len(array_shape)
+    error_msg = (
+        f"Cannot convert {highres_region=}, "
+        f"given {lowres_shape=} and {highres_shape=}."
+    )
 
-    info = f"Upscaling {region=} from {array_shape=} to {target_shape=}."
+    ndim = len(lowres_shape)
+    if len(highres_shape) != ndim:
+        raise ValueError(f"{error_msg} Dimension mismatch.")
 
-    if len(array_shape) != len(target_shape):
-        raise ValueError(f"{info} Dimensions-number mismatch.")
-
-    # Check that upscale is doable
-    for ind, dim in enumerate(array_shape):
-        # Check that array is not larger than target (downscaling)
-        if dim > target_shape[ind]:
+    # Loop over dimensions to construct lowres_region, after some relevant
+    # checks
+    lowres_region = []
+    for ind, lowres_size in enumerate(lowres_shape):
+        # Check that the high-resolution size is not smaller than the
+        # low-resolution size
+        highres_size = highres_shape[ind]
+        if highres_size < lowres_size:
             raise ValueError(
-                f"{info} {ind}-th array dimension is larger than target."
+                f"{error_msg} High-res size smaller than low-res size."
             )
-
-    # Compute upscaling factors
-    upscale_factors = {}
-    for ax in range(ndim):
-        if (target_shape[ax] % array_shape[ax]) > 0:
+        # Check that sizes are commensurate
+        if highres_size % lowres_size > 0:
             raise ValueError(
-                "Incommensurable upscale attempt, "
-                f"from {array_shape=} to {target_shape=}."
+                f"{error_msg} Incommensurable sizes "
+                f"{highres_size=} and {lowres_size=}."
             )
-        upscale_factors[ax] = target_shape[ax] // array_shape[ax]
-        # Check that this is not downscaling
-        if upscale_factors[ax] < 1:
-            raise ValueError(info)
-    info = f"{info} Upscale factors: {upscale_factors}."
-
-    # Raise a warning if upscaling is non-homogeneous across all axis
-    if len(set(upscale_factors.values())) > 1:
-        warnings.warn(
-            f"Upscaling factors are not homogeneous across axis. {info}"
+        factor = highres_size // lowres_size
+        # Convert old_slice's start/stop attributes
+        old_slice = highres_region[ind]
+        if old_slice.start % factor > 0 or old_slice.stop % factor > 0:
+            raise ValueError(
+                f"{error_msg} Cannot transform {old_slice=} "
+                f"with {factor=}."
+            )
+        new_slice_start = old_slice.start // factor
+        new_slice_stop = old_slice.stop // factor
+        new_slice_step = None
+        # Covert old_slice's step attribute
+        if old_slice.step:
+            if old_slice.step % factor > 0:
+                raise ValueError(
+                    f"{error_msg} Cannot transform {old_slice=} "
+                    f"with {factor=}."
+                )
+            new_slice_step = old_slice.step // factor
+        # Append new slice
+        lowres_region.append(
+            slice(new_slice_start, new_slice_stop, new_slice_step)
         )
 
-    # Upscale region
-    upscaled_region = []
-    for ax in range(ndim):
-        old_slice = region[ax]
-        new_slice_start = old_slice.start * upscale_factors[ax]
-        new_slice_stop = old_slice.stop * upscale_factors[ax]
-        if old_slice.step:
-            new_slice_step = old_slice.step * upscale_factors[ax]
-            new_slice = slice(new_slice_start, new_slice_stop, new_slice_step)
-        else:
-            new_slice = slice(new_slice_start, new_slice_stop)
-        upscaled_region.append(new_slice)
-
-    return tuple(upscaled_region)
+    return tuple(lowres_region)
