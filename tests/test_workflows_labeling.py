@@ -11,8 +11,12 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
+import json
 import logging
+import shlex
 import shutil
+import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 from typing import Dict
@@ -24,6 +28,7 @@ import pytest
 from devtools import debug
 from pytest import MonkeyPatch
 
+import fractal_tasks_core
 from .utils import check_file_number
 from .utils import validate_schema
 from fractal_tasks_core.cellpose_segmentation import cellpose_segmentation
@@ -576,3 +581,72 @@ def test_workflow_bounding_box_with_overlap(
                 diameter_level0=80.0,
                 bounding_box_ROI_table_name="bbox_table",
             )
+
+
+def test_workflow_with_per_FOV_labeling_via_script(
+    tmp_path: Path,
+    testdata_path: Path,
+    zenodo_zarr: List[str],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+):
+    # Use pre-made 3D zarr
+    zarr_path = tmp_path / "tmp_out/"
+    metadata = prepare_3D_zarr(
+        str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
+    )
+    debug(zarr_path)
+    debug(metadata)
+
+    python_path = sys.executable
+    task_path = (
+        Path(fractal_tasks_core.__file__).parent / "cellpose_segmentation.py"
+    )
+    args_path = tmp_path / "args.json"
+    out_path = tmp_path / "out.json"
+    command = (
+        f"{str(python_path)} {str(task_path)} "
+        f"-j {str(args_path)} --metadata-out {str(out_path)}"
+    )
+    debug(command)
+
+    task_args = dict(
+        input_paths=[str(zarr_path)],
+        output_path=str(zarr_path),
+        metadata=metadata,
+        component=metadata["image"][0],
+        wavelength_id="A01_C01",
+        level=4,
+        relabeling=True,
+        diameter_level0=80.0,
+        augment=True,
+        net_avg=True,
+        min_size=30,
+    )
+
+    run_options = dict(timeout=10, capture_output=True, encoding="utf-8")
+
+    # Valid model_type -> should fail due to timeout
+    this_task_args = dict(**task_args, model_type="nuclei")
+    with args_path.open("w") as f:
+        json.dump(this_task_args, f)
+    with pytest.raises(subprocess.TimeoutExpired):
+        res = subprocess.run(shlex.split(command), **run_options)
+        print(res.stdout)
+        print(res.stderr)
+        # Also check that we are not hitting
+        # https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/343
+        assert "urllib.error.HTTPError" not in res.stdout
+        assert "urllib.error.HTTPError" not in res.stderr
+
+    # Invalid model_type -> should fail with ValueError
+    INVALID_MODEL_TYPE = "something_wrong"
+    this_task_args = dict(**task_args, model_type=INVALID_MODEL_TYPE)
+    with args_path.open("w") as f:
+        json.dump(this_task_args, f)
+    res = subprocess.run(shlex.split(command), **run_options)
+    print(res.stdout)
+    print(res.stderr)
+    error_msg = f"ERROR model_type={INVALID_MODEL_TYPE} is not allowed"
+    assert error_msg in res.stderr
+    assert "urllib.error.HTTPError" not in res.stdout
+    assert "urllib.error.HTTPError" not in res.stderr
