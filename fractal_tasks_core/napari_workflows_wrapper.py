@@ -570,7 +570,11 @@ def napari_workflows_wrapper(
         # Write to zarr group
         group_tables = zarr.group(f"{in_path}/{component}/tables/")
         write_elem(group_tables, table_name, measurement_table)
-        current_tables = group_tables.attrs.get("tables")
+        # Update OME-NGFF metadata
+        if "tables" in group_tables.attrs.keys():
+            current_tables = group_tables.attrs["tables"]
+        else:
+            []
         if table_name in current_tables:
             # FIXME: move this check to an earlier stage of the task
             raise ValueError(
@@ -579,6 +583,7 @@ def napari_workflows_wrapper(
             )
         new_tables = current_tables + [table_name]
         group_tables.attrs["tables"] = new_tables
+        # FIXME: also include table metadata, see issue #333
 
     # Output handling: "label" type (for each output, build and write to disk
     # pyramid of coarser levels)

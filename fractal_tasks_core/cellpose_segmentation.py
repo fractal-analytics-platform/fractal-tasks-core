@@ -800,7 +800,16 @@ def cellpose_segmentation(
         bbox_table.obs = labels
         # Write to zarr group
         group_tables = zarr.group(f"{in_path}/{component}/tables/")
-        current_tables = group_tables.attrs.get("tables")
+        write_elem(group_tables, bounding_box_ROI_table_name, bbox_table)
+        logger.info(
+            "Bounding box ROI table written to "
+            f"{in_path}/{component}/tables/{bounding_box_ROI_table_name}"
+        )
+        # Update OME-NGFF metadata
+        if "tables" in group_tables.attrs.keys():
+            current_tables = group_tables.attrs["tables"]
+        else:
+            []
         if bounding_box_ROI_table_name in current_tables:
             # FIXME: move this check to an earlier stage of the task
             raise ValueError(
@@ -809,11 +818,6 @@ def cellpose_segmentation(
             )
         new_tables = current_tables + [bounding_box_ROI_table_name]
         group_tables.attrs["tables"] = new_tables
-        write_elem(group_tables, bounding_box_ROI_table_name, bbox_table)
-        logger.info(
-            "Bounding box ROI table written to "
-            f"{in_path}/{component}/tables/{bounding_box_ROI_table_name}"
-        )
         # Add OME-NGFF metadata, as of https://github.com/ome/ngff/pull/64
         # FIXME implement this bloc on table metadata
         # bbox_table_group = zarr.group(
