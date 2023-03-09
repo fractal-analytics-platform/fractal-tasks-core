@@ -809,7 +809,7 @@ def cellpose_segmentation(
         if "tables" in group_tables.attrs.keys():
             current_tables = group_tables.attrs["tables"]
         else:
-            []
+            current_tables = []
         if bounding_box_ROI_table_name in current_tables:
             # FIXME: move this check to an earlier stage of the task
             raise ValueError(

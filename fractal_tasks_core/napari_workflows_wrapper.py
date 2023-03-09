@@ -574,7 +574,7 @@ def napari_workflows_wrapper(
         if "tables" in group_tables.attrs.keys():
             current_tables = group_tables.attrs["tables"]
         else:
-            []
+            current_tables = []
         if table_name in current_tables:
             # FIXME: move this check to an earlier stage of the task
             raise ValueError(
