@@ -155,6 +155,7 @@ def copy_ome_zarr(
                 if ROI_table_names:
 
                     new_tables_group = new_image_group.create_group("tables/")
+                    new_tables_group.attrs["tables"] = ROI_table_names
                     if project_to_2D:
                         path_FOV_zattrs = (
                             f"{zarrurl_old}/{well_path}/{image_path}/.zattrs"

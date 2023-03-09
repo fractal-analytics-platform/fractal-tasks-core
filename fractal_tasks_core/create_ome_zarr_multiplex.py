@@ -447,6 +447,7 @@ def create_ome_zarr_multiplex(
             # Write AnnData tables in the tables zarr group
             write_elem(group_tables, "FOV_ROI_table", FOV_ROIs_table)
             write_elem(group_tables, "well_ROI_table", well_ROIs_table)
+            group_tables.attrs["tables"] = ["FOV_ROI_table", "well_ROI_table"]
 
     # Check that the different images (e.g. different cycles) in the each well
     # have unique labels
