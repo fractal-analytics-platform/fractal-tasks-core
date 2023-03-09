@@ -623,7 +623,7 @@ def test_workflow_with_per_FOV_labeling_via_script(
         min_size=30,
     )
 
-    run_options = dict(timeout=4, capture_output=True, encoding="utf-8")
+    run_options = dict(timeout=10, capture_output=True, encoding="utf-8")
 
     # Valid model_type -> should fail due to timeout
     this_task_args = dict(**task_args, model_type="nuclei")
