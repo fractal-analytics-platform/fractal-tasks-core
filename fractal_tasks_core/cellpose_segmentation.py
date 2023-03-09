@@ -19,7 +19,6 @@ import json
 import logging
 import os
 import time
-from enum import Enum
 from pathlib import Path
 from typing import Any
 from typing import Dict
@@ -57,11 +56,6 @@ from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
 logger = logging.getLogger(__name__)
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
-ModelInCellposeZoo = Enum(
-    "ModelInCellposeZoo",
-    ((value, value) for value in models.MODEL_NAMES),
-    type=str,
-)
 
 
 def preprocess_cellpose_input(
@@ -366,7 +360,7 @@ def cellpose_segmentation(
     ROI_table_name: str = "FOV_ROI_table",
     bounding_box_ROI_table_name: Optional[str] = None,
     output_label_name: Optional[str] = None,
-    model_type: ModelInCellposeZoo = "cyto2",
+    model_type: str = "cyto2",
     pretrained_model: Optional[str] = None,
     min_size: int = 15,
     augment: bool = False,
@@ -452,6 +446,14 @@ def cellpose_segmentation(
             f"One and only one of {channel_label=} and "
             f"{wavelength_id=} arguments must be provided"
         )
+
+    # Prelminary checks on Cellpose model
+    if pretrained_model is None:
+        if model_type not in models.MODEL_NAMES:
+            raise ValueError(f"ERROR model_type={model_type} is not allowed.")
+    else:
+        if not os.path.exists(pretrained_model):
+            raise ValueError(f"{pretrained_model=} does not exist.")
 
     # Read useful parameters from metadata
     num_levels = metadata["num_levels"]
@@ -549,14 +551,6 @@ def cellpose_segmentation(
                     f"pixel_size_y={pixel_size_y}"
                 )
             anisotropy = pixel_size_z / pixel_size_x
-
-    # Prelminary checks on Cellpose model
-    if pretrained_model is None:
-        if model_type not in models.MODEL_NAMES:
-            raise ValueError(f"ERROR model_type={model_type} is not allowed.")
-    else:
-        if not os.path.exists(pretrained_model):
-            raise ValueError(f"{pretrained_model=} does not exist.")
 
     # Load zattrs file
     zattrs_file = f"{zarrurl}.zattrs"
@@ -841,7 +835,7 @@ if __name__ == "__main__":
         ROI_table_name: Optional[str]
         bounding_box_ROI_table_name: Optional[str]
         output_label_name: Optional[str]
-        model_type: Optional[ModelInCellposeZoo]
+        model_type: Optional[str]
         pretrained_model: Optional[str]
         min_size: Optional[int]
         augment: Optional[bool]
