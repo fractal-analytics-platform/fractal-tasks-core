@@ -68,7 +68,7 @@ def napari_workflows_wrapper(
     workflow_file: str,
     input_specs: Dict[str, Dict[str, str]],
     output_specs: Dict[str, Dict[str, str]],
-    ROI_table_name: str = "FOV_ROI_table",
+    input_ROI_table: str = "FOV_ROI_table",
     level: int = 0,
     relabeling: bool = True,
     expected_dimensions: int = 3,
@@ -109,8 +109,8 @@ def napari_workflows_wrapper(
 
     :param relabeling: If ``True``, apply relabeling so that label values are
                        unique across ROIs.
-    :param ROI_table_name: name of the table that contains ROIs to which the\
-                          task applies the napari-worfklow
+    :param input_ROI_table: name of the table that contains ROIs to which the\
+                            task applies the napari-worfklow
     """
 
     wf: napari_workflows.Worfklow = load_workflow(workflow_file)
@@ -182,7 +182,7 @@ def napari_workflows_wrapper(
 
     # Read ROI table
     zarrurl = f"{in_path}/{component}"
-    ROI_table = ad.read_zarr(f"{in_path}/{component}/tables/{ROI_table_name}")
+    ROI_table = ad.read_zarr(f"{in_path}/{component}/tables/{input_ROI_table}")
 
     # Read pixel sizes from zattrs file
     full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(zattrs_file, level=0)
@@ -196,7 +196,8 @@ def napari_workflows_wrapper(
     )
     num_ROIs = len(list_indices)
     logger.info(
-        f"Completed reading ROI table {ROI_table_name}, " f"found {num_ROIs}."
+        f"Completed reading ROI table {input_ROI_table},"
+        f" found {num_ROIs} ROIs."
     )
 
     # Input preparation: "image" type
@@ -347,8 +348,8 @@ def napari_workflows_wrapper(
             )
             num_ROIs = len(list_indices)
             logger.info(
-                f"Re-loaded reading ROI table {ROI_table_name}, "
-                f"and created indices using {full_res_pxl_sizes_zyx=}. "
+                f"Re-create ROI indices from ROI table {input_ROI_table}, "
+                f"using {full_res_pxl_sizes_zyx=}. "
                 "This is necessary because label-input-only workflows may "
                 "have label inputs that are at a different resolution and "
                 "are not upscaled."
@@ -609,7 +610,7 @@ if __name__ == "__main__":
         workflow_file: str
         input_specs: Dict[str, Dict[str, str]]
         output_specs: Dict[str, Dict[str, str]]
-        ROI_table_name: Optional[str]
+        input_ROI_table: Optional[str]
         level: Optional[int]
         relabeling: Optional[bool]
         expected_dimensions: Optional[int]

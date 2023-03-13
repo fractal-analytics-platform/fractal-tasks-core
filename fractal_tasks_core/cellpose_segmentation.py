@@ -21,7 +21,6 @@ import os
 import time
 from pathlib import Path
 from typing import Any
-from typing import Callable
 from typing import Dict
 from typing import Optional
 from typing import Sequence
@@ -153,7 +152,7 @@ def cellpose_segmentation(
     channel_label: Optional[str] = None,
     wavelength_id_c2: Optional[str] = None,
     channel_label_c2: Optional[str] = None,
-    ROI_table_name: str = "FOV_ROI_table",  # FIXME: input_ROI_table (in all tasks)
+    input_ROI_table: str = "FOV_ROI_table",
     bounding_box_ROI_table_name: Optional[
         str
     ] = None,  # FIXME: output_ROI_table (in all tasks) e.g. "organoids", "organoids_roi"
@@ -206,7 +205,7 @@ def cellpose_segmentation(
                           For dual channel segmentation of cells,
                           the first channel should contain the membrane marker,
                           the second channel should contain the nuclear marker.
-    :param ROI_table_name: name of the table that contains ROIs to which the
+    :param input_ROI_table: name of the table that contains ROIs to which the
                            task applies Cellpose segmentation
     :param bounding_box_ROI_table_name: TBD
     :param use_masks: FIXME docstring
@@ -312,12 +311,12 @@ def cellpose_segmentation(
         logger.info(f"Second channel: {data_zyx_c2.shape=}")
 
     # Read ROI table
-    ROI_table = ad.read_zarr(f"{zarrurl}tables/{ROI_table_name}")
+    ROI_table = ad.read_zarr(f"{zarrurl}tables/{input_ROI_table}")
 
     if use_masks:
         pass
         # zarr_group_table = zarr.open_group(
-        # f"{zarrurl}tables/{ROI_table_name}"
+        # f"{zarrurl}tables/{input_ROI_table}"
         # )
         # FIXME: check that some required metadata are there in the zarr group
         # else: fail
@@ -343,7 +342,7 @@ def cellpose_segmentation(
     )
 
     # Heuristic to determine reset_origin #FIXME
-    if ROI_table_name in ["FOV_ROI_table", "well_ROI_table"]:
+    if input_ROI_table in ["FOV_ROI_table", "well_ROI_table"]:
         reset_origin = True
     else:
         reset_origin = False
@@ -363,7 +362,7 @@ def cellpose_segmentation(
         overlap = find_overlaps_in_ROI_indices(list_indices)
         if overlap:
             raise ValueError(
-                f"ROI indices created from {ROI_table_name} table have "
+                f"ROI indices created from {input_ROI_table} table have "
                 "overlaps, but we are not using masked loading."
             )
 
@@ -541,7 +540,7 @@ def cellpose_segmentation(
             preprocessing_kwargs = dict(
                 region=region,
                 current_label_path=f"{zarrurl}labels/{output_label_name}/0",
-                ROI_table_path=f"{zarrurl}tables/{ROI_table_name}",
+                ROI_table_path=f"{zarrurl}tables/{input_ROI_table}",
                 ROI_index=i_ROI,
             )
         else:
@@ -690,7 +689,7 @@ if __name__ == "__main__":
         diameter_level0: Optional[float]
         cellprob_threshold: Optional[float]
         flow_threshold: Optional[float]
-        ROI_table_name: Optional[str]
+        input_ROI_table: Optional[str]
         bounding_box_ROI_table_name: Optional[str]
         output_label_name: Optional[str]
         model_type: Optional[str]
