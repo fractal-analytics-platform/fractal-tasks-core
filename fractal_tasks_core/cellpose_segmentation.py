@@ -323,6 +323,8 @@ def cellpose_segmentation(
             f"ROI table at {ROI_table_path} cannot be used for masked "
             "loading. Set use_masks=False."
         )
+        use_masks = False
+    logger.info(f"{use_masks=}")
 
     # Read pixel sizes from zattrs file
     full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(

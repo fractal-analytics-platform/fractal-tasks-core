@@ -384,19 +384,12 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
     # Soft constraint: the table can be used for masked loading (if not, return
     # False)
     attrs = zarr.group(table_path).attrs
-    logging.info("ROI table at {table_path} have attrs: {attrs}")
+    logging.info(f"ROI table at {table_path} has attrs: {attrs}")
     valid = set(("type", "region", "instance_key")).issubset(attrs.keys())
     if valid:
         valid = valid and attrs["type"] == "ngff:region_table"
         valid = valid and "path" in attrs["region"].keys()
     if valid:
-        logging.info(
-            f"ROI table at {table_path} can be used for masked loading."
-        )
         return True
     else:
-        logging.info(
-            f"ROI table at {table_path} cannot be used for masked loading."
-            " Set use_masks=False."
-        )
         return False

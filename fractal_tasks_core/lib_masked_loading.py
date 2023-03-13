@@ -99,6 +99,8 @@ def preprocess_cellpose_input(
     ROI_table = ad.read_zarr(ROI_table_path)
     ROI_table_obs = ROI_table.obs
     attrs = zarr.group(ROI_table_path).attrs
+    logger.info(f"[preprocess_cellpose_input] {ROI_table_path=}")
+    logger.info(f"[preprocess_cellpose_input] {attrs.asdict()=}")
     if not attrs["type"] == "ngff:region_table":
         raise ValueError("Wrong attributes for {ROI_table_path}:\n{attrs}")
     label_relative_path = attrs["region"]["path"]
