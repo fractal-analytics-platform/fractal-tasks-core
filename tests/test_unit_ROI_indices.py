@@ -13,6 +13,7 @@ from fractal_tasks_core.lib_regions_of_interest import (
 )  # noqa
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
+from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
 
 
 PIXEL_SIZE_X = 0.1625
@@ -208,3 +209,33 @@ def test_prepare_well_ROI_table(testdata_path: Path):
                 abs(min(table_FOVs.X[:, ind]) - min(table_well.X[:, ind]))
                 < 1e-12
             )
+
+
+def test_overlaps_in_indices():
+
+    list_indices = [
+        [0, 1, 100, 200, 1000, 2000],
+        [0, 1, 200, 300, 1000, 2000],
+    ]
+    res = find_overlaps_in_ROI_indices(list_indices)
+    debug(res)
+    assert res is None
+
+    list_indices = [
+        [0, 1, 100, 201, 1000, 2000],
+        [0, 1, 200, 300, 1000, 2000],
+    ]
+    res = find_overlaps_in_ROI_indices(list_indices)
+    debug(res)
+    assert res == (1, 0)
+
+    list_indices = [
+        [0, 1, 100, 200, 1000, 2000],
+        [0, 1, 200, 300, 1000, 2000],
+        [0, 1, 200, 300, 2000, 3000],
+        [1, 2, 200, 300, 2000, 3000],
+        [1, 2, 299, 400, 2999, 4000],
+    ]
+    res = find_overlaps_in_ROI_indices(list_indices)
+    debug(res)
+    assert res == (4, 3)

@@ -14,8 +14,8 @@ Copyright 2022 (C)
 Functions to identify and remove overlaps between regions of interest
 """
 import logging
+from typing import Optional
 from typing import Sequence
-from typing import Tuple
 
 import pandas as pd
 
@@ -64,7 +64,7 @@ def is_overlapping_2D(
     return overlap_x and overlap_y
 
 
-def is_overlapping_3D(box1, box2, tol=0):
+def is_overlapping_3D(box1, box2, tol=0) -> bool:
     """
     Given two three-dimensional boxes, finds whether they overlap
 
@@ -90,7 +90,7 @@ def is_overlapping_3D(box1, box2, tol=0):
     return overlap_x and overlap_y and overlap_z
 
 
-def get_overlapping_pair(tmp_df: pd.DataFrame, tol: float = 0) -> Tuple[int]:
+def get_overlapping_pair(tmp_df: pd.DataFrame, tol: float = 0) -> tuple[int]:
     """
     Finds the indices for the next overlapping FOVs pair
 
@@ -319,3 +319,64 @@ def remove_FOV_overlaps(df: pd.DataFrame):
     df.drop(list_columns, axis=1, inplace=True)
 
     return df
+
+
+def _is_overlapping_1D_int(
+    line1: Sequence[int],
+    line2: Sequence[int],
+) -> bool:
+    """
+    Given two integer intervals, find whether they overlap
+
+    This is the same as is_overlapping_1D (based on
+    https://stackoverflow.com/a/70023212/19085332), for integer-valued
+    intervals.
+
+    :param line1: The boundaries of the first interval , written as
+                  ``[x_min, x_max]``.
+    :param line2: The boundaries of the second interval , written as
+                  ``[x_min, x_max]``.
+    """
+    return line1[0] < line2[1] and line2[0] < line1[1]
+
+
+def _is_overlapping_3D_int(box1: list[int], box2: list[int]) -> bool:
+    """
+    Given two three-dimensional integer boxes, find whether they overlap
+
+    This is the same as is_overlapping_3D (based on
+    https://stackoverflow.com/a/70023212/19085332), for integer-valued
+    boxes.
+
+    :param box1: The boundaries of the first box, written as
+                 ``[x_min, y_min, z_min, x_max, y_max, z_max]``.
+    :param box2: The boundaries of the second box, written as
+                 ``[x_min, y_min, z_min, x_max, y_max, z_max]``.
+    """
+    overlap_x = _is_overlapping_1D_int([box1[0], box1[3]], [box2[0], box2[3]])
+    overlap_y = _is_overlapping_1D_int([box1[1], box1[4]], [box2[1], box2[4]])
+    overlap_z = _is_overlapping_1D_int([box1[2], box1[5]], [box2[2], box2[5]])
+    return overlap_x and overlap_y and overlap_z
+
+
+def find_overlaps_in_ROI_indices(
+    list_indices: list[list[int]],
+) -> Optional[tuple[int]]:
+    """
+    Given a list of integer ROI indices, find whether there are overlaps
+
+    :param list_indices: List of ROI indices, where each element in the list
+                         should look like ``[start_z, end_z, start_y, end_y,
+                         start_x, end_x]``.
+    """
+
+    for ind_1, ROI_1 in enumerate(list_indices):
+        s_z, e_z, s_y, e_y, s_x, e_x = ROI_1[:]
+        box_1 = [s_x, s_y, s_z, e_x, e_y, e_z]
+        for ind_2 in range(ind_1):
+            ROI_2 = list_indices[ind_2]
+            s_z, e_z, s_y, e_y, s_x, e_x = ROI_2[:]
+            box_2 = [s_x, s_y, s_z, e_x, e_y, e_z]
+            if _is_overlapping_3D_int(box_1, box_2):
+                return (ind_1, ind_2)
+    return None
