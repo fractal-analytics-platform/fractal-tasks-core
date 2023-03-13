@@ -218,7 +218,9 @@ def preprocess_cellpose_input(
     # Compute background mask
     background_3D = primary_label_region != label_value
     if (primary_label_region == label_value).sum() == 0:
-        raise ValueError(f"{(primary_label_region == label_value).sum()=}")
+        raise ValueError(
+            f"Label {label_value} is not present in the extracted ROI"
+        )
 
     # Set image background to zero
     background_4D = np.expand_dims(background_3D, axis=0)
