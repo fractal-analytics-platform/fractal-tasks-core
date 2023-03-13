@@ -727,7 +727,7 @@ def cellpose_segmentation(
             ROI_index=i_ROI,
         )
 
-        new_mask = segment_ROI(
+        new_label_img = segment_ROI(
             img_np,
             model=model,
             channels=channels,
@@ -742,17 +742,17 @@ def cellpose_segmentation(
             net_avg=net_avg,
         )
 
-        new_mask = postprocess_cellpose_output(
+        new_label_img = postprocess_cellpose_output(
             use_masks=use_masks,
-            modified_array=new_mask,
+            modified_array=new_label_img,
             original_array=current_label,
             background=background_3D,
         )
 
         # Shift labels and update relabeling counters
         if relabeling:
-            num_labels_fov = np.max(new_mask)
-            new_mask[new_mask > 0] += num_labels_tot
+            num_labels_fov = np.max(new_label_img)
+            new_label_img[new_label_img > 0] += num_labels_tot
             num_labels_tot += num_labels_fov
 
             # Write some logs
@@ -773,7 +773,7 @@ def cellpose_segmentation(
         if bounding_box_ROI_table_name:
 
             bbox_df = array_to_bounding_box_table(
-                new_mask, actual_res_pxl_sizes_zyx
+                new_label_img, actual_res_pxl_sizes_zyx
             )
 
             bbox_dataframe_list.append(bbox_df)
@@ -789,7 +789,7 @@ def cellpose_segmentation(
                 )
 
         # Compute and store 0-th level to disk
-        da.array(new_mask).to_zarr(
+        da.array(new_label_img).to_zarr(
             url=mask_zarr,
             region=region,
             compute=True,
