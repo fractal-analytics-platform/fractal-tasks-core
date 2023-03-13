@@ -73,10 +73,10 @@ def preprocess_cellpose_input(
     If ``use_masks=False`` this is a dummy no-op function; if
     ``use_masks=True``, then it involves :
 
-    - Loading the primary label array for the appropriate region;
+    - Loading the masking label array for the appropriate region;
     - Extracting the appropriate label value from the ``ROI_table_obs``
       dataframe;
-    - Constructing the background mask, where the primary label matches with a
+    - Constructing the background mask, where the masking label matches with a
       specific label value;
     - Setting the background of ``image_array`` to ``0``;
     - Loading the array which will be needed in postprocessing to restore
@@ -94,7 +94,7 @@ def preprocess_cellpose_input(
     Current naming of variables refers to a two-steps labeling ("first identify
     organoids, then look for nuclei inside each organoid") :
 
-    - "primary" refers to the labels that are used to identify the object vs
+    - "masking" refers to the labels that are used to identify the object vs
       background (e.g. the organoid labels); these labels already exist.
     - "current" refers to the labels that are currently being computed in the
       `cellpose_segmentation` task, e.g. the nuclear labels.
@@ -109,7 +109,7 @@ def preprocess_cellpose_input(
                                label, in a form like
                                ``/somewhere/plate.zarr/A/01/0/labels/nuclei_in_organoids/0``.
     :param ROI_table_obs: ``obs`` attribute of the AnnData table for the
-                          primary-label ROIs; this is used (together with
+                          masking-label ROIs; this is used (together with
                           ``ROI_index``) to extract ``label_value``.
     :param ROI_index: index of the current ROI, which is used to extract
                       ``label_value`` from ``ROI_table_obs``.
@@ -166,16 +166,16 @@ def preprocess_cellpose_input(
         )
     label_value = int(ROI_table_obs[column_name][ROI_index])
 
-    # Load primary/current label arrays (lazily), and check shapes
-    primary_label_path = str(
+    # Load masking/current label arrays (lazily), and check shapes
+    masking_label_path = str(
         Path(ROI_table_path).parent / label_relative_path / "0"
     )
-    logger.critical(f"{primary_label_path=}")
-    primary_label_array = da.from_zarr(primary_label_path)
+    logger.critical(f"{masking_label_path=}")
+    masking_label_array = da.from_zarr(masking_label_path)
     current_label_array = da.from_zarr(current_label_path)
     logger.info(
-        f"[preprocess_cellpose_input] {primary_label_path=}, "
-        f"{primary_label_array.shape=}"
+        f"[preprocess_cellpose_input] {masking_label_path=}, "
+        f"{masking_label_array.shape=}"
     )
     logger.info(
         f"[preprocess_cellpose_input] {current_label_path=}, "
@@ -185,25 +185,25 @@ def preprocess_cellpose_input(
     # Load ROI data for current label array
     current_label_region = current_label_array[region].compute()
 
-    # Load ROI data for primary label array, with or without upscaling
-    if primary_label_array.shape != current_label_array.shape:
-        logger.info("Upscaling of primary label is needed")
+    # Load ROI data for masking label array, with or without upscaling
+    if masking_label_array.shape != current_label_array.shape:
+        logger.info("Upscaling of masking label is needed")
         lowres_region = convert_region_to_low_res(
             highres_region=region,
             highres_shape=current_label_array.shape,
-            lowres_shape=primary_label_array.shape,
+            lowres_shape=masking_label_array.shape,
         )
-        primary_label_region = primary_label_array[lowres_region].compute()
-        primary_label_region = upscale_array(
-            array=primary_label_region,
+        masking_label_region = masking_label_array[lowres_region].compute()
+        masking_label_region = upscale_array(
+            array=masking_label_region,
             target_shape=current_label_region.shape,
         )
     else:
-        primary_label_region = primary_label_array[region].compute()
+        masking_label_region = masking_label_array[region].compute()
 
     # Check that all shapes match
     shapes = (
-        primary_label_region.shape,
+        masking_label_region.shape,
         current_label_region.shape,
         image_array.shape[1:],
     )
@@ -211,13 +211,13 @@ def preprocess_cellpose_input(
         raise ValueError(
             "Shape mismatch:\n"
             f"{current_label_region.shape=}\n"
-            f"{primary_label_region.shape=}\n"
+            f"{masking_label_region.shape=}\n"
             f"{image_array.shape=}"
         )
 
     # Compute background mask
-    background_3D = primary_label_region != label_value
-    if (primary_label_region == label_value).sum() == 0:
+    background_3D = masking_label_region != label_value
+    if (masking_label_region == label_value).sum() == 0:
         raise ValueError(
             f"Label {label_value} is not present in the extracted ROI"
         )
