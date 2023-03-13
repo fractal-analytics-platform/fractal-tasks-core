@@ -153,9 +153,7 @@ def cellpose_segmentation(
     wavelength_id_c2: Optional[str] = None,
     channel_label_c2: Optional[str] = None,
     input_ROI_table: str = "FOV_ROI_table",
-    bounding_box_ROI_table_name: Optional[
-        str
-    ] = None,  # FIXME: output_ROI_table (in all tasks) e.g. "organoids", "organoids_roi"
+    output_ROI_table: Optional[str] = None,
     output_label_name: Optional[str] = None,  # "organoids"
     use_masks: bool = True,
     relabeling: bool = True,
@@ -205,9 +203,10 @@ def cellpose_segmentation(
                           For dual channel segmentation of cells,
                           the first channel should contain the membrane marker,
                           the second channel should contain the nuclear marker.
-    :param input_ROI_table: name of the table that contains ROIs to which the
+    :param input_ROI_table: Name of the table that contains ROIs to which the
                            task applies Cellpose segmentation
-    :param bounding_box_ROI_table_name: TBD
+    :param output_ROI_table: If provided, compute bounding-box ROIs for labels
+                             and store them in ths ``output_ROI_table` table.
     :param use_masks: FIXME docstring
     :param output_label_name: TBD
     :param relabeling: If ``True``, apply relabeling so that label values are
@@ -490,7 +489,7 @@ def cellpose_segmentation(
     # Iterate over ROIs
     num_ROIs = len(list_indices)
 
-    if bounding_box_ROI_table_name:
+    if output_ROI_table:
         bbox_dataframe_list = []
 
     logger.info(f"Now starting loop over {num_ROIs} ROIs")
@@ -575,7 +574,7 @@ def cellpose_segmentation(
                     f"but dtype={label_dtype}"
                 )
 
-        if bounding_box_ROI_table_name:
+        if output_ROI_table:
 
             bbox_df = array_to_bounding_box_table(
                 new_label_img, actual_res_pxl_sizes_zyx
@@ -618,7 +617,7 @@ def cellpose_segmentation(
 
     logger.info("End building pyramids")
 
-    if bounding_box_ROI_table_name:
+    if output_ROI_table:
         # Concatenate all FOV dataframes
         df_well = pd.concat(bbox_dataframe_list, axis=0, ignore_index=True)
         df_well.index = df_well.index.astype(str)
@@ -633,10 +632,10 @@ def cellpose_segmentation(
         bbox_table.obs = labels
         # Write to zarr group
         group_tables = zarr.group(f"{in_path}/{component}/tables/")
-        write_elem(group_tables, bounding_box_ROI_table_name, bbox_table)
+        write_elem(group_tables, output_ROI_table, bbox_table)
         logger.info(
             "Bounding box ROI table written to "
-            f"{in_path}/{component}/tables/{bounding_box_ROI_table_name}"
+            f"{in_path}/{component}/tables/{output_ROI_table}"
         )
 
         # WARNING: the following OME-NGFF metadata are based on a proposed
@@ -644,18 +643,18 @@ def cellpose_segmentation(
 
         # Update OME-NGFF metadata for tables group
         current_tables = group_tables.attrs.asdict().get("tables") or []
-        if bounding_box_ROI_table_name in current_tables:
+        if output_ROI_table in current_tables:
             # FIXME: move this check to an earlier stage of the task
             raise ValueError(
                 f"{in_path}/{component}/tables/ already includes "
-                f"{bounding_box_ROI_table_name=} in {current_tables=}"
+                f"{output_ROI_table=} in {current_tables=}"
             )
-        new_tables = current_tables + [bounding_box_ROI_table_name]
+        new_tables = current_tables + [output_ROI_table]
         group_tables.attrs["tables"] = new_tables
 
         # Update OME-NGFF metadata for current-table group
         bbox_table_group = zarr.group(
-            f"{in_path}/{component}/tables/{bounding_box_ROI_table_name}"
+            f"{in_path}/{component}/tables/{output_ROI_table}"
         )
         bbox_table_group.attrs["type"] = "ngff:region_table"
         bbox_table_group.attrs["region"] = {
@@ -690,7 +689,7 @@ if __name__ == "__main__":
         cellprob_threshold: Optional[float]
         flow_threshold: Optional[float]
         input_ROI_table: Optional[str]
-        bounding_box_ROI_table_name: Optional[str]
+        output_ROI_table: Optional[str]
         output_label_name: Optional[str]
         model_type: Optional[str]
         pretrained_model: Optional[str]
