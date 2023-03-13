@@ -387,7 +387,6 @@ def cellpose_segmentation(
     augment: bool = False,
     net_avg: bool = False,
     use_masks: bool = False,
-    primary_label_name: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Run cellpose segmentation on the ROIs of a single OME-NGFF image
@@ -448,7 +447,6 @@ def cellpose_segmentation(
     :param net_avg: Whether to use cellpose net averaging to run the 4 built-in
                     networks (useful for nuclei, cyto & cyto2, not sure it
                     works for the others)
-    :param primary_label_name: FIXME docstring
     :param use_masks: FIXME docstring
     """
 
@@ -714,7 +712,6 @@ def cellpose_segmentation(
             image_array=img_np,
             use_masks=use_masks,
             region=region,
-            # primary_label_path=f"{zarrurl}labels/{primary_label_name}/0",  # FIXME: which level? # noqa
             current_label_path=f"{zarrurl}labels/{output_label_name}/0",  # FIXME: which level? # noqa
             ROI_table_path=f"{zarrurl}tables/{ROI_table_name}",
             ROI_index=i_ROI,
@@ -885,7 +882,6 @@ if __name__ == "__main__":
         min_size: Optional[int]
         augment: Optional[bool]
         net_avg: Optional[bool]
-        primary_label_name: Optional[str]
         use_masks: Optional[bool]
 
     run_fractal_task(
