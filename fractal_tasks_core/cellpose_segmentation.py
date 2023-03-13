@@ -21,10 +21,10 @@ import os
 import time
 from pathlib import Path
 from typing import Any
+from typing import Callable
 from typing import Dict
 from typing import Optional
 from typing import Sequence
-from typing import Tuple
 
 import anndata as ad
 import dask.array as da
@@ -58,19 +58,17 @@ __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
 
 def preprocess_cellpose_input(
-    *,
     image_array: np.ndarray,
-    use_masks: bool = False,
-    region: Optional[Tuple[slice]] = None,
-    current_label_path: Optional[str] = None,
-    ROI_table_path: Optional[str] = None,
-    ROI_index: Optional[int] = None,
-) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray]]:
+    *,
+    region: tuple[slice] = None,
+    current_label_path: str = None,
+    ROI_table_path: str = None,
+    ROI_index: int = None,  # FIXME: naming?
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Preprocess a four-dimensional cellpose input
 
-    If ``use_masks=False`` this is a dummy no-op function; if
-    ``use_masks=True``, then it involves :
+    This involves :
 
     - Loading the masking label array for the appropriate region;
     - Extracting the appropriate label value from the ``ROI_table_obs``
@@ -100,8 +98,6 @@ def preprocess_cellpose_input(
 
 
     :param image_array: 4D CZYX array with image data for a specific ROI.
-    :param use_masks: If ``False``, this function simply returns
-                      ``image_array`` and some ``None`` values.
     :param region: The ZYX indices to be used, in a form like ``(slice(0, 1),
                    slice(1000, 2000), slice(1000, 2000))``.
     :param current_label_path: Path to the image used as current
@@ -114,10 +110,6 @@ def preprocess_cellpose_input(
                       ``label_value`` from ``ROI_table_obs``.
     """
 
-    # If use_masks=False, return immediately
-    if not use_masks:
-        return (image_array, None, None)
-
     logger.info(f"[preprocess_cellpose_input] {image_array.shape=}")
     logger.info(f"[preprocess_cellpose_input] {region=}")
 
@@ -128,24 +120,6 @@ def preprocess_cellpose_input(
             f"image_array argument, but {image_array.shape=}"
         )
 
-    # Check that all optional arguments are non-None
-    optional_args = (
-        region,
-        current_label_path,
-        ROI_index,
-        ROI_table_path,
-    )
-
-    if None in optional_args:
-        raise ValueError(
-            f"Wrong arguments for preprocess_cellpose_input:\n"
-            f"{use_masks=}\n"
-            f"{current_label_path=}\n, "
-            f"{ROI_index=}\n"
-            f"{region=}\n"
-            f"{ROI_table_path=}"
-        )
-
     # Load the ROI table and its metadata attributes
     ROI_table = ad.read_zarr(ROI_table_path)
     ROI_table_obs = ROI_table.obs
@@ -154,8 +128,6 @@ def preprocess_cellpose_input(
         raise ValueError("Wrong attributes for {ROI_table_path}:\n{attrs}")
     label_relative_path = attrs["region"]["path"]
     column_name = attrs["instance_key"]
-    print(label_relative_path)
-    print(column_name)
 
     # Check that ROI_table_obs has the right column and extract label_value
     if column_name not in ROI_table_obs.columns:
@@ -232,15 +204,12 @@ def preprocess_cellpose_input(
 
 def postprocess_cellpose_output(
     *,
-    use_masks: bool = False,
-    modified_array: Optional[np.ndarray] = None,
-    original_array: Optional[np.ndarray] = None,
-    background: Optional[np.ndarray] = None,
+    modified_array: np.ndarray,
+    original_array: np.ndarray,
+    background: np.ndarray,
 ) -> np.ndarray:
     """
     Postprocess a cellpose input, mainly to restore its original background
-
-    If ``use_masks=False`` this is a dummy no-op function.
 
     **FIXME 1**: review/improve variable names
 
@@ -248,8 +217,6 @@ def postprocess_cellpose_output(
     module (see `issue 340
     <https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/340>`_).
 
-    :param use_masks: If ``False``, this function simply returns
-                      ``modified_array``.
     :param modified_array: The 3D (ZYX) array with the correct object data and
                            wrong background data.
     :param original_array: The 3D (ZYX) array with the wrong object data and
@@ -258,23 +225,50 @@ def postprocess_cellpose_output(
                        background.
     """
 
-    # If use_masks=False, return immediately
-    if not use_masks:
-        return modified_array
-
-    # Check that all optional arguments are non-None
-    if modified_array is None or original_array is None or background is None:
-        raise ValueError(
-            f"Wrong arguments for postprocess_cellpose_output:\n"
-            f"{use_masks=}\n"
-            f"{modified_array=}\n"
-            f"{original_array=}\n, "
-            f"{background=}"
-        )
-
     # Restore background
     modified_array[background] = original_array[background]
     return modified_array
+
+
+def wrap_function_with_masking(
+    *,
+    function: Callable,
+    image_array: np.ndarray,
+    kwargs: Optional[dict] = None,
+    use_masks: bool,
+    preprocessing_kwargs: Optional[dict] = None,
+    postprocessing_kwargs: Optional[dict] = None,
+):
+    """
+    Wrap a function with some pre/post-processing functions
+
+    :param function: The callable function to be wrapped.
+    :param args: Positional arguments for ``function``.
+    :param kwargs: Keyword arguments for ``function``.
+    :param use_masks: If ``False``, the wrapper only calls ``function(*args,
+                      **kwargs)``.
+    :param preprocessing_kwargs: Keyword arguments for the preprocessing
+                                 function.
+    :param postprocessing_kwargs: Keyword arguments for the postprocessing
+                                  function.
+    """
+    if use_masks:
+        (
+            image_array,
+            background_3D,
+            current_label_region,
+        ) = preprocess_cellpose_input(image_array, **preprocessing_kwargs)
+
+    new_label_img = function(image_array, **kwargs)
+
+    if use_masks:
+        new_label_img = postprocess_cellpose_output(
+            modified_array=new_label_img,
+            original_array=current_label_region,
+            background=background_3D,
+        )
+
+    return new_label_img
 
 
 def segment_ROI(
@@ -374,20 +368,23 @@ def cellpose_segmentation(
     channel_label: Optional[str] = None,
     wavelength_id_c2: Optional[str] = None,
     channel_label_c2: Optional[str] = None,
+    ROI_table_name: str = "FOV_ROI_table",  # FIXME: input_ROI_table (in all tasks)
+    bounding_box_ROI_table_name: Optional[
+        str
+    ] = None,  # FIXME: output_ROI_table (in all tasks) e.g. "organoids", "organoids_roi"
+    output_label_name: Optional[str] = None,  # "organoids"
+    use_masks: bool = True,
     relabeling: bool = True,
+    # Cellpose-related arguments
     anisotropy: Optional[float] = None,
     diameter_level0: float = 30.0,
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
-    ROI_table_name: str = "FOV_ROI_table",
-    bounding_box_ROI_table_name: Optional[str] = None,
-    output_label_name: Optional[str] = None,
     model_type: str = "cyto2",
     pretrained_model: Optional[str] = None,
     min_size: int = 15,
     augment: bool = False,
     net_avg: bool = False,
-    use_masks: bool = False,
 ) -> Dict[str, Any]:
     """
     Run cellpose segmentation on the ROIs of a single OME-NGFF image
@@ -424,6 +421,11 @@ def cellpose_segmentation(
                           For dual channel segmentation of cells,
                           the first channel should contain the membrane marker,
                           the second channel should contain the nuclear marker.
+    :param ROI_table_name: name of the table that contains ROIs to which the
+                           task applies Cellpose segmentation
+    :param bounding_box_ROI_table_name: TBD
+    :param use_masks: FIXME docstring
+    :param output_label_name: TBD
     :param relabeling: If ``True``, apply relabeling so that label values are
                        unique across ROIs.
     :param anisotropy: Ratio of the pixel sizes along Z and XY axis (ignored if
@@ -432,10 +434,6 @@ def cellpose_segmentation(
     :param diameter_level0: Initial diameter to be passed to
                             ``CellposeModel.eval`` method (after rescaling from
                             full-resolution to ``level``).
-    :param ROI_table_name: name of the table that contains ROIs to which the
-                           task applies Cellpose segmentation
-    :param bounding_box_ROI_table_name: TBD
-    :param output_label_name: TBD
     :param cellprob_threshold: Parameter of ``CellposeModel.eval`` method.
     :param flow_threshold: Parameter of ``CellposeModel.eval`` method.
     :param model_type: Parameter of ``CellposeModel`` class.
@@ -448,7 +446,6 @@ def cellpose_segmentation(
     :param net_avg: Whether to use cellpose net averaging to run the 4 built-in
                     networks (useful for nuclei, cyto & cyto2, not sure it
                     works for the others)
-    :param use_masks: FIXME docstring
     """
 
     # Set input path
@@ -531,6 +528,26 @@ def cellpose_segmentation(
 
     # Read ROI table
     ROI_table = ad.read_zarr(f"{zarrurl}tables/{ROI_table_name}")
+
+    if use_masks:
+        pass
+        # zarr_group_table = zarr.open_group(
+        # f"{zarrurl}tables/{ROI_table_name}"
+        # )
+        # FIXME: check that some required metadata are there in the zarr group
+        # else: fail
+        # TODO: make it an external function
+        # attrs check
+        # 1) type
+        # 2) region
+        # 3) instance_key
+        # anndata content:
+        # 4) columns must include (i.e. the 6 xyz columns)
+        #        "x_micrometer", y, z..
+        #        "len_x_micrometer", y, z..
+
+        # If 4 is good but not 1+2+3, then set use_masks=False
+        # If 4 is bad, fail
 
     # Read pixel sizes from zattrs file
     full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
@@ -706,7 +723,9 @@ def cellpose_segmentation(
         # Execute cellpose segmentation
         if wavelength_id_c2 or channel_label_c2:
             # Dual channel mode, first channel is the membrane channel
-            img_np = np.zeros((2, *data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].shape))
+            img_np = np.zeros(
+                (2, *data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].shape)
+            )  # FIXME: use region
             img_np[0, :, :, :] = data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].compute()
             img_np[1, :, :, :] = data_zyx_c2[
                 s_z:e_z, s_y:e_y, s_x:e_x
@@ -718,17 +737,8 @@ def cellpose_segmentation(
             )
             channels = [0, 0]
 
-        img_np, background_3D, current_label = preprocess_cellpose_input(
-            image_array=img_np,
-            use_masks=use_masks,
-            region=region,
-            current_label_path=f"{zarrurl}labels/{output_label_name}/0",  # FIXME: which level? # noqa
-            ROI_table_path=f"{zarrurl}tables/{ROI_table_name}",
-            ROI_index=i_ROI,
-        )
-
-        new_label_img = segment_ROI(
-            img_np,
+        #  ...
+        kwargs_segment_ROI = dict(
             model=model,
             channels=channels,
             do_3D=do_3D,
@@ -742,11 +752,22 @@ def cellpose_segmentation(
             net_avg=net_avg,
         )
 
-        new_label_img = postprocess_cellpose_output(
+        if use_masks:
+            preprocessing_kwargs = dict(
+                region=region,
+                current_label_path=f"{zarrurl}labels/{output_label_name}/0",
+                ROI_table_path=f"{zarrurl}tables/{ROI_table_name}",
+                ROI_index=i_ROI,
+            )
+        else:
+            preprocessing_kwargs = {}
+
+        new_label_img = wrap_function_with_masking(
+            function=segment_ROI,
+            kwargs=kwargs_segment_ROI,
+            image_array=img_np,
             use_masks=use_masks,
-            modified_array=new_label_img,
-            original_array=current_label,
-            background=background_3D,
+            preprocessing_kwargs=preprocessing_kwargs,
         )
 
         # Shift labels and update relabeling counters
