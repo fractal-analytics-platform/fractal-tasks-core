@@ -55,7 +55,6 @@ for component in metadata["image"]:
         relabeling=True,
         diameter_level0=20.0,
         ROI_table_name="organoids_bbox_table",
-        primary_label_name="organoids",
         output_label_name="nuclei_in_organoids",
         model_type="nuclei",
         flow_threshold=0.4,
