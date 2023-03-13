@@ -45,6 +45,7 @@ from fractal_tasks_core.lib_regions_of_interest import (
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
+from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
 from fractal_tasks_core.lib_ROI_overlaps import get_overlapping_pairs_3D
 from fractal_tasks_core.lib_upscale_array import convert_region_to_low_res
 from fractal_tasks_core.lib_upscale_array import upscale_array
@@ -554,6 +555,15 @@ def cellpose_segmentation(
         full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
         reset_origin=reset_origin,
     )
+
+    # If we are not planning to use masked loading, fail for overlapping ROIs
+    if not use_masks:
+        overlap = find_overlaps_in_ROI_indices(list_indices)
+        if overlap:
+            raise ValueError(
+                f"ROI indices created from {ROI_table_name} table have "
+                "overlaps, but we are not using masked loading."
+            )
 
     # Select 2D/3D behavior and set some parameters
     do_3D = data_zyx.shape[0] > 1
