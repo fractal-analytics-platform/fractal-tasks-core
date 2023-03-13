@@ -45,6 +45,7 @@ from fractal_tasks_core.lib_regions_of_interest import (
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
+from fractal_tasks_core.lib_regions_of_interest import is_ROI_table_valid
 from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
 from fractal_tasks_core.lib_ROI_overlaps import get_overlapping_pairs_3D
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
@@ -310,27 +311,18 @@ def cellpose_segmentation(
         logger.info(f"Second channel: {data_zyx_c2.shape=}")
 
     # Read ROI table
-    ROI_table = ad.read_zarr(f"{zarrurl}tables/{input_ROI_table}")
+    ROI_table_path = f"{zarrurl}tables/{input_ROI_table}"
+    ROI_table = ad.read_zarr(ROI_table_path)
 
-    if use_masks:
-        pass
-        # zarr_group_table = zarr.open_group(
-        # f"{zarrurl}tables/{input_ROI_table}"
-        # )
-        # FIXME: check that some required metadata are there in the zarr group
-        # else: fail
-        # TODO: make it an external function
-        # attrs check
-        # 1) type
-        # 2) region
-        # 3) instance_key
-        # anndata content:
-        # 4) columns must include (i.e. the 6 xyz columns)
-        #        "x_micrometer", y, z..
-        #        "len_x_micrometer", y, z..
-
-        # If 4 is good but not 1+2+3, then set use_masks=False
-        # If 4 is bad, fail
+    # Perform some checks on the ROI table
+    valid_ROI_table = is_ROI_table_valid(
+        table_path=ROI_table_path, use_masks=use_masks
+    )
+    if use_masks and not valid_ROI_table:
+        logger.info(
+            f"ROI table at {ROI_table_path} cannot be used for masked "
+            "loading. Set use_masks=False."
+        )
 
     # Read pixel sizes from zattrs file
     full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
@@ -539,7 +531,7 @@ def cellpose_segmentation(
             preprocessing_kwargs = dict(
                 region=region,
                 current_label_path=f"{zarrurl}labels/{output_label_name}/0",
-                ROI_table_path=f"{zarrurl}tables/{input_ROI_table}",
+                ROI_table_path=ROI_table_path,
                 ROI_index=i_ROI,
             )
         else:

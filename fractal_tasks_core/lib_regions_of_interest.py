@@ -14,12 +14,15 @@ Copyright 2022 (C)
 
 Functions to handle regions of interests (via pandas and AnnData)
 """
+import logging
 from typing import List
+from typing import Optional
 from typing import Sequence
 
 import anndata as ad
 import numpy as np
 import pandas as pd
+import zarr
 
 
 def prepare_FOV_ROI_table(
@@ -341,3 +344,59 @@ def array_to_bounding_box_table(
     df["label"] = labels
 
     return df
+
+
+def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
+    """
+    Verify some validity assumptions on a ROI table
+
+    This function reflects our current working assumptions (e.g. the presence
+    of some specific columns); this may change in future versions.
+
+    If ``use_masks=True``, we verify that the table is suitable to be used as
+    part of our masked-loading functions (see ``lib_masked_loading.py``); if
+    these checks fail, ``use_masks`` should be set to ``False`` upstream in the
+    parent function.
+
+    :param table_path: Path of the AnnData ROI table to be checked.
+    :param use_masks: If ``True``, perform some additional checks related to
+                      masked loading.
+    :return: Always ``None`` if ``use_masks=False``, otherwise return whether
+             the table is valid for masked loading.
+    """
+
+    # Hard constraint: table columns must include some expected ones
+    table = ad.read_zarr(table_path)
+    columns = [
+        "x_micrometer",
+        "y_micrometer",
+        "z_micrometer",
+        "len_x_micrometer",
+        "len_y_micrometer",
+        "len_z_micrometer",
+    ]
+    for column in columns:
+        if column not in table.var_names:
+            raise ValueError(f"Column {column} is not present in ROI table")
+    if not use_masks:
+        return None
+
+    # Soft constraint: the table can be used for masked loading (if not, return
+    # False)
+    attrs = zarr.group(table_path).attrs
+    logging.info("ROI table at {table_path} have attrs: {attrs}")
+    valid = set(("type", "region", "instance_key")).issubset(attrs.keys())
+    if valid:
+        valid = valid and attrs["type"] == "ngff:region_table"
+        valid = valid and "path" in attrs["region"].keys()
+    if valid:
+        logging.info(
+            f"ROI table at {table_path} can be used for masked loading."
+        )
+        return True
+    else:
+        logging.info(
+            f"ROI table at {table_path} cannot be used for masked loading."
+            " Set use_masks=False."
+        )
+        return False
