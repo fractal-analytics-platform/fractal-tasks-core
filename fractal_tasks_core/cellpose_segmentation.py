@@ -64,8 +64,7 @@ def preprocess_cellpose_input(
     use_masks: bool = False,
     region: Optional[Tuple[slice]] = None,
     current_label_path: Optional[str] = None,
-    primary_label_path: Optional[str] = None,
-    ROI_table_obs: Optional[pd.DataFrame] = None,
+    ROI_table_path: Optional[str] = None,
     ROI_index: Optional[int] = None,
 ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray]]:
     """
@@ -83,11 +82,14 @@ def preprocess_cellpose_input(
     - Loading the array which will be needed in postprocessing to restore
       background.
 
-    **FIXME 1**: review/improve variable names
+    **FIXME 1**: Review/improve variable names
 
-    **FIXME 2**: make this function more flexible, and move it to a separate
+    **FIXME 2**: Make this function more flexible, and move it to a separate
     module (see `issue 340
     <https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/340>`_).
+
+    **FIXME 3**: This function relies on a proposed change to OME-NGFF table
+    specs (https://github.com/ome/ngff/pull/64).
 
     Current naming of variables refers to a two-steps labeling ("first identify
     organoids, then look for nuclei inside each organoid") :
@@ -106,9 +108,6 @@ def preprocess_cellpose_input(
     :param current_label_path: Path to the image used as current
                                label, in a form like
                                ``/somewhere/plate.zarr/A/01/0/labels/nuclei_in_organoids/0``.
-    :param primary_label_path: Path to the image used as primary
-                               label, in a form like
-                               ``/somewhere/plate.zarr/A/01/0/labels/organoids/0``.
     :param ROI_table_obs: ``obs`` attribute of the AnnData table for the
                           primary-label ROIs; this is used (together with
                           ``ROI_index``) to extract ``label_value``.
@@ -131,27 +130,47 @@ def preprocess_cellpose_input(
         )
 
     # Check that all optional arguments are non-None
-    optional_args = (region, current_label_path, primary_label_path, ROI_index)
-    if None in optional_args or ROI_table_obs is None:
+    optional_args = (
+        region,
+        current_label_path,
+        ROI_index,
+        ROI_table_path,
+    )
+
+    if None in optional_args:
         raise ValueError(
             f"Wrong arguments for preprocess_cellpose_input:\n"
             f"{use_masks=}\n"
-            f"{primary_label_path=}\n"
             f"{current_label_path=}\n, "
             f"{ROI_index=}\n"
             f"{region=}\n"
-            f"{ROI_table_obs=}"
+            f"{ROI_table_path=}"
         )
 
-    # Check that ROI_table_obs has the "label" column and extract label_value
-    if "label" not in ROI_table_obs.columns:
+    # Load the ROI table and its metadata attributes
+    ROI_table = ad.read_zarr(ROI_table_path)
+    ROI_table_obs = ROI_table.obs
+    attrs = zarr.group(ROI_table_path).attrs
+    if not attrs["type"] == "ngff:region_table":
+        raise ValueError("Wrong attributes for {ROI_table_path}:\n{attrs}")
+    label_relative_path = attrs["region"]["path"]
+    column_name = attrs["instance_key"]
+    print(label_relative_path)
+    print(column_name)
+
+    # Check that ROI_table_obs has the right column and extract label_value
+    if column_name not in ROI_table_obs.columns:
         raise ValueError(
-            'In preprocess_cellpose_input, "label" '
+            'In preprocess_cellpose_input, "{column_name}" '
             f" missing in {ROI_table_obs.columns=}"
         )
-    label_value = int(ROI_table_obs.label[ROI_index])
+    label_value = int(ROI_table_obs[column_name][ROI_index])
 
     # Load primary/current label arrays (lazily), and check shapes
+    primary_label_path = str(
+        Path(ROI_table_path).parent / label_relative_path / "0"
+    )
+    logger.critical(f"{primary_label_path=}")
     primary_label_array = da.from_zarr(primary_label_path)
     current_label_array = da.from_zarr(current_label_path)
     logger.info(
@@ -693,9 +712,9 @@ def cellpose_segmentation(
             image_array=img_np,
             use_masks=use_masks,
             region=region,
-            primary_label_path=f"{zarrurl}labels/{primary_label_name}/0",  # FIXME: which level? # noqa
+            # primary_label_path=f"{zarrurl}labels/{primary_label_name}/0",  # FIXME: which level? # noqa
             current_label_path=f"{zarrurl}labels/{output_label_name}/0",  # FIXME: which level? # noqa
-            ROI_table_obs=ROI_table.obs,
+            ROI_table_path=f"{zarrurl}tables/{ROI_table_name}",
             ROI_index=i_ROI,
         )
 
@@ -805,7 +824,11 @@ def cellpose_segmentation(
             "Bounding box ROI table written to "
             f"{in_path}/{component}/tables/{bounding_box_ROI_table_name}"
         )
-        # Update OME-NGFF metadata
+
+        # WARNING: the following OME-NGFF metadata are based on a proposed
+        # change to the specs (https://github.com/ome/ngff/pull/64)
+
+        # Update OME-NGFF metadata for tables group
         if "tables" in group_tables.attrs.keys():
             current_tables = group_tables.attrs["tables"]
         else:
@@ -818,13 +841,16 @@ def cellpose_segmentation(
             )
         new_tables = current_tables + [bounding_box_ROI_table_name]
         group_tables.attrs["tables"] = new_tables
-        # Add OME-NGFF metadata, as of https://github.com/ome/ngff/pull/64
-        # FIXME implement this bloc on table metadata
-        # bbox_table_group = zarr.group(
-        #         f"{in_path}/{component}/tables/{bounding_box_ROI_table_name}"
-        #         )
-        # bbox_table_group.attrs["type"] = "ngff:region_table"
-        # bbox_table_group.attrs["region"] = ["path"]
+
+        # Update OME-NGFF metadata for current-table group
+        bbox_table_group = zarr.group(
+            f"{in_path}/{component}/tables/{bounding_box_ROI_table_name}"
+        )
+        bbox_table_group.attrs["type"] = "ngff:region_table"
+        bbox_table_group.attrs["region"] = {
+            "path": f"../labels/{output_label_name}"
+        }
+        bbox_table_group.attrs["instance_key"] = "label"
 
     return {}
 
