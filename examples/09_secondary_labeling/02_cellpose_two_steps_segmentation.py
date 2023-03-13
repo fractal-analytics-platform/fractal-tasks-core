@@ -32,12 +32,12 @@ for component in metadata["image"]:
         level=3,
         relabeling=True,
         diameter_level0=400.0,
-        ROI_table_name="well_ROI_table",
+        input_ROI_table="well_ROI_table",
         cellprob_threshold=-3.0,
         flow_threshold=0.4,
         pretrained_model="model/Hummingbird.331986",
         output_label_name="organoids",
-        bounding_box_ROI_table_name="organoids_bbox_table",
+        output_ROI_table="organoids_bbox_table",
         use_masks=False,
     )
 
@@ -54,7 +54,7 @@ for component in metadata["image"]:
         level=2,
         relabeling=True,
         diameter_level0=20.0,
-        ROI_table_name="organoids_bbox_table",
+        input_ROI_table="organoids_bbox_table",
         output_label_name="nuclei_in_organoids",
         model_type="nuclei",
         flow_threshold=0.4,

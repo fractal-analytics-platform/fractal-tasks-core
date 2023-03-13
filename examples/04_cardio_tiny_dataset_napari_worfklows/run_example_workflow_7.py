@@ -127,6 +127,6 @@ for component in metadata["image"]:
         input_specs=input_specs,
         output_specs=output_specs,
         workflow_file=workflow_file,
-        ROI_table_name="FOV_ROI_table",
+        input_ROI_table="FOV_ROI_table",
     )
 debug(metadata)

@@ -21,6 +21,6 @@
     "level": 0,
     "wavelength_id": "A01_C01",
     "output_label_name": "nuclei",
-    "ROI_table_name": "well_ROI_table",
+    "input_ROI_table": "well_ROI_table",
     "component": "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr/B/03/0/"
 }

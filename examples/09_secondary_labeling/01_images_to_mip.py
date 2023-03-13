@@ -85,7 +85,7 @@ metadata_update = copy_ome_zarr(
     metadata=metadata,
     project_to_2D=True,
     suffix="mip",
-    ROI_table_names=["well_ROI_table", "FOV_ROI_table"],
+    input_ROI_tables=["well_ROI_table", "FOV_ROI_table"],
 )
 metadata.update(metadata_update)
 debug(metadata)

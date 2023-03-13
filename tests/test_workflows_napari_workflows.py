@@ -100,7 +100,7 @@ def test_napari_workflow(
             input_specs=input_specs,
             output_specs=output_specs,
             workflow_file=workflow_file,
-            ROI_table_name="FOV_ROI_table",
+            input_ROI_table="FOV_ROI_table",
             level=2,
         )
     debug(metadata)
@@ -126,7 +126,7 @@ def test_napari_workflow(
             input_specs=input_specs,
             output_specs=output_specs,
             workflow_file=workflow_file,
-            ROI_table_name="FOV_ROI_table",
+            input_ROI_table="FOV_ROI_table",
         )
     debug(metadata)
 
@@ -190,7 +190,7 @@ def test_napari_worfklow_label_input_only(
             input_specs=input_specs,
             output_specs=output_specs,
             workflow_file=workflow_file,
-            ROI_table_name="FOV_ROI_table",
+            input_ROI_table="FOV_ROI_table",
             level=2,
         )
     debug(metadata)
@@ -217,7 +217,7 @@ def test_napari_worfklow_label_input_only(
             input_specs=input_specs,
             output_specs=output_specs,
             workflow_file=workflow_file,
-            ROI_table_name="FOV_ROI_table",
+            input_ROI_table="FOV_ROI_table",
         )
     debug(metadata)
 
@@ -304,7 +304,7 @@ def test_relabeling(
                 input_specs=RELABELING_CASE_1[1],
                 output_specs=RELABELING_CASE_1[2],
                 workflow_file=workflow_file,
-                ROI_table_name="FOV_ROI_table",
+                input_ROI_table="FOV_ROI_table",
             )
 
     # Run napari-workflow
@@ -323,7 +323,7 @@ def test_relabeling(
             input_specs=input_specs,
             output_specs=output_specs,
             workflow_file=workflow_file,
-            ROI_table_name="FOV_ROI_table",
+            input_ROI_table="FOV_ROI_table",
         )
     debug(metadata)
 
@@ -376,7 +376,7 @@ def test_fail_if_no_relabeling(
             input_specs=input_specs,
             output_specs=output_specs,
             workflow_file=workflow_file,
-            ROI_table_name="FOV_ROI_table",
+            input_ROI_table="FOV_ROI_table",
             relabeling=False,
         )
     debug(metadata)
@@ -448,7 +448,7 @@ def test_expected_dimensions(
             input_specs=input_specs,
             output_specs=output_specs,
             workflow_file=workflow_file,
-            ROI_table_name="FOV_ROI_table",
+            input_ROI_table="FOV_ROI_table",
             level=3,
             expected_dimensions=expected_dimensions,
         )

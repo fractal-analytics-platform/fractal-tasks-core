@@ -30,7 +30,7 @@ def test_input_specs(tmp_path, testdata_path):
             input_specs=input_specs,
             output_specs=output_specs,
             workflow_file=workflow_file,
-            ROI_table_name="FOV_ROI_table",
+            input_ROI_table="FOV_ROI_table",
         )
 
 
@@ -59,7 +59,7 @@ def test_output_specs(tmp_path, testdata_path, caplog):
             input_specs=input_specs,
             output_specs=output_specs,
             workflow_file=workflow_file,
-            ROI_table_name="FOV_ROI_table",
+            input_ROI_table="FOV_ROI_table",
         )
     except Exception:
         # The task will now fail for some other reason (its arguments are not
@@ -101,6 +101,6 @@ def test_level_setting_in_non_labeling_worfklow(tmp_path, testdata_path):
             input_specs=input_specs,
             output_specs=output_specs,
             workflow_file=workflow_file,
-            ROI_table_name="FOV_ROI_table",
+            input_ROI_table="FOV_ROI_table",
             level=2,
         )

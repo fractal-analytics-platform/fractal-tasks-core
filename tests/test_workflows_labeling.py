@@ -468,7 +468,7 @@ def test_workflow_with_per_well_labeling_2D(
             component=component,
             wavelength_id="A01_C01",
             level=2,
-            ROI_table_name="well_ROI_table",
+            input_ROI_table="well_ROI_table",
             relabeling=True,
             diameter_level0=80.0,
         )
@@ -527,7 +527,7 @@ def test_workflow_bounding_box(
             level=3,
             relabeling=True,
             diameter_level0=80.0,
-            bounding_box_ROI_table_name="bbox_table",
+            output_ROI_table="bbox_table",
         )
 
     bbox_ROIs = ad.read_zarr(
@@ -582,7 +582,7 @@ def test_workflow_bounding_box_with_overlap(
             level=3,
             relabeling=True,
             diameter_level0=80.0,
-            bounding_box_ROI_table_name="bbox_table",
+            output_ROI_table="bbox_table",
         )
         debug(caplog.text)
         assert "bounding-box pairs overlap" in caplog.text
