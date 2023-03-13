@@ -208,8 +208,9 @@ def cellpose_segmentation(
                            task applies Cellpose segmentation
     :param output_ROI_table: If provided, compute bounding-box ROIs for labels
                              and store them in ths ``output_ROI_table` table.
-    :param use_masks: FIXME docstring
-    :param output_label_name: TBD
+    :param use_masks: If ``True``, try to use masked loading and fall back
+                      to ``use_masks=False`` if the ROI table is not suitable.
+    :param output_label_name: FIXME
     :param relabeling: If ``True``, apply relabeling so that label values are
                        unique across ROIs.
     :param anisotropy: Ratio of the pixel sizes along Z and XY axis (ignored if
@@ -223,13 +224,13 @@ def cellpose_segmentation(
     :param model_type: Parameter of ``CellposeModel`` class.
     :param pretrained_model: Parameter of ``CellposeModel`` class (takes
                              precedence over ``model_type``).
-    :param min_size: Minimum size of the segmented objects (in pixels).
-                     Use -1 to turn off the size filter
-    :param agument: Whether to use cellpose augmentation to tile images
-                    with overlap
+    :param min_size: Minimum size of the segmented objects (in pixels). Use -1
+                     to turn off the size filter.
+    :param augment: Whether to use cellpose augmentation to tile images with
+                    overlap.
     :param net_avg: Whether to use cellpose net averaging to run the 4 built-in
                     networks (useful for nuclei, cyto & cyto2, not sure it
-                    works for the others)
+                    works for the others).
     """
 
     # Set input path
