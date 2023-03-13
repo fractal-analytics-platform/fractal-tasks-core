@@ -205,12 +205,13 @@ def cellpose_segmentation(
                           the first channel should contain the membrane marker,
                           the second channel should contain the nuclear marker.
     :param input_ROI_table: Name of the table that contains ROIs to which the
-                           task applies Cellpose segmentation
-    :param output_ROI_table: If provided, compute bounding-box ROIs for labels
-                             and store them in ths ``output_ROI_table` table.
+                           task applies Cellpose segmentation (e.g.
+                           ``"organoid_rois"``).
+    :param output_ROI_table: If provided, the name of the ROI table to store
+                             label bounding boxes.
     :param use_masks: If ``True``, try to use masked loading and fall back
                       to ``use_masks=False`` if the ROI table is not suitable.
-    :param output_label_name: FIXME
+    :param output_label_name: Name of the output label (e.g. ``"organoids"``).
     :param relabeling: If ``True``, apply relabeling so that label values are
                        unique across ROIs.
     :param anisotropy: Ratio of the pixel sizes along Z and XY axis (ignored if
