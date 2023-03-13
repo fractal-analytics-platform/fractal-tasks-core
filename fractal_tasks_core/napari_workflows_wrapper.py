@@ -571,10 +571,7 @@ def napari_workflows_wrapper(
         group_tables = zarr.group(f"{in_path}/{component}/tables/")
         write_elem(group_tables, table_name, measurement_table)
         # Update OME-NGFF metadata
-        if "tables" in group_tables.attrs.keys():
-            current_tables = group_tables.attrs["tables"]
-        else:
-            current_tables = []
+        current_tables = group_tables.attrs.asdict().get("tables") or []
         if table_name in current_tables:
             # FIXME: move this check to an earlier stage of the task
             raise ValueError(

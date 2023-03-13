@@ -829,10 +829,7 @@ def cellpose_segmentation(
         # change to the specs (https://github.com/ome/ngff/pull/64)
 
         # Update OME-NGFF metadata for tables group
-        if "tables" in group_tables.attrs.keys():
-            current_tables = group_tables.attrs["tables"]
-        else:
-            current_tables = []
+        current_tables = group_tables.attrs.asdict().get("tables") or []
         if bounding_box_ROI_table_name in current_tables:
             # FIXME: move this check to an earlier stage of the task
             raise ValueError(
