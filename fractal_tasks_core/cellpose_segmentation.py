@@ -490,7 +490,6 @@ def cellpose_segmentation(
     for i_ROI, indices in enumerate(list_indices):
         # Define region
         s_z, e_z, s_y, e_y, s_x, e_x = indices[:]
-        # FIXME: use "region", below, instead of the indices
         region = (
             slice(s_z, e_z),
             slice(s_y, e_y),
@@ -500,21 +499,15 @@ def cellpose_segmentation(
         # Execute cellpose segmentation
         if wavelength_id_c2 or channel_label_c2:
             # Dual channel mode, first channel is the membrane channel
-            img_np = np.zeros(
-                (2, *data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].shape)
-            )  # FIXME: use region
-            img_np[0, :, :, :] = data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].compute()
-            img_np[1, :, :, :] = data_zyx_c2[
-                s_z:e_z, s_y:e_y, s_x:e_x
-            ].compute()
+            img_np = np.zeros((2, *data_zyx[region].shape))
+            img_np[0, :, :, :] = data_zyx[region].compute()
+            img_np[1, :, :, :] = data_zyx_c2[region].compute()
             channels = [1, 2]
         else:
-            img_np = np.expand_dims(
-                data_zyx[s_z:e_z, s_y:e_y, s_x:e_x].compute(), axis=0
-            )
+            img_np = np.expand_dims(data_zyx[region].compute(), axis=0)
             channels = [0, 0]
 
-        #  ...
+        #  FIXME: improve comments
         kwargs_segment_ROI = dict(
             model=model,
             channels=channels,
