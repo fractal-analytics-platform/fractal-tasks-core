@@ -166,17 +166,19 @@ def preprocess_cellpose_input(
         )
     label_value = int(ROI_table_obs[column_name][ROI_index])
 
-    # Load masking/current label arrays (lazily), and check shapes
+    # Load masking-label array (lazily)
     masking_label_path = str(
         Path(ROI_table_path).parent / label_relative_path / "0"
     )
     logger.critical(f"{masking_label_path=}")
     masking_label_array = da.from_zarr(masking_label_path)
-    current_label_array = da.from_zarr(current_label_path)
     logger.info(
         f"[preprocess_cellpose_input] {masking_label_path=}, "
         f"{masking_label_array.shape=}"
     )
+
+    # Load current-label array (lazily)
+    current_label_array = da.from_zarr(current_label_path)
     logger.info(
         f"[preprocess_cellpose_input] {current_label_path=}, "
         f"{current_label_array.shape=}"
