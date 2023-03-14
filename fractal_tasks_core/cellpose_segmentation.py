@@ -534,7 +534,7 @@ def cellpose_segmentation(
                 region=region,
                 current_label_path=f"{zarrurl}/labels/{output_label_name}/0",
                 ROI_table_path=ROI_table_path,
-                ROI_index=i_ROI,
+                ROI_positional_index=i_ROI,
             )
 
         # Call segment_ROI through the masked-loading wrapper, which includes

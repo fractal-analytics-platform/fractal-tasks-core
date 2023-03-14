@@ -32,13 +32,13 @@ logger = logging.getLogger(__name__)
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
 
-def preprocess_cellpose_input(
+def _preprocess_input(
     image_array: np.ndarray,
     *,
-    region: tuple[slice] = None,
-    current_label_path: str = None,
-    ROI_table_path: str = None,
-    ROI_index: int = None,  # FIXME: naming?
+    region: tuple[slice],
+    current_label_path: str,
+    ROI_table_path: str,
+    ROI_positional_index: int,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Preprocess a four-dimensional cellpose input
@@ -54,44 +54,44 @@ def preprocess_cellpose_input(
     - Loading the array which will be needed in postprocessing to restore
       background.
 
-    **FIXME 1**: Review/improve variable names
+    **NOTE 1**: This function relies on a change to OME-NGFF table specs
+    (https://github.com/ome/ngff/pull/64) which is still in-progress.
 
-    **FIXME 2**: Make this function more flexible, and move it to a separate
-    module (see `issue 340
-    <https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/340>`_).
+    **NOTE 2**: The pre/post-processing functions and the
+    masked_loading_wrapper are currently meant to work as part of the
+    cellpose_segmentation task, with the plan of then making them more
+    flexible; see
+    https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/340.
 
-    **FIXME 3**: This function relies on a proposed change to OME-NGFF table
-    specs (https://github.com/ome/ngff/pull/64).
-
-    Current naming of variables refers to a two-steps labeling ("first identify
+    Naming of variables refers to a two-steps labeling, as in "first identify
     organoids, then look for nuclei inside each organoid") :
 
-    - "masking" refers to the labels that are used to identify the object vs
-      background (e.g. the organoid labels); these labels already exist.
-    - "current" refers to the labels that are currently being computed in the
-      `cellpose_segmentation` task, e.g. the nuclear labels.
+    - ``"masking"`` refers to the labels that are used to identify the object
+      vs background (e.g. the organoid labels); these labels already exist.
+    - ``"current"`` refers to the labels that are currently being computed in
+      the ``cellpose_segmentation`` task, e.g. the nuclear labels.
 
-
-    :param image_array: 4D CZYX array with image data for a specific ROI.
-    :param region: The ZYX indices to be used, in a form like ``(slice(0, 1),
+    :param image_array: The 4D CZYX array with image data for a specific ROI.
+    :param region: The ZYX indices of the ROI, in a form like ``(slice(0, 1),
                    slice(1000, 2000), slice(1000, 2000))``.
     :param current_label_path: Path to the image used as current
                                label, in a form like
                                ``/somewhere/plate.zarr/A/01/0/labels/nuclei_in_organoids/0``.
     :param ROI_table_obs: ``obs`` attribute of the AnnData table for the
                           masking-label ROIs; this is used (together with
-                          ``ROI_index``) to extract ``label_value``.
-    :param ROI_index: index of the current ROI, which is used to extract
-                      ``label_value`` from ``ROI_table_obs``.
+                          ``ROI_positional_index``) to extract ``label_value``.
+    :param ROI_positional_index: Index of the current ROI, which is used to
+                                 extract ``label_value`` from
+                                 ``ROI_table_obs``.
     """
 
-    logger.info(f"[preprocess_cellpose_input] {image_array.shape=}")
-    logger.info(f"[preprocess_cellpose_input] {region=}")
+    logger.info(f"[_preprocess_input] {image_array.shape=}")
+    logger.info(f"[_preprocess_input] {region=}")
 
     # Check that image data are 4D (CZYX) - FIXME issue 340
     if not image_array.ndim == 4:
         raise ValueError(
-            "preprocess_cellpose_input requires a 4D "
+            "_preprocess_input requires a 4D "
             f"image_array argument, but {image_array.shape=}"
         )
 
@@ -99,8 +99,8 @@ def preprocess_cellpose_input(
     ROI_table = ad.read_zarr(ROI_table_path)
     ROI_table_obs = ROI_table.obs
     attrs = zarr.group(ROI_table_path).attrs
-    logger.info(f"[preprocess_cellpose_input] {ROI_table_path=}")
-    logger.info(f"[preprocess_cellpose_input] {attrs.asdict()=}")
+    logger.info(f"[_preprocess_input] {ROI_table_path=}")
+    logger.info(f"[_preprocess_input] {attrs.asdict()=}")
     if not attrs["type"] == "ngff:region_table":
         raise ValueError("Wrong attributes for {ROI_table_path}:\n{attrs}")
     label_relative_path = attrs["region"]["path"]
@@ -109,10 +109,10 @@ def preprocess_cellpose_input(
     # Check that ROI_table_obs has the right column and extract label_value
     if column_name not in ROI_table_obs.columns:
         raise ValueError(
-            'In preprocess_cellpose_input, "{column_name}" '
+            'In _preprocess_input, "{column_name}" '
             f" missing in {ROI_table_obs.columns=}"
         )
-    label_value = int(ROI_table_obs[column_name][ROI_index])
+    label_value = int(ROI_table_obs[column_name][ROI_positional_index])
 
     # Load masking-label array (lazily)
     masking_label_path = str(
@@ -121,14 +121,14 @@ def preprocess_cellpose_input(
     logger.critical(f"{masking_label_path=}")
     masking_label_array = da.from_zarr(masking_label_path)
     logger.info(
-        f"[preprocess_cellpose_input] {masking_label_path=}, "
+        f"[_preprocess_input] {masking_label_path=}, "
         f"{masking_label_array.shape=}"
     )
 
     # Load current-label array (lazily)
     current_label_array = da.from_zarr(current_label_path)
     logger.info(
-        f"[preprocess_cellpose_input] {current_label_path=}, "
+        f"[_preprocess_input] {current_label_path=}, "
         f"{current_label_array.shape=}"
     )
 
@@ -179,20 +179,20 @@ def preprocess_cellpose_input(
     return (image_array, background_3D, current_label_region)
 
 
-def postprocess_cellpose_output(
+def _postprocess_output(
     *,
     modified_array: np.ndarray,
     original_array: np.ndarray,
     background: np.ndarray,
 ) -> np.ndarray:
     """
-    Postprocess a cellpose input, mainly to restore its original background
+    Postprocess cellpose output, mainly to restore its original background
 
-    **FIXME 1**: review/improve variable names
-
-    **FIXME 2**: make this function more flexible, and move it to a separate
-    module (see `issue 340
-    <https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/340>`_).
+    **NOTE**: The pre/post-processing functions and the
+    masked_loading_wrapper are currently meant to work as part of the
+    cellpose_segmentation task, with the plan of then making them more
+    flexible; see
+    https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/340.
 
     :param modified_array: The 3D (ZYX) array with the correct object data and
                            wrong background data.
@@ -201,7 +201,6 @@ def postprocess_cellpose_output(
     :param background: The 3D (ZYX) boolean array that defines the
                        background.
     """
-
     # Restore background
     modified_array[background] = original_array[background]
     return modified_array
@@ -219,27 +218,31 @@ def masked_loading_wrapper(
     Wrap a function with some pre/post-processing functions
 
     :param function: The callable function to be wrapped.
-    :param args: Positional arguments for ``function``.
+    :param image_array: The image array to be preprocessed and then used as
+                        positional argument for ``function``.
     :param kwargs: Keyword arguments for ``function``.
     :param use_masks: If ``False``, the wrapper only calls ``function(*args,
                       **kwargs)``.
     :param preprocessing_kwargs: Keyword arguments for the preprocessing
-                                 function.
+                                 function (see call signature of
+                                 ``_preprocess_input()``).
     """
+    # Optional preprocessing
     if use_masks:
+        preprocessing_kwargs = preprocessing_kwargs or {}
         (
             image_array,
             background_3D,
             current_label_region,
-        ) = preprocess_cellpose_input(image_array, **preprocessing_kwargs)
-
+        ) = _preprocess_input(image_array, **preprocessing_kwargs)
+    # Run function
+    kwargs = kwargs or {}
     new_label_img = function(image_array, **kwargs)
-
+    # Optional postprocessing
     if use_masks:
-        new_label_img = postprocess_cellpose_output(
+        new_label_img = _postprocess_output(
             modified_array=new_label_img,
             original_array=current_label_region,
             background=background_3D,
         )
-
     return new_label_img
