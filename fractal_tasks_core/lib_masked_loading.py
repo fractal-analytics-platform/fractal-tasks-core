@@ -207,14 +207,13 @@ def postprocess_cellpose_output(
     return modified_array
 
 
-def wrap_function_with_masking(
+def masked_loading_wrapper(
     *,
     function: Callable,
     image_array: np.ndarray,
     kwargs: Optional[dict] = None,
     use_masks: bool,
     preprocessing_kwargs: Optional[dict] = None,
-    postprocessing_kwargs: Optional[dict] = None,
 ):
     """
     Wrap a function with some pre/post-processing functions
@@ -226,8 +225,6 @@ def wrap_function_with_masking(
                       **kwargs)``.
     :param preprocessing_kwargs: Keyword arguments for the preprocessing
                                  function.
-    :param postprocessing_kwargs: Keyword arguments for the postprocessing
-                                  function.
     """
     if use_masks:
         (

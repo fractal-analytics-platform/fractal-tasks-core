@@ -37,7 +37,7 @@ from cellpose.core import use_gpu
 import fractal_tasks_core
 from fractal_tasks_core.lib_channels import ChannelNotFoundError
 from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
-from fractal_tasks_core.lib_masked_loading import wrap_function_with_masking
+from fractal_tasks_core.lib_masked_loading import masked_loading_wrapper
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     array_to_bounding_box_table,
@@ -500,7 +500,8 @@ def cellpose_segmentation(
             slice(s_x, e_x),
         )
         logger.info(f"Now processing ROI {i_ROI+1}/{num_ROIs}")
-        # Execute cellpose segmentation
+
+        # Prepare single-channel or dual-channel input for cellpose
         if wavelength_id_c2 or channel_label_c2:
             # Dual channel mode, first channel is the membrane channel
             img_np = np.zeros((2, *data_zyx[region].shape))
@@ -511,7 +512,7 @@ def cellpose_segmentation(
             img_np = np.expand_dims(data_zyx[region].compute(), axis=0)
             channels = [0, 0]
 
-        #  FIXME: improve comments
+        # Prepare keyword arguments for segment_ROI function
         kwargs_segment_ROI = dict(
             model=model,
             channels=channels,
@@ -526,6 +527,8 @@ def cellpose_segmentation(
             net_avg=net_avg,
         )
 
+        # Prepare keyword arguments for preprocessing function
+        preprocessing_kwargs = {}
         if use_masks:
             preprocessing_kwargs = dict(
                 region=region,
@@ -533,28 +536,26 @@ def cellpose_segmentation(
                 ROI_table_path=ROI_table_path,
                 ROI_index=i_ROI,
             )
-        else:
-            preprocessing_kwargs = {}
 
-        new_label_img = wrap_function_with_masking(
+        # Call segment_ROI through the masked-loading wrapper, which includes
+        # pre/post-processing functions if needed
+        new_label_img = masked_loading_wrapper(
+            image_array=img_np,
             function=segment_ROI,
             kwargs=kwargs_segment_ROI,
-            image_array=img_np,
             use_masks=use_masks,
             preprocessing_kwargs=preprocessing_kwargs,
         )
 
         # Shift labels and update relabeling counters
         if relabeling:
-            num_labels_fov = np.max(new_label_img)
+            num_labels_roi = np.max(new_label_img)
             new_label_img[new_label_img > 0] += num_labels_tot
-            num_labels_tot += num_labels_fov
+            num_labels_tot += num_labels_roi
 
             # Write some logs
             logger.info(
-                f"FOV ROI {indices}, "
-                f"{num_labels_fov=}, "
-                f"{num_labels_tot=}"
+                f"ROI {indices}, " f"{num_labels_roi=}, " f"{num_labels_tot=}"
             )
 
             # Check that total number of labels is under control
@@ -609,7 +610,7 @@ def cellpose_segmentation(
     logger.info("End building pyramids")
 
     if output_ROI_table:
-        # Concatenate all FOV dataframes
+        # Concatenate all ROI dataframes
         df_well = pd.concat(bbox_dataframe_list, axis=0, ignore_index=True)
         df_well.index = df_well.index.astype(str)
         # Extract labels and drop them from df_well
