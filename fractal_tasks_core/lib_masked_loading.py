@@ -11,7 +11,7 @@ Copyright 2022 (C)
     Miescher Institute for Biomedical Research and Pelkmans Lab from the
     University of Zurich.
 
-Image segmentation via Cellpose library
+Functions to use masked loading of ROIs before/after processing
 """
 import logging
 from pathlib import Path
