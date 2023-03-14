@@ -368,6 +368,8 @@ def find_overlaps_in_ROI_indices(
     :param list_indices: List of ROI indices, where each element in the list
                          should look like ``[start_z, end_z, start_y, end_y,
                          start_x, end_x]``.
+    :returns: ``None`` if no overlap was detected, otherwise a tuple with the
+              positional indices of a pair of overlapping ROIs.
     """
 
     for ind_1, ROI_1 in enumerate(list_indices):
