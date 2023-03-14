@@ -26,7 +26,7 @@ import zarr
 
 
 def prepare_FOV_ROI_table(
-    df: pd.DataFrame, metadata: list = ["time"]
+    df: pd.DataFrame, metadata: list[str] = ["time"]
 ) -> ad.AnnData:
     """
     Description
@@ -89,7 +89,7 @@ def prepare_FOV_ROI_table(
 
 
 def prepare_well_ROI_table(
-    df: pd.DataFrame, metadata: list = ["time"]
+    df: pd.DataFrame, metadata: list[str] = ["time"]
 ) -> ad.AnnData:
     """
     Description
@@ -159,7 +159,8 @@ def prepare_well_ROI_table(
 
 
 def convert_ROIs_from_3D_to_2D(
-    adata: ad.AnnData = None, pixel_size_z: float = None
+    adata: ad.AnnData,
+    pixel_size_z: float,
 ) -> ad.AnnData:
     """
     Description
@@ -167,9 +168,6 @@ def convert_ROIs_from_3D_to_2D(
     :param dummy: this is just a placeholder
     :type dummy: int
     """
-
-    if pixel_size_z is None:
-        raise Exception("Missing pixel_size_z in convert_ROIs_from_3D_to_2D")
 
     # Compress a 3D stack of images to a single Z plane,
     # with thickness equal to pixel_size_z
@@ -193,9 +191,9 @@ def convert_ROIs_from_3D_to_2D(
 
 def convert_ROI_table_to_indices(
     ROI: ad.AnnData,
+    full_res_pxl_sizes_zyx: Sequence[float],
     level: int = 0,
     coarsening_xy: int = 2,
-    full_res_pxl_sizes_zyx: Sequence[float] = None,
     cols_xyz_pos: Sequence[str] = [
         "x_micrometer",
         "y_micrometer",
@@ -226,6 +224,8 @@ def convert_ROI_table_to_indices(
     x_pos, y_pos, z_pos = cols_xyz_pos[:]
     x_len, y_len, z_len = cols_xyz_len[:]
 
+    # FIXME: see discussion on ROI-table origin at
+    # https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/339
     if reset_origin:
         origin_x = min(ROI[:, x_pos].X[:, 0])
         origin_y = min(ROI[:, y_pos].X[:, 0])
@@ -265,10 +265,10 @@ def convert_ROI_table_to_indices(
 
 
 def _inspect_ROI_table(
-    path: str = None,
+    path: str,
+    full_res_pxl_sizes_zyx: Sequence[float],
     level: int = 0,
     coarsening_xy: int = 2,
-    full_res_pxl_sizes_zyx: Sequence[float] = None,  # =[1.0, 0.1625, 0.1625],
 ) -> None:
     """
     Description
@@ -307,7 +307,7 @@ def _inspect_ROI_table(
 
 
 def array_to_bounding_box_table(
-    mask_array: np.ndarray, pxl_sizes_zyx: List[float]
+    mask_array: np.ndarray, pxl_sizes_zyx: list[float]
 ) -> pd.DataFrame:
 
     """
@@ -361,7 +361,7 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
     :param table_path: Path of the AnnData ROI table to be checked.
     :param use_masks: If ``True``, perform some additional checks related to
                       masked loading.
-    :return: Always ``None`` if ``use_masks=False``, otherwise return whether
+    :returns: Always ``None`` if ``use_masks=False``, otherwise return whether
              the table is valid for masked loading.
     """
 
