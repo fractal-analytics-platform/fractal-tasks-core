@@ -193,20 +193,20 @@ def cellpose_segmentation(
                           ``DAPI``). If not ``None``, then ``wavelength_id``
                           must be ``None``.
     :param wavelength_id_c2: Identifier of a second channel in the same format
-                          as the first wavelength_id. If specified, cellpose
-                          runs in dual channel mode.
-                          For dual channel segmentation of cells, the first
-                          channel should contain the membrane marker,
-                          the second channel should contain the nuclear marker.
+                             as the first wavelength_id. If specified, cellpose
+                             runs in dual channel mode.  For dual channel
+                             segmentation of cells, the first channel should
+                             contain the membrane marker, the second channel
+                             should contain the nuclear marker.
     :param channel_label_c2: Identifier of a second channel in the same
-                          format as the first wavelength_id. If specified,
-                          cellpose runs in dual channel mode.
-                          For dual channel segmentation of cells,
-                          the first channel should contain the membrane marker,
-                          the second channel should contain the nuclear marker.
+                             format as the first wavelength_id. If specified,
+                             cellpose runs in dual channel mode.  For dual
+                             channel segmentation of cells, the first channel
+                             should contain the membrane marker, the second
+                             channel should contain the nuclear marker.
     :param input_ROI_table: Name of the table that contains ROIs to which the
-                           task applies Cellpose segmentation (e.g.
-                           ``"organoid_rois"``).
+                            task applies Cellpose segmentation (e.g.
+                            ``"organoid_rois"``).
     :param output_ROI_table: If provided, the name of the ROI table used for
                              label bounding boxes.
     :param use_masks: If ``True``, try to use masked loading and fall back
