@@ -24,7 +24,7 @@ extensions = [
     "myst_parser",
 ]
 
-autodoc_default_options = {"autosummary": True}
+autodoc_default_options = {"autosummary": True, "private-members": True}
 autodata_content = "both"
 source_suffix = ".rst"
 exclude_patterns = []
