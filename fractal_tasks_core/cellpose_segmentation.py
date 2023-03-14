@@ -207,7 +207,7 @@ def cellpose_segmentation(
     :param input_ROI_table: Name of the table that contains ROIs to which the
                            task applies Cellpose segmentation (e.g.
                            ``"organoid_rois"``).
-    :param output_ROI_table: If provided, the name of the ROI table to store
+    :param output_ROI_table: If provided, the name of the ROI table used for
                              label bounding boxes.
     :param use_masks: If ``True``, try to use masked loading and fall back
                       to ``use_masks=False`` if the ROI table is not suitable.
@@ -238,7 +238,7 @@ def cellpose_segmentation(
     if len(input_paths) > 1:
         raise NotImplementedError
     in_path = Path(input_paths[0])
-    zarrurl = (in_path.resolve() / component).as_posix() + "/"
+    zarrurl = (in_path.resolve() / component).as_posix()
     logger.info(f"{zarrurl=}")
 
     # Preliminary check
@@ -306,14 +306,14 @@ def cellpose_segmentation(
             output_label_name = f"label_{ind_channel}"
 
     # Load ZYX data
-    data_zyx = da.from_zarr(f"{zarrurl}{level}")[ind_channel]
+    data_zyx = da.from_zarr(f"{zarrurl}/{level}")[ind_channel]
     logger.info(f"{data_zyx.shape=}")
     if wavelength_id_c2 or channel_label_c2:
-        data_zyx_c2 = da.from_zarr(f"{zarrurl}{level}")[ind_channel_c2]
+        data_zyx_c2 = da.from_zarr(f"{zarrurl}/{level}")[ind_channel_c2]
         logger.info(f"Second channel: {data_zyx_c2.shape=}")
 
     # Read ROI table
-    ROI_table_path = f"{zarrurl}tables/{input_ROI_table}"
+    ROI_table_path = f"{zarrurl}/tables/{input_ROI_table}"
     ROI_table = ad.read_zarr(ROI_table_path)
 
     # Perform some checks on the ROI table
@@ -330,13 +330,13 @@ def cellpose_segmentation(
 
     # Read pixel sizes from zattrs file
     full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
-        f"{zarrurl}.zattrs", level=0
+        f"{zarrurl}/.zattrs", level=0
     )
     actual_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
-        f"{zarrurl}.zattrs", level=level
+        f"{zarrurl}/.zattrs", level=level
     )
 
-    # Heuristic to determine reset_origin #FIXME
+    # Heuristic to determine reset_origin   # FIXME, see issue #339
     if input_ROI_table in ["FOV_ROI_table", "well_ROI_table"]:
         reset_origin = True
     else:
@@ -366,7 +366,9 @@ def cellpose_segmentation(
     if do_3D:
         if anisotropy is None:
             # Read pixel sizes from zattrs file
-            pxl_zyx = extract_zyx_pixel_sizes(zarrurl + ".zattrs", level=level)
+            pxl_zyx = extract_zyx_pixel_sizes(
+                f"{zarrurl}/.zattrs", level=level
+            )
             pixel_size_z, pixel_size_y, pixel_size_x = pxl_zyx[:]
             logger.info(f"{pxl_zyx=}")
             if not np.allclose(pixel_size_x, pixel_size_y):
@@ -378,7 +380,7 @@ def cellpose_segmentation(
             anisotropy = pixel_size_z / pixel_size_x
 
     # Load zattrs file
-    zattrs_file = f"{zarrurl}.zattrs"
+    zattrs_file = f"{zarrurl}/.zattrs"
     with open(zattrs_file, "r") as jsonfile:
         zattrs = json.load(jsonfile)
 
@@ -405,7 +407,7 @@ def cellpose_segmentation(
     # Write zattrs for labels and for specific label
     new_labels = [output_label_name]
     try:
-        with open(f"{zarrurl}labels/.zattrs", "r") as f_zattrs:
+        with open(f"{zarrurl}/labels/.zattrs", "r") as f_zattrs:
             existing_labels = json.load(f_zattrs)["labels"]
     except FileNotFoundError:
         existing_labels = []
@@ -416,7 +418,7 @@ def cellpose_segmentation(
         raise RuntimeError(
             f"Labels {intersection} already exist but are also part of outputs"
         )
-    labels_group = zarr.group(f"{zarrurl}labels")
+    labels_group = zarr.group(f"{zarrurl}/labels")
     labels_group.attrs["labels"] = existing_labels + new_labels
 
     label_group = labels_group.create_group(output_label_name)
@@ -435,8 +437,8 @@ def cellpose_segmentation(
     # Open new zarr group for mask 0-th level
     zarr.group(f"{zarrurl}/labels")
     zarr.group(f"{zarrurl}/labels/{output_label_name}")
-    logger.info(f"Output label path: {zarrurl}labels/{output_label_name}/0")
-    store = zarr.storage.FSStore(f"{zarrurl}labels/{output_label_name}/0")
+    logger.info(f"Output label path: {zarrurl}/labels/{output_label_name}/0")
+    store = zarr.storage.FSStore(f"{zarrurl}/labels/{output_label_name}/0")
     label_dtype = np.uint32
     mask_zarr = zarr.create(
         shape=data_zyx.shape,
@@ -527,7 +529,7 @@ def cellpose_segmentation(
         if use_masks:
             preprocessing_kwargs = dict(
                 region=region,
-                current_label_path=f"{zarrurl}labels/{output_label_name}/0",
+                current_label_path=f"{zarrurl}/labels/{output_label_name}/0",
                 ROI_table_path=ROI_table_path,
                 ROI_index=i_ROI,
             )
@@ -596,7 +598,7 @@ def cellpose_segmentation(
     # Starting from on-disk highest-resolution data, build and write to disk a
     # pyramid of coarser levels
     build_pyramid(
-        zarrurl=f"{zarrurl}labels/{output_label_name}",
+        zarrurl=f"{zarrurl}/labels/{output_label_name}",
         overwrite=False,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
