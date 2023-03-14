@@ -29,7 +29,7 @@ for component in metadata["image"]:
         metadata=metadata,
         component=component,
         wavelength_id="A01_C01",
-        level=3,
+        level=2,
         relabeling=True,
         diameter_level0=400.0,
         input_ROI_table="well_ROI_table",
