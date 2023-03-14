@@ -14,8 +14,8 @@ Copyright 2022 (C)
 Functions to identify and remove overlaps between regions of interest
 """
 import logging
+from typing import Optional
 from typing import Sequence
-from typing import Tuple
 
 import pandas as pd
 
@@ -64,7 +64,7 @@ def is_overlapping_2D(
     return overlap_x and overlap_y
 
 
-def is_overlapping_3D(box1, box2, tol=0):
+def is_overlapping_3D(box1, box2, tol=0) -> bool:
     """
     Given two three-dimensional boxes, finds whether they overlap
 
@@ -90,7 +90,7 @@ def is_overlapping_3D(box1, box2, tol=0):
     return overlap_x and overlap_y and overlap_z
 
 
-def get_overlapping_pair(tmp_df: pd.DataFrame, tol: float = 0) -> Tuple[int]:
+def get_overlapping_pair(tmp_df: pd.DataFrame, tol: float = 0) -> tuple[int]:
     """
     Finds the indices for the next overlapping FOVs pair
 
@@ -110,19 +110,24 @@ def get_overlapping_pair(tmp_df: pd.DataFrame, tol: float = 0) -> Tuple[int]:
     return False
 
 
-def get_overlapping_pairs_3D(tmp_df: pd.DataFrame, pixel_sizes):
+def get_overlapping_pairs_3D(
+    tmp_df: pd.DataFrame,
+    full_res_pxl_sizes_zyx: Sequence[float],
+):
     """
-    Finds the indices for the next overlapping FOVs pair, in three dimensions
+    Finds the indices for the all overlapping FOVs pair, in three dimensions
 
     Note: the returned indices are positional indices, starting from 0
 
     :param tmp_df: Dataframe with columns ``{x,y,z}_micrometer`` and
                    ``len_{x,y,z}_micrometer``.
-    :param tol: Finite tolerance for floating-point comparisons.
+    :param pixel_sizes: TBD
     """
+
     tol = 1e-10
-    if tol > min(pixel_sizes) / 1e3:
-        raise Exception(f"{tol=} but {pixel_sizes=}")
+    if tol > min(full_res_pxl_sizes_zyx) / 1e3:
+        raise ValueError(f"{tol=} but {full_res_pxl_sizes_zyx=}")
+
     new_tmp_df = tmp_df.copy()
 
     new_tmp_df["x_micrometer_max"] = (
@@ -134,23 +139,25 @@ def get_overlapping_pairs_3D(tmp_df: pd.DataFrame, pixel_sizes):
     new_tmp_df["z_micrometer_max"] = (
         new_tmp_df["z_micrometer"] + new_tmp_df["len_z_micrometer"]
     )
-    new_tmp_df.drop(labels=["len_x_micrometer"], axis=1, inplace=True)
-    new_tmp_df.drop(labels=["len_y_micrometer"], axis=1, inplace=True)
-    new_tmp_df.drop(labels=["len_z_micrometer"], axis=1, inplace=True)
+    # Remove columns which are not necessary for overlap checks
+    list_columns = [
+        "len_x_micrometer",
+        "len_y_micrometer",
+        "len_z_micrometer",
+        "label",
+    ]
+    new_tmp_df.drop(labels=list_columns, axis=1, inplace=True)
+
+    # Loop over all pairs, and construct list of overlapping ones
     num_lines = len(new_tmp_df.index)
     overlapping_list = []
-    # pos_ind_1 and pos_ind_2 are labels value
     for pos_ind_1 in range(num_lines):
         for pos_ind_2 in range(pos_ind_1):
-            if is_overlapping_3D(
+            overlap = is_overlapping_3D(
                 new_tmp_df.iloc[pos_ind_1], new_tmp_df.iloc[pos_ind_2], tol=tol
-            ):
-                # we accumulate tuples of overlapping labels
+            )
+            if overlap:
                 overlapping_list.append((pos_ind_1, pos_ind_2))
-    if len(overlapping_list) > 0:
-        raise ValueError(
-            f"{overlapping_list} " f"List of pair of bounding box overlaps"
-        )
     return overlapping_list
 
 
@@ -312,3 +319,66 @@ def remove_FOV_overlaps(df: pd.DataFrame):
     df.drop(list_columns, axis=1, inplace=True)
 
     return df
+
+
+def _is_overlapping_1D_int(
+    line1: Sequence[int],
+    line2: Sequence[int],
+) -> bool:
+    """
+    Given two integer intervals, find whether they overlap
+
+    This is the same as is_overlapping_1D (based on
+    https://stackoverflow.com/a/70023212/19085332), for integer-valued
+    intervals.
+
+    :param line1: The boundaries of the first interval , written as
+                  ``[x_min, x_max]``.
+    :param line2: The boundaries of the second interval , written as
+                  ``[x_min, x_max]``.
+    """
+    return line1[0] < line2[1] and line2[0] < line1[1]
+
+
+def _is_overlapping_3D_int(box1: list[int], box2: list[int]) -> bool:
+    """
+    Given two three-dimensional integer boxes, find whether they overlap
+
+    This is the same as is_overlapping_3D (based on
+    https://stackoverflow.com/a/70023212/19085332), for integer-valued
+    boxes.
+
+    :param box1: The boundaries of the first box, written as
+                 ``[x_min, y_min, z_min, x_max, y_max, z_max]``.
+    :param box2: The boundaries of the second box, written as
+                 ``[x_min, y_min, z_min, x_max, y_max, z_max]``.
+    """
+    overlap_x = _is_overlapping_1D_int([box1[0], box1[3]], [box2[0], box2[3]])
+    overlap_y = _is_overlapping_1D_int([box1[1], box1[4]], [box2[1], box2[4]])
+    overlap_z = _is_overlapping_1D_int([box1[2], box1[5]], [box2[2], box2[5]])
+    return overlap_x and overlap_y and overlap_z
+
+
+def find_overlaps_in_ROI_indices(
+    list_indices: list[list[int]],
+) -> Optional[tuple[int]]:
+    """
+    Given a list of integer ROI indices, find whether there are overlaps
+
+    :param list_indices: List of ROI indices, where each element in the list
+                         should look like ``[start_z, end_z, start_y, end_y,
+                         start_x, end_x]``.
+    :returns: ``None`` if no overlap was detected, otherwise a tuple with the
+              positional indices of a pair of overlapping ROIs.
+    """
+
+    for ind_1, ROI_1 in enumerate(list_indices):
+        s_z, e_z, s_y, e_y, s_x, e_x = ROI_1[:]
+        box_1 = [s_x, s_y, s_z, e_x, e_y, e_z]
+        for ind_2 in range(ind_1):
+            ROI_2 = list_indices[ind_2]
+            s_z, e_z, s_y, e_y, s_x, e_x = ROI_2[:]
+            box_2 = [s_x, s_y, s_z, e_x, e_y, e_z]
+            if _is_overlapping_3D_int(box_1, box_2):
+                return (ind_1, ind_2)
+    return None

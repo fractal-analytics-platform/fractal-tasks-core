@@ -91,6 +91,7 @@ for component in metadata["image"]:
         output_path=zarr_path,
         metadata=metadata,
         component=component,
+        output_ROI_table="label_DAPI_bbox",
         wavelength_id="A01_C01",
         level=3,
         relabeling=True,

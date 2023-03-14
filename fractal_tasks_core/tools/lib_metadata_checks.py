@@ -16,7 +16,7 @@ Helper functions to inspect a metadata dataframe from Yokogawa files
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from fractal_tasks_core.lib_remove_FOV_overlaps import is_overlapping_2D
+from fractal_tasks_core.lib_ROI_overlaps import is_overlapping_2D
 
 
 def _plot_rectangle(min_x, min_y, max_x, max_y, overlapping):

@@ -91,6 +91,7 @@ def copy_ome_zarr(
         raise NotImplementedError
 
     if ROI_table_names is None:
+        # FIXME: are these defaults OK?
         ROI_table_names = ["FOV_ROI_table", "well_ROI_table"]
 
     # List all plates
@@ -153,7 +154,8 @@ def copy_ome_zarr(
                 # Extract pixel sizes, if needed
                 if ROI_table_names:
 
-                    group_tables = new_image_group.create_group("tables/")
+                    new_tables_group = new_image_group.create_group("tables/")
+                    new_tables_group.attrs["tables"] = ROI_table_names
                     if project_to_2D:
                         path_FOV_zattrs = (
                             f"{zarrurl_old}/{well_path}/{image_path}/.zattrs"
@@ -165,17 +167,25 @@ def copy_ome_zarr(
 
                     # Copy the tables in ROI_table_names
                     for ROI_table_name in ROI_table_names:
+
+                        logger.info(
+                            f"I will now read {ROI_table_name} from "
+                            f"{zarrurl_old=}, convert it to 2D, and "
+                            "write it back to the new zarr file."
+                        )
                         ROI_table = ad.read_zarr(
                             f"{zarrurl_old}/{well_path}/{image_path}/"
                             f"tables/{ROI_table_name}"
                         )
                         # Convert 3D FOVs to 2D
                         if project_to_2D:
-                            ROI_table = convert_ROIs_from_3D_to_2D(
+                            new_ROI_table = convert_ROIs_from_3D_to_2D(
                                 ROI_table, pxl_size_z
                             )
                         # Write new table
-                        write_elem(group_tables, ROI_table_name, ROI_table)
+                        write_elem(
+                            new_tables_group, ROI_table_name, new_ROI_table
+                        )
 
     for key in ["plate", "well", "image"]:
         meta_update[key] = [

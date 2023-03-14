@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 from devtools import debug
 
+from fractal_tasks_core.lib_upscale_array import convert_region_to_low_res
 from fractal_tasks_core.lib_upscale_array import upscale_array
 
 
@@ -68,3 +69,50 @@ def test_incommensurable_upscaling():
     )
     assert upscaled_array.shape == target_shape
     debug(upscaled_array)
+
+
+def test_convert_region_to_low_res():
+
+    # Successful conversion
+    highres_shape = (8,)
+    lowres_shape = (4,)
+    highres_region = (slice(2, 6),)
+    expected_lowres_region = (slice(1, 3),)
+    lowres_region = convert_region_to_low_res(
+        highres_shape=highres_shape,
+        lowres_shape=lowres_shape,
+        highres_region=highres_region,
+    )
+    debug(highres_region)
+    debug(lowres_region)
+    assert lowres_region == expected_lowres_region
+
+    # Conversion in the wrong direction
+    with pytest.raises(ValueError):
+        convert_region_to_low_res(
+            highres_shape=lowres_shape,
+            lowres_shape=highres_shape,
+            highres_region=highres_region,
+        )
+
+    # Incommensurability error (1/2)
+    with pytest.raises(ValueError):
+        highres_shape = (9,)
+        lowres_shape = (4,)
+        highres_region = (slice(2, 6),)
+        convert_region_to_low_res(
+            highres_shape=highres_shape,
+            lowres_shape=lowres_shape,
+            highres_region=highres_region,
+        )
+
+    # Incommensurability error (2/2)
+    with pytest.raises(ValueError):
+        highres_shape = (8,)
+        lowres_shape = (4,)
+        highres_region = (slice(3, 7),)
+        convert_region_to_low_res(
+            highres_shape=highres_shape,
+            lowres_shape=lowres_shape,
+            highres_region=highres_region,
+        )

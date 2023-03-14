@@ -14,17 +14,18 @@ Copyright 2022 (C)
 
 Functions to handle regions of interests (via pandas and AnnData)
 """
-from typing import List
+import logging
 from typing import Optional
 from typing import Sequence
 
 import anndata as ad
 import numpy as np
 import pandas as pd
+import zarr
 
 
 def prepare_FOV_ROI_table(
-    df: pd.DataFrame, metadata: list = ["time"]
+    df: pd.DataFrame, metadata: list[str] = ["time"]
 ) -> ad.AnnData:
     """
     Description
@@ -87,7 +88,7 @@ def prepare_FOV_ROI_table(
 
 
 def prepare_well_ROI_table(
-    df: pd.DataFrame, metadata: list = ["time"]
+    df: pd.DataFrame, metadata: list[str] = ["time"]
 ) -> ad.AnnData:
     """
     Description
@@ -157,7 +158,8 @@ def prepare_well_ROI_table(
 
 
 def convert_ROIs_from_3D_to_2D(
-    adata: ad.AnnData = None, pixel_size_z: float = None
+    adata: ad.AnnData,
+    pixel_size_z: float,
 ) -> ad.AnnData:
     """
     Description
@@ -165,9 +167,6 @@ def convert_ROIs_from_3D_to_2D(
     :param dummy: this is just a placeholder
     :type dummy: int
     """
-
-    if pixel_size_z is None:
-        raise Exception("Missing pixel_size_z in convert_ROIs_from_3D_to_2D")
 
     # Compress a 3D stack of images to a single Z plane,
     # with thickness equal to pixel_size_z
@@ -191,9 +190,9 @@ def convert_ROIs_from_3D_to_2D(
 
 def convert_ROI_table_to_indices(
     ROI: ad.AnnData,
+    full_res_pxl_sizes_zyx: Sequence[float],
     level: int = 0,
     coarsening_xy: int = 2,
-    full_res_pxl_sizes_zyx: Sequence[float] = None,
     cols_xyz_pos: Sequence[str] = [
         "x_micrometer",
         "y_micrometer",
@@ -204,10 +203,12 @@ def convert_ROI_table_to_indices(
         "len_y_micrometer",
         "len_z_micrometer",
     ],
-    reset_origin: Optional[bool] = True,
-) -> List[List[int]]:
+    reset_origin: bool = True,
+) -> list[list[int]]:
     """
     Description
+
+    FIXME add docstring
 
     :param dummy: this is just a placeholder
     :type dummy: int
@@ -222,6 +223,8 @@ def convert_ROI_table_to_indices(
     x_pos, y_pos, z_pos = cols_xyz_pos[:]
     x_len, y_len, z_len = cols_xyz_len[:]
 
+    # FIXME: see discussion on ROI-table origin at
+    # https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/339
     if reset_origin:
         origin_x = min(ROI[:, x_pos].X[:, 0])
         origin_y = min(ROI[:, y_pos].X[:, 0])
@@ -261,10 +264,10 @@ def convert_ROI_table_to_indices(
 
 
 def _inspect_ROI_table(
-    path: str = None,
+    path: str,
+    full_res_pxl_sizes_zyx: Sequence[float],
     level: int = 0,
     coarsening_xy: int = 2,
-    full_res_pxl_sizes_zyx=[1.0, 0.1625, 0.1625],
 ) -> None:
     """
     Description
@@ -272,6 +275,8 @@ def _inspect_ROI_table(
     :param dummy: this is just a placeholder
     :type dummy: int
     """
+
+    print(f"{full_res_pxl_sizes_zyx=}")
 
     adata = ad.read_zarr(path)
     df = adata.to_df()
@@ -285,8 +290,9 @@ def _inspect_ROI_table(
             level=level,
             coarsening_xy=coarsening_xy,
             full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
+            # verbose=True,
         )
-
+        print()
         print(f"level:         {level}")
         print(f"coarsening_xy: {coarsening_xy}")
         print("list_indices:")
@@ -300,7 +306,7 @@ def _inspect_ROI_table(
 
 
 def array_to_bounding_box_table(
-    mask_array: np.ndarray, pxl_sizes_zyx: List[float]
+    mask_array: np.ndarray, pxl_sizes_zyx: list[float]
 ) -> pd.DataFrame:
 
     """
@@ -315,6 +321,7 @@ def array_to_bounding_box_table(
     elem_list = []
     for label in labels:
         label_match = np.where(mask_array == label)
+        # FIXME: multiplication of np.ndarray with list
         zmin, ymin, xmin = np.min(label_match, axis=1) * pxl_sizes_zyx
         zmax, ymax, xmax = (np.max(label_match, axis=1) + 1) * pxl_sizes_zyx
 
@@ -332,6 +339,56 @@ def array_to_bounding_box_table(
         "len_z_micrometer",
     ]
 
-    ann_df = pd.DataFrame(np.array(elem_list), columns=df_columns)
+    df = pd.DataFrame(np.array(elem_list), columns=df_columns)
+    df["label"] = labels
 
-    return ann_df
+    return df
+
+
+def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
+    """
+    Verify some validity assumptions on a ROI table
+
+    This function reflects our current working assumptions (e.g. the presence
+    of some specific columns); this may change in future versions.
+
+    If ``use_masks=True``, we verify that the table is suitable to be used as
+    part of our masked-loading functions (see ``lib_masked_loading.py``); if
+    these checks fail, ``use_masks`` should be set to ``False`` upstream in the
+    parent function.
+
+    :param table_path: Path of the AnnData ROI table to be checked.
+    :param use_masks: If ``True``, perform some additional checks related to
+                      masked loading.
+    :returns: Always ``None`` if ``use_masks=False``, otherwise return whether
+             the table is valid for masked loading.
+    """
+
+    # Hard constraint: table columns must include some expected ones
+    table = ad.read_zarr(table_path)
+    columns = [
+        "x_micrometer",
+        "y_micrometer",
+        "z_micrometer",
+        "len_x_micrometer",
+        "len_y_micrometer",
+        "len_z_micrometer",
+    ]
+    for column in columns:
+        if column not in table.var_names:
+            raise ValueError(f"Column {column} is not present in ROI table")
+    if not use_masks:
+        return None
+
+    # Soft constraint: the table can be used for masked loading (if not, return
+    # False)
+    attrs = zarr.group(table_path).attrs
+    logging.info(f"ROI table at {table_path} has attrs: {attrs}")
+    valid = set(("type", "region", "instance_key")).issubset(attrs.keys())
+    if valid:
+        valid = valid and attrs["type"] == "ngff:region_table"
+        valid = valid and "path" in attrs["region"].keys()
+    if valid:
+        return True
+    else:
+        return False
