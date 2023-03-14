@@ -156,8 +156,8 @@ def patched_segment_ROI_overlapping_organoids(
     return mask.astype(label_dtype)
 
 
-def patched_use_gpu(*args, **kwargs):
-    debug("WARNING: using patched_use_gpu")
+def patched_cellpose_core_use_gpu(*args, **kwargs):
+    debug("WARNING: using patched_cellpose_core_use_gpu")
     return False
 
 
@@ -171,7 +171,8 @@ def test_failures(
 ):
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.use_gpu", patched_use_gpu
+        "fractal_tasks_core.cellpose_segmentation.cellpose.core.use_gpu",
+        patched_cellpose_core_use_gpu,
     )
 
     monkeypatch.setattr(
@@ -233,7 +234,8 @@ def test_workflow_with_per_FOV_labeling(
 ):
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.use_gpu", patched_use_gpu
+        "fractal_tasks_core.cellpose_segmentation.cellpose.core.use_gpu",
+        patched_cellpose_core_use_gpu,
     )
 
     monkeypatch.setattr(
@@ -294,7 +296,8 @@ def test_workflow_with_multi_channel_input(
     # wavelength_id_c2
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.use_gpu", patched_use_gpu
+        "fractal_tasks_core.cellpose_segmentation.cellpose.core.use_gpu",
+        patched_cellpose_core_use_gpu,
     )
 
     monkeypatch.setattr(
@@ -350,7 +353,8 @@ def test_workflow_with_per_FOV_labeling_2D(
 ):
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.use_gpu", patched_use_gpu
+        "fractal_tasks_core.cellpose_segmentation.cellpose.core.use_gpu",
+        patched_cellpose_core_use_gpu,
     )
 
     # Do not use cellpose
@@ -402,7 +406,8 @@ def test_workflow_with_per_well_labeling_2D(
 ):
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.use_gpu", patched_use_gpu
+        "fractal_tasks_core.cellpose_segmentation.cellpose.core.use_gpu",
+        patched_cellpose_core_use_gpu,
     )
 
     # Do not use cellpose
@@ -495,7 +500,8 @@ def test_workflow_bounding_box(
 ):
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.use_gpu", patched_use_gpu
+        "fractal_tasks_core.cellpose_segmentation.cellpose.core.use_gpu",
+        patched_cellpose_core_use_gpu,
     )
 
     monkeypatch.setattr(
@@ -551,7 +557,8 @@ def test_workflow_bounding_box_with_overlap(
 ):
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.use_gpu", patched_use_gpu
+        "fractal_tasks_core.cellpose_segmentation.cellpose.core.use_gpu",
+        patched_cellpose_core_use_gpu,
     )
 
     monkeypatch.setattr(
@@ -626,6 +633,7 @@ def test_workflow_with_per_FOV_labeling_via_script(
         augment=True,
         net_avg=True,
         min_size=30,
+        use_gpu=False,
     )
 
     run_options = dict(timeout=10, capture_output=True, encoding="utf-8")
