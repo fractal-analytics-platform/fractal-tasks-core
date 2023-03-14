@@ -15,7 +15,6 @@ Copyright 2022 (C)
 Functions to handle regions of interests (via pandas and AnnData)
 """
 import logging
-from typing import List
 from typing import Optional
 from typing import Sequence
 
@@ -205,7 +204,7 @@ def convert_ROI_table_to_indices(
         "len_z_micrometer",
     ],
     reset_origin: bool = True,
-) -> List[List[int]]:
+) -> list[list[int]]:
     """
     Description
 
