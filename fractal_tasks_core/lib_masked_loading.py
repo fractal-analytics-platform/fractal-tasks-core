@@ -42,8 +42,8 @@ def _preprocess_input(
 
     This involves :
 
-    - Loading the masking label array for the appropriate region;
-    - Extracting the appropriate label value from the ``ROI_table_obs``
+    - Loading the masking label array for the appropriate ROI;
+    - Extracting the appropriate label value from the ``ROI_table.obs``
       dataframe;
     - Constructing the background mask, where the masking label matches with a
       specific label value;
@@ -74,9 +74,10 @@ def _preprocess_input(
     :param current_label_path: Path to the image used as current
                                label, in a form like
                                ``/somewhere/plate.zarr/A/01/0/labels/nuclei_in_organoids/0``.
-    :param ROI_table_obs: ``obs`` attribute of the AnnData table for the
-                          masking-label ROIs; this is used (together with
-                          ``ROI_positional_index``) to extract ``label_value``.
+    :param ROI_table_path: Path of the AnnData table for the masking-label
+                           ROIs; this is used (together with
+                           ``ROI_positional_index``) to extract
+                           ``label_value``.
     :param ROI_positional_index: Index of the current ROI, which is used to
                                  extract ``label_value`` from
                                  ``ROI_table_obs``.
@@ -96,7 +97,6 @@ def _preprocess_input(
 
     # Load the ROI table and its metadata attributes
     ROI_table = ad.read_zarr(ROI_table_path)
-    ROI_table_obs = ROI_table.obs
     attrs = zarr.group(ROI_table_path).attrs
     logger.info(f"[_preprocess_input] {ROI_table_path=}")
     logger.info(f"[_preprocess_input] {attrs.asdict()=}")
@@ -105,13 +105,13 @@ def _preprocess_input(
     label_relative_path = attrs["region"]["path"]
     column_name = attrs["instance_key"]
 
-    # Check that ROI_table_obs has the right column and extract label_value
-    if column_name not in ROI_table_obs.columns:
+    # Check that ROI_table.obs has the right column and extract label_value
+    if column_name not in ROI_table.obs.columns:
         raise ValueError(
             'In _preprocess_input, "{column_name}" '
-            f" missing in {ROI_table_obs.columns=}"
+            f" missing in {ROI_table.obs.columns=}"
         )
-    label_value = int(ROI_table_obs[column_name][ROI_positional_index])
+    label_value = int(ROI_table.obs[column_name][ROI_positional_index])
 
     # Load masking-label array (lazily)
     masking_label_path = str(
