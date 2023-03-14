@@ -80,6 +80,8 @@ def _preprocess_input(
     :param ROI_positional_index: Index of the current ROI, which is used to
                                  extract ``label_value`` from
                                  ``ROI_table_obs``.
+    :returns: A tuple with three arrays: the preprocessed image array, the
+              background mask, the current label.
     """
 
     logger.info(f"[_preprocess_input] {image_array.shape=}")
@@ -197,6 +199,7 @@ def _postprocess_output(
                            correct background data.
     :param background: The 3D (ZYX) boolean array that defines the
                        background.
+    :returns: The postprocessed array.
     """
     # Restore background
     modified_array[background] = original_array[background]
