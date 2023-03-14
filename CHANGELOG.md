@@ -1,3 +1,11 @@
+# 0.9.0
+
+* Introduce a module for masked loading of ROIs, and update the `cellpose_segmentation` task accordingly (\#306).
+* Rename task arguments: `ROI_table_name->input_ROI_table` and `bounding_box_ROI_table_name->output_ROI_table` (\#306).
+* Implement part of the [proposed table support in OME-NGFF specs](https://github.com/ome/ngff/pull/64), both for the `tables` zarr group and then for each table subgroup (\#306).
+* Rename module: `lib_remove_FOV_overlaps.py->lib_ROI_overlaps.py` (\#306).
+* Add new functions to existing modules: `lib_regions_of_interest.convert_region_to_low_res`, `lib_ROI_overlaps.find_overlaps_in_ROI_indices` (\#306).
+
 # 0.8.1
 
 * Disable bugged validation of `model_type` argument in `cellpose_segmentation` (\#344).
