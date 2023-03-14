@@ -23,13 +23,10 @@ import dask.array as da
 import numpy as np
 import zarr
 
-import fractal_tasks_core
 from fractal_tasks_core.lib_upscale_array import convert_region_to_low_res
 from fractal_tasks_core.lib_upscale_array import upscale_array
 
 logger = logging.getLogger(__name__)
-
-__OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
 
 def _preprocess_input(
