@@ -459,7 +459,7 @@ def cellpose_segmentation(
     )
 
     # Initialize cellpose
-    gpu = cellpose.core.use_gpu() if use_gpu else False
+    gpu = use_gpu and cellpose.core.use_gpu()
     if pretrained_model:
         model = models.CellposeModel(
             gpu=gpu, pretrained_model=pretrained_model
