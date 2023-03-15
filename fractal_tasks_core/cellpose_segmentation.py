@@ -26,13 +26,13 @@ from typing import Optional
 from typing import Sequence
 
 import anndata as ad
+import cellpose
 import dask.array as da
 import numpy as np
 import pandas as pd
 import zarr
 from anndata.experimental import write_elem
 from cellpose import models
-from cellpose.core import use_gpu
 
 import fractal_tasks_core
 from fractal_tasks_core.lib_channels import ChannelNotFoundError
@@ -159,6 +159,7 @@ def cellpose_segmentation(
     use_masks: bool = True,
     relabeling: bool = True,
     # Cellpose-related arguments
+    use_gpu: bool = True,
     anisotropy: Optional[float] = None,
     diameter_level0: float = 30.0,
     cellprob_threshold: float = 0.0,
@@ -214,6 +215,9 @@ def cellpose_segmentation(
     :param output_label_name: Name of the output label (e.g. ``"organoids"``).
     :param relabeling: If ``True``, apply relabeling so that label values are
                        unique across ROIs.
+    :param use_gpu: If ``False``, always use the CPU; if ``True``, use the GPU
+                    if possible (as defined in ``cellpose.core.use_gpu()``) and
+                    fall-back to the CPU otherwise.
     :param anisotropy: Ratio of the pixel sizes along Z and XY axis (ignored if
                        the image is not three-dimensional). If `None`, it is
                        inferred from the OME-NGFF metadata.
@@ -455,7 +459,7 @@ def cellpose_segmentation(
     )
 
     # Initialize cellpose
-    gpu = use_gpu()
+    gpu = use_gpu and cellpose.core.use_gpu()
     if pretrained_model:
         model = models.CellposeModel(
             gpu=gpu, pretrained_model=pretrained_model
@@ -676,13 +680,15 @@ if __name__ == "__main__":
         channel_label_c2: Optional[str]
         level: int
         relabeling: bool = True
-        anisotropy: Optional[float] = None
-        diameter_level0: Optional[float]
-        cellprob_threshold: Optional[float]
-        flow_threshold: Optional[float]
         input_ROI_table: Optional[str]
         output_ROI_table: Optional[str]
         output_label_name: Optional[str]
+        # Cellpose-related arguments:
+        use_gpu: Optional[bool]
+        anisotropy: Optional[float]
+        diameter_level0: Optional[float]
+        cellprob_threshold: Optional[float]
+        flow_threshold: Optional[float]
         model_type: Optional[str]
         pretrained_model: Optional[str]
         min_size: Optional[int]

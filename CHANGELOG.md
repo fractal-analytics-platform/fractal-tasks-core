@@ -1,3 +1,7 @@
+# Unreleased
+
+* Add `use_gpu` argument for `cellpose_segmentation` task (\#350).
+
 # 0.9.0
 
 * Introduce a module for masked loading of ROIs, and update the `cellpose_segmentation` task accordingly (\#306).
