@@ -24,11 +24,11 @@
 | fractal\_tasks\_core/lib\_upscale\_array.py            |       71 |       11 |       46 |        8 |     80% |61, 72, 89, 94-95, 111, 126, 156, 188-193 |
 | fractal\_tasks\_core/lib\_zattrs\_utils.py             |       42 |        7 |       22 |        6 |     80% |43, 47, 58->57, 61, 66-73, 118 |
 | fractal\_tasks\_core/maximum\_intensity\_projection.py |       56 |       12 |       14 |        4 |     77% |59, 93, 112, 134-144 |
-| fractal\_tasks\_core/napari\_workflows\_wrapper.py     |      265 |       36 |      120 |       16 |     86% |161, 173, 178, 215, 285, 290-300, 313, 318, 358-362, 370, 391, 479->466, 513-518, 525->527, 578, 601-618 |
+| fractal\_tasks\_core/napari\_workflows\_wrapper.py     |      266 |       36 |      120 |       16 |     86% |161, 173, 178, 215, 285, 290-300, 313, 318, 358-362, 370, 391, 479->466, 513-518, 525->527, 578, 603-620 |
 | fractal\_tasks\_core/tools/\_\_init\_\_.py             |        0 |        0 |        0 |        0 |    100% |           |
 | fractal\_tasks\_core/tools/lib\_metadata\_checks.py    |       52 |        1 |       30 |        1 |     98% |        28 |
 | fractal\_tasks\_core/yokogawa\_to\_ome\_zarr.py        |       93 |       18 |       24 |        5 |     79% |86, 128, 170, 210-214, 220-231 |
-|                                              **TOTAL** | **2081** |  **418** |  **780** |  **142** | **79%** |           |
+|                                              **TOTAL** | **2082** |  **418** |  **780** |  **142** | **79%** |           |
 
 
 ## Setup coverage badge

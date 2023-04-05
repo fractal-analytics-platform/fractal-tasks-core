@@ -55,8 +55,8 @@
             </div>
         </aside>
         <h2>
-            <span class="text">265 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">229<span class="text"> run</span></button>
+            <span class="text">266 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">230<span class="text"> run</span></button>
             <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">36<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
             <button type="button" class="par run show_par button_toggle_par" value="par" data-shortcut="p" title="Toggle lines partially run">16<span class="text"> partial</span></button>
@@ -66,8 +66,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="d_79a879e64f8429a6_lib_metadata_checks_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.2.1">coverage.py v7.2.1</a>,
-            created at 2023-03-15 12:12 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.2.2">coverage.py v7.2.2</a>,
+            created at 2023-04-05 07:24 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -680,30 +680,32 @@
     <p class="pln"><span class="n"><a id="t596" href="#t596">596</a></span><span class="t">            <span class="nam">aggregation_function</span><span class="op">=</span><span class="nam">np</span><span class="op">.</span><span class="nam">max</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t597" href="#t597">597</a></span><span class="t">        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t598" href="#t598">598</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t599" href="#t599">599</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="par run show_par"><span class="n"><a id="t600" href="#t600">600</a></span><span class="t"><span class="key">if</span> <span class="nam">__name__</span> <span class="op">==</span> <span class="str">"__main__"</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">600&#x202F;&#x219B;&#x202F;601</span><span class="annotate long">line 600 didn't jump to line 601, because the condition on line 600 was never true</span></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t601" href="#t601">601</a></span><span class="t">    <span class="key">from</span> <span class="nam">pydantic</span> <span class="key">import</span> <span class="nam">BaseModel</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t602" href="#t602">602</a></span><span class="t">    <span class="key">from</span> <span class="nam">pydantic</span> <span class="key">import</span> <span class="nam">Extra</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t603" href="#t603">603</a></span><span class="t">    <span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">_utils</span> <span class="key">import</span> <span class="nam">run_fractal_task</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t604" href="#t604">604</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t605" href="#t605">605</a></span><span class="t">    <span class="key">class</span> <span class="nam">TaskArguments</span><span class="op">(</span><span class="nam">BaseModel</span><span class="op">,</span> <span class="nam">extra</span><span class="op">=</span><span class="nam">Extra</span><span class="op">.</span><span class="nam">forbid</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t606" href="#t606">606</a></span><span class="t">        <span class="nam">input_paths</span><span class="op">:</span> <span class="nam">Sequence</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t607" href="#t607">607</a></span><span class="t">        <span class="nam">output_path</span><span class="op">:</span> <span class="nam">str</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t608" href="#t608">608</a></span><span class="t">        <span class="nam">metadata</span><span class="op">:</span> <span class="nam">Dict</span><span class="op">[</span><span class="nam">str</span><span class="op">,</span> <span class="nam">Any</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t609" href="#t609">609</a></span><span class="t">        <span class="nam">component</span><span class="op">:</span> <span class="nam">str</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t610" href="#t610">610</a></span><span class="t">        <span class="nam">workflow_file</span><span class="op">:</span> <span class="nam">str</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t611" href="#t611">611</a></span><span class="t">        <span class="nam">input_specs</span><span class="op">:</span> <span class="nam">Dict</span><span class="op">[</span><span class="nam">str</span><span class="op">,</span> <span class="nam">Dict</span><span class="op">[</span><span class="nam">str</span><span class="op">,</span> <span class="nam">str</span><span class="op">]</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t612" href="#t612">612</a></span><span class="t">        <span class="nam">output_specs</span><span class="op">:</span> <span class="nam">Dict</span><span class="op">[</span><span class="nam">str</span><span class="op">,</span> <span class="nam">Dict</span><span class="op">[</span><span class="nam">str</span><span class="op">,</span> <span class="nam">str</span><span class="op">]</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t613" href="#t613">613</a></span><span class="t">        <span class="nam">input_ROI_table</span><span class="op">:</span> <span class="nam">Optional</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t614" href="#t614">614</a></span><span class="t">        <span class="nam">level</span><span class="op">:</span> <span class="nam">Optional</span><span class="op">[</span><span class="nam">int</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t615" href="#t615">615</a></span><span class="t">        <span class="nam">relabeling</span><span class="op">:</span> <span class="nam">Optional</span><span class="op">[</span><span class="nam">bool</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t616" href="#t616">616</a></span><span class="t">        <span class="nam">expected_dimensions</span><span class="op">:</span> <span class="nam">Optional</span><span class="op">[</span><span class="nam">int</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t617" href="#t617">617</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t618" href="#t618">618</a></span><span class="t">    <span class="nam">run_fractal_task</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t619" href="#t619">619</a></span><span class="t">        <span class="nam">task_function</span><span class="op">=</span><span class="nam">napari_workflows_wrapper</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t620" href="#t620">620</a></span><span class="t">        <span class="nam">TaskArgsModel</span><span class="op">=</span><span class="nam">TaskArguments</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t621" href="#t621">621</a></span><span class="t">        <span class="nam">logger_name</span><span class="op">=</span><span class="nam">logger</span><span class="op">.</span><span class="nam">name</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t622" href="#t622">622</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t599" href="#t599">599</a></span><span class="t">    <span class="key">return</span> <span class="op">{</span><span class="op">}</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t600" href="#t600">600</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t601" href="#t601">601</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="par run show_par"><span class="n"><a id="t602" href="#t602">602</a></span><span class="t"><span class="key">if</span> <span class="nam">__name__</span> <span class="op">==</span> <span class="str">"__main__"</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">602&#x202F;&#x219B;&#x202F;603</span><span class="annotate long">line 602 didn't jump to line 603, because the condition on line 602 was never true</span></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t603" href="#t603">603</a></span><span class="t">    <span class="key">from</span> <span class="nam">pydantic</span> <span class="key">import</span> <span class="nam">BaseModel</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t604" href="#t604">604</a></span><span class="t">    <span class="key">from</span> <span class="nam">pydantic</span> <span class="key">import</span> <span class="nam">Extra</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t605" href="#t605">605</a></span><span class="t">    <span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">_utils</span> <span class="key">import</span> <span class="nam">run_fractal_task</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t606" href="#t606">606</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t607" href="#t607">607</a></span><span class="t">    <span class="key">class</span> <span class="nam">TaskArguments</span><span class="op">(</span><span class="nam">BaseModel</span><span class="op">,</span> <span class="nam">extra</span><span class="op">=</span><span class="nam">Extra</span><span class="op">.</span><span class="nam">forbid</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t608" href="#t608">608</a></span><span class="t">        <span class="nam">input_paths</span><span class="op">:</span> <span class="nam">Sequence</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t609" href="#t609">609</a></span><span class="t">        <span class="nam">output_path</span><span class="op">:</span> <span class="nam">str</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t610" href="#t610">610</a></span><span class="t">        <span class="nam">metadata</span><span class="op">:</span> <span class="nam">Dict</span><span class="op">[</span><span class="nam">str</span><span class="op">,</span> <span class="nam">Any</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t611" href="#t611">611</a></span><span class="t">        <span class="nam">component</span><span class="op">:</span> <span class="nam">str</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t612" href="#t612">612</a></span><span class="t">        <span class="nam">workflow_file</span><span class="op">:</span> <span class="nam">str</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t613" href="#t613">613</a></span><span class="t">        <span class="nam">input_specs</span><span class="op">:</span> <span class="nam">Dict</span><span class="op">[</span><span class="nam">str</span><span class="op">,</span> <span class="nam">Dict</span><span class="op">[</span><span class="nam">str</span><span class="op">,</span> <span class="nam">str</span><span class="op">]</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t614" href="#t614">614</a></span><span class="t">        <span class="nam">output_specs</span><span class="op">:</span> <span class="nam">Dict</span><span class="op">[</span><span class="nam">str</span><span class="op">,</span> <span class="nam">Dict</span><span class="op">[</span><span class="nam">str</span><span class="op">,</span> <span class="nam">str</span><span class="op">]</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t615" href="#t615">615</a></span><span class="t">        <span class="nam">input_ROI_table</span><span class="op">:</span> <span class="nam">Optional</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t616" href="#t616">616</a></span><span class="t">        <span class="nam">level</span><span class="op">:</span> <span class="nam">Optional</span><span class="op">[</span><span class="nam">int</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t617" href="#t617">617</a></span><span class="t">        <span class="nam">relabeling</span><span class="op">:</span> <span class="nam">Optional</span><span class="op">[</span><span class="nam">bool</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t618" href="#t618">618</a></span><span class="t">        <span class="nam">expected_dimensions</span><span class="op">:</span> <span class="nam">Optional</span><span class="op">[</span><span class="nam">int</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t619" href="#t619">619</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t620" href="#t620">620</a></span><span class="t">    <span class="nam">run_fractal_task</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t621" href="#t621">621</a></span><span class="t">        <span class="nam">task_function</span><span class="op">=</span><span class="nam">napari_workflows_wrapper</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t622" href="#t622">622</a></span><span class="t">        <span class="nam">TaskArgsModel</span><span class="op">=</span><span class="nam">TaskArguments</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t623" href="#t623">623</a></span><span class="t">        <span class="nam">logger_name</span><span class="op">=</span><span class="nam">logger</span><span class="op">.</span><span class="nam">name</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t624" href="#t624">624</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -712,8 +714,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="d_79a879e64f8429a6_lib_metadata_checks_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.2.1">coverage.py v7.2.1</a>,
-            created at 2023-03-15 12:12 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.2.2">coverage.py v7.2.2</a>,
+            created at 2023-04-05 07:24 +0000
         </p>
     </div>
 </footer>
