@@ -1,6 +1,7 @@
 # Unreleased
 
 * Add `use_gpu` argument for `cellpose_segmentation` task (\#350).
+* Add dummy return object to napari-workflows task (\#359).
 
 # 0.9.0
 

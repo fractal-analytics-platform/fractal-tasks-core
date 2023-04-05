@@ -596,6 +596,8 @@ def napari_workflows_wrapper(
             aggregation_function=np.max,
         )
 
+    return {}
+
 
 if __name__ == "__main__":
     from pydantic import BaseModel
