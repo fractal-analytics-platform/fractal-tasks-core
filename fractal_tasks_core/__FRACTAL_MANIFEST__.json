@@ -13,7 +13,9 @@
             },
             "executable": "create_ome_zarr.py",
             "meta": {
-                "executor": "cpu-low"
+                "executor": "cpu-low",
+                "cpus_per_task": 1,
+                "mem": 1000
             }
         },
         {
@@ -23,7 +25,9 @@
             "executable": "yokogawa_to_ome_zarr.py",
             "meta": {
                 "executor": "cpu-low",
-                "parallelization_level": "image"
+                "parallelization_level": "image",
+                "cpus_per_task": 1,
+                "mem": 4000
             }
         },
         {
@@ -36,7 +40,9 @@
             },
             "executable": "copy_ome_zarr.py",
             "meta": {
-                "executor": "cpu-low"
+                "executor": "cpu-low",
+                "cpus_per_task": 1,
+                "mem": 1000
             }
         },
         {
@@ -46,7 +52,9 @@
             "executable": "maximum_intensity_projection.py",
             "meta": {
                 "executor": "cpu-low",
-                "parallelization_level": "image"
+                "parallelization_level": "image",
+                "cpus_per_task": 1,
+                "mem": 4000
             }
         },
         {
@@ -57,6 +65,9 @@
             "meta": {
                 "executor": "gpu",
                 "parallelization_level": "image"
+                "cpus_per_task": 4,
+                "mem": 16000,
+                "needs_gpu": true
             }
         },
         {
@@ -70,7 +81,9 @@
             "executable": "illumination_correction.py",
             "meta": {
                 "executor": "cpu-low",
-                "parallelization_level": "image"
+                "parallelization_level": "image",
+                "cpus_per_task": 1,
+                "mem": 4000
             }
         },
         {
@@ -86,7 +99,9 @@
             "executable": "napari_workflows_wrapper.py",
             "meta": {
                 "executor": "cpu-low",
-                "parallelization_level": "image"
+                "parallelization_level": "image",
+                "cpus_per_task": 1,
+                "mem": 4000
             }
         },
         {
@@ -101,7 +116,9 @@
             },
             "executable": "create_ome_zarr_multiplex.py",
             "meta": {
-                "executor": "cpu-low"
+                "executor": "cpu-low",
+                "cpus_per_task": 1,
+                "mem": 1000
             }
         }
     ]
