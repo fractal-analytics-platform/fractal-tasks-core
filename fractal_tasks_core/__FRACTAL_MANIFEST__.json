@@ -100,8 +100,8 @@
             "meta": {
                 "executor": "cpu-low",
                 "parallelization_level": "image",
-                "cpus_per_task": 1,
-                "mem": 4000
+                "cpus_per_task": 8,
+                "mem": 32000
             }
         },
         {
