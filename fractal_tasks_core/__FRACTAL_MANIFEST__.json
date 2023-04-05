@@ -64,7 +64,7 @@
             "executable": "cellpose_segmentation.py",
             "meta": {
                 "executor": "gpu",
-                "parallelization_level": "image"
+                "parallelization_level": "image",
                 "cpus_per_task": 4,
                 "mem": 16000,
                 "needs_gpu": true
