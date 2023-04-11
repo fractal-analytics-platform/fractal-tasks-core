@@ -1,3 +1,7 @@
+# Unreleased
+
+* Increase memory requirements for some tasks in manifest (\#363).
+
 # 0.9.1
 
 * Add `use_gpu` argument for `cellpose_segmentation` task (\#350).
