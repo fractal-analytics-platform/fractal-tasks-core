@@ -15,7 +15,7 @@
             "meta": {
                 "executor": "cpu-low",
                 "cpus_per_task": 1,
-                "mem": 1000
+                "mem": 4000
             }
         },
         {
@@ -118,7 +118,7 @@
             "meta": {
                 "executor": "cpu-low",
                 "cpus_per_task": 1,
-                "mem": 1000
+                "mem": 4000
             }
         }
     ]
