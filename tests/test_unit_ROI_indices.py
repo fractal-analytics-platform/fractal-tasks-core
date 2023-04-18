@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import anndata as ad
 import numpy as np
 import pandas as pd
 import pytest
@@ -239,3 +240,17 @@ def test_overlaps_in_indices():
     res = find_overlaps_in_ROI_indices(list_indices)
     debug(res)
     assert res == (4, 3)
+
+
+def test_empty_ROI_table():
+    """
+    When providing an empty ROI AnnData table to convert_ROI_table_to_indices,
+    the resulting indices must be an empty list.
+    """
+    empty_ROI_table = ad.AnnData(X=None)
+    debug(empty_ROI_table)
+    indices = convert_ROI_table_to_indices(
+        empty_ROI_table,
+        full_res_pxl_sizes_zyx=[1.0, 1.0, 1.0],
+    )
+    assert indices == []
