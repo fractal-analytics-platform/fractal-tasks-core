@@ -217,6 +217,9 @@ def create_ome_zarr_multiplex(
         dict_acquisitions[acquisition]["image_folder"] = in_path
         dict_acquisitions[acquisition]["original_paths"] = [in_path]
         dict_acquisitions[acquisition]["actual_channels"] = actual_channels
+        dict_acquisitions[acquisition][
+            "actual_wavelength_ids"
+        ] = actual_wavelength_ids
 
     acquisitions = sorted(list(dict_acquisitions.keys()))
     current_plates = [item["plate"] for item in dict_acquisitions.values()]
@@ -309,6 +312,9 @@ def create_ome_zarr_multiplex(
                 except IndexError:
                     logger.info(f"Skipping {fpath}")
             well_wavelength_ids = sorted(list(set(well_wavelength_ids)))
+            actual_wavelength_ids = dict_acquisitions[acquisition][
+                "actual_wavelength_ids"
+            ]
             if well_wavelength_ids != actual_wavelength_ids:
                 raise Exception(
                     f"ERROR: well {well} in plate {plate} (prefix: "
