@@ -22,6 +22,7 @@ import anndata as ad
 import pytest
 from devtools import debug
 
+from .lib_empty_ROI_table import _add_empty_ROI_table
 from .utils import check_file_number
 from .utils import validate_labels_and_measurements
 from .utils import validate_schema
@@ -457,3 +458,101 @@ def test_expected_dimensions(
         else:
             with pytest.raises(ValueError):
                 napari_workflows_wrapper(**arguments)
+
+
+def test_napari_workflow_empty_input_ROI_table(
+    tmp_path: Path,
+    testdata_path: Path,
+    zenodo_zarr: List[str],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+):
+    """
+    Run the napari_workflows task, iterating over an empty table of ROIs
+    """
+
+    # Init
+    zarr_path = tmp_path / "tmp_out/"
+    metadata = prepare_3D_zarr(
+        str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
+    )
+    debug(zarr_path)
+    debug(metadata)
+
+    # Prepare empty ROI table
+    TABLE_NAME = "empty_ROI_table"
+    _add_empty_ROI_table(
+        image_zarr_path=Path(zarr_path / metadata["image"][0]),
+        table_name=TABLE_NAME,
+    )
+
+    # First napari-workflows task (labeling)
+    workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
+    input_specs: Dict[str, Dict[str, Union[str, int]]] = {
+        "input": {"type": "image", "wavelength_id": "A01_C01"},
+    }
+    output_specs: Dict[str, Dict[str, Union[str, int]]] = {
+        "Result of Expand labels (scikit-image, nsbatwm)": {
+            "type": "label",
+            "label_name": "label_DAPI",
+        },
+    }
+    for component in metadata["image"]:
+        napari_workflows_wrapper(
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
+            metadata=metadata,
+            component=component,
+            input_ROI_table=TABLE_NAME,
+            input_specs=input_specs,
+            output_specs=output_specs,
+            workflow_file=workflow_file,
+            level=2,
+        )
+    debug(metadata)
+
+    # Second napari-workflows task (measurement)
+    workflow_file = str(testdata_path / "napari_workflows/wf_4.yaml")
+    input_specs = {
+        "dapi_img": {"type": "image", "wavelength_id": "A01_C01"},
+        "dapi_label_img": {"type": "label", "label_name": "label_DAPI"},
+    }
+    output_specs = {
+        "regionprops_DAPI": {
+            "type": "dataframe",
+            "table_name": "regionprops_DAPI",
+        },
+    }
+    for component in metadata["image"]:
+        napari_workflows_wrapper(
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
+            metadata=metadata,
+            component=component,
+            input_ROI_table=TABLE_NAME,
+            input_specs=input_specs,
+            output_specs=output_specs,
+            workflow_file=workflow_file,
+        )
+    debug(metadata)
+
+    # OME-NGFF JSON validation
+    image_zarr = zarr_path / metadata["image"][0]
+    well_zarr = image_zarr.parent
+    plate_zarr = image_zarr.parents[2]
+    label_zarr = image_zarr / "labels/label_DAPI"
+    validate_schema(path=str(image_zarr), type="image")
+    validate_schema(path=str(well_zarr), type="well")
+    validate_schema(path=str(plate_zarr), type="plate")
+    validate_schema(path=str(label_zarr), type="label")
+
+    check_file_number(zarr_path=image_zarr)
+
+    validate_labels_and_measurements(
+        image_zarr, label_name="label_DAPI", table_name="regionprops_DAPI"
+    )
+
+    # Load measurements
+    meas = ad.read_zarr(
+        str(zarr_path / metadata["image"][0] / "tables/regionprops_DAPI/")
+    )
+    debug(meas.var_names)

@@ -213,6 +213,9 @@ def convert_ROI_table_to_indices(
     :param dummy: this is just a placeholder
     :type dummy: int
     """
+    # Handle empty ROI table
+    if len(ROI) == 0:
+        return []
 
     # Set pyramid-level pixel sizes
     pxl_size_z, pxl_size_y, pxl_size_x = full_res_pxl_sizes_zyx
@@ -339,8 +342,11 @@ def array_to_bounding_box_table(
         "len_z_micrometer",
     ]
 
-    df = pd.DataFrame(np.array(elem_list), columns=df_columns)
-    df["label"] = labels
+    if len(elem_list) == 0:
+        df = pd.DataFrame(columns=[x for x in df_columns] + ["label"])
+    else:
+        df = pd.DataFrame(np.array(elem_list), columns=df_columns)
+        df["label"] = labels
 
     return df
 

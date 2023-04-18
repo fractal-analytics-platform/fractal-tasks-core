@@ -29,6 +29,7 @@ from devtools import debug
 from pytest import MonkeyPatch
 
 import fractal_tasks_core
+from .lib_empty_ROI_table import _add_empty_ROI_table
 from .utils import check_file_number
 from .utils import validate_schema
 from fractal_tasks_core.cellpose_segmentation import cellpose_segmentation
@@ -663,3 +664,60 @@ def test_workflow_with_per_FOV_labeling_via_script(
     assert error_msg in res.stderr
     assert "urllib.error.HTTPError" not in res.stdout
     assert "urllib.error.HTTPError" not in res.stderr
+
+
+def test_workflow_with_per_FOV_labeling_with_empty_FOV_table(
+    tmp_path: Path,
+    testdata_path: Path,
+    zenodo_zarr: List[str],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+    caplog: pytest.LogCaptureFixture,
+    monkeypatch: MonkeyPatch,
+):
+    """
+    Run the cellpose task iterating over an empty table of ROIs
+    """
+
+    # Use pre-made 3D zarr
+    zarr_path = tmp_path / "tmp_out/"
+    metadata = prepare_3D_zarr(
+        str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
+    )
+    debug(zarr_path)
+    debug(metadata)
+
+    # Prepare empty ROI table
+    TABLE_NAME = "empty_ROI_table"
+    _add_empty_ROI_table(
+        image_zarr_path=Path(zarr_path / metadata["image"][0]),
+        table_name=TABLE_NAME,
+    )
+
+    # Per-FOV labeling
+    for component in metadata["image"]:
+        cellpose_segmentation(
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
+            metadata=metadata,
+            component=component,
+            input_ROI_table=TABLE_NAME,
+            wavelength_id="A01_C01",
+            level=3,
+            relabeling=True,
+            diameter_level0=80.0,
+            augment=True,
+            net_avg=True,
+            min_size=30,
+        )
+
+    # OME-NGFF JSON validation
+    image_zarr = Path(zarr_path / metadata["image"][0])
+    label_zarr = image_zarr / "labels/label_DAPI"
+    well_zarr = image_zarr.parent
+    plate_zarr = image_zarr.parents[2]
+    validate_schema(path=str(image_zarr), type="image")
+    validate_schema(path=str(well_zarr), type="well")
+    validate_schema(path=str(plate_zarr), type="plate")
+    validate_schema(path=str(label_zarr), type="label")
+
+    check_file_number(zarr_path=image_zarr)

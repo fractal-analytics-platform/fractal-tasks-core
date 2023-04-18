@@ -1,4 +1,9 @@
-# Unreleased
+# 0.9.3
+
+* For labeling tasks (`cellpose_segmentation` or `napari_worfklows_wrapper`), allow empty ROI tables as input or output (\#365).
+* Relax constraint related to the presence of channels in `create_zarr_structure_multiplex` task (\#365).
+
+# 0.9.2
 
 * Increase memory requirements for some tasks in manifest (\#363).
 

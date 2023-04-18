@@ -1,5 +1,6 @@
 import glob
 import json
+import logging
 import urllib
 from pathlib import Path
 from typing import Dict
@@ -102,13 +103,21 @@ def validate_labels_and_measurements(
     # Load measurements
     try:
         table = ad.read_zarr(table_path)
-        list_table_label_values = [int(x) for x in list(table.obs["label"])]
     except zarr.errors.PathNotFoundError:
-        print(
+        logging.warning(
             f"{table_path} missing, skip validation of dataframe and of "
             "dataframe/label match"
         )
         return
+    debug(table)
+    if len(table) == 0:
+        logging.warning(
+            f"Table in {table_path} is empty, skip validation of "
+            "dataframe and of dataframe/label match"
+        )
+        return
+
+    list_table_label_values = [int(x) for x in list(table.obs["label"])]
 
     # Check that measurement labels are unique
     assert len(set(list_table_label_values)) == len(list_table_label_values)

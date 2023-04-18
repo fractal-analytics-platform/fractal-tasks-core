@@ -3,6 +3,7 @@
 __pycache__
 *.cpython-*.pyc
 *.env
+.DS_Store
 
 # parsl-related
 .*.swp
