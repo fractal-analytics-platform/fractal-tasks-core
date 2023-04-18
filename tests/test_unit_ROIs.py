@@ -1,16 +1,20 @@
 from pathlib import Path
 
+import anndata as ad
 import numpy as np
 import pandas as pd
 import pytest
 from devtools import debug
 
 from fractal_tasks_core.lib_regions_of_interest import (
+    array_to_bounding_box_table,
+)
+from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
-)  # noqa
+)
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROIs_from_3D_to_2D,
-)  # noqa
+)
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
 from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
@@ -239,3 +243,30 @@ def test_overlaps_in_indices():
     res = find_overlaps_in_ROI_indices(list_indices)
     debug(res)
     assert res == (4, 3)
+
+
+def test_empty_ROI_table():
+    """
+    When providing an empty ROI AnnData table to convert_ROI_table_to_indices,
+    the resulting indices must be an empty list.
+    """
+    empty_ROI_table = ad.AnnData(X=None)
+    debug(empty_ROI_table)
+    indices = convert_ROI_table_to_indices(
+        empty_ROI_table,
+        full_res_pxl_sizes_zyx=[1.0, 1.0, 1.0],
+    )
+    assert indices == []
+
+
+def test_bounding_boxes_of_empty_label():
+    """
+    When trying to compute bounding boxes for a label array which has no labels
+    (that is, it only has zeros), the output dataframe has zero rows (but it
+    still has the `label` column, as expected).
+    """
+    mask_array = np.zeros((10, 100, 100))
+    df = array_to_bounding_box_table(mask_array, pxl_sizes_zyx=[1.0, 1.0, 1.0])
+    debug(df)
+    assert df.shape[0] == 0
+    assert "label" in df.columns
