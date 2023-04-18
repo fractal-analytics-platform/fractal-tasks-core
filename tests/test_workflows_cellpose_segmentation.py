@@ -686,6 +686,7 @@ def test_workflow_with_per_FOV_labeling_with_empty_FOV_table(
     debug(zarr_path)
     debug(metadata)
 
+    # Prepare empty ROI table
     TABLE_NAME = "empty_ROI_table"
     _add_empty_ROI_table(
         image_zarr_path=Path(zarr_path / metadata["image"][0]),
