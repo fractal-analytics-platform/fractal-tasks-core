@@ -568,6 +568,7 @@ def napari_workflows_wrapper(
             # Convert all to float (warning: some would be int, in principle)
             measurement_dtype = np.float32
             df_well = df_well.astype(measurement_dtype)
+            df_well.index = df_well.index.map(str)
             # Convert to anndata
             measurement_table = ad.AnnData(df_well, dtype=measurement_dtype)
             measurement_table.obs = labels
