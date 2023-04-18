@@ -558,16 +558,19 @@ def napari_workflows_wrapper(
         table_name = params["table_name"]
         # Concatenate all FOV dataframes
         list_dfs = output_dataframe_lists[name]
-        df_well = pd.concat(list_dfs, axis=0, ignore_index=True)
-        # Extract labels and drop them from df_well
-        labels = pd.DataFrame(df_well["label"].astype(str))
-        df_well.drop(labels=["label"], axis=1, inplace=True)
-        # Convert all to float (warning: some would be int, in principle)
-        measurement_dtype = np.float32
-        df_well = df_well.astype(measurement_dtype)
-        # Convert to anndata
-        measurement_table = ad.AnnData(df_well, dtype=measurement_dtype)
-        measurement_table.obs = labels
+        if len(list_dfs) == 0:
+            measurement_table = ad.AnnData()
+        else:
+            df_well = pd.concat(list_dfs, axis=0, ignore_index=True)
+            # Extract labels and drop them from df_well
+            labels = pd.DataFrame(df_well["label"].astype(str))
+            df_well.drop(labels=["label"], axis=1, inplace=True)
+            # Convert all to float (warning: some would be int, in principle)
+            measurement_dtype = np.float32
+            df_well = df_well.astype(measurement_dtype)
+            # Convert to anndata
+            measurement_table = ad.AnnData(df_well, dtype=measurement_dtype)
+            measurement_table.obs = labels
         # Write to zarr group
         group_tables = zarr.group(f"{in_path}/{component}/tables/")
         write_elem(group_tables, table_name, measurement_table)
