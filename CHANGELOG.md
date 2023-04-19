@@ -1,3 +1,7 @@
+# Unreleased
+
+* Relax constraint on `scikit-image` version, by only requiring a version `>=0.19` (\#367).
+
 # 0.9.3
 
 * For labeling tasks (`cellpose_segmentation` or `napari_worfklows_wrapper`), allow empty ROI tables as input or output (\#365).
