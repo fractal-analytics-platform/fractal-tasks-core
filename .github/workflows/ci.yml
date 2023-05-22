@@ -40,7 +40,7 @@ jobs:
         run: poetry install --with dev --all-extras --no-interaction
 
       - name: Task-arguments JSON schemas
-        run: poetry run scripts/update_args_schemas.py check
+        run: poetry run python scripts/update_args_schemas.py check
 
       - name: Test with pytest
         run: poetry run coverage run -m pytest
