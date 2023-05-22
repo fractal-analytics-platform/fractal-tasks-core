@@ -1,0 +1,68 @@
+{
+  "title": "TaskArguments",
+  "type": "object",
+  "properties": {
+    "input_paths": {
+      "title": "Input Paths",
+      "description": "TBD",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "output_path": {
+      "title": "Output Path",
+      "description": "TBD",
+      "type": "string"
+    },
+    "metadata": {
+      "title": "Metadata",
+      "type": "object"
+    },
+    "image_extension": {
+      "title": "Image Extension",
+      "default": "tif",
+      "type": "string"
+    },
+    "image_glob_patterns": {
+      "title": "Image Glob Patterns",
+      "description": "TBD",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "allowed_channels": {
+      "title": "Allowed Channels",
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "num_levels": {
+      "title": "Num Levels",
+      "description": "TBD",
+      "default": 2,
+      "type": "integer"
+    },
+    "coarsening_xy": {
+      "title": "Coarsening Xy",
+      "description": "TBD",
+      "default": 2,
+      "type": "integer"
+    },
+    "metadata_table": {
+      "title": "Metadata Table",
+      "description": "TBD",
+      "default": "mrf_mlf",
+      "type": "string"
+    }
+  },
+  "required": [
+    "input_paths",
+    "output_path",
+    "metadata",
+    "allowed_channels"
+  ],
+  "additionalProperties": false
+}
