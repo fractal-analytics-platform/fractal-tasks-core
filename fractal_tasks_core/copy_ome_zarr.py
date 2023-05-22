@@ -24,6 +24,8 @@ from typing import Sequence
 import anndata as ad
 import zarr
 from anndata.experimental import write_elem
+from pydantic import BaseModel
+from pydantic import Extra
 
 import fractal_tasks_core
 from fractal_tasks_core.lib_regions_of_interest import (
@@ -196,18 +198,17 @@ def copy_ome_zarr(
     return meta_update
 
 
-if __name__ == "__main__":
-    from pydantic import BaseModel
-    from pydantic import Extra
-    from fractal_tasks_core._utils import run_fractal_task
+class TaskArguments(BaseModel, extra=Extra.forbid):
+    input_paths: Sequence[str]
+    output_path: str
+    metadata: Dict[str, Any]
+    project_to_2D: Optional[bool]
+    suffix: Optional[str]
+    ROI_table_names: Optional[Sequence[str]]
 
-    class TaskArguments(BaseModel, extra=Extra.forbid):
-        input_paths: Sequence[str]
-        output_path: str
-        metadata: Dict[str, Any]
-        project_to_2D: Optional[bool]
-        suffix: Optional[str]
-        ROI_table_names: Optional[Sequence[str]]
+
+if __name__ == "__main__":
+    from fractal_tasks_core._utils import run_fractal_task
 
     run_fractal_task(
         task_function=copy_ome_zarr,

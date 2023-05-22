@@ -27,6 +27,8 @@ import anndata as ad
 import dask.array as da
 import numpy as np
 import zarr
+from pydantic import BaseModel
+from pydantic import Extra
 from skimage.io import imread
 
 from fractal_tasks_core.lib_channels import get_omero_channel_list
@@ -270,23 +272,21 @@ def illumination_correction(
     return {}
 
 
+class TaskArguments(BaseModel, extra=Extra.forbid):
+    # Fractal arguments
+    input_paths: Sequence[str]
+    output_path: str
+    component: str
+    metadata: Dict[str, Any]
+    # Task-specific arguments
+    overwrite: Optional[bool]
+    new_component: Optional[str]
+    dict_corr: dict
+    background: Optional[int]
+
+
 if __name__ == "__main__":
-
-    from pydantic import BaseModel
-    from pydantic import Extra
     from fractal_tasks_core._utils import run_fractal_task
-
-    class TaskArguments(BaseModel, extra=Extra.forbid):
-        # Fractal arguments
-        input_paths: Sequence[str]
-        output_path: str
-        component: str
-        metadata: Dict[str, Any]
-        # Task-specific arguments
-        overwrite: Optional[bool]
-        new_component: Optional[str]
-        dict_corr: dict
-        background: Optional[int]
 
     run_fractal_task(
         task_function=illumination_correction,

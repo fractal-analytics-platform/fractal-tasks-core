@@ -26,6 +26,8 @@ from typing import Union
 import pandas as pd
 import zarr
 from anndata.experimental import write_elem
+from pydantic import BaseModel
+from pydantic import Extra
 
 import fractal_tasks_core
 from fractal_tasks_core.lib_channels import check_well_channel_labels
@@ -480,21 +482,20 @@ def create_ome_zarr_multiplex(
     return metadata_update
 
 
-if __name__ == "__main__":
-    from pydantic import BaseModel
-    from pydantic import Extra
-    from fractal_tasks_core._utils import run_fractal_task
+class TaskArguments(BaseModel, extra=Extra.forbid):
+    input_paths: Sequence[str]
+    output_path: str
+    metadata: Dict[str, Any]
+    image_extension: str
+    image_glob_pattern: Optional[list[str]]
+    allowed_channels: Dict[str, Sequence[Dict[str, Any]]]
+    num_levels: Optional[int]
+    coarsening_xy: Optional[int]
+    metadata_table: Optional[Union[Literal["mrf_mlf"], Dict[str, str]]]
 
-    class TaskArguments(BaseModel, extra=Extra.forbid):
-        input_paths: Sequence[str]
-        output_path: str
-        metadata: Dict[str, Any]
-        image_extension: str
-        image_glob_pattern: Optional[list[str]]
-        allowed_channels: Dict[str, Sequence[Dict[str, Any]]]
-        num_levels: Optional[int]
-        coarsening_xy: Optional[int]
-        metadata_table: Optional[Union[Literal["mrf_mlf"], Dict[str, str]]]
+
+if __name__ == "__main__":
+    from fractal_tasks_core._utils import run_fractal_task
 
     run_fractal_task(
         task_function=create_ome_zarr_multiplex,
