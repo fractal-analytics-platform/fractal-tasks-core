@@ -24,6 +24,9 @@ from typing import Sequence
 import pandas as pd
 import zarr
 from anndata.experimental import write_elem
+from pydantic import BaseModel
+from pydantic import Extra
+from pydantic import Field
 
 import fractal_tasks_core
 from fractal_tasks_core.lib_channels import check_well_channel_labels
@@ -44,17 +47,31 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+class TaskArguments(BaseModel, extra=Extra.forbid):
+    input_paths: Sequence[str] = Field(description="TBD")
+    output_path: str = Field(description="TBD")
+    metadata: Dict[str, Any]
+    image_extension: str = "tif"
+    image_glob_patterns: Optional[list[str]] = Field(
+        description="TBD", default=None
+    )
+    allowed_channels: Sequence[Dict[str, Any]]
+    num_levels: int = Field(description="TBD", default=2)
+    coarsening_xy: int = Field(description="TBD", default=2)
+    metadata_table: str = Field(description="TBD", default="mrf_mlf")
+
+
 def create_ome_zarr(
     *,
     input_paths: Sequence[str],
     output_path: str,
     metadata: Dict[str, Any],
-    image_extension: str = "tif",
-    image_glob_patterns: Optional[list[str]] = None,
+    image_extension: str = "tif",  # FIXME: remove default
+    image_glob_patterns: Optional[list[str]] = None,  # FIXME: remove default
     allowed_channels: Sequence[Dict[str, Any]],
-    num_levels: int = 2,
-    coarsening_xy: int = 2,
-    metadata_table: str = "mrf_mlf",
+    num_levels: int = 2,  # FIXME: remove default
+    coarsening_xy: int = 2,  # FIXME: remove default
+    metadata_table: str = "mrf_mlf",  # FIXME: remove default
 ) -> Dict[str, Any]:
     """
     Create a OME-NGFF zarr folder, without reading/writing image data
@@ -430,20 +447,7 @@ def create_ome_zarr(
 
 
 if __name__ == "__main__":
-    from pydantic import BaseModel
-    from pydantic import Extra
     from fractal_tasks_core._utils import run_fractal_task
-
-    class TaskArguments(BaseModel, extra=Extra.forbid):
-        input_paths: Sequence[str]
-        output_path: str
-        metadata: Dict[str, Any]
-        image_extension: str
-        image_glob_patterns: Optional[list[str]]
-        allowed_channels: Sequence[Dict[str, Any]]
-        num_levels: Optional[int]
-        coarsening_xy: Optional[int]
-        metadata_table: Optional[str]
 
     run_fractal_task(
         task_function=create_ome_zarr,
