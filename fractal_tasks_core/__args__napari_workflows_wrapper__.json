@@ -1,0 +1,75 @@
+{
+  "title": "TaskArguments",
+  "type": "object",
+  "properties": {
+    "input_paths": {
+      "title": "Input Paths",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "output_path": {
+      "title": "Output Path",
+      "type": "string"
+    },
+    "metadata": {
+      "title": "Metadata",
+      "type": "object"
+    },
+    "component": {
+      "title": "Component",
+      "type": "string"
+    },
+    "workflow_file": {
+      "title": "Workflow File",
+      "type": "string"
+    },
+    "input_specs": {
+      "title": "Input Specs",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+    },
+    "output_specs": {
+      "title": "Output Specs",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+    },
+    "input_ROI_table": {
+      "title": "Input Roi Table",
+      "type": "string"
+    },
+    "level": {
+      "title": "Level",
+      "type": "integer"
+    },
+    "relabeling": {
+      "title": "Relabeling",
+      "type": "boolean"
+    },
+    "expected_dimensions": {
+      "title": "Expected Dimensions",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "input_paths",
+    "output_path",
+    "metadata",
+    "component",
+    "workflow_file",
+    "input_specs",
+    "output_specs"
+  ],
+  "additionalProperties": false
+}

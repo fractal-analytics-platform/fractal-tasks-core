@@ -1,0 +1,49 @@
+{
+  "title": "TaskArguments",
+  "type": "object",
+  "properties": {
+    "input_paths": {
+      "title": "Input Paths",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "output_path": {
+      "title": "Output Path",
+      "type": "string"
+    },
+    "component": {
+      "title": "Component",
+      "type": "string"
+    },
+    "metadata": {
+      "title": "Metadata",
+      "type": "object"
+    },
+    "overwrite": {
+      "title": "Overwrite",
+      "type": "boolean"
+    },
+    "new_component": {
+      "title": "New Component",
+      "type": "string"
+    },
+    "dict_corr": {
+      "title": "Dict Corr",
+      "type": "object"
+    },
+    "background": {
+      "title": "Background",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "input_paths",
+    "output_path",
+    "component",
+    "metadata",
+    "dict_corr"
+  ],
+  "additionalProperties": false
+}

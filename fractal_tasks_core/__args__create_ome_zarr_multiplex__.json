@@ -1,0 +1,75 @@
+{
+  "title": "TaskArguments",
+  "type": "object",
+  "properties": {
+    "input_paths": {
+      "title": "Input Paths",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "output_path": {
+      "title": "Output Path",
+      "type": "string"
+    },
+    "metadata": {
+      "title": "Metadata",
+      "type": "object"
+    },
+    "image_extension": {
+      "title": "Image Extension",
+      "type": "string"
+    },
+    "image_glob_pattern": {
+      "title": "Image Glob Pattern",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "allowed_channels": {
+      "title": "Allowed Channels",
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      }
+    },
+    "num_levels": {
+      "title": "Num Levels",
+      "type": "integer"
+    },
+    "coarsening_xy": {
+      "title": "Coarsening Xy",
+      "type": "integer"
+    },
+    "metadata_table": {
+      "title": "Metadata Table",
+      "anyOf": [
+        {
+          "enum": [
+            "mrf_mlf"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "input_paths",
+    "output_path",
+    "metadata",
+    "image_extension",
+    "allowed_channels"
+  ],
+  "additionalProperties": false
+}

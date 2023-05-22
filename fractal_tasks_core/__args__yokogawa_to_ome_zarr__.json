@@ -1,0 +1,36 @@
+{
+  "title": "TaskArguments",
+  "type": "object",
+  "properties": {
+    "input_paths": {
+      "title": "Input Paths",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "output_path": {
+      "title": "Output Path",
+      "type": "string"
+    },
+    "metadata": {
+      "title": "Metadata",
+      "type": "object"
+    },
+    "component": {
+      "title": "Component",
+      "type": "string"
+    },
+    "delete_input": {
+      "title": "Delete Input",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "input_paths",
+    "output_path",
+    "metadata",
+    "component"
+  ],
+  "additionalProperties": false
+}
