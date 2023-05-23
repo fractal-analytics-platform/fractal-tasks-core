@@ -54,7 +54,6 @@ memory-profiler = "^0.60.0"
 zenodo-get = "^1.3.4"
 jsonschema = "^4.16.0"
 deptry = "^0.6.1"
-sqlmodel = "^0.0.8"
 napari-ome-zarr = "^0.5.2"
 pytest-pretty = "^1.1.0"
 
