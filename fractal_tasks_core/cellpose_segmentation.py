@@ -671,9 +671,9 @@ class TaskArguments(BaseModel, extra=Extra.forbid):
     metadata: Dict[str, Any]
     # Task-specific arguments
     channel_label: Optional[str]
+    channel_label_c2: Optional[str]
     wavelength_id: Optional[str]
-    channel_label_c2: Optional[str]
-    channel_label_c2: Optional[str]
+    wavelength_id_c2: Optional[str]
     level: int
     relabeling: bool = True
     input_ROI_table: Optional[str]

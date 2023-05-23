@@ -25,12 +25,16 @@
       "title": "Channel Label",
       "type": "string"
     },
+    "channel_label_c2": {
+      "title": "Channel Label C2",
+      "type": "string"
+    },
     "wavelength_id": {
       "title": "Wavelength Id",
       "type": "string"
     },
-    "channel_label_c2": {
-      "title": "Channel Label C2",
+    "wavelength_id_c2": {
+      "title": "Wavelength Id C2",
       "type": "string"
     },
     "level": {
