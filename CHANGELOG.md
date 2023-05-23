@@ -1,4 +1,6 @@
 * Remove legacy executor definitions from manifest (\#361).
+* Remove `sqlmodel` from dev dependencies (\#374).
+
 
 # 0.9.4
 
