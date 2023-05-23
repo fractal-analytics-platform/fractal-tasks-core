@@ -13,7 +13,6 @@
             },
             "executable": "create_ome_zarr.py",
             "meta": {
-                "executor": "cpu-low",
                 "cpus_per_task": 1,
                 "mem": 4000
             }
@@ -24,7 +23,6 @@
             "output_type": "zarr",
             "executable": "yokogawa_to_ome_zarr.py",
             "meta": {
-                "executor": "cpu-low",
                 "parallelization_level": "image",
                 "cpus_per_task": 1,
                 "mem": 4000
@@ -40,7 +38,6 @@
             },
             "executable": "copy_ome_zarr.py",
             "meta": {
-                "executor": "cpu-low",
                 "cpus_per_task": 1,
                 "mem": 1000
             }
@@ -51,7 +48,6 @@
             "output_type": "zarr",
             "executable": "maximum_intensity_projection.py",
             "meta": {
-                "executor": "cpu-low",
                 "parallelization_level": "image",
                 "cpus_per_task": 1,
                 "mem": 4000
@@ -63,7 +59,6 @@
             "output_type": "zarr",
             "executable": "cellpose_segmentation.py",
             "meta": {
-                "executor": "gpu",
                 "parallelization_level": "image",
                 "cpus_per_task": 4,
                 "mem": 16000,
@@ -80,7 +75,6 @@
             },
             "executable": "illumination_correction.py",
             "meta": {
-                "executor": "cpu-low",
                 "parallelization_level": "image",
                 "cpus_per_task": 1,
                 "mem": 4000
@@ -98,7 +92,6 @@
             },
             "executable": "napari_workflows_wrapper.py",
             "meta": {
-                "executor": "cpu-low",
                 "parallelization_level": "image",
                 "cpus_per_task": 8,
                 "mem": 32000
@@ -116,7 +109,6 @@
             },
             "executable": "create_ome_zarr_multiplex.py",
             "meta": {
-                "executor": "cpu-low",
                 "cpus_per_task": 1,
                 "mem": 4000
             }

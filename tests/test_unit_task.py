@@ -27,7 +27,7 @@ def test_create_ome_zarr(tmp_path, testdata_path):
     default_args["allowed_channels"] = [{"wavelength_id": "A01_C01"}]
     default_args["image_extension"] = "png"
 
-    for key in ["executor", "parallelization_level"]:
+    for key in ["parallelization_level"]:
         if key in default_args.keys():
             default_args.pop(key)
 

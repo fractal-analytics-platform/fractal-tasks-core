@@ -1,3 +1,5 @@
+* Remove legacy executor definitions from manifest (\#361).
+
 # 0.9.4
 
 * Relax constraint on `scikit-image` version, by only requiring a version `>=0.19` (\#367).
