@@ -44,7 +44,9 @@ def test_task_arguments_schemas():
     for task in task_list:
         print(f"Now handling {task['executable']}")
         schema, module_name = _create_schema_for_single_task(task)
-        schema_path = FRACTAL_TASKS_CORE_DIR / f"__args__{module_name}__.json"
+        schema_path = (
+            FRACTAL_TASKS_CORE_DIR / f"__args_schema__/__{module_name}__.json"
+        )
         with schema_path.open("r") as f:
             current_schema = json.load(f)
         if not current_schema == schema:

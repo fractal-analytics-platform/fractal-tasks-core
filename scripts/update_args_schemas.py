@@ -63,7 +63,9 @@ if __name__ == "__main__":
             print()
             continue
 
-        schema_path = FRACTAL_TASKS_CORE_DIR / f"__args__{module_name}__.json"
+        schema_path = (
+            FRACTAL_TASKS_CORE_DIR / f"__args_schema__/__{module_name}__.json"
+        )
         if command == "check":
             with schema_path.open("r") as f:
                 current_schema = json.load(f)
