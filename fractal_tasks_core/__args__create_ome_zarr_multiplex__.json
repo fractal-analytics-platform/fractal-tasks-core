@@ -21,8 +21,8 @@
       "title": "Image Extension",
       "type": "string"
     },
-    "image_glob_pattern": {
-      "title": "Image Glob Pattern",
+    "image_glob_patterns": {
+      "title": "Image Glob Patterns",
       "type": "array",
       "items": {
         "type": "string"
