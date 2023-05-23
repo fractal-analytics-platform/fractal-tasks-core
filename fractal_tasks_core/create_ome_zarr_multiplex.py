@@ -487,7 +487,7 @@ class TaskArguments(BaseModel, extra=Extra.forbid):
     output_path: str
     metadata: Dict[str, Any]
     image_extension: str
-    image_glob_pattern: Optional[list[str]]
+    image_glob_patterns: Optional[list[str]]
     allowed_channels: Dict[str, Sequence[Dict[str, Any]]]
     num_levels: Optional[int]
     coarsening_xy: Optional[int]
