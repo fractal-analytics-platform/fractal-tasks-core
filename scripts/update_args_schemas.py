@@ -74,5 +74,6 @@ if __name__ == "__main__":
         elif command == "new":
             with schema_path.open("w") as f:
                 json.dump(schema, f, indent=2)
+                f.write("\n")
             print(f"Schema written to {schema_path.as_posix()}")
             print()
