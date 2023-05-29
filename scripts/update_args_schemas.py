@@ -53,8 +53,13 @@ if __name__ == "__main__":
     args = parser_main.parse_args()
     command = args.command
 
-    task_list = get_task_list_from_manifest()
-    for task in task_list:
+    with (FRACTAL_TASKS_CORE_DIR / "__FRACTAL_MANIFEST__.json").open("r") as f:
+        manifest = json.load(f)
+    task_list = manifest["task_list"]
+    manifest["has_args_schema"] = True
+    manifest["args_schema_version"] = "pydantic_v1"
+
+    for ind, task in enumerate(task_list):
         print(f"Now handling {task['executable']}")
         try:
             schema, module_name = create_schema_for_single_task(task)
@@ -63,19 +68,16 @@ if __name__ == "__main__":
             print()
             continue
 
-        schema_path = (
-            FRACTAL_TASKS_CORE_DIR / f"__args_schema__/__{module_name}__.json"
-        )
         if command == "check":
-            with schema_path.open("r") as f:
-                current_schema = json.load(f)
+            current_schema = task["args_schema"]
             if not current_schema == schema:
                 raise ValueError("Schemas are different.")
-            print(f"Schema in {schema_path.as_posix()} is up-to-date.")
+            print("Schema in manifest is up-to-date.")
             print()
         elif command == "new":
-            with schema_path.open("w") as f:
-                json.dump(schema, f, indent=2)
-                f.write("\n")
-            print(f"Schema written to {schema_path.as_posix()}")
+            manifest["task_list"][ind]["args_schema"] = schema
+            print("Schema added to manifest")
             print()
+
+    with (FRACTAL_TASKS_CORE_DIR / "__FRACTAL_MANIFEST__.json").open("w") as f:
+        json.dump(manifest, f, indent=2, sort_keys=True)

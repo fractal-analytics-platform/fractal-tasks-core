@@ -1,117 +1,610 @@
 {
-    "manifest_version": "1",
-    "task_list": [
-        {
-            "name": "Create OME-Zarr structure",
-            "input_type": "image",
-            "output_type": "zarr",
-            "default_args": {
-                "image_extension": "tif",
-                "num_levels": 2,
-                "coarsening_xy": 2,
-                "metadata_table": "mrf_mlf"
+  "args_schema_version": "pydantic_v1",
+  "has_args_schema": true,
+  "manifest_version": "1",
+  "task_list": [
+    {
+      "args_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "allowed_channels": {
+            "items": {
+              "type": "object"
             },
-            "executable": "create_ome_zarr.py",
-            "meta": {
-                "cpus_per_task": 1,
-                "mem": 4000
-            }
-        },
-        {
-            "name": "Convert Yokogawa to OME-Zarr",
-            "input_type": "zarr",
-            "output_type": "zarr",
-            "executable": "yokogawa_to_ome_zarr.py",
-            "meta": {
-                "parallelization_level": "image",
-                "cpus_per_task": 1,
-                "mem": 4000
-            }
-        },
-        {
-            "name": "Copy OME-Zarr structure",
-            "input_type": "zarr",
-            "output_type": "zarr",
-            "default_args": {
-                "project_to_2D": true,
-                "suffix": "mip"
+            "title": "Allowed Channels",
+            "type": "array"
+          },
+          "coarsening_xy": {
+            "default": 2,
+            "description": "TBD",
+            "title": "Coarsening Xy",
+            "type": "integer"
+          },
+          "image_extension": {
+            "default": "tif",
+            "title": "Image Extension",
+            "type": "string"
+          },
+          "image_glob_patterns": {
+            "description": "TBD",
+            "items": {
+              "type": "string"
             },
-            "executable": "copy_ome_zarr.py",
-            "meta": {
-                "cpus_per_task": 1,
-                "mem": 1000
-            }
-        },
-        {
-            "name": "Maximum Intensity Projection",
-            "input_type": "zarr",
-            "output_type": "zarr",
-            "executable": "maximum_intensity_projection.py",
-            "meta": {
-                "parallelization_level": "image",
-                "cpus_per_task": 1,
-                "mem": 4000
-            }
-        },
-        {
-            "name": "Cellpose Segmentation",
-            "input_type": "zarr",
-            "output_type": "zarr",
-            "executable": "cellpose_segmentation.py",
-            "meta": {
-                "parallelization_level": "image",
-                "cpus_per_task": 4,
-                "mem": 16000,
-                "needs_gpu": true
-            }
-        },
-        {
-            "name": "Illumination correction",
-            "input_type": "zarr",
-            "output_type": "zarr",
-            "default_args": {
-                "overwrite": false,
-                "background": 100
+            "title": "Image Glob Patterns",
+            "type": "array"
+          },
+          "input_paths": {
+            "description": "TBD",
+            "items": {
+              "type": "string"
             },
-            "executable": "illumination_correction.py",
-            "meta": {
-                "parallelization_level": "image",
-                "cpus_per_task": 1,
-                "mem": 4000
-            }
+            "title": "Input Paths",
+            "type": "array"
+          },
+          "metadata": {
+            "title": "Metadata",
+            "type": "object"
+          },
+          "metadata_table": {
+            "default": "mrf_mlf",
+            "description": "TBD",
+            "title": "Metadata Table",
+            "type": "string"
+          },
+          "num_levels": {
+            "default": 2,
+            "description": "TBD",
+            "title": "Num Levels",
+            "type": "integer"
+          },
+          "output_path": {
+            "description": "TBD",
+            "title": "Output Path",
+            "type": "string"
+          }
         },
-        {
-            "name": "Napari workflows wrapper",
-            "input_type": "zarr",
-            "output_type": "zarr",
-            "default_args": {
-                "input_ROI_table": "FOV_ROI_table",
-                "level": 0,
-                "relabeling": true,
-                "expected_dimensions": 3
+        "required": [
+          "input_paths",
+          "output_path",
+          "metadata",
+          "allowed_channels"
+        ],
+        "title": "TaskArguments",
+        "type": "object"
+      },
+      "default_args": {
+        "coarsening_xy": 2,
+        "image_extension": "tif",
+        "metadata_table": "mrf_mlf",
+        "num_levels": 2
+      },
+      "executable": "create_ome_zarr.py",
+      "input_type": "image",
+      "meta": {
+        "cpus_per_task": 1,
+        "mem": 4000
+      },
+      "name": "Create OME-Zarr structure",
+      "output_type": "zarr"
+    },
+    {
+      "args_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "component": {
+            "title": "Component",
+            "type": "string"
+          },
+          "delete_input": {
+            "title": "Delete Input",
+            "type": "boolean"
+          },
+          "input_paths": {
+            "items": {
+              "type": "string"
             },
-            "executable": "napari_workflows_wrapper.py",
-            "meta": {
-                "parallelization_level": "image",
-                "cpus_per_task": 8,
-                "mem": 32000
-            }
+            "title": "Input Paths",
+            "type": "array"
+          },
+          "metadata": {
+            "title": "Metadata",
+            "type": "object"
+          },
+          "output_path": {
+            "title": "Output Path",
+            "type": "string"
+          }
         },
-        {
-            "name": "Create OME-ZARR structure (multiplexing)",
-            "input_type": "image",
-            "output_type": "zarr",
-            "default_args": {
-                "image_extension": "tif",
-                "num_levels": 2,
-                "coarsening_xy": 2,
-                "metadata_table": "mrf_mlf"
+        "required": [
+          "input_paths",
+          "output_path",
+          "metadata",
+          "component"
+        ],
+        "title": "TaskArguments",
+        "type": "object"
+      },
+      "executable": "yokogawa_to_ome_zarr.py",
+      "input_type": "zarr",
+      "meta": {
+        "cpus_per_task": 1,
+        "mem": 4000,
+        "parallelization_level": "image"
+      },
+      "name": "Convert Yokogawa to OME-Zarr",
+      "output_type": "zarr"
+    },
+    {
+      "args_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "ROI_table_names": {
+            "items": {
+              "type": "string"
             },
-            "executable": "create_ome_zarr_multiplex.py",
-            "meta": {
-                "cpus_per_task": 1,
-                "mem": 4000
-            }
-        }
-    ]
+            "title": "Roi Table Names",
+            "type": "array"
+          },
+          "input_paths": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Input Paths",
+            "type": "array"
+          },
+          "metadata": {
+            "title": "Metadata",
+            "type": "object"
+          },
+          "output_path": {
+            "title": "Output Path",
+            "type": "string"
+          },
+          "project_to_2D": {
+            "title": "Project To 2D",
+            "type": "boolean"
+          },
+          "suffix": {
+            "title": "Suffix",
+            "type": "string"
+          }
+        },
+        "required": [
+          "input_paths",
+          "output_path",
+          "metadata"
+        ],
+        "title": "TaskArguments",
+        "type": "object"
+      },
+      "default_args": {
+        "project_to_2D": true,
+        "suffix": "mip"
+      },
+      "executable": "copy_ome_zarr.py",
+      "input_type": "zarr",
+      "meta": {
+        "cpus_per_task": 1,
+        "mem": 1000
+      },
+      "name": "Copy OME-Zarr structure",
+      "output_type": "zarr"
+    },
+    {
+      "args_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "component": {
+            "title": "Component",
+            "type": "string"
+          },
+          "input_paths": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Input Paths",
+            "type": "array"
+          },
+          "metadata": {
+            "title": "Metadata",
+            "type": "object"
+          },
+          "output_path": {
+            "title": "Output Path",
+            "type": "string"
+          }
+        },
+        "required": [
+          "input_paths",
+          "output_path",
+          "metadata",
+          "component"
+        ],
+        "title": "TaskArguments",
+        "type": "object"
+      },
+      "executable": "maximum_intensity_projection.py",
+      "input_type": "zarr",
+      "meta": {
+        "cpus_per_task": 1,
+        "mem": 4000,
+        "parallelization_level": "image"
+      },
+      "name": "Maximum Intensity Projection",
+      "output_type": "zarr"
+    },
+    {
+      "args_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "anisotropy": {
+            "title": "Anisotropy",
+            "type": "number"
+          },
+          "augment": {
+            "title": "Augment",
+            "type": "boolean"
+          },
+          "cellprob_threshold": {
+            "title": "Cellprob Threshold",
+            "type": "number"
+          },
+          "channel_label": {
+            "title": "Channel Label",
+            "type": "string"
+          },
+          "channel_label_c2": {
+            "title": "Channel Label C2",
+            "type": "string"
+          },
+          "component": {
+            "title": "Component",
+            "type": "string"
+          },
+          "diameter_level0": {
+            "title": "Diameter Level0",
+            "type": "number"
+          },
+          "flow_threshold": {
+            "title": "Flow Threshold",
+            "type": "number"
+          },
+          "input_ROI_table": {
+            "title": "Input Roi Table",
+            "type": "string"
+          },
+          "input_paths": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Input Paths",
+            "type": "array"
+          },
+          "level": {
+            "title": "Level",
+            "type": "integer"
+          },
+          "metadata": {
+            "title": "Metadata",
+            "type": "object"
+          },
+          "min_size": {
+            "title": "Min Size",
+            "type": "integer"
+          },
+          "model_type": {
+            "title": "Model Type",
+            "type": "string"
+          },
+          "net_avg": {
+            "title": "Net Avg",
+            "type": "boolean"
+          },
+          "output_ROI_table": {
+            "title": "Output Roi Table",
+            "type": "string"
+          },
+          "output_label_name": {
+            "title": "Output Label Name",
+            "type": "string"
+          },
+          "output_path": {
+            "title": "Output Path",
+            "type": "string"
+          },
+          "pretrained_model": {
+            "title": "Pretrained Model",
+            "type": "string"
+          },
+          "relabeling": {
+            "default": true,
+            "title": "Relabeling",
+            "type": "boolean"
+          },
+          "use_gpu": {
+            "title": "Use Gpu",
+            "type": "boolean"
+          },
+          "use_masks": {
+            "title": "Use Masks",
+            "type": "boolean"
+          },
+          "wavelength_id": {
+            "title": "Wavelength Id",
+            "type": "string"
+          },
+          "wavelength_id_c2": {
+            "title": "Wavelength Id C2",
+            "type": "string"
+          }
+        },
+        "required": [
+          "input_paths",
+          "output_path",
+          "component",
+          "metadata",
+          "level"
+        ],
+        "title": "TaskArguments",
+        "type": "object"
+      },
+      "executable": "cellpose_segmentation.py",
+      "input_type": "zarr",
+      "meta": {
+        "cpus_per_task": 4,
+        "mem": 16000,
+        "needs_gpu": true,
+        "parallelization_level": "image"
+      },
+      "name": "Cellpose Segmentation",
+      "output_type": "zarr"
+    },
+    {
+      "args_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "background": {
+            "title": "Background",
+            "type": "integer"
+          },
+          "component": {
+            "title": "Component",
+            "type": "string"
+          },
+          "dict_corr": {
+            "title": "Dict Corr",
+            "type": "object"
+          },
+          "input_paths": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Input Paths",
+            "type": "array"
+          },
+          "metadata": {
+            "title": "Metadata",
+            "type": "object"
+          },
+          "new_component": {
+            "title": "New Component",
+            "type": "string"
+          },
+          "output_path": {
+            "title": "Output Path",
+            "type": "string"
+          },
+          "overwrite": {
+            "title": "Overwrite",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "input_paths",
+          "output_path",
+          "component",
+          "metadata",
+          "dict_corr"
+        ],
+        "title": "TaskArguments",
+        "type": "object"
+      },
+      "default_args": {
+        "background": 100,
+        "overwrite": false
+      },
+      "executable": "illumination_correction.py",
+      "input_type": "zarr",
+      "meta": {
+        "cpus_per_task": 1,
+        "mem": 4000,
+        "parallelization_level": "image"
+      },
+      "name": "Illumination correction",
+      "output_type": "zarr"
+    },
+    {
+      "args_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "component": {
+            "title": "Component",
+            "type": "string"
+          },
+          "expected_dimensions": {
+            "title": "Expected Dimensions",
+            "type": "integer"
+          },
+          "input_ROI_table": {
+            "title": "Input Roi Table",
+            "type": "string"
+          },
+          "input_paths": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Input Paths",
+            "type": "array"
+          },
+          "input_specs": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "title": "Input Specs",
+            "type": "object"
+          },
+          "level": {
+            "title": "Level",
+            "type": "integer"
+          },
+          "metadata": {
+            "title": "Metadata",
+            "type": "object"
+          },
+          "output_path": {
+            "title": "Output Path",
+            "type": "string"
+          },
+          "output_specs": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "title": "Output Specs",
+            "type": "object"
+          },
+          "relabeling": {
+            "title": "Relabeling",
+            "type": "boolean"
+          },
+          "workflow_file": {
+            "title": "Workflow File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "input_paths",
+          "output_path",
+          "metadata",
+          "component",
+          "workflow_file",
+          "input_specs",
+          "output_specs"
+        ],
+        "title": "TaskArguments",
+        "type": "object"
+      },
+      "default_args": {
+        "expected_dimensions": 3,
+        "input_ROI_table": "FOV_ROI_table",
+        "level": 0,
+        "relabeling": true
+      },
+      "executable": "napari_workflows_wrapper.py",
+      "input_type": "zarr",
+      "meta": {
+        "cpus_per_task": 8,
+        "mem": 32000,
+        "parallelization_level": "image"
+      },
+      "name": "Napari workflows wrapper",
+      "output_type": "zarr"
+    },
+    {
+      "args_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "allowed_channels": {
+            "additionalProperties": {
+              "items": {
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "title": "Allowed Channels",
+            "type": "object"
+          },
+          "coarsening_xy": {
+            "title": "Coarsening Xy",
+            "type": "integer"
+          },
+          "image_extension": {
+            "title": "Image Extension",
+            "type": "string"
+          },
+          "image_glob_patterns": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Image Glob Patterns",
+            "type": "array"
+          },
+          "input_paths": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Input Paths",
+            "type": "array"
+          },
+          "metadata": {
+            "title": "Metadata",
+            "type": "object"
+          },
+          "metadata_table": {
+            "anyOf": [
+              {
+                "enum": [
+                  "mrf_mlf"
+                ],
+                "type": "string"
+              },
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              }
+            ],
+            "title": "Metadata Table"
+          },
+          "num_levels": {
+            "title": "Num Levels",
+            "type": "integer"
+          },
+          "output_path": {
+            "title": "Output Path",
+            "type": "string"
+          }
+        },
+        "required": [
+          "input_paths",
+          "output_path",
+          "metadata",
+          "image_extension",
+          "allowed_channels"
+        ],
+        "title": "TaskArguments",
+        "type": "object"
+      },
+      "default_args": {
+        "coarsening_xy": 2,
+        "image_extension": "tif",
+        "metadata_table": "mrf_mlf",
+        "num_levels": 2
+      },
+      "executable": "create_ome_zarr_multiplex.py",
+      "input_type": "image",
+      "meta": {
+        "cpus_per_task": 1,
+        "mem": 4000
+      },
+      "name": "Create OME-ZARR structure (multiplexing)",
+      "output_type": "zarr"
+    }
+  ]
 }
