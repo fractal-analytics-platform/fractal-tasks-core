@@ -56,7 +56,7 @@ if __name__ == "__main__":
     with (FRACTAL_TASKS_CORE_DIR / "__FRACTAL_MANIFEST__.json").open("r") as f:
         manifest = json.load(f)
     task_list = manifest["task_list"]
-    manifest["has_args_schema"] = True
+    manifest["has_args_schemas"] = True
     manifest["args_schema_version"] = "pydantic_v1"
 
     for ind, task in enumerate(task_list):

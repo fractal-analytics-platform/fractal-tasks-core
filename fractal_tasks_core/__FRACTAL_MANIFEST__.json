@@ -1,6 +1,7 @@
 {
   "args_schema_version": "pydantic_v1",
   "has_args_schema": true,
+  "has_args_schemas": true,
   "manifest_version": "1",
   "task_list": [
     {
