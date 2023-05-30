@@ -38,12 +38,12 @@ def _extract_function(task: dict):
     return task_function
 
 
-def test_has_args_schemas_is_true():
+def test_manifest_has_args_schemas_is_true():
     debug(MANIFEST)
     assert MANIFEST["has_args_schemas"]
 
 
-def test_args_schema_are_updated():
+def test_args_schemas_are_up_to_date():
     for ind_task, task in enumerate(TASK_LIST):
         print(f"Now handling {task['executable']}")
         new_schema = _create_schema_for_single_task(task)
@@ -55,17 +55,21 @@ def test_args_schema_are_updated():
 
 
 @pytest.mark.parametrize(
-    "validator", [Draft7Validator, Draft201909Validator, Draft202012Validator]
+    "jsonschema_validator",
+    [Draft7Validator, Draft201909Validator, Draft202012Validator],
 )
-def test_args_schema_comply_with_jsonschema_specs(validator):
+def test_args_schema_comply_with_jsonschema_specs(jsonschema_validator):
     """
     FIXME: it is not clear whether this test is actually useful
     """
     for ind_task, task in enumerate(TASK_LIST):
         schema = TASK_LIST[ind_task]["args_schema"]
-        my_validator = validator(schema=schema)
+        my_validator = jsonschema_validator(schema=schema)
         my_validator.check_schema(my_validator.schema)
-        print(f"Schema for task {task['executable']} is valid for {validator}")
+        print(
+            f"Schema for task {task['executable']} is valid for "
+            f"{jsonschema_validator}."
+        )
         print()
 
 
