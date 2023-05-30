@@ -19,15 +19,12 @@ import os
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import Optional
 from typing import Sequence
 
 import dask.array as da
 import zarr
 from anndata import read_zarr
 from dask.array.image import imread
-from pydantic import BaseModel
-from pydantic import Extra
 
 from fractal_tasks_core.lib_channels import get_omero_channel_list
 from fractal_tasks_core.lib_glob import glob_with_multiple_patterns
@@ -218,19 +215,11 @@ def yokogawa_to_ome_zarr(
     return {}
 
 
-class TaskArguments(BaseModel, extra=Extra.forbid):
-    input_paths: Sequence[str]
-    output_path: str
-    metadata: Dict[str, Any]
-    component: str
-    delete_input: Optional[bool]
-
-
 if __name__ == "__main__":
     from fractal_tasks_core._utils import run_fractal_task
 
     run_fractal_task(
         task_function=yokogawa_to_ome_zarr,
-        TaskArgsModel=TaskArguments,
+        validate=True,
         logger_name=logger.name,
     )

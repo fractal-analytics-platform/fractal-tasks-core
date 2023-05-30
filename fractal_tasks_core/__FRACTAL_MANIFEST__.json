@@ -17,7 +17,6 @@
           },
           "coarsening_xy": {
             "default": 2,
-            "description": "TBD",
             "title": "Coarsening Xy",
             "type": "integer"
           },
@@ -27,7 +26,6 @@
             "type": "string"
           },
           "image_glob_patterns": {
-            "description": "TBD",
             "items": {
               "type": "string"
             },
@@ -35,7 +33,6 @@
             "type": "array"
           },
           "input_paths": {
-            "description": "TBD",
             "items": {
               "type": "string"
             },
@@ -48,18 +45,15 @@
           },
           "metadata_table": {
             "default": "mrf_mlf",
-            "description": "TBD",
             "title": "Metadata Table",
             "type": "string"
           },
           "num_levels": {
             "default": 2,
-            "description": "TBD",
             "title": "Num Levels",
             "type": "integer"
           },
           "output_path": {
-            "description": "TBD",
             "title": "Output Path",
             "type": "string"
           }
@@ -70,7 +64,7 @@
           "metadata",
           "allowed_channels"
         ],
-        "title": "TaskArguments",
+        "title": "CreateOmeZarr",
         "type": "object"
       },
       "default_args": {
@@ -97,6 +91,7 @@
             "type": "string"
           },
           "delete_input": {
+            "default": false,
             "title": "Delete Input",
             "type": "boolean"
           },
@@ -119,10 +114,10 @@
         "required": [
           "input_paths",
           "output_path",
-          "metadata",
-          "component"
+          "component",
+          "metadata"
         ],
-        "title": "TaskArguments",
+        "title": "YokogawaToOmeZarr",
         "type": "object"
       },
       "executable": "yokogawa_to_ome_zarr.py",
@@ -162,6 +157,7 @@
             "type": "string"
           },
           "project_to_2D": {
+            "default": true,
             "title": "Project To 2D",
             "type": "boolean"
           },
@@ -175,7 +171,7 @@
           "output_path",
           "metadata"
         ],
-        "title": "TaskArguments",
+        "title": "CopyOmeZarr",
         "type": "object"
       },
       "default_args": {
@@ -218,10 +214,10 @@
         "required": [
           "input_paths",
           "output_path",
-          "metadata",
-          "component"
+          "component",
+          "metadata"
         ],
-        "title": "TaskArguments",
+        "title": "MaximumIntensityProjection",
         "type": "object"
       },
       "executable": "maximum_intensity_projection.py",
@@ -243,10 +239,12 @@
             "type": "number"
           },
           "augment": {
+            "default": false,
             "title": "Augment",
             "type": "boolean"
           },
           "cellprob_threshold": {
+            "default": 0.0,
             "title": "Cellprob Threshold",
             "type": "number"
           },
@@ -263,14 +261,17 @@
             "type": "string"
           },
           "diameter_level0": {
+            "default": 30.0,
             "title": "Diameter Level0",
             "type": "number"
           },
           "flow_threshold": {
+            "default": 0.4,
             "title": "Flow Threshold",
             "type": "number"
           },
           "input_ROI_table": {
+            "default": "FOV_ROI_table",
             "title": "Input Roi Table",
             "type": "string"
           },
@@ -290,14 +291,17 @@
             "type": "object"
           },
           "min_size": {
+            "default": 15,
             "title": "Min Size",
             "type": "integer"
           },
           "model_type": {
+            "default": "cyto2",
             "title": "Model Type",
             "type": "string"
           },
           "net_avg": {
+            "default": false,
             "title": "Net Avg",
             "type": "boolean"
           },
@@ -323,10 +327,12 @@
             "type": "boolean"
           },
           "use_gpu": {
+            "default": true,
             "title": "Use Gpu",
             "type": "boolean"
           },
           "use_masks": {
+            "default": true,
             "title": "Use Masks",
             "type": "boolean"
           },
@@ -346,7 +352,7 @@
           "metadata",
           "level"
         ],
-        "title": "TaskArguments",
+        "title": "CellposeSegmentation",
         "type": "object"
       },
       "executable": "cellpose_segmentation.py",
@@ -365,6 +371,7 @@
         "additionalProperties": false,
         "properties": {
           "background": {
+            "default": 100,
             "title": "Background",
             "type": "integer"
           },
@@ -396,6 +403,7 @@
             "type": "string"
           },
           "overwrite": {
+            "default": false,
             "title": "Overwrite",
             "type": "boolean"
           }
@@ -407,7 +415,7 @@
           "metadata",
           "dict_corr"
         ],
-        "title": "TaskArguments",
+        "title": "IlluminationCorrection",
         "type": "object"
       },
       "default_args": {
@@ -433,10 +441,12 @@
             "type": "string"
           },
           "expected_dimensions": {
+            "default": 3,
             "title": "Expected Dimensions",
             "type": "integer"
           },
           "input_ROI_table": {
+            "default": "FOV_ROI_table",
             "title": "Input Roi Table",
             "type": "string"
           },
@@ -458,6 +468,7 @@
             "type": "object"
           },
           "level": {
+            "default": 0,
             "title": "Level",
             "type": "integer"
           },
@@ -480,6 +491,7 @@
             "type": "object"
           },
           "relabeling": {
+            "default": true,
             "title": "Relabeling",
             "type": "boolean"
           },
@@ -491,13 +503,13 @@
         "required": [
           "input_paths",
           "output_path",
-          "metadata",
           "component",
+          "metadata",
           "workflow_file",
           "input_specs",
           "output_specs"
         ],
-        "title": "TaskArguments",
+        "title": "NapariWorkflowsWrapper",
         "type": "object"
       },
       "default_args": {
@@ -531,10 +543,12 @@
             "type": "object"
           },
           "coarsening_xy": {
+            "default": 2,
             "title": "Coarsening Xy",
             "type": "integer"
           },
           "image_extension": {
+            "default": "tif",
             "title": "Image Extension",
             "type": "string"
           },
@@ -571,9 +585,11 @@
                 "type": "object"
               }
             ],
+            "default": "mrf_mlf",
             "title": "Metadata Table"
           },
           "num_levels": {
+            "default": 2,
             "title": "Num Levels",
             "type": "integer"
           },
@@ -586,10 +602,9 @@
           "input_paths",
           "output_path",
           "metadata",
-          "image_extension",
           "allowed_channels"
         ],
-        "title": "TaskArguments",
+        "title": "CreateOmeZarrMultiplex",
         "type": "object"
       },
       "default_args": {

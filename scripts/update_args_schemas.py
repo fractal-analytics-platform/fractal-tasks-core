@@ -6,11 +6,54 @@ import argparse
 import json
 from importlib import import_module
 from pathlib import Path
+from typing import Any
+
+from pydantic.decorator import ALT_V_ARGS
+from pydantic.decorator import ALT_V_KWARGS
+from pydantic.decorator import V_DUPLICATE_KWARGS
+from pydantic.decorator import V_POSITIONAL_ONLY_NAME
+from pydantic.decorator import ValidatedFunction
 
 import fractal_tasks_core
 
 
 FRACTAL_TASKS_CORE_DIR = Path(fractal_tasks_core.__file__).parent
+
+
+def _clean_up_pydantic_generated_schema(old_schema: dict[str, Any]):
+    """
+    FIXME: duplicate of the function in tests/test_valid_args_schemas.py
+
+    Strip some properties from the generated JSON Schema, see
+    https://github.com/pydantic/pydantic/blob/1.10.X-fixes/pydantic/decorator.py.
+    """
+    new_schema = old_schema.copy()
+
+    # Check that args and kwargs properties match with some expected dummy
+    # values, and remove them from the the schema properties.
+    args_property = new_schema["properties"].pop("args")
+    kwargs_property = new_schema["properties"].pop("kwargs")
+    expected_args_property = {"title": "Args", "type": "array", "items": {}}
+    expected_kwargs_property = {"title": "Kwargs", "type": "object"}
+    if args_property != expected_args_property:
+        raise ValueError(
+            f"{args_property=}\ndiffers from\n{expected_args_property=}"
+        )
+    if kwargs_property != expected_kwargs_property:
+        raise ValueError(
+            f"{kwargs_property=}\ndiffers from\n"
+            f"{expected_kwargs_property=}"
+        )
+
+    # Remove other properties, since they come from pydantic internals
+    for key in (
+        V_POSITIONAL_ONLY_NAME,
+        V_DUPLICATE_KWARGS,
+        ALT_V_ARGS,
+        ALT_V_KWARGS,
+    ):
+        new_schema["properties"].pop(key, None)
+    return new_schema
 
 
 def get_task_list_from_manifest() -> list[dict]:
@@ -26,8 +69,10 @@ def create_schema_for_single_task(task: dict):
         raise ValueError(f"Invalid {executable=}")
     module_name = executable[:-3]
     module = import_module(f"fractal_tasks_core.{module_name}")
-    TaskArguments = getattr(module, "TaskArguments")
-    schema = TaskArguments.schema()
+    task_function = getattr(module, module_name)
+    vf = ValidatedFunction(task_function, config=None)
+    schema = vf.model.schema()
+    schema = _clean_up_pydantic_generated_schema(schema)
     return schema, module_name
 
 
