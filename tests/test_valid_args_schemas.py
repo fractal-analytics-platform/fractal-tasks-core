@@ -38,6 +38,11 @@ def _extract_function(task: dict):
     return task_function
 
 
+def test_has_args_schemas_is_true():
+    debug(MANIFEST)
+    assert MANIFEST["has_args_schemas"]
+
+
 def test_args_schema_are_updated():
     for ind_task, task in enumerate(TASK_LIST):
         print(f"Now handling {task['executable']}")
