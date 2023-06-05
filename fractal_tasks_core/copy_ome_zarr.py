@@ -43,7 +43,7 @@ def copy_ome_zarr(
     output_path: str,
     metadata: Dict[str, Any],
     project_to_2D: bool = True,
-    suffix: Optional[str] = None,
+    suffix: str = "mip",
     ROI_table_names: Optional[Sequence[str]] = None,
 ) -> Dict[str, Any]:
 
