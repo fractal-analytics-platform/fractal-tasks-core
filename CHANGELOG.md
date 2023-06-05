@@ -1,7 +1,10 @@
+# 0.10.0
+
+* Remove `TaskArguments` models and switch to Pydantic V1 `validate_arguments` (\#369).
+* Add JSON schemas for task arguments in the package manifest (\#369, \#384).
+* Create new `dev` subpackage (\#384).
 * Remove legacy executor definitions from manifest (\#361).
 * Remove `sqlmodel` from dev dependencies (\#374).
-* Remove `TaskArguments` models, switch to `validate_arguments`, include JSON Schemas in the manifest, .. TBD (\#369).
-
 
 # 0.9.4
 
