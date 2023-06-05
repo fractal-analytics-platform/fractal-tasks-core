@@ -85,11 +85,11 @@ def run_fractal_task(
         metadata_update = task_function(**pars)
         logger.info(f"END {task_function.__name__} task")
     else:
-        from pydantic.decorator import coerce_and_validate_arguments
+        from pydantic.decorator import validate_arguments
 
         # Validating arguments' types and run task
         logger.info(f"START {task_function.__name__} task")
-        vf = coerce_and_validate_arguments(task_function)
+        vf = validate_arguments(task_function)
         metadata_update = vf(**pars)
         logger.info(f"END {task_function.__name__} task")
 
