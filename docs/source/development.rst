@@ -55,11 +55,7 @@ Actual release
 
     poetry build
 
-8. If the previous step was successful, push the version bump and tags::
-
-    git push && git push --tags
-
-9. Finally, publish the updated package to PyPI with::
+8. Finally, publish the updated package to PyPI with::
 
     poetry publish --dry-run
 
