@@ -36,26 +36,31 @@ Preliminary checklist
 
   then add the upcoming release to ``docs/source/changelog.rst`` with the main information about it, using standard categories like "New features", "Fixes" and "Other changes", and including PR numbers when relevant. Commit ``docs/source/changelog.rst`` and push.
 
+5. If appropriate (e.g. if you added some new task arguments, or if you modified some of their descriptions), update the JSON Schemas in the manifest via::
+
+    poetry run python fractal_tasks_core/dev/create_args_schemas.py
+
+
 Actual release
 ^^^^^^^^^^^^^^
 
-5. Use::
+6. Use::
 
     poetry run bumpver update --[tag-num|patch|minor] --tag-commit --commit --dry
 
   to test updating the version bump.
 
-6. If the previous step looks good, use::
+7. If the previous step looks good, use::
 
     poetry run bumpver update --[tag-num|patch|minor] --tag-commit --commit
 
   to actually bump the version and commit the changes locally.
 
-7. Test the build with::
+8. Test the build with::
 
     poetry build
 
-8. Finally, publish the updated package to PyPI with::
+9. Finally, publish the updated package to PyPI with::
 
     poetry publish --dry-run
 
