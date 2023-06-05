@@ -75,10 +75,10 @@ def create_ome_zarr_multiplex(
     :param metadata: standard fractal argument, not used in this task
     :param image_extension: Filename extension of images (e.g. `tif` or `png`)
     :param image_glob_patterns: If specified, only parse images with filenames
-                            that match with all these patterns. Patterns
-                            must be defined as in
-                            https://docs.python.org/3/library/fnmatch.html,
-                            e.g. `image_glob_pattern=["*_B03_*"]`.
+                                that match with all these patterns. Patterns
+                                must be defined as in
+                                https://docs.python.org/3/library/fnmatch.html,
+                                e.g. `image_glob_pattern=["*_B03_*"]`.
     :param allowed_channels: TBD
     :param num_levels: number of resolution-pyramid levels
     :param coarsening_xy: Linear coarsening factor between subsequent levels
