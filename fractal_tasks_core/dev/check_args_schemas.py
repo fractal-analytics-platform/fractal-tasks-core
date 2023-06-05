@@ -6,7 +6,9 @@ import json
 from pathlib import Path
 
 import fractal_tasks_core
-from .lib_args_schemas import create_schema_for_single_task
+from fractal_tasks_core.dev.lib_args_schemas import (
+    create_schema_for_single_task,
+)
 
 
 if __name__ == "__main__":
