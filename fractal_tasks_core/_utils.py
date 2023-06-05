@@ -25,8 +25,6 @@ from json import JSONEncoder
 from pathlib import Path
 from typing import Callable
 
-from pydantic import BaseModel
-
 
 class TaskParameterEncoder(JSONEncoder):
     """
@@ -42,15 +40,17 @@ class TaskParameterEncoder(JSONEncoder):
 def run_fractal_task(
     *,
     task_function: Callable,
-    TaskArgsModel: type[BaseModel] = None,
+    coerce_and_validate: bool = False,
     logger_name: str = None,
 ):
     """
-    Implement standard task interface and call task_function. If TaskArgsModel
-    is not None, validate arguments against given model.
+    Implement standard task interface and call task_function. If
+    `coerce_and_validate`, coerce and validate arguments via
+    `pydantic.decorator.coerce_and_validate_arguments`.
 
     :param task_function: the callable function that runs the task
-    :param TaskArgsModel: a class specifying all types for task arguments
+    :param coerce_and_validate: TBD
+    :logger_name: TBD
     """
 
     # Parse `-j` and `--metadata-out` arguments
@@ -79,16 +79,18 @@ def run_fractal_task(
     with open(args.json, "r") as f:
         pars = json.load(f)
 
-    if TaskArgsModel is None:
+    if not coerce_and_validate:
         # Run task without validating arguments' types
         logger.info(f"START {task_function.__name__} task")
         metadata_update = task_function(**pars)
         logger.info(f"END {task_function.__name__} task")
     else:
+        from pydantic.decorator import validate_arguments
+
         # Validating arguments' types and run task
-        task_args = TaskArgsModel(**pars)
         logger.info(f"START {task_function.__name__} task")
-        metadata_update = task_function(**task_args.dict(exclude_unset=True))
+        vf = validate_arguments(task_function)
+        metadata_update = vf(**pars)
         logger.info(f"END {task_function.__name__} task")
 
     # Write output metadata to file, with custom JSON encoder

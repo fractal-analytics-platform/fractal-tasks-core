@@ -197,20 +197,10 @@ def copy_ome_zarr(
 
 
 if __name__ == "__main__":
-    from pydantic import BaseModel
-    from pydantic import Extra
     from fractal_tasks_core._utils import run_fractal_task
-
-    class TaskArguments(BaseModel, extra=Extra.forbid):
-        input_paths: Sequence[str]
-        output_path: str
-        metadata: Dict[str, Any]
-        project_to_2D: Optional[bool]
-        suffix: Optional[str]
-        ROI_table_names: Optional[Sequence[str]]
 
     run_fractal_task(
         task_function=copy_ome_zarr,
-        TaskArgsModel=TaskArguments,
+        coerce_and_validate=True,
         logger_name=logger.name,
     )

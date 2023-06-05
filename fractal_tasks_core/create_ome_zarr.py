@@ -430,23 +430,10 @@ def create_ome_zarr(
 
 
 if __name__ == "__main__":
-    from pydantic import BaseModel
-    from pydantic import Extra
     from fractal_tasks_core._utils import run_fractal_task
-
-    class TaskArguments(BaseModel, extra=Extra.forbid):
-        input_paths: Sequence[str]
-        output_path: str
-        metadata: Dict[str, Any]
-        image_extension: str
-        image_glob_patterns: Optional[list[str]]
-        allowed_channels: Sequence[Dict[str, Any]]
-        num_levels: Optional[int]
-        coarsening_xy: Optional[int]
-        metadata_table: Optional[str]
 
     run_fractal_task(
         task_function=create_ome_zarr,
-        TaskArgsModel=TaskArguments,
+        coerce_and_validate=True,
         logger_name=logger.name,
     )
