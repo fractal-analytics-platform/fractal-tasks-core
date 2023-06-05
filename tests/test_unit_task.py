@@ -23,23 +23,16 @@ create_ome_zarr_manifest = next(
 def test_create_ome_zarr(tmp_path, testdata_path):
     input_paths = [str(testdata_path / "png/")]
     output_path = str(tmp_path)
-    default_args = create_ome_zarr_manifest["default_args"]
-    default_args["allowed_channels"] = [{"wavelength_id": "A01_C01"}]
-    default_args["image_extension"] = "png"
-
-    for key in ["parallelization_level"]:
-        if key in default_args.keys():
-            default_args.pop(key)
+    args = {}
+    args["allowed_channels"] = [{"wavelength_id": "A01_C01"}]
+    args["image_extension"] = "png"
 
     debug(input_paths)
     debug(output_path)
-    debug(default_args)
+    debug(args)
 
     dummy = create_ome_zarr(
-        input_paths=input_paths,
-        output_path=output_path,
-        metadata={},
-        **default_args
+        input_paths=input_paths, output_path=output_path, metadata={}, **args
     )
     debug(dummy)
 
