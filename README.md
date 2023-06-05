@@ -25,10 +25,8 @@
 | fractal\_tasks\_core/lib\_zattrs\_utils.py             |       42 |        7 |       22 |        6 |     80% |43, 47, 58->57, 61, 66-73, 118 |
 | fractal\_tasks\_core/maximum\_intensity\_projection.py |       49 |        5 |       14 |        4 |     86% |59, 93, 112, 135-137 |
 | fractal\_tasks\_core/napari\_workflows\_wrapper.py     |      254 |       22 |      122 |       16 |     89% |160, 172, 177, 214, 284, 289-299, 312, 317, 357-361, 369, 390, 478->465, 512-517, 524->526, 581, 606-608 |
-| fractal\_tasks\_core/tools/\_\_init\_\_.py             |        0 |        0 |        0 |        0 |    100% |           |
-| fractal\_tasks\_core/tools/lib\_metadata\_checks.py    |       52 |        1 |       30 |        1 |     98% |        28 |
 | fractal\_tasks\_core/yokogawa\_to\_ome\_zarr.py        |       84 |       10 |       24 |        5 |     84% |85, 127, 169, 209-213, 219-221 |
-|                                              **TOTAL** | **1989** |  **317** |  **788** |  **141** | **82%** |           |
+|                                              **TOTAL** | **1937** |  **316** |  **758** |  **140** | **81%** |           |
 
 
 ## Setup coverage badge
