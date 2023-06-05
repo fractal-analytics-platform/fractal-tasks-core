@@ -3,10 +3,10 @@ name = "fractal-tasks-core"
 version = "0.9.4"
 description = ""
 authors = [
-    "Jacopo Nespolo <jacopo.nespolo@exact-lab.it>",
-    "Marco Franzon <marco.franzon@exact-lab.it>",
-    "Tommaso Comparin <tommaso.comparin@exact-lab.it>",
     "Joel Lüthi  <joel.luethi@fmi.ch>",
+    "Tommaso Comparin <tommaso.comparin@exact-lab.it>",
+    "Marco Franzon <marco.franzon@exact-lab.it>",
+    "Jacopo Nespolo <jacopo.nespolo@exact-lab.it>",
 ]
 readme = "README.md"
 packages = [{include = "fractal_tasks_core"}]
@@ -34,10 +34,7 @@ napari-segment-blobs-and-things-with-membranes = "^0.3.3"
 Pillow = "^9.1.1"
 pydantic = "^1.10.2"
 torch = "1.12.1"
-matplotlib = {version="*", optional=true}
-
-[tool.poetry.extras]
-tools = ["matplotlib"]
+docstring-parser = "^0.15"
 
 
 [tool.poetry.group.dev]
@@ -75,7 +72,7 @@ branch = true
 parallel = true
 relative_files = true
 source = ["fractal_tasks_core"]
-omit = ["tests/*", "examples/*"]
+omit = ["tests/*", "examples/*", "fractal_tasks_core/dev/*"]
 
 [tool.bumpver]
 current_version = "0.9.4"

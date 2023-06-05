@@ -9,6 +9,7 @@
         "additionalProperties": false,
         "properties": {
           "allowed_channels": {
+            "description": "A list of channel dictionaries, where each channel must include the ``wavelength_id`` key and where the corresponding values should be unique across channels.",
             "items": {
               "type": "object"
             },
@@ -17,15 +18,18 @@
           },
           "coarsening_xy": {
             "default": 2,
+            "description": "Linear coarsening factor between subsequent levels",
             "title": "Coarsening Xy",
             "type": "integer"
           },
           "image_extension": {
             "default": "tif",
+            "description": "Filename extension of images (e.g. `\"tif\"` or `\"png\"`)",
             "title": "Image Extension",
             "type": "string"
           },
           "image_glob_patterns": {
+            "description": "If specified, only parse images with filenames that match with all these patterns. Patterns must be defined as in https://docs.python.org/3/library/fnmatch.html, e.g. `image_glob_pattern=[\"*_B03_*\"]`.",
             "items": {
               "type": "string"
             },
@@ -33,6 +37,7 @@
             "type": "array"
           },
           "input_paths": {
+            "description": "TBD (common to all tasks)",
             "items": {
               "type": "string"
             },
@@ -40,20 +45,24 @@
             "type": "array"
           },
           "metadata": {
+            "description": "TBD (common to all tasks)",
             "title": "Metadata",
             "type": "object"
           },
           "metadata_table": {
             "default": "mrf_mlf",
+            "description": "If equal to ``\"mrf_mlf\"``, parse Yokogawa metadata from mrf/mlf files in the input_path folder; else, the full path to a csv file containing the parsed metadata table.",
             "title": "Metadata Table",
             "type": "string"
           },
           "num_levels": {
             "default": 2,
+            "description": "Number of resolution-pyramid levels",
             "title": "Num Levels",
             "type": "integer"
           },
           "output_path": {
+            "description": "TBD (common to all tasks)",
             "title": "Output Path",
             "type": "string"
           }
@@ -87,15 +96,18 @@
         "additionalProperties": false,
         "properties": {
           "component": {
+            "description": "TBD",
             "title": "Component",
             "type": "string"
           },
           "delete_input": {
             "default": false,
+            "description": "TBD",
             "title": "Delete Input",
             "type": "boolean"
           },
           "input_paths": {
+            "description": "TBD",
             "items": {
               "type": "string"
             },
@@ -103,10 +115,12 @@
             "type": "array"
           },
           "metadata": {
+            "description": "TBD",
             "title": "Metadata",
             "type": "object"
           },
           "output_path": {
+            "description": "TBD",
             "title": "Output Path",
             "type": "string"
           }
@@ -135,6 +149,7 @@
         "additionalProperties": false,
         "properties": {
           "ROI_table_names": {
+            "description": "List of ROI-table names to be copied. If ``None``, it is replaced by ``[\"FOV_ROI_table\", \"well_ROI_table\"]``. Note: copying non-ROI tables may fail if ``project_to_2D=True``.",
             "items": {
               "type": "string"
             },
@@ -142,6 +157,7 @@
             "type": "array"
           },
           "input_paths": {
+            "description": "TBD",
             "items": {
               "type": "string"
             },
@@ -149,19 +165,23 @@
             "type": "array"
           },
           "metadata": {
+            "description": "TBD",
             "title": "Metadata",
             "type": "object"
           },
           "output_path": {
+            "description": "TBD",
             "title": "Output Path",
             "type": "string"
           },
           "project_to_2D": {
             "default": true,
+            "description": "If ``True``, apply a 3D->2D projection to the ROI tables that are copied to the new zarr.",
             "title": "Project To 2D",
             "type": "boolean"
           },
           "suffix": {
+            "description": "The suffix that is used to transform ``plate.zarr`` into ``plate_suffix.zarr``. Note that `None` is not currently supported.",
             "title": "Suffix",
             "type": "string"
           }
@@ -192,10 +212,12 @@
         "additionalProperties": false,
         "properties": {
           "component": {
+            "description": "Missing description",
             "title": "Component",
             "type": "string"
           },
           "input_paths": {
+            "description": "Missing description",
             "items": {
               "type": "string"
             },
@@ -203,10 +225,12 @@
             "type": "array"
           },
           "metadata": {
+            "description": "Missing description",
             "title": "Metadata",
             "type": "object"
           },
           "output_path": {
+            "description": "Missing description",
             "title": "Output Path",
             "type": "string"
           }
@@ -235,47 +259,57 @@
         "additionalProperties": false,
         "properties": {
           "anisotropy": {
+            "description": "Ratio of the pixel sizes along Z and XY axis (ignored if the image is not three-dimensional). If `None`, it is inferred from the OME-NGFF metadata.",
             "title": "Anisotropy",
             "type": "number"
           },
           "augment": {
             "default": false,
+            "description": "Whether to use cellpose augmentation to tile images with overlap.",
             "title": "Augment",
             "type": "boolean"
           },
           "cellprob_threshold": {
             "default": 0.0,
+            "description": "Parameter of ``CellposeModel.eval`` method.",
             "title": "Cellprob Threshold",
             "type": "number"
           },
           "channel_label": {
+            "description": "Identifier of a channel based on its label (e.g. ``DAPI``). If not ``None``, then ``wavelength_id`` must be ``None``.",
             "title": "Channel Label",
             "type": "string"
           },
           "channel_label_c2": {
+            "description": "Identifier of a second channel in the same format as the first wavelength_id. If specified, cellpose runs in dual channel mode.  For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker.",
             "title": "Channel Label C2",
             "type": "string"
           },
           "component": {
+            "description": "TBD (default arg for Fractal tasks)",
             "title": "Component",
             "type": "string"
           },
           "diameter_level0": {
             "default": 30.0,
+            "description": "Initial diameter to be passed to ``CellposeModel.eval`` method (after rescaling from full-resolution to ``level``).",
             "title": "Diameter Level0",
             "type": "number"
           },
           "flow_threshold": {
             "default": 0.4,
+            "description": "Parameter of ``CellposeModel.eval`` method.",
             "title": "Flow Threshold",
             "type": "number"
           },
           "input_ROI_table": {
             "default": "FOV_ROI_table",
+            "description": "Name of the table that contains ROIs to which the task applies Cellpose segmentation (e.g. ``\"organoid_rois\"``).",
             "title": "Input Roi Table",
             "type": "string"
           },
           "input_paths": {
+            "description": "TBD (default arg for Fractal tasks)",
             "items": {
               "type": "string"
             },
@@ -283,64 +317,78 @@
             "type": "array"
           },
           "level": {
+            "description": "Pyramid level of the image to be segmented.",
             "title": "Level",
             "type": "integer"
           },
           "metadata": {
+            "description": "TBD (default arg for Fractal tasks)",
             "title": "Metadata",
             "type": "object"
           },
           "min_size": {
             "default": 15,
+            "description": "Minimum size of the segmented objects (in pixels). Use -1 to turn off the size filter.",
             "title": "Min Size",
             "type": "integer"
           },
           "model_type": {
             "default": "cyto2",
+            "description": "Parameter of ``CellposeModel`` class.",
             "title": "Model Type",
             "type": "string"
           },
           "net_avg": {
             "default": false,
+            "description": "Whether to use cellpose net averaging to run the 4 built-in networks (useful for nuclei, cyto & cyto2, not sure it works for the others).",
             "title": "Net Avg",
             "type": "boolean"
           },
           "output_ROI_table": {
+            "description": "If provided, the name of the ROI table used for label bounding boxes.",
             "title": "Output Roi Table",
             "type": "string"
           },
           "output_label_name": {
+            "description": "Name of the output label (e.g. ``\"organoids\"``).",
             "title": "Output Label Name",
             "type": "string"
           },
           "output_path": {
+            "description": "TBD (default arg for Fractal tasks)",
             "title": "Output Path",
             "type": "string"
           },
           "pretrained_model": {
+            "description": "Parameter of ``CellposeModel`` class (takes precedence over ``model_type``).",
             "title": "Pretrained Model",
             "type": "string"
           },
           "relabeling": {
             "default": true,
+            "description": "If ``True``, apply relabeling so that label values are unique across ROIs.",
             "title": "Relabeling",
             "type": "boolean"
           },
           "use_gpu": {
             "default": true,
+            "description": "If ``False``, always use the CPU; if ``True``, use the GPU if possible (as defined in ``cellpose.core.use_gpu()``) and fall-back to the CPU otherwise.",
             "title": "Use Gpu",
             "type": "boolean"
           },
           "use_masks": {
             "default": true,
+            "description": "If ``True``, try to use masked loading and fall back to ``use_masks=False`` if the ROI table is not suitable.",
             "title": "Use Masks",
             "type": "boolean"
           },
           "wavelength_id": {
+            "description": "Identifier of a channel based on the wavelength (e.g. ``A01_C01``). If not ``None``, then ``channel_label` must be ``None``.",
             "title": "Wavelength Id",
             "type": "string"
           },
           "wavelength_id_c2": {
+            "description": "Identifier of a second channel in the same format as the first wavelength_id. If specified, cellpose runs in dual channel mode.  For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker.",
             "title": "Wavelength Id C2",
             "type": "string"
           }
@@ -372,18 +420,22 @@
         "properties": {
           "background": {
             "default": 100,
+            "description": "Missing description",
             "title": "Background",
             "type": "integer"
           },
           "component": {
+            "description": "Missing description",
             "title": "Component",
             "type": "string"
           },
           "dict_corr": {
+            "description": "Missing description",
             "title": "Dict Corr",
             "type": "object"
           },
           "input_paths": {
+            "description": "Missing description",
             "items": {
               "type": "string"
             },
@@ -391,19 +443,23 @@
             "type": "array"
           },
           "metadata": {
+            "description": "Missing description",
             "title": "Metadata",
             "type": "object"
           },
           "new_component": {
+            "description": "Missing description",
             "title": "New Component",
             "type": "string"
           },
           "output_path": {
+            "description": "Missing description",
             "title": "Output Path",
             "type": "string"
           },
           "overwrite": {
             "default": false,
+            "description": "Missing description",
             "title": "Overwrite",
             "type": "boolean"
           }
@@ -437,20 +493,24 @@
         "additionalProperties": false,
         "properties": {
           "component": {
+            "description": "TBD (default arg for Fractal tasks)",
             "title": "Component",
             "type": "string"
           },
           "expected_dimensions": {
             "default": 3,
+            "description": "Expected dimensions (either 2 or 3).",
             "title": "Expected Dimensions",
             "type": "integer"
           },
           "input_ROI_table": {
             "default": "FOV_ROI_table",
+            "description": "name of the table that contains ROIs to which the                            task applies the napari-worfklow",
             "title": "Input Roi Table",
             "type": "string"
           },
           "input_paths": {
+            "description": "TBD (default arg for Fractal tasks)",
             "items": {
               "type": "string"
             },
@@ -464,19 +524,23 @@
               },
               "type": "object"
             },
+            "description": "See examples above.",
             "title": "Input Specs",
             "type": "object"
           },
           "level": {
             "default": 0,
+            "description": "Pyramid level of the image to be segmented.",
             "title": "Level",
             "type": "integer"
           },
           "metadata": {
+            "description": "TBD (default arg for Fractal tasks)",
             "title": "Metadata",
             "type": "object"
           },
           "output_path": {
+            "description": "TBD (default arg for Fractal tasks)",
             "title": "Output Path",
             "type": "string"
           },
@@ -487,15 +551,18 @@
               },
               "type": "object"
             },
+            "description": "See examples above.",
             "title": "Output Specs",
             "type": "object"
           },
           "relabeling": {
             "default": true,
+            "description": "If ``True``, apply relabeling so that label values are unique across ROIs.",
             "title": "Relabeling",
             "type": "boolean"
           },
           "workflow_file": {
+            "description": "Absolute path to napari-workflows YAML file",
             "title": "Workflow File",
             "type": "string"
           }
@@ -539,20 +606,24 @@
               },
               "type": "array"
             },
+            "description": "TBD",
             "title": "Allowed Channels",
             "type": "object"
           },
           "coarsening_xy": {
             "default": 2,
+            "description": "Linear coarsening factor between subsequent levels",
             "title": "Coarsening Xy",
             "type": "integer"
           },
           "image_extension": {
             "default": "tif",
+            "description": "Filename extension of images (e.g. `tif` or `png`)",
             "title": "Image Extension",
             "type": "string"
           },
           "image_glob_patterns": {
+            "description": "If specified, only parse images with filenames that match with all these patterns. Patterns must be defined as in https://docs.python.org/3/library/fnmatch.html, e.g. `image_glob_pattern=[\"*_B03_*\"]`.",
             "items": {
               "type": "string"
             },
@@ -560,6 +631,7 @@
             "type": "array"
           },
           "input_paths": {
+            "description": "list of image folders for different acquisition cycles, e.g. in the form `[\"/path/cycle1/\", \"/path/cycle2/\"]`",
             "items": {
               "type": "string"
             },
@@ -567,6 +639,7 @@
             "type": "array"
           },
           "metadata": {
+            "description": "standard fractal argument, not used in this task",
             "title": "Metadata",
             "type": "object"
           },
@@ -586,14 +659,17 @@
               }
             ],
             "default": "mrf_mlf",
+            "description": "If equal to ``\"mrf_mlf\"``, parse Yokogawa metadata from mrf/mlf files in the ``input_paths`` folders; else, a dictionary of key-value pairs like ``(acquisition, path)`` with ``acquisition`` a string and ``path`` pointing to a csv file containing the parsed metadata table.",
             "title": "Metadata Table"
           },
           "num_levels": {
             "default": 2,
+            "description": "number of resolution-pyramid levels",
             "title": "Num Levels",
             "type": "integer"
           },
           "output_path": {
+            "description": "parent folder for the output path, e.g. `\"/outputpath/\"`",
             "title": "Output Path",
             "type": "string"
           }
