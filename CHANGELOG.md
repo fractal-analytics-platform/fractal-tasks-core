@@ -1,6 +1,6 @@
 * Remove legacy executor definitions from manifest (\#361).
 * Remove `sqlmodel` from dev dependencies (\#374).
-* TBD (all work on JSON Schemas..) (\#369).
+* Remove `TaskArguments` models, switch to `validate_arguments`, include JSON Schemas in the manifest, .. TBD (\#369).
 
 
 # 0.9.4
