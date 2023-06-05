@@ -1,5 +1,6 @@
 * Remove legacy executor definitions from manifest (\#361).
 * Remove `sqlmodel` from dev dependencies (\#374).
+* TBD (all work on JSON Schemas..) (\#369).
 
 
 # 0.9.4
