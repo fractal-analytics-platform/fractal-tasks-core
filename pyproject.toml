@@ -3,9 +3,9 @@ name = "fractal-tasks-core"
 version = "0.9.4"
 description = ""
 authors = [
+    "Joel Lüthi  <joel.luethi@fmi.ch>",
     "Tommaso Comparin <tommaso.comparin@exact-lab.it>",
     "Marco Franzon <marco.franzon@exact-lab.it>",
-    "Joel Lüthi  <joel.luethi@fmi.ch>",
     "Jacopo Nespolo <jacopo.nespolo@exact-lab.it>",
 ]
 readme = "README.md"
