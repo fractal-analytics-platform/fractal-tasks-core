@@ -220,6 +220,6 @@ if __name__ == "__main__":
 
     run_fractal_task(
         task_function=yokogawa_to_ome_zarr,
-        validate=True,
+        coerce_and_validate=True,
         logger_name=logger.name,
     )

@@ -40,15 +40,16 @@ class TaskParameterEncoder(JSONEncoder):
 def run_fractal_task(
     *,
     task_function: Callable,
-    validate: bool = False,
+    coerce_and_validate: bool = False,
     logger_name: str = None,
 ):
     """
-    Implement standard task interface and call task_function. If `validate`,
-    validate arguments via `pydantic.decorator.validate_arguments`.
+    Implement standard task interface and call task_function. If
+    `coerce_and_validate`, coerce and validate arguments via
+    `pydantic.decorator.coerce_and_validate_arguments`.
 
     :param task_function: the callable function that runs the task
-    :param validate: TBD
+    :param coerce_and_validate: TBD
     :logger_name: TBD
     """
 
@@ -78,17 +79,17 @@ def run_fractal_task(
     with open(args.json, "r") as f:
         pars = json.load(f)
 
-    if not validate:
+    if not coerce_and_validate:
         # Run task without validating arguments' types
         logger.info(f"START {task_function.__name__} task")
         metadata_update = task_function(**pars)
         logger.info(f"END {task_function.__name__} task")
     else:
-        from pydantic.decorator import validate_arguments
+        from pydantic.decorator import coerce_and_validate_arguments
 
         # Validating arguments' types and run task
         logger.info(f"START {task_function.__name__} task")
-        vf = validate_arguments(task_function)
+        vf = coerce_and_validate_arguments(task_function)
         metadata_update = vf(**pars)
         logger.info(f"END {task_function.__name__} task")
 

@@ -136,6 +136,6 @@ if __name__ == "__main__":
 
     run_fractal_task(
         task_function=maximum_intensity_projection,
-        validate=True,
+        coerce_and_validate=True,
         logger_name=logger.name,
     )

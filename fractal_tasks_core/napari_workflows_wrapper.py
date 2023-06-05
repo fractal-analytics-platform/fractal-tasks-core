@@ -607,6 +607,6 @@ if __name__ == "__main__":
 
     run_fractal_task(
         task_function=napari_workflows_wrapper,
-        validate=True,
+        coerce_and_validate=True,
         logger_name=logger.name,
     )
