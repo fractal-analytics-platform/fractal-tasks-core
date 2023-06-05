@@ -3,10 +3,10 @@ name = "fractal-tasks-core"
 version = "0.9.4"
 description = ""
 authors = [
-    "Jacopo Nespolo <jacopo.nespolo@exact-lab.it>",
-    "Marco Franzon <marco.franzon@exact-lab.it>",
     "Tommaso Comparin <tommaso.comparin@exact-lab.it>",
+    "Marco Franzon <marco.franzon@exact-lab.it>",
     "Joel Lüthi  <joel.luethi@fmi.ch>",
+    "Jacopo Nespolo <jacopo.nespolo@exact-lab.it>",
 ]
 readme = "README.md"
 packages = [{include = "fractal_tasks_core"}]
@@ -35,10 +35,6 @@ Pillow = "^9.1.1"
 pydantic = "^1.10.2"
 torch = "1.12.1"
 docstring-parser = "^0.15"
-matplotlib = {version="*", optional=true}
-
-[tool.poetry.extras]
-tools = ["matplotlib"]
 
 
 [tool.poetry.group.dev]
