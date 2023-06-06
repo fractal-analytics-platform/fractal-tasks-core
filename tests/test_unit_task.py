@@ -4,7 +4,7 @@ from pathlib import Path
 from devtools import debug
 
 import fractal_tasks_core
-from fractal_tasks_core.create_ome_zarr import create_ome_zarr
+from fractal_tasks_core.tasks.create_ome_zarr import create_ome_zarr
 
 
 # Load manifest

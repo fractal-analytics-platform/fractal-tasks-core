@@ -23,13 +23,15 @@ from devtools import debug
 
 from .utils import check_file_number
 from .utils import validate_schema
-from fractal_tasks_core.copy_ome_zarr import copy_ome_zarr
-from fractal_tasks_core.create_ome_zarr import create_ome_zarr
-from fractal_tasks_core.illumination_correction import illumination_correction
-from fractal_tasks_core.maximum_intensity_projection import (
+from fractal_tasks_core.tasks.copy_ome_zarr import copy_ome_zarr
+from fractal_tasks_core.tasks.create_ome_zarr import create_ome_zarr
+from fractal_tasks_core.tasks.illumination_correction import (
+    illumination_correction,
+)
+from fractal_tasks_core.tasks.maximum_intensity_projection import (
     maximum_intensity_projection,
 )  # noqa
-from fractal_tasks_core.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
+from fractal_tasks_core.tasks.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 
 
 allowed_channels = [

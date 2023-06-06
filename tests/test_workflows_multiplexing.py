@@ -19,16 +19,16 @@ from devtools import debug
 
 from .utils import check_file_number
 from .utils import validate_schema
-from fractal_tasks_core.copy_ome_zarr import (
+from fractal_tasks_core.tasks.copy_ome_zarr import (
     copy_ome_zarr,
-)  # noqa
-from fractal_tasks_core.create_ome_zarr_multiplex import (
+)
+from fractal_tasks_core.tasks.create_ome_zarr_multiplex import (
     create_ome_zarr_multiplex,
 )
-from fractal_tasks_core.maximum_intensity_projection import (
+from fractal_tasks_core.tasks.maximum_intensity_projection import (
     maximum_intensity_projection,
-)  # noqa
-from fractal_tasks_core.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
+)
+from fractal_tasks_core.tasks.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 
 
 single_cycle_allowed_channels_no_label = [
