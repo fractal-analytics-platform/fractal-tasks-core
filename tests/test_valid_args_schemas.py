@@ -38,8 +38,8 @@ FORBIDDEN_PARAM_NAMES = (
 def _extract_function(executable: str):
     if not executable.endswith(".py"):
         raise ValueError(f"Invalid {executable=}")
-    module_name = executable[:-3]
-    module = import_module(f"fractal_tasks_core.{module_name}")
+    module_name = Path(executable).with_suffix("").name
+    module = import_module(f"fractal_tasks_core.tasks.{module_name}")
     task_function = getattr(module, module_name)
     return task_function
 

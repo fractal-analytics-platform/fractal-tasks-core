@@ -11,12 +11,14 @@ import pytest
 from pytest import LogCaptureFixture
 from pytest import MonkeyPatch
 
-from fractal_tasks_core.illumination_correction import correct
-from fractal_tasks_core.illumination_correction import illumination_correction
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
+from fractal_tasks_core.tasks.illumination_correction import correct
+from fractal_tasks_core.tasks.illumination_correction import (
+    illumination_correction,
+)
 
 
 @pytest.mark.parametrize("overwrite", [True])
@@ -82,7 +84,8 @@ def test_illumination_correction(
         return correct(*args, **kwargs)
 
     monkeypatch.setattr(
-        "fractal_tasks_core.illumination_correction.correct", patched_correct
+        "fractal_tasks_core.tasks.illumination_correction.correct",
+        patched_correct,
     )
 
     # Call illumination correction task, with patched correct()

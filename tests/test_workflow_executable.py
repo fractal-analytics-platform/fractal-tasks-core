@@ -5,7 +5,7 @@ from pathlib import Path
 
 from devtools import debug
 
-import fractal_tasks_core
+import fractal_tasks_core.tasks
 
 
 allowed_channels = [
@@ -59,7 +59,7 @@ def test_workflow_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: str):
     img_path = zenodo_images
     zarr_path = str(tmp_path / "tmp_out/")
     metadata = {}
-    tasks_path = str(Path(fractal_tasks_core.__file__).parent)
+    tasks_path = str(Path(fractal_tasks_core.tasks.__file__).parent)
 
     # Create zarr structure
     args_create_zarr = dict(

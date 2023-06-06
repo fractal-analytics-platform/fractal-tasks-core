@@ -5,6 +5,7 @@ Copyright 2022 (C)
 
     Original authors:
     Tommaso Comparin <tommaso.comparin@exact-lab.it>
+    Joel Lüthi  <joel.luethi@fmi.ch>
 
     This file is part of Fractal and was originally developed by eXact lab
     S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
@@ -14,6 +15,7 @@ Copyright 2022 (C)
 Functions to identify and remove overlaps between regions of interest
 """
 import logging
+from typing import Callable
 from typing import Optional
 from typing import Sequence
 
@@ -382,3 +384,92 @@ def find_overlaps_in_ROI_indices(
             if _is_overlapping_3D_int(box_1, box_2):
                 return (ind_1, ind_2)
     return None
+
+
+def check_well_for_FOV_overlap(
+    site_metadata: pd.DataFrame,
+    selected_well: str,
+    plotting_function: Callable,
+    tol: float = 0,
+):
+    """
+    This function is currently only used in tests and examples.
+
+    The ``plotting_function`` parameter is exposed so that other tools (see
+    examples in this repository) may use it to show the FOV ROIs.
+    """
+
+    df = site_metadata.loc[selected_well].copy()
+    df["xmin"] = df["x_micrometer"]
+    df["ymin"] = df["y_micrometer"]
+    df["xmax"] = df["x_micrometer"] + df["pixel_size_x"] * df["x_pixel"]
+    df["ymax"] = df["y_micrometer"] + df["pixel_size_y"] * df["y_pixel"]
+
+    xmin = list(df.loc[:, "xmin"])
+    ymin = list(df.loc[:, "ymin"])
+    xmax = list(df.loc[:, "xmax"])
+    ymax = list(df.loc[:, "ymax"])
+    num_lines = len(xmin)
+
+    list_overlapping_FOVs = []
+    for line_1 in range(num_lines):
+        min_x_1, max_x_1 = [a[line_1] for a in [xmin, xmax]]
+        min_y_1, max_y_1 = [a[line_1] for a in [ymin, ymax]]
+        for line_2 in range(line_1):
+            min_x_2, max_x_2 = [a[line_2] for a in [xmin, xmax]]
+            min_y_2, max_y_2 = [a[line_2] for a in [ymin, ymax]]
+            overlap = is_overlapping_2D(
+                (min_x_1, min_y_1, max_x_1, max_y_1),
+                (min_x_2, min_y_2, max_x_2, max_y_2),
+                tol=tol,
+            )
+            if overlap:
+                list_overlapping_FOVs.append(line_1)
+                list_overlapping_FOVs.append(line_2)
+
+    # Call plotting_function
+    plotting_function(
+        xmin, xmax, ymin, ymax, list_overlapping_FOVs, selected_well
+    )
+
+    if len(list_overlapping_FOVs) > 0:
+        # Increase values by one to switch from index to the label plotted
+        return {selected_well: [x + 1 for x in list_overlapping_FOVs]}
+
+
+def run_overlap_check(
+    site_metadata: pd.DataFrame,
+    tol: float = 0,
+    plotting_function: Optional[Callable] = None,
+):
+    """
+    Run an overlap check over all wells and optionally plots overlaps
+
+    This function is currently only used in tests and examples.
+
+    The ``plotting_function`` parameter is exposed so that other tools (see
+    examples in this repository) may use it to show the FOV ROIs. Its arguments
+    are: ``[xmin, xmax, ymin, ymax, list_overlapping_FOVs, selected_well]``.
+    """
+
+    if plotting_function is None:
+
+        def plotting_function(
+            xmin, xmax, ymin, ymax, list_overlapping_FOVs, selected_well
+        ):
+            pass
+
+    wells = site_metadata.index.unique(level="well_id")
+    overlapping_FOVs = []
+    for selected_well in wells:
+        overlap_curr_well = check_well_for_FOV_overlap(
+            site_metadata,
+            selected_well=selected_well,
+            tol=tol,
+            plotting_function=plotting_function,
+        )
+        if overlap_curr_well:
+            print(selected_well)
+            overlapping_FOVs.append(overlap_curr_well)
+
+    return overlapping_FOVs

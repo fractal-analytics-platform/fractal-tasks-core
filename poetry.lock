@@ -196,7 +196,7 @@ test = ["boltons", "dask[array]", "joblib", "loompy (>=3.0.5)", "matplotlib", "o
 name = "anyio"
 version = "3.6.2"
 description = "High level compatibility layer for multiple asynchronous event loop implementations"
-optional = false
+optional = true
 python-versions = ">=3.6.2"
 files = [
     {file = "anyio-3.6.2-py3-none-any.whl", hash = "sha256:fbbe32bd270d2a2ef3ed1c5d45041250284e31fc0a4df4a5a6071842051a51e3"},
@@ -238,7 +238,7 @@ files = [
 name = "argon2-cffi"
 version = "21.3.0"
 description = "The secure Argon2 password hashing algorithm."
-optional = false
+optional = true
 python-versions = ">=3.6"
 files = [
     {file = "argon2-cffi-21.3.0.tar.gz", hash = "sha256:d384164d944190a7dd7ef22c6aa3ff197da12962bd04b17f64d4e93d934dba5b"},
@@ -257,7 +257,7 @@ tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pytest"]
 name = "argon2-cffi-bindings"
 version = "21.2.0"
 description = "Low-level CFFI bindings for Argon2"
-optional = false
+optional = true
 python-versions = ">=3.6"
 files = [
     {file = "argon2-cffi-bindings-21.2.0.tar.gz", hash = "sha256:bb89ceffa6c791807d1305ceb77dbfacc5aa499891d2c55661c6459651fc39e3"},
@@ -294,7 +294,7 @@ tests = ["pytest"]
 name = "arrow"
 version = "1.2.3"
 description = "Better dates & times for Python"
-optional = false
+optional = true
 python-versions = ">=3.6"
 files = [
     {file = "arrow-1.2.3-py3-none-any.whl", hash = "sha256:5a49ab92e3b7b71d96cd6bfcc4df14efefc9dfa96ea19045815914a6ab6b1fe2"},
@@ -378,7 +378,7 @@ Sphinx = ">=2.2,<7.0"
 name = "autopep8"
 version = "2.0.1"
 description = "A tool that automatically formats Python code to conform to the PEP 8 style guide"
-optional = false
+optional = true
 python-versions = ">=3.6"
 files = [
     {file = "autopep8-2.0.1-py2.py3-none-any.whl", hash = "sha256:be5bc98c33515b67475420b7b1feafc8d32c1a69862498eda4983b45bffd2687"},
@@ -415,7 +415,7 @@ files = [
 name = "beautifulsoup4"
 version = "4.11.2"
 description = "Screen-scraping library"
-optional = false
+optional = true
 python-versions = ">=3.6.0"
 files = [
     {file = "beautifulsoup4-4.11.2-py3-none-any.whl", hash = "sha256:0e79446b10b3ecb499c1556f7e228a53e64a2bfcebd455f370d8927cb5b59e39"},
@@ -433,7 +433,7 @@ lxml = ["lxml"]
 name = "bleach"
 version = "6.0.0"
 description = "An easy safelist-based HTML-sanitizing tool."
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "bleach-6.0.0-py3-none-any.whl", hash = "sha256:33c16e3353dbd13028ab4799a0f89a83f113405c766e9c122df8a06f5b85b3f4"},
@@ -526,7 +526,7 @@ heapdict = "*"
 name = "cellpose"
 version = "2.2"
 description = "anatomical segmentation algorithm"
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "cellpose-2.2-py3-none-any.whl", hash = "sha256:7a49723ddc3e359e69fc74204af0c8f237651047d4172af59320ffd1d050a45a"},
@@ -815,7 +815,7 @@ test = ["pytest"]
 name = "contourpy"
 version = "1.0.7"
 description = "Python library for calculating contours of 2D quadrilateral grids"
-optional = false
+optional = true
 python-versions = ">=3.8"
 files = [
     {file = "contourpy-1.0.7-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:95c3acddf921944f241b6773b767f1cbce71d03307270e2d769fd584d5d1092d"},
@@ -954,7 +954,7 @@ toml = ["tomli"]
 name = "cycler"
 version = "0.11.0"
 description = "Composable style cycles"
-optional = false
+optional = true
 python-versions = ">=3.6"
 files = [
     {file = "cycler-0.11.0-py3-none-any.whl", hash = "sha256:3a27e95f763a428a739d2add979fa7494c912a32c17c4c38c4d5f082cad165a3"},
@@ -1156,7 +1156,7 @@ files = [
 name = "fastjsonschema"
 version = "2.16.3"
 description = "Fastest Python implementation of JSON schema"
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "fastjsonschema-2.16.3-py3-none-any.whl", hash = "sha256:04fbecc94300436f628517b05741b7ea009506ce8f946d40996567c669318490"},
@@ -1170,7 +1170,7 @@ devel = ["colorama", "json-spec", "jsonschema", "pylint", "pytest", "pytest-benc
 name = "fastremap"
 version = "1.13.4"
 description = "Remap, mask, renumber, unique, and in-place transposition of 3D labeled images. Point cloud too."
-optional = false
+optional = true
 python-versions = "~=3.6"
 files = [
     {file = "fastremap-1.13.4-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:8a8f8b70d783ad7832b4cc149499a7d2c5168d0ac54e95fd917ff1b7bddee3eb"},
@@ -1232,7 +1232,7 @@ testing = ["covdefaults (>=2.2.2)", "coverage (>=7.0.1)", "pytest (>=7.2)", "pyt
 name = "fonttools"
 version = "4.38.0"
 description = "Tools to manipulate font files"
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "fonttools-4.38.0-py3-none-any.whl", hash = "sha256:820466f43c8be8c3009aef8b87e785014133508f0de64ec469e4efb643ae54fb"},
@@ -1257,7 +1257,7 @@ woff = ["brotli (>=1.0.1)", "brotlicffi (>=0.8.0)", "zopfli (>=0.1.4)"]
 name = "fqdn"
 version = "1.5.1"
 description = "Validates fully-qualified domain names against RFC 1123, so that they are acceptable to modern bowsers"
-optional = false
+optional = true
 python-versions = ">=2.7, !=3.0, !=3.1, !=3.2, !=3.3, !=3.4, <4"
 files = [
     {file = "fqdn-1.5.1-py3-none-any.whl", hash = "sha256:3a179af3761e4df6eb2e026ff9e1a3033d3587bf980a0b1b2e1e5d08d7358014"},
@@ -1488,7 +1488,7 @@ files = [
 name = "imagecodecs"
 version = "2023.1.23"
 description = "Image transformation, compression, and decompression codecs"
-optional = false
+optional = true
 python-versions = ">=3.8"
 files = [
     {file = "imagecodecs-2023.1.23-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:c40c16551c149a4f7d0e50085c1e771eb4919c0dfa9671392ffd0e74658987e0"},
@@ -1558,7 +1558,7 @@ tifffile = ["tifffile"]
 name = "imageio-ffmpeg"
 version = "0.4.8"
 description = "FFMPEG wrapper for Python"
-optional = false
+optional = true
 python-versions = ">=3.5"
 files = [
     {file = "imageio-ffmpeg-0.4.8.tar.gz", hash = "sha256:fdaa05ad10fe070b7fa8e5f615cb0d28f3b9b791d00af6d2a11e694158d10aa9"},
@@ -1603,7 +1603,7 @@ testing = ["flake8 (<5)", "flufl.flake8", "importlib-resources (>=1.3)", "packag
 name = "importlib-resources"
 version = "5.12.0"
 description = "Read resources from Python packages"
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "importlib_resources-5.12.0-py3-none-any.whl", hash = "sha256:7b1deeebbf351c7578e09bf2f63fa2ce8b5ffec296e0d349139d43cca061a81a"},
@@ -1632,7 +1632,7 @@ files = [
 name = "ipycanvas"
 version = "0.13.1"
 description = "Interactive widgets library exposing the browser's Canvas API"
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "ipycanvas-0.13.1-py2.py3-none-any.whl", hash = "sha256:53771e27a86de5b153873a4ffd495fddbf530990fb5609f20fb59ab95ce33035"},
@@ -1648,7 +1648,7 @@ pillow = ">=6.0"
 name = "ipyevents"
 version = "2.0.1"
 description = "A custom widget for returning mouse and keyboard events to Python"
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "ipyevents-2.0.1-py2.py3-none-any.whl", hash = "sha256:9f255fdab40e7598b1143ace90153c5f4e52be15dc6f1b94f575a043a5970c17"},
@@ -1748,7 +1748,7 @@ files = [
 name = "ipywidgets"
 version = "8.0.4"
 description = "Jupyter interactive widgets"
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "ipywidgets-8.0.4-py3-none-any.whl", hash = "sha256:ebb195e743b16c3947fe8827190fb87b4d00979c0fbf685afe4d2c4927059fa1"},
@@ -1769,7 +1769,7 @@ test = ["jsonschema", "pytest (>=3.6.0)", "pytest-cov", "pytz"]
 name = "isoduration"
 version = "20.11.0"
 description = "Operations with ISO 8601 durations"
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "isoduration-20.11.0-py3-none-any.whl", hash = "sha256:b2904c2a4228c3d44f409c8ae8e2370eb21a26f7ac2ec5446df141dde3452042"},
@@ -1830,7 +1830,7 @@ files = [
 name = "jsonpointer"
 version = "2.3"
 description = "Identify specific nodes in a JSON document (RFC 6901)"
-optional = false
+optional = true
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 files = [
     {file = "jsonpointer-2.3-py2.py3-none-any.whl", hash = "sha256:51801e558539b4e9cd268638c078c6c5746c9ac96bc38152d443400e4f3793e9"},
@@ -1868,7 +1868,7 @@ format-nongpl = ["fqdn", "idna", "isoduration", "jsonpointer (>1.13)", "rfc3339-
 name = "jupyter"
 version = "1.0.0"
 description = "Jupyter metapackage. Install all the Jupyter components in one go."
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "jupyter-1.0.0-py2.py3-none-any.whl", hash = "sha256:5b290f93b98ffbc21c0c7e749f054b3267782166d72fa5e3ed1ed4eaf34a2b78"},
@@ -1911,7 +1911,7 @@ test = ["codecov", "coverage", "ipykernel (>=6.14)", "mypy", "paramiko", "pre-co
 name = "jupyter-console"
 version = "6.6.2"
 description = "Jupyter terminal console"
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "jupyter_console-6.6.2-py3-none-any.whl", hash = "sha256:0ba2da017be36bfae489f233f031f251da5b88b0ceafabea240b465ee474944a"},
@@ -1955,7 +1955,7 @@ test = ["ipykernel", "pre-commit", "pytest", "pytest-cov", "pytest-timeout"]
 name = "jupyter-events"
 version = "0.6.3"
 description = "Jupyter Event System library"
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "jupyter_events-0.6.3-py3-none-any.whl", hash = "sha256:57a2749f87ba387cd1bfd9b22a0875b889237dbf2edc2121ebb22bde47036c17"},
@@ -1979,7 +1979,7 @@ test = ["click", "coverage", "pre-commit", "pytest (>=7.0)", "pytest-asyncio (>=
 name = "jupyter-server"
 version = "2.3.0"
 description = "The backend—i.e. core services, APIs, and REST endpoints—to Jupyter web applications."
-optional = false
+optional = true
 python-versions = ">=3.8"
 files = [
     {file = "jupyter_server-2.3.0-py3-none-any.whl", hash = "sha256:b15078954120886d580e19d1746e2b62a3dc7bd082cb4716115c25fcd7061b00"},
@@ -2014,7 +2014,7 @@ test = ["ipykernel", "pre-commit", "pytest (>=7.0)", "pytest-console-scripts", "
 name = "jupyter-server-terminals"
 version = "0.4.4"
 description = "A Jupyter Server Extension Providing Terminals."
-optional = false
+optional = true
 python-versions = ">=3.8"
 files = [
     {file = "jupyter_server_terminals-0.4.4-py3-none-any.whl", hash = "sha256:75779164661cec02a8758a5311e18bb8eb70c4e86c6b699403100f1585a12a36"},
@@ -2033,7 +2033,7 @@ test = ["coverage", "jupyter-server (>=2.0.0)", "pytest (>=7.0)", "pytest-cov", 
 name = "jupyterlab-pygments"
 version = "0.2.2"
 description = "Pygments theme using JupyterLab CSS variables"
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "jupyterlab_pygments-0.2.2-py2.py3-none-any.whl", hash = "sha256:2405800db07c9f770863bcf8049a529c3dd4d3e28536638bd7c1c01d2748309f"},
@@ -2044,7 +2044,7 @@ files = [
 name = "jupyterlab-widgets"
 version = "3.0.5"
 description = "Jupyter interactive widgets for JupyterLab"
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "jupyterlab_widgets-3.0.5-py3-none-any.whl", hash = "sha256:a04a42e50231b355b7087e16a818f541e53589f7647144ea0344c4bf16f300e5"},
@@ -2055,7 +2055,7 @@ files = [
 name = "jupytext"
 version = "1.14.5"
 description = "Jupyter notebooks as Markdown documents, Julia, Python or R scripts"
-optional = false
+optional = true
 python-versions = "~=3.6"
 files = [
     {file = "jupytext-1.14.5-py3-none-any.whl", hash = "sha256:a5dbe60d0ea158bbf82c2bce74aba8d0c220ad7edcda09e017c5eba229b34dc8"},
@@ -2180,7 +2180,7 @@ files = [
 name = "llvmlite"
 version = "0.39.1"
 description = "lightweight wrapper around basic LLVM functionality"
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "llvmlite-0.39.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:6717c7a6e93c9d2c3d07c07113ec80ae24af45cde536b34363d4bcd9188091d9"},
@@ -2228,7 +2228,7 @@ files = [
 name = "loguru"
 version = "0.6.0"
 description = "Python logging made (stupidly) simple"
-optional = false
+optional = true
 python-versions = ">=3.5"
 files = [
     {file = "loguru-0.6.0-py3-none-any.whl", hash = "sha256:4e2414d534a2ab57573365b3e6d0234dfb1d84b68b7f3b948e6fb743860a77c3"},
@@ -2453,7 +2453,7 @@ files = [
 name = "matplotlib"
 version = "3.7.0"
 description = "Python plotting package"
-optional = false
+optional = true
 python-versions = ">=3.8"
 files = [
     {file = "matplotlib-3.7.0-cp310-cp310-macosx_10_12_universal2.whl", hash = "sha256:3da8b9618188346239e51f1ea6c0f8f05c6e218cfcc30b399dd7dd7f52e8bceb"},
@@ -2572,7 +2572,7 @@ psutil = "*"
 name = "mistune"
 version = "2.0.5"
 description = "A sane Markdown parser with useful plugins and renderers"
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "mistune-2.0.5-py2.py3-none-any.whl", hash = "sha256:bad7f5d431886fcbaf5f758118ecff70d31f75231b34024a1341120340a65ce8"},
@@ -2763,7 +2763,7 @@ testing = ["babel (>=2.9.0)", "fsspec", "hypothesis (>=6.8.0)", "lxml", "matplot
 name = "napari-assistant"
 version = "0.4.4"
 description = "A pocket calculator like interface to image processing in napari"
-optional = false
+optional = true
 python-versions = ">=3.8"
 files = [
     {file = "napari-assistant-0.4.4.tar.gz", hash = "sha256:7f3963283f9172cfeb7ab29a23e9efe46d465dea134a4134c511f230a80b501a"},
@@ -2838,7 +2838,7 @@ test = ["pytest", "pytest-cov"]
 name = "napari-segment-blobs-and-things-with-membranes"
 version = "0.3.4"
 description = "A plugin based on scikit-image for segmenting nuclei and cells based on fluorescent microscopy images with high intensity in nuclei and/or membranes"
-optional = false
+optional = true
 python-versions = ">=3.8"
 files = [
     {file = "napari-segment-blobs-and-things-with-membranes-0.3.4.tar.gz", hash = "sha256:849d6ac0a6a24d506b522ccc5b94404f7645c6035bb01fb37c3a4c5aa42b7e45"},
@@ -2859,7 +2859,7 @@ stackview = ">=0.3.2"
 name = "napari-skimage-regionprops"
 version = "0.8.1"
 description = "A regionprops table widget plugin for napari"
-optional = false
+optional = true
 python-versions = ">=3.8"
 files = [
     {file = "napari-skimage-regionprops-0.8.1.tar.gz", hash = "sha256:9f9910f36345d849f6e16204453d01d9f6c5e3a5d716b4a8cb61907248de5db6"},
@@ -2900,7 +2900,7 @@ testing = ["napari (>=0.4)", "pyqt5", "pytest", "pytest-cov"]
 name = "napari-time-slicer"
 version = "0.4.9"
 description = "A meta plugin for processing timelapse data in napari timepoint by timepoint"
-optional = false
+optional = true
 python-versions = ">=3.8"
 files = [
     {file = "napari-time-slicer-0.4.9.tar.gz", hash = "sha256:329f7b04952d56aeb9c446fc1d034850d417367e3eaa0d1dd74fa596b5e73fd7"},
@@ -2918,7 +2918,7 @@ toolz = "*"
 name = "napari-tools-menu"
 version = "0.1.19"
 description = "Attaches a customizable Tools menu to napari"
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "napari-tools-menu-0.1.19.tar.gz", hash = "sha256:6b58ac45d7fe84bc5975e7a53142340d5d62beff9ade0f2f58d7a3a4a0a8e8f8"},
@@ -2934,7 +2934,7 @@ numpy = "*"
 name = "napari-workflows"
 version = "0.2.8"
 description = "Data structures for managing image processing workflows in napari"
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "napari-workflows-0.2.8.tar.gz", hash = "sha256:048558d60e8f82ec7a6ab759e8fb03388d42f44f8385581a4303f143b741c184"},
@@ -2966,7 +2966,7 @@ icu = ["PyICU (>=1.0.0)"]
 name = "nbclassic"
 version = "0.5.2"
 description = "Jupyter Notebook as a Jupyter Server extension."
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "nbclassic-0.5.2-py3-none-any.whl", hash = "sha256:6403a996562dadefa7fee9c49e17b663b5fd508241de5df655b90011cf3342d9"},
@@ -3001,7 +3001,7 @@ test = ["coverage", "nbval", "pytest", "pytest-cov", "pytest-jupyter", "pytest-p
 name = "nbclient"
 version = "0.7.2"
 description = "A client library for executing notebooks. Formerly nbconvert's ExecutePreprocessor."
-optional = false
+optional = true
 python-versions = ">=3.7.0"
 files = [
     {file = "nbclient-0.7.2-py3-none-any.whl", hash = "sha256:d97ac6257de2794f5397609df754fcbca1a603e94e924eb9b99787c031ae2e7c"},
@@ -3023,7 +3023,7 @@ test = ["ipykernel", "ipython", "ipywidgets", "nbconvert (>=7.0.0)", "pytest (>=
 name = "nbconvert"
 version = "7.2.9"
 description = "Converting Jupyter Notebooks"
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "nbconvert-7.2.9-py3-none-any.whl", hash = "sha256:495638c5e06005f4a5ce828d8a81d28e34f95c20f4384d5d7a22254b443836e7"},
@@ -3061,7 +3061,7 @@ webpdf = ["pyppeteer (>=1,<1.1)"]
 name = "nbformat"
 version = "5.7.3"
 description = "The Jupyter Notebook format"
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "nbformat-5.7.3-py3-none-any.whl", hash = "sha256:22a98a6516ca216002b0a34591af5bcb8072ca6c63910baffc901cfa07fefbf0"},
@@ -3125,7 +3125,7 @@ setuptools = "*"
 name = "notebook"
 version = "6.5.2"
 description = "A web-based notebook environment for interactive computing"
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "notebook-6.5.2-py3-none-any.whl", hash = "sha256:e04f9018ceb86e4fa841e92ea8fb214f8d23c1cedfde530cc96f92446924f0e4"},
@@ -3159,7 +3159,7 @@ test = ["coverage", "nbval", "pytest", "pytest-cov", "requests", "requests-unixs
 name = "notebook-shim"
 version = "0.2.2"
 description = "A shim layer for notebook traits and config"
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "notebook_shim-0.2.2-py3-none-any.whl", hash = "sha256:9c6c30f74c4fbea6fce55c1be58e7fd0409b1c681b075dcedceb005db5026949"},
@@ -3203,7 +3203,7 @@ testing = ["jsonschema", "magicgui", "napari-plugin-engine", "napari-svg", "nump
 name = "numba"
 version = "0.56.4"
 description = "compiling Python code using LLVM"
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "numba-0.56.4-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:9f62672145f8669ec08762895fe85f4cf0ead08ce3164667f2b94b2f62ab23c3"},
@@ -3353,7 +3353,7 @@ zarr = ">=2.8.1"
 name = "opencv-python-headless"
 version = "4.7.0.72"
 description = "Wrapper package for OpenCV python bindings."
-optional = false
+optional = true
 python-versions = ">=3.6"
 files = [
     {file = "opencv-python-headless-4.7.0.72.tar.gz", hash = "sha256:eea59caa92b28b197f9d2a2dd8275ca3869718b2a857c8e53203de6ef3f9f4db"},
@@ -3439,7 +3439,7 @@ test = ["hypothesis (>=5.5.3)", "pytest (>=6.0)", "pytest-xdist (>=1.31)"]
 name = "pandocfilters"
 version = "1.5.0"
 description = "Utilities for writing pandoc filters in python"
-optional = false
+optional = true
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 files = [
     {file = "pandocfilters-1.5.0-py2.py3-none-any.whl", hash = "sha256:33aae3f25fd1a026079f5d27bdd52496f0e0803b3469282162bafdcbdf6ef14f"},
@@ -3680,7 +3680,7 @@ virtualenv = ">=20.10.0"
 name = "prometheus-client"
 version = "0.16.0"
 description = "Python client for the Prometheus monitoring system."
-optional = false
+optional = true
 python-versions = ">=3.6"
 files = [
     {file = "prometheus_client-0.16.0-py3-none-any.whl", hash = "sha256:0836af6eb2c8f4fed712b2f279f6c0a8bbab29f9f4aa15276b91c7cb0d1616ab"},
@@ -3806,7 +3806,7 @@ tests = ["pytest"]
 name = "pycodestyle"
 version = "2.10.0"
 description = "Python style guide checker"
-optional = false
+optional = true
 python-versions = ">=3.6"
 files = [
     {file = "pycodestyle-2.10.0-py2.py3-none-any.whl", hash = "sha256:8a4eaf0d0495c7395bdab3589ac2db602797d76207242c17d470186815706610"},
@@ -3906,7 +3906,7 @@ files = [
 name = "pyparsing"
 version = "3.0.9"
 description = "pyparsing module - Classes and methods to define and execute parsing grammars"
-optional = false
+optional = true
 python-versions = ">=3.6.8"
 files = [
     {file = "pyparsing-3.0.9-py3-none-any.whl", hash = "sha256:5026bae9a10eeaefb61dab2f09052b9f4307d44aee4eda64b309723d8d206bbc"},
@@ -3920,7 +3920,7 @@ diagrams = ["jinja2", "railroad-diagrams"]
 name = "pyperclip"
 version = "1.8.2"
 description = "A cross-platform clipboard module for Python. (Only handles plain text for now.)"
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "pyperclip-1.8.2.tar.gz", hash = "sha256:105254a8b04934f0bc84e9c24eb360a591aaf6535c9def5f29d92af107a9bf57"},
@@ -4049,7 +4049,7 @@ six = ">=1.5"
 name = "python-json-logger"
 version = "2.0.7"
 description = "A python library adding a json log formatter"
-optional = false
+optional = true
 python-versions = ">=3.6"
 files = [
     {file = "python-json-logger-2.0.7.tar.gz", hash = "sha256:23e7ec02d34237c5aa1e29a070193a4ea87583bb4e7f8fd06d3de8264c4b2e1c"},
@@ -4181,7 +4181,7 @@ files = [
 name = "pywinpty"
 version = "2.0.10"
 description = "Pseudo terminal support for Windows from Python."
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "pywinpty-2.0.10-cp310-none-win_amd64.whl", hash = "sha256:4c7d06ad10f6e92bc850a467f26d98f4f30e73d2fe5926536308c6ae0566bc16"},
@@ -4397,7 +4397,7 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 name = "rfc3339-validator"
 version = "0.1.4"
 description = "A pure python RFC3339 validator"
-optional = false
+optional = true
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 files = [
     {file = "rfc3339_validator-0.1.4-py2.py3-none-any.whl", hash = "sha256:24f6ec1eda14ef823da9e36ec7113124b39c04d50a4d3d3a3c2859577e7791fa"},
@@ -4411,7 +4411,7 @@ six = "*"
 name = "rfc3986-validator"
 version = "0.1.1"
 description = "Pure python rfc3986 validator"
-optional = false
+optional = true
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 files = [
     {file = "rfc3986_validator-0.1.1-py2.py3-none-any.whl", hash = "sha256:2f235c432ef459970b4306369336b9d5dbdda31b510ca1e327636e01f528bfa9"},
@@ -4599,7 +4599,7 @@ test = ["asv", "gmpy2", "mpmath", "pytest", "pytest-cov", "pytest-xdist", "sciki
 name = "send2trash"
 version = "1.8.0"
 description = "Send file to trash natively under Mac OS X, Windows and Linux."
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "Send2Trash-1.8.0-py3-none-any.whl", hash = "sha256:f20eaadfdb517eaca5ce077640cb261c7d2698385a6a0f072a4a5447fd49fa08"},
@@ -4642,7 +4642,7 @@ files = [
 name = "sniffio"
 version = "1.3.0"
 description = "Sniff out which async library your code is running under"
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "sniffio-1.3.0-py3-none-any.whl", hash = "sha256:eecefdce1e5bbfb7ad2eeaabf7c1eeb404d7757c379bd1f7e5cce9d8bf425384"},
@@ -4664,7 +4664,7 @@ files = [
 name = "soupsieve"
 version = "2.4"
 description = "A modern CSS selector implementation for Beautiful Soup."
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "soupsieve-2.4-py3-none-any.whl", hash = "sha256:49e5368c2cda80ee7e84da9dbe3e110b70a4575f196efb74e51b94549d921955"},
@@ -4888,7 +4888,7 @@ tests = ["cython", "littleutils", "pygments", "pytest", "typeguard"]
 name = "stackview"
 version = "0.5.2"
 description = "Interactive image stack viewing in jupyter notebooks"
-optional = false
+optional = true
 python-versions = ">=3.6"
 files = [
     {file = "stackview-0.5.2-py3-none-any.whl", hash = "sha256:ee13d4a342aa25f1e982d8c00bda350fee97548eddc402818fdcae24c8469c44"},
@@ -4938,7 +4938,7 @@ test = ["pint", "pytest", "pytest-cov", "pytest-qt", "tox", "tox-conda"]
 name = "terminado"
 version = "0.17.1"
 description = "Tornado websocket backend for the Xterm.js Javascript terminal emulator library."
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "terminado-0.17.1-py3-none-any.whl", hash = "sha256:8650d44334eba354dd591129ca3124a6ba42c3d5b70df5051b6921d506fdaeae"},
@@ -4975,7 +4975,7 @@ all = ["defusedxml", "fsspec", "imagecodecs (>=2023.1.23)", "lxml", "matplotlib"
 name = "tinycss2"
 version = "1.2.1"
 description = "A tiny CSS parser"
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "tinycss2-1.2.1-py3-none-any.whl", hash = "sha256:2b80a96d41e7c3914b8cda8bc7f705a4d9c49275616e886103dd839dfc847847"},
@@ -5026,7 +5026,7 @@ files = [
 name = "torch"
 version = "1.12.1"
 description = "Tensors and Dynamic neural networks in Python with strong GPU acceleration"
-optional = false
+optional = true
 python-versions = ">=3.7.0"
 files = [
     {file = "torch-1.12.1-cp310-cp310-manylinux1_x86_64.whl", hash = "sha256:9c038662db894a23e49e385df13d47b2a777ffd56d9bcd5b832593fab0a7e286"},
@@ -5144,7 +5144,7 @@ files = [
 name = "uri-template"
 version = "1.2.0"
 description = "RFC 6570 URI Template Processor"
-optional = false
+optional = true
 python-versions = ">=3.6"
 files = [
     {file = "uri_template-1.2.0-py3-none-any.whl", hash = "sha256:f1699c77b73b925cf4937eae31ab282a86dc885c333f2e942513f08f691fc7db"},
@@ -5251,7 +5251,7 @@ files = [
 name = "webcolors"
 version = "1.12"
 description = "A library for working with color names and color values formats defined by HTML and CSS."
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "webcolors-1.12-py3-none-any.whl", hash = "sha256:d98743d81d498a2d3eaf165196e65481f0d2ea85281463d856b1e51b09f62dce"},
@@ -5262,7 +5262,7 @@ files = [
 name = "webencodings"
 version = "0.5.1"
 description = "Character encoding aliases for legacy web content"
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "webencodings-0.5.1-py2.py3-none-any.whl", hash = "sha256:a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78"},
@@ -5273,7 +5273,7 @@ files = [
 name = "websocket-client"
 version = "1.5.1"
 description = "WebSocket client for Python with low level API options"
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "websocket-client-1.5.1.tar.gz", hash = "sha256:3f09e6d8230892547132177f575a4e3e73cfdf06526e20cc02aa1c3b47184d40"},
@@ -5299,7 +5299,7 @@ files = [
 name = "widgetsnbextension"
 version = "4.0.5"
 description = "Jupyter interactive widgets for Jupyter Notebook"
-optional = false
+optional = true
 python-versions = ">=3.7"
 files = [
     {file = "widgetsnbextension-4.0.5-py3-none-any.whl", hash = "sha256:eaaaf434fb9b08bd197b2a14ffe45ddb5ac3897593d43c69287091e5f3147bf7"},
@@ -5310,7 +5310,7 @@ files = [
 name = "win32-setctime"
 version = "1.1.0"
 description = "A small Python utility to set file creation time on Windows"
-optional = false
+optional = true
 python-versions = ">=3.5"
 files = [
     {file = "win32_setctime-1.1.0-py3-none-any.whl", hash = "sha256:231db239e959c2fe7eb1d7dc129f11172354f98361c4fa2d6d2d7e278baa8aad"},
@@ -5541,7 +5541,10 @@ files = [
 docs = ["furo", "jaraco.packaging (>=9)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
 testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.3)", "pytest-flake8", "pytest-mypy (>=0.9.1)"]
 
+[extras]
+fractal-tasks = ["Pillow", "cellpose", "imageio-ffmpeg", "llvmlite", "napari-segment-blobs-and-things-with-membranes", "napari-skimage-regionprops", "napari-tools-menu", "napari-workflows", "scikit-image", "torch"]
+
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "9dfa9c162847daa1e436ce2d4fd27bed0a57b8ba98cd713f97e6a2d5b9fbd6d8"
+content-hash = "7b90f3b88fa7065fc330d2e064231f549300ddaa25d56545d681d8a9aac3848e"

@@ -216,7 +216,7 @@ def yokogawa_to_ome_zarr(
 
 
 if __name__ == "__main__":
-    from fractal_tasks_core._utils import run_fractal_task
+    from fractal_tasks_core.tasks._utils import run_fractal_task
 
     run_fractal_task(
         task_function=yokogawa_to_ome_zarr,
