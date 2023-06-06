@@ -15,27 +15,33 @@ homepage = "https://github.com/fractal-analytics-platform/fractal-tasks-core"
 documentation = "https://fractal-tasks-core.readthedocs.io"
 
 [tool.poetry.dependencies]
+
+# Required dependencies
 python = "^3.9"
 dask = "~2023.1.0"
 zarr = "~2.13.6"
 numpy = "~1.23.5"
-scikit-image = ">=0.19"
-cellpose = "~2.2"
 pandas = "^1.2.0"
 defusedxml = "^0.7.1"
-napari-workflows = "^0.2.8"
-napari-skimage-regionprops = "^0.8.1"
-napari-tools-menu = "^0.1.19"
-anndata = "^0.8.0"
-llvmlite = "^0.39.1"
-imageio-ffmpeg = "^0.4.7"
 lxml = "^4.9.1"
-napari-segment-blobs-and-things-with-membranes = "^0.3.3"
-Pillow = "^9.1.1"
-pydantic = "^1.10.2"
-torch = "1.12.1"
+pydantic = "~1.10.2"
 docstring-parser = "^0.15"
+anndata = "^0.8.0"
 
+# Optional dependencies (used in extras)
+Pillow = { version = "^9.1.1", optional = true }
+imageio-ffmpeg = { version = "^0.4.7", optional = true }
+scikit-image = { version = ">=0.19", optional = true }
+llvmlite = { version = "^0.39.1", optional = true }
+napari-segment-blobs-and-things-with-membranes = { version = "^0.3.3", optional = true }
+napari-workflows = { version = "^0.2.8", optional = true }
+napari-skimage-regionprops = { version = "^0.8.1", optional = true }
+napari-tools-menu = { version = "^0.1.19", optional = true }
+cellpose = { version = "~2.2", optional = true }
+torch = { version = "1.12.1", optional = true }
+
+[tool.poetry.extras]
+fractal_tasks = ["Pillow", "imageio-ffmpeg", "scikit-image", "llvmlite", "napari-segment-blobs-and-things-with-membranes", "napari-workflows", "napari-skimage-regionprops", "napari-tools-menu", "cellpose", "torch"]
 
 [tool.poetry.group.dev]
 optional = true
