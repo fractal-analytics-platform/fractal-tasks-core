@@ -76,7 +76,13 @@
         "title": "CreateOmeZarr",
         "type": "object"
       },
-      "executable": "create_ome_zarr.py",
+      "default_args": {
+        "coarsening_xy": 2,
+        "image_extension": "tif",
+        "metadata_table": "mrf_mlf",
+        "num_levels": 2
+      },
+      "executable": "tasks/create_ome_zarr.py",
       "input_type": "image",
       "meta": {
         "cpus_per_task": 1,
@@ -128,7 +134,7 @@
         "title": "YokogawaToOmeZarr",
         "type": "object"
       },
-      "executable": "yokogawa_to_ome_zarr.py",
+      "executable": "tasks/yokogawa_to_ome_zarr.py",
       "input_type": "zarr",
       "meta": {
         "cpus_per_task": 1,
@@ -175,7 +181,6 @@
             "type": "boolean"
           },
           "suffix": {
-            "default": "mip",
             "description": "The suffix that is used to transform ``plate.zarr`` into ``plate_suffix.zarr``. Note that `None` is not currently supported.",
             "title": "Suffix",
             "type": "string"
@@ -189,7 +194,11 @@
         "title": "CopyOmeZarr",
         "type": "object"
       },
-      "executable": "copy_ome_zarr.py",
+      "default_args": {
+        "project_to_2D": true,
+        "suffix": "mip"
+      },
+      "executable": "tasks/copy_ome_zarr.py",
       "input_type": "zarr",
       "meta": {
         "cpus_per_task": 1,
@@ -235,7 +244,7 @@
         "title": "MaximumIntensityProjection",
         "type": "object"
       },
-      "executable": "maximum_intensity_projection.py",
+      "executable": "tasks/maximum_intensity_projection.py",
       "input_type": "zarr",
       "meta": {
         "cpus_per_task": 1,
@@ -394,7 +403,7 @@
         "title": "CellposeSegmentation",
         "type": "object"
       },
-      "executable": "cellpose_segmentation.py",
+      "executable": "tasks/cellpose_segmentation.py",
       "input_type": "zarr",
       "meta": {
         "cpus_per_task": 4,
@@ -465,7 +474,11 @@
         "title": "IlluminationCorrection",
         "type": "object"
       },
-      "executable": "illumination_correction.py",
+      "default_args": {
+        "background": 100,
+        "overwrite": false
+      },
+      "executable": "tasks/illumination_correction.py",
       "input_type": "zarr",
       "meta": {
         "cpus_per_task": 1,
@@ -566,7 +579,13 @@
         "title": "NapariWorkflowsWrapper",
         "type": "object"
       },
-      "executable": "napari_workflows_wrapper.py",
+      "default_args": {
+        "expected_dimensions": 3,
+        "input_ROI_table": "FOV_ROI_table",
+        "level": 0,
+        "relabeling": true
+      },
+      "executable": "tasks/napari_workflows_wrapper.py",
       "input_type": "zarr",
       "meta": {
         "cpus_per_task": 8,
@@ -664,7 +683,13 @@
         "title": "CreateOmeZarrMultiplex",
         "type": "object"
       },
-      "executable": "create_ome_zarr_multiplex.py",
+      "default_args": {
+        "coarsening_xy": 2,
+        "image_extension": "tif",
+        "metadata_table": "mrf_mlf",
+        "num_levels": 2
+      },
+      "executable": "tasks/create_ome_zarr_multiplex.py",
       "input_type": "image",
       "meta": {
         "cpus_per_task": 1,
