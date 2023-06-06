@@ -40,4 +40,4 @@ jobs:
         run: python -m pip install -e .[fractal-tasks]
 
       - name: Test package import (with fractal-tasks extra)
-        run: python -c 'import fractal_tasks_core.task.cellpose_segmentation; print("OK")'
+        run: python -c 'import fractal_tasks_core.tasks.cellpose_segmentation; print("OK")'
