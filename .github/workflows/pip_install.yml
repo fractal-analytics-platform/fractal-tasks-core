@@ -36,8 +36,8 @@ jobs:
       - name: Test package import (without extra)
         run: python -c 'import fractal_tasks_core'
 
-      - name: Install package (with fractal_tasks extra)
-        run: python -m pip install -e .[fractal_tasks]
+      - name: Install package (with fractal-tasks extra)
+        run: python -m pip install -e .[fractal-tasks]
 
-      - name: Test package import (with extra)
+      - name: Test package import (with fractal-tasks extra)
         run: python -c 'import cellpose'
