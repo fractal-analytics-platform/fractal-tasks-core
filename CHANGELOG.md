@@ -1,11 +1,18 @@
 # 0.10.0
 
-* Remove `TaskArguments` models and switch to Pydantic V1 `validate_arguments` (\#369).
-* Add JSON schemas for task arguments in the package manifest (\#369, \#384).
-* Create new `dev` subpackage (\#384).
-* Remove `tools` package extra (\#384).
-* Remove legacy executor definitions from manifest (\#361).
-* Remove `sqlmodel` from dev dependencies (\#374).
+* Restructure the package and repository (\#384, \#390):
+    * Move tasks to `tasks` subpackage (\#390)
+    * Create new `dev` subpackage (\#384).
+    * Make tasks-related dependencies optional, and installable via `fractal-tasks` extra (\#390).
+    * Remove `tools` package extra (\#384), and split the subpackage content into `lib_ROI_overlaps` and `examples` (\#390).
+* JSON Schemas for task arguments:
+    * Add JSON schemas for task arguments in the package manifest (\#369, \#384).
+    * Remove `TaskArguments` models and switch to Pydantic V1 `validate_arguments` (\#369).
+    * Remove `default_args` from manifest (\#XXX).
+* Other:
+    * Remove legacy executor definitions from manifest (\#361).
+    * Add GitHub action for testing `pip install` with/without `fractal-tasks` extra (\#390).
+    * Remove `sqlmodel` from dev dependencies (\#374).
 
 # 0.9.4
 
