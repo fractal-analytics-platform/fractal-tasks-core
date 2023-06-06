@@ -12,7 +12,7 @@ Copyright 2022 (C)
     University of Zurich.
 
 
-Script to generate JSON schemas for task arguments afresh, and writes them
+Script to generate JSON schemas for task arguments afresh, and write them
 to the package manifest.
 """
 import json

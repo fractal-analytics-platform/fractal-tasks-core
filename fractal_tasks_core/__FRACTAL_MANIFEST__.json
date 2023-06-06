@@ -181,6 +181,7 @@
             "type": "boolean"
           },
           "suffix": {
+            "default": "mip",
             "description": "The suffix that is used to transform ``plate.zarr`` into ``plate_suffix.zarr``. Note that `None` is not currently supported.",
             "title": "Suffix",
             "type": "string"
