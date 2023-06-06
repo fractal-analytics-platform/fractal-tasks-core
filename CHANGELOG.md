@@ -1,6 +1,6 @@
 # 0.10.0
 
-* Restructure the package and repository (\#384, \#390):
+* Restructure the package and repository:
     * Move tasks to `tasks` subpackage (\#390)
     * Create new `dev` subpackage (\#384).
     * Make tasks-related dependencies optional, and installable via `fractal-tasks` extra (\#390).
@@ -8,7 +8,7 @@
 * JSON Schemas for task arguments:
     * Add JSON schemas for task arguments in the package manifest (\#369, \#384).
     * Remove `TaskArguments` models and switch to Pydantic V1 `validate_arguments` (\#369).
-    * Remove `default_args` from manifest (\#XXX).
+    * Remove `default_args` from manifest (\#379, \#393).
 * Other:
     * Remove legacy executor definitions from manifest (\#361).
     * Add GitHub action for testing `pip install` with/without `fractal-tasks` extra (\#390).
