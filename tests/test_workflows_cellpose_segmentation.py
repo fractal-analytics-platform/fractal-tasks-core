@@ -615,7 +615,7 @@ def test_workflow_with_per_FOV_labeling_via_script(
     python_path = sys.executable
     task_path = (
         Path(fractal_tasks_core.tasks.__file__).parent
-        / "tasks/cellpose_segmentation.py"
+        / "cellpose_segmentation.py"
     )
     args_path = tmp_path / "args.json"
     out_path = tmp_path / "out.json"
