@@ -83,11 +83,12 @@ def _get_args_descriptions(executable) -> dict[str, str]:
     """
     # Read docstring (via ast)
     module_path = Path(fractal_tasks_core.__file__).parent / executable
+    module_name = module_path.with_suffix("").name
     tree = ast.parse(module_path.read_text())
     function = next(
         f
         for f in ast.walk(tree)
-        if (isinstance(f, ast.FunctionDef) and f.name == executable[:-3])
+        if (isinstance(f, ast.FunctionDef) and f.name == module_name)
     )
     docstring = ast.get_docstring(function)
     # Parse docstring (via docstring_parser) and prepare output
@@ -126,8 +127,8 @@ def create_schema_for_single_task(executable: str) -> _Schema:
     if not executable.endswith(".py"):
         raise ValueError(f"Invalid {executable=} (it must end with `.py`).")
     # Import function
-    module_name = executable[:-3]
-    module = import_module(f"fractal_tasks_core.{module_name}")
+    module_name = Path(executable).with_suffix("").name
+    module = import_module(f"fractal_tasks_core.tasks.{module_name}")
     task_function = getattr(module, module_name)
 
     # Create and clean up schema
