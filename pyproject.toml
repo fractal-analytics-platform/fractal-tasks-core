@@ -41,7 +41,7 @@ cellpose = { version = "~2.2", optional = true }
 torch = { version = "1.12.1", optional = true }
 
 [tool.poetry.extras]
-fractal_tasks = ["Pillow", "imageio-ffmpeg", "scikit-image", "llvmlite", "napari-segment-blobs-and-things-with-membranes", "napari-workflows", "napari-skimage-regionprops", "napari-tools-menu", "cellpose", "torch"]
+fractal-tasks = ["Pillow", "imageio-ffmpeg", "scikit-image", "llvmlite", "napari-segment-blobs-and-things-with-membranes", "napari-workflows", "napari-skimage-regionprops", "napari-tools-menu", "cellpose", "torch"]
 
 [tool.poetry.group.dev]
 optional = true
