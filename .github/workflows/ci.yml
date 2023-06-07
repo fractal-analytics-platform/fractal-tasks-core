@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.10"]
+        python-version: ["3.9", "3.10"]
 
     steps:
       - uses: actions/checkout@v3
@@ -40,7 +40,7 @@ jobs:
         run: poetry install --with dev --all-extras --no-interaction
 
       - name: Task-arguments JSON schemas
-        run: echo FIXME #poetry run python fractal_tasks_core/dev/check_args_schemas.py
+        run: poetry run python fractal_tasks_core/dev/check_args_schemas.py
 
       - name: Test with pytest
         run: poetry run coverage run -m pytest
