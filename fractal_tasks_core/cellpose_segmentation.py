@@ -45,7 +45,9 @@ from fractal_tasks_core.lib_regions_of_interest import (
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
-from fractal_tasks_core.lib_regions_of_interest import is_ROI_table_valid
+from fractal_tasks_core.lib_regions_of_interest import (
+    is_ROI_table_valid, load_region_as_3D
+)
 from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
 from fractal_tasks_core.lib_ROI_overlaps import get_overlapping_pairs_3D
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
@@ -366,7 +368,7 @@ def cellpose_segmentation(
             )
 
     # Select 2D/3D behavior and set some parameters
-    do_3D = data_zyx.shape[0] > 1
+    do_3D = data_zyx.shape[0] > 1 and len(data_zyx.shape) == 3
     if do_3D:
         if anisotropy is None:
             # Read pixel sizes from zattrs file
@@ -444,9 +446,18 @@ def cellpose_segmentation(
     logger.info(f"Output label path: {zarrurl}/labels/{output_label_name}/0")
     store = zarr.storage.FSStore(f"{zarrurl}/labels/{output_label_name}/0")
     label_dtype = np.uint32
+
+    # Ensure that all output shapes & chunks are 3D (for 2D data: (1, y, x))
+    # See https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/398
+    shape = data_zyx.shape
+    if len(shape) == 2:
+        shape = (1, *shape)
+    chunks = data_zyx.chunksize
+    if len(chunks) == 2:
+        chunks = (1, *chunks)
     mask_zarr = zarr.create(
-        shape=data_zyx.shape,
-        chunks=data_zyx.chunksize,
+        shape=shape,
+        chunks=chunks,
         dtype=label_dtype,
         store=store,
         overwrite=False,
@@ -508,12 +519,13 @@ def cellpose_segmentation(
         # Prepare single-channel or dual-channel input for cellpose
         if wavelength_id_c2 or channel_label_c2:
             # Dual channel mode, first channel is the membrane channel
-            img_np = np.zeros((2, *data_zyx[region].shape))
-            img_np[0, :, :, :] = data_zyx[region].compute()
-            img_np[1, :, :, :] = data_zyx_c2[region].compute()
+            img_1 = load_region_as_3D(data_zyx, region, compute=True)
+            img_np = np.zeros((2, *img_1.shape))
+            img_np[0, :, :, :] = img_1
+            img_np[1, :, :, :] = load_region_as_3D(data_zyx_c2, region, compute=True)
             channels = [1, 2]
         else:
-            img_np = np.expand_dims(data_zyx[region].compute(), axis=0)
+            img_np = np.expand_dims(load_region_as_3D(data_zyx, region, compute=True), axis=0)
             channels = [0, 0]
 
         # Prepare keyword arguments for segment_ROI function
@@ -607,7 +619,7 @@ def cellpose_segmentation(
         overwrite=False,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        chunksize=data_zyx.chunksize,
+        chunksize=chunks,
         aggregation_function=np.max,
     )
 

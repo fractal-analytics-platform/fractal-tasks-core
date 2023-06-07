@@ -17,8 +17,11 @@ Functions to handle regions of interests (via pandas and AnnData)
 import logging
 from typing import Optional
 from typing import Sequence
+from typing import Tuple
+from typing import Union
 
 import anndata as ad
+import dask.array as da
 import numpy as np
 import pandas as pd
 import zarr
@@ -398,3 +401,32 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
         return True
     else:
         return False
+
+
+def load_region_as_3D(
+        data_zyx: da.array, 
+        region: Tuple[slice, slice, slice], 
+        compute=True
+    ) -> Union[da.array, np.array]:
+    """
+    Load a region from a dask array as a 3D array.
+
+    Can handle both 2D and 3D dask arrays as input.
+
+    :param data_zyx: dask array, 2D or 3D
+    :param region: region to load, tuple of slices
+    :param compute: whether to compute the result. If True, returns a numpy 
+                    array. If False, returns a dask array.
+    :return: 3D array
+    """
+
+    if len(data_zyx.shape) == 3:
+        img = data_zyx[region]
+    elif len(data_zyx.shape) == 2:
+        img = data_zyx[(region[1], region[2])]
+        img = np.expand_dims(img, axis=0)
+    if compute:
+        return img.compute()
+    else:  
+        return img
+
