@@ -27,10 +27,9 @@ def validate_command(cmd: str):
     # Valid stderr includes pydantic.error_wrappers.ValidationError (type
     # match between model and function, but tmp_file_args has wrong arguments)
     assert "pydantic.error_wrappers.ValidationError" in stderr
-    # Valid stderr must include a mention of "extra fields not permitted". If
-    # this is missing, it probably means that we forgot to add
-    # `extra=Extra.forbid` in a `TaskArguments` definition
-    assert "extra fields not permitted (type=value_error.extra)" in stderr
+    # Valid stderr must include a mention of "unexpected keyword arguments",
+    # because we are including some invalid arguments
+    assert "unexpected keyword arguments" in stderr
     # Invalid stderr includes ValueError
     assert "ValueError" not in stderr
 
@@ -49,8 +48,7 @@ def test_task_interface(task, tmp_path):
         args = dict(wrong_arg_1=123, wrong_arg_2=[1, 2, 3])
         json.dump(args, fout, indent=4)
 
-    executable = task["executable"]
-    task_path = f"{str(module_dir)}/{executable}"
+    task_path = (module_dir / task["executable"]).as_posix()
     cmd = (
         f"python {task_path} "
         f"-j {tmp_file_args} "

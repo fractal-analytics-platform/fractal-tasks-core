@@ -75,10 +75,10 @@ def create_ome_zarr_multiplex(
     :param metadata: standard fractal argument, not used in this task
     :param image_extension: Filename extension of images (e.g. `tif` or `png`)
     :param image_glob_patterns: If specified, only parse images with filenames
-                            that match with all these patterns. Patterns
-                            must be defined as in
-                            https://docs.python.org/3/library/fnmatch.html,
-                            e.g. `image_glob_pattern=["*_B03_*"]`.
+                                that match with all these patterns. Patterns
+                                must be defined as in
+                                https://docs.python.org/3/library/fnmatch.html,
+                                e.g. `image_glob_pattern=["*_B03_*"]`.
     :param allowed_channels: TBD
     :param num_levels: number of resolution-pyramid levels
     :param coarsening_xy: Linear coarsening factor between subsequent levels
@@ -481,23 +481,10 @@ def create_ome_zarr_multiplex(
 
 
 if __name__ == "__main__":
-    from pydantic import BaseModel
-    from pydantic import Extra
-    from fractal_tasks_core._utils import run_fractal_task
-
-    class TaskArguments(BaseModel, extra=Extra.forbid):
-        input_paths: Sequence[str]
-        output_path: str
-        metadata: Dict[str, Any]
-        image_extension: str
-        image_glob_pattern: Optional[list[str]]
-        allowed_channels: Dict[str, Sequence[Dict[str, Any]]]
-        num_levels: Optional[int]
-        coarsening_xy: Optional[int]
-        metadata_table: Optional[Union[Literal["mrf_mlf"], Dict[str, str]]]
+    from fractal_tasks_core.tasks._utils import run_fractal_task
 
     run_fractal_task(
         task_function=create_ome_zarr_multiplex,
-        TaskArgsModel=TaskArguments,
+        coerce_and_validate=True,
         logger_name=logger.name,
     )

@@ -28,19 +28,21 @@ import pytest
 from devtools import debug
 from pytest import MonkeyPatch
 
-import fractal_tasks_core
+import fractal_tasks_core.tasks
 from .lib_empty_ROI_table import _add_empty_ROI_table
 from .utils import check_file_number
 from .utils import validate_schema
-from fractal_tasks_core.cellpose_segmentation import cellpose_segmentation
-from fractal_tasks_core.copy_ome_zarr import (
+from fractal_tasks_core.tasks.cellpose_segmentation import (
+    cellpose_segmentation,
+)
+from fractal_tasks_core.tasks.copy_ome_zarr import (
     copy_ome_zarr,
 )  # noqa
-from fractal_tasks_core.create_ome_zarr import create_ome_zarr
-from fractal_tasks_core.maximum_intensity_projection import (
+from fractal_tasks_core.tasks.create_ome_zarr import create_ome_zarr
+from fractal_tasks_core.tasks.maximum_intensity_projection import (
     maximum_intensity_projection,
 )  # noqa
-from fractal_tasks_core.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
+from fractal_tasks_core.tasks.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 
 
 allowed_channels = [
@@ -172,12 +174,12 @@ def test_failures(
 ):
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.cellpose.core.use_gpu",
+        "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
         patched_cellpose_core_use_gpu,
     )
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.segment_ROI",
+        "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
         patched_segment_ROI,
     )
 
@@ -235,12 +237,12 @@ def test_workflow_with_per_FOV_labeling(
 ):
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.cellpose.core.use_gpu",
+        "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
         patched_cellpose_core_use_gpu,
     )
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.segment_ROI",
+        "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
         patched_segment_ROI,
     )
 
@@ -297,12 +299,12 @@ def test_workflow_with_multi_channel_input(
     # wavelength_id_c2
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.cellpose.core.use_gpu",
+        "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
         patched_cellpose_core_use_gpu,
     )
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.segment_ROI",
+        "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
         patched_segment_ROI,
     )
 
@@ -354,13 +356,13 @@ def test_workflow_with_per_FOV_labeling_2D(
 ):
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.cellpose.core.use_gpu",
+        "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
         patched_cellpose_core_use_gpu,
     )
 
     # Do not use cellpose
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.segment_ROI",
+        "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
         patched_segment_ROI,
     )
 
@@ -407,13 +409,13 @@ def test_workflow_with_per_well_labeling_2D(
 ):
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.cellpose.core.use_gpu",
+        "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
         patched_cellpose_core_use_gpu,
     )
 
     # Do not use cellpose
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.segment_ROI",
+        "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
         patched_segment_ROI,
     )
 
@@ -501,12 +503,12 @@ def test_workflow_bounding_box(
 ):
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.cellpose.core.use_gpu",
+        "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
         patched_cellpose_core_use_gpu,
     )
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.segment_ROI",
+        "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
         patched_segment_ROI,
     )
     NUM_LABELS = 4
@@ -558,12 +560,12 @@ def test_workflow_bounding_box_with_overlap(
 ):
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.cellpose.core.use_gpu",
+        "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
         patched_cellpose_core_use_gpu,
     )
 
     monkeypatch.setattr(
-        "fractal_tasks_core.cellpose_segmentation.segment_ROI",
+        "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
         patched_segment_ROI_overlapping_organoids,
     )
 
@@ -612,7 +614,8 @@ def test_workflow_with_per_FOV_labeling_via_script(
 
     python_path = sys.executable
     task_path = (
-        Path(fractal_tasks_core.__file__).parent / "cellpose_segmentation.py"
+        Path(fractal_tasks_core.tasks.__file__).parent
+        / "cellpose_segmentation.py"
     )
     args_path = tmp_path / "args.json"
     out_path = tmp_path / "out.json"

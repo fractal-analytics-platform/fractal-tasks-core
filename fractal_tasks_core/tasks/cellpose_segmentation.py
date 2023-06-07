@@ -675,41 +675,10 @@ def cellpose_segmentation(
 
 if __name__ == "__main__":
 
-    from pydantic import BaseModel
-    from pydantic import Extra
-    from fractal_tasks_core._utils import run_fractal_task
-
-    class TaskArguments(BaseModel, extra=Extra.forbid):
-        # Fractal arguments
-        input_paths: Sequence[str]
-        output_path: str
-        component: str
-        metadata: Dict[str, Any]
-        # Task-specific arguments
-        channel_label: Optional[str]
-        wavelength_id: Optional[str]
-        channel_label_c2: Optional[str]
-        channel_label_c2: Optional[str]
-        level: int
-        relabeling: bool = True
-        input_ROI_table: Optional[str]
-        output_ROI_table: Optional[str]
-        output_label_name: Optional[str]
-        # Cellpose-related arguments:
-        use_gpu: Optional[bool]
-        anisotropy: Optional[float]
-        diameter_level0: Optional[float]
-        cellprob_threshold: Optional[float]
-        flow_threshold: Optional[float]
-        model_type: Optional[str]
-        pretrained_model: Optional[str]
-        min_size: Optional[int]
-        augment: Optional[bool]
-        net_avg: Optional[bool]
-        use_masks: Optional[bool]
+    from fractal_tasks_core.tasks._utils import run_fractal_task
 
     run_fractal_task(
         task_function=cellpose_segmentation,
-        TaskArgsModel=TaskArguments,
+        coerce_and_validate=True,
         logger_name=logger.name,
     )

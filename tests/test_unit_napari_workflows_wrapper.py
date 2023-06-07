@@ -2,7 +2,7 @@ import logging
 
 import pytest
 
-from fractal_tasks_core.napari_workflows_wrapper import (
+from fractal_tasks_core.tasks.napari_workflows_wrapper import (
     napari_workflows_wrapper,
 )
 

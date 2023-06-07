@@ -26,7 +26,7 @@ from .lib_empty_ROI_table import _add_empty_ROI_table
 from .utils import check_file_number
 from .utils import validate_labels_and_measurements
 from .utils import validate_schema
-from fractal_tasks_core.napari_workflows_wrapper import (
+from fractal_tasks_core.tasks.napari_workflows_wrapper import (
     napari_workflows_wrapper,
 )
 
