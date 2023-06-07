@@ -38,7 +38,7 @@ napari-workflows = { version = "^0.2.8", optional = true }
 napari-skimage-regionprops = { version = "^0.8.1", optional = true }
 napari-tools-menu = { version = "^0.1.19", optional = true }
 cellpose = { version = "~2.2", optional = true }
-torch = "1.13"
+torch = "2"
 
 [tool.poetry.extras]
 fractal-tasks = ["Pillow", "imageio-ffmpeg", "scikit-image", "llvmlite", "napari-segment-blobs-and-things-with-membranes", "napari-workflows", "napari-skimage-regionprops", "napari-tools-menu", "cellpose", "torch"]
