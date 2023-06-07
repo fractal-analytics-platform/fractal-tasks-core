@@ -45,9 +45,8 @@ from fractal_tasks_core.lib_regions_of_interest import (
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
-from fractal_tasks_core.lib_regions_of_interest import (
-    is_ROI_table_valid, load_region_as_3D
-)
+from fractal_tasks_core.lib_regions_of_interest import is_ROI_table_valid
+from fractal_tasks_core.lib_regions_of_interest import load_region_as_3D
 from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
 from fractal_tasks_core.lib_ROI_overlaps import get_overlapping_pairs_3D
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
@@ -448,7 +447,7 @@ def cellpose_segmentation(
     label_dtype = np.uint32
 
     # Ensure that all output shapes & chunks are 3D (for 2D data: (1, y, x))
-    # See https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/398
+    # https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/398
     shape = data_zyx.shape
     if len(shape) == 2:
         shape = (1, *shape)
@@ -522,10 +521,14 @@ def cellpose_segmentation(
             img_1 = load_region_as_3D(data_zyx, region, compute=True)
             img_np = np.zeros((2, *img_1.shape))
             img_np[0, :, :, :] = img_1
-            img_np[1, :, :, :] = load_region_as_3D(data_zyx_c2, region, compute=True)
+            img_np[1, :, :, :] = load_region_as_3D(
+                data_zyx_c2, region, compute=True
+            )
             channels = [1, 2]
         else:
-            img_np = np.expand_dims(load_region_as_3D(data_zyx, region, compute=True), axis=0)
+            img_np = np.expand_dims(
+                load_region_as_3D(data_zyx, region, compute=True), axis=0
+            )
             channels = [0, 0]
 
         # Prepare keyword arguments for segment_ROI function

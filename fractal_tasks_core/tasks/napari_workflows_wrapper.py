@@ -35,8 +35,9 @@ import fractal_tasks_core
 from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
-    convert_ROI_table_to_indices, load_region_as_3D,
+    convert_ROI_table_to_indices,
 )
+from fractal_tasks_core.lib_regions_of_interest import load_region_as_3D
 from fractal_tasks_core.lib_upscale_array import upscale_array
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
@@ -302,10 +303,11 @@ def napari_workflows_wrapper(
                 # Check that dimensionality matches the image
                 if len(input_label_arrays[name].shape) != len(target_shape):
                     raise ValueError(
-                        f"Label {name} has shape {input_label_arrays[name].shape}. "
-                        f"But the corresponding image has shape {target_shape}. "
-                        "Those dimensionalities do not match. Is "
-                        f"{expected_dimensions=} the correct setting?"
+                        f"Label {name} has shape "
+                        f"{input_label_arrays[name].shape}. "
+                        "But the corresponding image has shape "
+                        f"{target_shape}. Those dimensionalities do not match. "
+                        f"Is {expected_dimensions=} the correct setting?"
                     )
                 if expected_dimensions == 3:
                     upscaling_axes = [1, 2]
@@ -489,12 +491,16 @@ def napari_workflows_wrapper(
             if input_type == "image":
                 wf.set(
                     input_name,
-                    load_region_as_3D(input_image_arrays[input_name], region, compute=True),
+                    load_region_as_3D(
+                        input_image_arrays[input_name], region, compute=True
+                    ),
                 )
             elif input_type == "label":
                 wf.set(
                     input_name,
-                    load_region_as_3D(input_label_arrays[input_name], region, compute=True),
+                    load_region_as_3D(
+                        input_label_arrays[input_name], region, compute=True
+                    ),
                 )
 
         # Get outputs
