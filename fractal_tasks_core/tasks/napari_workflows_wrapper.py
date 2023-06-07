@@ -306,8 +306,9 @@ def napari_workflows_wrapper(
                         f"Label {name} has shape "
                         f"{input_label_arrays[name].shape}. "
                         "But the corresponding image has shape "
-                        f"{target_shape}. Those dimensionalities do not match. "
-                        f"Is {expected_dimensions=} the correct setting?"
+                        f"{target_shape}. Those dimensionalities do not "
+                        f"match. Is {expected_dimensions=} the correct "
+                        "setting?"
                     )
                 if expected_dimensions == 3:
                     upscaling_axes = [1, 2]
