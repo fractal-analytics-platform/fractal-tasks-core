@@ -112,8 +112,6 @@ def create_ome_zarr(
     dict_plate_prefixes: Dict[str, Any] = {}
 
     # Preliminary checks on allowed_channels argument
-    allowed_channels_raw = allowed_channels.copy()
-    allowed_channels = [Channel(**c) for c in allowed_channels_raw]
     debug(allowed_channels)
     validate_allowed_channel_input(allowed_channels)
 
