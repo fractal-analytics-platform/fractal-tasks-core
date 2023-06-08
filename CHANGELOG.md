@@ -1,7 +1,7 @@
 # 0.10.0
 
 * Restructure the package and repository:
-    * Make pydantic dependency required  running tasks, and pin it to V1 (\#408).
+    * Make pydantic dependency required for running tasks, and pin it to V1 (\#408).
     * Move tasks to `tasks` subpackage (\#390)
     * Create new `dev` subpackage (\#384).
     * Make tasks-related dependencies optional, and installable via `fractal-tasks` extra (\#390).
