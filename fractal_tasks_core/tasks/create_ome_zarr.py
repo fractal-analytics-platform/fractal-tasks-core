@@ -86,8 +86,8 @@ def create_ome_zarr(
     :param metadata: This parameter is not used by this task
                      (standard argument for Fractal tasks,
                      managed by Fractal server)
-    :param image_extension: Filename extension of images (e.g. `"tif"` or
-                            `"png"`)
+    :param image_extension: Filename extension of images (e.g. ``"tif"`` or
+                            ``"png"``)
     :param image_glob_patterns: If specified, only parse images with filenames
                                 that match with all these patterns. Patterns
                                 must be defined as in

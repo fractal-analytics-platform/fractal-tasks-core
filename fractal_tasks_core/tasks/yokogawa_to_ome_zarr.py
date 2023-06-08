@@ -67,17 +67,48 @@ def yokogawa_to_ome_zarr(
     """
     Convert Yokogawa output (png, tif) to zarr file
 
-    Example arguments:
-      input_paths[0] = "/tmp/output/"
-      output_path = "/tmp/output/"
-      metadata = {"num_levels": ..., }
-      component = plate.zarr/B/03/0/
+    This task is typically run after Create OME-Zarr or
+    Create OME-Zarr Multiplexing and populates the empty OME-Zarr files that
+    were prepared.
 
-    :param input_paths: TBD
-    :param output_path: TBD
-    :param component: TBD
-    :param metadata: TBD
-    :param delete_input: TBD
+    :param input_paths: List of input paths where the OME-Zarrs.
+                        Should point to the parent folder
+                        containing one or many OME-Zarr files, not the
+                        actual OME-Zarr file.
+                        Example: ["/some/path/"]
+                        This task only supports a single input path.
+                        (standard argument for Fractal tasks,
+                        managed by Fractal server)
+    :param output_path: Unclear. Should be the same as input_path.
+                        (standard argument for Fractal tasks,
+                        managed by Fractal server)
+    :param component: Path to the OME-Zarr image in the OME-Zarr plate that
+                      is processed.
+                      Example: "some_plate.zarr/B/03/0"
+                      (standard argument for Fractal tasks,
+                      managed by Fractal server)
+    :param metadata: dictionary containing metadata about the OME-Zarr.
+                     This task requires the following elements to be present
+                     in the metadata:
+                     "original_paths": list of paths that correspond to the
+                                       ``input_paths`` of the create_ome_zarr
+                                       task (=> where the microscopy image
+                                       are stored)
+                     "num_levels": int, number of pyramid levels in the image.
+                                   This determines how many pyramid levels
+                                   are built for the segmentation.
+                    "coarsening_xy": int, coarsening factor in XY of the
+                                     downsampling when building the pyramid.
+                    "image_extension": Filename extension of images (e.g.
+                                       ``"tif"`` or ``"png"``)
+                    "image_glob_patterns": Parameter of ``create_ome_zarr``
+                                           task. If specified, only parse
+                                           images with filenames that match
+                                           with all these patterns.
+                    (standard argument for Fractal tasks,
+                    managed by Fractal server)
+    :param delete_input: Set to True if you want Fractal to remove the input
+                         files the microscope created.
     """
 
     # Preliminary checks
@@ -94,6 +125,9 @@ def yokogawa_to_ome_zarr(
             "image_glob_patterns",
         ],
         metadata=metadata,
+        # FIXME: Why rely on output_path here, when we use the input path for
+        # the zarr_url? That just means that different input & output paths
+        # don't work, no?
         image_zarr_path=(Path(output_path) / component),
     )
     original_path_list = parameters["original_paths"]
