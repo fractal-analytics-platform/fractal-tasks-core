@@ -407,7 +407,7 @@ def load_region(
     data_zyx: da.array,
     region: Tuple[slice, slice, slice],
     compute=True,
-    return_as_3D=True,
+    return_as_3D=False,
 ) -> Union[da.array, np.array]:
     """
     Load a region from a dask array
