@@ -27,6 +27,7 @@ import anndata as ad
 import dask.array as da
 import numpy as np
 import zarr
+from pydantic.decorator import validate_arguments
 from skimage.io import imread
 
 from fractal_tasks_core.lib_channels import get_omero_channel_list
@@ -91,6 +92,7 @@ def correct(
     return new_img_stack.astype(dtype)
 
 
+@validate_arguments
 def illumination_correction(
     *,
     input_paths: Sequence[str],
@@ -275,6 +277,5 @@ if __name__ == "__main__":
 
     run_fractal_task(
         task_function=illumination_correction,
-        coerce_and_validate=True,
         logger_name=logger.name,
     )
