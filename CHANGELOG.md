@@ -10,7 +10,6 @@
     * Remove `TaskArguments` models and switch to Pydantic V1 `validate_arguments` (\#369).
     * Remove `default_args` from manifest (\#379, \#393).
 * Other:
-    * Remove direct dependency on `torch` package (\#402).
     * Remove legacy executor definitions from manifest (\#361).
     * Add GitHub action for testing `pip install` with/without `fractal-tasks` extra (\#390).
     * Remove `sqlmodel` from dev dependencies (\#374).
