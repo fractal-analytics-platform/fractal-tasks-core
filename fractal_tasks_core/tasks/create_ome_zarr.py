@@ -25,6 +25,7 @@ import pandas as pd
 import zarr
 from anndata.experimental import write_elem
 from devtools import debug
+from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
 from fractal_tasks_core.lib_channels import Channel
@@ -46,6 +47,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+@validate_arguments
 def create_ome_zarr(
     *,
     input_paths: Sequence[str],
@@ -439,6 +441,5 @@ if __name__ == "__main__":
 
     run_fractal_task(
         task_function=create_ome_zarr,
-        coerce_and_validate=True,
         logger_name=logger.name,
     )
