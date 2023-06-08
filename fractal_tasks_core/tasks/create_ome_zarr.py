@@ -75,7 +75,7 @@ def create_ome_zarr(
                         Should point to the parent folder containing the
                         images and the metadata files ``MeasurementData.mlf``
                         and ``MeasurementDetail.mrf`` (if present).
-                        Example: ["/some/path/"]
+                        Example: ``["/some/path/"]``
                         (standard argument for Fractal tasks,
                         managed by Fractal server)
     :param output_path: Path were the output of this task is stored.
@@ -118,6 +118,9 @@ def create_ome_zarr(
                            the parsed metadata table.
                            # TODO: Improve after
                            https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/399
+    :return: A metadata dictionary containing important metadata about the
+            OME-Zarr plate, the images and some parameters required by
+            downstream tasks (like `num_levels`).
     """
 
     # Preliminary checks on metadata_table
