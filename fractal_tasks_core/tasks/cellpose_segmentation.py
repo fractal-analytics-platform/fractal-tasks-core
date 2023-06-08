@@ -278,7 +278,8 @@ def cellpose_segmentation(
         )
     except ChannelNotFoundError as e:
         logger.warning(
-            "Channel not found, exit from the task.\n" f"Original error: {str(e)}"
+            "Channel not found, exit from the task.\n"
+            f"Original error: {str(e)}"
         )
         return {}
     ind_channel = channel["index"]
@@ -321,7 +322,9 @@ def cellpose_segmentation(
     ROI_table = ad.read_zarr(ROI_table_path)
 
     # Perform some checks on the ROI table
-    valid_ROI_table = is_ROI_table_valid(table_path=ROI_table_path, use_masks=use_masks)
+    valid_ROI_table = is_ROI_table_valid(
+        table_path=ROI_table_path, use_masks=use_masks
+    )
     if use_masks and not valid_ROI_table:
         logger.info(
             f"ROI table at {ROI_table_path} cannot be used for masked "
@@ -331,7 +334,9 @@ def cellpose_segmentation(
     logger.info(f"{use_masks=}")
 
     # Read pixel sizes from zattrs file
-    full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(f"{zarrurl}/.zattrs", level=0)
+    full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
+        f"{zarrurl}/.zattrs", level=0
+    )
     actual_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
         f"{zarrurl}/.zattrs", level=level
     )
@@ -366,7 +371,9 @@ def cellpose_segmentation(
     if do_3D:
         if anisotropy is None:
             # Read pixel sizes from zattrs file
-            pxl_zyx = extract_zyx_pixel_sizes(f"{zarrurl}/.zattrs", level=level)
+            pxl_zyx = extract_zyx_pixel_sizes(
+                f"{zarrurl}/.zattrs", level=level
+            )
             pixel_size_z, pixel_size_y, pixel_size_x = pxl_zyx[:]
             logger.info(f"{pxl_zyx=}")
             if not np.allclose(pixel_size_x, pixel_size_y):
@@ -425,7 +432,9 @@ def cellpose_segmentation(
         {
             "name": output_label_name,
             "version": __OME_NGFF_VERSION__,
-            "axes": [ax for ax in multiscales[0]["axes"] if ax["type"] != "channel"],
+            "axes": [
+                ax for ax in multiscales[0]["axes"] if ax["type"] != "channel"
+            ],
             "datasets": new_datasets,
         }
     ]
@@ -455,13 +464,16 @@ def cellpose_segmentation(
     )
 
     logger.info(
-        f"mask will have shape {data_zyx.shape} " f"and chunks {data_zyx.chunks}"
+        f"mask will have shape {data_zyx.shape} "
+        f"and chunks {data_zyx.chunks}"
     )
 
     # Initialize cellpose
     gpu = use_gpu and cellpose.core.use_gpu()
     if pretrained_model:
-        model = models.CellposeModel(gpu=gpu, pretrained_model=pretrained_model)
+        model = models.CellposeModel(
+            gpu=gpu, pretrained_model=pretrained_model
+        )
     else:
         model = models.CellposeModel(gpu=gpu, model_type=model_type)
 
@@ -523,7 +535,8 @@ def cellpose_segmentation(
             channels = [1, 2]
         else:
             img_np = np.expand_dims(
-                load_region(data_zyx, region, compute=True, return_as_3D=True), axis=0
+                load_region(data_zyx, region, compute=True, return_as_3D=True),
+                axis=0,
             )
             channels = [0, 0]
 
@@ -569,7 +582,9 @@ def cellpose_segmentation(
             num_labels_tot += num_labels_roi
 
             # Write some logs
-            logger.info(f"ROI {indices}, " f"{num_labels_roi=}, " f"{num_labels_tot=}")
+            logger.info(
+                f"ROI {indices}, " f"{num_labels_roi=}, " f"{num_labels_tot=}"
+            )
 
             # Check that total number of labels is under control
             if num_labels_tot > np.iinfo(label_dtype).max:
@@ -592,7 +607,9 @@ def cellpose_segmentation(
                     get_overlapping_pairs_3D(df, full_res_pxl_sizes_zyx)
                 )
             if len(overlap_list) > 0:
-                logger.warning(f"{len(overlap_list)} bounding-box pairs overlap")
+                logger.warning(
+                    f"{len(overlap_list)} bounding-box pairs overlap"
+                )
 
         # Compute and store 0-th level to disk
         da.array(new_label_img).to_zarr(
@@ -602,7 +619,8 @@ def cellpose_segmentation(
         )
 
     logger.info(
-        f"End cellpose_segmentation task for {zarrurl}, " "now building pyramids."
+        f"End cellpose_segmentation task for {zarrurl}, "
+        "now building pyramids."
     )
 
     # Starting from on-disk highest-resolution data, build and write to disk a
@@ -658,7 +676,9 @@ def cellpose_segmentation(
             f"{in_path}/{component}/tables/{output_ROI_table}"
         )
         bbox_table_group.attrs["type"] = "ngff:region_table"
-        bbox_table_group.attrs["region"] = {"path": f"../labels/{output_label_name}"}
+        bbox_table_group.attrs["region"] = {
+            "path": f"../labels/{output_label_name}"
+        }
         bbox_table_group.attrs["instance_key"] = "label"
 
     return {}

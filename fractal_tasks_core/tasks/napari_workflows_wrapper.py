@@ -492,14 +492,20 @@ def napari_workflows_wrapper(
                 wf.set(
                     input_name,
                     load_region(
-                        input_image_arrays[input_name], region, compute=True, return_as_3D=False,
+                        input_image_arrays[input_name],
+                        region,
+                        compute=True,
+                        return_as_3D=False,
                     ),
                 )
             elif input_type == "label":
                 wf.set(
                     input_name,
                     load_region(
-                        input_label_arrays[input_name], region, compute=True, return_as_3D=False,
+                        input_label_arrays[input_name],
+                        region,
+                        compute=True,
+                        return_as_3D=False,
                     ),
                 )
 
@@ -521,7 +527,7 @@ def napari_workflows_wrapper(
 
             # Append the new-ROI dataframe to the all-ROIs list
             output_dataframe_lists[output_name].append(df)
-        
+
         # After all dataframe outputs, iterate over label outputs (which
         # actually can be only 0 or 1)
         for ind_output, output_name in enumerate(list_outputs):
