@@ -75,7 +75,7 @@ def run_fractal_task(
     with open(args.json, "r") as f:
         pars = json.load(f)
 
-    # Run task without validating arguments' types
+    # Run task
     logger.info(f"START {task_function.__name__} task")
     metadata_update = task_function(**pars)
     logger.info(f"END {task_function.__name__} task")
