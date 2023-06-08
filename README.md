@@ -17,17 +17,17 @@
 | fractal\_tasks\_core/lib\_upscale\_array.py                  |       71 |       11 |       46 |        8 |     80% |61, 72, 89, 94-95, 111, 126, 156, 188-193 |
 | fractal\_tasks\_core/lib\_zattrs\_utils.py                   |       42 |        7 |       22 |        6 |     80% |43, 47, 58->57, 61, 66-73, 118 |
 | fractal\_tasks\_core/tasks/\_\_init\_\_.py                   |        0 |        0 |        0 |        0 |    100% |           |
-| fractal\_tasks\_core/tasks/\_utils.py                        |       34 |       34 |       10 |        0 |      0% |     19-98 |
-| fractal\_tasks\_core/tasks/cellpose\_segmentation.py         |      224 |       29 |       74 |       21 |     82% |99-140, 243, 260-263, 294-301, 305->313, 309-310, 327->333, 360->369, 363, 371->387, 379, 394, 399, 414->418, 415, 422, 464, 488->492, 537, 555->573, 567, 644, 666-668 |
+| fractal\_tasks\_core/tasks/\_utils.py                        |       28 |        5 |        8 |        1 |     78% |35-37, 69-72 |
+| fractal\_tasks\_core/tasks/cellpose\_segmentation.py         |      226 |       29 |       74 |       21 |     82% |100-141, 245, 262-265, 296-303, 307->315, 311-312, 329->335, 362->371, 365, 373->389, 381, 396, 401, 416->420, 417, 424, 466, 490->494, 539, 557->575, 569, 646, 668-670 |
 | fractal\_tasks\_core/tasks/compress\_tif.py                  |       35 |       30 |       14 |        1 |     12% |37-68, 72-88 |
-| fractal\_tasks\_core/tasks/copy\_ome\_zarr.py                |       71 |        4 |       32 |        7 |     89% |88, 91, 93->98, 155->143, 159->169, 181->186, 200-202 |
-| fractal\_tasks\_core/tasks/create\_ome\_zarr.py              |      162 |       25 |       70 |       11 |     83% |97, 102, 155, 162-172, 180-181, 194-197, 232->241, 247, 278, 294-295, 298, 433-435 |
-| fractal\_tasks\_core/tasks/create\_ome\_zarr\_multiplex.py   |      195 |       21 |       86 |       16 |     87% |95, 104, 111, 116, 120, 127, 145, 176, 197-200, 227, 265->270, 276, 282, 299, 312-313, 319, 484-486 |
-| fractal\_tasks\_core/tasks/illumination\_correction.py       |       99 |       18 |       34 |       11 |     77% |61, 82-86, 122, 126, 129-134, 147-150, 187, 195, 205, 218-219, 274-276 |
-| fractal\_tasks\_core/tasks/maximum\_intensity\_projection.py |       49 |        5 |       14 |        4 |     86% |59, 93, 112, 135-137 |
-| fractal\_tasks\_core/tasks/napari\_workflows\_wrapper.py     |      254 |       22 |      122 |       16 |     89% |160, 172, 177, 214, 284, 289-299, 312, 317, 357-361, 369, 390, 478->465, 512-517, 524->526, 581, 606-608 |
-| fractal\_tasks\_core/tasks/yokogawa\_to\_ome\_zarr.py        |       84 |       10 |       24 |        5 |     84% |85, 127, 169, 209-213, 219-221 |
-|                                                    **TOTAL** | **1975** |  **316** |  **782** |  **141** | **81%** |           |
+| fractal\_tasks\_core/tasks/copy\_ome\_zarr.py                |       73 |        4 |       32 |        7 |     90% |90, 93, 95->100, 157->145, 161->171, 183->188, 202-204 |
+| fractal\_tasks\_core/tasks/create\_ome\_zarr.py              |      164 |       25 |       70 |       11 |     83% |99, 104, 157, 164-174, 182-183, 196-199, 234->243, 249, 280, 296-297, 300, 435-437 |
+| fractal\_tasks\_core/tasks/create\_ome\_zarr\_multiplex.py   |      197 |       21 |       86 |       16 |     87% |97, 106, 113, 118, 122, 129, 147, 178, 199-202, 229, 267->272, 278, 284, 301, 314-315, 321, 486-488 |
+| fractal\_tasks\_core/tasks/illumination\_correction.py       |      101 |       18 |       34 |       11 |     77% |62, 83-87, 124, 128, 131-136, 149-152, 189, 197, 207, 220-221, 276-278 |
+| fractal\_tasks\_core/tasks/maximum\_intensity\_projection.py |       51 |        5 |       14 |        4 |     86% |61, 95, 114, 137-139 |
+| fractal\_tasks\_core/tasks/napari\_workflows\_wrapper.py     |      256 |       25 |      122 |       17 |     88% |125-127, 162, 174, 179, 216, 286, 291-301, 314, 319, 359-363, 371, 392, 480->467, 514-519, 526->528, 583, 608-610 |
+| fractal\_tasks\_core/tasks/yokogawa\_to\_ome\_zarr.py        |       86 |       10 |       24 |        5 |     85% |87, 129, 171, 211-215, 221-223 |
+|                                                    **TOTAL** | **1985** |  **290** |  **780** |  **143** | **83%** |           |
 
 
 ## Setup coverage badge
