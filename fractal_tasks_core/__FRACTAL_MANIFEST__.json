@@ -7,11 +7,87 @@
     {
       "args_schema": {
         "additionalProperties": false,
+        "definitions": {
+          "Channel": {
+            "properties": {
+              "active": {
+                "default": true,
+                "title": "Active",
+                "type": "boolean"
+              },
+              "coefficient": {
+                "default": 1,
+                "title": "Coefficient",
+                "type": "integer"
+              },
+              "colormap": {
+                "title": "Colormap",
+                "type": "string"
+              },
+              "family": {
+                "default": "linear",
+                "title": "Family",
+                "type": "string"
+              },
+              "index": {
+                "title": "Index",
+                "type": "integer"
+              },
+              "inverted": {
+                "default": false,
+                "title": "Inverted",
+                "type": "boolean"
+              },
+              "label": {
+                "title": "Label",
+                "type": "string"
+              },
+              "wavelength_id": {
+                "title": "Wavelength Id",
+                "type": "string"
+              },
+              "window": {
+                "$ref": "#/definitions/ChannelWindow"
+              }
+            },
+            "required": [
+              "wavelength_id"
+            ],
+            "title": "Channel",
+            "type": "object"
+          },
+          "ChannelWindow": {
+            "properties": {
+              "end": {
+                "title": "End",
+                "type": "string"
+              },
+              "max": {
+                "title": "Max",
+                "type": "string"
+              },
+              "min": {
+                "title": "Min",
+                "type": "string"
+              },
+              "start": {
+                "title": "Start",
+                "type": "string"
+              }
+            },
+            "required": [
+              "min",
+              "max"
+            ],
+            "title": "ChannelWindow",
+            "type": "object"
+          }
+        },
         "properties": {
           "allowed_channels": {
             "description": "A list of channel dictionaries, where each channel must include the ``wavelength_id`` key and where the corresponding values should be unique across channels.",
             "items": {
-              "type": "object"
+              "$ref": "#/definitions/Channel"
             },
             "title": "Allowed Channels",
             "type": "array"
