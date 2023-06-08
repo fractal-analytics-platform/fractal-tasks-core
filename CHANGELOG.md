@@ -8,8 +8,10 @@
 * JSON Schemas for task arguments:
     * Add JSON schemas for task arguments in the package manifest (\#369, \#384).
     * Remove `TaskArguments` models and switch to Pydantic V1 `validate_arguments` (\#369).
+    * Make coercing&validating task arguments required, rather than optional (\#408).
     * Remove `default_args` from manifest (\#379, \#393).
 * Other:
+    * Make pydantic dependency required for running tasks, and pin it to V1 (\#408).
     * Remove legacy executor definitions from manifest (\#361).
     * Add GitHub action for testing `pip install` with/without `fractal-tasks` extra (\#390).
     * Remove `sqlmodel` from dev dependencies (\#374).

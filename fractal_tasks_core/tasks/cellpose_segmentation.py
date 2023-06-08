@@ -33,6 +33,7 @@ import pandas as pd
 import zarr
 from anndata.experimental import write_elem
 from cellpose import models
+from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
 from fractal_tasks_core.lib_channels import ChannelNotFoundError
@@ -140,6 +141,7 @@ def segment_ROI(
     return mask.astype(label_dtype)
 
 
+@validate_arguments
 def cellpose_segmentation(
     *,
     # Fractal arguments
@@ -667,6 +669,5 @@ if __name__ == "__main__":
 
     run_fractal_task(
         task_function=cellpose_segmentation,
-        coerce_and_validate=True,
         logger_name=logger.name,
     )
