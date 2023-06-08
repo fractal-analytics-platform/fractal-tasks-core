@@ -21,24 +21,66 @@ from typing import Optional
 import zarr
 from pydantic import BaseModel
 
+from fractal_tasks_core import __OME_NGFF_VERSION__
+
+
+if __OME_NGFF_VERSION__ != "0.4":
+    NotImplementedError(
+        f"OME NGFF {__OME_NGFF_VERSION__} is not supported "
+        "in `lib_channels.py`"
+    )
+
+
+"""
+FIXME
+THIS IS FROM OME-NGFF 0.4
+"required": [ "window", "color" ]
+"properties": {
+
+  "color": { "type": "string" },
+
+  "window": {
+    "type": "object",
+    "properties": {
+      "end": { "type": "number" },
+      "max": { "type": "number" },
+      "min": { "type": "number" },
+      "start": { "type": "number" }
+    },
+    "required": ["start", "min", "end", "max" ]
+  },
+
+  "label": { "type": "string" },
+
+  "family": { "type": "string" },
+
+  "active": { "type": "boolean" }
+},
+"""
+
 
 class ChannelWindow(BaseModel):
-    min: str
-    max: str
-    start: Optional[str]
-    end: Optional[str]
+    min: Optional[str]
+    max: Optional[str]
+    start: str
+    end: str
 
 
 class Channel(BaseModel):
+    # Custom
     wavelength_id: str
-    label: Optional[str]
     index: Optional[int]
-    active: bool = True
-    coefficient: int = 1
+
     colormap: Optional[str]
-    family: str = "linear"
-    inverted: bool = False
     window: Optional[ChannelWindow]
+    label: Optional[str]
+
+    # From the specs:
+    active: bool = True
+    family: str = "linear"
+    # From transitional metadata
+    coefficient: int = 1
+    inverted: bool = False
 
 
 class ChannelNotFoundError(ValueError):
@@ -223,6 +265,10 @@ def define_omero_channels(
     default_colormaps = ["00FFFF", "FF00FF", "FFFF00"]
 
     for channel in channels:
+
+        from devtools import debug
+
+        debug(channel)
         wavelength_id = channel.wavelength_id
 
         # Always set a label
@@ -251,9 +297,9 @@ def define_omero_channels(
             "min": 0,
             "max": 2**bit_depth - 1,
         }
-        if "start" in channel.dict().keys() and "end" in channel.dict().keys():
-            window["start"] = channel["start"]
-            window["end"] = channel["end"]
+        if channel.start is not None and channel.end is not None:
+            window["start"] = channel.start
+            window["end"] = channel.end
 
         new_channel = {
             "label": label,
@@ -265,6 +311,7 @@ def define_omero_channels(
             "inverted": False,
             "window": window,
         }
+        debug(new_channel)
         new_channels.append(new_channel)
 
     # Check that channel labels are unique for this image
