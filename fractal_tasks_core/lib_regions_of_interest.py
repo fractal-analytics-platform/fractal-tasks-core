@@ -403,18 +403,23 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
         return False
 
 
-def load_region_as_3D(
-    data_zyx: da.array, region: Tuple[slice, slice, slice], compute=True
+def load_region(
+    data_zyx: da.array, 
+    region: Tuple[slice, slice, slice], 
+    compute=True,
+    return_as_3D=True,
 ) -> Union[da.array, np.array]:
     """
-    Load a region from a dask array as a 3D array.
+    Load a region from a dask array
 
-    Can handle both 2D and 3D dask arrays as input.
+    Can handle both 2D and 3D dask arrays as input and return them as is or 
+    always as a 3D array
 
     :param data_zyx: dask array, 2D or 3D
     :param region: region to load, tuple of slices
     :param compute: whether to compute the result. If True, returns a numpy
                     array. If False, returns a dask array.
+    :return_as_3D: whether to return a 3D array, even if the input is 2D
     :return: 3D array
     """
 
@@ -422,7 +427,8 @@ def load_region_as_3D(
         img = data_zyx[region]
     elif len(data_zyx.shape) == 2:
         img = data_zyx[(region[1], region[2])]
-        img = np.expand_dims(img, axis=0)
+        if return_as_3D:
+            img = np.expand_dims(img, axis=0)
     if compute:
         return img.compute()
     else:

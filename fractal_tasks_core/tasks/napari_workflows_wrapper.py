@@ -37,7 +37,7 @@ from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
-from fractal_tasks_core.lib_regions_of_interest import load_region_as_3D
+from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_upscale_array import upscale_array
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
@@ -112,7 +112,6 @@ def napari_workflows_wrapper(
     :param input_ROI_table: name of the table that contains ROIs to which the\
                             task applies the napari-worfklow
     """
-
     wf: napari_workflows.Worfklow = load_workflow(workflow_file)
     logger.info(f"Loaded workflow from {workflow_file}")
 
@@ -492,15 +491,15 @@ def napari_workflows_wrapper(
             if input_type == "image":
                 wf.set(
                     input_name,
-                    load_region_as_3D(
-                        input_image_arrays[input_name], region, compute=True
+                    load_region(
+                        input_image_arrays[input_name], region, compute=True, return_as_3D=False,
                     ),
                 )
             elif input_type == "label":
                 wf.set(
                     input_name,
-                    load_region_as_3D(
-                        input_label_arrays[input_name], region, compute=True
+                    load_region(
+                        input_label_arrays[input_name], region, compute=True, return_as_3D=False,
                     ),
                 )
 
@@ -522,7 +521,7 @@ def napari_workflows_wrapper(
 
             # Append the new-ROI dataframe to the all-ROIs list
             output_dataframe_lists[output_name].append(df)
-
+        
         # After all dataframe outputs, iterate over label outputs (which
         # actually can be only 0 or 1)
         for ind_output, output_name in enumerate(list_outputs):
