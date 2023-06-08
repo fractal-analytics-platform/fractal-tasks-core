@@ -24,8 +24,10 @@ from typing import Sequence
 import pandas as pd
 import zarr
 from anndata.experimental import write_elem
+from devtools import debug
 
 import fractal_tasks_core
+from fractal_tasks_core.lib_channels import Channel
 from fractal_tasks_core.lib_channels import check_well_channel_labels
 from fractal_tasks_core.lib_channels import define_omero_channels
 from fractal_tasks_core.lib_channels import validate_allowed_channel_input
@@ -51,7 +53,7 @@ def create_ome_zarr(
     metadata: Dict[str, Any],
     image_extension: str = "tif",
     image_glob_patterns: Optional[list[str]] = None,
-    allowed_channels: Sequence[Dict[str, Any]],
+    allowed_channels: List[Channel],
     num_levels: int = 2,
     coarsening_xy: int = 2,
     metadata_table: str = "mrf_mlf",
@@ -108,6 +110,9 @@ def create_ome_zarr(
     dict_plate_prefixes: Dict[str, Any] = {}
 
     # Preliminary checks on allowed_channels argument
+    allowed_channels_raw = allowed_channels.copy()
+    allowed_channels = [Channel(**c) for c in allowed_channels_raw]
+    debug(allowed_channels)
     validate_allowed_channel_input(allowed_channels)
 
     for in_path_str in input_paths:
@@ -188,7 +193,7 @@ def create_ome_zarr(
 
     # Check that all channels are in the allowed_channels
     allowed_wavelength_ids = [
-        channel["wavelength_id"] for channel in allowed_channels
+        channel.wavelength_id for channel in allowed_channels
     ]
     if not set(actual_wavelength_ids).issubset(set(allowed_wavelength_ids)):
         msg = "ERROR in create_ome_zarr\n"
@@ -201,7 +206,7 @@ def create_ome_zarr(
     actual_channels = [
         channel
         for channel in allowed_channels
-        if channel["wavelength_id"] in actual_wavelength_ids
+        if channel.wavelength_id in actual_wavelength_ids
     ]
 
     zarrurls: Dict[str, List[str]] = {"plate": [], "well": [], "image": []}
