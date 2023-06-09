@@ -9,7 +9,7 @@
         "additionalProperties": false,
         "definitions": {
           "Channel": {
-            "description": "Custom class for Omero channels, related to OME-NGFF v0.4.\n\nDifferences from OME-NGFF v0.4 specs\n(https://ngff.openmicroscopy.org/0.4/#omero-md)\n\n    1. Additional attributes ``wavelength_id`` and ``index``.\n    2. We make ``color`` an optional attribute, since we have custom\n       logic to set its value.",
+            "description": "Custom class for Omero channels, related to OME-NGFF v0.4.\n\nDifferences from OME-NGFF v0.4 specs\n(https://ngff.openmicroscopy.org/0.4/#omero-md)\n\n    1. Additional attributes ``wavelength_id`` and ``index``.\n    2. We make ``color`` an optional attribute, since we have custom\n       logic to set its value.\n    3. We make ``window`` an optional attribute, so that we can also\n       process zarr arrays which do not have this attribute.",
             "properties": {
               "active": {
                 "default": true,
@@ -47,8 +47,7 @@
               }
             },
             "required": [
-              "wavelength_id",
-              "window"
+              "wavelength_id"
             ],
             "title": "Channel",
             "type": "object"
