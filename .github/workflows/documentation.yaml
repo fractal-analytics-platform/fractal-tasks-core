@@ -24,11 +24,11 @@ jobs:
           cache: 'poetry'
 
       - name: Install dependencies
-        run: poetry install --with docs --without dev --no-interaction
+        run: poetry install --with docs -E fractal-tasks --without dev --no-interaction
 
       - name: Sphinx build
         run: |
-          poetry run sphinx-build docs/source docs/build
+          poetry run sphinx-build docs/source docs/build -W
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3

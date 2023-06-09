@@ -22,6 +22,7 @@ from typing import Sequence
 
 import anndata as ad
 import dask.array as da
+from pydantic.decorator import validate_arguments
 
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
@@ -32,6 +33,7 @@ from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 logger = logging.getLogger(__name__)
 
 
+@validate_arguments
 def maximum_intensity_projection(
     *,
     input_paths: Sequence[str],
@@ -43,15 +45,37 @@ def maximum_intensity_projection(
     Perform maximum-intensity projection along Z axis, and store the output in
     a new zarr file.
 
-    Examples::
-
-      input_paths = ["/tmp/out_mip/"]
-      output_path = "/tmp/out_mip/"
-      metadata = {"num_levels": 2, "coarsening_xy": 2, }
-      component = plate.zarr/B/03/0     (str)
-
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    :param input_paths: This parameter is not used by this task
+                        This task only supports a single input path.
+                        (standard argument for Fractal tasks,
+                        managed by Fractal server)
+    :param output_path: Path were the output of this task is stored.
+                        Example: "/some/path/" => puts the new OME-Zarr file
+                        in that folder
+                        (standard argument for Fractal tasks,
+                        managed by Fractal server)
+    :param component: Path to the OME-Zarr image in the OME-Zarr plate that
+                      is processed. Component is typically changed by the
+                      copy_ome_zarr task before to point to a new mip Zarr
+                      file.
+                      Example: "some_plate_mip.zarr/B/03/0"
+                      (standard argument for Fractal tasks,
+                      managed by Fractal server)
+    :param metadata: dictionary containing metadata about the OME-Zarr.
+                     This task requires the following elements to be present
+                     in the metadata:
+                     "num_levels": int, number of pyramid levels in the image.
+                     This determines how many pyramid levels are built for
+                     the segmentation.
+                     "coarsening_xy": int, coarsening factor in XY of the
+                     downsampling when building the pyramid.
+                     "plate": List of plates. Example: ["MyPlate.zarr"]
+                     "well": List of wells in the OME-Zarr plate.
+                     ["MyPlate.zarr/B/03", "MyPlate.zarr/B/05"]
+                     "image": List of images in the OME-Zarr plate. Example:
+                     ["MyPlate.zarr/B/03/0", "MyPlate.zarr/B/05/0"]
+                     (standard argument for Fractal tasks,
+                     managed by Fractal server)
     """
 
     # Preliminary checks
@@ -136,6 +160,5 @@ if __name__ == "__main__":
 
     run_fractal_task(
         task_function=maximum_intensity_projection,
-        coerce_and_validate=True,
         logger_name=logger.name,
     )

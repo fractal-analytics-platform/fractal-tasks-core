@@ -24,6 +24,7 @@ from typing import Sequence
 import anndata as ad
 import zarr
 from anndata.experimental import write_elem
+from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
 from fractal_tasks_core.lib_regions_of_interest import (
@@ -37,6 +38,7 @@ logger = logging.getLogger(__name__)
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
 
+@validate_arguments
 def copy_ome_zarr(
     *,
     input_paths: Sequence[str],
@@ -50,37 +52,56 @@ def copy_ome_zarr(
     """
     Duplicate an input zarr structure to a new path.
 
-    More detailed description:
+    This task copies all the structure, but none of the image data:
 
-    1. For each plate, create a new zarr group with the same attributes as the
-    original one.
-    2. For each well (in each plate), create a new zarr subgroup with the same
-    attributes as the original one.
-    3. For each image (in each well), create a new zarr subgroup with the same
-    attributes as the original one.
-    4. For each image (in each well), copy the relevant AnnData tables from the
-    original source.
+        1. For each plate, create a new zarr group with the same attributes as
+           the original one.
+        2. For each well (in each plate), create a new zarr subgroup with the
+           same attributes as the original one.
+        3. For each image (in each well), create a new zarr subgroup with the
+           same attributes as the original one.
+        4. For each image (in each well), copy the relevant AnnData tables from
+           the original source.
 
     Note: this task makes use of methods from the ``Attributes`` class, see
     https://zarr.readthedocs.io/en/stable/api/attrs.html.
 
-    Examples of some inputs::
-      input_paths = ["/tmp/out/"]
-      output_path = "/tmp/out_mip/"
-
-    :param input_paths: TBD
-    :param output_path: TBD
-    :param metadata: TBD
+    :param input_paths: List of input paths where the image data is stored
+                        as OME-Zarrs. Should point to the parent folder
+                        containing one or many OME-Zarr files, not the
+                        actual OME-Zarr file.
+                        Example: ["/some/path/"]
+                        This task only supports a single input path.
+                        (standard argument for Fractal tasks,
+                        managed by Fractal server)
+    :param output_path: Path were the output of this task is stored.
+                        Example: "/some/path/" => puts the new OME-Zarr file
+                        in the same folder as the input OME-Zarr file
+                        "/some/new_path" => puts the new OME-Zarr file
+                        into a new folder at ``/some/new_path``
+                        (standard argument for Fractal tasks,
+                        managed by Fractal server)
+    :param metadata: dictionary containing metadata about the OME-Zarr.
+                     This task requires the following elements to be present
+                     in the metadata:
+                     "plate": List of plates. Example: ["MyPlate.zarr"]
+                     "well": List of wells in the OME-Zarr plate.
+                     ["MyPlate.zarr/B/03", "MyPlate.zarr/B/05"]
+                     "image": List of images in the OME-Zarr plate. Example:
+                     ["MyPlate.zarr/B/03/0", "MyPlate.zarr/B/05/0"]
+                     (standard argument for Fractal tasks,
+                     managed by Fractal server)
     :param project_to_2D: If ``True``, apply a 3D->2D projection to the ROI
-                          tables that are copied to the new zarr.
+                          tables that are copied to the new OME-Zarr.
     :param suffix: The suffix that is used to transform ``plate.zarr`` into
                    ``plate_suffix.zarr``. Note that `None` is not currently
                    supported.
-
-    :param ROI_table_names: List of ROI-table names to be copied. If ``None``,
-                            it is replaced by ``["FOV_ROI_table",
+    :param ROI_table_names: List of Anndata table names to be copied.
+                            If ``None``, it is replaced by ``["FOV_ROI_table",
                             "well_ROI_table"]``. Note: copying non-ROI tables
                             may fail if ``project_to_2D=True``.
+    :return: An update to the metadata table with new "plate", "well",
+             "image" entries (now with the suffix in the plate name).
     """
 
     # Preliminary check
@@ -201,6 +222,5 @@ if __name__ == "__main__":
 
     run_fractal_task(
         task_function=copy_ome_zarr,
-        coerce_and_validate=True,
         logger_name=logger.name,
     )

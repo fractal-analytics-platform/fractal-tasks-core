@@ -214,8 +214,8 @@ def test_MIP(
     # MIP
     for component in metadata["image"]:
         maximum_intensity_projection(
-            input_paths=[zarr_path_mip],
-            output_path=zarr_path_mip,
+            input_paths=[str(zarr_path_mip)],
+            output_path=str(zarr_path_mip),
             metadata=metadata,
             component=component,
         )
@@ -283,8 +283,8 @@ def test_MIP_subset_of_images(
     # MIP
     for component in metadata["image"]:
         maximum_intensity_projection(
-            input_paths=[zarr_path_mip],
-            output_path=zarr_path_mip,
+            input_paths=[str(zarr_path_mip)],
+            output_path=str(zarr_path_mip),
             metadata=metadata,
             component=component,
         )

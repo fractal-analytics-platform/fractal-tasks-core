@@ -55,3 +55,4 @@ if __name__ == "__main__":
 
     with manifest_path.open("w") as f:
         json.dump(manifest, f, indent=2, sort_keys=True)
+        f.write("\n")
