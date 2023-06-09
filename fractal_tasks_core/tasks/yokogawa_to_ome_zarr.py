@@ -93,22 +93,20 @@ def yokogawa_to_ome_zarr(
                      This task requires the following elements to be present
                      in the metadata:
                      "original_paths": list of paths that correspond to the
-                                       ``input_paths`` of the create_ome_zarr
-                                       task (=> where the microscopy image
-                                       are stored)
+                     ``input_paths`` of the create_ome_zarr task (=> where
+                     the microscopy image are stored)
                      "num_levels": int, number of pyramid levels in the image.
-                                   This determines how many pyramid levels
-                                   are built for the segmentation.
-                    "coarsening_xy": int, coarsening factor in XY of the
-                                     downsampling when building the pyramid.
-                    "image_extension": Filename extension of images (e.g.
-                                       ``"tif"`` or ``"png"``)
-                    "image_glob_patterns": Parameter of ``create_ome_zarr``
-                                           task. If specified, only parse
-                                           images with filenames that match
-                                           with all these patterns.
-                    (standard argument for Fractal tasks,
-                    managed by Fractal server)
+                     This determines how many pyramid levels are built for
+                     the segmentation.
+                     "coarsening_xy": int, coarsening factor in XY of the
+                     downsampling when building the pyramid.
+                     "image_extension": Filename extension of images (e.g.
+                     ``"tif"`` or ``"png"``)
+                     "image_glob_patterns": Parameter of ``create_ome_zarr``
+                     task. If specified, only parse images with filenames
+                     that match with all these patterns.
+                     (standard argument for Fractal tasks,
+                     managed by Fractal server)
     :param delete_input: Set to True if you want Fractal to remove the input
                          files the microscope created.
     """

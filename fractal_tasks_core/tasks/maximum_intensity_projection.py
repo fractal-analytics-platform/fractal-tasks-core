@@ -51,7 +51,7 @@ def maximum_intensity_projection(
                         managed by Fractal server)
     :param output_path: Path were the output of this task is stored.
                         Example: "/some/path/" => puts the new OME-Zarr file
-                                 in that folder
+                        in that folder
                         (standard argument for Fractal tasks,
                         managed by Fractal server)
     :param component: Path to the OME-Zarr image in the OME-Zarr plate that
@@ -65,17 +65,17 @@ def maximum_intensity_projection(
                      This task requires the following elements to be present
                      in the metadata:
                      "num_levels": int, number of pyramid levels in the image.
-                                   This determines how many pyramid levels
-                                   are built for the segmentation.
-                    "coarsening_xy": int, coarsening factor in XY of the
-                                     downsampling when building the pyramid.
-                    "plate": List of plates. Example: ["MyPlate.zarr"]
+                     This determines how many pyramid levels are built for
+                     the segmentation.
+                     "coarsening_xy": int, coarsening factor in XY of the
+                     downsampling when building the pyramid.
+                     "plate": List of plates. Example: ["MyPlate.zarr"]
                      "well": List of wells in the OME-Zarr plate.
-                             ["MyPlate.zarr/B/03", "MyPlate.zarr/B/05"]
+                     ["MyPlate.zarr/B/03", "MyPlate.zarr/B/05"]
                      "image": List of images in the OME-Zarr plate. Example:
-                              ["MyPlate.zarr/B/03/0", "MyPlate.zarr/B/05/0"]
-                    (standard argument for Fractal tasks,
-                    managed by Fractal server)
+                     ["MyPlate.zarr/B/03/0", "MyPlate.zarr/B/05/0"]
+                     (standard argument for Fractal tasks,
+                     managed by Fractal server)
     """
 
     # Preliminary checks

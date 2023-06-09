@@ -82,7 +82,7 @@ def create_ome_zarr_multiplex(
                         managed by Fractal server)
     :param output_path: Path were the output of this task is stored.
                         Example: "/some/path/" => puts the new OME-Zarr file
-                                 in the "/some/path/"
+                        in the "/some/path/"
                         (standard argument for Fractal tasks,
                         managed by Fractal server)
     :param metadata: This parameter is not used by this task
@@ -95,13 +95,11 @@ def create_ome_zarr_multiplex(
                                 must be defined as in
                                 https://docs.python.org/3/library/fnmatch.html,
                                 Example: ``image_glob_pattern=["*_B03_*"]``
-                                         => only process well B03
-                                         ``image_glob_pattern=["*_C09_*",
-                                                               "*F016*",
-                                                               "*Z[0-5][0-9]C*"
-                                                               ]``
-                                        => only process well C09, field of
-                                        view 16 and Z planes 0 - 59.
+                                => only process well B03
+                                ``image_glob_pattern=["*_C09_*", "*F016*",
+                                "*Z[0-5][0-9]C*"]``
+                                => only process well C09, field of view 16
+                                and Z planes 0 - 59.
     :param num_levels: Number of resolution-pyramid levels. If set to 5, there
                        will be the full-resolution level and 4 levels of
                        downsampled images.

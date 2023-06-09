@@ -75,9 +75,9 @@ def copy_ome_zarr(
                         managed by Fractal server)
     :param output_path: Path were the output of this task is stored.
                         Example: "/some/path/" => puts the new OME-Zarr file
-                                 in the same folder as the input OME-Zarr file
-                                 "/some/new_path" => puts the new OME-Zarr file
-                                 into a new folder at ``/some/new_path``
+                        in the same folder as the input OME-Zarr file
+                        "/some/new_path" => puts the new OME-Zarr file
+                        into a new folder at ``/some/new_path``
                         (standard argument for Fractal tasks,
                         managed by Fractal server)
     :param metadata: dictionary containing metadata about the OME-Zarr.
@@ -85,9 +85,9 @@ def copy_ome_zarr(
                      in the metadata:
                      "plate": List of plates. Example: ["MyPlate.zarr"]
                      "well": List of wells in the OME-Zarr plate.
-                             ["MyPlate.zarr/B/03", "MyPlate.zarr/B/05"]
+                     ["MyPlate.zarr/B/03", "MyPlate.zarr/B/05"]
                      "image": List of images in the OME-Zarr plate. Example:
-                              ["MyPlate.zarr/B/03/0", "MyPlate.zarr/B/05/0"]
+                     ["MyPlate.zarr/B/03/0", "MyPlate.zarr/B/05/0"]
                     (standard argument for Fractal tasks,
                     managed by Fractal server)
     :param project_to_2D: If ``True``, apply a 3D->2D projection to the ROI
