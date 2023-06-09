@@ -1,7 +1,7 @@
 How to install
 ==============
 
-The ``fractal_tasks_core`` package is hosted on PyPI (https://pypi.org/project/fractal-tasks-core)) and it includes:
+The ``fractal_tasks_core`` package is hosted on PyPI (https://pypi.org/project/fractal-tasks-core) and it includes:
 
 * The main ``fractal_tasks_core`` package, which includes several helper functions to be used in the Fractal tasks (and possibly in other independent packages). This can be installed as::
 
