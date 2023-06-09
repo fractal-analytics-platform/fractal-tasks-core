@@ -9,6 +9,7 @@
         "additionalProperties": false,
         "definitions": {
           "Channel": {
+            "description": "Custom class for Omero channels, related to OME-NGFF v0.4.\n\nDifferences from OME-NGFF v0.4 specs\n(https://ngff.openmicroscopy.org/0.4/#omero-md)\n\n    1. Additional attributes ``wavelength_id`` and ``index``.\n    2. We make ``color`` an optional attribute, since we have custom\n       logic to set its value.",
             "properties": {
               "active": {
                 "default": true,
@@ -20,13 +21,8 @@
                 "title": "Coefficient",
                 "type": "integer"
               },
-              "colormap": {
-                "title": "Colormap",
-                "type": "string"
-              },
-              "family": {
-                "default": "linear",
-                "title": "Family",
+              "color": {
+                "title": "Color",
                 "type": "string"
               },
               "index": {
@@ -51,28 +47,30 @@
               }
             },
             "required": [
-              "wavelength_id"
+              "wavelength_id",
+              "window"
             ],
             "title": "Channel",
             "type": "object"
           },
           "ChannelWindow": {
+            "description": "Custom class for Omero-channel window, related to OME-NGFF v0.4\n\nSee https://ngff.openmicroscopy.org/0.4/#omero-md.\nMain difference from the specs:\n\n    1. ``min`` and ``max`` are optional, since we have custom logic to set\n        their values.",
             "properties": {
               "end": {
                 "title": "End",
-                "type": "string"
+                "type": "integer"
               },
               "max": {
                 "title": "Max",
-                "type": "string"
+                "type": "integer"
               },
               "min": {
                 "title": "Min",
-                "type": "string"
+                "type": "integer"
               },
               "start": {
                 "title": "Start",
-                "type": "string"
+                "type": "integer"
               }
             },
             "required": [
