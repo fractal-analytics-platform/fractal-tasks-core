@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import anndata as ad
+import dask.array as da
 import numpy as np
 import pandas as pd
 import pytest
@@ -17,6 +18,7 @@ from fractal_tasks_core.lib_regions_of_interest import (
 )
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
+from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
 
 
@@ -270,3 +272,43 @@ def test_bounding_boxes_of_empty_label():
     debug(df)
     assert df.shape[0] == 0
     assert "label" in df.columns
+
+
+
+# input shapes, regions, expected_output_shape
+shapes = [ 
+    ((10, 100, 100), (slice(0, 20), slice(0, 100), slice(0, 100)), (10, 100, 100)),
+    ((10, 100, 100), (slice(0, 5), slice(0, 100), slice(0, 100)), (5, 100, 100)),
+    ((10, 100, 100), (slice(0, 1), slice(0, 100), slice(0, 100)), (1, 100, 100)),
+    ((1, 100, 100), (slice(0, 20), slice(0, 100), slice(0, 100)), (1, 100, 100)),
+    ((1, 100, 100), (slice(0, 5), slice(0, 100), slice(0, 100)), (1, 100, 100)),
+    ((1, 100, 100), (slice(0, 1), slice(0, 100), slice(0, 100)), (1, 100, 100)),
+    ((100, 100), (slice(0, 20), slice(0, 100), slice(0, 100)), (1, 100, 100)),
+    ((100, 100), (slice(0, 5), slice(0, 100), slice(0, 100)), (1, 100, 100)),
+    ((100, 100), (slice(0, 1), slice(0, 100), slice(0, 100)), (1, 100, 100)),
+]
+
+region_params = []
+for shape in shapes:
+    for compute in [True, False]:
+        for return_as_3D in [True, False]:
+            region_params.append((shape[0], shape[1], shape[2], compute, return_as_3D))
+
+@pytest.mark.parametrize(
+    "input_shape,region,expected_shape,compute,return_as_3D", region_params
+)
+def test_load_region(input_shape, region, expected_shape, compute, return_as_3D):
+    da_array = da.ones(input_shape)
+    output = load_region(
+        da_array, 
+        region, 
+        compute=compute, 
+        return_as_3D=return_as_3D
+    )
+    expected_type = np.ndarray if compute else da.Array
+    assert isinstance(output, expected_type)
+
+    if return_as_3D == False and len(da_array.shape) == 2:
+        expected_shape = expected_shape[1:]
+    assert output.shape == expected_shape
+    
