@@ -241,7 +241,7 @@ def create_ome_zarr_multiplex(
         actual_channels = [
             channel
             for channel in allowed_channels[acquisition]
-            if channel["wavelength_id"] in actual_wavelength_ids
+            if channel.wavelength_id in actual_wavelength_ids
         ]
 
         logger.info(f"plate: {plate}")

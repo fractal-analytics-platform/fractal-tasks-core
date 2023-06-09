@@ -330,7 +330,7 @@ def cellpose_segmentation(
             f"Original error: {str(e)}"
         )
         return {}
-    ind_channel = channel["index"]
+    ind_channel = channel.index
 
     # Find channel index for second channel, if one is provided
     if wavelength_id_c2 or channel_label_c2:
@@ -353,7 +353,7 @@ def cellpose_segmentation(
     # Set channel label
     if output_label_name is None:
         try:
-            channel_label = channel["label"]
+            channel_label = channel.label
             output_label_name = f"label_{channel_label}"
         except (KeyError, IndexError):
             output_label_name = f"label_{ind_channel}"
