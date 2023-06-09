@@ -177,12 +177,7 @@ def get_omero_channel_list(*, image_zarr_path: str) -> List[Channel]:
     :returns: A list of channel dictionaries
     """
     group = zarr.open_group(image_zarr_path, mode="r+")
-    from devtools import debug
-
-    debug(group)
     channels_dicts = group.attrs["omero"]["channels"]
-    debug(channels_dicts)
-    # FIXME what is the type of channels_dicts??
     channels = [Channel(**c) for c in channels_dicts]
     return channels
 
