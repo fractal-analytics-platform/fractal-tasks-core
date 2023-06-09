@@ -333,6 +333,6 @@ def test_load_region(
     expected_type = np.ndarray if compute else da.Array
     assert isinstance(output, expected_type)
 
-    if return_as_3D == False and len(da_array.shape) == 2:
+    if return_as_3D is False and len(da_array.shape) == 2:
         expected_shape = expected_shape[1:]
     assert output.shape == expected_shape
