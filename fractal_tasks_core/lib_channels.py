@@ -31,78 +31,60 @@ if __OME_NGFF_VERSION__ != "0.4":
     )
 
 
-"""
-FIXME
-THIS IS FROM OME-NGFF 0.4
-"required": [ "window", "color" ]
-"properties": {
-
-  "color": { "type": "string" },
-
-  "window": {
-    "type": "object",
-    "properties": {
-      "end": { "type": "number" },
-      "max": { "type": "number" },
-      "min": { "type": "number" },
-      "start": { "type": "number" }
-    },
-    "required": ["start", "min", "end", "max" ]
-  },
-
-  "label": { "type": "string" },
-
-  "family": { "type": "string" },
-
-  "active": { "type": "boolean" }
-},
-"""
-
-
 class ChannelWindow(BaseModel):
+    """
+    Custom class for Omero-channel window, related to OME-NGFF v0.4
+
+    See https://ngff.openmicroscopy.org/0.4/#omero-md.
+    Main difference from the specs:
+
+        1. ``min`` and ``max`` are optional, since we have custom logic to set
+            their values.
+    """
+
     min: Optional[str]
+    """TBD"""
     max: Optional[str]
+    """TBD"""
     start: str
+    """TBD"""
     end: str
+    """TBD"""
 
 
 class Channel(BaseModel):
     """
-    Custom class, related to the omero channels in OME-NGFF v0.4.
+    Custom class for Omero channels, related to OME-NGFF v0.4.
 
     Differences from OME-NGFF v0.4 specs
     (https://ngff.openmicroscopy.org/0.4/#omero-md)
 
         1. Additional attributes ``wavelength_id`` and ``index``.
-        2. We make ``color`` an optional attribute, since we have internal
+        2. We make ``color`` an optional attribute, since we have custom
            logic to set its value.
-        3. We make the ``window`` attributes ``min` and ``max`` optional, since
-           we have interla logic to set their values.
-
-    :param wavelength_id: TBD
-    :param index: TBD
-    :param color: TBD
-    :param label: TBD
-    :param window: TBD
-    :param inverted: TBD
-    :param coefficient: TBD
-    :param active: TBD
-    :param family: TBD
-
     """
 
     # Custom
     wavelength_id: str
+    """TBD"""
     index: Optional[int]
+    """TBD"""
 
     # From OME-NGFF v0.4 transitional metadata
     window: ChannelWindow
+    """TBD"""
     color: Optional[str]
+    """TBD"""
     label: Optional[str]
+    """TBD"""
     active: bool = True
+    """TBD"""
     family: str = "linear"
+    """TBD"""
     coefficient: int = 1
+    """TBD"""
     inverted: bool = False
+    """TBD"""
 
 
 class ChannelNotFoundError(ValueError):
