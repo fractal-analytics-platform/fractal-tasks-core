@@ -80,6 +80,8 @@ def napari_workflows_wrapper(
     This task takes images and labels and runs a napari-workflow on them that
     can produce a label and tables as output.
 
+    .. code-block::
+
         # Examples of allowed entries for input_specs and output_specs
         input_specs = {
             "in_1": {"type": "image", "wavelength_id": "A01_C02"},

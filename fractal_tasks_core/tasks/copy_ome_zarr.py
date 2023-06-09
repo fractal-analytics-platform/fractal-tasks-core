@@ -53,14 +53,15 @@ def copy_ome_zarr(
     Duplicate an input zarr structure to a new path.
 
     This task copies all the structure, but none of the image data:
-    1. For each plate, create a new zarr group with the same attributes as the
-    original one.
-    2. For each well (in each plate), create a new zarr subgroup with the same
-    attributes as the original one.
-    3. For each image (in each well), create a new zarr subgroup with the same
-    attributes as the original one.
-    4. For each image (in each well), copy the relevant AnnData tables from the
-    original source.
+
+        1. For each plate, create a new zarr group with the same attributes as
+           the original one.
+        2. For each well (in each plate), create a new zarr subgroup with the
+           same attributes as the original one.
+        3. For each image (in each well), create a new zarr subgroup with the
+           same attributes as the original one.
+        4. For each image (in each well), copy the relevant AnnData tables from
+           the original source.
 
     Note: this task makes use of methods from the ``Attributes`` class, see
     https://zarr.readthedocs.io/en/stable/api/attrs.html.
@@ -88,8 +89,8 @@ def copy_ome_zarr(
                      ["MyPlate.zarr/B/03", "MyPlate.zarr/B/05"]
                      "image": List of images in the OME-Zarr plate. Example:
                      ["MyPlate.zarr/B/03/0", "MyPlate.zarr/B/05/0"]
-                    (standard argument for Fractal tasks,
-                    managed by Fractal server)
+                     (standard argument for Fractal tasks,
+                     managed by Fractal server)
     :param project_to_2D: If ``True``, apply a 3D->2D projection to the ROI
                           tables that are copied to the new OME-Zarr.
     :param suffix: The suffix that is used to transform ``plate.zarr`` into

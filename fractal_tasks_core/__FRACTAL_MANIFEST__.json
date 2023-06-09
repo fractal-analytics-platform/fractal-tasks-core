@@ -159,7 +159,7 @@
             "type": "array"
           },
           "metadata": {
-            "description": "dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present  in the metadata:  \"plate\": List of plates. Example: [\"MyPlate.zarr\"]  \"well\": List of wells in the OME-Zarr plate.  [\"MyPlate.zarr/B/03\", \"MyPlate.zarr/B/05\"]  \"image\": List of images in the OME-Zarr plate. Example:  [\"MyPlate.zarr/B/03/0\", \"MyPlate.zarr/B/05/0\"] (standard argument for Fractal tasks, managed by Fractal server)",
+            "description": "dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata: \"plate\": List of plates. Example: [\"MyPlate.zarr\"] \"well\": List of wells in the OME-Zarr plate. [\"MyPlate.zarr/B/03\", \"MyPlate.zarr/B/05\"] \"image\": List of images in the OME-Zarr plate. Example: [\"MyPlate.zarr/B/03/0\", \"MyPlate.zarr/B/05/0\"] (standard argument for Fractal tasks, managed by Fractal server)",
             "title": "Metadata",
             "type": "object"
           },
