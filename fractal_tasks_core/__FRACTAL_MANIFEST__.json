@@ -76,8 +76,8 @@
               }
             },
             "required": [
-              "min",
-              "max"
+              "start",
+              "end"
             ],
             "title": "ChannelWindow",
             "type": "object"
