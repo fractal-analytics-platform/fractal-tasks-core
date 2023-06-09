@@ -227,7 +227,7 @@ def create_ome_zarr_multiplex(
 
         # Check that all channels are in the allowed_channels
         allowed_wavelength_ids = [
-            c["wavelength_id"] for c in allowed_channels[acquisition]
+            c.wavelength_id for c in allowed_channels[acquisition]
         ]
         if not set(actual_wavelength_ids).issubset(
             set(allowed_wavelength_ids)
