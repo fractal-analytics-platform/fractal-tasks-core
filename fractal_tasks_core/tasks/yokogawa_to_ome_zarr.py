@@ -25,6 +25,7 @@ import dask.array as da
 import zarr
 from anndata import read_zarr
 from dask.array.image import imread
+from pydantic.decorator import validate_arguments
 
 from fractal_tasks_core.lib_channels import get_omero_channel_list
 from fractal_tasks_core.lib_glob import glob_with_multiple_patterns
@@ -56,6 +57,7 @@ def sort_fun(filename: str):
     return [site, z_index]
 
 
+@validate_arguments
 def yokogawa_to_ome_zarr(
     *,
     input_paths: Sequence[str],
@@ -254,6 +256,5 @@ if __name__ == "__main__":
 
     run_fractal_task(
         task_function=yokogawa_to_ome_zarr,
-        coerce_and_validate=True,
         logger_name=logger.name,
     )

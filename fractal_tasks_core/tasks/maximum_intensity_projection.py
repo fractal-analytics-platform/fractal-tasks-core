@@ -22,6 +22,7 @@ from typing import Sequence
 
 import anndata as ad
 import dask.array as da
+from pydantic.decorator import validate_arguments
 
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
@@ -32,6 +33,7 @@ from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 logger = logging.getLogger(__name__)
 
 
+@validate_arguments
 def maximum_intensity_projection(
     *,
     input_paths: Sequence[str],
@@ -158,6 +160,5 @@ if __name__ == "__main__":
 
     run_fractal_task(
         task_function=maximum_intensity_projection,
-        coerce_and_validate=True,
         logger_name=logger.name,
     )

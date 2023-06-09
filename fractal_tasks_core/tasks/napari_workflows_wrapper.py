@@ -30,6 +30,7 @@ import pandas as pd
 import zarr
 from anndata.experimental import write_elem
 from napari_workflows._io_yaml_v1 import load_workflow
+from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
 from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
@@ -56,6 +57,7 @@ class OutOfTaskScopeError(NotImplementedError):
     pass
 
 
+@validate_arguments
 def napari_workflows_wrapper(
     *,
     # Default arguments for fractal tasks:
@@ -639,6 +641,5 @@ if __name__ == "__main__":
 
     run_fractal_task(
         task_function=napari_workflows_wrapper,
-        coerce_and_validate=True,
         logger_name=logger.name,
     )
