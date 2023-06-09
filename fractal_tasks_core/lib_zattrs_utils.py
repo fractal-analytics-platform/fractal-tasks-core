@@ -61,7 +61,11 @@ def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0) -> List[float]:
                     raise Exception(
                         f"ERROR: pixel_sizes in {zattrs_path} are", pixel_sizes
                     )
-                return pixel_sizes
+                # FIXME: this is a hack to deal with the fact that the
+                # coordinationTransformation can containa additional entries 
+                # (e.g. scaling for the channels)
+                # https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/420
+                return pixel_sizes[-3:]
 
         raise Exception(
             "ERROR:"
