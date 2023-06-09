@@ -652,11 +652,84 @@
     {
       "args_schema": {
         "additionalProperties": false,
+        "definitions": {
+          "Channel": {
+            "description": "Custom class for Omero channels, related to OME-NGFF v0.4.\n\nDifferences from OME-NGFF v0.4 specs\n(https://ngff.openmicroscopy.org/0.4/#omero-md)\n\n    1. Additional attributes ``wavelength_id`` and ``index``.\n    2. We make ``color`` an optional attribute, since we have custom\n       logic to set its value.\n    3. We make ``window`` an optional attribute, so that we can also\n       process zarr arrays which do not have this attribute.",
+            "properties": {
+              "active": {
+                "default": true,
+                "title": "Active",
+                "type": "boolean"
+              },
+              "coefficient": {
+                "default": 1,
+                "title": "Coefficient",
+                "type": "integer"
+              },
+              "color": {
+                "title": "Color",
+                "type": "string"
+              },
+              "index": {
+                "title": "Index",
+                "type": "integer"
+              },
+              "inverted": {
+                "default": false,
+                "title": "Inverted",
+                "type": "boolean"
+              },
+              "label": {
+                "title": "Label",
+                "type": "string"
+              },
+              "wavelength_id": {
+                "title": "Wavelength Id",
+                "type": "string"
+              },
+              "window": {
+                "$ref": "#/definitions/ChannelWindow"
+              }
+            },
+            "required": [
+              "wavelength_id"
+            ],
+            "title": "Channel",
+            "type": "object"
+          },
+          "ChannelWindow": {
+            "description": "Custom class for Omero-channel window, related to OME-NGFF v0.4\n\nSee https://ngff.openmicroscopy.org/0.4/#omero-md.\nMain difference from the specs:\n\n    1. ``min`` and ``max`` are optional, since we have custom logic to set\n        their values.",
+            "properties": {
+              "end": {
+                "title": "End",
+                "type": "integer"
+              },
+              "max": {
+                "title": "Max",
+                "type": "integer"
+              },
+              "min": {
+                "title": "Min",
+                "type": "integer"
+              },
+              "start": {
+                "title": "Start",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "start",
+              "end"
+            ],
+            "title": "ChannelWindow",
+            "type": "object"
+          }
+        },
         "properties": {
           "allowed_channels": {
             "additionalProperties": {
               "items": {
-                "type": "object"
+                "$ref": "#/definitions/Channel"
               },
               "type": "array"
             },
