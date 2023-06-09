@@ -29,6 +29,7 @@ from anndata.experimental import write_elem
 from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
+from fractal_tasks_core.lib_channels import Channel
 from fractal_tasks_core.lib_channels import check_unique_wavelength_ids
 from fractal_tasks_core.lib_channels import check_well_channel_labels
 from fractal_tasks_core.lib_channels import define_omero_channels
@@ -55,7 +56,7 @@ def create_ome_zarr_multiplex(
     metadata: Dict[str, Any],
     image_extension: str = "tif",
     image_glob_patterns: Optional[list[str]] = None,
-    allowed_channels: Dict[str, Sequence[Dict[str, Any]]],
+    allowed_channels: Dict[str, list[Channel]],
     num_levels: int = 5,
     coarsening_xy: int = 2,
     metadata_table: Union[Literal["mrf_mlf"], Dict[str, str]] = "mrf_mlf",
