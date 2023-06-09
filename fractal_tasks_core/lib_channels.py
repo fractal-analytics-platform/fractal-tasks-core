@@ -14,9 +14,10 @@ Copyright 2022 (C)
 Helper functions to address channels via OME-NGFF/OMERO metadata
 """
 import logging
-from typing import Any
+from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Union
 
 import zarr
 from pydantic import BaseModel
@@ -42,13 +43,13 @@ class ChannelWindow(BaseModel):
             their values.
     """
 
-    min: Optional[str]
+    min: Optional[int]
     """TBD"""
-    max: Optional[str]
+    max: Optional[int]
     """TBD"""
-    start: str
+    start: int
     """TBD"""
-    end: str
+    end: int
     """TBD"""
 
 
@@ -79,8 +80,6 @@ class Channel(BaseModel):
     """TBD"""
     active: bool = True
     """TBD"""
-    family: str = "linear"
-    """TBD"""
     coefficient: int = 1
     """TBD"""
     inverted: bool = False
@@ -96,15 +95,14 @@ class ChannelNotFoundError(ValueError):
     pass
 
 
-def validate_allowed_channel_input(allowed_channels: List[Channel]):
+def check_unique_wavelength_ids(channels: List[Channel]):
     """
-    Check that the `wavelength_id` values are unique across channels
+    Check that the `wavelength_id` attributes of a channel list are unique
     """
-    wavelength_ids = [c.wavelength_id for c in allowed_channels]
+    wavelength_ids = [c.wavelength_id for c in channels]
     if len(set(wavelength_ids)) < len(wavelength_ids):
         raise ValueError(
-            f"Non-unique wavelength_id's in {wavelength_ids}\n"
-            f"{allowed_channels=}"
+            f"Non-unique wavelength_id's in {wavelength_ids}\n" f"{channels=}"
         )
 
 
@@ -249,7 +247,7 @@ def define_omero_channels(
     channels: List[Channel],
     bit_depth: int,
     label_prefix: str = None,
-) -> List[dict[str, Any]]:
+) -> List[Dict[str, Union[str, int, Dict[str, int]]]]:
     """
     Update a channel list to use it in the OMERO/channels metadata
 
@@ -264,67 +262,47 @@ def define_omero_channels(
     :param channels: A list of channel dictionaries (each one must include the
                      ``wavelength_id`` key).
     :param bit_depth: bit depth
+    :param label_prefix: TBD
     :returns: ``new_channels``, a new list of consistent channel dictionaries
               that can be written to OMERO metadata.
 
     """
 
-    new_channels = []
-    default_colormaps = ["00FFFF", "FF00FF", "FFFF00"]
+    new_channels = [c.copy(deep=True) for c in channels]
+    default_colors = ["00FFFF", "FF00FF", "FFFF00"]
 
-    for channel in channels:
-
-        from devtools import debug
-
-        debug(channel)
+    for channel in new_channels:
         wavelength_id = channel.wavelength_id
 
-        # Always set a label
-        try:
-            label = channel.label
-        except KeyError:
+        # If channel.label is None, set it to a default value
+        if channel.label is None:
             default_label = wavelength_id
             if label_prefix:
                 default_label = f"{label_prefix}_{default_label}"
             logging.warning(
                 f"Missing label for {channel=}, using {default_label=}"
             )
-            label = default_label
+            channel.label = default_label
 
-        # Set colormap attribute. If not specificed, use the default ones (for
-        # the first three channels) or gray
-        colormap = channel.colormap
-        if colormap is None:
+        # If channel.color is None, set it to a default value (use the default
+        # ones for the first three channels, or gray otherwise)
+        if channel.color is None:
             try:
-                colormap = default_colormaps.pop()
+                channel.color = default_colors.pop()
             except IndexError:
-                colormap = "808080"
+                channel.color = "808080"
 
-        # Set window attribute
-        window = {
-            "min": 0,
-            "max": 2**bit_depth - 1,
-        }
-        if channel.start is not None and channel.end is not None:
-            window["start"] = channel.start
-            window["end"] = channel.end
-
-        new_channel = {
-            "label": label,
-            "wavelength_id": wavelength_id,
-            "active": True,
-            "coefficient": 1,
-            "color": colormap,
-            "family": "linear",
-            "inverted": False,
-            "window": window,
-        }
-        debug(new_channel)
-        new_channels.append(new_channel)
+        # Set channel.window attribute
+        channel.window.min = 0
+        channel.window.max = 2**bit_depth - 1
 
     # Check that channel labels are unique for this image
-    labels = [c["label"] for c in new_channels]
+    labels = [c.label for c in new_channels]
     if len(set(labels)) < len(labels):
         raise ValueError(f"Non-unique labels in {new_channels=}")
 
-    return new_channels
+    new_channels_dictionaries = [
+        c.dict(exclude={"index"}, exclude_unset=True) for c in new_channels
+    ]
+
+    return new_channels_dictionaries
