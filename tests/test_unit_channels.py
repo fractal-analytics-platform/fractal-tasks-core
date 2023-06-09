@@ -83,9 +83,14 @@ def test_define_omero_channels(testdata_path: Path, omero_channel_schema):
     debug(processed_channels)
 
     # Validate output of define_omero_channels
-    for channel in processed_channels:
-        assert "color" in channel
-        assert "label" in channel
-        assert "index" not in channel
-        assert set(channel["window"].keys()) == {"min", "max", "start", "end"}
-        jsonschema.validate(instance=channel, schema=omero_channel_schema)
+    for channel_dict in processed_channels:
+        assert "color" in channel_dict
+        assert "label" in channel_dict
+        assert "index" not in channel_dict
+        assert set(channel_dict["window"].keys()) == {
+            "min",
+            "max",
+            "start",
+            "end",
+        }
+        jsonschema.validate(instance=channel_dict, schema=omero_channel_schema)
