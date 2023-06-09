@@ -348,7 +348,7 @@ def cellpose_segmentation(
                 f"Original error: {str(e)}"
             )
             return {}
-        ind_channel_c2 = channel_c2["index"]
+        ind_channel_c2 = channel_c2.index
 
     # Set channel label
     if output_label_name is None:
