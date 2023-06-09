@@ -112,10 +112,11 @@ def rescale_datasets(
         for t in old_transformations:
             if t["type"] == "scale":
                 new_t: Dict[str, Any] = {"type": "scale"}
+                # FIXME: Handle scale lists with more or less than 3 elements
                 new_t["scale"] = [
-                    t["scale"][0],
-                    t["scale"][1] * coarsening_xy**reference_level,
-                    t["scale"][2] * coarsening_xy**reference_level,
+                    t["scale"][-3],
+                    t["scale"][-2] * coarsening_xy**reference_level,
+                    t["scale"][-1] * coarsening_xy**reference_level,
                 ]
                 new_transformations.append(new_t)
             else:
