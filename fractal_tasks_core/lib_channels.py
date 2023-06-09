@@ -247,7 +247,7 @@ def define_omero_channels(
     channels: List[Channel],
     bit_depth: int,
     label_prefix: str = None,
-) -> List[Dict[str, Union[str, int, Dict[str, int]]]]:
+) -> List[Dict[str, Union[str, int, bool, Dict[str, int]]]]:
     """
     Update a channel list to use it in the OMERO/channels metadata
 
