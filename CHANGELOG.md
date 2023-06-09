@@ -1,6 +1,6 @@
 # 0.10.0
 
-* Restructure the package and repository (\#384, \#390):
+* Restructure the package and repository:
     * Move tasks to `tasks` subpackage (\#390)
     * Create new `dev` subpackage (\#384).
     * Make tasks-related dependencies optional, and installable via `fractal-tasks` extra (\#390).
@@ -8,11 +8,15 @@
 * JSON Schemas for task arguments:
     * Add JSON schemas for task arguments in the package manifest (\#369, \#384).
     * Remove `TaskArguments` models and switch to Pydantic V1 `validate_arguments` (\#369).
-    * Remove `default_args` from manifest (\#XXX).
+    * Make coercing&validating task arguments required, rather than optional (\#408).
+    * Remove `default_args` from manifest (\#379, \#393).
 * Other:
+    * Make pydantic dependency required for running tasks, and pin it to V1 (\#408).
     * Remove legacy executor definitions from manifest (\#361).
     * Add GitHub action for testing `pip install` with/without `fractal-tasks` extra (\#390).
     * Remove `sqlmodel` from dev dependencies (\#374).
+    * Relax constraint on torch version, from `==1.12.1` to `<=2.0.0` (\#406).
+    * Review task docstrings and improve documentation (\#413, \#416).
 
 # 0.9.4
 

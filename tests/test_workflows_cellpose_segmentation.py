@@ -321,8 +321,8 @@ def test_workflow_with_multi_channel_input(
     # Per-FOV labeling
     for component in metadata["image"]:
         cellpose_segmentation(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
             metadata=metadata,
             component=component,
             wavelength_id="A01_C01",
