@@ -63,6 +63,8 @@ class Channel(BaseModel):
         1. Additional attributes ``wavelength_id`` and ``index``.
         2. We make ``color`` an optional attribute, since we have custom
            logic to set its value.
+        3. We make ``window`` an optional attribute, so that we can also
+           process zarr arrays which do not have this attribute.
     """
 
     # Custom
@@ -72,7 +74,7 @@ class Channel(BaseModel):
     """TBD"""
 
     # From OME-NGFF v0.4 transitional metadata
-    window: ChannelWindow
+    window: Optional[ChannelWindow]
     """TBD"""
     color: Optional[str]
     """TBD"""
@@ -175,7 +177,11 @@ def get_omero_channel_list(*, image_zarr_path: str) -> List[Channel]:
     :returns: A list of channel dictionaries
     """
     group = zarr.open_group(image_zarr_path, mode="r+")
+    from devtools import debug
+
+    debug(group)
     channels_dicts = group.attrs["omero"]["channels"]
+    debug(channels_dicts)
     # FIXME what is the type of channels_dicts??
     channels = [Channel(**c) for c in channels_dicts]
     return channels
@@ -293,8 +299,9 @@ def define_omero_channels(
                 channel.color = "808080"
 
         # Set channel.window attribute
-        channel.window.min = 0
-        channel.window.max = 2**bit_depth - 1
+        if channel.window:
+            channel.window.min = 0
+            channel.window.max = 2**bit_depth - 1
 
     # Check that channel labels are unique for this image
     labels = [c.label for c in new_channels]
