@@ -24,7 +24,7 @@ jobs:
           cache: 'poetry'
 
       - name: Install dependencies
-        run: poetry install --with docs --without dev --no-interaction
+        run: poetry install --with docs -E fractal-tasks --without dev --no-interaction
 
       - name: Sphinx build
         run: |
