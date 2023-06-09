@@ -16,6 +16,7 @@
     * Add GitHub action for testing `pip install` with/without `fractal-tasks` extra (\#390).
     * Remove `sqlmodel` from dev dependencies (\#374).
     * Relax constraint on torch version, from `==1.12.1` to `<=2.0.0` (\#406).
+    * Review task docstrings and improve documentation (\#413, \#416).
 
 # 0.9.4
 

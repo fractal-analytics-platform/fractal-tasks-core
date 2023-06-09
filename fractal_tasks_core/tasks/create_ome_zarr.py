@@ -56,7 +56,7 @@ def create_ome_zarr(
     image_extension: str = "tif",
     image_glob_patterns: Optional[list[str]] = None,
     allowed_channels: List[Channel],
-    num_levels: int = 2,
+    num_levels: int = 5,
     coarsening_xy: int = 2,
     metadata_table: str = "mrf_mlf",
 ) -> Dict[str, Any]:
@@ -74,26 +74,54 @@ def create_ome_zarr(
         * create FOV ZARR
         * verify that channels are uniform (i.e., same channels)
 
-    :param input_paths: TBD (common to all tasks)
-    :param output_path: TBD (common to all tasks)
-    :param metadata: TBD (common to all tasks)
-    :param image_extension: Filename extension of images (e.g. `"tif"` or
-                            `"png"`)
+    :param input_paths: List of input paths where the image data from
+                        the microscope is stored (as TIF or PNG).
+                        Should point to the parent folder containing the
+                        images and the metadata files ``MeasurementData.mlf``
+                        and ``MeasurementDetail.mrf`` (if present).
+                        Example: ``["/some/path/"]``
+                        (standard argument for Fractal tasks,
+                        managed by Fractal server)
+    :param output_path: Path were the output of this task is stored.
+                        Example: "/some/path/" => puts the new OME-Zarr file
+                        in the "/some/path/"
+                        (standard argument for Fractal tasks,
+                        managed by Fractal server)
+    :param metadata: This parameter is not used by this task
+                     (standard argument for Fractal tasks,
+                     managed by Fractal server)
+    :param image_extension: Filename extension of images (e.g. ``"tif"`` or
+                            ``"png"``)
     :param image_glob_patterns: If specified, only parse images with filenames
                                 that match with all these patterns. Patterns
                                 must be defined as in
                                 https://docs.python.org/3/library/fnmatch.html,
-                                e.g. `image_glob_pattern=["*_B03_*"]`.
-    :param num_levels: Number of resolution-pyramid levels
-    :param coarsening_xy: Linear coarsening factor between subsequent levels
+                                Example: ``image_glob_pattern=["*_B03_*"]``
+                                => only process well B03
+                                ``image_glob_pattern=["*_C09_*", "*F016*",
+                                "*Z[0-5][0-9]C*"]``
+                                => only process well C09, field of view 16
+                                and Z planes 0 - 59.
+    :param num_levels: Number of resolution-pyramid levels. If set to 5, there
+                       will be the full-resolution level and 4 levels of
+                       downsampled images.
+    :param coarsening_xy: Linear coarsening factor between subsequent levels.
+                          If set to 2, level 1 is 2x downsampled, level 2 is
+                          4x downsampled etc.
     :param allowed_channels: A list of channel dictionaries, where each channel
                              must include the ``wavelength_id`` key and where
                              the corresponding values should be unique across
                              channels.
+                             # TODO: improve after Channel input refactor
+                             See issue 386
     :param metadata_table: If equal to ``"mrf_mlf"``, parse Yokogawa metadata
                            from mrf/mlf files in the input_path folder; else,
                            the full path to a csv file containing
                            the parsed metadata table.
+                           # TODO: Improve after issue 399
+    :return: A metadata dictionary containing important metadata about the
+            OME-Zarr plate, the images and some parameters required by
+            downstream tasks (like `num_levels`).
     """
 
     # Preliminary checks on metadata_table

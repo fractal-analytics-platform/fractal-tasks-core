@@ -103,21 +103,59 @@ def illumination_correction(
     overwrite: bool = False,
     new_component: Optional[str] = None,
     dict_corr: dict,
-    background: int = 100,
+    background: int = 110,
 ) -> Dict[str, Any]:
 
     """
-    FIXME docstring
+    Applies illumination correction to the images in the OME-Zarr
 
-    Example inputs:
-    input_paths: ["/some/path"]
-    output_path: "/same/or/other/path/"
-    component: myplate.zarr/B/03/0/
-    new_component: myplate_new_name.zarr/B/03/0/
-    metadata: {...}
-
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    :param input_paths: List of input paths where the image data is stored
+                        as OME-Zarrs. Should point to the parent folder
+                        containing one or many OME-Zarr files, not the
+                        actual OME-Zarr file.
+                        Example: ["/some/path/"]
+                        This task only supports a single input path.
+                        (standard argument for Fractal tasks,
+                        managed by Fractal server)
+    :param output_path: Path were the output of this task is stored.
+                        Example: "/some/path/" => puts the new OME-Zarr file
+                        in the same folder as the input OME-Zarr file
+                        "/some/new_path" => puts the new OME-Zarr file
+                        into a new folder at ``/some/new_path``
+                        (standard argument for Fractal tasks,
+                        managed by Fractal server)
+    :param component: Path to the OME-Zarr image in the OME-Zarr plate that
+                      is processed.
+                      Example: "some_plate.zarr/B/03/0"
+                      (standard argument for Fractal tasks,
+                      managed by Fractal server)
+    :param metadata: dictionary containing metadata about the OME-Zarr.
+                     This task requires the following elements to be present
+                     in the metadata:
+                     "num_levels": int, number of pyramid levels in the image.
+                     This determines how many pyramid levels are built
+                     for the segmentation.
+                     "coarsening_xy": int, coarsening factor in XY of the
+                     downsampling when building the pyramid.
+                     (standard argument for Fractal tasks,
+                     managed by Fractal server)
+    :param overwrite: If True, the results of this task will overwrite the
+                      input image data. This task is only implemented for
+                      ``overwrite=True`` at the moment.
+    :param new_component: Not implemented yet.
+                          This is not implemented well in Fractal server at
+                          the moment, it's unclear how a user would specify
+                          fitting new components. If the results shall not
+                          overwrite the input data and the output path is
+                          the same as the input path, a new component needs
+                          to be provided.
+                          Example:
+                          myplate_new_name.zarr/B/03/0/
+    :param dict_corr: TODO: Refactor,
+                      see issue 414 on fractal-tasks-core
+    :param background: Background value that is subtracted from the image
+                       before the illumination correction is applied. Set it
+                       to 0 if you don't want any background subtraction.
     """
 
     # Preliminary checks

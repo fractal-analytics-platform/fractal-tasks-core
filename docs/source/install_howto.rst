@@ -1,14 +1,17 @@
 How to install
 ==============
 
-The ``fractal-tasks-core`` package is hosted on PyPI (https://pypi.org/project/fractal-tasks-core), and it can be installed as::
+The ``fractal_tasks_core`` package is hosted on PyPI (https://pypi.org/project/fractal-tasks-core) and it includes:
+
+* The main ``fractal_tasks_core`` package, which includes several helper functions to be used in the Fractal tasks (and possibly in other independent packages). This can be installed as::
 
     pip install fractal-tasks-core
 
-It can also be installed with the ``tools`` extra, as in::
+* The ``fractal_tasks_core.tasks`` subpackage, which inlcudes some standard Fractal tasks. This subpackage requires additional dependencies, which are installed as::
 
-    pip install fractal-tasks-core[tools]
+    pip install fractal-tasks-core[fractal-tasks]
 
-to have access to additional tools (see ``fractal_tasks_core.tools package`` in the menu on the left).
+* The ``fractal_tasks_core.dev`` subpackage, which includes some developement tools, mostly related to creation of JSON Schemas for task arguments.
 
-**Note**: this package is tested with python version 3.8 and 3.9.
+
+**Note**: this package is tested with python version 3.9 and 3.10.

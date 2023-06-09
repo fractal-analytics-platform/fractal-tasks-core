@@ -85,7 +85,7 @@
         },
         "properties": {
           "allowed_channels": {
-            "description": "A list of channel dictionaries, where each channel must include the ``wavelength_id`` key and where the corresponding values should be unique across channels.",
+            "description": "A list of channel dictionaries, where each channel must include the ``wavelength_id`` key and where the corresponding values should be unique across channels. # TODO: improve after Channel input refactor See issue 386",
             "items": {
               "$ref": "#/definitions/Channel"
             },
@@ -94,18 +94,18 @@
           },
           "coarsening_xy": {
             "default": 2,
-            "description": "Linear coarsening factor between subsequent levels",
+            "description": "Linear coarsening factor between subsequent levels. If set to 2, level 1 is 2x downsampled, level 2 is 4x downsampled etc.",
             "title": "Coarsening Xy",
             "type": "integer"
           },
           "image_extension": {
             "default": "tif",
-            "description": "Filename extension of images (e.g. `\"tif\"` or `\"png\"`)",
+            "description": "Filename extension of images (e.g. ``\"tif\"`` or ``\"png\"``)",
             "title": "Image Extension",
             "type": "string"
           },
           "image_glob_patterns": {
-            "description": "If specified, only parse images with filenames that match with all these patterns. Patterns must be defined as in https://docs.python.org/3/library/fnmatch.html, e.g. `image_glob_pattern=[\"*_B03_*\"]`.",
+            "description": "If specified, only parse images with filenames that match with all these patterns. Patterns must be defined as in https://docs.python.org/3/library/fnmatch.html, Example: ``image_glob_pattern=[\"*_B03_*\"]`` => only process well B03 ``image_glob_pattern=[\"*_C09_*\", \"*F016*\", \"*Z[0-5][0-9]C*\"]`` => only process well C09, field of view 16 and Z planes 0 - 59.",
             "items": {
               "type": "string"
             },
@@ -113,7 +113,7 @@
             "type": "array"
           },
           "input_paths": {
-            "description": "TBD (common to all tasks)",
+            "description": "List of input paths where the image data from the microscope is stored (as TIF or PNG). Should point to the parent folder containing the images and the metadata files ``MeasurementData.mlf`` and ``MeasurementDetail.mrf`` (if present). Example: ``[\"/some/path/\"]`` (standard argument for Fractal tasks, managed by Fractal server)",
             "items": {
               "type": "string"
             },
@@ -121,24 +121,24 @@
             "type": "array"
           },
           "metadata": {
-            "description": "TBD (common to all tasks)",
+            "description": "This parameter is not used by this task (standard argument for Fractal tasks, managed by Fractal server)",
             "title": "Metadata",
             "type": "object"
           },
           "metadata_table": {
             "default": "mrf_mlf",
-            "description": "If equal to ``\"mrf_mlf\"``, parse Yokogawa metadata from mrf/mlf files in the input_path folder; else, the full path to a csv file containing the parsed metadata table.",
+            "description": "If equal to ``\"mrf_mlf\"``, parse Yokogawa metadata from mrf/mlf files in the input_path folder; else, the full path to a csv file containing the parsed metadata table. # TODO: Improve after issue 399",
             "title": "Metadata Table",
             "type": "string"
           },
           "num_levels": {
-            "default": 2,
-            "description": "Number of resolution-pyramid levels",
+            "default": 5,
+            "description": "Number of resolution-pyramid levels. If set to 5, there will be the full-resolution level and 4 levels of downsampled images.",
             "title": "Num Levels",
             "type": "integer"
           },
           "output_path": {
-            "description": "TBD (common to all tasks)",
+            "description": "Path were the output of this task is stored. Example: \"/some/path/\" => puts the new OME-Zarr file in the \"/some/path/\" (standard argument for Fractal tasks, managed by Fractal server)",
             "title": "Output Path",
             "type": "string"
           }
@@ -166,18 +166,18 @@
         "additionalProperties": false,
         "properties": {
           "component": {
-            "description": "TBD",
+            "description": "Path to the OME-Zarr image in the OME-Zarr plate that is processed. Example: \"some_plate.zarr/B/03/0\" (standard argument for Fractal tasks, managed by Fractal server)",
             "title": "Component",
             "type": "string"
           },
           "delete_input": {
             "default": false,
-            "description": "TBD",
+            "description": "Set to True if you want Fractal to remove the input files the microscope created.",
             "title": "Delete Input",
             "type": "boolean"
           },
           "input_paths": {
-            "description": "TBD",
+            "description": "List of input paths where the OME-Zarrs. Should point to the parent folder containing one or many OME-Zarr files, not the actual OME-Zarr file. Example: [\"/some/path/\"] This task only supports a single input path. (standard argument for Fractal tasks, managed by Fractal server)",
             "items": {
               "type": "string"
             },
@@ -185,12 +185,12 @@
             "type": "array"
           },
           "metadata": {
-            "description": "TBD",
+            "description": "dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata: \"original_paths\": list of paths that correspond to the ``input_paths`` of the create_ome_zarr task (=> where the microscopy image are stored) \"num_levels\": int, number of pyramid levels in the image. This determines how many pyramid levels are built for the segmentation. \"coarsening_xy\": int, coarsening factor in XY of the downsampling when building the pyramid. \"image_extension\": Filename extension of images (e.g. ``\"tif\"`` or ``\"png\"``) \"image_glob_patterns\": Parameter of ``create_ome_zarr`` task. If specified, only parse images with filenames that match with all these patterns. (standard argument for Fractal tasks, managed by Fractal server)",
             "title": "Metadata",
             "type": "object"
           },
           "output_path": {
-            "description": "TBD",
+            "description": "Unclear. Should be the same as input_path. (standard argument for Fractal tasks, managed by Fractal server)",
             "title": "Output Path",
             "type": "string"
           }
@@ -219,7 +219,7 @@
         "additionalProperties": false,
         "properties": {
           "ROI_table_names": {
-            "description": "List of ROI-table names to be copied. If ``None``, it is replaced by ``[\"FOV_ROI_table\", \"well_ROI_table\"]``. Note: copying non-ROI tables may fail if ``project_to_2D=True``.",
+            "description": "List of Anndata table names to be copied. If ``None``, it is replaced by ``[\"FOV_ROI_table\", \"well_ROI_table\"]``. Note: copying non-ROI tables may fail if ``project_to_2D=True``.",
             "items": {
               "type": "string"
             },
@@ -227,7 +227,7 @@
             "type": "array"
           },
           "input_paths": {
-            "description": "TBD",
+            "description": "List of input paths where the image data is stored as OME-Zarrs. Should point to the parent folder containing one or many OME-Zarr files, not the actual OME-Zarr file. Example: [\"/some/path/\"] This task only supports a single input path. (standard argument for Fractal tasks, managed by Fractal server)",
             "items": {
               "type": "string"
             },
@@ -235,18 +235,18 @@
             "type": "array"
           },
           "metadata": {
-            "description": "TBD",
+            "description": "dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata: \"plate\": List of plates. Example: [\"MyPlate.zarr\"] \"well\": List of wells in the OME-Zarr plate. [\"MyPlate.zarr/B/03\", \"MyPlate.zarr/B/05\"] \"image\": List of images in the OME-Zarr plate. Example: [\"MyPlate.zarr/B/03/0\", \"MyPlate.zarr/B/05/0\"] (standard argument for Fractal tasks, managed by Fractal server)",
             "title": "Metadata",
             "type": "object"
           },
           "output_path": {
-            "description": "TBD",
+            "description": "Path were the output of this task is stored. Example: \"/some/path/\" => puts the new OME-Zarr file in the same folder as the input OME-Zarr file \"/some/new_path\" => puts the new OME-Zarr file into a new folder at ``/some/new_path`` (standard argument for Fractal tasks, managed by Fractal server)",
             "title": "Output Path",
             "type": "string"
           },
           "project_to_2D": {
             "default": true,
-            "description": "If ``True``, apply a 3D->2D projection to the ROI tables that are copied to the new zarr.",
+            "description": "If ``True``, apply a 3D->2D projection to the ROI tables that are copied to the new OME-Zarr.",
             "title": "Project To 2D",
             "type": "boolean"
           },
@@ -279,12 +279,12 @@
         "additionalProperties": false,
         "properties": {
           "component": {
-            "description": "Missing description",
+            "description": "Path to the OME-Zarr image in the OME-Zarr plate that is processed. Component is typically changed by the copy_ome_zarr task before to point to a new mip Zarr file. Example: \"some_plate_mip.zarr/B/03/0\" (standard argument for Fractal tasks, managed by Fractal server)",
             "title": "Component",
             "type": "string"
           },
           "input_paths": {
-            "description": "Missing description",
+            "description": "This parameter is not used by this task This task only supports a single input path. (standard argument for Fractal tasks, managed by Fractal server)",
             "items": {
               "type": "string"
             },
@@ -292,12 +292,12 @@
             "type": "array"
           },
           "metadata": {
-            "description": "Missing description",
+            "description": "dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata: \"num_levels\": int, number of pyramid levels in the image. This determines how many pyramid levels are built for the segmentation. \"coarsening_xy\": int, coarsening factor in XY of the downsampling when building the pyramid. \"plate\": List of plates. Example: [\"MyPlate.zarr\"] \"well\": List of wells in the OME-Zarr plate. [\"MyPlate.zarr/B/03\", \"MyPlate.zarr/B/05\"] \"image\": List of images in the OME-Zarr plate. Example: [\"MyPlate.zarr/B/03/0\", \"MyPlate.zarr/B/05/0\"] (standard argument for Fractal tasks, managed by Fractal server)",
             "title": "Metadata",
             "type": "object"
           },
           "output_path": {
-            "description": "Missing description",
+            "description": "Path were the output of this task is stored. Example: \"/some/path/\" => puts the new OME-Zarr file in that folder (standard argument for Fractal tasks, managed by Fractal server)",
             "title": "Output Path",
             "type": "string"
           }
@@ -332,13 +332,13 @@
           },
           "augment": {
             "default": false,
-            "description": "Whether to use cellpose augmentation to tile images with overlap.",
+            "description": "Parameter of ``CellposeModel`` class. Whether to use cellpose augmentation to tile images with overlap.",
             "title": "Augment",
             "type": "boolean"
           },
           "cellprob_threshold": {
             "default": 0.0,
-            "description": "Parameter of ``CellposeModel.eval`` method.",
+            "description": "Parameter of ``CellposeModel.eval`` method. Valid values between -6 to 6. From Cellpose documentation: \"Decrease this threshold if cellpose is not returning as many ROIs as you\u2019d expect. Similarly, increase this threshold if cellpose is returning too ROIs particularly from dim areas.\"",
             "title": "Cellprob Threshold",
             "type": "number"
           },
@@ -353,30 +353,30 @@
             "type": "string"
           },
           "component": {
-            "description": "TBD (default arg for Fractal tasks)",
+            "description": "Path to the OME-Zarr image in the OME-Zarr plate that is processed. Example: \"some_plate.zarr/B/03/0\" (standard argument for Fractal tasks, managed by Fractal server)",
             "title": "Component",
             "type": "string"
           },
           "diameter_level0": {
             "default": 30.0,
-            "description": "Initial diameter to be passed to ``CellposeModel.eval`` method (after rescaling from full-resolution to ``level``).",
+            "description": "Expected diameter of the objects that should be segmented in pixels at level 0. Initial diameter is rescaled using the ``level`` that was selected. The rescaled value is passed as the diameter to the ``CellposeModel.eval`` method.",
             "title": "Diameter Level0",
             "type": "number"
           },
           "flow_threshold": {
             "default": 0.4,
-            "description": "Parameter of ``CellposeModel.eval`` method.",
+            "description": "Parameter of ``CellposeModel.eval`` method. Valid values between 0.0 and 1.0. From Cellpose documentation: \"Increase this threshold if cellpose is not returning as many ROIs as you\u2019d expect. Similarly, decrease this threshold if cellpose is returning too many ill-shaped ROIs.\"",
             "title": "Flow Threshold",
             "type": "number"
           },
           "input_ROI_table": {
             "default": "FOV_ROI_table",
-            "description": "Name of the table that contains ROIs to which the task applies Cellpose segmentation (e.g. ``\"organoid_rois\"``).",
+            "description": "Name of the ROI table over which the task loops to apply Cellpose segmentation. Example: \"FOV_ROI_table\" => loop over the field of views \"organoid_ROI_table\" => loop over the organoid ROI table generated by another task \"well_ROI_table\" => process the whole well as one image",
             "title": "Input Roi Table",
             "type": "string"
           },
           "input_paths": {
-            "description": "TBD (default arg for Fractal tasks)",
+            "description": "List of input paths where the image data is stored as OME-Zarrs. Should point to the parent folder containing one or many OME-Zarr files, not the actual OME-Zarr file. Example: [\"/some/path/\"] This task only supports a single input path. (standard argument for Fractal tasks, managed by Fractal server)",
             "items": {
               "type": "string"
             },
@@ -384,56 +384,56 @@
             "type": "array"
           },
           "level": {
-            "description": "Pyramid level of the image to be segmented.",
+            "description": "Pyramid level of the image to be segmented. Choose 0 to process at full resolution.",
             "title": "Level",
             "type": "integer"
           },
           "metadata": {
-            "description": "TBD (default arg for Fractal tasks)",
+            "description": "dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata: \"num_levels\": int, number of pyramid levels in the image. This determines how many pyramid levels are built for the segmentation. \"coarsening_xy\": int, coarsening factor in XY of the downsampling when building the pyramid. (standard argument for Fractal tasks, managed by Fractal server)",
             "title": "Metadata",
             "type": "object"
           },
           "min_size": {
             "default": 15,
-            "description": "Minimum size of the segmented objects (in pixels). Use -1 to turn off the size filter.",
+            "description": "Parameter of ``CellposeModel`` class. Minimum size of the segmented objects (in pixels). Use -1 to turn off the size filter.",
             "title": "Min Size",
             "type": "integer"
           },
           "model_type": {
             "default": "cyto2",
-            "description": "Parameter of ``CellposeModel`` class.",
+            "description": "Parameter of ``CellposeModel`` class. Defines which model should be used. Typical choices are nuclei, cyto, cyto2 etc.",
             "title": "Model Type",
             "type": "string"
           },
           "net_avg": {
             "default": false,
-            "description": "Whether to use cellpose net averaging to run the 4 built-in networks (useful for nuclei, cyto & cyto2, not sure it works for the others).",
+            "description": "Parameter of ``CellposeModel`` class. Whether to use cellpose net averaging to run the 4 built-in networks (useful for nuclei, cyto & cyto2, not sure it works for the others).",
             "title": "Net Avg",
             "type": "boolean"
           },
           "output_ROI_table": {
-            "description": "If provided, the name of the ROI table used for label bounding boxes.",
+            "description": "If provided, a ROI table with that name is created, which will contain the bounding boxes of the newly segmented labels. ROI tables should have ``ROI`` in their name.",
             "title": "Output Roi Table",
             "type": "string"
           },
           "output_label_name": {
-            "description": "Name of the output label (e.g. ``\"organoids\"``).",
+            "description": "Name of the output label image (e.g. ``\"organoids\"``).",
             "title": "Output Label Name",
             "type": "string"
           },
           "output_path": {
-            "description": "TBD (default arg for Fractal tasks)",
+            "description": "This parameter is not used by this task (standard argument for Fractal tasks, managed by Fractal server)",
             "title": "Output Path",
             "type": "string"
           },
           "pretrained_model": {
-            "description": "Parameter of ``CellposeModel`` class (takes precedence over ``model_type``).",
+            "description": "Parameter of ``CellposeModel`` class (takes precedence over ``model_type``). Allows you to specify the path of a custom trained cellpose model.",
             "title": "Pretrained Model",
             "type": "string"
           },
           "relabeling": {
             "default": true,
-            "description": "If ``True``, apply relabeling so that label values are unique across ROIs.",
+            "description": "If ``True``, apply relabeling so that label values are unique for all objects in the well.",
             "title": "Relabeling",
             "type": "boolean"
           },
@@ -445,7 +445,7 @@
           },
           "use_masks": {
             "default": true,
-            "description": "If ``True``, try to use masked loading and fall back to ``use_masks=False`` if the ROI table is not suitable.",
+            "description": "If ``True``, try to use masked loading and fall back to ``use_masks=False`` if the ROI table is not suitable. Masked loading is relevant when only a subset of the bounding box should actually be processed (e.g. running within organoid_ROI_table).",
             "title": "Use Masks",
             "type": "boolean"
           },
@@ -486,23 +486,23 @@
         "additionalProperties": false,
         "properties": {
           "background": {
-            "default": 100,
-            "description": "Missing description",
+            "default": 110,
+            "description": "Background value that is subtracted from the image before the illumination correction is applied. Set it to 0 if you don't want any background subtraction.",
             "title": "Background",
             "type": "integer"
           },
           "component": {
-            "description": "Missing description",
+            "description": "Path to the OME-Zarr image in the OME-Zarr plate that is processed. Example: \"some_plate.zarr/B/03/0\" (standard argument for Fractal tasks, managed by Fractal server)",
             "title": "Component",
             "type": "string"
           },
           "dict_corr": {
-            "description": "Missing description",
+            "description": "TODO: Refactor, see issue 414 on fractal-tasks-core",
             "title": "Dict Corr",
             "type": "object"
           },
           "input_paths": {
-            "description": "Missing description",
+            "description": "List of input paths where the image data is stored as OME-Zarrs. Should point to the parent folder containing one or many OME-Zarr files, not the actual OME-Zarr file. Example: [\"/some/path/\"] This task only supports a single input path. (standard argument for Fractal tasks, managed by Fractal server)",
             "items": {
               "type": "string"
             },
@@ -510,23 +510,23 @@
             "type": "array"
           },
           "metadata": {
-            "description": "Missing description",
+            "description": "dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata: \"num_levels\": int, number of pyramid levels in the image. This determines how many pyramid levels are built for the segmentation. \"coarsening_xy\": int, coarsening factor in XY of the downsampling when building the pyramid. (standard argument for Fractal tasks, managed by Fractal server)",
             "title": "Metadata",
             "type": "object"
           },
           "new_component": {
-            "description": "Missing description",
+            "description": "Not implemented yet. This is not implemented well in Fractal server at the moment, it's unclear how a user would specify fitting new components. If the results shall not overwrite the input data and the output path is the same as the input path, a new component needs to be provided. Example: myplate_new_name.zarr/B/03/0/",
             "title": "New Component",
             "type": "string"
           },
           "output_path": {
-            "description": "Missing description",
+            "description": "Path were the output of this task is stored. Example: \"/some/path/\" => puts the new OME-Zarr file in the same folder as the input OME-Zarr file \"/some/new_path\" => puts the new OME-Zarr file into a new folder at ``/some/new_path`` (standard argument for Fractal tasks, managed by Fractal server)",
             "title": "Output Path",
             "type": "string"
           },
           "overwrite": {
             "default": false,
-            "description": "Missing description",
+            "description": "If True, the results of this task will overwrite the input image data. This task is only implemented for ``overwrite=True`` at the moment.",
             "title": "Overwrite",
             "type": "boolean"
           }
@@ -556,24 +556,24 @@
         "additionalProperties": false,
         "properties": {
           "component": {
-            "description": "TBD (default arg for Fractal tasks)",
+            "description": "Path to the OME-Zarr image in the OME-Zarr plate that is processed. Example: \"some_plate.zarr/B/03/0\" (standard argument for Fractal tasks, managed by Fractal server)",
             "title": "Component",
             "type": "string"
           },
           "expected_dimensions": {
             "default": 3,
-            "description": "Expected dimensions (either 2 or 3).",
+            "description": "Expected dimensions (either 2 or 3). Useful when loading 2D images that are stored in a 3D array as (1, size_x, size_y) [which is the default way Fractal stored 2D images], but you want to make sure the napari workflow gets a 2D array to process. Also useful to set to 2 when loading a 2D OME-Zarr that is saved as (size_x, size_y).",
             "title": "Expected Dimensions",
             "type": "integer"
           },
           "input_ROI_table": {
             "default": "FOV_ROI_table",
-            "description": "name of the table that contains ROIs to which the                            task applies the napari-worfklow",
+            "description": "Name of the ROI table over which the task loops to apply napari workflows. Example: \"FOV_ROI_table\" => loop over the field of views \"organoid_ROI_table\" => loop over the organoid ROI table generated by another task \"well_ROI_table\" => process the whole well as one image",
             "title": "Input Roi Table",
             "type": "string"
           },
           "input_paths": {
-            "description": "TBD (default arg for Fractal tasks)",
+            "description": "List of input paths where the image data is stored as OME-Zarrs. Should point to the parent folder containing one or many OME-Zarr files, not the actual OME-Zarr file. Example: [\"/some/path/\"] This task only supports a single input path. (standard argument for Fractal tasks, managed by Fractal server)",
             "items": {
               "type": "string"
             },
@@ -587,23 +587,23 @@
               },
               "type": "object"
             },
-            "description": "See examples above.",
+            "description": "See examples above. TODO: Update after issue 404",
             "title": "Input Specs",
             "type": "object"
           },
           "level": {
             "default": 0,
-            "description": "Pyramid level of the image to be segmented.",
+            "description": "Pyramid level of the image to be used as input for napari-workflows. Choose 0 to process at full resolution. Levels > 0 are currently only supported for workflows that only have intensity images as input and only produce a label images as output.",
             "title": "Level",
             "type": "integer"
           },
           "metadata": {
-            "description": "TBD (default arg for Fractal tasks)",
+            "description": "dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata: \"num_levels\": int, number of pyramid levels in the image. This determines how many pyramid levels are built for the segmentation. \"coarsening_xy\": int, coarsening factor in XY of the downsampling when building the pyramid. (standard argument for Fractal tasks, managed by Fractal server)",
             "title": "Metadata",
             "type": "object"
           },
           "output_path": {
-            "description": "TBD (default arg for Fractal tasks)",
+            "description": "This parameter is not used by this task (standard argument for Fractal tasks, managed by Fractal server)",
             "title": "Output Path",
             "type": "string"
           },
@@ -614,13 +614,13 @@
               },
               "type": "object"
             },
-            "description": "See examples above.",
+            "description": "See examples above. TODO: Update after issue 404",
             "title": "Output Specs",
             "type": "object"
           },
           "relabeling": {
             "default": true,
-            "description": "If ``True``, apply relabeling so that label values are unique across ROIs.",
+            "description": "If ``True``, apply relabeling so that label values are unique across all ROIs in the well.",
             "title": "Relabeling",
             "type": "boolean"
           },
@@ -663,24 +663,24 @@
               },
               "type": "array"
             },
-            "description": "TBD",
+            "description": "A dictionary of channel dictionaries, where each channel must include the ``wavelength_id`` key and where the corresponding values should be unique across channels. Values are the integers of the channel order, i.e. ``\"0\"``, ``\"1\"`` etc. # TODO: improve after Channel input refactor https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/386",
             "title": "Allowed Channels",
             "type": "object"
           },
           "coarsening_xy": {
             "default": 2,
-            "description": "Linear coarsening factor between subsequent levels",
+            "description": "Linear coarsening factor between subsequent levels. If set to 2, level 1 is 2x downsampled, level 2 is 4x downsampled etc.",
             "title": "Coarsening Xy",
             "type": "integer"
           },
           "image_extension": {
             "default": "tif",
-            "description": "Filename extension of images (e.g. `tif` or `png`)",
+            "description": "Filename extension of images (e.g. `\"tif\"` or `\"png\"`)",
             "title": "Image Extension",
             "type": "string"
           },
           "image_glob_patterns": {
-            "description": "If specified, only parse images with filenames that match with all these patterns. Patterns must be defined as in https://docs.python.org/3/library/fnmatch.html, e.g. `image_glob_pattern=[\"*_B03_*\"]`.",
+            "description": "If specified, only parse images with filenames that match with all these patterns. Patterns must be defined as in https://docs.python.org/3/library/fnmatch.html, Example: ``image_glob_pattern=[\"*_B03_*\"]`` => only process well B03 ``image_glob_pattern=[\"*_C09_*\", \"*F016*\", \"*Z[0-5][0-9]C*\"]`` => only process well C09, field of view 16 and Z planes 0 - 59.",
             "items": {
               "type": "string"
             },
@@ -688,7 +688,7 @@
             "type": "array"
           },
           "input_paths": {
-            "description": "list of image folders for different acquisition cycles, e.g. in the form `[\"/path/cycle1/\", \"/path/cycle2/\"]`",
+            "description": "List of input paths where the image data from the microscope is stored (as TIF or PNG). Each element of the list is treated as another cycle of the multiplexing data, the cycles are ordered by their order in this list. Should point to the parent folder containing the images and the metadata files ``MeasurementData.mlf`` and ``MeasurementDetail.mrf`` (if present). Example: ``[\"/path/cycle1/\", \"/path/cycle2/\"]`` (standard argument for Fractal tasks, managed by Fractal server)",
             "items": {
               "type": "string"
             },
@@ -696,7 +696,7 @@
             "type": "array"
           },
           "metadata": {
-            "description": "standard fractal argument, not used in this task",
+            "description": "This parameter is not used by this task (standard argument for Fractal tasks, managed by Fractal server)",
             "title": "Metadata",
             "type": "object"
           },
@@ -716,17 +716,17 @@
               }
             ],
             "default": "mrf_mlf",
-            "description": "If equal to ``\"mrf_mlf\"``, parse Yokogawa metadata from mrf/mlf files in the ``input_paths`` folders; else, a dictionary of key-value pairs like ``(acquisition, path)`` with ``acquisition`` a string and ``path`` pointing to a csv file containing the parsed metadata table.",
+            "description": "If equal to ``\"mrf_mlf\"``, parse Yokogawa metadata from mrf/mlf files in the input_path folder; else, a dictionary of key-value pairs like ``(acquisition, path)`` with ``acquisition`` a string and ``path`` pointing to a csv file containing the parsed metadata table. # TODO: Improve after https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/399",
             "title": "Metadata Table"
           },
           "num_levels": {
-            "default": 2,
-            "description": "number of resolution-pyramid levels",
+            "default": 5,
+            "description": "Number of resolution-pyramid levels. If set to 5, there will be the full-resolution level and 4 levels of downsampled images.",
             "title": "Num Levels",
             "type": "integer"
           },
           "output_path": {
-            "description": "parent folder for the output path, e.g. `\"/outputpath/\"`",
+            "description": "Path were the output of this task is stored. Example: \"/some/path/\" => puts the new OME-Zarr file in the \"/some/path/\" (standard argument for Fractal tasks, managed by Fractal server)",
             "title": "Output Path",
             "type": "string"
           }
