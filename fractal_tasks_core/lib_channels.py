@@ -67,18 +67,40 @@ class ChannelWindow(BaseModel):
 
 
 class Channel(BaseModel):
+    """
+    Custom class, related to the omero channels in OME-NGFF v0.4.
+
+    Differences from OME-NGFF v0.4 specs
+    (https://ngff.openmicroscopy.org/0.4/#omero-md)
+
+        1. Additional attributes ``wavelength_id`` and ``index``.
+        2. We make ``color`` an optional attribute, since we have internal
+           logic to set its value.
+        3. We make the ``window`` attributes ``min` and ``max`` optional, since
+           we have interla logic to set their values.
+
+    :param wavelength_id: TBD
+    :param index: TBD
+    :param color: TBD
+    :param label: TBD
+    :param window: TBD
+    :param inverted: TBD
+    :param coefficient: TBD
+    :param active: TBD
+    :param family: TBD
+
+    """
+
     # Custom
     wavelength_id: str
     index: Optional[int]
 
-    colormap: Optional[str]
-    window: Optional[ChannelWindow]
+    # From OME-NGFF v0.4 transitional metadata
+    window: ChannelWindow
+    color: Optional[str]
     label: Optional[str]
-
-    # From the specs:
     active: bool = True
     family: str = "linear"
-    # From transitional metadata
     coefficient: int = 1
     inverted: bool = False
 
@@ -200,19 +222,23 @@ def get_channel_from_list(
     # Identify matching channels
     if label:
         if wavelength_id:
+            # Both label and wavelength_id are specified
             matching_channels = [
                 c
                 for c in channels
                 if (c.label == label and c.wavelength_id == wavelength_id)
             ]
         else:
+            # Only label is specified
             matching_channels = [c for c in channels if c.label == label]
     else:
         if wavelength_id:
+            # Only wavelength_id is specified
             matching_channels = [
                 c for c in channels if c.wavelength_id == wavelength_id
             ]
         else:
+            # Neither label or wavelength_id are specified
             raise ValueError(
                 "get_channel requires at least one in {label,wavelength_id} "
                 "arguments"
