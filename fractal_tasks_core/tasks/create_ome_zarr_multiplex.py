@@ -56,7 +56,7 @@ def create_ome_zarr_multiplex(
     image_extension: str = "tif",
     image_glob_patterns: Optional[list[str]] = None,
     allowed_channels: Dict[str, Sequence[Dict[str, Any]]],
-    num_levels: int = 2,
+    num_levels: int = 5,
     coarsening_xy: int = 2,
     metadata_table: Union[Literal["mrf_mlf"], Dict[str, str]] = "mrf_mlf",
 ) -> Dict[str, Any]:
@@ -67,29 +67,64 @@ def create_ome_zarr_multiplex(
     and build the internal structure and metadata of a OME-NGFF zarr group,
     without actually loading/writing the image data.
 
-    Each input_paths should be treated as a different acquisition
+    Each element in input_paths should be treated as a different acquisition
 
-    :param input_paths: list of image folders for different acquisition
-                        cycles, e.g. in the form `["/path/cycle1/",
-                        "/path/cycle2/"]`
-    :param output_path: parent folder for the output path, e.g.
-                        `"/outputpath/"`
-    :param metadata: standard fractal argument, not used in this task
-    :param image_extension: Filename extension of images (e.g. `tif` or `png`)
+    :param input_paths: List of input paths where the image data from
+                        the microscope is stored (as TIF or PNG).
+                        Each element of the list is treated as another cycle
+                        of the multiplexing data, the cycles are ordered by
+                        their order in this list.
+                        Should point to the parent folder containing the
+                        images and the metadata files ``MeasurementData.mlf``
+                        and ``MeasurementDetail.mrf`` (if present).
+                        Example: ``["/path/cycle1/", "/path/cycle2/"]``
+                        (standard argument for Fractal tasks,
+                        managed by Fractal server)
+    :param output_path: Path were the output of this task is stored.
+                        Example: "/some/path/" => puts the new OME-Zarr file
+                        in the "/some/path/"
+                        (standard argument for Fractal tasks,
+                        managed by Fractal server)
+    :param metadata: This parameter is not used by this task
+                     (standard argument for Fractal tasks,
+                     managed by Fractal server)
+    :param image_extension: Filename extension of images (e.g. `"tif"` or
+                            `"png"`)
     :param image_glob_patterns: If specified, only parse images with filenames
                                 that match with all these patterns. Patterns
                                 must be defined as in
                                 https://docs.python.org/3/library/fnmatch.html,
-                                e.g. `image_glob_pattern=["*_B03_*"]`.
-    :param allowed_channels: TBD
-    :param num_levels: number of resolution-pyramid levels
-    :param coarsening_xy: Linear coarsening factor between subsequent levels
+                                Example: ``image_glob_pattern=["*_B03_*"]``
+                                => only process well B03
+                                ``image_glob_pattern=["*_C09_*", "*F016*",
+                                "*Z[0-5][0-9]C*"]``
+                                => only process well C09, field of view 16
+                                and Z planes 0 - 59.
+    :param num_levels: Number of resolution-pyramid levels. If set to 5, there
+                       will be the full-resolution level and 4 levels of
+                       downsampled images.
+    :param coarsening_xy: Linear coarsening factor between subsequent levels.
+                          If set to 2, level 1 is 2x downsampled, level 2 is
+                          4x downsampled etc.
+    :param allowed_channels: A dictionary of channel dictionaries, where each
+                             channel must include the ``wavelength_id`` key
+                             and where the corresponding values should be
+                             unique across channels.
+                             Values are the integers of the channel order,
+                             i.e. ``"0"``, ``"1"`` etc.
+                             # TODO: improve after Channel input refactor
+                             https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/386
     :param metadata_table: If equal to ``"mrf_mlf"``, parse Yokogawa metadata
-                           from mrf/mlf files in the ``input_paths`` folders;
+                           from mrf/mlf files in the input_path folder;
                            else, a dictionary of key-value pairs like
                            ``(acquisition, path)`` with ``acquisition`` a
                            string and ``path`` pointing to a csv file
                            containing the parsed metadata table.
+                           # TODO: Improve after
+                           https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/399
+    :return: A metadata dictionary containing important metadata about the
+             OME-Zarr plate, the images and some parameters required by
+             downstream tasks (like `num_levels`).
     """
 
     # Preliminary checks on metadata_table
