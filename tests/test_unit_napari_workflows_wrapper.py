@@ -1,6 +1,8 @@
 import logging
 
 import pytest
+from devtools import debug
+from pydantic.error_wrappers import ValidationError
 
 from fractal_tasks_core.tasks.napari_workflows_wrapper import (
     napari_workflows_wrapper,
@@ -21,10 +23,10 @@ def test_input_specs(tmp_path, testdata_path):
     output_specs = {
         "output_label": {"type": "label", "label_name": "label_DAPI"}
     }
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         napari_workflows_wrapper(
-            input_paths=[tmp_path],
-            output_path=tmp_path,
+            input_paths=[str(tmp_path)],
+            output_path=str(tmp_path),
             metadata={},
             component="component",
             input_specs=input_specs,
@@ -48,12 +50,12 @@ def test_output_specs(tmp_path, testdata_path, caplog):
     input_specs = {
         "input_image": {"type": "image", "wavelength_id": "A01_C01"}
     }
-    output_specs = {"asd": "asd"}
+    output_specs = {"asd": {"asd": "asd"}}
 
     try:
         napari_workflows_wrapper(
-            input_paths=[tmp_path],
-            output_path=tmp_path,
+            input_paths=[str(tmp_path)],
+            output_path=str(tmp_path),
             metadata={},
             component="component",
             input_specs=input_specs,
@@ -61,10 +63,10 @@ def test_output_specs(tmp_path, testdata_path, caplog):
             workflow_file=workflow_file,
             input_ROI_table="FOV_ROI_table",
         )
-    except Exception:
+    except Exception as e:
         # The task will now fail for some other reason (its arguments are not
         # valid), but we only care about the warning
-        pass
+        debug(e)
 
     assert "WARNING" in caplog.text
     assert "Some item of wf.leafs" in caplog.text
@@ -94,8 +96,8 @@ def test_level_setting_in_non_labeling_worfklow(tmp_path, testdata_path):
 
     with pytest.raises(NotImplementedError):
         napari_workflows_wrapper(
-            input_paths=[tmp_path],
-            output_path=tmp_path,
+            input_paths=[str(tmp_path)],
+            output_path=str(tmp_path),
             metadata={},
             component="component",
             input_specs=input_specs,

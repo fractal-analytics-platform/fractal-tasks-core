@@ -24,6 +24,7 @@ from typing import Sequence
 import anndata as ad
 import zarr
 from anndata.experimental import write_elem
+from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
 from fractal_tasks_core.lib_regions_of_interest import (
@@ -37,6 +38,7 @@ logger = logging.getLogger(__name__)
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
 
+@validate_arguments
 def copy_ome_zarr(
     *,
     input_paths: Sequence[str],
@@ -219,6 +221,5 @@ if __name__ == "__main__":
 
     run_fractal_task(
         task_function=copy_ome_zarr,
-        coerce_and_validate=True,
         logger_name=logger.name,
     )
