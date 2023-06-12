@@ -115,7 +115,7 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
                 )
                 zattrs["multiscales"][0]["datasets"][ind] = new_ds
             with zattrs_path.open("w") as f:
-                json.dump(zattrs, f)
+                json.dump(zattrs, f, indent=2)
 
     folders = [str(f) for f in folders]
 
