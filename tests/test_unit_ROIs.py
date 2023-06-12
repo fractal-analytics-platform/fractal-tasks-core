@@ -311,18 +311,10 @@ shapes = [
     ((100, 100), (slice(0, 1), slice(0, 100), slice(0, 100)), (1, 100, 100)),
 ]
 
-region_params = []
-for shape in shapes:
-    for compute in [True, False]:
-        for return_as_3D in [True, False]:
-            region_params.append(
-                (shape[0], shape[1], shape[2], compute, return_as_3D)
-            )
 
-
-@pytest.mark.parametrize(
-    "input_shape,region,expected_shape,compute,return_as_3D", region_params
-)
+@pytest.mark.parametrize("input_shape,region,expected_shape", shapes)
+@pytest.mark.parametrize("compute", [True, False])
+@pytest.mark.parametrize("return_as_3D", [True, False])
 def test_load_region(
     input_shape, region, expected_shape, compute, return_as_3D
 ):
