@@ -321,6 +321,23 @@
     {
       "args_schema": {
         "additionalProperties": false,
+        "definitions": {
+          "CellposeSegmentationChannel": {
+            "description": "TBD",
+            "properties": {
+              "label": {
+                "title": "Label",
+                "type": "string"
+              },
+              "wavelength_id": {
+                "title": "Wavelength Id",
+                "type": "string"
+              }
+            },
+            "title": "CellposeSegmentationChannel",
+            "type": "object"
+          }
+        },
         "properties": {
           "anisotropy": {
             "description": "Ratio of the pixel sizes along Z and XY axis (ignored if the image is not three-dimensional). If `None`, it is inferred from the OME-NGFF metadata.",
@@ -339,15 +356,13 @@
             "title": "Cellprob Threshold",
             "type": "number"
           },
-          "channel_label": {
-            "description": "Identifier of a channel based on its label (e.g. ``DAPI``). If not ``None``, then ``wavelength_id`` must be ``None``.",
-            "title": "Channel Label",
-            "type": "string"
+          "channel": {
+            "$ref": "#/definitions/CellposeSegmentationChannel",
+            "description": "TBD wavelength_id: Identifier of a channel based on the wavelength (e.g. ``A01_C01``). If not ``None``, then ``label` must be ``None``.  Identifier of a channel based on its label (e.g.  ``DAPI``). If not ``None``, then ``wavelength_id`` must be ``None``."
           },
-          "channel_label_c2": {
-            "description": "Identifier of a second channel in the same format as the first wavelength_id. If specified, cellpose runs in dual channel mode.  For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker.",
-            "title": "Channel Label C2",
-            "type": "string"
+          "channel2": {
+            "$ref": "#/definitions/CellposeSegmentationChannel",
+            "description": "TBD Identifier of a second channel in the same format as the first wavelength_id. If specified, cellpose runs in dual channel mode.  For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker. Identifier of a second channel in the same format as the first wavelength_id. If specified, cellpose runs in dual channel mode.  For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker."
           },
           "component": {
             "description": "Path to the OME-Zarr image in the OME-Zarr plate that is processed. Example: \"some_plate.zarr/B/03/0\" (standard argument for Fractal tasks, managed by Fractal server)",
@@ -445,16 +460,6 @@
             "description": "If ``True``, try to use masked loading and fall back to ``use_masks=False`` if the ROI table is not suitable. Masked loading is relevant when only a subset of the bounding box should actually be processed (e.g. running within organoid_ROI_table).",
             "title": "Use Masks",
             "type": "boolean"
-          },
-          "wavelength_id": {
-            "description": "Identifier of a channel based on the wavelength (e.g. ``A01_C01``). If not ``None``, then ``channel_label` must be ``None``.",
-            "title": "Wavelength Id",
-            "type": "string"
-          },
-          "wavelength_id_c2": {
-            "description": "Identifier of a second channel in the same format as the first wavelength_id. If specified, cellpose runs in dual channel mode.  For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker.",
-            "title": "Wavelength Id C2",
-            "type": "string"
           }
         },
         "required": [
@@ -462,7 +467,8 @@
           "output_path",
           "component",
           "metadata",
-          "level"
+          "level",
+          "channel"
         ],
         "title": "CellposeSegmentation",
         "type": "object"

@@ -36,6 +36,7 @@ from cellpose import models
 from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
+from fractal_tasks_core.lib_channels import Channel
 from fractal_tasks_core.lib_channels import ChannelNotFoundError
 from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
 from fractal_tasks_core.lib_masked_loading import masked_loading_wrapper
@@ -51,6 +52,7 @@ from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
 from fractal_tasks_core.lib_ROI_overlaps import get_overlapping_pairs_3D
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
+from fractal_tasks_core.tasks._input_models import CellposeSegmentationChannel
 
 logger = logging.getLogger(__name__)
 
@@ -151,10 +153,8 @@ def cellpose_segmentation(
     metadata: Dict[str, Any],
     # Task-specific arguments
     level: int,
-    wavelength_id: Optional[str] = None,
-    channel_label: Optional[str] = None,
-    wavelength_id_c2: Optional[str] = None,
-    channel_label_c2: Optional[str] = None,
+    channel: CellposeSegmentationChannel,
+    channel2: Optional[CellposeSegmentationChannel] = None,
     input_ROI_table: str = "FOV_ROI_table",
     output_ROI_table: Optional[str] = None,
     output_label_name: Optional[str] = None,
@@ -203,24 +203,23 @@ def cellpose_segmentation(
                      managed by Fractal server)
     :param level: Pyramid level of the image to be segmented. Choose 0 to
                   process at full resolution.
-    :param wavelength_id: Identifier of a channel based on the
-                          wavelength (e.g. ``A01_C01``). If not ``None``, then
-                          ``channel_label` must be ``None``.
-    :param channel_label: Identifier of a channel based on its label (e.g.
-                          ``DAPI``). If not ``None``, then ``wavelength_id``
-                          must be ``None``.
-    :param wavelength_id_c2: Identifier of a second channel in the same format
-                             as the first wavelength_id. If specified, cellpose
-                             runs in dual channel mode.  For dual channel
-                             segmentation of cells, the first channel should
-                             contain the membrane marker, the second channel
-                             should contain the nuclear marker.
-    :param channel_label_c2: Identifier of a second channel in the same
-                             format as the first wavelength_id. If specified,
-                             cellpose runs in dual channel mode.  For dual
-                             channel segmentation of cells, the first channel
-                             should contain the membrane marker, the second
-                             channel should contain the nuclear marker.
+    :param channel: TBD
+                    wavelength_id: Identifier of a channel based on the
+                    wavelength (e.g. ``A01_C01``). If not ``None``, then
+                    ``label` must be ``None``.  Identifier of a channel
+                    based on its label (e.g.  ``DAPI``). If not ``None``, then
+                    ``wavelength_id`` must be ``None``.
+    :param channel2: TBD
+                     Identifier of a second channel in the same format as the
+                     first wavelength_id. If specified, cellpose runs in dual
+                     channel mode.  For dual channel segmentation of cells, the
+                     first channel should contain the membrane marker, the
+                     second channel should contain the nuclear marker.
+                     Identifier of a second channel in the same format as the
+                     first wavelength_id. If specified, cellpose runs in dual
+                     channel mode.  For dual channel segmentation of cells, the
+                     first channel should contain the membrane marker, the
+                     second channel should contain the nuclear marker.
     :param input_ROI_table: Name of the ROI table over which the task loops
                             to apply Cellpose segmentation.
                             Example: "FOV_ROI_table" => loop over the field of
@@ -294,15 +293,6 @@ def cellpose_segmentation(
     zarrurl = (in_path.resolve() / component).as_posix()
     logger.info(f"{zarrurl=}")
 
-    # Preliminary check
-    if (channel_label is None and wavelength_id is None) or (
-        channel_label and wavelength_id
-    ):
-        raise ValueError(
-            f"One and only one of {channel_label=} and "
-            f"{wavelength_id=} arguments must be provided"
-        )
-
     # Preliminary checks on Cellpose model
     if pretrained_model is None:
         if model_type not in models.MODEL_NAMES:
@@ -319,10 +309,10 @@ def cellpose_segmentation(
 
     # Find channel index
     try:
-        channel = get_channel_from_image_zarr(
+        tmp_channel: Channel = get_channel_from_image_zarr(
             image_zarr_path=zarrurl,
-            wavelength_id=wavelength_id,
-            label=channel_label,
+            wavelength_id=channel.wavelength_id,
+            label=channel.label,
         )
     except ChannelNotFoundError as e:
         logger.warning(
@@ -330,30 +320,30 @@ def cellpose_segmentation(
             f"Original error: {str(e)}"
         )
         return {}
-    ind_channel = channel.index
+    ind_channel = tmp_channel.index
 
     # Find channel index for second channel, if one is provided
-    if wavelength_id_c2 or channel_label_c2:
+    if channel2:
         try:
-            channel_c2 = get_channel_from_image_zarr(
+            tmp_channel_c2: Channel = get_channel_from_image_zarr(
                 image_zarr_path=zarrurl,
-                wavelength_id=wavelength_id_c2,
-                label=channel_label_c2,
+                wavelength_id=channel2.wavelength_id,
+                label=channel2.label,
             )
         except ChannelNotFoundError as e:
             logger.warning(
-                f"Second channel with wavelength_id_c2:{wavelength_id_c2} and "
-                f"channel_label_c2: {channel_label_c2} not found, exit "
+                f"Second channel with wavelength_id: {channel2.wavelength_id} "
+                f"and channel_label: {channel2.channel_label} not found, exit "
                 "from the task.\n"
                 f"Original error: {str(e)}"
             )
             return {}
-        ind_channel_c2 = channel_c2.index
+        ind_channel_c2 = tmp_channel_c2.index
 
     # Set channel label
     if output_label_name is None:
         try:
-            channel_label = channel.label
+            channel_label = tmp_channel.label
             output_label_name = f"label_{channel_label}"
         except (KeyError, IndexError):
             output_label_name = f"label_{ind_channel}"
@@ -361,7 +351,7 @@ def cellpose_segmentation(
     # Load ZYX data
     data_zyx = da.from_zarr(f"{zarrurl}/{level}")[ind_channel]
     logger.info(f"{data_zyx.shape=}")
-    if wavelength_id_c2 or channel_label_c2:
+    if channel2:
         data_zyx_c2 = da.from_zarr(f"{zarrurl}/{level}")[ind_channel_c2]
         logger.info(f"Second channel: {data_zyx_c2.shape=}")
 
@@ -528,7 +518,7 @@ def cellpose_segmentation(
     logger.info("Total well shape/chunks:")
     logger.info(f"{data_zyx.shape}")
     logger.info(f"{data_zyx.chunks}")
-    if wavelength_id_c2 or channel_label_c2:
+    if channel2:
         logger.info("Dual channel input for cellpose model")
         logger.info(f"{data_zyx_c2.shape}")
         logger.info(f"{data_zyx_c2.chunks}")
@@ -555,7 +545,7 @@ def cellpose_segmentation(
         logger.info(f"Now processing ROI {i_ROI+1}/{num_ROIs}")
 
         # Prepare single-channel or dual-channel input for cellpose
-        if wavelength_id_c2 or channel_label_c2:
+        if channel2:
             # Dual channel mode, first channel is the membrane channel
             img_np = np.zeros((2, *data_zyx[region].shape))
             img_np[0, :, :, :] = data_zyx[region].compute()

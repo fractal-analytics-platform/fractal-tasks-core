@@ -203,14 +203,14 @@ def test_failures(
         # Attempt 1
         cellpose_segmentation(
             **kwargs,
-            wavelength_id="invalid_wavelength_id",
+            channel=dict(wavelength_id="invalid_wavelength_id"),
         )
         assert "ChannelNotFoundError" in caplog.records[0].msg
 
         # Attempt 2
         cellpose_segmentation(
             **kwargs,
-            channel_label="invalid_channel_name",
+            channel=dict(label="invalid_channel_name"),
         )
         assert "ChannelNotFoundError" in caplog.records[0].msg
         assert "ChannelNotFoundError" in caplog.records[1].msg
@@ -219,8 +219,10 @@ def test_failures(
         with pytest.raises(ValueError):
             cellpose_segmentation(
                 **kwargs,
-                wavelength_id="A01_C01",
-                channel_label="invalid_channel_name",
+                channel=dict(
+                    wavelength_id="A01_C01",
+                    label="invalid_channel_name",
+                ),
             )
 
 
@@ -262,7 +264,7 @@ def test_workflow_with_per_FOV_labeling(
             output_path=str(zarr_path),
             metadata=metadata,
             component=component,
-            wavelength_id="A01_C01",
+            channel=dict(wavelength_id="A01_C01"),
             level=3,
             relabeling=True,
             diameter_level0=80.0,
@@ -322,8 +324,8 @@ def test_workflow_with_multi_channel_input(
             output_path=str(zarr_path),
             metadata=metadata,
             component=component,
-            wavelength_id="A01_C01",
-            wavelength_id_c2="A01_C01",
+            channel=dict(wavelength_id="A01_C01"),
+            channel2=dict(wavelength_id="A01_C01"),
             level=3,
             relabeling=True,
             diameter_level0=80.0,
@@ -379,7 +381,7 @@ def test_workflow_with_per_FOV_labeling_2D(
             output_path=str(zarr_path_mip),
             metadata=metadata,
             component=component,
-            wavelength_id="A01_C01",
+            channel=dict(wavelength_id="A01_C01"),
             level=2,
             relabeling=True,
             diameter_level0=80.0,
@@ -471,7 +473,7 @@ def test_workflow_with_per_well_labeling_2D(
             output_path=str(zarr_path_mip),
             metadata=metadata,
             component=component,
-            wavelength_id="A01_C01",
+            channel=dict(wavelength_id="A01_C01"),
             level=2,
             input_ROI_table="well_ROI_table",
             relabeling=True,
@@ -529,7 +531,7 @@ def test_workflow_bounding_box(
             output_path=str(zarr_path),
             metadata=metadata,
             component=component,
-            wavelength_id="A01_C01",
+            channel=dict(wavelength_id="A01_C01"),
             level=3,
             relabeling=True,
             diameter_level0=80.0,
@@ -585,7 +587,7 @@ def test_workflow_bounding_box_with_overlap(
             output_path=str(zarr_path),
             metadata=metadata,
             component=component,
-            wavelength_id="A01_C01",
+            channel=dict(wavelength_id="A01_C01"),
             level=3,
             relabeling=True,
             diameter_level0=80.0,
@@ -627,7 +629,7 @@ def test_workflow_with_per_FOV_labeling_via_script(
         output_path=str(zarr_path),
         metadata=metadata,
         component=metadata["image"][0],
-        wavelength_id="A01_C01",
+        channel=dict(wavelength_id="A01_C01"),
         level=4,
         relabeling=True,
         diameter_level0=80.0,
@@ -701,7 +703,7 @@ def test_workflow_with_per_FOV_labeling_with_empty_FOV_table(
             metadata=metadata,
             component=component,
             input_ROI_table=TABLE_NAME,
-            wavelength_id="A01_C01",
+            channel=dict(wavelength_id="A01_C01"),
             level=3,
             relabeling=True,
             diameter_level0=80.0,
