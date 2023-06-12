@@ -13,6 +13,7 @@ Copyright 2022 (C)
 
 Pydantic models for some task parameters
 """
+from typing import Literal
 from typing import Optional
 
 from pydantic import BaseModel
@@ -57,9 +58,31 @@ class CellposeSegmentationChannel(BaseChannel):
     pass
 
 
-class NapariWorkflowsChannel(BaseModel):
+class NapariWorkflowsInputSpecsItem(BaseModel):
     """
     TBD
     """
 
-    pass
+    type: Literal["image", "label"]
+    channel: BaseChannel
+
+
+class NapariWorkflowsOutputSpecsItem(BaseModel):
+    """
+    TBD
+    """
+
+    type: Literal["label", "dataframe"]
+    channel: BaseChannel
+    label_name: Optional[str] = None
+    table_name: Optional[str] = None
+
+    @validator("label_name", always=True)
+    def label_name_only_for_label_type(cls, v, values):
+        # FIXME
+        pass
+
+    @validator("table_name", always=True)
+    def table_name_only_for_dataframe_type(cls, v, values):
+        # FIXME
+        pass
