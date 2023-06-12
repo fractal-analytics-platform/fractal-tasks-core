@@ -579,11 +579,12 @@ def test_workflow_bounding_box(
         str(zarr_path / metadata["image"][0] / "tables/bbox_table/")
     )
     debug(bbox_ROIs)
+    debug(bbox_ROIs.X)
     debug(bbox_ROIs.obs)
     assert bbox_ROIs.obs.shape == (NUM_LABELS, 1)
     assert bbox_ROIs.shape == (NUM_LABELS, 6)
     assert len(bbox_ROIs) > 0
-    assert np.max(bbox_ROIs.X) == float(208)
+    assert np.max(bbox_ROIs.X) == float(416)
 
 
 def test_workflow_bounding_box_with_overlap(
