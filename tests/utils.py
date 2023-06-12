@@ -75,7 +75,6 @@ def validate_axes_and_coordinateTransformations(image_zarr: Path):
             continue
         else:
             assert len(transformation["scale"]) == len(axes)
-    raise
 
 
 def validate_labels_and_measurements(
