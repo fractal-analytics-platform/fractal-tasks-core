@@ -29,9 +29,10 @@ from anndata.experimental import write_elem
 from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
+from fractal_tasks_core.lib_channels import Channel
+from fractal_tasks_core.lib_channels import check_unique_wavelength_ids
 from fractal_tasks_core.lib_channels import check_well_channel_labels
 from fractal_tasks_core.lib_channels import define_omero_channels
-from fractal_tasks_core.lib_channels import validate_allowed_channel_input
 from fractal_tasks_core.lib_glob import glob_with_multiple_patterns
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
@@ -55,7 +56,7 @@ def create_ome_zarr_multiplex(
     metadata: Dict[str, Any],
     image_extension: str = "tif",
     image_glob_patterns: Optional[list[str]] = None,
-    allowed_channels: Dict[str, Sequence[Dict[str, Any]]],
+    allowed_channels: Dict[str, list[Channel]],
     num_levels: int = 5,
     coarsening_xy: int = 2,
     metadata_table: Union[Literal["mrf_mlf"], Dict[str, str]] = "mrf_mlf",
@@ -162,7 +163,7 @@ def create_ome_zarr_multiplex(
     for key, value in allowed_channels.items():
         if not isinstance(key, str):
             raise ValueError(f"{allowed_channels=} has non-string keys")
-        validate_allowed_channel_input(value)
+        check_unique_wavelength_ids(value)
 
     # Identify all plates and all channels, per input folders
     dict_acquisitions: Dict = {}
@@ -226,7 +227,7 @@ def create_ome_zarr_multiplex(
 
         # Check that all channels are in the allowed_channels
         allowed_wavelength_ids = [
-            c["wavelength_id"] for c in allowed_channels[acquisition]
+            c.wavelength_id for c in allowed_channels[acquisition]
         ]
         if not set(actual_wavelength_ids).issubset(
             set(allowed_wavelength_ids)
@@ -241,7 +242,7 @@ def create_ome_zarr_multiplex(
         actual_channels = [
             channel
             for channel in allowed_channels[acquisition]
-            if channel["wavelength_id"] in actual_wavelength_ids
+            if channel.wavelength_id in actual_wavelength_ids
         ]
 
         logger.info(f"plate: {plate}")

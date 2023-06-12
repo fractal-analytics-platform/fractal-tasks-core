@@ -30,6 +30,7 @@ import zarr
 from pydantic.decorator import validate_arguments
 from skimage.io import imread
 
+from fractal_tasks_core.lib_channels import Channel
 from fractal_tasks_core.lib_channels import get_omero_channel_list
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
@@ -196,7 +197,9 @@ def illumination_correction(
     logger.info(f"  {zarrurl_new=}")
 
     # Read channels from .zattrs
-    channels = get_omero_channel_list(image_zarr_path=zarrurl_old)
+    channels: list[Channel] = get_omero_channel_list(
+        image_zarr_path=zarrurl_old
+    )
     num_channels = len(channels)
 
     # Read FOV ROIs
@@ -237,7 +240,7 @@ def illumination_correction(
     # Assemble dictionary of matrices and check their shapes
     corrections = {}
     for channel in channels:
-        wavelength_id = channel["wavelength_id"]
+        wavelength_id = channel.wavelength_id
         corrections[wavelength_id] = imread(
             root_path_corr + dict_corr[wavelength_id]
         )
@@ -284,7 +287,7 @@ def illumination_correction(
             # Execute illumination correction
             corrected_fov = correct(
                 data_czyx[region].compute(),
-                corrections[channel["wavelength_id"]],
+                corrections[channel.wavelength_id],
                 background=background,
             )
             # Write to disk

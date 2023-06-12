@@ -24,7 +24,9 @@ def test_create_ome_zarr(tmp_path, testdata_path):
     input_paths = [str(testdata_path / "png/")]
     output_path = str(tmp_path)
     args = {}
-    args["allowed_channels"] = [{"wavelength_id": "A01_C01"}]
+    args["allowed_channels"] = [
+        {"wavelength_id": "A01_C01", "window": dict(start=0, end=1000)}
+    ]
     args["image_extension"] = "png"
 
     debug(input_paths)
@@ -55,7 +57,9 @@ def test_run_fractal_tasks(tmp_path, testdata_path, monkeypatch):
     args = {}
     args["input_paths"] = [str(testdata_path / "png/")]
     args["output_path"] = str(tmp_path)
-    args["allowed_channels"] = [{"wavelength_id": "A01_C01"}]
+    args["allowed_channels"] = [
+        {"wavelength_id": "A01_C01", "window": dict(start=0, end=1000)}
+    ]
     args["image_extension"] = "png"
     args["metadata"] = {}
     debug(args)

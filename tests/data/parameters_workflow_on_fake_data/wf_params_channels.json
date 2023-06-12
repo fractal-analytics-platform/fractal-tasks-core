@@ -1,8 +1,9 @@
 {
     "A01_C01": {
         "label": "DAPI",
-        "colormap": "00FFFF",
+        "color": "00FFFF",
+        "window": {
         "start": 0,
-        "end": 700
+        "end": 700}
     }
 }

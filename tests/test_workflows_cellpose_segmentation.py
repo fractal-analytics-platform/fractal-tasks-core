@@ -49,23 +49,20 @@ allowed_channels = [
     {
         "label": "DAPI",
         "wavelength_id": "A01_C01",
-        "colormap": "00FFFF",
-        "start": 0,
-        "end": 700,
+        "color": "00FFFF",
+        "window": {"start": 0, "end": 700},
     },
     {
         "wavelength_id": "A01_C02",
         "label": "nanog",
-        "colormap": "FF00FF",
-        "start": 0,
-        "end": 180,
+        "color": "FF00FF",
+        "window": {"start": 0, "end": 180},
     },
     {
         "wavelength_id": "A02_C03",
         "label": "Lamin B1",
-        "colormap": "FFFF00",
-        "start": 0,
-        "end": 1500,
+        "color": "FFFF00",
+        "window": {"start": 0, "end": 1500},
     },
 ]
 

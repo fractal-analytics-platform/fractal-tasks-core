@@ -34,21 +34,18 @@ from fractal_tasks_core.tasks.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 single_cycle_allowed_channels_no_label = [
     {
         "wavelength_id": "A01_C01",
-        "colormap": "00FFFF",
-        "start": 0,
-        "end": 700,
+        "color": "00FFFF",
+        "window": {"start": 0, "end": 700},
     },
     {
         "wavelength_id": "A01_C02",
-        "colormap": "FF00FF",
-        "start": 0,
-        "end": 180,
+        "color": "FF00FF",
+        "window": {"start": 0, "end": 180},
     },
     {
         "wavelength_id": "A02_C03",
-        "colormap": "FFFF00",
-        "start": 0,
-        "end": 1500,
+        "color": "FFFF00",
+        "window": {"start": 0, "end": 1500},
     },
 ]
 

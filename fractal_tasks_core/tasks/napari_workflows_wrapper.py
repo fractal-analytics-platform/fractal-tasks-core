@@ -256,7 +256,7 @@ def napari_workflows_wrapper(
                 wavelength_id=params.get("wavelength_id", None),
                 label=params.get("channel_label", None),
             )
-            channel_index = channel["index"]
+            channel_index = channel.index
             input_image_arrays[name] = img_array[channel_index]
 
             # Handle dimensions
