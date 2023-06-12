@@ -27,6 +27,9 @@ import pandas as pd
 import zarr
 
 
+logger = logging.getLogger(__name__)
+
+
 def prepare_FOV_ROI_table(
     df: pd.DataFrame, metadata: list[str] = ["time"]
 ) -> ad.AnnData:
@@ -220,6 +223,8 @@ def convert_ROI_table_to_indices(
     if len(ROI) == 0:
         return []
 
+    logger.info(f"{full_res_pxl_sizes_zyx=}")
+
     # Set pyramid-level pixel sizes
     pxl_size_z, pxl_size_y, pxl_size_x = full_res_pxl_sizes_zyx
     prefactor = coarsening_xy**level
@@ -392,7 +397,7 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
     # Soft constraint: the table can be used for masked loading (if not, return
     # False)
     attrs = zarr.group(table_path).attrs
-    logging.info(f"ROI table at {table_path} has attrs: {attrs}")
+    logger.info(f"ROI table at {table_path} has attrs: {attrs.asdict()}")
     valid = set(("type", "region", "instance_key")).issubset(attrs.keys())
     if valid:
         valid = valid and attrs["type"] == "ngff:region_table"

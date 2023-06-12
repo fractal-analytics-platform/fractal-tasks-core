@@ -386,9 +386,11 @@ def cellpose_segmentation(
     full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
         f"{zarrurl}/.zattrs", level=0
     )
+    logger.info(f"{full_res_pxl_sizes_zyx=}")
     actual_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
         f"{zarrurl}/.zattrs", level=level
     )
+    logger.info(f"{actual_res_pxl_sizes_zyx=}")
 
     # Heuristic to determine reset_origin   # FIXME, see issue #339
     if input_ROI_table in ["FOV_ROI_table", "well_ROI_table"]:
