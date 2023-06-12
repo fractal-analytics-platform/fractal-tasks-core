@@ -462,6 +462,7 @@ def napari_workflows_wrapper(
                 datasets=multiscales[0]["datasets"],
                 coarsening_xy=coarsening_xy,
                 reference_level=level,
+                remove_channel_axis=True,
             )
             # (1b) Write zattrs for specific label
             label_group = labels_group.create_group(label_name)

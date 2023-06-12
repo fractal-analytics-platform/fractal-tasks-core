@@ -458,6 +458,7 @@ def cellpose_segmentation(
         datasets=multiscales[0]["datasets"],
         coarsening_xy=coarsening_xy,
         reference_level=level,
+        remove_channel_axis=True,
     )
 
     # Write zattrs for labels and for specific label
