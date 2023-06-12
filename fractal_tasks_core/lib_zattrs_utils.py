@@ -58,16 +58,16 @@ def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0) -> List[float]:
         transformations = datasets[level]["coordinateTransformations"]
         for t in transformations:
             if t["type"] == "scale":
-                pixel_sizes = t["scale"]
+                # FIXME: Using [-3:] indices is a hack to deal with the fact
+                # that the coordinationTransformation can contain additional
+                # entries (e.g. scaling for the channels)
+                # https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/420
+                pixel_sizes = t["scale"][-3:]
                 if min(pixel_sizes) < 1e-9:
                     raise ValueError(
                         f"pixel_sizes in {zattrs_path} are {pixel_sizes}"
                     )
-                # FIXME: this is a hack to deal with the fact that the
-                # coordinationTransformation can contain additional entries
-                # (e.g. scaling for the channels)
-                # https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/420
-                return pixel_sizes[-3:]
+                return pixel_sizes
 
         raise Exception(
             "ERROR:"
