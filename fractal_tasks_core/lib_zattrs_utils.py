@@ -40,7 +40,9 @@ def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0) -> List[float]:
 
         # Check that there is a single multiscale
         if len(multiscales) > 1:
-            raise Exception(f"ERROR: There are {len(multiscales)} multiscales")
+            raise ValueError(
+                f"ERROR: There are {len(multiscales)} multiscales"
+            )
 
         # Check that there are no datasets-global transformations
         if "coordinateTransformations" in multiscales[0].keys():
@@ -58,7 +60,7 @@ def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0) -> List[float]:
             if t["type"] == "scale":
                 pixel_sizes = t["scale"]
                 if min(pixel_sizes) < 1e-9:
-                    raise Exception(
+                    raise ValueError(
                         f"ERROR: pixel_sizes in {zattrs_path} are", pixel_sizes
                     )
                 # FIXME: this is a hack to deal with the fact that the
