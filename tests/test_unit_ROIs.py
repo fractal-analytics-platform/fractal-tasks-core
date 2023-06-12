@@ -328,3 +328,24 @@ def test_load_region(
     if return_as_3D is False and len(da_array.shape) == 2:
         expected_shape = expected_shape[1:]
     assert output.shape == expected_shape
+
+
+def test_load_region_fail():
+    with pytest.raises(ValueError) as e:
+        load_region(
+            data_zyx=da.ones((2, 3)),
+            region=(slice(0, 1), slice(0, 1)),
+        )
+    debug(e.value)
+    with pytest.raises(ValueError) as e:
+        load_region(
+            data_zyx=da.ones((2,)),
+            region=(slice(0, 1), slice(0, 1), slice(0, 1)),
+        )
+    debug(e.value)
+    with pytest.raises(ValueError) as e:
+        load_region(
+            data_zyx=da.ones((2, 3, 4, 5)),
+            region=(slice(0, 1), slice(0, 1), slice(0, 1)),
+        )
+    debug(e.value)

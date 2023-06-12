@@ -416,12 +416,18 @@ def load_region(
     always as a 3D array
 
     :param data_zyx: dask array, 2D or 3D
-    :param region: region to load, tuple of slices
+    :param region: region to load, tuple of three slices (ZYX)
     :param compute: whether to compute the result. If True, returns a numpy
                     array. If False, returns a dask array.
     :return_as_3D: whether to return a 3D array, even if the input is 2D
     :return: 3D array
     """
+
+    if len(region) != 3:
+        raise ValueError(
+            f"In `load_region`, `region` must have three elements "
+            f"(given: {len(region)})."
+        )
 
     if len(data_zyx.shape) == 3:
         img = data_zyx[region]
@@ -429,6 +435,10 @@ def load_region(
         img = data_zyx[(region[1], region[2])]
         if return_as_3D:
             img = np.expand_dims(img, axis=0)
+    else:
+        raise ValueError(
+            f"Shape {data_zyx.shape} not supported for `load_region`"
+        )
     if compute:
         return img.compute()
     else:
