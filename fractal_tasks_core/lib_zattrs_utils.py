@@ -52,7 +52,7 @@ def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0) -> List[float]:
         axes = [ax["name"] for ax in multiscales[0]["axes"]]
         if "z" not in axes:
             logger.warning(
-                "Z axis is not present in {axes=}. This case may work "
+                f"Z axis is not present in {axes=}. This case may work "
                 "by accident, but it is not fully supported."
             )
 
