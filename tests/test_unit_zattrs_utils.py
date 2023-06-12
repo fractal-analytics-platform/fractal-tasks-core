@@ -81,6 +81,24 @@ def test_extract_zyx_pixel_sizes(tmp_path):
     debug(out)
     assert out == [2, 2, 2]
 
+    # Case 6: fail because pixel sizes are too small
+    metadata = dict(
+        multiscales=[
+            dict(
+                datasets=[
+                    dict(
+                        coordinateTransformations=[
+                            dict(type="scale", scale=[2, 2, 1e-20])
+                        ]
+                    )
+                ]
+            )
+        ]
+    )
+    with pytest.raises(ValueError) as e:
+        _call_extract_zyx_pixel_sizes(metadata)
+    debug(e.value)
+
 
 def test_rescale_datasets(tmp_path):
     """
