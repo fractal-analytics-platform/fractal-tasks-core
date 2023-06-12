@@ -24,6 +24,7 @@ from devtools import debug
 
 from .lib_empty_ROI_table import _add_empty_ROI_table
 from .utils import check_file_number
+from .utils import validate_axes_and_coordinateTransformations
 from .utils import validate_labels_and_measurements
 from .utils import validate_schema
 from fractal_tasks_core.tasks.napari_workflows_wrapper import (
@@ -146,6 +147,8 @@ def test_napari_workflow(
     validate_labels_and_measurements(
         image_zarr, label_name="label_DAPI", table_name="regionprops_DAPI"
     )
+    validate_axes_and_coordinateTransformations(image_zarr)
+    validate_axes_and_coordinateTransformations(label_zarr)
 
     # Load measurements
     meas = ad.read_zarr(
