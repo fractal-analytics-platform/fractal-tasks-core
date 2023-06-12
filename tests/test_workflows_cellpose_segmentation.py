@@ -681,7 +681,7 @@ def test_workflow_with_per_FOV_labeling_via_script(
     # Valid model_type -> should fail due to timeout
     this_task_args = dict(**task_args, model_type="nuclei")
     with args_path.open("w") as f:
-        json.dump(this_task_args, f)
+        json.dump(this_task_args, f, indent=2)
     with pytest.raises(subprocess.TimeoutExpired):
         res = subprocess.run(shlex.split(command), **run_options)
         print(res.stdout)
@@ -695,7 +695,7 @@ def test_workflow_with_per_FOV_labeling_via_script(
     INVALID_MODEL_TYPE = "something_wrong"
     this_task_args = dict(**task_args, model_type=INVALID_MODEL_TYPE)
     with args_path.open("w") as f:
-        json.dump(this_task_args, f)
+        json.dump(this_task_args, f, indent=2)
     res = subprocess.run(shlex.split(command), **run_options)
     print(res.stdout)
     print(res.stderr)
