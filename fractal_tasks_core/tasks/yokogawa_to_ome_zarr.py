@@ -27,6 +27,7 @@ from anndata import read_zarr
 from dask.array.image import imread
 from pydantic.decorator import validate_arguments
 
+from fractal_tasks_core.lib_channels import Channel
 from fractal_tasks_core.lib_channels import get_omero_channel_list
 from fractal_tasks_core.lib_glob import glob_with_multiple_patterns
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
@@ -136,8 +137,8 @@ def yokogawa_to_ome_zarr(
     image_extension = parameters["image_extension"]
     image_glob_patterns = parameters["image_glob_patterns"]
 
-    channels = get_omero_channel_list(image_zarr_path=zarrurl)
-    wavelength_ids = [c["wavelength_id"] for c in channels]
+    channels: list[Channel] = get_omero_channel_list(image_zarr_path=zarrurl)
+    wavelength_ids = [c.wavelength_id for c in channels]
 
     in_path = Path(original_path_list[0])
 

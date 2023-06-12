@@ -27,9 +27,10 @@ from anndata.experimental import write_elem
 from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
+from fractal_tasks_core.lib_channels import Channel
+from fractal_tasks_core.lib_channels import check_unique_wavelength_ids
 from fractal_tasks_core.lib_channels import check_well_channel_labels
 from fractal_tasks_core.lib_channels import define_omero_channels
-from fractal_tasks_core.lib_channels import validate_allowed_channel_input
 from fractal_tasks_core.lib_glob import glob_with_multiple_patterns
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
@@ -53,7 +54,7 @@ def create_ome_zarr(
     metadata: Dict[str, Any],
     image_extension: str = "tif",
     image_glob_patterns: Optional[list[str]] = None,
-    allowed_channels: Sequence[Dict[str, Any]],
+    allowed_channels: List[Channel],
     num_levels: int = 5,
     coarsening_xy: int = 2,
     metadata_table: str = "mrf_mlf",
@@ -138,7 +139,7 @@ def create_ome_zarr(
     dict_plate_prefixes: Dict[str, Any] = {}
 
     # Preliminary checks on allowed_channels argument
-    validate_allowed_channel_input(allowed_channels)
+    check_unique_wavelength_ids(allowed_channels)
 
     for in_path_str in input_paths:
         in_path = Path(in_path_str)
@@ -218,7 +219,7 @@ def create_ome_zarr(
 
     # Check that all channels are in the allowed_channels
     allowed_wavelength_ids = [
-        channel["wavelength_id"] for channel in allowed_channels
+        channel.wavelength_id for channel in allowed_channels
     ]
     if not set(actual_wavelength_ids).issubset(set(allowed_wavelength_ids)):
         msg = "ERROR in create_ome_zarr\n"
@@ -231,7 +232,7 @@ def create_ome_zarr(
     actual_channels = [
         channel
         for channel in allowed_channels
-        if channel["wavelength_id"] in actual_wavelength_ids
+        if channel.wavelength_id in actual_wavelength_ids
     ]
 
     zarrurls: Dict[str, List[str]] = {"plate": [], "well": [], "image": []}

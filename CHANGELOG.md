@@ -5,6 +5,8 @@
     * Create new `dev` subpackage (\#384).
     * Make tasks-related dependencies optional, and installable via `fractal-tasks` extra (\#390).
     * Remove `tools` package extra (\#384), and split the subpackage content into `lib_ROI_overlaps` and `examples` (\#390).
+* Define models for complex task arguments:
+    * Introduce `lib_channels.Channel` (\#410).
 * JSON Schemas for task arguments:
     * Add JSON schemas for task arguments in the package manifest (\#369, \#384).
     * Remove `TaskArguments` models and switch to Pydantic V1 `validate_arguments` (\#369).

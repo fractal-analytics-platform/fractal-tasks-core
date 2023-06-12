@@ -1,10 +1,12 @@
 [
     {
         "label": "label_1",
-        "wavelength_id": "wavelength_id_1"
+        "wavelength_id": "wavelength_id_1",
+        "window": {"start":0, "end": 700}
     },
     {
         "label": "label_2",
-        "wavelength_id": "wavelength_id_2"
+        "wavelength_id": "wavelength_id_2",
+        "window": {"start":0, "end": 180}
     }
 ]
