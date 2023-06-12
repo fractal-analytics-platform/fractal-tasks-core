@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="d_02c373974d9ed707_compress_tif_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.2.7">coverage.py v7.2.7</a>,
-            created at 2023-06-09 09:06 +0000
+            created at 2023-06-12 07:30 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -414,7 +414,7 @@
     <p class="pln"><span class="n"><a id="t330" href="#t330">330</a></span><span class="t">            <span class="str">f"Original error: {str(e)}"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t331" href="#t331">331</a></span><span class="t">        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t332" href="#t332">332</a></span><span class="t">        <span class="key">return</span> <span class="op">{</span><span class="op">}</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t333" href="#t333">333</a></span><span class="t">    <span class="nam">ind_channel</span> <span class="op">=</span> <span class="nam">channel</span><span class="op">[</span><span class="str">"index"</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t333" href="#t333">333</a></span><span class="t">    <span class="nam">ind_channel</span> <span class="op">=</span> <span class="nam">channel</span><span class="op">.</span><span class="nam">index</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t334" href="#t334">334</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t335" href="#t335">335</a></span><span class="t">    <span class="com"># Find channel index for second channel, if one is provided</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t336" href="#t336">336</a></span><span class="t">    <span class="key">if</span> <span class="nam">wavelength_id_c2</span> <span class="key">or</span> <span class="nam">channel_label_c2</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -432,12 +432,12 @@
     <p class="pln"><span class="n"><a id="t348" href="#t348">348</a></span><span class="t">                <span class="str">f"Original error: {str(e)}"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t349" href="#t349">349</a></span><span class="t">            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t350" href="#t350">350</a></span><span class="t">            <span class="key">return</span> <span class="op">{</span><span class="op">}</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t351" href="#t351">351</a></span><span class="t">        <span class="nam">ind_channel_c2</span> <span class="op">=</span> <span class="nam">channel_c2</span><span class="op">[</span><span class="str">"index"</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t351" href="#t351">351</a></span><span class="t">        <span class="nam">ind_channel_c2</span> <span class="op">=</span> <span class="nam">channel_c2</span><span class="op">.</span><span class="nam">index</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t352" href="#t352">352</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t353" href="#t353">353</a></span><span class="t">    <span class="com"># Set channel label</span>&nbsp;</span><span class="r"></span></p>
     <p class="par run show_par"><span class="n"><a id="t354" href="#t354">354</a></span><span class="t">    <span class="key">if</span> <span class="nam">output_label_name</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">354&#x202F;&#x219B;&#x202F;362</span><span class="annotate long">line 354 didn't jump to line 362, because the condition on line 354 was never false</span></span></p>
     <p class="run"><span class="n"><a id="t355" href="#t355">355</a></span><span class="t">        <span class="key">try</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t356" href="#t356">356</a></span><span class="t">            <span class="nam">channel_label</span> <span class="op">=</span> <span class="nam">channel</span><span class="op">[</span><span class="str">"label"</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t356" href="#t356">356</a></span><span class="t">            <span class="nam">channel_label</span> <span class="op">=</span> <span class="nam">channel</span><span class="op">.</span><span class="nam">label</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t357" href="#t357">357</a></span><span class="t">            <span class="nam">output_label_name</span> <span class="op">=</span> <span class="str">f"label_{channel_label}"</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t358" href="#t358">358</a></span><span class="t">        <span class="key">except</span> <span class="op">(</span><span class="nam">KeyError</span><span class="op">,</span> <span class="nam">IndexError</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t359" href="#t359">359</a></span><span class="t">            <span class="nam">output_label_name</span> <span class="op">=</span> <span class="str">f"label_{ind_channel}"</span>&nbsp;</span><span class="r"></span></p>
@@ -811,7 +811,7 @@
             <a id="nextFileLink" class="nav" href="d_02c373974d9ed707_compress_tif_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.2.7">coverage.py v7.2.7</a>,
-            created at 2023-06-09 09:06 +0000
+            created at 2023-06-12 07:30 +0000
         </p>
     </div>
 </footer>
