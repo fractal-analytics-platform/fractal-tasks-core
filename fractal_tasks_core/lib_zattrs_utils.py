@@ -47,7 +47,7 @@ def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0) -> List[float]:
         # Check that there are no datasets-global transformations
         if "coordinateTransformations" in multiscales[0].keys():
             raise NotImplementedError(
-                "global coordinateTransformations at the multiscales "
+                "Global coordinateTransformations at the multiscales "
                 "level are not currently supported"
             )
 
@@ -69,15 +69,13 @@ def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0) -> List[float]:
                     )
                 return pixel_sizes
 
-        raise Exception(
-            "ERROR:"
-            f" no scale transformation found for level {level}"
-            f" in {zattrs_path}"
+        raise ValueError(
+            f"No scale transformation found for level {level} in {zattrs_path}"
         )
 
     except KeyError as e:
         raise KeyError(
-            "extract_zyx_pixel_sizes_from_zattrs failed, for {zattrs_path}\n",
+            f"extract_zyx_pixel_sizes_from_zattrs failed, for {zattrs_path}\n",
             e,
         )
 
@@ -116,7 +114,7 @@ def rescale_datasets(
                 new_t: Dict[str, Any] = t.copy()
                 # Rescale last two dimensions (that is, Y and X)
                 prefactor = coarsening_xy**reference_level
-                new_t["scale"][-2] = new_t["scale"][-1] * prefactor
+                new_t["scale"][-2] = new_t["scale"][-2] * prefactor
                 new_t["scale"][-1] = new_t["scale"][-1] * prefactor
                 new_transformations.append(new_t)
             else:
