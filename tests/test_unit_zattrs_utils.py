@@ -30,7 +30,7 @@ def test_extract_zyx_pixel_sizes(tmp_path):
     assert "There are 2 multiscales" in str(e.value)
 
     # Case 2: fail for global coordinateTransformations
-    metadata = dict(multiscales=[dict(coordinateTransformations=[])])
+    metadata = dict(multiscales=[dict(axes=[], coordinateTransformations=[])])
     with pytest.raises(NotImplementedError) as e:
         _call_extract_zyx_pixel_sizes(metadata)
     debug(e.value)
@@ -38,7 +38,9 @@ def test_extract_zyx_pixel_sizes(tmp_path):
 
     # Case 3: fail for missing scale transformation
     metadata = dict(
-        multiscales=[dict(datasets=[dict(coordinateTransformations=[])])]
+        multiscales=[
+            dict(axes=[], datasets=[dict(coordinateTransformations=[])])
+        ]
     )
     with pytest.raises(ValueError) as e:
         _call_extract_zyx_pixel_sizes(metadata)
@@ -49,13 +51,14 @@ def test_extract_zyx_pixel_sizes(tmp_path):
     metadata = dict(
         multiscales=[
             dict(
+                axes=[],
                 datasets=[
                     dict(
                         coordinateTransformations=[
                             dict(type="scale", scale=[1, 2, 2, 2])
                         ]
                     )
-                ]
+                ],
             )
         ]
     )
@@ -67,13 +70,14 @@ def test_extract_zyx_pixel_sizes(tmp_path):
     metadata = dict(
         multiscales=[
             dict(
+                axes=[],
                 datasets=[
                     dict(
                         coordinateTransformations=[
                             dict(type="scale", scale=[2, 2, 2])
                         ]
                     )
-                ]
+                ],
             )
         ]
     )
@@ -85,13 +89,14 @@ def test_extract_zyx_pixel_sizes(tmp_path):
     metadata = dict(
         multiscales=[
             dict(
+                axes=[],
                 datasets=[
                     dict(
                         coordinateTransformations=[
                             dict(type="scale", scale=[2, 2, 1e-20])
                         ]
                     )
-                ]
+                ],
             )
         ]
     )
