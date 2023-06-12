@@ -32,6 +32,7 @@ from pytest import MonkeyPatch
 import fractal_tasks_core.tasks
 from .lib_empty_ROI_table import _add_empty_ROI_table
 from .utils import check_file_number
+from .utils import validate_axes_and_coordinateTransformations
 from .utils import validate_schema
 from fractal_tasks_core.tasks.cellpose_segmentation import (
     cellpose_segmentation,
@@ -91,18 +92,52 @@ def prepare_2D_zarr(
     zenodo_zarr: List[str],
     zenodo_zarr_metadata: List[Dict[str, Any]],
     remove_labels: bool = False,
+    make_CYX: bool = False,
 ):
     zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
     metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
     shutil.copytree(
         zenodo_zarr_2D, str(Path(zarr_path) / Path(zenodo_zarr_2D).name)
     )
+    FOV_path = Path(zarr_path) / Path(zenodo_zarr_2D).name / "B/03/0"
+
+    # Preliminary check
+    if make_CYX and not remove_labels:
+        raise ValueError(f"Cannot set {make_CYX=} and {remove_labels=}.")
+
+    # Remove existing labels
     if remove_labels:
-        label_dir = str(
-            Path(zarr_path) / Path(zenodo_zarr_2D).name / "B/03/0/labels"
-        )
+        label_dir = str(FOV_path / "labels")
         debug(label_dir)
         shutil.rmtree(label_dir)
+
+    # Transform zarr array from CZYX to CYX
+    if make_CYX:
+        # Transform zarr array into CYX - part 1 (metadata)
+        with (FOV_path / ".zattrs").open("r") as f:
+            zattrs = json.load(f)
+        for ind, ds in enumerate(zattrs["multiscales"][0]["datasets"]):
+            new_ds = ds.copy()
+            transf = new_ds["coordinateTransformations"][0]
+            new_transf = transf.copy()
+            new_transf["scale"] = [new_transf["scale"][x] for x in [0, 2, 3]]
+            new_ds["coordinateTransformations"][0] = new_transf
+            zattrs["multiscales"][0]["datasets"][ind] = new_ds
+        zattrs["multiscales"][0]["axes"] = [
+            ax for ax in zattrs["multiscales"][0]["axes"] if ax["name"] != "z"
+        ]
+        with (FOV_path / ".zattrs").open("w") as f:
+            json.dump(zattrs, f, indent=2)
+        # Transform zarr array into CYX - part 2 (zarr arrays)
+        for ind, ds in enumerate(zattrs["multiscales"][0]["datasets"]):
+            zarr_path = str(FOV_path / ds["path"])
+            debug(zarr_path)
+            data_czyx = da.from_zarr(zarr_path).compute()
+            data_cyx = data_czyx[:, 0, :, :]
+            assert data_czyx.shape[1] == 1
+            shutil.rmtree(zarr_path)
+            da.array(data_cyx).to_zarr(zarr_path, dimension_separator="/")
+
     metadata = metadata_2D.copy()
     return metadata
 
@@ -124,10 +159,10 @@ def patched_segment_ROI(
     nz, ny, nx = mask.shape
     if do_3D:
         mask[:, 0 : ny // 4, 0 : nx // 4] = 1  # noqa
-        mask[:, ny // 4 : ny // 2, 0 : nx // 2] = 2  # noqa
+        mask[:, ny // 4 : ny // 2, 0:nx] = 2  # noqa
     else:
         mask[:, 0 : ny // 4, 0 : nx // 4] = 1  # noqa
-        mask[:, ny // 4 : ny // 2, 0 : nx // 2] = 2  # noqa
+        mask[:, ny // 4 : ny // 2, 0:nx] = 2  # noqa
 
     logger.info(f"[{well_id}][patched_segment_ROI] END")
 
@@ -481,6 +516,7 @@ def test_workflow_with_per_well_labeling_2D(
 
     # OME-NGFF JSON validation
     image_zarr = Path(zarr_path_mip / metadata["image"][0])
+    label_zarr = image_zarr / "labels/label_DAPI"
     debug(image_zarr)
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
@@ -488,6 +524,8 @@ def test_workflow_with_per_well_labeling_2D(
     validate_schema(path=str(well_zarr), type="well")
     validate_schema(path=str(plate_zarr), type="plate")
 
+    validate_axes_and_coordinateTransformations(label_zarr)
+    validate_axes_and_coordinateTransformations(image_zarr)
     check_file_number(zarr_path=image_zarr)
 
 
@@ -724,7 +762,6 @@ def test_workflow_with_per_FOV_labeling_with_empty_FOV_table(
     check_file_number(zarr_path=image_zarr)
 
 
-@pytest.mark.xfail(reason="Unclear whether this is supported")
 def test_CYX_input(
     tmp_path: Path,
     testdata_path: Path,
@@ -734,9 +771,8 @@ def test_CYX_input(
     monkeypatch: MonkeyPatch,
 ):
     """
-    FIXME
-    This test probably works for the wrong reason (a coincidence about having
-    both C and Z scale transformations equal to 1).
+    FIXME This test works for the wrong reason (the fact that C and Z scale
+    transformations are both equal to 1).
     """
 
     monkeypatch.setattr(
@@ -752,42 +788,13 @@ def test_CYX_input(
 
     # Load pre-made 2D zarr array
     zarr_path_mip = tmp_path / "tmp_out_mip/"
-    zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
-    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
-    metadata = metadata_2D.copy()
-    shutil.copytree(
-        zenodo_zarr_2D, str(Path(zarr_path_mip) / Path(zenodo_zarr_2D).name)
+    metadata = prepare_2D_zarr(
+        str(zarr_path_mip),
+        zenodo_zarr,
+        zenodo_zarr_metadata,
+        remove_labels=True,
+        make_CYX=True,
     )
-    FOV_path = zarr_path_mip / Path(zenodo_zarr_2D).name / "B/03/0"
-    debug(FOV_path)
-
-    # Remove labels folder
-    shutil.rmtree(str(FOV_path / "labels"))
-
-    # Transform zarr array into CYX - part 1 (metadata)
-    with (FOV_path / ".zattrs").open("r") as f:
-        zattrs = json.load(f)
-    for ind, ds in enumerate(zattrs["multiscales"][0]["datasets"]):
-        new_ds = ds.copy()
-        transf = new_ds["coordinateTransformations"][0]
-        new_transf = transf.copy()
-        new_transf["scale"] = [new_transf["scale"][x] for x in [0, 2, 3]]
-        new_ds["coordinateTransformations"][0] = new_transf
-        zattrs["multiscales"][0]["datasets"][ind] = new_ds
-    zattrs["multiscales"][0]["axes"] = [
-        ax for ax in zattrs["multiscales"][0]["axes"] if ax["name"] != "z"
-    ]
-    with (FOV_path / ".zattrs").open("w") as f:
-        json.dump(zattrs, f, indent=2)
-    # Transform zarr array into CYX - part 2 (zarr arrays)
-    for ind, ds in enumerate(zattrs["multiscales"][0]["datasets"]):
-        zarr_path = str(FOV_path / ds["path"])
-        debug(zarr_path)
-        data_czyx = da.from_zarr(zarr_path).compute()
-        data_cyx = data_czyx[:, 0, :, :]
-        assert data_czyx.shape[1] == 1
-        shutil.rmtree(zarr_path)
-        da.array(data_cyx).to_zarr(zarr_path, dimension_separator="/")
 
     # Per-FOV labeling
     for component in metadata["image"]:
@@ -797,16 +804,19 @@ def test_CYX_input(
             metadata=metadata,
             component=component,
             wavelength_id="A01_C01",
-            level=2,
+            level=0,
             relabeling=True,
             diameter_level0=80.0,
         )
 
     # OME-NGFF JSON validation
     image_zarr = Path(zarr_path_mip / metadata["image"][0])
+    label_zarr = image_zarr / "labels/label_DAPI"
     debug(image_zarr)
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
     validate_schema(path=str(image_zarr), type="image")
     validate_schema(path=str(well_zarr), type="well")
     validate_schema(path=str(plate_zarr), type="plate")
+    validate_axes_and_coordinateTransformations(image_zarr)
+    validate_axes_and_coordinateTransformations(label_zarr)
