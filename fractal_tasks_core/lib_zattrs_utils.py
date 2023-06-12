@@ -15,9 +15,13 @@ Copyright 2022 (C)
 Functions to handle .zattrs files and their contents
 """
 import json
+import logging
 from typing import Any
 from typing import Dict
 from typing import List
+
+
+logger = logging.getLogger(__name__)
 
 
 def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0) -> List[float]:
@@ -42,6 +46,14 @@ def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0) -> List[float]:
         if len(multiscales) > 1:
             raise ValueError(
                 f"ERROR: There are {len(multiscales)} multiscales"
+            )
+
+        # Check that Z axis is present, raise a warning otherwise
+        axes = [ax["name"] for ax in multiscales[0]["axes"]]
+        if "z" not in axes:
+            logger.warning(
+                "Z axis is not present in {axes=}. This case may work "
+                "by accident, but it is not fully supported."
             )
 
         # Check that there are no datasets-global transformations
