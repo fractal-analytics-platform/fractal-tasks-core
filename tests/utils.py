@@ -56,6 +56,28 @@ def check_file_number(*, zarr_path: Path):
     assert num_chunkfiles_from_zarr == num_chunkfiles_on_disk
 
 
+def validate_axes_and_coordinateTransformations(image_zarr: Path):
+    """
+    Check that the length of a "scale" transformation matches with the number
+    of axes
+    """
+    zattrs_file = image_zarr / ".zattrs"
+    with zattrs_file.open("r") as f:
+        zattrs = json.load(f)
+    debug(zattrs)
+    multiscale = zattrs["multiscales"][0]
+    dataset = multiscale["datasets"][0]
+    axes = multiscale["axes"]
+    debug(axes)
+    for transformation in dataset["coordinateTransformations"]:
+        debug(transformation)
+        if transformation["type"] != "scale":
+            continue
+        else:
+            assert len(transformation["scale"]) == len(axes)
+    raise
+
+
 def validate_labels_and_measurements(
     image_zarr: Path, *, label_name: str, table_name: str
 ):
