@@ -223,8 +223,6 @@ def convert_ROI_table_to_indices(
     if len(ROI) == 0:
         return []
 
-    logger.info(f"{full_res_pxl_sizes_zyx=}")
-
     # Set pyramid-level pixel sizes
     pxl_size_z, pxl_size_y, pxl_size_x = full_res_pxl_sizes_zyx
     prefactor = coarsening_xy**level
