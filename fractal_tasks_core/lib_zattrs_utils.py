@@ -61,7 +61,7 @@ def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0) -> List[float]:
                 pixel_sizes = t["scale"]
                 if min(pixel_sizes) < 1e-9:
                     raise ValueError(
-                        f"ERROR: pixel_sizes in {zattrs_path} are", pixel_sizes
+                        f"pixel_sizes in {zattrs_path} are {pixel_sizes}"
                     )
                 # FIXME: this is a hack to deal with the fact that the
                 # coordinationTransformation can contain additional entries
