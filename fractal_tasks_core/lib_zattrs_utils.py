@@ -85,6 +85,7 @@ def rescale_datasets(
     datasets: List[Dict],
     coarsening_xy: int,
     reference_level: int,
+    remove_channel_axis: bool = False,
 ) -> List[Dict]:
     """
     Given a set of datasets (as per OME-NGFF specs), update their "scale"
@@ -94,6 +95,8 @@ def rescale_datasets(
     :param datasets: list of datasets (as per OME-NGFF specs)
     :param coarsening_xy: linear coarsening factor between subsequent levels
     :param reference_level: TBD
+    :param remove_channel_axis: If ``True``, remove the first item of all
+                                ``scale`` transformations.
     """
 
     # Construct rescaled datasets
@@ -116,6 +119,8 @@ def rescale_datasets(
                 prefactor = coarsening_xy**reference_level
                 new_t["scale"][-2] = new_t["scale"][-2] * prefactor
                 new_t["scale"][-1] = new_t["scale"][-1] * prefactor
+                if remove_channel_axis:
+                    new_t["scale"].pop(0)
                 new_transformations.append(new_t)
             else:
                 new_transformations.append(t)
