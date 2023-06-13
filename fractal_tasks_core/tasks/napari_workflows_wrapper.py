@@ -458,6 +458,12 @@ def napari_workflows_wrapper(
             label_name = params["label_name"]
 
             # (1a) Rescale OME-NGFF datasets (relevant for level>0)
+            if not multiscales[0]["axes"][0]["name"] == "c":
+                raise ValueError(
+                    "Cannot set `remove_channel_axis=True` for multiscale "
+                    f'metadata with axes={multiscales[0]["axes"]}. '
+                    'First axis should have name "c".'
+                )
             new_datasets = rescale_datasets(
                 datasets=multiscales[0]["datasets"],
                 coarsening_xy=coarsening_xy,
