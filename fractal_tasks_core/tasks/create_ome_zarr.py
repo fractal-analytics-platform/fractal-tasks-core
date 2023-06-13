@@ -400,6 +400,7 @@ def create_ome_zarr(
                                 {
                                     "type": "scale",
                                     "scale": [
+                                        1,
                                         pixel_size_z,
                                         pixel_size_y
                                         * coarsening_xy**ind_level,
