@@ -623,3 +623,53 @@ def test_napari_workflow_CYX(
     debug(meas.var_names)
     assert "area" in meas.var_names
     assert "bbox_area" in meas.var_names
+
+
+def test_napari_workflow_CYX_wrong_dimensions(
+    tmp_path: Path,
+    testdata_path: Path,
+    zenodo_zarr: List[str],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+):
+    """
+    This will fail because of wrong expected_dimensions
+    """
+
+    # Init
+    zarr_path = tmp_path / "tmp_out/"
+    metadata = prepare_2D_zarr(
+        str(zarr_path),
+        zenodo_zarr,
+        zenodo_zarr_metadata,
+        remove_labels=True,
+        make_CYX=True,
+    )
+    debug(zarr_path)
+    debug(metadata)
+
+    # First napari-workflows task (labeling)
+    workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
+    input_specs: Dict[str, Dict[str, Union[str, int]]] = {
+        "input": {"type": "image", "wavelength_id": "A01_C01"},
+    }
+    output_specs: Dict[str, Dict[str, Union[str, int]]] = {
+        "Result of Expand labels (scikit-image, nsbatwm)": {
+            "type": "label",
+            "label_name": "label_DAPI",
+        },
+    }
+    for component in metadata["image"]:
+        with pytest.raises(ValueError) as e:
+            napari_workflows_wrapper(
+                input_paths=[str(zarr_path)],
+                output_path=str(zarr_path),
+                metadata=metadata,
+                component=component,
+                input_specs=input_specs,
+                output_specs=output_specs,
+                workflow_file=workflow_file,
+                input_ROI_table="FOV_ROI_table",
+                expected_dimensions=3,
+                level=2,
+            )
+        debug(e.value)
