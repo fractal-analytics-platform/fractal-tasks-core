@@ -9,7 +9,7 @@ on:
 jobs:
 
   tests_core:
-    name: "Python ${{ matrix.python-version }}"
+    name: "Core CI, Python ${{ matrix.python-version }}"
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -56,7 +56,7 @@ jobs:
           path: ".coverage*"
 
   tests_tasks:
-    name: "Python ${{ matrix.python-version }}"
+    name: "Tasks CI, Python ${{ matrix.python-version }}"
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
