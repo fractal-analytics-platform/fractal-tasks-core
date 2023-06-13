@@ -88,7 +88,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ./.venv
-          key: ${{ runner.os }}-python-${{ matrix.python-version }}-venv-${{ hashFiles('**/poetry.lock') }}-tests_core
+          key: ${{ runner.os }}-python-${{ matrix.python-version }}-venv-${{ hashFiles('**/poetry.lock') }}-tests_tasks
 
       - name: Install dependencies (including fractal-tasks extra)
         run: poetry install --with dev --no-interaction -E fractal-tasks
