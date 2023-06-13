@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.9", "3.10"]
+        python-version: ["3.9", "3.10", "3.11"]
 
     steps:
       - uses: actions/checkout@v3
@@ -41,15 +41,6 @@ jobs:
 
       - name: Test core library with pytest
         run: poetry run coverage run -m pytest tests --ignore tests/tasks
-
-      - name: Install dependencies, including fractal-tasks extra
-        run: poetry install --with dev --no-interaction -E fractal-tasks
-
-      - name: Task-arguments JSON schemas
-        run: poetry run python fractal_tasks_core/dev/check_args_schemas.py
-
-      - name: Test tasks with pytest
-        run: poetry run coverage run -m pytest tests/tasks
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v3
