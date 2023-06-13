@@ -25,6 +25,9 @@ jobs:
       - name: Install poetry
         run: pipx install poetry==1.5
 
+      - name: Configure poetry
+        run: poetry config virtualenvs.in-project true
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -34,16 +37,13 @@ jobs:
         if: ${{ matrix.python-version == '3.10' }}
         uses: pre-commit/action@v3.0.0
 
-      - name: Configure poetry
-        run: poetry config virtualenvs.in-project true
-
-      - name: Cache the virtualenv
+      - name: Cache poetry virtualenv
         uses: actions/cache@v3
         with:
           path: ./.venv
-          key: ${{ runner.os }}-python-${{ matrix.python-version }}-venv-${{ hashFiles('**/poetry.lock') }}
+          key: ${{ runner.os }}-python-${{ matrix.python-version }}-venv-${{ hashFiles('**/poetry.lock') }}-tests_core
 
-      - name: Install dependencies of core library
+      - name: Install dependencies (without extras)
         run: poetry install --with dev --no-interaction
 
       - name: Test core library with pytest
@@ -72,6 +72,9 @@ jobs:
       - name: Install poetry
         run: pipx install poetry==1.5
 
+      - name: Configure poetry
+        run: poetry config virtualenvs.in-project true
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -82,7 +85,13 @@ jobs:
         if: ${{ matrix.python-version == '3.10' }}
         uses: pre-commit/action@v3.0.0
 
-      - name: Install dependencies, including fractal-tasks extra
+      - name: Cache poetry virtualenv
+        uses: actions/cache@v3
+        with:
+          path: ./.venv
+          key: ${{ runner.os }}-python-${{ matrix.python-version }}-venv-${{ hashFiles('**/poetry.lock') }}-tests_core
+
+      - name: Install dependencies (including fractal-tasks extra)
         run: poetry install --with dev --no-interaction -E fractal-tasks
 
       - name: Task-arguments JSON schemas
