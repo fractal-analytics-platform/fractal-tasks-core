@@ -13,21 +13,21 @@
 | fractal\_tasks\_core/lib\_parse\_filename\_metadata.py       |       33 |        2 |       12 |        2 |     91% |   98, 105 |
 | fractal\_tasks\_core/lib\_pyramid\_creation.py               |       26 |        3 |       10 |        3 |     83% |62, 75, 90 |
 | fractal\_tasks\_core/lib\_read\_fractal\_metadata.py         |       34 |        3 |       14 |        2 |     90% |48, 106-107 |
-| fractal\_tasks\_core/lib\_regions\_of\_interest.py           |      138 |       27 |       34 |        6 |     80% |149, 236-238, 282-308, 385, 387, 395-396, 398 |
+| fractal\_tasks\_core/lib\_regions\_of\_interest.py           |      155 |       27 |       44 |        6 |     82% |155, 242-244, 288-314, 391, 393, 401-402, 404 |
 | fractal\_tasks\_core/lib\_upscale\_array.py                  |       71 |       11 |       46 |        8 |     80% |61, 72, 89, 94-95, 111, 126, 156, 188-193 |
-| fractal\_tasks\_core/lib\_zattrs\_utils.py                   |       42 |        7 |       22 |        6 |     80% |43, 47, 58->57, 61, 66-73, 118 |
+| fractal\_tasks\_core/lib\_zattrs\_utils.py                   |       51 |        2 |       28 |        2 |     95% |72->71, 89, 138 |
 | fractal\_tasks\_core/tasks/\_\_init\_\_.py                   |        0 |        0 |        0 |        0 |    100% |           |
 | fractal\_tasks\_core/tasks/\_utils.py                        |       28 |        5 |        8 |        1 |     78% |35-37, 69-72 |
-| fractal\_tasks\_core/tasks/cellpose\_segmentation.py         |      226 |       29 |       74 |       21 |     82% |100-141, 292, 309-312, 343-350, 354->362, 358-359, 376->382, 409->418, 412, 420->436, 428, 443, 448, 463->467, 464, 471, 513, 537->541, 586, 604->622, 616, 693, 715-717 |
+| fractal\_tasks\_core/tasks/cellpose\_segmentation.py         |      238 |       30 |       80 |       22 |     82% |101-142, 293, 310-313, 344-351, 355->363, 359-360, 377->383, 412->421, 415, 423->439, 431, 446, 451, 458, 473->477, 474, 481, 532, 556->560, 619, 637->655, 649, 725, 746-748 |
 | fractal\_tasks\_core/tasks/compress\_tif.py                  |       35 |       30 |       14 |        1 |     12% |37-68, 72-88 |
 | fractal\_tasks\_core/tasks/copy\_ome\_zarr.py                |       73 |        4 |       32 |        7 |     90% |109, 112, 114->119, 176->164, 180->190, 202->207, 221-223 |
-| fractal\_tasks\_core/tasks/create\_ome\_zarr.py              |      165 |       25 |       70 |       11 |     83% |128, 133, 186, 193-203, 211-212, 225-228, 263->272, 278, 309, 325-326, 329, 464-466 |
-| fractal\_tasks\_core/tasks/create\_ome\_zarr\_multiplex.py   |      198 |       21 |       86 |       16 |     87% |133, 142, 149, 154, 158, 165, 183, 214, 235-238, 265, 303->308, 314, 320, 337, 350-351, 357, 522-524 |
+| fractal\_tasks\_core/tasks/create\_ome\_zarr.py              |      165 |       25 |       70 |       11 |     83% |128, 133, 186, 193-203, 211-212, 225-228, 263->272, 278, 309, 325-326, 329, 465-467 |
+| fractal\_tasks\_core/tasks/create\_ome\_zarr\_multiplex.py   |      198 |       21 |       86 |       16 |     87% |133, 142, 149, 154, 158, 165, 183, 214, 235-238, 265, 303->308, 314, 320, 337, 350-351, 357, 523-525 |
 | fractal\_tasks\_core/tasks/illumination\_correction.py       |      102 |       18 |       34 |       11 |     77% |63, 84-88, 163, 167, 170-175, 188-191, 230, 238, 248, 261-262, 317-319 |
 | fractal\_tasks\_core/tasks/maximum\_intensity\_projection.py |       51 |        5 |       14 |        4 |     86% |83, 117, 136, 159-161 |
-| fractal\_tasks\_core/tasks/napari\_workflows\_wrapper.py     |      256 |       25 |      122 |       17 |     88% |158-160, 195, 207, 212, 249, 319, 324-334, 347, 352, 392-396, 404, 425, 513->500, 547-552, 559->561, 616, 641-643 |
+| fractal\_tasks\_core/tasks/napari\_workflows\_wrapper.py     |      265 |       25 |      130 |       19 |     89% |158-160, 195, 207, 212, 249, 316, 323, 329-334, 339, 370, 375, 415-419, 448, 462, 543->530, 582-587, 594->596, 651, 676-678 |
 | fractal\_tasks\_core/tasks/yokogawa\_to\_ome\_zarr.py        |       87 |       10 |       24 |        5 |     85% |117, 162, 204, 244-248, 254-256 |
-|                                                    **TOTAL** | **2013** |  **288** |  **790** |  **144** | **83%** |           |
+|                                                    **TOTAL** | **2060** |  **284** |  **820** |  **143** | **84%** |           |
 
 
 ## Setup coverage badge
