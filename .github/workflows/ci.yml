@@ -1,4 +1,4 @@
-name: CI core library
+name: CI
 
 on:
   push:
@@ -8,11 +8,10 @@ on:
 
 jobs:
 
-
-  tests:
+  tests_core:
     name: "Python ${{ matrix.python-version }}"
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
 
     strategy:
       matrix:
@@ -41,6 +40,48 @@ jobs:
 
       - name: Test core library with pytest
         run: poetry run coverage run -m pytest tests --ignore tests/tasks
+
+      - name: Upload coverage data
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-data
+          path: ".coverage*"
+
+  tests_tasks:
+    name: "Python ${{ matrix.python-version }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10"]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+
+      - name: Install poetry
+        run: pipx install poetry==1.5
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
+
+      - name: Run pre-commit
+        if: ${{ matrix.python-version == '3.10' }}
+        uses: pre-commit/action@v3.0.0
+
+      - name: Install dependencies, including fractal-tasks extra
+        run: poetry install --with dev --no-interaction -E fractal-tasks
+
+      - name: Task-arguments JSON schemas
+        run: poetry run python fractal_tasks_core/dev/check_args_schemas.py
+
+      - name: Test tasks with pytest
+        run: poetry run coverage run -m pytest tests/tasks
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v3
