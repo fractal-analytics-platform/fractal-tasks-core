@@ -1,4 +1,4 @@
-name: ci
+name: CI
 
 on:
   push:
@@ -8,11 +8,57 @@ on:
 
 jobs:
 
-
-  tests:
-    name: "Python ${{ matrix.python-version }}"
+  tests_core:
+    name: "Core, Python ${{ matrix.python-version }}"
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 5
+
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+
+      - name: Install poetry
+        run: pipx install poetry==1.5
+
+      - name: Configure poetry
+        run: poetry config virtualenvs.in-project true
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Run pre-commit
+        if: ${{ matrix.python-version == '3.10' }}
+        uses: pre-commit/action@v3.0.0
+
+      - name: Cache poetry virtualenv
+        uses: actions/cache@v3
+        with:
+          path: ./.venv
+          key: ${{ runner.os }}-python-${{ matrix.python-version }}-venv-${{ hashFiles('**/poetry.lock') }}-tests_core
+
+      - name: Install dependencies (without extras)
+        run: poetry install --with dev --no-interaction
+
+      - name: Test core library with pytest
+        run: poetry run coverage run -m pytest tests --ignore tests/tasks
+
+      - name: Upload coverage data
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-data
+          path: ".coverage*"
+
+  tests_tasks:
+    name: "Tasks, Python ${{ matrix.python-version }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     strategy:
       matrix:
@@ -26,24 +72,32 @@ jobs:
       - name: Install poetry
         run: pipx install poetry==1.5
 
+      - name: Configure poetry
+        run: poetry config virtualenvs.in-project true
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'poetry'
 
       - name: Run pre-commit
         if: ${{ matrix.python-version == '3.10' }}
         uses: pre-commit/action@v3.0.0
 
-      - name: Install dependencies
-        run: poetry install --with dev --all-extras --no-interaction
+      - name: Cache poetry virtualenv
+        uses: actions/cache@v3
+        with:
+          path: ./.venv
+          key: ${{ runner.os }}-python-${{ matrix.python-version }}-venv-${{ hashFiles('**/poetry.lock') }}-tests_tasks
+
+      - name: Install dependencies (including fractal-tasks extra)
+        run: poetry install --with dev --no-interaction -E fractal-tasks
 
       - name: Task-arguments JSON schemas
         run: poetry run python fractal_tasks_core/dev/check_args_schemas.py
 
-      - name: Test with pytest
-        run: poetry run coverage run -m pytest
+      - name: Test tasks with pytest
+        run: poetry run coverage run -m pytest tests/tasks
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v3
@@ -54,7 +108,7 @@ jobs:
   coverage:
     name: Coverage
     runs-on: ubuntu-20.04
-    needs: tests
+    needs: [tests_core, tests_tasks]
     steps:
       - uses: actions/checkout@v3
         with:
