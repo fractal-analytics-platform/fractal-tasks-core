@@ -359,19 +359,22 @@ def test_fail_if_no_relabeling(
 
 
 cases = [
-    (2, 2, True),
-    (2, 3, False),
-    (3, 3, True),
-    (3, 2, True),
+    (2, 2, True, True),
+    (2, 2, False, True),
+    (3, 2, True, False),
+    (3, 2, False, True),
+    (2, 3, False, False),
+    (3, 3, False, True),
 ]
 
 
 @pytest.mark.parametrize(
-    "expected_dimensions,zarr_dimensions,expected_success", cases
+    "expected_dimensions,zarr_dimensions,make_CYX,expected_success", cases
 )
 def test_expected_dimensions(
     expected_dimensions: int,
     zarr_dimensions: int,
+    make_CYX: bool,
     expected_success: bool,
     tmp_path: Path,
     testdata_path: Path,
@@ -387,8 +390,11 @@ def test_expected_dimensions(
             zenodo_zarr,
             zenodo_zarr_metadata,
             remove_labels=True,
+            make_CYX=make_CYX,
         )
     else:
+        if make_CYX:
+            raise ValueError(f"{make_CYX=} and {zarr_dimensions=}")
         metadata = prepare_3D_zarr(
             str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
         )
@@ -425,8 +431,9 @@ def test_expected_dimensions(
         if expected_success:
             napari_workflows_wrapper(**arguments)
         else:
-            with pytest.raises(ValueError):
+            with pytest.raises(ValueError) as e:
                 napari_workflows_wrapper(**arguments)
+            debug(e.value)
 
 
 def test_napari_workflow_empty_input_ROI_table(
