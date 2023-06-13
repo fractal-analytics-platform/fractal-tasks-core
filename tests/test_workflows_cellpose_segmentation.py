@@ -14,7 +14,6 @@ Zurich.
 import json
 import logging
 import shlex
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -23,7 +22,6 @@ from typing import Dict
 from typing import List
 
 import anndata as ad
-import dask.array as da
 import numpy as np
 import pytest
 from devtools import debug
@@ -33,6 +31,8 @@ import fractal_tasks_core.tasks
 from ._validation import check_file_number
 from ._validation import validate_axes_and_coordinateTransformations
 from ._validation import validate_schema
+from ._zenodo_ome_zarrs import prepare_2D_zarr
+from ._zenodo_ome_zarrs import prepare_3D_zarr
 from .lib_empty_ROI_table import _add_empty_ROI_table
 from fractal_tasks_core.tasks.cellpose_segmentation import (
     cellpose_segmentation,
@@ -71,75 +71,6 @@ allowed_channels = [
 
 num_levels = 6
 coarsening_xy = 2
-
-
-def prepare_3D_zarr(
-    zarr_path: str,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
-):
-    zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
-    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
-    shutil.copytree(
-        zenodo_zarr_3D, str(Path(zarr_path) / Path(zenodo_zarr_3D).name)
-    )
-    metadata = metadata_3D.copy()
-    return metadata
-
-
-def prepare_2D_zarr(
-    zarr_path: str,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
-    remove_labels: bool = False,
-    make_CYX: bool = False,
-):
-    zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
-    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
-    shutil.copytree(
-        zenodo_zarr_2D, str(Path(zarr_path) / Path(zenodo_zarr_2D).name)
-    )
-    FOV_path = Path(zarr_path) / Path(zenodo_zarr_2D).name / "B/03/0"
-
-    # Preliminary check
-    if make_CYX and not remove_labels:
-        raise ValueError(f"Cannot set {make_CYX=} and {remove_labels=}.")
-
-    # Remove existing labels
-    if remove_labels:
-        label_dir = str(FOV_path / "labels")
-        debug(label_dir)
-        shutil.rmtree(label_dir)
-
-    # Transform zarr array from CZYX to CYX
-    if make_CYX:
-        # Transform zarr array into CYX - part 1 (metadata)
-        with (FOV_path / ".zattrs").open("r") as f:
-            zattrs = json.load(f)
-        for ind, ds in enumerate(zattrs["multiscales"][0]["datasets"]):
-            new_ds = ds.copy()
-            transf = new_ds["coordinateTransformations"][0]
-            new_transf = transf.copy()
-            new_transf["scale"] = [new_transf["scale"][x] for x in [0, 2, 3]]
-            new_ds["coordinateTransformations"][0] = new_transf
-            zattrs["multiscales"][0]["datasets"][ind] = new_ds
-        zattrs["multiscales"][0]["axes"] = [
-            ax for ax in zattrs["multiscales"][0]["axes"] if ax["name"] != "z"
-        ]
-        with (FOV_path / ".zattrs").open("w") as f:
-            json.dump(zattrs, f, indent=2)
-        # Transform zarr array into CYX - part 2 (zarr arrays)
-        for ind, ds in enumerate(zattrs["multiscales"][0]["datasets"]):
-            zarr_path = str(FOV_path / ds["path"])
-            debug(zarr_path)
-            data_czyx = da.from_zarr(zarr_path).compute()
-            data_cyx = data_czyx[:, 0, :, :]
-            assert data_czyx.shape[1] == 1
-            shutil.rmtree(zarr_path)
-            da.array(data_cyx).to_zarr(zarr_path, dimension_separator="/")
-
-    metadata = metadata_2D.copy()
-    return metadata
 
 
 def patched_segment_ROI(

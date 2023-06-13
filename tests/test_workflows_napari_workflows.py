@@ -11,7 +11,6 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
-import shutil
 from pathlib import Path
 from typing import Any
 from typing import Dict
@@ -26,45 +25,12 @@ from ._validation import check_file_number
 from ._validation import validate_axes_and_coordinateTransformations
 from ._validation import validate_labels_and_measurements
 from ._validation import validate_schema
+from ._zenodo_ome_zarrs import prepare_2D_zarr
+from ._zenodo_ome_zarrs import prepare_3D_zarr
 from .lib_empty_ROI_table import _add_empty_ROI_table
 from fractal_tasks_core.tasks.napari_workflows_wrapper import (
     napari_workflows_wrapper,
 )
-
-
-def prepare_3D_zarr(
-    zarr_path: str,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
-):
-    zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
-    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
-    source = zenodo_zarr_3D
-    dest = str(Path(zarr_path) / Path(zenodo_zarr_3D).name)
-    shutil.copytree(source, dest)
-    metadata = metadata_3D.copy()
-    return metadata
-
-
-def prepare_2D_zarr(
-    zarr_path: str,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
-    remove_labels: bool = False,
-):
-    zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
-    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
-    shutil.copytree(
-        zenodo_zarr_2D, str(Path(zarr_path) / Path(zenodo_zarr_2D).name)
-    )
-    if remove_labels:
-        label_dir = str(
-            Path(zarr_path) / Path(zenodo_zarr_2D).name / "B/03/0/labels"
-        )
-        debug(label_dir)
-        shutil.rmtree(label_dir)
-    metadata = metadata_2D.copy()
-    return metadata
 
 
 def test_napari_workflow(
