@@ -34,16 +34,22 @@ def validate_schema(*, path: str, type: str):
     validate(instance=zattrs, schema=schema)
 
 
-def check_file_number(*, zarr_path: Path):
+def check_file_number(*, zarr_path: Path, num_axes: int = 4):
     """
     Example input:
         zarr_path = Path("/SOME/PATH/plate.zarr/row/col/fov/")
 
     Relevant glob for zarr_path
-        zarr_path / 0 / c / z / y / x
-
+        zarr_path / 0 / c / z / y / x (if num_axes=4)
+        zarr_path / 0 / c / y / x (if num_axes=3)
     """
-    chunkfiles_on_disk = glob.glob(str(zarr_path / "0/*/*/*/*"))
+    if num_axes == 4:
+        chunkfiles_on_disk = glob.glob(str(zarr_path / "0/*/*/*/*"))
+    elif num_axes == 3:
+        chunkfiles_on_disk = glob.glob(str(zarr_path / "0/*/*/*"))
+    else:
+        raise NotImplementedError(f"{num_axes=} not implemented")
+
     debug(chunkfiles_on_disk)
     num_chunkfiles_on_disk = len(chunkfiles_on_disk)
 
@@ -53,6 +59,8 @@ def check_file_number(*, zarr_path: Path):
     for c in zarr_chunks:
         num_chunkfiles_from_zarr *= len(c)
 
+    debug(num_chunkfiles_from_zarr)
+    debug(num_chunkfiles_on_disk)
     assert num_chunkfiles_from_zarr == num_chunkfiles_on_disk
 
 
