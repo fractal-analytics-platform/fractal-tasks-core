@@ -73,16 +73,25 @@ class NapariWorkflowsOutputSpecsItem(BaseModel):
     """
 
     type: Literal["label", "dataframe"]
-    channel: BaseChannel
     label_name: Optional[str] = None
     table_name: Optional[str] = None
 
     @validator("label_name", always=True)
     def label_name_only_for_label_type(cls, v, values):
-        if v and values.get("type") != "label":
-            raise ValueError("FIXME")
+        if values.get("type") == "label":
+            if not v:
+                raise ValueError("FIXME")
+        else:
+            if v:
+                raise ValueError("FIXME")
+        return v
 
     @validator("table_name", always=True)
     def table_name_only_for_dataframe_type(cls, v, values):
-        if v and values.get("type") != "dataframe":
-            raise ValueError("FIXME")
+        if values.get("type") == "dataframe":
+            if not v:
+                raise ValueError("FIXME")
+        else:
+            if v:
+                raise ValueError("FIXME")
+        return v

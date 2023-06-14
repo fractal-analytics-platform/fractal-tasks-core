@@ -34,6 +34,8 @@ def test_BaseChannel():
 
 def test_NapariWorkflowsOutputSpecsItem():
 
+    # Invalid
+
     with pytest.raises(ValueError) as e:
         NapariWorkflowsOutputSpecsItem(type="invalid")
     debug(e.value)
@@ -41,29 +43,43 @@ def test_NapariWorkflowsOutputSpecsItem():
     with pytest.raises(ValueError) as e:
         NapariWorkflowsOutputSpecsItem(
             type="label",
-            channel=dict(label="DAPI"),
             table_name="something",
         )
     debug(e.value)
 
     with pytest.raises(ValueError) as e:
         NapariWorkflowsOutputSpecsItem(
+            type="label",
+        )
+    debug(e.value)
+
+    with pytest.raises(ValueError) as e:
+        NapariWorkflowsOutputSpecsItem(
             type="dataframe",
-            channel=dict(label="DAPI"),
             label_name="something",
         )
     debug(e.value)
 
+    with pytest.raises(ValueError) as e:
+        NapariWorkflowsOutputSpecsItem(
+            type="dataframe",
+        )
+    debug(e.value)
+
+    # Valid
+
     specs = NapariWorkflowsOutputSpecsItem(
         type="label",
-        channel=dict(label="DAPI"),
         label_name="label_DAPI",
     )
     debug(specs)
+    assert specs.type
+    assert specs.label_name
 
     specs = NapariWorkflowsOutputSpecsItem(
         type="dataframe",
-        channel=dict(label="DAPI"),
         table_name="table_DAPI",
     )
     debug(specs)
+    assert specs.type
+    assert specs.table_name
