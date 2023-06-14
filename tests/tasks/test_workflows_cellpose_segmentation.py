@@ -737,7 +737,7 @@ def test_CYX_input(
             output_path=str(zarr_path_mip),
             metadata=metadata,
             component=component,
-            wavelength_id="A01_C01",
+            channel=dict(wavelength_id="A01_C01"),
             level=0,
             relabeling=True,
             diameter_level0=80.0,
