@@ -28,7 +28,7 @@ import napari_workflows
 import numpy as np
 import pandas as pd
 import zarr
-from anndata.experimental import write_elem
+from anndata._io.specs import write_elem
 from napari_workflows._io_yaml_v1 import load_workflow
 from pydantic.decorator import validate_arguments
 
@@ -38,6 +38,7 @@ from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
+from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_upscale_array import upscale_array
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
@@ -146,7 +147,6 @@ def napari_workflows_wrapper(
                                 Also useful to set to 2 when loading a 2D
                                 OME-Zarr that is saved as (size_x, size_y).
     """
-
     wf: napari_workflows.Worfklow = load_workflow(workflow_file)
     logger.info(f"Loaded workflow from {workflow_file}")
 
@@ -267,7 +267,10 @@ def napari_workflows_wrapper(
                     f"but {expected_dimensions=}"
                 )
             if expected_dimensions == 2:
-                if shape[0] == 1:
+                if len(shape) == 2:
+                    # We already load the data as a 2D array
+                    pass
+                elif shape[0] == 1:
                     input_image_arrays[name] = input_image_arrays[name][
                         0, :, :
                     ]
@@ -306,13 +309,7 @@ def napari_workflows_wrapper(
                 f"{in_path}/{component}/labels/{label_name}/{level}"
             )
             input_label_arrays[name] = label_array_raw
-            if upscale_labels:
-                input_label_arrays[name] = upscale_array(
-                    array=input_label_arrays[name],
-                    target_shape=target_shape,
-                    axis=[1, 2],
-                    pad_with_zeros=True,
-                )
+
             # Handle dimensions
             shape = input_label_arrays[name].shape
             if expected_dimensions == 3 and shape[0] == 1:
@@ -321,7 +318,10 @@ def napari_workflows_wrapper(
                     f"but {expected_dimensions=}"
                 )
             if expected_dimensions == 2:
-                if shape[0] == 1:
+                if len(shape) == 2:
+                    # We already load the data as a 2D array
+                    pass
+                elif shape[0] == 1:
                     input_label_arrays[name] = input_label_arrays[name][
                         0, :, :
                     ]
@@ -332,6 +332,29 @@ def napari_workflows_wrapper(
                     )
                     logger.error(msg)
                     raise ValueError(msg)
+
+            if upscale_labels:
+                # Check that dimensionality matches the image
+                if len(input_label_arrays[name].shape) != len(target_shape):
+                    raise ValueError(
+                        f"Label {name} has shape "
+                        f"{input_label_arrays[name].shape}. "
+                        "But the corresponding image has shape "
+                        f"{target_shape}. Those dimensionalities do not "
+                        f"match. Is {expected_dimensions=} the correct "
+                        "setting?"
+                    )
+                if expected_dimensions == 3:
+                    upscaling_axes = [1, 2]
+                else:
+                    upscaling_axes = [0, 1]
+                input_label_arrays[name] = upscale_array(
+                    array=input_label_arrays[name],
+                    target_shape=target_shape,
+                    axis=upscaling_axes,
+                    pad_with_zeros=True,
+                )
+
             logger.info(f"Prepared input with {name=} and {params=}")
         logger.info(f"{input_label_arrays=}")
 
@@ -435,10 +458,17 @@ def napari_workflows_wrapper(
             label_name = params["label_name"]
 
             # (1a) Rescale OME-NGFF datasets (relevant for level>0)
+            if not multiscales[0]["axes"][0]["name"] == "c":
+                raise ValueError(
+                    "Cannot set `remove_channel_axis=True` for multiscale "
+                    f'metadata with axes={multiscales[0]["axes"]}. '
+                    'First axis should have name "c".'
+                )
             new_datasets = rescale_datasets(
                 datasets=multiscales[0]["datasets"],
                 coarsening_xy=coarsening_xy,
                 reference_level=level,
+                remove_channel_axis=True,
             )
             # (1b) Write zattrs for specific label
             label_group = labels_group.create_group(label_name)
@@ -499,21 +529,26 @@ def napari_workflows_wrapper(
         # Set inputs
         for input_name in input_specs.keys():
             input_type = input_specs[input_name]["type"]
-            # Handle expected_dimensions
-            if expected_dimensions == 2:
-                actual_region = region[1:]
-            else:
-                actual_region = region
 
             if input_type == "image":
                 wf.set(
                     input_name,
-                    input_image_arrays[input_name][actual_region].compute(),
+                    load_region(
+                        input_image_arrays[input_name],
+                        region,
+                        compute=True,
+                        return_as_3D=False,
+                    ),
                 )
             elif input_type == "label":
                 wf.set(
                     input_name,
-                    input_label_arrays[input_name][actual_region],
+                    load_region(
+                        input_label_arrays[input_name],
+                        region,
+                        compute=True,
+                        return_as_3D=False,
+                    ),
                 )
 
         # Get outputs

@@ -17,8 +17,8 @@ from typing import Sequence
 import pytest
 from devtools import debug
 
-from .utils import check_file_number
-from .utils import validate_schema
+from ._validation import check_file_number
+from ._validation import validate_schema
 from fractal_tasks_core.tasks.copy_ome_zarr import (
     copy_ome_zarr,
 )

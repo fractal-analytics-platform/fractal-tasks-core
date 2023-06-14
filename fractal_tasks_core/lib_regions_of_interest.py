@@ -17,11 +17,17 @@ Functions to handle regions of interests (via pandas and AnnData)
 import logging
 from typing import Optional
 from typing import Sequence
+from typing import Tuple
+from typing import Union
 
 import anndata as ad
+import dask.array as da
 import numpy as np
 import pandas as pd
 import zarr
+
+
+logger = logging.getLogger(__name__)
 
 
 def prepare_FOV_ROI_table(
@@ -389,7 +395,7 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
     # Soft constraint: the table can be used for masked loading (if not, return
     # False)
     attrs = zarr.group(table_path).attrs
-    logging.info(f"ROI table at {table_path} has attrs: {attrs}")
+    logger.info(f"ROI table at {table_path} has attrs: {attrs.asdict()}")
     valid = set(("type", "region", "instance_key")).issubset(attrs.keys())
     if valid:
         valid = valid and attrs["type"] == "ngff:region_table"
@@ -398,3 +404,45 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
         return True
     else:
         return False
+
+
+def load_region(
+    data_zyx: da.array,
+    region: Tuple[slice, slice, slice],
+    compute=True,
+    return_as_3D=False,
+) -> Union[da.array, np.array]:
+    """
+    Load a region from a dask array
+
+    Can handle both 2D and 3D dask arrays as input and return them as is or
+    always as a 3D array
+
+    :param data_zyx: dask array, 2D or 3D
+    :param region: region to load, tuple of three slices (ZYX)
+    :param compute: whether to compute the result. If True, returns a numpy
+                    array. If False, returns a dask array.
+    :return_as_3D: whether to return a 3D array, even if the input is 2D
+    :return: 3D array
+    """
+
+    if len(region) != 3:
+        raise ValueError(
+            f"In `load_region`, `region` must have three elements "
+            f"(given: {len(region)})."
+        )
+
+    if len(data_zyx.shape) == 3:
+        img = data_zyx[region]
+    elif len(data_zyx.shape) == 2:
+        img = data_zyx[(region[1], region[2])]
+        if return_as_3D:
+            img = np.expand_dims(img, axis=0)
+    else:
+        raise ValueError(
+            f"Shape {data_zyx.shape} not supported for `load_region`"
+        )
+    if compute:
+        return img.compute()
+    else:
+        return img

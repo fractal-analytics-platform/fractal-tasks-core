@@ -170,13 +170,13 @@ files = [
 
 [[package]]
 name = "anndata"
-version = "0.8.0"
+version = "0.9.1"
 description = "Annotated data."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "anndata-0.8.0-py3-none-any.whl", hash = "sha256:2a929360c3c893370865e8ee3d3b9d95ee93239da91bafc5bf5f3c306796746e"},
-    {file = "anndata-0.8.0.tar.gz", hash = "sha256:94d2cc6f76c0317c0ac28564e3092b313b7ad19c737d66701961f3e620b9066e"},
+    {file = "anndata-0.9.1-py3-none-any.whl", hash = "sha256:6666a39f9d6c4645a70115f38c17ccc2e2ffd9c0d08a1636c395253d73de26f1"},
+    {file = "anndata-0.9.1.tar.gz", hash = "sha256:1f28f2c427e67b0b99bdd2b281717c92a12660dfd23e0694939b6e733f0eb2c4"},
 ]
 
 [package.dependencies]
@@ -189,8 +189,8 @@ scipy = ">1.4"
 
 [package.extras]
 dev = ["black (>=20.8b1)", "docutils", "setuptools_scm"]
-doc = ["nbsphinx", "scanpydoc (>=0.7.3)", "sphinx (>=4.1,<4.2)", "sphinx-autodoc-typehints (>=1.11.0)", "sphinx-rtd-theme", "sphinx_issues", "typing_extensions", "zarr"]
-test = ["boltons", "dask[array]", "joblib", "loompy (>=3.0.5)", "matplotlib", "openpyxl", "pytest (>=6.0)", "pytest-cov (>=2.10)", "scanpy", "sklearn", "zarr"]
+doc = ["IPython", "awkward (>=2.0.7)", "myst_parser", "nbsphinx", "scanpydoc (>=0.7.7)", "sphinx (>=4.4)", "sphinx-autodoc-typehints (>=1.11.0)", "sphinx-rtd-theme (>=1.1.1)", "sphinx_issues", "sphinxext.opengraph", "zarr"]
+test = ["awkward (>=2.0.6)", "boltons", "dask[array]", "joblib", "loompy (>=3.0.5)", "matplotlib", "openpyxl", "pytest (>=6.0)", "pytest-cov (>=2.10)", "pytest_memray", "scanpy", "scikit-learn", "zarr"]
 
 [[package]]
 name = "anyio"
@@ -5849,4 +5849,4 @@ fractal-tasks = ["Pillow", "cellpose", "imageio-ffmpeg", "llvmlite", "napari-seg
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "08b0aa8f59c24f21cdffa5b2e97aad60912db4ef55e8165d8b9a4526002cd57a"
+content-hash = "d8b234720f36584a1a6cc49bd2e514acacb5fac9c8cacac48483bdce146522a0"

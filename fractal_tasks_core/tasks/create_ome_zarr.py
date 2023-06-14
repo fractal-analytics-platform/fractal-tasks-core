@@ -23,7 +23,7 @@ from typing import Sequence
 
 import pandas as pd
 import zarr
-from anndata.experimental import write_elem
+from anndata._io.specs import write_elem
 from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
@@ -400,6 +400,7 @@ def create_ome_zarr(
                                 {
                                     "type": "scale",
                                     "scale": [
+                                        1,
                                         pixel_size_z,
                                         pixel_size_y
                                         * coarsening_xy**ind_level,
