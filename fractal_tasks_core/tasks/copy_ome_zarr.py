@@ -23,7 +23,7 @@ from typing import Sequence
 
 import anndata as ad
 import zarr
-from anndata.experimental import write_elem
+from anndata._io.specs import write_elem
 from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
