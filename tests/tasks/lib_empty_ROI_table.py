@@ -4,7 +4,7 @@ from pathlib import Path
 import anndata as ad
 import pandas as pd
 import zarr
-from anndata.experimental import write_elem
+from anndata._io.specs import write_elem
 
 
 def _add_empty_ROI_table(

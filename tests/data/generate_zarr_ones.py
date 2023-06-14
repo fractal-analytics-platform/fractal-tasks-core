@@ -6,7 +6,7 @@ import dask.array as da
 import numpy as np
 import pandas as pd
 import zarr
-from anndata.experimental import write_elem
+from anndata._io.specs import write_elem
 
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 

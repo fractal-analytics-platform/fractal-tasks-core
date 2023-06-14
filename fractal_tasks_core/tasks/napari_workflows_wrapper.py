@@ -28,7 +28,7 @@ import napari_workflows
 import numpy as np
 import pandas as pd
 import zarr
-from anndata.experimental import write_elem
+from anndata._io.specs import write_elem
 from napari_workflows._io_yaml_v1 import load_workflow
 from pydantic.decorator import validate_arguments
 
