@@ -557,6 +557,74 @@
     {
       "args_schema": {
         "additionalProperties": false,
+        "definitions": {
+          "BaseChannel": {
+            "description": "TBD",
+            "properties": {
+              "label": {
+                "title": "Label",
+                "type": "string"
+              },
+              "wavelength_id": {
+                "title": "Wavelength Id",
+                "type": "string"
+              }
+            },
+            "title": "BaseChannel",
+            "type": "object"
+          },
+          "NapariWorkflowsInputSpecsItem": {
+            "description": "TBD",
+            "properties": {
+              "channel": {
+                "$ref": "#/definitions/BaseChannel"
+              },
+              "label_name": {
+                "title": "Label Name",
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "image",
+                  "label"
+                ],
+                "title": "Type",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "title": "NapariWorkflowsInputSpecsItem",
+            "type": "object"
+          },
+          "NapariWorkflowsOutputSpecsItem": {
+            "description": "TBD",
+            "properties": {
+              "label_name": {
+                "title": "Label Name",
+                "type": "string"
+              },
+              "table_name": {
+                "title": "Table Name",
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "label",
+                  "dataframe"
+                ],
+                "title": "Type",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "title": "NapariWorkflowsOutputSpecsItem",
+            "type": "object"
+          }
+        },
         "properties": {
           "component": {
             "description": "Path to the OME-Zarr image in the OME-Zarr plate that is processed. Example: \"some_plate.zarr/B/03/0\" (standard argument for Fractal tasks, managed by Fractal server)",
@@ -585,10 +653,7 @@
           },
           "input_specs": {
             "additionalProperties": {
-              "additionalProperties": {
-                "type": "string"
-              },
-              "type": "object"
+              "$ref": "#/definitions/NapariWorkflowsInputSpecsItem"
             },
             "description": "See examples above. TODO: Update after issue 404",
             "title": "Input Specs",
@@ -612,10 +677,7 @@
           },
           "output_specs": {
             "additionalProperties": {
-              "additionalProperties": {
-                "type": "string"
-              },
-              "type": "object"
+              "$ref": "#/definitions/NapariWorkflowsOutputSpecsItem"
             },
             "description": "See examples above. TODO: Update after issue 404",
             "title": "Output Specs",
