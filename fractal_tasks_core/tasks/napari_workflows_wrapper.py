@@ -42,6 +42,12 @@ from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_upscale_array import upscale_array
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
+from fractal_tasks_core.tasks._input_models import (
+    NapariWorkflowsInputSpecsItem,
+)
+from fractal_tasks_core.tasks._input_models import (
+    NapariWorkflowsOutputSpecsItem,
+)
 
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
@@ -68,8 +74,8 @@ def napari_workflows_wrapper(
     metadata: Dict[str, Any],
     # Task-specific arguments:
     workflow_file: str,
-    input_specs: Dict[str, Dict[str, str]],
-    output_specs: Dict[str, Dict[str, str]],
+    input_specs: Dict[str, NapariWorkflowsInputSpecsItem],
+    output_specs: Dict[str, NapariWorkflowsOutputSpecsItem],
     input_ROI_table: str = "FOV_ROI_table",
     level: int = 0,
     relabeling: bool = True,
@@ -86,7 +92,7 @@ def napari_workflows_wrapper(
         # Examples of allowed entries for input_specs and output_specs
         input_specs = {
             "in_1": {"type": "image", "wavelength_id": "A01_C02"},
-            "in_2": {"type": "image", "channel_label": "DAPI"},
+            "in_2": {"type": "image", "label": "DAPI"},
             "in_3": {"type": "label", "label_name": "label_DAPI"},
         }
         output_specs = {
@@ -161,8 +167,8 @@ def napari_workflows_wrapper(
     list_outputs = sorted(output_specs.keys())
 
     # Characterization of workflow and scope restriction
-    input_types = [params["type"] for (name, params) in input_specs.items()]
-    output_types = [params["type"] for (name, params) in output_specs.items()]
+    input_types = [params.type for (name, params) in input_specs.items()]
+    output_types = [params.type for (name, params) in output_specs.items()]
     are_inputs_all_images = set(input_types) == {"image"}
     are_outputs_all_labels = set(output_types) == {"label"}
     are_outputs_all_dataframes = set(output_types) == {"dataframe"}
@@ -238,23 +244,17 @@ def napari_workflows_wrapper(
     image_inputs = [
         (name, params)
         for (name, params) in input_specs.items()
-        if params["type"] == "image"
+        if params.type == "image"
     ]
     input_image_arrays = {}
     if image_inputs:
         img_array = da.from_zarr(f"{in_path}/{component}/{level}")
         # Loop over image inputs and assign corresponding channel of the image
         for (name, params) in image_inputs:
-            if "wavelength_id" in params and "channel_label" in params:
-                raise ValueError(
-                    "One and only one among channel_label and wavelength_id"
-                    f" attributes must be provided, but input {name} in "
-                    f"input_specs has {params=}."
-                )
             channel = get_channel_from_image_zarr(
                 image_zarr_path=f"{in_path}/{component}",
-                wavelength_id=params.get("wavelength_id", None),
-                label=params.get("channel_label", None),
+                wavelength_id=params.wavelength_id,
+                label=params.channel_label,
             )
             channel_index = channel.index
             input_image_arrays[name] = img_array[channel_index]
@@ -288,7 +288,7 @@ def napari_workflows_wrapper(
     label_inputs = [
         (name, params)
         for (name, params) in input_specs.items()
-        if params["type"] == "label"
+        if params.type == "label"
     ]
     if label_inputs:
         # Set target_shape for upscaling labels
@@ -304,7 +304,7 @@ def napari_workflows_wrapper(
         # Loop over label inputs and load corresponding (upscaled) image
         input_label_arrays = {}
         for (name, params) in label_inputs:
-            label_name = params["label_name"]
+            label_name = params.label_name
             label_array_raw = da.from_zarr(
                 f"{in_path}/{component}/labels/{label_name}/{level}"
             )
@@ -362,7 +362,7 @@ def napari_workflows_wrapper(
     label_outputs = [
         (name, params)
         for (name, params) in output_specs.items()
-        if params["type"] == "label"
+        if params.type == "label"
     ]
     if label_outputs:
         # Preliminary scope checks
@@ -388,7 +388,7 @@ def napari_workflows_wrapper(
         elif label_inputs:
             reference_array = list(input_label_arrays.values())[0]
             # Re-load pixel size, matching to the correct level
-            input_label_name = label_inputs[0][1]["label_name"]
+            input_label_name = label_inputs[0][1].label_name
             zattrs_file = (
                 f"{in_path}/{component}/labels/{input_label_name}/.zattrs"
             )
@@ -455,7 +455,7 @@ def napari_workflows_wrapper(
         # Loop over label outputs and (1) set zattrs, (2) create zarr group
         output_label_zarr_groups: Dict[str, Any] = {}
         for (name, params) in label_outputs:
-            label_name = params["label_name"]
+            label_name = params.label_name
 
             # (1a) Rescale OME-NGFF datasets (relevant for level>0)
             if not multiscales[0]["axes"][0]["name"] == "c":
@@ -507,7 +507,7 @@ def napari_workflows_wrapper(
     dataframe_outputs = [
         (name, params)
         for (name, params) in output_specs.items()
-        if params["type"] == "dataframe"
+        if params.type == "dataframe"
     ]
     output_dataframe_lists: Dict[str, List] = {}
     for (name, params) in dataframe_outputs:
@@ -528,7 +528,7 @@ def napari_workflows_wrapper(
 
         # Set inputs
         for input_name in input_specs.keys():
-            input_type = input_specs[input_name]["type"]
+            input_type = input_specs[input_name].type
 
             if input_type == "image":
                 wf.set(
@@ -557,7 +557,7 @@ def napari_workflows_wrapper(
         # Iterate first over dataframe outputs (to use the correct
         # max_label_for_relabeling, if needed)
         for ind_output, output_name in enumerate(list_outputs):
-            if output_specs[output_name]["type"] != "dataframe":
+            if output_specs[output_name].type != "dataframe":
                 continue
             df = outputs[ind_output]
             if relabeling:
@@ -573,7 +573,7 @@ def napari_workflows_wrapper(
         # After all dataframe outputs, iterate over label outputs (which
         # actually can be only 0 or 1)
         for ind_output, output_name in enumerate(list_outputs):
-            if output_specs[output_name]["type"] != "label":
+            if output_specs[output_name].type != "label":
                 continue
             mask = outputs[ind_output]
 
@@ -624,7 +624,7 @@ def napari_workflows_wrapper(
     # Output handling: "dataframe" type (for each output, concatenate ROI
     # dataframes, clean up, and store in a AnnData table on-disk)
     for (name, params) in dataframe_outputs:
-        table_name = params["table_name"]
+        table_name = params.table_name
         # Concatenate all FOV dataframes
         list_dfs = output_dataframe_lists[name]
         if len(list_dfs) == 0:
@@ -659,7 +659,7 @@ def napari_workflows_wrapper(
     # Output handling: "label" type (for each output, build and write to disk
     # pyramid of coarser levels)
     for (name, params) in label_outputs:
-        label_name = params["label_name"]
+        label_name = params.label_name
         build_pyramid(
             zarrurl=f"{zarrurl}/labels/{label_name}",
             overwrite=False,

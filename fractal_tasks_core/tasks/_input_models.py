@@ -64,7 +64,23 @@ class NapariWorkflowsInputSpecsItem(BaseModel):
     """
 
     type: Literal["image", "label"]
-    channel: BaseChannel
+    label_name: Optional[str]
+    channel: Optional[BaseChannel]
+
+    @validator("label_name", always=True)
+    def label_name_is_present(cls, v, values):
+        if values.get("type") == "label":
+            if not v:
+                # FIXME: what should I do here?
+                raise ValueError("FIXME")
+        return v
+
+    @validator("channel", always=True)
+    def channel_is_present(cls, v, values):
+        if values.get("type") == "image":
+            if not v:
+                raise ValueError("FIXME")
+        return v
 
 
 class NapariWorkflowsOutputSpecsItem(BaseModel):
