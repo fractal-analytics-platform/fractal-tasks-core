@@ -77,10 +77,7 @@ def test_napari_workflow(
     workflow_file = str(testdata_path / "napari_workflows/wf_4.yaml")
     input_specs = {
         "dapi_img": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
-        "dapi_label_img": {
-            "type": "label",
-            "channel": {"label_name": "label_DAPI"},
-        },
+        "dapi_label_img": {"type": "label", "label_name": "label_DAPI"},
     }
     output_specs = {
         "regionprops_DAPI": {

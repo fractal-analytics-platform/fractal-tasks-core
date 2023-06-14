@@ -91,8 +91,8 @@ def napari_workflows_wrapper(
 
         # Examples of allowed entries for input_specs and output_specs
         input_specs = {
-            "in_1": {"type": "image", "wavelength_id": "A01_C02"},
-            "in_2": {"type": "image", "label": "DAPI"},
+            "in_1": {"type": "image", "channel": {"wavelength_id": "A01_C02"}},
+            "in_2": {"type": "image", "channel": {"label": "DAPI"}},
             "in_3": {"type": "label", "label_name": "label_DAPI"},
         }
         output_specs = {
@@ -253,8 +253,8 @@ def napari_workflows_wrapper(
         for (name, params) in image_inputs:
             channel = get_channel_from_image_zarr(
                 image_zarr_path=f"{in_path}/{component}",
-                wavelength_id=params.wavelength_id,
-                label=params.channel_label,
+                wavelength_id=params.channel.wavelength_id,
+                label=params.channel.label,
             )
             channel_index = channel.index
             input_image_arrays[name] = img_array[channel_index]
@@ -434,7 +434,7 @@ def napari_workflows_wrapper(
         logger.info(f"{label_chunksize=}")
 
         # Create labels zarr group and combine existing/new labels in .zattrs
-        new_labels = [params["label_name"] for (name, params) in label_outputs]
+        new_labels = [params.label_name for (name, params) in label_outputs]
         zarrurl = f"{in_path}/{component}"
         try:
             with open(f"{zarrurl}/labels/.zattrs", "r") as f_zattrs:
