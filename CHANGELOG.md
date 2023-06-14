@@ -19,6 +19,7 @@
     * Remove `sqlmodel` from dev dependencies (\#374).
     * Relax constraint on torch version, from `==1.12.1` to `<=2.0.0` (\#406).
     * Review task docstrings and improve documentation (\#413, \#416).
+    * Update `anndata` dependency requirements, from `^0.8.0` to `>=0.8.0,<=0.9.1`, and replace `anndata.experimental import write_elem` with `anndata._io.specs.write_elem` (\#428).
 
 # 0.9.4
 
