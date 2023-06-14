@@ -226,7 +226,9 @@ output_specs = dict(
 RELABELING_CASE_2: List = [workflow_file_name, input_specs, output_specs]
 # 3. Mixed labeling/measurement workflow.
 workflow_file_name = "wf_relab_3-labeling_and_measurement.yaml"
-input_specs = dict(input_image={"type": "image", "wavelength_id": "A01_C01"})
+input_specs = dict(
+    input_image={"type": "image", "channel": {"wavelength_id": "A01_C01"}}
+)
 output_specs = dict(
     output_label={"type": "label", "label_name": LABEL_NAME},
     output_dataframe={"type": "dataframe", "table_name": TABLE_NAME},
