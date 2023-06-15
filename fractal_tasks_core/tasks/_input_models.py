@@ -42,13 +42,11 @@ class BaseChannel(BaseModel):
         """
         wavelength_id = values.get("wavelength_id")
         label = v
-
-        if wavelength_id is not None and v is not None:
+        if wavelength_id and v:
             raise ValueError(
                 "`wavelength_id` and `label` cannot be both set "
                 f"(given {wavelength_id=} and {label=})."
             )
-
         if wavelength_id is None and v is None:
             raise ValueError(
                 "`wavelength_id` and `label` cannot be both `None`"
@@ -59,12 +57,16 @@ class BaseChannel(BaseModel):
 
 class NapariWorkflowsInput(BaseModel):
     """
-    TBD
+    Model for a value of the ``input_specs`` argument in
+    ``napari_workflows_wrapper``.
     """
 
     type: Literal["image", "label"]
+    """ TBD """
     label_name: Optional[str]
+    """ TBD """
     channel: Optional[BaseChannel]
+    """ TBD """
 
     @validator("label_name", always=True)
     def label_name_is_present(cls, v, values):
@@ -85,12 +87,16 @@ class NapariWorkflowsInput(BaseModel):
 
 class NapariWorkflowsOutput(BaseModel):
     """
-    TBD
+    Model for a value of the ``output_specs`` argument in
+    ``napari_workflows_wrapper``.
     """
 
     type: Literal["label", "dataframe"]
+    """ TBD """
     label_name: Optional[str] = None
+    """ TBD """
     table_name: Optional[str] = None
+    """ TBD """
 
     @validator("label_name", always=True)
     def label_name_only_for_label_type(cls, v, values):
