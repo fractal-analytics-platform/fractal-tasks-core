@@ -148,7 +148,10 @@ def check_well_channel_labels(*, well_zarr_path: str) -> None:
 
 
 def get_channel_from_image_zarr(
-    *, image_zarr_path: str, label: str = None, wavelength_id: str = None
+    *,
+    image_zarr_path: str,
+    label: Optional[str] = None,
+    wavelength_id: Optional[str] = None,
 ) -> OmeroChannel:
     """
     Extract a channel from OME-NGFF zarr attributes
@@ -185,8 +188,8 @@ def get_omero_channel_list(*, image_zarr_path: str) -> List[OmeroChannel]:
 def get_channel_from_list(
     *,
     channels: List[OmeroChannel],
-    label: str = None,
-    wavelength_id: str = None,
+    label: Optional[str] = None,
+    wavelength_id: Optional[str] = None,
 ) -> OmeroChannel:
     """
     Find matching channel in a list
@@ -250,7 +253,7 @@ def define_omero_channels(
     *,
     channels: List[OmeroChannel],
     bit_depth: int,
-    label_prefix: str = None,
+    label_prefix: Optional[str] = None,
 ) -> List[Dict[str, Union[str, int, bool, Dict[str, int]]]]:
     """
     Update a channel list to use it in the OMERO/channels metadata
