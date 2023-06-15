@@ -400,7 +400,7 @@ def test_workflow_with_per_well_labeling_2D(
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        metadata_table="mrf_mlf",
+        metadata_table_file=None,
     )
     metadata.update(metadata_update)
 

@@ -67,7 +67,7 @@ def test_workflow_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: str):
         image_extension="png",
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        metadata_table="mrf_mlf",
+        metadata_table_file=None,
     )
 
     # Run task as executable

@@ -81,7 +81,7 @@ def test_create_ome_zarr_fail(tmp_path: Path, zenodo_images: str):
             allowed_channels=tmp_allowed_channels,
             num_levels=num_levels,
             coarsening_xy=coarsening_xy,
-            metadata_table="mrf_mlf",
+            metadata_table_file=None,
         )
 
 
@@ -102,7 +102,7 @@ def test_create_ome_zarr_no_images(
             allowed_channels=allowed_channels,
             num_levels=num_levels,
             coarsening_xy=coarsening_xy,
-            metadata_table="mrf_mlf",
+            metadata_table_file=None,
             image_extension="xyz",
         )
     with pytest.raises(ValueError):
@@ -113,7 +113,7 @@ def test_create_ome_zarr_no_images(
             allowed_channels=allowed_channels,
             num_levels=num_levels,
             coarsening_xy=coarsening_xy,
-            metadata_table="mrf_mlf",
+            metadata_table_file=None,
             image_extension="png",
             image_glob_patterns=["*asdasd*"],
         )
@@ -130,16 +130,16 @@ def test_yokogawa_to_ome_zarr(
     metadata_input: str,
 ):
 
-    # Select the kind of metadata_table input
+    # Select the kind of metadata_table_file input
     if metadata_input == "use_mrf_mlf_files":
-        metadata_table = "mrf_mlf"
+        metadata_table_file = None
     if metadata_input == "use_existing_csv_files":
         testdata_str = testdata_path.as_posix()
-        metadata_table = (
+        metadata_table_file = (
             f"{testdata_str}/metadata_files/"
             + "corrected_site_metadata_tiny_test.csv"
         )
-    debug(metadata_table)
+    debug(metadata_table_file)
 
     # Init
     img_path = Path(zenodo_images)
@@ -154,7 +154,7 @@ def test_yokogawa_to_ome_zarr(
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        metadata_table=metadata_table,
+        metadata_table_file=metadata_table_file,
         image_extension="png",
     )
     metadata.update(metadata_update)
@@ -249,7 +249,7 @@ def test_MIP_subset_of_images(
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        metadata_table="mrf_mlf",
+        metadata_table_file=None,
         image_extension="png",
         image_glob_patterns=["*F001*"],
     )
@@ -325,7 +325,7 @@ def test_illumination_correction(
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        metadata_table="mrf_mlf",
+        metadata_table_file=None,
     )
     metadata.update(metadata_update)
     print(caplog.text)
