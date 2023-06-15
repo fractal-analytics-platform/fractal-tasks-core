@@ -1,0 +1,34 @@
+name: precommit and mypy
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+
+  package:
+    name: "precommit and mypy"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.10
+          cache: pip
+
+      - name: Run pre-commit (fail upon errors)
+        uses: pre-commit/action@v3.0.0
+
+      - name: Install mypy
+        run: pip install mypy
+
+      - name: Run mypy (do not fail for errors)
+        run: mypy --package fractal_tasks_core --ignore-missing-imports --warn-redundant-casts --warn-unused-ignores --warn-unreachable --pretty
