@@ -512,27 +512,35 @@
             "type": "object",
             "description": "dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata: \"num_levels\": int, number of pyramid levels in the image. This determines how many pyramid levels are built for the segmentation. \"coarsening_xy\": int, coarsening factor in XY of the downsampling when building the pyramid. (standard argument for Fractal tasks, managed by Fractal server)"
           },
-          "overwrite": {
-            "title": "Overwrite",
-            "default": false,
-            "type": "boolean",
-            "description": "If True, the results of this task will overwrite the input image data. This task is only implemented for ``overwrite=True`` at the moment."
-          },
-          "new_component": {
-            "title": "New Component",
+          "illumination_profiles_folder": {
+            "title": "Illumination Profiles Folder",
             "type": "string",
-            "description": "Not implemented yet. This is not implemented well in Fractal server at the moment, it's unclear how a user would specify fitting new components. If the results shall not overwrite the input data and the output path is the same as the input path, a new component needs to be provided. Example: myplate_new_name.zarr/B/03/0/"
+            "description": "Path of folder of illumination profiles."
           },
           "dict_corr": {
             "title": "Dict Corr",
             "type": "object",
-            "description": "TODO: Refactor, see issue 414 on fractal-tasks-core"
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Dictionary where keys match the ``wavelength_id`` attributes of existing channels (e.g.  ``A01_C01`` ) and values are the filenames of the corresponding illumination profiles."
           },
           "background": {
             "title": "Background",
             "default": 110,
             "type": "integer",
             "description": "Background value that is subtracted from the image before the illumination correction is applied. Set it to 0 if you don't want any background subtraction."
+          },
+          "new_component": {
+            "title": "New Component",
+            "type": "string",
+            "description": "Not implemented yet. This is not implemented well in Fractal server at the moment, it's unclear how a user would specify fitting new components. If the results shall not overwrite the input data and the output path is the same as the input path, a new component needs to be provided. Example: myplate_new_name.zarr/B/03/0/"
+          },
+          "overwrite": {
+            "title": "Overwrite",
+            "default": false,
+            "type": "boolean",
+            "description": "If True, the results of this task will overwrite the input image data. This task is only implemented for ``overwrite=True`` at the moment."
           }
         },
         "required": [
@@ -540,6 +548,7 @@
           "output_path",
           "component",
           "metadata",
+          "illumination_profiles_folder",
           "dict_corr"
         ],
         "additionalProperties": false
