@@ -59,6 +59,7 @@ jsonschema = "^4.16.0"
 deptry = "^0.6.1"
 napari-ome-zarr = "^0.5.2"
 pytest-pretty = "^1.1.0"
+mypy = "^1.3.0"
 
 [tool.poetry.group.docs.dependencies]
 sphinx = "^5.3.0"
