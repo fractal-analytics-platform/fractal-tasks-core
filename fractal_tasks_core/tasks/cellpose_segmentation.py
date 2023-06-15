@@ -325,8 +325,7 @@ def cellpose_segmentation(
         except ChannelNotFoundError as e:
             logger.warning(
                 f"Second channel with wavelength_id: {channel2.wavelength_id} "
-                f"and channel_label: {channel2.channel_label} not found, exit "
-                "from the task.\n"
+                f"and label: {channel2.label} not found, exit from the task.\n"
                 f"Original error: {str(e)}"
             )
             return {}
