@@ -85,7 +85,6 @@ debug(metadata)
 # Illumination correction
 cwd = Path(__file__).parent.resolve().as_posix()
 dict_corr = {
-    "root_path_corr": f"{cwd}/parameters",
     "A01_C01": "illum_corr_matrix.png",
     "A01_C02": "illum_corr_matrix.png",
     "A02_C03": "illum_corr_matrix.png",
@@ -97,6 +96,7 @@ for component in metadata["image"]:
         metadata=metadata,
         component=component,
         overwrite=True,
+        illumination_profiles_folder_path=f"{cwd}/parameters",
         dict_corr=dict_corr,
         background=100,
     )

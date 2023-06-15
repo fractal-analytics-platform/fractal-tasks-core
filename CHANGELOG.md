@@ -10,6 +10,7 @@
     * `tasks._input_models.Channel` (\#422);
     * `tasks._input_models.NapariWorkflowsInput` (\#422);
     * `tasks._input_models.NapariWorkflowsOutput` (\#422).
+* Modify arguments of `illumination_correction` task (\#431).
 * JSON Schemas for task arguments:
     * Add JSON schemas for task arguments in the package manifest (\#369, \#384).
     * Remove `TaskArguments` models and switch to Pydantic V1 `validate_arguments` (\#369).
