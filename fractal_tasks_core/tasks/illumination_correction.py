@@ -143,9 +143,11 @@ def illumination_correction(
                      downsampling when building the pyramid.
                      (standard argument for Fractal tasks,
                      managed by Fractal server)
-    :param illumination_profiles_folder: FIXME -- see issue 414 on
-                                         fractal-tasks-core
-    :param dict_corr: FIXME -- see issue 414 on fractal-tasks-core
+    :param illumination_profiles_folder: Path of folder of illumination
+                                         profiles.
+    :param dict_corr: Dictionary where keys are ``wavelength_id``s (e.g.
+                      ``A01_C01``) and values are the filenames of the
+                      corresponding illumination profiles.
     :param background: Background value that is subtracted from the image
                        before the illumination correction is applied. Set it
                        to 0 if you don't want any background subtraction.
