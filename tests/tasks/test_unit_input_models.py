@@ -3,6 +3,9 @@ from devtools import debug
 
 from fractal_tasks_core.tasks._input_models import BaseChannel
 from fractal_tasks_core.tasks._input_models import (
+    NapariWorkflowsInputSpecsItem,
+)
+from fractal_tasks_core.tasks._input_models import (
     NapariWorkflowsOutputSpecsItem,
 )
 
@@ -30,6 +33,37 @@ def test_BaseChannel():
     with pytest.raises(ValueError) as e:
         BaseChannel(label="label", wavelength_id="wavelength_id")
     debug(e.value)
+
+
+def test_NapariWorkflowsInputSpecsItem():
+
+    # Invalid
+
+    with pytest.raises(ValueError) as e:
+        NapariWorkflowsInputSpecsItem(type="invalid")
+    debug(e.value)
+
+    with pytest.raises(ValueError) as e:
+        NapariWorkflowsInputSpecsItem(type="image")
+    debug(e.value)
+
+    with pytest.raises(ValueError) as e:
+        NapariWorkflowsInputSpecsItem(type="label")
+    debug(e.value)
+
+    # Valid
+
+    spec = NapariWorkflowsInputSpecsItem(type="label", label_name="name")
+    assert spec.type
+    assert spec.label_name
+    assert not spec.channel
+
+    spec = NapariWorkflowsInputSpecsItem(
+        type="image", channel=dict(label="something")
+    )
+    assert spec.type
+    assert not spec.label_name
+    assert spec.channel
 
 
 def test_NapariWorkflowsOutputSpecsItem():
