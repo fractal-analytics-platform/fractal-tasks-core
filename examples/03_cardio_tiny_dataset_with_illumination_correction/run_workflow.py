@@ -96,7 +96,7 @@ for component in metadata["image"]:
         metadata=metadata,
         component=component,
         overwrite=True,
-        illumination_profiles_folder_path=f"{cwd}/parameters",
+        illumination_profiles_folder=f"{cwd}/parameters",
         dict_corr=dict_corr,
         background=100,
     )
