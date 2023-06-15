@@ -69,17 +69,18 @@ class NapariWorkflowsInputSpecsItem(BaseModel):
 
     @validator("label_name", always=True)
     def label_name_is_present(cls, v, values):
-        if values.get("type") == "label":
-            if not v:
-                # FIXME: what should I do here?
-                raise ValueError("FIXME")
+        _type = values.get("type")
+        if _type == "label" and not v:
+            raise ValueError(
+                f"Input item has type={_type} but label_name={v}."
+            )
         return v
 
     @validator("channel", always=True)
     def channel_is_present(cls, v, values):
-        if values.get("type") == "image":
-            if not v:
-                raise ValueError("FIXME")
+        _type = values.get("type")
+        if _type == "image" and not v:
+            raise ValueError(f"Input item has type={_type} but channel={v}.")
         return v
 
 
