@@ -523,7 +523,7 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "Dictionary where keys are ``wavelength_id``s (e.g. ``A01_C01``) and values are the filenames of the corresponding illumination profiles."
+            "description": "Dictionary where keys match the ``wavelength_id`` attributes of existing channels (e.g.  ``A01_C01`` ) and values are the filenames of the corresponding illumination profiles."
           },
           "background": {
             "title": "Background",
