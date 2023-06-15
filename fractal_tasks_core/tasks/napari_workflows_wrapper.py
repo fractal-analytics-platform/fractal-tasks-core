@@ -123,8 +123,8 @@ def napari_workflows_wrapper(
                      (standard argument for Fractal tasks,
                      managed by Fractal server)
     :param workflow_file: Absolute path to napari-workflows YAML file
-    :param input_specs: See examples above. TODO: Update after issue 404
-    :param output_specs: See examples above. TODO: Update after issue 404
+    :param input_specs: A dictionary of ``NapariWorkflowsInput`` values.
+    :param output_specs: A dictionary of ``NapariWorkflowsOutput`` values.
     :param input_ROI_table: Name of the ROI table over which the task loops
                             to apply napari workflows.
                             Example: "FOV_ROI_table" => loop over the field of

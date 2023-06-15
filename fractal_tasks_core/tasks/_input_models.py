@@ -50,8 +50,7 @@ class BaseChannel(BaseModel):
 
 class NapariWorkflowsInput(BaseModel):
     """
-    Model for a value of the ``input_specs`` argument in
-    ``napari_workflows_wrapper``.
+    A value of the ``input_specs`` argument in ``napari_workflows_wrapper``.
     """
 
     type: Literal["image", "label"]
@@ -77,8 +76,7 @@ class NapariWorkflowsInput(BaseModel):
 
 class NapariWorkflowsOutput(BaseModel):
     """
-    Model for a value of the ``output_specs`` argument in
-    ``napari_workflows_wrapper``.
+    A value of the ``output_specs`` argument in ``napari_workflows_wrapper``.
     """
 
     type: Literal["label", "dataframe"]

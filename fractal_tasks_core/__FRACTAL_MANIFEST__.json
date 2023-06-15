@@ -593,7 +593,7 @@
             "additionalProperties": {
               "$ref": "#/definitions/NapariWorkflowsInput"
             },
-            "description": "See examples above. TODO: Update after issue 404"
+            "description": "A dictionary of ``NapariWorkflowsInput`` values."
           },
           "output_specs": {
             "title": "Output Specs",
@@ -601,7 +601,7 @@
             "additionalProperties": {
               "$ref": "#/definitions/NapariWorkflowsOutput"
             },
-            "description": "See examples above. TODO: Update after issue 404"
+            "description": "A dictionary of ``NapariWorkflowsOutput`` values."
           },
           "input_ROI_table": {
             "title": "Input Roi Table",
@@ -656,7 +656,7 @@
           },
           "NapariWorkflowsInput": {
             "title": "NapariWorkflowsInput",
-            "description": "Model for a value of the ``input_specs`` argument in\n``napari_workflows_wrapper``.",
+            "description": "A value of the ``input_specs`` argument in ``napari_workflows_wrapper``.",
             "type": "object",
             "properties": {
               "type": {
@@ -681,7 +681,7 @@
           },
           "NapariWorkflowsOutput": {
             "title": "NapariWorkflowsOutput",
-            "description": "Model for a value of the ``output_specs`` argument in\n``napari_workflows_wrapper``.",
+            "description": "A value of the ``output_specs`` argument in ``napari_workflows_wrapper``.",
             "type": "object",
             "properties": {
               "type": {
