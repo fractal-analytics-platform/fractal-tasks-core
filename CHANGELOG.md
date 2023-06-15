@@ -5,12 +5,13 @@
     * Create new `dev` subpackage (\#384).
     * Make tasks-related dependencies optional, and installable via `fractal-tasks` extra (\#390).
     * Remove `tools` package extra (\#384), and split the subpackage content into `lib_ROI_overlaps` and `examples` (\#390).
-* Introduce Pydantic models for task arguments (\#410, \#422):
-    * `lib_channels.OmeroChannel` (\#410, \#422);
-    * `tasks._input_models.Channel` (\#422);
-    * `tasks._input_models.NapariWorkflowsInput` (\#422);
-    * `tasks._input_models.NapariWorkflowsOutput` (\#422).
-* Modify arguments of `illumination_correction` task (\#431).
+* **(major)** Modify task arguments
+    * Add Pydantic model `lib_channels.OmeroChannel` (\#410, \#422);
+    * Add Pydantic model `tasks._input_models.Channel` (\#422);
+    * Add Pydantic model `tasks._input_models.NapariWorkflowsInput` (\#422);
+    * Add Pydantic model `tasks._input_models.NapariWorkflowsOutput` (\#422);
+    * Modify arguments of `illumination_correction` task (\#431);
+    * Modify arguments of `create_ome_zarr` and `create_ome_zarr_multiplex` (\#...).
 * JSON Schemas for task arguments:
     * Add JSON schemas for task arguments in the package manifest (\#369, \#384).
     * Remove `TaskArguments` models and switch to Pydantic V1 `validate_arguments` (\#369).
