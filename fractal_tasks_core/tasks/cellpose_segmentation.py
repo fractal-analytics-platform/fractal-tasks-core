@@ -204,23 +204,14 @@ def cellpose_segmentation(
                      managed by Fractal server)
     :param level: Pyramid level of the image to be segmented. Choose 0 to
                   process at full resolution.
-    :param channel: TBD
-                    wavelength_id: Identifier of a channel based on the
-                    wavelength (e.g. ``A01_C01``). If not ``None``, then
-                    ``label` must be ``None``.  Identifier of a channel
-                    based on its label (e.g.  ``DAPI``). If not ``None``, then
-                    ``wavelength_id`` must be ``None``.
-    :param channel2: TBD
-                     Identifier of a second channel in the same format as the
-                     first wavelength_id. If specified, cellpose runs in dual
-                     channel mode.  For dual channel segmentation of cells, the
-                     first channel should contain the membrane marker, the
-                     second channel should contain the nuclear marker.
-                     Identifier of a second channel in the same format as the
-                     first wavelength_id. If specified, cellpose runs in dual
-                     channel mode.  For dual channel segmentation of cells, the
-                     first channel should contain the membrane marker, the
-                     second channel should contain the nuclear marker.
+    :param channel: Primary channel for segmentation (requires either
+                    ``wavelength_id`` or ``label``).
+    :param channel2: Second channel for segmentation (requires either
+                     ``wavelength_id`` or ``label``). If specified, cellpose
+                     runs in dual channel mode.  For dual channel segmentation
+                     of cells, the first channel should contain the membrane
+                     marker, the second channel should contain the nuclear
+                     marker.
     :param input_ROI_table: Name of the ROI table over which the task loops
                             to apply Cellpose segmentation.
                             Example: "FOV_ROI_table" => loop over the field of

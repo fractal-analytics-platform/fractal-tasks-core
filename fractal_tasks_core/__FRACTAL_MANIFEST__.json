@@ -353,11 +353,11 @@
           },
           "channel": {
             "$ref": "#/definitions/BaseChannel",
-            "description": "TBD wavelength_id: Identifier of a channel based on the wavelength (e.g. ``A01_C01``). If not ``None``, then ``label` must be ``None``.  Identifier of a channel based on its label (e.g.  ``DAPI``). If not ``None``, then ``wavelength_id`` must be ``None``."
+            "description": "Primary channel for segmentation (requires either ``wavelength_id`` or ``label``)."
           },
           "channel2": {
             "$ref": "#/definitions/BaseChannel",
-            "description": "TBD Identifier of a second channel in the same format as the first wavelength_id. If specified, cellpose runs in dual channel mode.  For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker. Identifier of a second channel in the same format as the first wavelength_id. If specified, cellpose runs in dual channel mode.  For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker."
+            "description": "Second channel for segmentation (requires either ``wavelength_id`` or ``label``). If specified, cellpose runs in dual channel mode.  For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker."
           },
           "input_ROI_table": {
             "title": "Input Roi Table",
