@@ -44,7 +44,6 @@ class Channel(BaseModel):
             raise ValueError(
                 "`wavelength_id` and `label` cannot be both `None`"
             )
-
         return v
 
 
