@@ -82,6 +82,7 @@ def setup(app):
                 "-feMT",
                 f"--templatedir={templates_dir}",
                 package_dir,
+                "--private",
             ]
         ),
     )
