@@ -353,11 +353,11 @@
           },
           "channel": {
             "$ref": "#/definitions/BaseChannel",
-            "description": "Primary channel for segmentation (requires either ``wavelength_id`` or ``label``)."
+            "description": "Primary channel for segmentation; requires either ``wavelength_id`` (e.g. ``A01_C01``) or ``label`` (e.g. ``DAPI``)."
           },
           "channel2": {
             "$ref": "#/definitions/BaseChannel",
-            "description": "Second channel for segmentation (requires either ``wavelength_id`` or ``label``). If specified, cellpose runs in dual channel mode.  For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker."
+            "description": "Second channel for segmentation (in the same format as ``channel``). If specified, cellpose runs in dual channel mode.  For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker."
           },
           "input_ROI_table": {
             "title": "Input Roi Table",

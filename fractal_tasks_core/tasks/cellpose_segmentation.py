@@ -204,14 +204,14 @@ def cellpose_segmentation(
                      managed by Fractal server)
     :param level: Pyramid level of the image to be segmented. Choose 0 to
                   process at full resolution.
-    :param channel: Primary channel for segmentation (requires either
-                    ``wavelength_id`` or ``label``).
-    :param channel2: Second channel for segmentation (requires either
-                     ``wavelength_id`` or ``label``). If specified, cellpose
-                     runs in dual channel mode.  For dual channel segmentation
-                     of cells, the first channel should contain the membrane
-                     marker, the second channel should contain the nuclear
-                     marker.
+    :param channel: Primary channel for segmentation; requires either
+                    ``wavelength_id`` (e.g. ``A01_C01``) or ``label`` (e.g.
+                    ``DAPI``).
+    :param channel2: Second channel for segmentation (in the same format as
+                     ``channel``). If specified, cellpose runs in dual channel
+                     mode.  For dual channel segmentation of cells, the first
+                     channel should contain the membrane marker, the second
+                     channel should contain the nuclear marker.
     :param input_ROI_table: Name of the ROI table over which the task loops
                             to apply Cellpose segmentation.
                             Example: "FOV_ROI_table" => loop over the field of
