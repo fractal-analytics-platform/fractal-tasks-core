@@ -13,9 +13,7 @@ Copyright 2022 (C)
 
 Helper functions to handle JSON schemas for task arguments.
 """
-import argparse
 import ast
-import json
 from importlib import import_module
 from pathlib import Path
 from typing import Any
@@ -144,70 +142,3 @@ def create_schema_for_single_task(executable: str) -> _Schema:
     )
 
     return schema
-
-
-if __name__ == "__main__":
-
-    parser_main = argparse.ArgumentParser(
-        description="Create/update task-arguments JSON schemas"
-    )
-    subparsers_main = parser_main.add_subparsers(
-        title="Commands:", dest="command", required=True
-    )
-    parser_check = subparsers_main.add_parser(
-        "check",
-        description="Check that existing files are up-to-date",
-        allow_abbrev=False,
-    )
-    parser_check = subparsers_main.add_parser(
-        "new",
-        description="Write new JSON schemas to files",
-        allow_abbrev=False,
-    )
-
-    args = parser_main.parse_args()
-    command = args.command
-
-    # Read manifest
-    manifest_path = (
-        Path(fractal_tasks_core.__file__).parent / "__FRACTAL_MANIFEST__.json"
-    )
-    with manifest_path.open("r") as f:
-        manifest = json.load(f)
-
-    # Set or check global properties of manifest
-    if command == "new":
-        manifest["has_args_schemas"] = True
-        manifest["args_schema_version"] = "pydantic_v1"
-    elif command == "check":
-        if not manifest["has_args_schemas"]:
-            raise ValueError(f'{manifest["has_args_schemas"]=}')
-        if manifest["args_schema_version"] != "pydantic_v1":
-            raise ValueError(f'{manifest["args_schema_version"]=}')
-
-    # Loop over tasks and set or check args schemas
-    task_list = manifest["task_list"]
-    for ind, task in enumerate(task_list):
-        executable = task["executable"]
-        print(f"[{executable}] Start")
-        try:
-            schema = create_schema_for_single_task(executable)
-        except AttributeError:
-            print(f"[{executable}] Skip, due to AttributeError")
-            print()
-            continue
-
-        if command == "check":
-            current_schema = task["args_schema"]
-            if not current_schema == schema:
-                raise ValueError("Schemas are different.")
-            print("Schema in manifest is up-to-date.")
-            print()
-        elif command == "new":
-            manifest["task_list"][ind]["args_schema"] = schema
-            print("Schema added to manifest")
-            print()
-
-    if command == "new":
-        with manifest_path.open("w") as f:
-            json.dump(manifest, f, indent=2)
