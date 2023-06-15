@@ -57,7 +57,7 @@ def create_ome_zarr(
     allowed_channels: List[OmeroChannel],
     num_levels: int = 5,
     coarsening_xy: int = 2,
-    metadata_table: str = "mrf_mlf",
+    metadata_table_file: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Create a OME-NGFF zarr folder, without reading/writing image data
@@ -111,24 +111,21 @@ def create_ome_zarr(
                              must include the ``wavelength_id`` attribute and
                              where the ``wavelength_id`` values must be unique
                              across the list.
-    :param metadata_table: If equal to ``"mrf_mlf"``, parse Yokogawa metadata
-                           from mrf/mlf files in the input_path folder; else,
-                           the full path to a csv file containing
-                           the parsed metadata table.
-                           # TODO: Improve after issue 399
+    :param metadata_table_file: If ``None``, parse Yokogawa metadata from
+                                mrf/mlf files in the input_path folder; else,
+                                the full path to a csv file containing the
+                                parsed metadata table.
     :return: A metadata dictionary containing important metadata about the
             OME-Zarr plate, the images and some parameters required by
             downstream tasks (like `num_levels`).
     """
 
-    # Preliminary checks on metadata_table
-    if metadata_table != "mrf_mlf" and not metadata_table.endswith(".csv"):
-        raise ValueError(
-            "metadata_table must be a known string or a "
-            "csv file containing a pandas dataframe"
-        )
-    if metadata_table.endswith(".csv") and not os.path.isfile(metadata_table):
-        raise FileNotFoundError(f"Missing file: {metadata_table=}")
+    # Preliminary checks on metadata_table_file
+    if metadata_table_file:
+        if not metadata_table_file.endswith(".csv"):
+            raise ValueError(f"{metadata_table_file=} is not a csv file")
+        if not os.path.isfile(metadata_table_file):
+            raise FileNotFoundError(f"{metadata_table_file=} does not exist")
 
     # Identify all plates and all channels, across all input folders
     plates = []
@@ -246,7 +243,7 @@ def create_ome_zarr(
 
         # Obtain FOV-metadata dataframe
 
-        if metadata_table == "mrf_mlf":
+        if metadata_table_file is None:
             mrf_path = f"{in_path}/MeasurementDetail.mrf"
             mlf_path = f"{in_path}/MeasurementData.mlf"
 
@@ -258,12 +255,12 @@ def create_ome_zarr(
             site_metadata = remove_FOV_overlaps(site_metadata)
 
         # If a metadata table was passed, load it and use it directly
-        elif metadata_table.endswith(".csv"):
+        else:
             logger.warning(
                 "Since a custom metadata table was provided, there will "
                 "be no additional check on the number of image files."
             )
-            site_metadata = pd.read_csv(metadata_table)
+            site_metadata = pd.read_csv(metadata_table_file)
             site_metadata.set_index(["well_id", "FieldIndex"], inplace=True)
 
         # Extract pixel sizes and bit_depth
@@ -300,7 +297,7 @@ def create_ome_zarr(
             )
 
             # Check number of images matches with expected one
-            if metadata_table == "mrf_mlf":
+            if metadata_table_file is None:
                 num_images_glob = len(well_images)
                 num_images_expected = number_images_mlf[well]
                 if num_images_glob != num_images_expected:
