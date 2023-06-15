@@ -22,11 +22,18 @@ from pydantic import validator
 
 class BaseChannel(BaseModel):
     """
-    TBD
+    A channel which is specified by either `wavelength_id` or `label`.
     """
 
     wavelength_id: Optional[str] = None
+    """
+    TBD
+    """
+
     label: Optional[str] = None
+    """
+    TBD
+    """
 
     @validator("label", always=True)
     def mutually_exclusive_channel_attributes(cls, v, values):
