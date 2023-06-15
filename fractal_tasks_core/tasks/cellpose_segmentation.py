@@ -53,7 +53,7 @@ from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
 from fractal_tasks_core.lib_ROI_overlaps import get_overlapping_pairs_3D
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
-from fractal_tasks_core.tasks._input_models import CellposeSegmentationChannel
+from fractal_tasks_core.tasks._input_models import BaseChannel
 
 logger = logging.getLogger(__name__)
 
@@ -154,8 +154,8 @@ def cellpose_segmentation(
     metadata: Dict[str, Any],
     # Task-specific arguments
     level: int,
-    channel: CellposeSegmentationChannel,
-    channel2: Optional[CellposeSegmentationChannel] = None,
+    channel: BaseChannel,
+    channel2: Optional[BaseChannel] = None,
     input_ROI_table: str = "FOV_ROI_table",
     output_ROI_table: Optional[str] = None,
     output_label_name: Optional[str] = None,

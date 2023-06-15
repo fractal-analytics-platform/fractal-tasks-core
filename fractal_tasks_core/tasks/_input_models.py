@@ -57,14 +57,6 @@ class BaseChannel(BaseModel):
         return v
 
 
-class CellposeSegmentationChannel(BaseChannel):
-    """
-    TBD
-    """
-
-    pass
-
-
 class NapariWorkflowsInput(BaseModel):
     """
     TBD
