@@ -163,8 +163,10 @@ def napari_workflows_wrapper(
     list_outputs = sorted(output_specs.keys())
 
     # Characterization of workflow and scope restriction
-    input_types = [params.type for (name, params) in input_specs.items()]
-    output_types = [params.type for (name, params) in output_specs.items()]
+    input_types = [in_params.type for (name, in_params) in input_specs.items()]
+    output_types = [
+        out_params.type for (name, out_params) in output_specs.items()
+    ]
     are_inputs_all_images = set(input_types) == {"image"}
     are_outputs_all_labels = set(output_types) == {"label"}
     are_outputs_all_dataframes = set(output_types) == {"dataframe"}
@@ -240,9 +242,9 @@ def napari_workflows_wrapper(
 
     # Input preparation: "image" type
     image_inputs = [
-        (name, params)
-        for (name, params) in input_specs.items()
-        if params.type == "image"
+        (name, in_params)
+        for (name, in_params) in input_specs.items()
+        if in_params.type == "image"
     ]
     input_image_arrays = {}
     if image_inputs:
@@ -284,9 +286,9 @@ def napari_workflows_wrapper(
 
     # Input preparation: "label" type
     label_inputs = [
-        (name, params)
-        for (name, params) in input_specs.items()
-        if params.type == "label"
+        (name, in_params)
+        for (name, in_params) in input_specs.items()
+        if in_params.type == "label"
     ]
     if label_inputs:
         # Set target_shape for upscaling labels
@@ -358,9 +360,9 @@ def napari_workflows_wrapper(
 
     # Output preparation: "label" type
     label_outputs = [
-        (name, params)
-        for (name, params) in output_specs.items()
-        if params.type == "label"
+        (name, out_params)
+        for (name, out_params) in output_specs.items()
+        if out_params.type == "label"
     ]
     if label_outputs:
         # Preliminary scope checks
@@ -452,8 +454,8 @@ def napari_workflows_wrapper(
 
         # Loop over label outputs and (1) set zattrs, (2) create zarr group
         output_label_zarr_groups: Dict[str, Any] = {}
-        for (name, params) in label_outputs:
-            label_name = params.label_name
+        for (name, out_params) in label_outputs:
+            label_name = out_params.label_name
 
             # (1a) Rescale OME-NGFF datasets (relevant for level>0)
             if not multiscales[0]["axes"][0]["name"] == "c":
@@ -498,19 +500,19 @@ def napari_workflows_wrapper(
                 dimension_separator="/",
             )
             output_label_zarr_groups[name] = mask_zarr
-            logger.info(f"Prepared output with {name=} and {params=}")
+            logger.info(f"Prepared output with {name=} and {out_params=}")
         logger.info(f"{output_label_zarr_groups=}")
 
     # Output preparation: "dataframe" type
     dataframe_outputs = [
-        (name, params)
-        for (name, params) in output_specs.items()
-        if params.type == "dataframe"
+        (name, out_params)
+        for (name, out_params) in output_specs.items()
+        if out_params.type == "dataframe"
     ]
     output_dataframe_lists: Dict[str, List] = {}
-    for (name, params) in dataframe_outputs:
+    for (name, out_params) in dataframe_outputs:
         output_dataframe_lists[name] = []
-        logger.info(f"Prepared output with {name=} and {params=}")
+        logger.info(f"Prepared output with {name=} and {out_params=}")
         logger.info(f"{output_dataframe_lists=}")
 
     #####
@@ -621,8 +623,8 @@ def napari_workflows_wrapper(
 
     # Output handling: "dataframe" type (for each output, concatenate ROI
     # dataframes, clean up, and store in a AnnData table on-disk)
-    for (name, params) in dataframe_outputs:
-        table_name = params.table_name
+    for (name, iout_params) in dataframe_outputs:
+        table_name = out_params.table_name
         # Concatenate all FOV dataframes
         list_dfs = output_dataframe_lists[name]
         if len(list_dfs) == 0:
@@ -656,8 +658,8 @@ def napari_workflows_wrapper(
 
     # Output handling: "label" type (for each output, build and write to disk
     # pyramid of coarser levels)
-    for (name, params) in label_outputs:
-        label_name = params.label_name
+    for (name, out_params) in label_outputs:
+        label_name = out_params.label_name
         build_pyramid(
             zarrurl=f"{zarrurl}/labels/{label_name}",
             overwrite=False,

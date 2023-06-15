@@ -407,11 +407,11 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
 
 
 def load_region(
-    data_zyx: da.array,
+    data_zyx: da.Array,
     region: Tuple[slice, slice, slice],
     compute=True,
     return_as_3D=False,
-) -> Union[da.array, np.array]:
+) -> Union[da.Array, np.ndarray]:
     """
     Load a region from a dask array
 

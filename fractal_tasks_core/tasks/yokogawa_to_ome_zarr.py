@@ -197,11 +197,11 @@ def yokogawa_to_ome_zarr(
         patterns = [f"*_{well_ID}_*{A}*{C}*.{image_extension}"]
         if image_glob_patterns:
             patterns.extend(image_glob_patterns)
-        filenames = glob_with_multiple_patterns(
+        filenames_set = glob_with_multiple_patterns(
             folder=str(in_path),
             patterns=patterns,
         )
-        filenames = sorted(list(filenames), key=sort_fun)
+        filenames = sorted(list(filenames_set), key=sort_fun)
         if len(filenames) == 0:
             raise Exception(
                 "Error in yokogawa_to_ome_zarr: len(filenames)=0.\n"

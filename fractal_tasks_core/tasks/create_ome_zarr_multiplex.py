@@ -157,10 +157,10 @@ def create_ome_zarr_multiplex(
     # Preliminary checks on allowed_channels
     # Note that in metadata the keys of dictionary arguments should be
     # strings (and not integers), so that they can be read from a JSON file
-    for key, value in allowed_channels.items():
+    for key, _channels in allowed_channels.items():
         if not isinstance(key, str):
             raise ValueError(f"{allowed_channels=} has non-string keys")
-        check_unique_wavelength_ids(value)
+        check_unique_wavelength_ids(_channels)
 
     # Identify all plates and all channels, per input folders
     dict_acquisitions: Dict = {}
