@@ -94,20 +94,18 @@ class NapariWorkflowsOutputSpecsItem(BaseModel):
 
     @validator("label_name", always=True)
     def label_name_only_for_label_type(cls, v, values):
-        if values.get("type") == "label":
-            if not v:
-                raise ValueError("FIXME")
-        else:
-            if v:
-                raise ValueError("FIXME")
+        _type = values.get("type")
+        if (_type == "label" and (not v)) or (_type != "label" and v):
+            raise ValueError(
+                f"Output item has type={_type} but label_name={v}."
+            )
         return v
 
     @validator("table_name", always=True)
     def table_name_only_for_dataframe_type(cls, v, values):
-        if values.get("type") == "dataframe":
-            if not v:
-                raise ValueError("FIXME")
-        else:
-            if v:
-                raise ValueError("FIXME")
+        _type = values.get("type")
+        if (_type == "dataframe" and (not v)) or (_type != "dataframe" and v):
+            raise ValueError(
+                f"Output item has type={_type} but table_name={v}."
+            )
         return v
