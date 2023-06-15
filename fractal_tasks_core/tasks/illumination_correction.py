@@ -52,8 +52,9 @@ def correct(
 
     img_stack is a four-dimensional (czyx) numpy array, with dummy size along c
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    :param img_stack: TBD
+    :param corr_img: TBD
+    :param background: TBD
     """
 
     logger.info(f"Start correct, {img_stack.shape}")
@@ -96,14 +97,17 @@ def correct(
 @validate_arguments
 def illumination_correction(
     *,
+    # Standard arguments
     input_paths: Sequence[str],
     output_path: str,
     component: str,
     metadata: Dict[str, Any],
-    overwrite: bool = False,
-    new_component: Optional[str] = None,
-    dict_corr: dict,
+    # Task-specific arguments
+    root_path_corr: str,
+    dict_corr: dict[str, str],
     background: int = 110,
+    new_component: Optional[str] = None,
+    overwrite: bool = False,
 ) -> Dict[str, Any]:
 
     """
@@ -139,6 +143,11 @@ def illumination_correction(
                      downsampling when building the pyramid.
                      (standard argument for Fractal tasks,
                      managed by Fractal server)
+    :param root_path_corr: FIXME -- see issue 414 on fractal-tasks-core
+    :param dict_corr: FIXME -- see issue 414 on fractal-tasks-core
+    :param background: Background value that is subtracted from the image
+                       before the illumination correction is applied. Set it
+                       to 0 if you don't want any background subtraction.
     :param overwrite: If True, the results of this task will overwrite the
                       input image data. This task is only implemented for
                       ``overwrite=True`` at the moment.
@@ -151,11 +160,6 @@ def illumination_correction(
                           to be provided.
                           Example:
                           myplate_new_name.zarr/B/03/0/
-    :param dict_corr: TODO: Refactor,
-                      see issue 414 on fractal-tasks-core
-    :param background: Background value that is subtracted from the image
-                       before the illumination correction is applied. Set it
-                       to 0 if you don't want any background subtraction.
     """
 
     # Preliminary checks
@@ -232,17 +236,12 @@ def illumination_correction(
                 )
     img_size_y, img_size_x = img_size[:]
 
-    # Load paths of correction matrices
-    root_path_corr = dict_corr.pop("root_path_corr")
-    if not root_path_corr.endswith("/"):
-        root_path_corr += "/"
-
     # Assemble dictionary of matrices and check their shapes
     corrections = {}
     for channel in channels:
         wavelength_id = channel.wavelength_id
         corrections[wavelength_id] = imread(
-            root_path_corr + dict_corr[wavelength_id]
+            (Path(root_path_corr) / dict_corr[wavelength_id]).as_posix()
         )
         if corrections[wavelength_id].shape != (img_size_y, img_size_x):
             raise Exception(

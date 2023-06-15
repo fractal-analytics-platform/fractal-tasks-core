@@ -48,7 +48,6 @@ def test_illumination_correction(
     zarr_path = str(tmp_path)
     testdata_str = testdata_path.as_posix()
     illum_params = {
-        "root_path_corr": f"{testdata_str}/illumination_correction/",
         "A01_C01": "illum_corr_matrix.png",
         "A01_C02": "illum_corr_matrix.png",
     }
@@ -96,6 +95,7 @@ def test_illumination_correction(
             metadata=metadata,
             component=component,
             overwrite=overwrite,
+            root_path_corr=f"{testdata_str}/illumination_correction/",
             dict_corr=illum_params,
             background=0,
         )
