@@ -210,4 +210,4 @@ if __name__ == "__main__":
 
     if command == "new":
         with manifest_path.open("w") as f:
-            json.dump(manifest, f, indent=2, sort_keys=True)
+            json.dump(manifest, f, indent=2)
