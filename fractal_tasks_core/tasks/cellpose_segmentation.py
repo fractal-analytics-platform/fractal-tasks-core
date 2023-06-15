@@ -36,9 +36,9 @@ from cellpose import models
 from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
-from fractal_tasks_core.lib_channels import Channel
 from fractal_tasks_core.lib_channels import ChannelNotFoundError
 from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
+from fractal_tasks_core.lib_channels import OmeroChannel
 from fractal_tasks_core.lib_masked_loading import masked_loading_wrapper
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
@@ -53,7 +53,7 @@ from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
 from fractal_tasks_core.lib_ROI_overlaps import get_overlapping_pairs_3D
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
-from fractal_tasks_core.tasks._input_models import BaseChannel
+from fractal_tasks_core.tasks._input_models import Channel
 
 logger = logging.getLogger(__name__)
 
@@ -154,8 +154,8 @@ def cellpose_segmentation(
     metadata: Dict[str, Any],
     # Task-specific arguments
     level: int,
-    channel: BaseChannel,
-    channel2: Optional[BaseChannel] = None,
+    channel: Channel,
+    channel2: Optional[Channel] = None,
     input_ROI_table: str = "FOV_ROI_table",
     output_ROI_table: Optional[str] = None,
     output_label_name: Optional[str] = None,
@@ -301,7 +301,7 @@ def cellpose_segmentation(
 
     # Find channel index
     try:
-        tmp_channel: Channel = get_channel_from_image_zarr(
+        tmp_channel: OmeroChannel = get_channel_from_image_zarr(
             image_zarr_path=zarrurl,
             wavelength_id=channel.wavelength_id,
             label=channel.label,
@@ -317,7 +317,7 @@ def cellpose_segmentation(
     # Find channel index for second channel, if one is provided
     if channel2:
         try:
-            tmp_channel_c2: Channel = get_channel_from_image_zarr(
+            tmp_channel_c2: OmeroChannel = get_channel_from_image_zarr(
                 image_zarr_path=zarrurl,
                 wavelength_id=channel2.wavelength_id,
                 label=channel2.label,

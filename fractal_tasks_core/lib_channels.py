@@ -32,7 +32,7 @@ if __OME_NGFF_VERSION__ != "0.4":
     )
 
 
-class ChannelWindow(BaseModel):
+class Window(BaseModel):
     """
     Custom class for Omero-channel window, related to OME-NGFF v0.4
 
@@ -53,7 +53,7 @@ class ChannelWindow(BaseModel):
     """TBD"""
 
 
-class Channel(BaseModel):
+class OmeroChannel(BaseModel):
     """
     Custom class for Omero channels, related to OME-NGFF v0.4.
 
@@ -74,7 +74,7 @@ class Channel(BaseModel):
     """TBD"""
 
     # From OME-NGFF v0.4 transitional metadata
-    window: Optional[ChannelWindow]
+    window: Optional[Window]
     """TBD"""
     color: Optional[str]
     """TBD"""
@@ -97,7 +97,7 @@ class ChannelNotFoundError(ValueError):
     pass
 
 
-def check_unique_wavelength_ids(channels: List[Channel]):
+def check_unique_wavelength_ids(channels: List[OmeroChannel]):
     """
     Check that the `wavelength_id` attributes of a channel list are unique
     """
@@ -149,7 +149,7 @@ def check_well_channel_labels(*, well_zarr_path: str) -> None:
 
 def get_channel_from_image_zarr(
     *, image_zarr_path: str, label: str = None, wavelength_id: str = None
-) -> Channel:
+) -> OmeroChannel:
     """
     Extract a channel from OME-NGFF zarr attributes
 
@@ -169,7 +169,7 @@ def get_channel_from_image_zarr(
     return channel
 
 
-def get_omero_channel_list(*, image_zarr_path: str) -> List[Channel]:
+def get_omero_channel_list(*, image_zarr_path: str) -> List[OmeroChannel]:
     """
     Extract the list of channels from OME-NGFF zarr attributes
 
@@ -178,13 +178,16 @@ def get_omero_channel_list(*, image_zarr_path: str) -> List[Channel]:
     """
     group = zarr.open_group(image_zarr_path, mode="r+")
     channels_dicts = group.attrs["omero"]["channels"]
-    channels = [Channel(**c) for c in channels_dicts]
+    channels = [OmeroChannel(**c) for c in channels_dicts]
     return channels
 
 
 def get_channel_from_list(
-    *, channels: List[Channel], label: str = None, wavelength_id: str = None
-) -> Channel:
+    *,
+    channels: List[OmeroChannel],
+    label: str = None,
+    wavelength_id: str = None,
+) -> OmeroChannel:
     """
     Find matching channel in a list
 
@@ -245,7 +248,7 @@ def get_channel_from_list(
 
 def define_omero_channels(
     *,
-    channels: List[Channel],
+    channels: List[OmeroChannel],
     bit_depth: int,
     label_prefix: str = None,
 ) -> List[Dict[str, Union[str, int, bool, Dict[str, int]]]]:

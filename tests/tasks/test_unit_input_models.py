@@ -1,7 +1,7 @@
 import pytest
 from devtools import debug
 
-from fractal_tasks_core.tasks._input_models import BaseChannel
+from fractal_tasks_core.tasks._input_models import Channel
 from fractal_tasks_core.tasks._input_models import (
     NapariWorkflowsInput,
 )
@@ -10,16 +10,16 @@ from fractal_tasks_core.tasks._input_models import (
 )
 
 
-def test_BaseChannel():
+def test_Channel():
 
     # Valid
 
-    c = BaseChannel(wavelength_id="wavelength_id")
+    c = Channel(wavelength_id="wavelength_id")
     debug(c)
     assert c.wavelength_id
     assert not c.label
 
-    c = BaseChannel(label="label")
+    c = Channel(label="label")
     debug(c)
     assert not c.wavelength_id
     assert c.label
@@ -27,11 +27,11 @@ def test_BaseChannel():
     # Invalid
 
     with pytest.raises(ValueError) as e:
-        BaseChannel()
+        Channel()
     debug(e.value)
 
     with pytest.raises(ValueError) as e:
-        BaseChannel(label="label", wavelength_id="wavelength_id")
+        Channel(label="label", wavelength_id="wavelength_id")
     debug(e.value)
 
 

@@ -5,17 +5,17 @@ import jsonschema
 import pytest
 from devtools import debug
 
-from fractal_tasks_core.lib_channels import Channel
 from fractal_tasks_core.lib_channels import define_omero_channels
 from fractal_tasks_core.lib_channels import get_channel_from_list
+from fractal_tasks_core.lib_channels import OmeroChannel
 
 
 def test_get_channel_from_list(testdata_path: Path):
 
-    # Read JSON data and cast into `Channel`s
+    # Read JSON data and cast into `OmeroChannel`s
     with (testdata_path / "omero/channels_list.json").open("r") as f:
         omero_channels_dict = json.load(f)
-    omero_channels = [Channel(**c) for c in omero_channels_dict]
+    omero_channels = [OmeroChannel(**c) for c in omero_channels_dict]
     debug(omero_channels)
 
     # Extract a channel from a list / case 1
@@ -64,16 +64,16 @@ def omero_channel_schema():
 
 def test_define_omero_channels(testdata_path: Path, omero_channel_schema):
     """
-    GIVEN a list of our custom `Channel` objects
+    GIVEN a list of our custom `OmeroChannel` objects
     WHEN calling `define_omero_channels`
     THEN
         the output channel dictionaries are valid Omero channels according to
         the OME-NGFF schema
     """
-    # Read JSON data and cast into `Channel`s
+    # Read JSON data and cast into `OmeroChannel`s
     with (testdata_path / "omero/channels_list.json").open("r") as f:
         omero_channels_dict = json.load(f)
-    omero_channels = [Channel(**c) for c in omero_channels_dict]
+    omero_channels = [OmeroChannel(**c) for c in omero_channels_dict]
     debug(omero_channels)
 
     # Call define_omero_channels

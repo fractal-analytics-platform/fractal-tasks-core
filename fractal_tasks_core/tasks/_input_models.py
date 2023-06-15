@@ -20,7 +20,7 @@ from pydantic import BaseModel
 from pydantic import validator
 
 
-class BaseChannel(BaseModel):
+class Channel(BaseModel):
     """
     A channel which is specified by either ``wavelength_id`` or ``label``.
     """
@@ -55,7 +55,7 @@ class NapariWorkflowsInput(BaseModel):
 
     type: Literal["image", "label"]
     label_name: Optional[str]
-    channel: Optional[BaseChannel]
+    channel: Optional[Channel]
 
     @validator("label_name", always=True)
     def label_name_is_present(cls, v, values):
