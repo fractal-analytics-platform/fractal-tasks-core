@@ -623,7 +623,7 @@ def napari_workflows_wrapper(
 
     # Output handling: "dataframe" type (for each output, concatenate ROI
     # dataframes, clean up, and store in a AnnData table on-disk)
-    for (name, iout_params) in dataframe_outputs:
+    for (name, out_params) in dataframe_outputs:
         table_name = out_params.table_name
         # Concatenate all FOV dataframes
         list_dfs = output_dataframe_lists[name]
