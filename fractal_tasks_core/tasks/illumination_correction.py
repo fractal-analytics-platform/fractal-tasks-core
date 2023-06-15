@@ -103,7 +103,7 @@ def illumination_correction(
     component: str,
     metadata: Dict[str, Any],
     # Task-specific arguments
-    root_path_corr: str,
+    illumination_profiles_folder: str,
     dict_corr: dict[str, str],
     background: int = 110,
     new_component: Optional[str] = None,
@@ -143,7 +143,8 @@ def illumination_correction(
                      downsampling when building the pyramid.
                      (standard argument for Fractal tasks,
                      managed by Fractal server)
-    :param root_path_corr: FIXME -- see issue 414 on fractal-tasks-core
+    :param illumination_profiles_folder: FIXME -- see issue 414 on
+                                         fractal-tasks-core
     :param dict_corr: FIXME -- see issue 414 on fractal-tasks-core
     :param background: Background value that is subtracted from the image
                        before the illumination correction is applied. Set it
@@ -241,7 +242,9 @@ def illumination_correction(
     for channel in channels:
         wavelength_id = channel.wavelength_id
         corrections[wavelength_id] = imread(
-            (Path(root_path_corr) / dict_corr[wavelength_id]).as_posix()
+            (
+                Path(illumination_profiles_folder) / dict_corr[wavelength_id]
+            ).as_posix()
         )
         if corrections[wavelength_id].shape != (img_size_y, img_size_x):
             raise Exception(
