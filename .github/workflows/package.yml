@@ -31,4 +31,5 @@ jobs:
         run: pip install mypy
 
       - name: Run mypy (do not fail for errors)
+        continue-on-error: true
         run: mypy --package fractal_tasks_core --ignore-missing-imports --warn-redundant-casts --warn-unused-ignores --warn-unreachable --pretty
