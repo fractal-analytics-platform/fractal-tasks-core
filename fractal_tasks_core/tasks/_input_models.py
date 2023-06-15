@@ -22,7 +22,7 @@ from pydantic import validator
 
 class BaseChannel(BaseModel):
     """
-    A channel which is specified by either `wavelength_id` or `label`.
+    A channel which is specified by either ``wavelength_id`` or ``label``.
     """
 
     wavelength_id: Optional[str] = None
@@ -38,7 +38,7 @@ class BaseChannel(BaseModel):
     @validator("label", always=True)
     def mutually_exclusive_channel_attributes(cls, v, values):
         """
-        If `label` is set, then `wavelength_id` must be `None`
+        If ``label`` is set, then ``wavelength_id`` must be ``None``
         """
         wavelength_id = values.get("wavelength_id")
         label = v
@@ -65,7 +65,7 @@ class CellposeSegmentationChannel(BaseChannel):
     pass
 
 
-class NapariWorkflowsInputSpecsItem(BaseModel):
+class NapariWorkflowsInput(BaseModel):
     """
     TBD
     """
@@ -91,7 +91,7 @@ class NapariWorkflowsInputSpecsItem(BaseModel):
         return v
 
 
-class NapariWorkflowsOutputSpecsItem(BaseModel):
+class NapariWorkflowsOutput(BaseModel):
     """
     TBD
     """

@@ -591,7 +591,7 @@
             "title": "Input Specs",
             "type": "object",
             "additionalProperties": {
-              "$ref": "#/definitions/NapariWorkflowsInputSpecsItem"
+              "$ref": "#/definitions/NapariWorkflowsInput"
             },
             "description": "See examples above. TODO: Update after issue 404"
           },
@@ -599,7 +599,7 @@
             "title": "Output Specs",
             "type": "object",
             "additionalProperties": {
-              "$ref": "#/definitions/NapariWorkflowsOutputSpecsItem"
+              "$ref": "#/definitions/NapariWorkflowsOutput"
             },
             "description": "See examples above. TODO: Update after issue 404"
           },
@@ -641,7 +641,7 @@
         "definitions": {
           "BaseChannel": {
             "title": "BaseChannel",
-            "description": "A channel which is specified by either `wavelength_id` or `label`.",
+            "description": "A channel which is specified by either ``wavelength_id`` or ``label``.",
             "type": "object",
             "properties": {
               "wavelength_id": {
@@ -654,8 +654,8 @@
               }
             }
           },
-          "NapariWorkflowsInputSpecsItem": {
-            "title": "NapariWorkflowsInputSpecsItem",
+          "NapariWorkflowsInput": {
+            "title": "NapariWorkflowsInput",
             "description": "TBD",
             "type": "object",
             "properties": {
@@ -679,8 +679,8 @@
               "type"
             ]
           },
-          "NapariWorkflowsOutputSpecsItem": {
-            "title": "NapariWorkflowsOutputSpecsItem",
+          "NapariWorkflowsOutput": {
+            "title": "NapariWorkflowsOutput",
             "description": "TBD",
             "type": "object",
             "properties": {

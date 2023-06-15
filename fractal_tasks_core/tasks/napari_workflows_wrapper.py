@@ -42,12 +42,8 @@ from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_upscale_array import upscale_array
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
-from fractal_tasks_core.tasks._input_models import (
-    NapariWorkflowsInputSpecsItem,
-)
-from fractal_tasks_core.tasks._input_models import (
-    NapariWorkflowsOutputSpecsItem,
-)
+from fractal_tasks_core.tasks._input_models import NapariWorkflowsInput
+from fractal_tasks_core.tasks._input_models import NapariWorkflowsOutput
 
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
@@ -74,8 +70,8 @@ def napari_workflows_wrapper(
     metadata: Dict[str, Any],
     # Task-specific arguments:
     workflow_file: str,
-    input_specs: Dict[str, NapariWorkflowsInputSpecsItem],
-    output_specs: Dict[str, NapariWorkflowsOutputSpecsItem],
+    input_specs: Dict[str, NapariWorkflowsInput],
+    output_specs: Dict[str, NapariWorkflowsOutput],
     input_ROI_table: str = "FOV_ROI_table",
     level: int = 0,
     relabeling: bool = True,

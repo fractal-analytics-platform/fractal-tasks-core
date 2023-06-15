@@ -3,10 +3,10 @@ from devtools import debug
 
 from fractal_tasks_core.tasks._input_models import BaseChannel
 from fractal_tasks_core.tasks._input_models import (
-    NapariWorkflowsInputSpecsItem,
+    NapariWorkflowsInput,
 )
 from fractal_tasks_core.tasks._input_models import (
-    NapariWorkflowsOutputSpecsItem,
+    NapariWorkflowsOutput,
 )
 
 
@@ -35,74 +35,72 @@ def test_BaseChannel():
     debug(e.value)
 
 
-def test_NapariWorkflowsInputSpecsItem():
+def test_NapariWorkflowsInput():
 
     # Invalid
 
     with pytest.raises(ValueError) as e:
-        NapariWorkflowsInputSpecsItem(type="invalid")
+        NapariWorkflowsInput(type="invalid")
     debug(e.value)
 
     with pytest.raises(ValueError) as e:
-        NapariWorkflowsInputSpecsItem(type="image")
+        NapariWorkflowsInput(type="image")
     debug(e.value)
 
     with pytest.raises(ValueError) as e:
-        NapariWorkflowsInputSpecsItem(type="label")
+        NapariWorkflowsInput(type="label")
     debug(e.value)
 
     # Valid
 
-    spec = NapariWorkflowsInputSpecsItem(type="label", label_name="name")
+    spec = NapariWorkflowsInput(type="label", label_name="name")
     assert spec.type
     assert spec.label_name
     assert not spec.channel
 
-    spec = NapariWorkflowsInputSpecsItem(
-        type="image", channel=dict(label="something")
-    )
+    spec = NapariWorkflowsInput(type="image", channel=dict(label="something"))
     assert spec.type
     assert not spec.label_name
     assert spec.channel
 
 
-def test_NapariWorkflowsOutputSpecsItem():
+def test_NapariWorkflowsOutput():
 
     # Invalid
 
     with pytest.raises(ValueError) as e:
-        NapariWorkflowsOutputSpecsItem(type="invalid")
+        NapariWorkflowsOutput(type="invalid")
     debug(e.value)
 
     with pytest.raises(ValueError) as e:
-        NapariWorkflowsOutputSpecsItem(
+        NapariWorkflowsOutput(
             type="label",
             table_name="something",
         )
     debug(e.value)
 
     with pytest.raises(ValueError) as e:
-        NapariWorkflowsOutputSpecsItem(
+        NapariWorkflowsOutput(
             type="label",
         )
     debug(e.value)
 
     with pytest.raises(ValueError) as e:
-        NapariWorkflowsOutputSpecsItem(
+        NapariWorkflowsOutput(
             type="dataframe",
             label_name="something",
         )
     debug(e.value)
 
     with pytest.raises(ValueError) as e:
-        NapariWorkflowsOutputSpecsItem(
+        NapariWorkflowsOutput(
             type="dataframe",
         )
     debug(e.value)
 
     # Valid
 
-    specs = NapariWorkflowsOutputSpecsItem(
+    specs = NapariWorkflowsOutput(
         type="label",
         label_name="label_DAPI",
     )
@@ -110,7 +108,7 @@ def test_NapariWorkflowsOutputSpecsItem():
     assert specs.type
     assert specs.label_name
 
-    specs = NapariWorkflowsOutputSpecsItem(
+    specs = NapariWorkflowsOutput(
         type="dataframe",
         table_name="table_DAPI",
     )
