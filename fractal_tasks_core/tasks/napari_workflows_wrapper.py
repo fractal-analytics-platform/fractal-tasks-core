@@ -198,7 +198,9 @@ def napari_workflows_wrapper(
 
     # Pre-processing of task inputs
     if len(input_paths) > 1:
-        raise NotImplementedError("We currently only support a single in_path")
+        raise NotImplementedError(
+            "We currently only support a single input path"
+        )
     in_path = Path(input_paths[0]).as_posix()
     num_levels = metadata["num_levels"]
     coarsening_xy = metadata["coarsening_xy"]
