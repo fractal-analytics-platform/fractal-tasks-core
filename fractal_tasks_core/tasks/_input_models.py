@@ -31,7 +31,7 @@ class Channel(BaseModel):
     @validator("label", always=True)
     def mutually_exclusive_channel_attributes(cls, v, values):
         """
-        If ``label`` is set, then ``wavelength_id`` must be ``None``
+        Attributes ``label`` and ``wavelength_id`` are mutually exclusive.
         """
         wavelength_id = values.get("wavelength_id")
         label = v
