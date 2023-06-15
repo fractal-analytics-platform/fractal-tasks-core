@@ -30,8 +30,8 @@ import zarr
 from pydantic.decorator import validate_arguments
 from skimage.io import imread
 
-from fractal_tasks_core.lib_channels import Channel
 from fractal_tasks_core.lib_channels import get_omero_channel_list
+from fractal_tasks_core.lib_channels import OmeroChannel
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
@@ -197,7 +197,7 @@ def illumination_correction(
     logger.info(f"  {zarrurl_new=}")
 
     # Read channels from .zattrs
-    channels: list[Channel] = get_omero_channel_list(
+    channels: list[OmeroChannel] = get_omero_channel_list(
         image_zarr_path=zarrurl_old
     )
     num_channels = len(channels)

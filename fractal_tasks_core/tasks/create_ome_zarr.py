@@ -27,10 +27,10 @@ from anndata._io.specs import write_elem
 from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
-from fractal_tasks_core.lib_channels import Channel
 from fractal_tasks_core.lib_channels import check_unique_wavelength_ids
 from fractal_tasks_core.lib_channels import check_well_channel_labels
 from fractal_tasks_core.lib_channels import define_omero_channels
+from fractal_tasks_core.lib_channels import OmeroChannel
 from fractal_tasks_core.lib_glob import glob_with_multiple_patterns
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
@@ -54,7 +54,7 @@ def create_ome_zarr(
     metadata: Dict[str, Any],
     image_extension: str = "tif",
     image_glob_patterns: Optional[list[str]] = None,
-    allowed_channels: List[Channel],
+    allowed_channels: List[OmeroChannel],
     num_levels: int = 5,
     coarsening_xy: int = 2,
     metadata_table: str = "mrf_mlf",
@@ -107,12 +107,10 @@ def create_ome_zarr(
     :param coarsening_xy: Linear coarsening factor between subsequent levels.
                           If set to 2, level 1 is 2x downsampled, level 2 is
                           4x downsampled etc.
-    :param allowed_channels: A list of channel dictionaries, where each channel
-                             must include the ``wavelength_id`` key and where
-                             the corresponding values should be unique across
-                             channels.
-                             # TODO: improve after Channel input refactor
-                             See issue 386
+    :param allowed_channels: A list of ``OmeroChannel``s, where each channel
+                             must include the ``wavelength_id`` attribute and
+                             where the ``wavelength_id`` values must be unique
+                             across the list.
     :param metadata_table: If equal to ``"mrf_mlf"``, parse Yokogawa metadata
                            from mrf/mlf files in the input_path folder; else,
                            the full path to a csv file containing

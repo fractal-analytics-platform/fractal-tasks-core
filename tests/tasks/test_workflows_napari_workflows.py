@@ -51,7 +51,7 @@ def test_napari_workflow(
     # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
     input_specs: Dict[str, Dict[str, Union[str, int]]] = {
-        "input": {"type": "image", "wavelength_id": "A01_C01"},
+        "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
     }
     output_specs: Dict[str, Dict[str, Union[str, int]]] = {
         "Result of Expand labels (scikit-image, nsbatwm)": {
@@ -76,7 +76,7 @@ def test_napari_workflow(
     # Second napari-workflows task (measurement)
     workflow_file = str(testdata_path / "napari_workflows/wf_4.yaml")
     input_specs = {
-        "dapi_img": {"type": "image", "wavelength_id": "A01_C01"},
+        "dapi_img": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
         "dapi_label_img": {"type": "label", "label_name": "label_DAPI"},
     }
     output_specs = {
@@ -143,7 +143,7 @@ def test_napari_worfklow_label_input_only(
     # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
     input_specs: Dict[str, Dict[str, Union[str, int]]] = {
-        "input": {"type": "image", "wavelength_id": "A01_C01"},
+        "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
     }
     output_specs: Dict[str, Dict[str, Union[str, int]]] = {
         "Result of Expand labels (scikit-image, nsbatwm)": {
@@ -209,13 +209,15 @@ LABEL_NAME = "label_DAPI"
 TABLE_NAME = "measurement_DAPI"
 # 1. Labeling-only workflow, from images to labels.
 workflow_file_name = "wf_relab_1-labeling_only.yaml"
-input_specs = dict(input_image={"type": "image", "wavelength_id": "A01_C01"})
+input_specs = dict(
+    input_image={"type": "image", "channel": {"wavelength_id": "A01_C01"}}
+)
 output_specs = dict(output_label={"type": "label", "label_name": LABEL_NAME})
 RELABELING_CASE_1: List = [workflow_file_name, input_specs, output_specs]
 # 2. Measurement-only workflow, from images+labels to dataframes.
 workflow_file_name = "wf_relab_2-measurement_only.yaml"
 input_specs = dict(
-    input_image={"type": "image", "wavelength_id": "A01_C01"},
+    input_image={"type": "image", "channel": {"wavelength_id": "A01_C01"}},
     input_label={"type": "label", "label_name": LABEL_NAME},
 )
 output_specs = dict(
@@ -224,7 +226,9 @@ output_specs = dict(
 RELABELING_CASE_2: List = [workflow_file_name, input_specs, output_specs]
 # 3. Mixed labeling/measurement workflow.
 workflow_file_name = "wf_relab_3-labeling_and_measurement.yaml"
-input_specs = dict(input_image={"type": "image", "wavelength_id": "A01_C01"})
+input_specs = dict(
+    input_image={"type": "image", "channel": {"wavelength_id": "A01_C01"}}
+)
 output_specs = dict(
     output_label={"type": "label", "label_name": LABEL_NAME},
     output_dataframe={"type": "dataframe", "table_name": TABLE_NAME},
@@ -406,7 +410,10 @@ def test_expected_dimensions(
         testdata_path / "napari_workflows/wf_5-labeling_only.yaml"
     )
     input_specs: Dict[str, Dict[str, Union[str, int]]] = {
-        "input_image": {"type": "image", "wavelength_id": "A01_C01"},
+        "input_image": {
+            "type": "image",
+            "channel": {"wavelength_id": "A01_C01"},
+        },
     }
     output_specs: Dict[str, Dict[str, Union[str, int]]] = {
         "output_label": {
@@ -464,7 +471,7 @@ def test_napari_workflow_empty_input_ROI_table(
     # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
     input_specs: Dict[str, Dict[str, Union[str, int]]] = {
-        "input": {"type": "image", "wavelength_id": "A01_C01"},
+        "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
     }
     output_specs: Dict[str, Dict[str, Union[str, int]]] = {
         "Result of Expand labels (scikit-image, nsbatwm)": {
@@ -489,7 +496,7 @@ def test_napari_workflow_empty_input_ROI_table(
     # Second napari-workflows task (measurement)
     workflow_file = str(testdata_path / "napari_workflows/wf_4.yaml")
     input_specs = {
-        "dapi_img": {"type": "image", "wavelength_id": "A01_C01"},
+        "dapi_img": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
         "dapi_label_img": {"type": "label", "label_name": "label_DAPI"},
     }
     output_specs = {
@@ -556,7 +563,7 @@ def test_napari_workflow_CYX(
     # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
     input_specs: Dict[str, Dict[str, Union[str, int]]] = {
-        "input": {"type": "image", "wavelength_id": "A01_C01"},
+        "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
     }
     output_specs: Dict[str, Dict[str, Union[str, int]]] = {
         "Result of Expand labels (scikit-image, nsbatwm)": {
@@ -582,7 +589,7 @@ def test_napari_workflow_CYX(
     # Second napari-workflows task (measurement)
     workflow_file = str(testdata_path / "napari_workflows/wf_4.yaml")
     input_specs = {
-        "dapi_img": {"type": "image", "wavelength_id": "A01_C01"},
+        "dapi_img": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
         "dapi_label_img": {"type": "label", "label_name": "label_DAPI"},
     }
     output_specs = {
@@ -657,7 +664,7 @@ def test_napari_workflow_CYX_wrong_dimensions(
     # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
     input_specs: Dict[str, Dict[str, Union[str, int]]] = {
-        "input": {"type": "image", "wavelength_id": "A01_C01"},
+        "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
     }
     output_specs: Dict[str, Dict[str, Union[str, int]]] = {
         "Result of Expand labels (scikit-image, nsbatwm)": {

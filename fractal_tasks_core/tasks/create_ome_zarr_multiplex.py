@@ -29,10 +29,10 @@ from anndata._io.specs import write_elem
 from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
-from fractal_tasks_core.lib_channels import Channel
 from fractal_tasks_core.lib_channels import check_unique_wavelength_ids
 from fractal_tasks_core.lib_channels import check_well_channel_labels
 from fractal_tasks_core.lib_channels import define_omero_channels
+from fractal_tasks_core.lib_channels import OmeroChannel
 from fractal_tasks_core.lib_glob import glob_with_multiple_patterns
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
@@ -56,7 +56,7 @@ def create_ome_zarr_multiplex(
     metadata: Dict[str, Any],
     image_extension: str = "tif",
     image_glob_patterns: Optional[list[str]] = None,
-    allowed_channels: Dict[str, list[Channel]],
+    allowed_channels: Dict[str, list[OmeroChannel]],
     num_levels: int = 5,
     coarsening_xy: int = 2,
     metadata_table: Union[Literal["mrf_mlf"], Dict[str, str]] = "mrf_mlf",
@@ -107,14 +107,11 @@ def create_ome_zarr_multiplex(
     :param coarsening_xy: Linear coarsening factor between subsequent levels.
                           If set to 2, level 1 is 2x downsampled, level 2 is
                           4x downsampled etc.
-    :param allowed_channels: A dictionary of channel dictionaries, where each
-                             channel must include the ``wavelength_id`` key
-                             and where the corresponding values should be
-                             unique across channels.
-                             Values are the integers of the channel order,
-                             i.e. ``"0"``, ``"1"`` etc.
-                             # TODO: improve after Channel input refactor
-                             https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/386
+    :param allowed_channels: A dictionary of lists of ``OmeroChannel``s, where
+                             each channel must include the ``wavelength_id``
+                             attribute and where the ``wavelength_id`` values
+                             must be unique across each list. Dictionary keys
+                             represent channel indices (``"0","1",..``).
     :param metadata_table: If equal to ``"mrf_mlf"``, parse Yokogawa metadata
                            from mrf/mlf files in the input_path folder;
                            else, a dictionary of key-value pairs like
@@ -160,10 +157,10 @@ def create_ome_zarr_multiplex(
     # Preliminary checks on allowed_channels
     # Note that in metadata the keys of dictionary arguments should be
     # strings (and not integers), so that they can be read from a JSON file
-    for key, value in allowed_channels.items():
+    for key, _channels in allowed_channels.items():
         if not isinstance(key, str):
             raise ValueError(f"{allowed_channels=} has non-string keys")
-        check_unique_wavelength_ids(value)
+        check_unique_wavelength_ids(_channels)
 
     # Identify all plates and all channels, per input folders
     dict_acquisitions: Dict = {}

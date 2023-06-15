@@ -45,9 +45,9 @@
             "title": "Allowed Channels",
             "type": "array",
             "items": {
-              "$ref": "#/definitions/Channel"
+              "$ref": "#/definitions/OmeroChannel"
             },
-            "description": "A list of channel dictionaries, where each channel must include the ``wavelength_id`` key and where the corresponding values should be unique across channels. # TODO: improve after Channel input refactor See issue 386"
+            "description": "A list of ``OmeroChannel``s, where each channel must include the ``wavelength_id`` attribute and where the ``wavelength_id`` values must be unique across the list."
           },
           "num_levels": {
             "title": "Num Levels",
@@ -76,8 +76,8 @@
         ],
         "additionalProperties": false,
         "definitions": {
-          "ChannelWindow": {
-            "title": "ChannelWindow",
+          "Window": {
+            "title": "Window",
             "description": "Custom class for Omero-channel window, related to OME-NGFF v0.4\n\nSee https://ngff.openmicroscopy.org/0.4/#omero-md.\nMain difference from the specs:\n\n    1. ``min`` and ``max`` are optional, since we have custom logic to set\n        their values.",
             "type": "object",
             "properties": {
@@ -103,8 +103,8 @@
               "end"
             ]
           },
-          "Channel": {
-            "title": "Channel",
+          "OmeroChannel": {
+            "title": "OmeroChannel",
             "description": "Custom class for Omero channels, related to OME-NGFF v0.4.\n\nDifferences from OME-NGFF v0.4 specs\n(https://ngff.openmicroscopy.org/0.4/#omero-md)\n\n    1. Additional attributes ``wavelength_id`` and ``index``.\n    2. We make ``color`` an optional attribute, since we have custom\n       logic to set its value.\n    3. We make ``window`` an optional attribute, so that we can also\n       process zarr arrays which do not have this attribute.",
             "type": "object",
             "properties": {
@@ -117,7 +117,7 @@
                 "type": "integer"
               },
               "window": {
-                "$ref": "#/definitions/ChannelWindow"
+                "$ref": "#/definitions/Window"
               },
               "color": {
                 "title": "Color",
@@ -351,25 +351,13 @@
             "type": "integer",
             "description": "Pyramid level of the image to be segmented. Choose 0 to process at full resolution."
           },
-          "wavelength_id": {
-            "title": "Wavelength Id",
-            "type": "string",
-            "description": "Identifier of a channel based on the wavelength (e.g. ``A01_C01``). If not ``None``, then ``channel_label` must be ``None``."
+          "channel": {
+            "$ref": "#/definitions/Channel",
+            "description": "Primary channel for segmentation; requires either ``wavelength_id`` (e.g. ``A01_C01``) or ``label`` (e.g. ``DAPI``)."
           },
-          "channel_label": {
-            "title": "Channel Label",
-            "type": "string",
-            "description": "Identifier of a channel based on its label (e.g. ``DAPI``). If not ``None``, then ``wavelength_id`` must be ``None``."
-          },
-          "wavelength_id_c2": {
-            "title": "Wavelength Id C2",
-            "type": "string",
-            "description": "Identifier of a second channel in the same format as the first wavelength_id. If specified, cellpose runs in dual channel mode.  For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker."
-          },
-          "channel_label_c2": {
-            "title": "Channel Label C2",
-            "type": "string",
-            "description": "Identifier of a second channel in the same format as the first wavelength_id. If specified, cellpose runs in dual channel mode.  For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker."
+          "channel2": {
+            "$ref": "#/definitions/Channel",
+            "description": "Second channel for segmentation (in the same format as ``channel``). If specified, cellpose runs in dual channel mode.  For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker."
           },
           "input_ROI_table": {
             "title": "Input Roi Table",
@@ -463,9 +451,27 @@
           "output_path",
           "component",
           "metadata",
-          "level"
+          "level",
+          "channel"
         ],
-        "additionalProperties": false
+        "additionalProperties": false,
+        "definitions": {
+          "Channel": {
+            "title": "Channel",
+            "description": "A channel which is specified by either ``wavelength_id`` or ``label``.",
+            "type": "object",
+            "properties": {
+              "wavelength_id": {
+                "title": "Wavelength Id",
+                "type": "string"
+              },
+              "label": {
+                "title": "Label",
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "executable": "tasks/cellpose_segmentation.py",
       "input_type": "zarr",
@@ -585,23 +591,17 @@
             "title": "Input Specs",
             "type": "object",
             "additionalProperties": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "string"
-              }
+              "$ref": "#/definitions/NapariWorkflowsInput"
             },
-            "description": "See examples above. TODO: Update after issue 404"
+            "description": "A dictionary of ``NapariWorkflowsInput`` values."
           },
           "output_specs": {
             "title": "Output Specs",
             "type": "object",
             "additionalProperties": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "string"
-              }
+              "$ref": "#/definitions/NapariWorkflowsOutput"
             },
-            "description": "See examples above. TODO: Update after issue 404"
+            "description": "A dictionary of ``NapariWorkflowsOutput`` values."
           },
           "input_ROI_table": {
             "title": "Input Roi Table",
@@ -637,7 +637,75 @@
           "input_specs",
           "output_specs"
         ],
-        "additionalProperties": false
+        "additionalProperties": false,
+        "definitions": {
+          "Channel": {
+            "title": "Channel",
+            "description": "A channel which is specified by either ``wavelength_id`` or ``label``.",
+            "type": "object",
+            "properties": {
+              "wavelength_id": {
+                "title": "Wavelength Id",
+                "type": "string"
+              },
+              "label": {
+                "title": "Label",
+                "type": "string"
+              }
+            }
+          },
+          "NapariWorkflowsInput": {
+            "title": "NapariWorkflowsInput",
+            "description": "A value of the ``input_specs`` argument in ``napari_workflows_wrapper``.",
+            "type": "object",
+            "properties": {
+              "type": {
+                "title": "Type",
+                "enum": [
+                  "image",
+                  "label"
+                ],
+                "type": "string"
+              },
+              "label_name": {
+                "title": "Label Name",
+                "type": "string"
+              },
+              "channel": {
+                "$ref": "#/definitions/Channel"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "NapariWorkflowsOutput": {
+            "title": "NapariWorkflowsOutput",
+            "description": "A value of the ``output_specs`` argument in ``napari_workflows_wrapper``.",
+            "type": "object",
+            "properties": {
+              "type": {
+                "title": "Type",
+                "enum": [
+                  "label",
+                  "dataframe"
+                ],
+                "type": "string"
+              },
+              "label_name": {
+                "title": "Label Name",
+                "type": "string"
+              },
+              "table_name": {
+                "title": "Table Name",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          }
+        }
       },
       "executable": "tasks/napari_workflows_wrapper.py",
       "input_type": "zarr",
@@ -692,10 +760,10 @@
             "additionalProperties": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/Channel"
+                "$ref": "#/definitions/OmeroChannel"
               }
             },
-            "description": "A dictionary of channel dictionaries, where each channel must include the ``wavelength_id`` key and where the corresponding values should be unique across channels. Values are the integers of the channel order, i.e. ``\"0\"``, ``\"1\"`` etc. # TODO: improve after Channel input refactor https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/386"
+            "description": "A dictionary of lists of ``OmeroChannel``s, where each channel must include the ``wavelength_id`` attribute and where the ``wavelength_id`` values must be unique across each list. Dictionary keys represent channel indices (``\"0\",\"1\",..``)."
           },
           "num_levels": {
             "title": "Num Levels",
@@ -737,8 +805,8 @@
         ],
         "additionalProperties": false,
         "definitions": {
-          "ChannelWindow": {
-            "title": "ChannelWindow",
+          "Window": {
+            "title": "Window",
             "description": "Custom class for Omero-channel window, related to OME-NGFF v0.4\n\nSee https://ngff.openmicroscopy.org/0.4/#omero-md.\nMain difference from the specs:\n\n    1. ``min`` and ``max`` are optional, since we have custom logic to set\n        their values.",
             "type": "object",
             "properties": {
@@ -764,8 +832,8 @@
               "end"
             ]
           },
-          "Channel": {
-            "title": "Channel",
+          "OmeroChannel": {
+            "title": "OmeroChannel",
             "description": "Custom class for Omero channels, related to OME-NGFF v0.4.\n\nDifferences from OME-NGFF v0.4 specs\n(https://ngff.openmicroscopy.org/0.4/#omero-md)\n\n    1. Additional attributes ``wavelength_id`` and ``index``.\n    2. We make ``color`` an optional attribute, since we have custom\n       logic to set its value.\n    3. We make ``window`` an optional attribute, so that we can also\n       process zarr arrays which do not have this attribute.",
             "type": "object",
             "properties": {
@@ -778,7 +846,7 @@
                 "type": "integer"
               },
               "window": {
-                "$ref": "#/definitions/ChannelWindow"
+                "$ref": "#/definitions/Window"
               },
               "color": {
                 "title": "Color",
