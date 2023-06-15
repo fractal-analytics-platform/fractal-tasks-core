@@ -1,4 +1,4 @@
-name: precommit and mypy
+name: Precommit and Mypy (soft)
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
 jobs:
 
   package:
-    name: "precommit and mypy"
+    name: "Precommit and Mypy (soft)"
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
