@@ -61,11 +61,10 @@
             "type": "integer",
             "description": "Linear coarsening factor between subsequent levels. If set to 2, level 1 is 2x downsampled, level 2 is 4x downsampled etc."
           },
-          "metadata_table": {
-            "title": "Metadata Table",
-            "default": "mrf_mlf",
+          "metadata_table_file": {
+            "title": "Metadata Table File",
             "type": "string",
-            "description": "If equal to ``\"mrf_mlf\"``, parse Yokogawa metadata from mrf/mlf files in the input_path folder; else, the full path to a csv file containing the parsed metadata table. # TODO: Improve after issue 399"
+            "description": "If ``None``, parse Yokogawa metadata from mrf/mlf files in the input_path folder; else, the full path to a csv file containing the parsed metadata table."
           }
         },
         "required": [
@@ -786,24 +785,13 @@
             "type": "integer",
             "description": "Linear coarsening factor between subsequent levels. If set to 2, level 1 is 2x downsampled, level 2 is 4x downsampled etc."
           },
-          "metadata_table": {
-            "title": "Metadata Table",
-            "default": "mrf_mlf",
-            "anyOf": [
-              {
-                "enum": [
-                  "mrf_mlf"
-                ],
-                "type": "string"
-              },
-              {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "string"
-                }
-              }
-            ],
-            "description": "If equal to ``\"mrf_mlf\"``, parse Yokogawa metadata from mrf/mlf files in the input_path folder; else, a dictionary of key-value pairs like ``(acquisition, path)`` with ``acquisition`` a string and ``path`` pointing to a csv file containing the parsed metadata table. # TODO: Improve after https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/399"
+          "metadata_table_files": {
+            "title": "Metadata Table Files",
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "If ``None``, parse Yokogawa metadata from mrf/mlf files in the input_path folder; else, a dictionary of key-value pairs like ``(acquisition, path)`` with ``acquisition`` a string and ``path`` pointing to a csv file containing the parsed metadata table."
           }
         },
         "required": [
