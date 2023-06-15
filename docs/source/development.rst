@@ -21,6 +21,13 @@ We use `pytest <https://docs.pytest.org>`_ for unit and integration testing of F
 
 The tests files are in the ``tests`` folder of the repository, and they are also run on GitHub (with both python 3.8 and 3.9 versions).
 
+Mypy
+^^^^
+You can run ``mypy`` for instance as::
+
+    poetry run mypy --package fractal_tasks_core --ignore-missing-imports --warn-redundant-casts --warn-unused-ignores --warn-unreachable --pretty
+
+
 Documentation
 ~~~~~~~~~~~~~
 
