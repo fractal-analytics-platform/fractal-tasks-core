@@ -18,6 +18,7 @@ import logging
 from typing import Callable
 from typing import Optional
 from typing import Sequence
+from typing import Union
 
 import pandas as pd
 
@@ -92,7 +93,9 @@ def is_overlapping_3D(box1, box2, tol=0) -> bool:
     return overlap_x and overlap_y and overlap_z
 
 
-def get_overlapping_pair(tmp_df: pd.DataFrame, tol: float = 0) -> tuple[int]:
+def get_overlapping_pair(
+    tmp_df: pd.DataFrame, tol: float = 0
+) -> Union[tuple[int, int], bool]:
     """
     Finds the indices for the next overlapping FOVs pair
 
@@ -363,7 +366,7 @@ def _is_overlapping_3D_int(box1: list[int], box2: list[int]) -> bool:
 
 def find_overlaps_in_ROI_indices(
     list_indices: list[list[int]],
-) -> Optional[tuple[int]]:
+) -> Optional[tuple[int, int]]:
     """
     Given a list of integer ROI indices, find whether there are overlaps
 

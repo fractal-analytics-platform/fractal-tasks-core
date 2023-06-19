@@ -24,6 +24,7 @@ from argparse import ArgumentParser
 from json import JSONEncoder
 from pathlib import Path
 from typing import Callable
+from typing import Optional
 
 
 class TaskParameterEncoder(JSONEncoder):
@@ -40,7 +41,7 @@ class TaskParameterEncoder(JSONEncoder):
 def run_fractal_task(
     *,
     task_function: Callable,
-    logger_name: str = None,
+    logger_name: Optional[str] = None,
 ):
     """
     Implement standard task interface and call task_function

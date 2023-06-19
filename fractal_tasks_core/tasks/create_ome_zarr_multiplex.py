@@ -18,20 +18,19 @@ from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import List
-from typing import Literal
 from typing import Optional
 from typing import Sequence
-from typing import Union
 
 import pandas as pd
 import zarr
-from anndata.experimental import write_elem
+from anndata._io.specs import write_elem
 from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
+from fractal_tasks_core.lib_channels import check_unique_wavelength_ids
 from fractal_tasks_core.lib_channels import check_well_channel_labels
 from fractal_tasks_core.lib_channels import define_omero_channels
-from fractal_tasks_core.lib_channels import validate_allowed_channel_input
+from fractal_tasks_core.lib_channels import OmeroChannel
 from fractal_tasks_core.lib_glob import glob_with_multiple_patterns
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
@@ -55,10 +54,10 @@ def create_ome_zarr_multiplex(
     metadata: Dict[str, Any],
     image_extension: str = "tif",
     image_glob_patterns: Optional[list[str]] = None,
-    allowed_channels: Dict[str, Sequence[Dict[str, Any]]],
+    allowed_channels: Dict[str, list[OmeroChannel]],
     num_levels: int = 5,
     coarsening_xy: int = 2,
-    metadata_table: Union[Literal["mrf_mlf"], Dict[str, str]] = "mrf_mlf",
+    metadata_table_files: Optional[Dict[str, str]] = None,
 ) -> Dict[str, Any]:
     """
     Create OME-NGFF structure and metadata to host a multiplexing dataset
@@ -106,63 +105,51 @@ def create_ome_zarr_multiplex(
     :param coarsening_xy: Linear coarsening factor between subsequent levels.
                           If set to 2, level 1 is 2x downsampled, level 2 is
                           4x downsampled etc.
-    :param allowed_channels: A dictionary of channel dictionaries, where each
-                             channel must include the ``wavelength_id`` key
-                             and where the corresponding values should be
-                             unique across channels.
-                             Values are the integers of the channel order,
-                             i.e. ``"0"``, ``"1"`` etc.
-                             # TODO: improve after Channel input refactor
-                             https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/386
-    :param metadata_table: If equal to ``"mrf_mlf"``, parse Yokogawa metadata
-                           from mrf/mlf files in the input_path folder;
-                           else, a dictionary of key-value pairs like
-                           ``(acquisition, path)`` with ``acquisition`` a
-                           string and ``path`` pointing to a csv file
-                           containing the parsed metadata table.
-                           # TODO: Improve after
-                           https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/399
+    :param allowed_channels: A dictionary of lists of ``OmeroChannel``s, where
+                             each channel must include the ``wavelength_id``
+                             attribute and where the ``wavelength_id`` values
+                             must be unique across each list. Dictionary keys
+                             represent channel indices (``"0","1",..``).
+    :param metadata_table_files: If ``None``, parse Yokogawa metadata from
+                                 mrf/mlf files in the input_path folder; else,
+                                 a dictionary of key-value pairs like
+                                 ``(acquisition, path)`` with ``acquisition`` a
+                                 string and ``path`` pointing to a csv file
+                                 containing the parsed metadata table.
     :return: A metadata dictionary containing important metadata about the
              OME-Zarr plate, the images and some parameters required by
              downstream tasks (like `num_levels`).
     """
 
-    # Preliminary checks on metadata_table
-    if metadata_table != "mrf_mlf" and not isinstance(metadata_table, Dict):
-        raise ValueError(
-            "ERROR: metadata_table must be a known string or a "
-            "dict of csv file containing a pandas dataframe."
-            f"The metadata_table provided was {metadata_table}"
-        )
-    elif isinstance(metadata_table, Dict):
-        # Check that acquisition keys are string
-        for key, value in metadata_table.items():
-            if not isinstance(key, str):
-                raise ValueError(f"{metadata_table=} has non-string keys")
+    if metadata_table_files:
 
         # Checks on the dict:
         # 1. Acquisitions as keys (same as keys of allowed_channels)
         # 2. Files end with ".csv"
         # 3. Files exist.
-        if set(allowed_channels.keys()) != set(metadata_table.keys()):
+        if set(allowed_channels.keys()) != set(metadata_table_files.keys()):
             raise ValueError(
                 "Mismatch in acquisition keys between "
-                f"{allowed_channels.keys()=} and {metadata_table.keys()=}"
+                f"{allowed_channels.keys()=} and "
+                f"{metadata_table_files.keys()=}"
             )
-        if not all([x.endswith(".csv") for x in metadata_table.values()]):
-            raise ValueError(
-                f"Some files in {metadata_table=} do not end with csv."
-            )
-        if not all([os.path.isfile(x) for x in metadata_table.values()]):
-            raise ValueError(f"Some files in {metadata_table=} do not exist.")
+        for f in metadata_table_files.values():
+            if not f.endswith(".csv"):
+                raise ValueError(
+                    f"{f} (in metadata_table_file) is not a csv file."
+                )
+            if not os.path.isfile(f):
+                raise ValueError(
+                    f"{f} (in metadata_table_file) does not exist."
+                )
 
     # Preliminary checks on allowed_channels
     # Note that in metadata the keys of dictionary arguments should be
     # strings (and not integers), so that they can be read from a JSON file
-    for key, value in allowed_channels.items():
+    for key, _channels in allowed_channels.items():
         if not isinstance(key, str):
             raise ValueError(f"{allowed_channels=} has non-string keys")
-        validate_allowed_channel_input(value)
+        check_unique_wavelength_ids(_channels)
 
     # Identify all plates and all channels, per input folders
     dict_acquisitions: Dict = {}
@@ -226,7 +213,7 @@ def create_ome_zarr_multiplex(
 
         # Check that all channels are in the allowed_channels
         allowed_wavelength_ids = [
-            c["wavelength_id"] for c in allowed_channels[acquisition]
+            c.wavelength_id for c in allowed_channels[acquisition]
         ]
         if not set(actual_wavelength_ids).issubset(
             set(allowed_wavelength_ids)
@@ -241,7 +228,7 @@ def create_ome_zarr_multiplex(
         actual_channels = [
             channel
             for channel in allowed_channels[acquisition]
-            if channel["wavelength_id"] in actual_wavelength_ids
+            if channel.wavelength_id in actual_wavelength_ids
         ]
 
         logger.info(f"plate: {plate}")
@@ -291,16 +278,15 @@ def create_ome_zarr_multiplex(
         logger.info(f"Looking at {image_folder=}")
 
         # Obtain FOV-metadata dataframe
-        if metadata_table == "mrf_mlf":
+        if metadata_table_files is None:
             mrf_path = f"{image_folder}/MeasurementDetail.mrf"
             mlf_path = f"{image_folder}/MeasurementData.mlf"
             site_metadata, total_files = parse_yokogawa_metadata(
                 mrf_path, mlf_path, filename_patterns=image_glob_patterns
             )
             site_metadata = remove_FOV_overlaps(site_metadata)
-
-        elif isinstance(metadata_table, Dict):
-            site_metadata = pd.read_csv(metadata_table[acquisition])
+        else:
+            site_metadata = pd.read_csv(metadata_table_files[acquisition])
             site_metadata.set_index(["well_id", "FieldIndex"], inplace=True)
 
         # Extract pixel sizes and bit_depth
@@ -452,6 +438,7 @@ def create_ome_zarr_multiplex(
                                 {
                                     "type": "scale",
                                     "scale": [
+                                        1,
                                         pixel_size_z,
                                         pixel_size_y
                                         * coarsening_xy**ind_level,

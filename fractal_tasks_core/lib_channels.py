@@ -14,12 +14,78 @@ Copyright 2022 (C)
 Helper functions to address channels via OME-NGFF/OMERO metadata
 """
 import logging
-from typing import Any
 from typing import Dict
 from typing import List
-from typing import Sequence
+from typing import Optional
+from typing import Union
 
 import zarr
+from pydantic import BaseModel
+
+from fractal_tasks_core import __OME_NGFF_VERSION__
+
+
+if __OME_NGFF_VERSION__ != "0.4":
+    NotImplementedError(
+        f"OME NGFF {__OME_NGFF_VERSION__} is not supported "
+        "in `lib_channels.py`"
+    )
+
+
+class Window(BaseModel):
+    """
+    Custom class for Omero-channel window, related to OME-NGFF v0.4
+
+    See https://ngff.openmicroscopy.org/0.4/#omero-md.
+    Main difference from the specs:
+
+        1. ``min`` and ``max`` are optional, since we have custom logic to set
+            their values.
+    """
+
+    min: Optional[int]
+    """TBD"""
+    max: Optional[int]
+    """TBD"""
+    start: int
+    """TBD"""
+    end: int
+    """TBD"""
+
+
+class OmeroChannel(BaseModel):
+    """
+    Custom class for Omero channels, related to OME-NGFF v0.4.
+
+    Differences from OME-NGFF v0.4 specs
+    (https://ngff.openmicroscopy.org/0.4/#omero-md)
+
+        1. Additional attributes ``wavelength_id`` and ``index``.
+        2. We make ``color`` an optional attribute, since we have custom
+           logic to set its value.
+        3. We make ``window`` an optional attribute, so that we can also
+           process zarr arrays which do not have this attribute.
+    """
+
+    # Custom
+    wavelength_id: str
+    """TBD"""
+    index: Optional[int]
+    """TBD"""
+
+    # From OME-NGFF v0.4 transitional metadata
+    window: Optional[Window]
+    """TBD"""
+    color: Optional[str]
+    """TBD"""
+    label: Optional[str]
+    """TBD"""
+    active: bool = True
+    """TBD"""
+    coefficient: int = 1
+    """TBD"""
+    inverted: bool = False
+    """TBD"""
 
 
 class ChannelNotFoundError(ValueError):
@@ -31,23 +97,14 @@ class ChannelNotFoundError(ValueError):
     pass
 
 
-def validate_allowed_channel_input(allowed_channels: Sequence[Dict[str, Any]]):
+def check_unique_wavelength_ids(channels: List[OmeroChannel]):
     """
-    Check that (1) each channel has a wavelength_id key, and (2) the
-    wavelength_id values are unique.
+    Check that the `wavelength_id` attributes of a channel list are unique
     """
-    try:
-        wavelength_ids = [c["wavelength_id"] for c in allowed_channels]
-    except KeyError as e:
-        raise KeyError(
-            "Missing wavelength_id key in some channel.\n"
-            f"{allowed_channels=}\n"
-            f"Original error: {str(e)}"
-        )
+    wavelength_ids = [c.wavelength_id for c in channels]
     if len(set(wavelength_ids)) < len(wavelength_ids):
         raise ValueError(
-            f"Non-unique wavelength_id's in {wavelength_ids}\n"
-            f"{allowed_channels=}"
+            f"Non-unique wavelength_id's in {wavelength_ids}\n" f"{channels=}"
         )
 
 
@@ -73,16 +130,16 @@ def check_well_channel_labels(*, well_zarr_path: str) -> None:
 
     # For each pair of channel-labels lists, verify they do not overlap
     for ind_1, channels_1 in enumerate(list_of_channel_lists):
-        labels_1 = set([c["label"] for c in channels_1])
+        labels_1 = set([c.label for c in channels_1])
         for ind_2 in range(ind_1):
             channels_2 = list_of_channel_lists[ind_2]
-            labels_2 = set([c["label"] for c in channels_2])
+            labels_2 = set([c.label for c in channels_2])
             intersection = labels_1 & labels_2
             if intersection:
                 hint = (
-                    "Are you parsing fields of view into separate OME-Zarr"
-                    " images? This could lead to non-unique channel labels"
-                    ", and then could be the reason of the error"
+                    "Are you parsing fields of view into separate OME-Zarr "
+                    "images? This could lead to non-unique channel labels, "
+                    "and then could be the reason of the error"
                 )
                 raise ValueError(
                     "Non-unique channel labels\n"
@@ -91,8 +148,11 @@ def check_well_channel_labels(*, well_zarr_path: str) -> None:
 
 
 def get_channel_from_image_zarr(
-    *, image_zarr_path: str, label: str = None, wavelength_id: str = None
-) -> Dict[str, Any]:
+    *,
+    image_zarr_path: str,
+    label: Optional[str] = None,
+    wavelength_id: Optional[str] = None,
+) -> OmeroChannel:
     """
     Extract a channel from OME-NGFF zarr attributes
 
@@ -112,7 +172,7 @@ def get_channel_from_image_zarr(
     return channel
 
 
-def get_omero_channel_list(*, image_zarr_path: str) -> List[Dict[str, Any]]:
+def get_omero_channel_list(*, image_zarr_path: str) -> List[OmeroChannel]:
     """
     Extract the list of channels from OME-NGFF zarr attributes
 
@@ -120,12 +180,17 @@ def get_omero_channel_list(*, image_zarr_path: str) -> List[Dict[str, Any]]:
     :returns: A list of channel dictionaries
     """
     group = zarr.open_group(image_zarr_path, mode="r+")
-    return group.attrs["omero"]["channels"]
+    channels_dicts = group.attrs["omero"]["channels"]
+    channels = [OmeroChannel(**c) for c in channels_dicts]
+    return channels
 
 
 def get_channel_from_list(
-    *, channels: Sequence[Dict], label: str = None, wavelength_id: str = None
-) -> Dict[str, Any]:
+    *,
+    channels: List[OmeroChannel],
+    label: Optional[str] = None,
+    wavelength_id: Optional[str] = None,
+) -> OmeroChannel:
     """
     Find matching channel in a list
 
@@ -144,21 +209,23 @@ def get_channel_from_list(
     # Identify matching channels
     if label:
         if wavelength_id:
+            # Both label and wavelength_id are specified
             matching_channels = [
                 c
                 for c in channels
-                if (
-                    c["label"] == label and c["wavelength_id"] == wavelength_id
-                )
+                if (c.label == label and c.wavelength_id == wavelength_id)
             ]
         else:
-            matching_channels = [c for c in channels if c["label"] == label]
+            # Only label is specified
+            matching_channels = [c for c in channels if c.label == label]
     else:
         if wavelength_id:
+            # Only wavelength_id is specified
             matching_channels = [
-                c for c in channels if c["wavelength_id"] == wavelength_id
+                c for c in channels if c.wavelength_id == wavelength_id
             ]
         else:
+            # Neither label or wavelength_id are specified
             raise ValueError(
                 "get_channel requires at least one in {label,wavelength_id} "
                 "arguments"
@@ -178,16 +245,16 @@ def get_channel_from_list(
         raise ValueError(f"Inconsistent set of channels: {channels}")
 
     channel = matching_channels[0]
-    channel["index"] = channels.index(channel)
+    channel.index = channels.index(channel)
     return channel
 
 
 def define_omero_channels(
     *,
-    channels: Sequence[Dict[str, Any]],
+    channels: List[OmeroChannel],
     bit_depth: int,
-    label_prefix: str = None,
-) -> List[Dict[str, Any]]:
+    label_prefix: Optional[str] = None,
+) -> List[Dict[str, Union[str, int, bool, Dict[str, int]]]]:
     """
     Update a channel list to use it in the OMERO/channels metadata
 
@@ -202,62 +269,48 @@ def define_omero_channels(
     :param channels: A list of channel dictionaries (each one must include the
                      ``wavelength_id`` key).
     :param bit_depth: bit depth
+    :param label_prefix: TBD
     :returns: ``new_channels``, a new list of consistent channel dictionaries
               that can be written to OMERO metadata.
 
     """
 
-    new_channels = []
-    default_colormaps = ["00FFFF", "FF00FF", "FFFF00"]
+    new_channels = [c.copy(deep=True) for c in channels]
+    default_colors = ["00FFFF", "FF00FF", "FFFF00"]
 
-    for channel in channels:
-        wavelength_id = channel["wavelength_id"]
+    for channel in new_channels:
+        wavelength_id = channel.wavelength_id
 
-        # Always set a label
-        try:
-            label = channel["label"]
-        except KeyError:
+        # If channel.label is None, set it to a default value
+        if channel.label is None:
             default_label = wavelength_id
             if label_prefix:
                 default_label = f"{label_prefix}_{default_label}"
             logging.warning(
                 f"Missing label for {channel=}, using {default_label=}"
             )
-            label = default_label
+            channel.label = default_label
 
-        # Set colormap attribute. If not specificed, use the default ones (for
-        # the first three channels) or gray
-        colormap = channel.get("colormap", None)
-        if colormap is None:
+        # If channel.color is None, set it to a default value (use the default
+        # ones for the first three channels, or gray otherwise)
+        if channel.color is None:
             try:
-                colormap = default_colormaps.pop()
+                channel.color = default_colors.pop()
             except IndexError:
-                colormap = "808080"
+                channel.color = "808080"
 
-        # Set window attribute
-        window = {
-            "min": 0,
-            "max": 2**bit_depth - 1,
-        }
-        if "start" in channel.keys() and "end" in channel.keys():
-            window["start"] = channel["start"]
-            window["end"] = channel["end"]
-
-        new_channel = {
-            "label": label,
-            "wavelength_id": wavelength_id,
-            "active": True,
-            "coefficient": 1,
-            "color": colormap,
-            "family": "linear",
-            "inverted": False,
-            "window": window,
-        }
-        new_channels.append(new_channel)
+        # Set channel.window attribute
+        if channel.window:
+            channel.window.min = 0
+            channel.window.max = 2**bit_depth - 1
 
     # Check that channel labels are unique for this image
-    labels = [c["label"] for c in new_channels]
+    labels = [c.label for c in new_channels]
     if len(set(labels)) < len(labels):
         raise ValueError(f"Non-unique labels in {new_channels=}")
 
-    return new_channels
+    new_channels_dictionaries = [
+        c.dict(exclude={"index"}, exclude_unset=True) for c in new_channels
+    ]
+
+    return new_channels_dictionaries

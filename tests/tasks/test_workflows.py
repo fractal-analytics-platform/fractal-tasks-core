@@ -21,8 +21,8 @@ from typing import List
 import pytest
 from devtools import debug
 
-from .utils import check_file_number
-from .utils import validate_schema
+from ._validation import check_file_number
+from ._validation import validate_schema
 from fractal_tasks_core.tasks.copy_ome_zarr import copy_ome_zarr
 from fractal_tasks_core.tasks.create_ome_zarr import create_ome_zarr
 from fractal_tasks_core.tasks.illumination_correction import (
@@ -38,23 +38,20 @@ allowed_channels = [
     {
         "label": "DAPI",
         "wavelength_id": "A01_C01",
-        "colormap": "00FFFF",
-        "start": 0,
-        "end": 700,
+        "color": "00FFFF",
+        "window": {"start": 0, "end": 700},
     },
     {
         "wavelength_id": "A01_C02",
         "label": "nanog",
-        "colormap": "FF00FF",
-        "start": 0,
-        "end": 180,
+        "color": "FF00FF",
+        "window": {"start": 0, "end": 180},
     },
     {
         "wavelength_id": "A02_C03",
         "label": "Lamin B1",
-        "colormap": "FFFF00",
-        "start": 0,
-        "end": 1500,
+        "color": "FFFF00",
+        "window": {"start": 0, "end": 1500},
     },
 ]
 
@@ -84,7 +81,7 @@ def test_create_ome_zarr_fail(tmp_path: Path, zenodo_images: str):
             allowed_channels=tmp_allowed_channels,
             num_levels=num_levels,
             coarsening_xy=coarsening_xy,
-            metadata_table="mrf_mlf",
+            metadata_table_file=None,
         )
 
 
@@ -105,7 +102,7 @@ def test_create_ome_zarr_no_images(
             allowed_channels=allowed_channels,
             num_levels=num_levels,
             coarsening_xy=coarsening_xy,
-            metadata_table="mrf_mlf",
+            metadata_table_file=None,
             image_extension="xyz",
         )
     with pytest.raises(ValueError):
@@ -116,7 +113,7 @@ def test_create_ome_zarr_no_images(
             allowed_channels=allowed_channels,
             num_levels=num_levels,
             coarsening_xy=coarsening_xy,
-            metadata_table="mrf_mlf",
+            metadata_table_file=None,
             image_extension="png",
             image_glob_patterns=["*asdasd*"],
         )
@@ -133,16 +130,16 @@ def test_yokogawa_to_ome_zarr(
     metadata_input: str,
 ):
 
-    # Select the kind of metadata_table input
+    # Select the kind of metadata_table_file input
     if metadata_input == "use_mrf_mlf_files":
-        metadata_table = "mrf_mlf"
+        metadata_table_file = None
     if metadata_input == "use_existing_csv_files":
         testdata_str = testdata_path.as_posix()
-        metadata_table = (
+        metadata_table_file = (
             f"{testdata_str}/metadata_files/"
             + "corrected_site_metadata_tiny_test.csv"
         )
-    debug(metadata_table)
+    debug(metadata_table_file)
 
     # Init
     img_path = Path(zenodo_images)
@@ -157,7 +154,7 @@ def test_yokogawa_to_ome_zarr(
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        metadata_table=metadata_table,
+        metadata_table_file=metadata_table_file,
         image_extension="png",
     )
     metadata.update(metadata_update)
@@ -252,7 +249,7 @@ def test_MIP_subset_of_images(
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        metadata_table="mrf_mlf",
+        metadata_table_file=None,
         image_extension="png",
         image_glob_patterns=["*F001*"],
     )
@@ -316,10 +313,8 @@ def test_illumination_correction(
     metadata = {}
 
     testdata_str = testdata_path.as_posix()
-    illum_params = {
-        "root_path_corr": f"{testdata_str}/illumination_correction/",
-        "A01_C01": "illum_corr_matrix.png",
-    }
+    illum_params = {"A01_C01": "illum_corr_matrix.png"}
+    illumination_profiles_folder = f"{testdata_str}/illumination_correction/"
 
     # Create zarr structure
     metadata_update = create_ome_zarr(
@@ -330,7 +325,7 @@ def test_illumination_correction(
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        metadata_table="mrf_mlf",
+        metadata_table_file=None,
     )
     metadata.update(metadata_update)
     print(caplog.text)
@@ -355,6 +350,7 @@ def test_illumination_correction(
             metadata=metadata,
             component=component,
             overwrite=True,
+            illumination_profiles_folder=illumination_profiles_folder,
             dict_corr=illum_params,
         )
     print(caplog.text)

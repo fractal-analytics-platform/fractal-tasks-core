@@ -14,4 +14,6 @@ The ``fractal_tasks_core`` package is hosted on PyPI (https://pypi.org/project/f
 * The ``fractal_tasks_core.dev`` subpackage, which includes some developement tools, mostly related to creation of JSON Schemas for task arguments.
 
 
-**Note**: this package is tested with python version 3.9 and 3.10.
+**Note**: The main `fractal_tasks_core` package is tested with Python 3.9, 3.10
+and 3.11, while the `fractal_tasks_core.tasks` subpackage (that requires the
+`fractal-tasks` installation extra) is tested with Python 3.9 and 3.10.

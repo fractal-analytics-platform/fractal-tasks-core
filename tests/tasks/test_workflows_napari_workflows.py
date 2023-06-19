@@ -11,7 +11,6 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
-import shutil
 from pathlib import Path
 from typing import Any
 from typing import Dict
@@ -22,48 +21,16 @@ import anndata as ad
 import pytest
 from devtools import debug
 
+from ._validation import check_file_number
+from ._validation import validate_axes_and_coordinateTransformations
+from ._validation import validate_labels_and_measurements
+from ._validation import validate_schema
+from ._zenodo_ome_zarrs import prepare_2D_zarr
+from ._zenodo_ome_zarrs import prepare_3D_zarr
 from .lib_empty_ROI_table import _add_empty_ROI_table
-from .utils import check_file_number
-from .utils import validate_labels_and_measurements
-from .utils import validate_schema
 from fractal_tasks_core.tasks.napari_workflows_wrapper import (
     napari_workflows_wrapper,
 )
-
-
-def prepare_3D_zarr(
-    zarr_path: str,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
-):
-    zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
-    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
-    source = zenodo_zarr_3D
-    dest = str(Path(zarr_path) / Path(zenodo_zarr_3D).name)
-    shutil.copytree(source, dest)
-    metadata = metadata_3D.copy()
-    return metadata
-
-
-def prepare_2D_zarr(
-    zarr_path: str,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
-    remove_labels: bool = False,
-):
-    zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
-    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
-    shutil.copytree(
-        zenodo_zarr_2D, str(Path(zarr_path) / Path(zenodo_zarr_2D).name)
-    )
-    if remove_labels:
-        label_dir = str(
-            Path(zarr_path) / Path(zenodo_zarr_2D).name / "B/03/0/labels"
-        )
-        debug(label_dir)
-        shutil.rmtree(label_dir)
-    metadata = metadata_2D.copy()
-    return metadata
 
 
 def test_napari_workflow(
@@ -84,7 +51,7 @@ def test_napari_workflow(
     # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
     input_specs: Dict[str, Dict[str, Union[str, int]]] = {
-        "input": {"type": "image", "wavelength_id": "A01_C01"},
+        "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
     }
     output_specs: Dict[str, Dict[str, Union[str, int]]] = {
         "Result of Expand labels (scikit-image, nsbatwm)": {
@@ -109,7 +76,7 @@ def test_napari_workflow(
     # Second napari-workflows task (measurement)
     workflow_file = str(testdata_path / "napari_workflows/wf_4.yaml")
     input_specs = {
-        "dapi_img": {"type": "image", "wavelength_id": "A01_C01"},
+        "dapi_img": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
         "dapi_label_img": {"type": "label", "label_name": "label_DAPI"},
     }
     output_specs = {
@@ -146,6 +113,8 @@ def test_napari_workflow(
     validate_labels_and_measurements(
         image_zarr, label_name="label_DAPI", table_name="regionprops_DAPI"
     )
+    validate_axes_and_coordinateTransformations(image_zarr)
+    validate_axes_and_coordinateTransformations(label_zarr)
 
     # Load measurements
     meas = ad.read_zarr(
@@ -174,7 +143,7 @@ def test_napari_worfklow_label_input_only(
     # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
     input_specs: Dict[str, Dict[str, Union[str, int]]] = {
-        "input": {"type": "image", "wavelength_id": "A01_C01"},
+        "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
     }
     output_specs: Dict[str, Dict[str, Union[str, int]]] = {
         "Result of Expand labels (scikit-image, nsbatwm)": {
@@ -240,13 +209,15 @@ LABEL_NAME = "label_DAPI"
 TABLE_NAME = "measurement_DAPI"
 # 1. Labeling-only workflow, from images to labels.
 workflow_file_name = "wf_relab_1-labeling_only.yaml"
-input_specs = dict(input_image={"type": "image", "wavelength_id": "A01_C01"})
+input_specs = dict(
+    input_image={"type": "image", "channel": {"wavelength_id": "A01_C01"}}
+)
 output_specs = dict(output_label={"type": "label", "label_name": LABEL_NAME})
 RELABELING_CASE_1: List = [workflow_file_name, input_specs, output_specs]
 # 2. Measurement-only workflow, from images+labels to dataframes.
 workflow_file_name = "wf_relab_2-measurement_only.yaml"
 input_specs = dict(
-    input_image={"type": "image", "wavelength_id": "A01_C01"},
+    input_image={"type": "image", "channel": {"wavelength_id": "A01_C01"}},
     input_label={"type": "label", "label_name": LABEL_NAME},
 )
 output_specs = dict(
@@ -255,7 +226,9 @@ output_specs = dict(
 RELABELING_CASE_2: List = [workflow_file_name, input_specs, output_specs]
 # 3. Mixed labeling/measurement workflow.
 workflow_file_name = "wf_relab_3-labeling_and_measurement.yaml"
-input_specs = dict(input_image={"type": "image", "wavelength_id": "A01_C01"})
+input_specs = dict(
+    input_image={"type": "image", "channel": {"wavelength_id": "A01_C01"}}
+)
 output_specs = dict(
     output_label={"type": "label", "label_name": LABEL_NAME},
     output_dataframe={"type": "dataframe", "table_name": TABLE_NAME},
@@ -390,19 +363,22 @@ def test_fail_if_no_relabeling(
 
 
 cases = [
-    (2, 2, True),
-    (2, 3, False),
-    (3, 3, True),
-    (3, 2, True),
+    (2, 2, True, True),
+    (2, 2, False, True),
+    (3, 2, True, False),
+    (3, 2, False, True),
+    (2, 3, False, False),
+    (3, 3, False, True),
 ]
 
 
 @pytest.mark.parametrize(
-    "expected_dimensions,zarr_dimensions,expected_success", cases
+    "expected_dimensions,zarr_dimensions,make_CYX,expected_success", cases
 )
 def test_expected_dimensions(
     expected_dimensions: int,
     zarr_dimensions: int,
+    make_CYX: bool,
     expected_success: bool,
     tmp_path: Path,
     testdata_path: Path,
@@ -418,8 +394,11 @@ def test_expected_dimensions(
             zenodo_zarr,
             zenodo_zarr_metadata,
             remove_labels=True,
+            make_CYX=make_CYX,
         )
     else:
+        if make_CYX:
+            raise ValueError(f"{make_CYX=} and {zarr_dimensions=}")
         metadata = prepare_3D_zarr(
             str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
         )
@@ -431,7 +410,10 @@ def test_expected_dimensions(
         testdata_path / "napari_workflows/wf_5-labeling_only.yaml"
     )
     input_specs: Dict[str, Dict[str, Union[str, int]]] = {
-        "input_image": {"type": "image", "wavelength_id": "A01_C01"},
+        "input_image": {
+            "type": "image",
+            "channel": {"wavelength_id": "A01_C01"},
+        },
     }
     output_specs: Dict[str, Dict[str, Union[str, int]]] = {
         "output_label": {
@@ -456,8 +438,9 @@ def test_expected_dimensions(
         if expected_success:
             napari_workflows_wrapper(**arguments)
         else:
-            with pytest.raises(ValueError):
+            with pytest.raises(ValueError) as e:
                 napari_workflows_wrapper(**arguments)
+            debug(e.value)
 
 
 def test_napari_workflow_empty_input_ROI_table(
@@ -488,7 +471,7 @@ def test_napari_workflow_empty_input_ROI_table(
     # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
     input_specs: Dict[str, Dict[str, Union[str, int]]] = {
-        "input": {"type": "image", "wavelength_id": "A01_C01"},
+        "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
     }
     output_specs: Dict[str, Dict[str, Union[str, int]]] = {
         "Result of Expand labels (scikit-image, nsbatwm)": {
@@ -513,7 +496,7 @@ def test_napari_workflow_empty_input_ROI_table(
     # Second napari-workflows task (measurement)
     workflow_file = str(testdata_path / "napari_workflows/wf_4.yaml")
     input_specs = {
-        "dapi_img": {"type": "image", "wavelength_id": "A01_C01"},
+        "dapi_img": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
         "dapi_label_img": {"type": "label", "label_name": "label_DAPI"},
     }
     output_specs = {
@@ -556,3 +539,151 @@ def test_napari_workflow_empty_input_ROI_table(
         str(zarr_path / metadata["image"][0] / "tables/regionprops_DAPI/")
     )
     debug(meas.var_names)
+
+
+def test_napari_workflow_CYX(
+    tmp_path: Path,
+    testdata_path: Path,
+    zenodo_zarr: List[str],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+):
+
+    # Init
+    zarr_path = tmp_path / "tmp_out/"
+    metadata = prepare_2D_zarr(
+        str(zarr_path),
+        zenodo_zarr,
+        zenodo_zarr_metadata,
+        remove_labels=True,
+        make_CYX=True,
+    )
+    debug(zarr_path)
+    debug(metadata)
+
+    # First napari-workflows task (labeling)
+    workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
+    input_specs: Dict[str, Dict[str, Union[str, int]]] = {
+        "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
+    }
+    output_specs: Dict[str, Dict[str, Union[str, int]]] = {
+        "Result of Expand labels (scikit-image, nsbatwm)": {
+            "type": "label",
+            "label_name": "label_DAPI",
+        },
+    }
+    for component in metadata["image"]:
+        napari_workflows_wrapper(
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
+            metadata=metadata,
+            component=component,
+            input_specs=input_specs,
+            output_specs=output_specs,
+            workflow_file=workflow_file,
+            input_ROI_table="FOV_ROI_table",
+            expected_dimensions=2,
+            level=2,
+        )
+    debug(metadata)
+
+    # Second napari-workflows task (measurement)
+    workflow_file = str(testdata_path / "napari_workflows/wf_4.yaml")
+    input_specs = {
+        "dapi_img": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
+        "dapi_label_img": {"type": "label", "label_name": "label_DAPI"},
+    }
+    output_specs = {
+        "regionprops_DAPI": {
+            "type": "dataframe",
+            "table_name": "regionprops_DAPI",
+        },
+    }
+    for component in metadata["image"]:
+        napari_workflows_wrapper(
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
+            metadata=metadata,
+            component=component,
+            input_specs=input_specs,
+            output_specs=output_specs,
+            workflow_file=workflow_file,
+            input_ROI_table="FOV_ROI_table",
+            expected_dimensions=2,
+        )
+    debug(metadata)
+
+    # OME-NGFF JSON validation
+    image_zarr = zarr_path / metadata["image"][0]
+    well_zarr = image_zarr.parent
+    plate_zarr = image_zarr.parents[2]
+    label_zarr = image_zarr / "labels/label_DAPI"
+    validate_schema(path=str(image_zarr), type="image")
+    validate_schema(path=str(well_zarr), type="well")
+    validate_schema(path=str(plate_zarr), type="plate")
+    validate_schema(path=str(label_zarr), type="label")
+
+    check_file_number(zarr_path=image_zarr, num_axes=3)
+
+    validate_labels_and_measurements(
+        image_zarr, label_name="label_DAPI", table_name="regionprops_DAPI"
+    )
+    validate_axes_and_coordinateTransformations(image_zarr)
+    validate_axes_and_coordinateTransformations(label_zarr)
+
+    # Load measurements
+    meas = ad.read_zarr(
+        str(zarr_path / metadata["image"][0] / "tables/regionprops_DAPI/")
+    )
+    debug(meas.var_names)
+    assert "area" in meas.var_names
+    assert "bbox_area" in meas.var_names
+
+
+def test_napari_workflow_CYX_wrong_dimensions(
+    tmp_path: Path,
+    testdata_path: Path,
+    zenodo_zarr: List[str],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+):
+    """
+    This will fail because of wrong expected_dimensions
+    """
+
+    # Init
+    zarr_path = tmp_path / "tmp_out/"
+    metadata = prepare_2D_zarr(
+        str(zarr_path),
+        zenodo_zarr,
+        zenodo_zarr_metadata,
+        remove_labels=True,
+        make_CYX=True,
+    )
+    debug(zarr_path)
+    debug(metadata)
+
+    # First napari-workflows task (labeling)
+    workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
+    input_specs: Dict[str, Dict[str, Union[str, int]]] = {
+        "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
+    }
+    output_specs: Dict[str, Dict[str, Union[str, int]]] = {
+        "Result of Expand labels (scikit-image, nsbatwm)": {
+            "type": "label",
+            "label_name": "label_DAPI",
+        },
+    }
+    for component in metadata["image"]:
+        with pytest.raises(ValueError) as e:
+            napari_workflows_wrapper(
+                input_paths=[str(zarr_path)],
+                output_path=str(zarr_path),
+                metadata=metadata,
+                component=component,
+                input_specs=input_specs,
+                output_specs=output_specs,
+                workflow_file=workflow_file,
+                input_ROI_table="FOV_ROI_table",
+                expected_dimensions=3,
+                level=2,
+            )
+        debug(e.value)

@@ -23,13 +23,14 @@ from typing import Sequence
 
 import pandas as pd
 import zarr
-from anndata.experimental import write_elem
+from anndata._io.specs import write_elem
 from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
+from fractal_tasks_core.lib_channels import check_unique_wavelength_ids
 from fractal_tasks_core.lib_channels import check_well_channel_labels
 from fractal_tasks_core.lib_channels import define_omero_channels
-from fractal_tasks_core.lib_channels import validate_allowed_channel_input
+from fractal_tasks_core.lib_channels import OmeroChannel
 from fractal_tasks_core.lib_glob import glob_with_multiple_patterns
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
@@ -53,10 +54,10 @@ def create_ome_zarr(
     metadata: Dict[str, Any],
     image_extension: str = "tif",
     image_glob_patterns: Optional[list[str]] = None,
-    allowed_channels: Sequence[Dict[str, Any]],
+    allowed_channels: List[OmeroChannel],
     num_levels: int = 5,
     coarsening_xy: int = 2,
-    metadata_table: str = "mrf_mlf",
+    metadata_table_file: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Create a OME-NGFF zarr folder, without reading/writing image data
@@ -106,30 +107,25 @@ def create_ome_zarr(
     :param coarsening_xy: Linear coarsening factor between subsequent levels.
                           If set to 2, level 1 is 2x downsampled, level 2 is
                           4x downsampled etc.
-    :param allowed_channels: A list of channel dictionaries, where each channel
-                             must include the ``wavelength_id`` key and where
-                             the corresponding values should be unique across
-                             channels.
-                             # TODO: improve after Channel input refactor
-                             See issue 386
-    :param metadata_table: If equal to ``"mrf_mlf"``, parse Yokogawa metadata
-                           from mrf/mlf files in the input_path folder; else,
-                           the full path to a csv file containing
-                           the parsed metadata table.
-                           # TODO: Improve after issue 399
+    :param allowed_channels: A list of ``OmeroChannel`` s, where each channel
+                             must include the ``wavelength_id`` attribute and
+                             where the ``wavelength_id`` values must be unique
+                             across the list.
+    :param metadata_table_file: If ``None``, parse Yokogawa metadata from
+                                mrf/mlf files in the input_path folder; else,
+                                the full path to a csv file containing the
+                                parsed metadata table.
     :return: A metadata dictionary containing important metadata about the
             OME-Zarr plate, the images and some parameters required by
             downstream tasks (like `num_levels`).
     """
 
-    # Preliminary checks on metadata_table
-    if metadata_table != "mrf_mlf" and not metadata_table.endswith(".csv"):
-        raise ValueError(
-            "metadata_table must be a known string or a "
-            "csv file containing a pandas dataframe"
-        )
-    if metadata_table.endswith(".csv") and not os.path.isfile(metadata_table):
-        raise FileNotFoundError(f"Missing file: {metadata_table=}")
+    # Preliminary checks on metadata_table_file
+    if metadata_table_file:
+        if not metadata_table_file.endswith(".csv"):
+            raise ValueError(f"{metadata_table_file=} is not a csv file")
+        if not os.path.isfile(metadata_table_file):
+            raise FileNotFoundError(f"{metadata_table_file=} does not exist")
 
     # Identify all plates and all channels, across all input folders
     plates = []
@@ -138,7 +134,7 @@ def create_ome_zarr(
     dict_plate_prefixes: Dict[str, Any] = {}
 
     # Preliminary checks on allowed_channels argument
-    validate_allowed_channel_input(allowed_channels)
+    check_unique_wavelength_ids(allowed_channels)
 
     for in_path_str in input_paths:
         in_path = Path(in_path_str)
@@ -218,7 +214,7 @@ def create_ome_zarr(
 
     # Check that all channels are in the allowed_channels
     allowed_wavelength_ids = [
-        channel["wavelength_id"] for channel in allowed_channels
+        channel.wavelength_id for channel in allowed_channels
     ]
     if not set(actual_wavelength_ids).issubset(set(allowed_wavelength_ids)):
         msg = "ERROR in create_ome_zarr\n"
@@ -231,7 +227,7 @@ def create_ome_zarr(
     actual_channels = [
         channel
         for channel in allowed_channels
-        if channel["wavelength_id"] in actual_wavelength_ids
+        if channel.wavelength_id in actual_wavelength_ids
     ]
 
     zarrurls: Dict[str, List[str]] = {"plate": [], "well": [], "image": []}
@@ -247,7 +243,7 @@ def create_ome_zarr(
 
         # Obtain FOV-metadata dataframe
 
-        if metadata_table == "mrf_mlf":
+        if metadata_table_file is None:
             mrf_path = f"{in_path}/MeasurementDetail.mrf"
             mlf_path = f"{in_path}/MeasurementData.mlf"
 
@@ -259,12 +255,12 @@ def create_ome_zarr(
             site_metadata = remove_FOV_overlaps(site_metadata)
 
         # If a metadata table was passed, load it and use it directly
-        elif metadata_table.endswith(".csv"):
+        else:
             logger.warning(
                 "Since a custom metadata table was provided, there will "
                 "be no additional check on the number of image files."
             )
-            site_metadata = pd.read_csv(metadata_table)
+            site_metadata = pd.read_csv(metadata_table_file)
             site_metadata.set_index(["well_id", "FieldIndex"], inplace=True)
 
         # Extract pixel sizes and bit_depth
@@ -301,7 +297,7 @@ def create_ome_zarr(
             )
 
             # Check number of images matches with expected one
-            if metadata_table == "mrf_mlf":
+            if metadata_table_file is None:
                 num_images_glob = len(well_images)
                 num_images_expected = number_images_mlf[well]
                 if num_images_glob != num_images_expected:
@@ -399,6 +395,7 @@ def create_ome_zarr(
                                 {
                                     "type": "scale",
                                     "scale": [
+                                        1,
                                         pixel_size_z,
                                         pixel_size_y
                                         * coarsening_xy**ind_level,

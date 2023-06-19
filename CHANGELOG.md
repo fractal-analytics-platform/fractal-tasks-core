@@ -5,6 +5,13 @@
     * Create new `dev` subpackage (\#384).
     * Make tasks-related dependencies optional, and installable via `fractal-tasks` extra (\#390).
     * Remove `tools` package extra (\#384), and split the subpackage content into `lib_ROI_overlaps` and `examples` (\#390).
+* **(major)** Modify task arguments
+    * Add Pydantic model `lib_channels.OmeroChannel` (\#410, \#422);
+    * Add Pydantic model `tasks._input_models.Channel` (\#422);
+    * Add Pydantic model `tasks._input_models.NapariWorkflowsInput` (\#422);
+    * Add Pydantic model `tasks._input_models.NapariWorkflowsOutput` (\#422);
+    * Modify arguments of `illumination_correction` task (\#431);
+    * Modify arguments of `create_ome_zarr` and `create_ome_zarr_multiplex` (\#433).
 * JSON Schemas for task arguments:
     * Add JSON schemas for task arguments in the package manifest (\#369, \#384).
     * Remove `TaskArguments` models and switch to Pydantic V1 `validate_arguments` (\#369).
@@ -17,6 +24,7 @@
     * Remove `sqlmodel` from dev dependencies (\#374).
     * Relax constraint on torch version, from `==1.12.1` to `<=2.0.0` (\#406).
     * Review task docstrings and improve documentation (\#413, \#416).
+    * Update `anndata` dependency requirements (from `^0.8.0` to `>=0.8.0,<=0.9.1`), and replace `anndata.experimental.write_elem` with `anndata._io.specs.write_elem` (\#428).
 
 # 0.9.4
 

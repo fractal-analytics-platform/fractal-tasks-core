@@ -1,22 +1,22 @@
 import json
-from importlib import import_module
-from inspect import signature
+import typing
 from pathlib import Path
-from typing import Callable
+from typing import Optional
+from typing import Union
 
 import pytest
 from devtools import debug
 from jsonschema.validators import Draft201909Validator
 from jsonschema.validators import Draft202012Validator
 from jsonschema.validators import Draft7Validator
-from pydantic.decorator import ALT_V_ARGS
-from pydantic.decorator import ALT_V_KWARGS
-from pydantic.decorator import V_DUPLICATE_KWARGS
-from pydantic.decorator import V_POSITIONAL_ONLY_NAME
 
 import fractal_tasks_core
 from fractal_tasks_core.dev.lib_args_schemas import (
     create_schema_for_single_task,
+)
+from fractal_tasks_core.dev.lib_signature_constraints import _extract_function
+from fractal_tasks_core.dev.lib_signature_constraints import (
+    _validate_function_signature,
 )
 
 
@@ -24,35 +24,6 @@ FRACTAL_TASKS_CORE_DIR = Path(fractal_tasks_core.__file__).parent
 with (FRACTAL_TASKS_CORE_DIR / "__FRACTAL_MANIFEST__.json").open("r") as f:
     MANIFEST = json.load(f)
 TASK_LIST = MANIFEST["task_list"]
-
-FORBIDDEN_PARAM_NAMES = (
-    "args",
-    "kwargs",
-    V_POSITIONAL_ONLY_NAME,
-    V_DUPLICATE_KWARGS,
-    ALT_V_ARGS,
-    ALT_V_KWARGS,
-)
-
-
-def _extract_function(executable: str):
-    if not executable.endswith(".py"):
-        raise ValueError(f"Invalid {executable=}")
-    module_name = Path(executable).with_suffix("").name
-    module = import_module(f"fractal_tasks_core.tasks.{module_name}")
-    task_function = getattr(module, module_name)
-    return task_function
-
-
-def _validate_function_signature(function: Callable):
-    """
-    Check that function parameters do not have forbidden names
-    """
-    for param in signature(function).parameters.values():
-        if param.name in FORBIDDEN_PARAM_NAMES:
-            raise ValueError(
-                f"Function {function} has argument with name {param.name}"
-            )
 
 
 def test_validate_function_signature():
@@ -68,14 +39,54 @@ def test_validate_function_signature():
     def fun2(x, *args):
         pass
 
+    # Fail because of args
     with pytest.raises(ValueError):
         _validate_function_signature(fun2)
 
     def fun3(x, **kwargs):
         pass
 
+    # Fail because of kwargs
     with pytest.raises(ValueError):
         _validate_function_signature(fun3)
+
+    def fun4(x: Optional[str] = None):
+        pass
+
+    _validate_function_signature(fun4)
+
+    def fun5(x: Optional[str]):
+        pass
+
+    _validate_function_signature(fun5)
+
+    def fun6(x: Optional[str] = "asd"):
+        pass
+
+    # Fail because of not-None default value for optional parameter
+    with pytest.raises(ValueError):
+        _validate_function_signature(fun6)
+
+    def fun7(x: str | int):
+        pass
+
+    # Fail because of "|" not supported
+    with pytest.raises(ValueError):
+        _validate_function_signature(fun7)
+
+    def fun8(x: Union[str, None] = "asd"):
+        pass
+
+    # Fail because Union not supported
+    with pytest.raises(ValueError):
+        _validate_function_signature(fun8)
+
+    def fun9(x: typing.Union[str, int]):
+        pass
+
+    # Fail because Union not supported
+    with pytest.raises(ValueError):
+        _validate_function_signature(fun9)
 
 
 def test_manifest_has_args_schemas_is_true():
@@ -83,10 +94,9 @@ def test_manifest_has_args_schemas_is_true():
     assert MANIFEST["has_args_schemas"]
 
 
-def test_task_functions_have_no_args_or_kwargs():
+def test_task_functions_have_valid_signatures():
     """
-    Test that task functions do not use forbidden parameter names (e.g. `args`
-    or `kwargs`)
+    Test that task functions have valid signatures.
     """
     for ind_task, task in enumerate(TASK_LIST):
         task_function = _extract_function(task["executable"])

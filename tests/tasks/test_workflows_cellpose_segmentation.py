@@ -14,7 +14,6 @@ Zurich.
 import json
 import logging
 import shlex
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -29,9 +28,12 @@ from devtools import debug
 from pytest import MonkeyPatch
 
 import fractal_tasks_core.tasks
+from ._validation import check_file_number
+from ._validation import validate_axes_and_coordinateTransformations
+from ._validation import validate_schema
+from ._zenodo_ome_zarrs import prepare_2D_zarr
+from ._zenodo_ome_zarrs import prepare_3D_zarr
 from .lib_empty_ROI_table import _add_empty_ROI_table
-from .utils import check_file_number
-from .utils import validate_schema
 from fractal_tasks_core.tasks.cellpose_segmentation import (
     cellpose_segmentation,
 )
@@ -49,64 +51,26 @@ allowed_channels = [
     {
         "label": "DAPI",
         "wavelength_id": "A01_C01",
-        "colormap": "00FFFF",
-        "start": 0,
-        "end": 700,
+        "color": "00FFFF",
+        "window": {"start": 0, "end": 700},
     },
     {
         "wavelength_id": "A01_C02",
         "label": "nanog",
-        "colormap": "FF00FF",
-        "start": 0,
-        "end": 180,
+        "color": "FF00FF",
+        "window": {"start": 0, "end": 180},
     },
     {
         "wavelength_id": "A02_C03",
         "label": "Lamin B1",
-        "colormap": "FFFF00",
-        "start": 0,
-        "end": 1500,
+        "color": "FFFF00",
+        "window": {"start": 0, "end": 1500},
     },
 ]
 
 
 num_levels = 6
 coarsening_xy = 2
-
-
-def prepare_3D_zarr(
-    zarr_path: str,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
-):
-    zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
-    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
-    shutil.copytree(
-        zenodo_zarr_3D, str(Path(zarr_path) / Path(zenodo_zarr_3D).name)
-    )
-    metadata = metadata_3D.copy()
-    return metadata
-
-
-def prepare_2D_zarr(
-    zarr_path: str,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
-    remove_labels: bool = False,
-):
-    zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
-    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
-    shutil.copytree(
-        zenodo_zarr_2D, str(Path(zarr_path) / Path(zenodo_zarr_2D).name)
-    )
-    if remove_labels:
-        label_dir = str(
-            Path(zarr_path) / Path(zenodo_zarr_2D).name / "B/03/0/labels"
-        )
-        debug(label_dir)
-        shutil.rmtree(label_dir)
-    metadata = metadata_2D.copy()
-    return metadata
 
 
 def patched_segment_ROI(
@@ -126,10 +90,10 @@ def patched_segment_ROI(
     nz, ny, nx = mask.shape
     if do_3D:
         mask[:, 0 : ny // 4, 0 : nx // 4] = 1  # noqa
-        mask[:, ny // 4 : ny // 2, 0 : nx // 2] = 2  # noqa
+        mask[:, ny // 4 : ny // 2, 0:nx] = 2  # noqa
     else:
         mask[:, 0 : ny // 4, 0 : nx // 4] = 1  # noqa
-        mask[:, ny // 4 : ny // 2, 0 : nx // 2] = 2  # noqa
+        mask[:, ny // 4 : ny // 2, 0:nx] = 2  # noqa
 
     logger.info(f"[{well_id}][patched_segment_ROI] END")
 
@@ -206,14 +170,14 @@ def test_failures(
         # Attempt 1
         cellpose_segmentation(
             **kwargs,
-            wavelength_id="invalid_wavelength_id",
+            channel=dict(wavelength_id="invalid_wavelength_id"),
         )
         assert "ChannelNotFoundError" in caplog.records[0].msg
 
         # Attempt 2
         cellpose_segmentation(
             **kwargs,
-            channel_label="invalid_channel_name",
+            channel=dict(label="invalid_channel_name"),
         )
         assert "ChannelNotFoundError" in caplog.records[0].msg
         assert "ChannelNotFoundError" in caplog.records[1].msg
@@ -222,8 +186,10 @@ def test_failures(
         with pytest.raises(ValueError):
             cellpose_segmentation(
                 **kwargs,
-                wavelength_id="A01_C01",
-                channel_label="invalid_channel_name",
+                channel=dict(
+                    wavelength_id="A01_C01",
+                    label="invalid_channel_name",
+                ),
             )
 
 
@@ -265,7 +231,7 @@ def test_workflow_with_per_FOV_labeling(
             output_path=str(zarr_path),
             metadata=metadata,
             component=component,
-            wavelength_id="A01_C01",
+            channel=dict(wavelength_id="A01_C01"),
             level=3,
             relabeling=True,
             diameter_level0=80.0,
@@ -325,8 +291,8 @@ def test_workflow_with_multi_channel_input(
             output_path=str(zarr_path),
             metadata=metadata,
             component=component,
-            wavelength_id="A01_C01",
-            wavelength_id_c2="A01_C01",
+            channel=dict(wavelength_id="A01_C01"),
+            channel2=dict(wavelength_id="A01_C01"),
             level=3,
             relabeling=True,
             diameter_level0=80.0,
@@ -382,7 +348,7 @@ def test_workflow_with_per_FOV_labeling_2D(
             output_path=str(zarr_path_mip),
             metadata=metadata,
             component=component,
-            wavelength_id="A01_C01",
+            channel=dict(wavelength_id="A01_C01"),
             level=2,
             relabeling=True,
             diameter_level0=80.0,
@@ -434,7 +400,7 @@ def test_workflow_with_per_well_labeling_2D(
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        metadata_table="mrf_mlf",
+        metadata_table_file=None,
     )
     metadata.update(metadata_update)
 
@@ -474,7 +440,7 @@ def test_workflow_with_per_well_labeling_2D(
             output_path=str(zarr_path_mip),
             metadata=metadata,
             component=component,
-            wavelength_id="A01_C01",
+            channel=dict(wavelength_id="A01_C01"),
             level=2,
             input_ROI_table="well_ROI_table",
             relabeling=True,
@@ -483,6 +449,7 @@ def test_workflow_with_per_well_labeling_2D(
 
     # OME-NGFF JSON validation
     image_zarr = Path(zarr_path_mip / metadata["image"][0])
+    label_zarr = image_zarr / "labels/label_DAPI"
     debug(image_zarr)
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
@@ -490,6 +457,8 @@ def test_workflow_with_per_well_labeling_2D(
     validate_schema(path=str(well_zarr), type="well")
     validate_schema(path=str(plate_zarr), type="plate")
 
+    validate_axes_and_coordinateTransformations(label_zarr)
+    validate_axes_and_coordinateTransformations(image_zarr)
     check_file_number(zarr_path=image_zarr)
 
 
@@ -532,7 +501,7 @@ def test_workflow_bounding_box(
             output_path=str(zarr_path),
             metadata=metadata,
             component=component,
-            wavelength_id="A01_C01",
+            channel=dict(wavelength_id="A01_C01"),
             level=3,
             relabeling=True,
             diameter_level0=80.0,
@@ -543,11 +512,12 @@ def test_workflow_bounding_box(
         str(zarr_path / metadata["image"][0] / "tables/bbox_table/")
     )
     debug(bbox_ROIs)
+    debug(bbox_ROIs.X)
     debug(bbox_ROIs.obs)
     assert bbox_ROIs.obs.shape == (NUM_LABELS, 1)
     assert bbox_ROIs.shape == (NUM_LABELS, 6)
     assert len(bbox_ROIs) > 0
-    assert np.max(bbox_ROIs.X) == float(208)
+    assert np.max(bbox_ROIs.X) == float(416)
 
 
 def test_workflow_bounding_box_with_overlap(
@@ -588,7 +558,7 @@ def test_workflow_bounding_box_with_overlap(
             output_path=str(zarr_path),
             metadata=metadata,
             component=component,
-            wavelength_id="A01_C01",
+            channel=dict(wavelength_id="A01_C01"),
             level=3,
             relabeling=True,
             diameter_level0=80.0,
@@ -630,7 +600,7 @@ def test_workflow_with_per_FOV_labeling_via_script(
         output_path=str(zarr_path),
         metadata=metadata,
         component=metadata["image"][0],
-        wavelength_id="A01_C01",
+        channel=dict(wavelength_id="A01_C01"),
         level=4,
         relabeling=True,
         diameter_level0=80.0,
@@ -645,7 +615,7 @@ def test_workflow_with_per_FOV_labeling_via_script(
     # Valid model_type -> should fail due to timeout
     this_task_args = dict(**task_args, model_type="nuclei")
     with args_path.open("w") as f:
-        json.dump(this_task_args, f)
+        json.dump(this_task_args, f, indent=2)
     with pytest.raises(subprocess.TimeoutExpired):
         res = subprocess.run(shlex.split(command), **run_options)
         print(res.stdout)
@@ -659,7 +629,7 @@ def test_workflow_with_per_FOV_labeling_via_script(
     INVALID_MODEL_TYPE = "something_wrong"
     this_task_args = dict(**task_args, model_type=INVALID_MODEL_TYPE)
     with args_path.open("w") as f:
-        json.dump(this_task_args, f)
+        json.dump(this_task_args, f, indent=2)
     res = subprocess.run(shlex.split(command), **run_options)
     print(res.stdout)
     print(res.stderr)
@@ -704,7 +674,7 @@ def test_workflow_with_per_FOV_labeling_with_empty_FOV_table(
             metadata=metadata,
             component=component,
             input_ROI_table=TABLE_NAME,
-            wavelength_id="A01_C01",
+            channel=dict(wavelength_id="A01_C01"),
             level=3,
             relabeling=True,
             diameter_level0=80.0,
@@ -724,3 +694,63 @@ def test_workflow_with_per_FOV_labeling_with_empty_FOV_table(
     validate_schema(path=str(label_zarr), type="label")
 
     check_file_number(zarr_path=image_zarr)
+
+
+def test_CYX_input(
+    tmp_path: Path,
+    testdata_path: Path,
+    zenodo_zarr: List[str],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+    caplog: pytest.LogCaptureFixture,
+    monkeypatch: MonkeyPatch,
+):
+    """
+    FIXME This test works for the wrong reason (the fact that C and Z scale
+    transformations are both equal to 1).
+    """
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
+        patched_cellpose_core_use_gpu,
+    )
+
+    # Do not use cellpose
+    monkeypatch.setattr(
+        "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
+        patched_segment_ROI,
+    )
+
+    # Load pre-made 2D zarr array
+    zarr_path_mip = tmp_path / "tmp_out_mip/"
+    metadata = prepare_2D_zarr(
+        str(zarr_path_mip),
+        zenodo_zarr,
+        zenodo_zarr_metadata,
+        remove_labels=True,
+        make_CYX=True,
+    )
+
+    # Per-FOV labeling
+    for component in metadata["image"]:
+        cellpose_segmentation(
+            input_paths=[str(zarr_path_mip)],
+            output_path=str(zarr_path_mip),
+            metadata=metadata,
+            component=component,
+            channel=dict(wavelength_id="A01_C01"),
+            level=0,
+            relabeling=True,
+            diameter_level0=80.0,
+        )
+
+    # OME-NGFF JSON validation
+    image_zarr = Path(zarr_path_mip / metadata["image"][0])
+    label_zarr = image_zarr / "labels/label_DAPI"
+    debug(image_zarr)
+    well_zarr = image_zarr.parent
+    plate_zarr = image_zarr.parents[2]
+    validate_schema(path=str(image_zarr), type="image")
+    validate_schema(path=str(well_zarr), type="well")
+    validate_schema(path=str(plate_zarr), type="plate")
+    validate_axes_and_coordinateTransformations(image_zarr)
+    validate_axes_and_coordinateTransformations(label_zarr)

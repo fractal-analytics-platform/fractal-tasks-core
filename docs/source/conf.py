@@ -10,7 +10,7 @@ copyright = (
     "2022, Friedrich Miescher Institute for Biomedical Research and "
     "University of Zurich"
 )
-version = "0.10.0a0"
+version = "0.10.0a4"
 language = "en"
 
 extensions = [
@@ -24,7 +24,12 @@ extensions = [
     "myst_parser",
 ]
 
-autodoc_default_options = {"autosummary": True, "private-members": True}
+autodoc_default_options = {
+    "autosummary": True,
+    "private-members": True,
+    "show-inheritance": True,
+    "autosummary-no-nesting": True,
+}
 autodata_content = "both"
 source_suffix = ".rst"
 exclude_patterns = []
@@ -77,6 +82,7 @@ def setup(app):
                 "-feMT",
                 f"--templatedir={templates_dir}",
                 package_dir,
+                "--private",
             ]
         ),
     )

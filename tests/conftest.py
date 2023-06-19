@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import shutil
 from pathlib import Path
@@ -91,6 +92,30 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
                 str(tmp_path / zipname), extract_dir=rootfolder, format="zip"
             )
             shutil.move(str(rootfolder / zarrname), str(folder))
+
+            # Fix a wrong piece of metadata
+            zattrs_path = folder / "B/03/0/.zattrs"
+            logging.warning(
+                f"Update coordinateTransformations in {str(zattrs_path)}, "
+                "see https://github.com/fractal-analytics-platform/"
+                "fractal-tasks-core/issues/420."
+            )
+            with zattrs_path.open("r") as f:
+                zattrs = json.load(f)
+            for ind, ds in enumerate(zattrs["multiscales"][0]["datasets"]):
+                new_ds = ds.copy()
+                old_transf = ds["coordinateTransformations"][0]
+                new_transf = old_transf.copy()
+                assert old_transf["type"] == "scale"
+                assert len(old_transf["scale"]) == 3
+                new_transf["scale"] = [1.0, *old_transf["scale"]]
+                new_ds["coordinateTransformations"][0] = new_transf
+                assert len(new_transf["scale"]) == len(
+                    zattrs["multiscales"][0]["axes"]
+                )
+                zattrs["multiscales"][0]["datasets"][ind] = new_ds
+            with zattrs_path.open("w") as f:
+                json.dump(zattrs, f, indent=2)
 
     folders = [str(f) for f in folders]
 

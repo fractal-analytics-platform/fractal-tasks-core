@@ -13,10 +13,7 @@ Copyright 2022 (C)
 
 Helper functions to handle JSON schemas for task arguments.
 """
-import argparse
 import ast
-import json
-from importlib import import_module
 from pathlib import Path
 from typing import Any
 
@@ -28,6 +25,10 @@ from pydantic.decorator import V_POSITIONAL_ONLY_NAME
 from pydantic.decorator import ValidatedFunction
 
 import fractal_tasks_core
+from fractal_tasks_core.dev.lib_signature_constraints import _extract_function
+from fractal_tasks_core.dev.lib_signature_constraints import (
+    _validate_function_signature,
+)
 
 
 _Schema = dict[str, Any]
@@ -120,16 +121,18 @@ def _include_args_descriptions_in_schema(*, schema, descriptions):
     return new_schema
 
 
-def create_schema_for_single_task(executable: str) -> _Schema:
+def create_schema_for_single_task(
+    executable: str,
+    package: str = "fractal_tasks_core.tasks",
+) -> _Schema:
     """
     Main function to create a JSON Schema of task arguments
     """
-    if not executable.endswith(".py"):
-        raise ValueError(f"Invalid {executable=} (it must end with `.py`).")
-    # Import function
-    module_name = Path(executable).with_suffix("").name
-    module = import_module(f"fractal_tasks_core.tasks.{module_name}")
-    task_function = getattr(module, module_name)
+    # Extract function from module
+    task_function = _extract_function(executable=executable, package=package)
+
+    # Validate function signature against some custom constraints
+    _validate_function_signature(task_function)
 
     # Create and clean up schema
     vf = ValidatedFunction(task_function, config=None)
@@ -144,70 +147,3 @@ def create_schema_for_single_task(executable: str) -> _Schema:
     )
 
     return schema
-
-
-if __name__ == "__main__":
-
-    parser_main = argparse.ArgumentParser(
-        description="Create/update task-arguments JSON schemas"
-    )
-    subparsers_main = parser_main.add_subparsers(
-        title="Commands:", dest="command", required=True
-    )
-    parser_check = subparsers_main.add_parser(
-        "check",
-        description="Check that existing files are up-to-date",
-        allow_abbrev=False,
-    )
-    parser_check = subparsers_main.add_parser(
-        "new",
-        description="Write new JSON schemas to files",
-        allow_abbrev=False,
-    )
-
-    args = parser_main.parse_args()
-    command = args.command
-
-    # Read manifest
-    manifest_path = (
-        Path(fractal_tasks_core.__file__).parent / "__FRACTAL_MANIFEST__.json"
-    )
-    with manifest_path.open("r") as f:
-        manifest = json.load(f)
-
-    # Set or check global properties of manifest
-    if command == "new":
-        manifest["has_args_schemas"] = True
-        manifest["args_schema_version"] = "pydantic_v1"
-    elif command == "check":
-        if not manifest["has_args_schemas"]:
-            raise ValueError(f'{manifest["has_args_schemas"]=}')
-        if manifest["args_schema_version"] != "pydantic_v1":
-            raise ValueError(f'{manifest["args_schema_version"]=}')
-
-    # Loop over tasks and set or check args schemas
-    task_list = manifest["task_list"]
-    for ind, task in enumerate(task_list):
-        executable = task["executable"]
-        print(f"[{executable}] Start")
-        try:
-            schema = create_schema_for_single_task(executable)
-        except AttributeError:
-            print(f"[{executable}] Skip, due to AttributeError")
-            print()
-            continue
-
-        if command == "check":
-            current_schema = task["args_schema"]
-            if not current_schema == schema:
-                raise ValueError("Schemas are different.")
-            print("Schema in manifest is up-to-date.")
-            print()
-        elif command == "new":
-            manifest["task_list"][ind]["args_schema"] = schema
-            print("Schema added to manifest")
-            print()
-
-    if command == "new":
-        with manifest_path.open("w") as f:
-            json.dump(manifest, f, indent=2, sort_keys=True)

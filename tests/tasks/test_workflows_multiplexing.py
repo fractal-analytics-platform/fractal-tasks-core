@@ -17,8 +17,8 @@ from typing import Sequence
 import pytest
 from devtools import debug
 
-from .utils import check_file_number
-from .utils import validate_schema
+from ._validation import check_file_number
+from ._validation import validate_schema
 from fractal_tasks_core.tasks.copy_ome_zarr import (
     copy_ome_zarr,
 )
@@ -34,21 +34,18 @@ from fractal_tasks_core.tasks.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 single_cycle_allowed_channels_no_label = [
     {
         "wavelength_id": "A01_C01",
-        "colormap": "00FFFF",
-        "start": 0,
-        "end": 700,
+        "color": "00FFFF",
+        "window": {"start": 0, "end": 700},
     },
     {
         "wavelength_id": "A01_C02",
-        "colormap": "FF00FF",
-        "start": 0,
-        "end": 180,
+        "color": "FF00FF",
+        "window": {"start": 0, "end": 180},
     },
     {
         "wavelength_id": "A02_C03",
-        "colormap": "FFFF00",
-        "start": 0,
-        "end": 1500,
+        "color": "FFFF00",
+        "window": {"start": 0, "end": 1500},
     },
 ]
 
@@ -86,7 +83,7 @@ def test_multiplexing_create_ome_zarr_fail(
             allowed_channels=allowed_channels,
             num_levels=num_levels,
             coarsening_xy=coarsening_xy,
-            metadata_table="mrf_mlf",
+            metadata_table_files=None,
         )
 
 
@@ -101,19 +98,19 @@ def test_multiplexing_yokogawa_to_ome_zarr(
     testdata_path: Path,
 ):
 
-    # Select the kind of metadata_table input
+    # Select the kind of metadata_table_files input
     if metadata_input == "use_mrf_mlf_files":
-        metadata_table = "mrf_mlf"
+        metadata_table_files = None
     if metadata_input == "use_existing_csv_files":
         testdata_str = testdata_path.as_posix()
-        metadata_table = {
+        metadata_table_files = {
             "0": f"{testdata_str}/metadata_files/"
             "corrected_site_metadata_tiny_test.csv",
             "1": f"{testdata_str}/metadata_files/"
             "corrected_site_metadata_tiny_test.csv",
         }
 
-    debug(metadata_table)
+    debug(metadata_table_files)
 
     # Init
     zarr_path = tmp_path / "tmp_out/"
@@ -128,7 +125,7 @@ def test_multiplexing_yokogawa_to_ome_zarr(
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        metadata_table=metadata_table,
+        metadata_table_files=metadata_table_files,
     )
     metadata.update(metadata_update)
     debug(metadata)
@@ -175,7 +172,7 @@ def test_multiplexing_MIP(
         image_extension="png",
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        metadata_table="mrf_mlf",
+        metadata_table_files=None,
     )
     metadata.update(metadata_update)
     debug(metadata)

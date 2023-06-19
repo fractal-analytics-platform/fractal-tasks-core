@@ -15,9 +15,13 @@ Copyright 2022 (C)
 Functions to handle .zattrs files and their contents
 """
 import json
+import logging
 from typing import Any
 from typing import Dict
 from typing import List
+
+
+logger = logging.getLogger(__name__)
 
 
 def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0) -> List[float]:
@@ -40,12 +44,22 @@ def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0) -> List[float]:
 
         # Check that there is a single multiscale
         if len(multiscales) > 1:
-            raise Exception(f"ERROR: There are {len(multiscales)} multiscales")
+            raise ValueError(
+                f"ERROR: There are {len(multiscales)} multiscales"
+            )
+
+        # Check that Z axis is present, raise a warning otherwise
+        axes = [ax["name"] for ax in multiscales[0]["axes"]]
+        if "z" not in axes:
+            logger.warning(
+                f"Z axis is not present in {axes=}. This case may work "
+                "by accident, but it is not fully supported."
+            )
 
         # Check that there are no datasets-global transformations
         if "coordinateTransformations" in multiscales[0].keys():
             raise NotImplementedError(
-                "global coordinateTransformations at the multiscales "
+                "Global coordinateTransformations at the multiscales "
                 "level are not currently supported"
             )
 
@@ -56,22 +70,24 @@ def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0) -> List[float]:
         transformations = datasets[level]["coordinateTransformations"]
         for t in transformations:
             if t["type"] == "scale":
-                pixel_sizes = t["scale"]
+                # FIXME: Using [-3:] indices is a hack to deal with the fact
+                # that the coordinationTransformation can contain additional
+                # entries (e.g. scaling for the channels)
+                # https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/420
+                pixel_sizes = t["scale"][-3:]
                 if min(pixel_sizes) < 1e-9:
-                    raise Exception(
-                        f"ERROR: pixel_sizes in {zattrs_path} are", pixel_sizes
+                    raise ValueError(
+                        f"pixel_sizes in {zattrs_path} are {pixel_sizes}"
                     )
                 return pixel_sizes
 
-        raise Exception(
-            "ERROR:"
-            f" no scale transformation found for level {level}"
-            f" in {zattrs_path}"
+        raise ValueError(
+            f"No scale transformation found for level {level} in {zattrs_path}"
         )
 
     except KeyError as e:
         raise KeyError(
-            "extract_zyx_pixel_sizes_from_zattrs failed, for {zattrs_path}\n",
+            f"extract_zyx_pixel_sizes_from_zattrs failed, for {zattrs_path}\n",
             e,
         )
 
@@ -81,6 +97,7 @@ def rescale_datasets(
     datasets: List[Dict],
     coarsening_xy: int,
     reference_level: int,
+    remove_channel_axis: bool = False,
 ) -> List[Dict]:
     """
     Given a set of datasets (as per OME-NGFF specs), update their "scale"
@@ -90,6 +107,8 @@ def rescale_datasets(
     :param datasets: list of datasets (as per OME-NGFF specs)
     :param coarsening_xy: linear coarsening factor between subsequent levels
     :param reference_level: TBD
+    :param remove_channel_axis: If ``True``, remove the first item of all
+                                ``scale`` transformations.
     """
 
     # Construct rescaled datasets
@@ -107,12 +126,13 @@ def rescale_datasets(
         new_transformations = []
         for t in old_transformations:
             if t["type"] == "scale":
-                new_t: Dict[str, Any] = {"type": "scale"}
-                new_t["scale"] = [
-                    t["scale"][0],
-                    t["scale"][1] * coarsening_xy**reference_level,
-                    t["scale"][2] * coarsening_xy**reference_level,
-                ]
+                new_t: Dict[str, Any] = t.copy()
+                # Rescale last two dimensions (that is, Y and X)
+                prefactor = coarsening_xy**reference_level
+                new_t["scale"][-2] = new_t["scale"][-2] * prefactor
+                new_t["scale"][-1] = new_t["scale"][-1] * prefactor
+                if remove_channel_axis:
+                    new_t["scale"].pop(0)
                 new_transformations.append(new_t)
             else:
                 new_transformations.append(t)
