@@ -107,7 +107,7 @@ def create_ome_zarr(
     :param coarsening_xy: Linear coarsening factor between subsequent levels.
                           If set to 2, level 1 is 2x downsampled, level 2 is
                           4x downsampled etc.
-    :param allowed_channels: A list of ``OmeroChannel``s, where each channel
+    :param allowed_channels: A list of ``OmeroChannel`` s, where each channel
                              must include the ``wavelength_id`` attribute and
                              where the ``wavelength_id`` values must be unique
                              across the list.

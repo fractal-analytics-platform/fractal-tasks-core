@@ -47,7 +47,7 @@
             "items": {
               "$ref": "#/definitions/OmeroChannel"
             },
-            "description": "A list of ``OmeroChannel``s, where each channel must include the ``wavelength_id`` attribute and where the ``wavelength_id`` values must be unique across the list."
+            "description": "A list of ``OmeroChannel`` s, where each channel must include the ``wavelength_id`` attribute and where the ``wavelength_id`` values must be unique across the list."
           },
           "num_levels": {
             "title": "Num Levels",
