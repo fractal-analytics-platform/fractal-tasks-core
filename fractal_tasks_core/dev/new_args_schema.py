@@ -33,11 +33,11 @@ if __name__ == "__main__":
     with manifest_path.open("r") as f:
         manifest = json.load(f)
 
-    # Set or check global properties of manifest
+    # Set global properties of manifest
     manifest["has_args_schemas"] = True
     manifest["args_schema_version"] = "pydantic_v1"
 
-    # Loop over tasks and set or check args schemas
+    # Loop over tasks and set args schemas
     task_list = manifest["task_list"]
     for ind, task in enumerate(task_list):
         executable = task["executable"]
