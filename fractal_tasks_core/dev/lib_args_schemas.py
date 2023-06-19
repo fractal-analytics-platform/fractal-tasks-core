@@ -14,7 +14,6 @@ Copyright 2022 (C)
 Helper functions to handle JSON schemas for task arguments.
 """
 import ast
-from importlib import import_module
 from pathlib import Path
 from typing import Any
 
@@ -26,6 +25,10 @@ from pydantic.decorator import V_POSITIONAL_ONLY_NAME
 from pydantic.decorator import ValidatedFunction
 
 import fractal_tasks_core
+from fractal_tasks_core.dev.lib_signature_constraints import _extract_function
+from fractal_tasks_core.dev.lib_signature_constraints import (
+    _validate_function_signature,
+)
 
 
 _Schema = dict[str, Any]
@@ -118,16 +121,18 @@ def _include_args_descriptions_in_schema(*, schema, descriptions):
     return new_schema
 
 
-def create_schema_for_single_task(executable: str) -> _Schema:
+def create_schema_for_single_task(
+    executable: str,
+    package: str = "fractal_tasks_core.tasks",
+) -> _Schema:
     """
     Main function to create a JSON Schema of task arguments
     """
-    if not executable.endswith(".py"):
-        raise ValueError(f"Invalid {executable=} (it must end with `.py`).")
-    # Import function
-    module_name = Path(executable).with_suffix("").name
-    module = import_module(f"fractal_tasks_core.tasks.{module_name}")
-    task_function = getattr(module, module_name)
+    # Extract function from module
+    task_function = _extract_function(executable=executable, package=package)
+
+    # Validate function signature against some custom constraints
+    _validate_function_signature(task_function)
 
     # Create and clean up schema
     vf = ValidatedFunction(task_function, config=None)
