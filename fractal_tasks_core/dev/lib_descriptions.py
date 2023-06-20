@@ -34,7 +34,7 @@ def _get_args_model_descriptions():
 
         docstring = ast.get_docstring(_class)
         if docstring:
-            descriptions[model]["docstring"] = docstring
+            descriptions[model]["__docstring__"] = docstring
 
         var_name: str = ""
         for node in _class.body:
