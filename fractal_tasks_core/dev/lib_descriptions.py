@@ -1,18 +1,52 @@
 import ast
 from pathlib import Path
 
-from docstring_parser import parse
+from docstring_parser import parse as docparse
 
 import fractal_tasks_core
 
-
 inner_pydantic_models = {
-    "OmeroChannel": "fractal_tasks_core.lib_channels.py",
-    "Window": "fractal_tasks_core.lib_channels.py",
-    "Channel": "fractal_tasks_core.tasks._input_models.py",
-    "NapariWorkflowsInput": "fractal_tasks_core.tasks._input_models.py",
-    "NapariWorkflowsOutput": "fractal_tasks_core.tasks._input_models.py",
+    "OmeroChannel": "lib_channels.py",
+    "Window": "lib_channels.py",
+    "Channel": "tasks/_input_models.py",
+    "NapariWorkflowsInput": "tasks/_input_models.py",
+    "NapariWorkflowsOutput": "tasks/_input_models.py",
 }
+
+
+def _get_args_model_descriptions():
+
+    descriptions = {}
+
+    for model, module in inner_pydantic_models.items():
+
+        module_path = Path(fractal_tasks_core.__file__).parent / module
+        tree = ast.parse(module_path.read_text())
+        _class = next(
+            c
+            for c in ast.walk(tree)
+            if (isinstance(c, ast.ClassDef) and c.name == model)
+        )
+        if not _class:
+            raise RuntimeError(f"Model {module_path}::{model} not found.")
+        else:
+            descriptions[model] = {}
+
+        docstring = ast.get_docstring(_class)
+        if docstring:
+            descriptions[model]["docstring"] = docstring
+
+        var_name: str = ""
+        for node in _class.body:
+            if isinstance(node, ast.AnnAssign):
+                descriptions[model][node.target.id] = None
+                var_name = node.target.id
+            else:
+                if isinstance(node, ast.Expr) and var_name:
+                    descriptions[model][var_name] = node.value.s
+                    var_name = ""
+
+    return descriptions
 
 
 def _get_args_descriptions(executable) -> dict[str, str]:
@@ -28,9 +62,10 @@ def _get_args_descriptions(executable) -> dict[str, str]:
         for f in ast.walk(tree)
         if (isinstance(f, ast.FunctionDef) and f.name == module_name)
     )
+
     docstring = ast.get_docstring(function)
     # Parse docstring (via docstring_parser) and prepare output
-    parsed_docstring = parse(docstring)
+    parsed_docstring = docparse(docstring)
     descriptions = {
         param.arg_name: param.description.replace("\n", " ")
         for param in parsed_docstring.params
