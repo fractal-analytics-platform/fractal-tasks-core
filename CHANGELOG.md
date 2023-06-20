@@ -10,7 +10,7 @@
     * Add Pydantic model `tasks._input_models.Channel` (\#422);
     * Add Pydantic model `tasks._input_models.NapariWorkflowsInput` (\#422);
     * Add Pydantic model `tasks._input_models.NapariWorkflowsOutput` (\#422);
-    * Move all Pydantic models to main package (\#XXX).
+    * Move all Pydantic models to main package (\#438).
     * Modify arguments of `illumination_correction` task (\#431);
     * Modify arguments of `create_ome_zarr` and `create_ome_zarr_multiplex` (\#433).
 * JSON Schemas for task arguments:
