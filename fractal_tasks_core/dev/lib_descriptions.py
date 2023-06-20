@@ -8,7 +8,7 @@ import fractal_tasks_core
 
 def _get_args_descriptions(executable) -> dict[str, str]:
     """
-    Extract argument descriptions for a task function
+    Extract argument descriptions for a task function.
     """
     # Read docstring (via ast)
     module_path = Path(fractal_tasks_core.__file__).parent / executable
@@ -33,7 +33,7 @@ def _get_args_descriptions(executable) -> dict[str, str]:
 def _include_args_descriptions_in_schema(*, schema, descriptions):
     """
     Merge the descriptions obtained via `_get_args_descriptions` into an
-    existing JSON Schema for task arguments
+    existing JSON Schema for task arguments.
     """
     new_schema = schema.copy()
     new_properties = schema["properties"].copy()
@@ -59,11 +59,22 @@ INNER_PYDANTIC_MODELS = {
 }
 
 
-def _get_attributes_model_descriptions(
+def _get_attributes_models_descriptions(
     models: dict[str, str] = INNER_PYDANTIC_MODELS
-):
+) -> dict[str, dict[str, str]]:
     """
     Extract attribut descriptions for Pydantic models
+
+    Returns:
+        descriptions == {
+            ... ,
+            'Channel': {
+                '_class_docstring_': '...',
+                'wavelength_id': None,
+                'label': None,
+            },
+            ... ,
+        }
     """
     descriptions = {}
 
@@ -77,14 +88,11 @@ def _get_attributes_model_descriptions(
             if (isinstance(c, ast.ClassDef) and c.name == model)
         )
         if not _class:
-            raise RuntimeError(f"Model {module_path}::{model} not found.")
+            raise ValueError(f"Model {module_path}::{model} not found.")
         else:
             descriptions[model] = {}
 
-        # extract class docstring and attribute docstrings
-        docstring = ast.get_docstring(_class)
-        if docstring:
-            descriptions[model]["_class_docstring_"] = docstring
+        # extract attribute docstrings
         var_name: str = ""
         for node in _class.body:
             if isinstance(node, ast.AnnAssign):
@@ -96,3 +104,26 @@ def _get_attributes_model_descriptions(
                     var_name = ""
 
     return descriptions
+
+
+def _include_attributs_descriptions_in_schema(*, schema, descriptions):
+    """
+    Merge the descriptions obtained via `_get_attributes_models_descriptions`
+    into an existing JSON Schema for task arguments.
+    """
+    new_schema = schema.copy()
+    new_definitions = schema["definitions"].copy()
+
+    for key, value in schema["definitions"].items():
+        if key in descriptions:
+            for attribute in descriptions[key]:
+                if attribute in value["properties"]:
+                    if "description" in value["properties"]:
+                        raise ValueError("Attribute already has description")
+                    else:
+                        new_definitions[key]["properties"][
+                            "description"
+                        ] = descriptions[key][attribute]
+
+    new_schema["definitions"] = new_definitions
+    return new_schema
