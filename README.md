@@ -8,6 +8,7 @@
 | fractal\_tasks\_core/lib\_ROI\_overlaps.py                   |      158 |        5 |       62 |        6 |     95% |134, 184, 224, 306, 317, 458->465 |
 | fractal\_tasks\_core/lib\_channels.py                        |      108 |        8 |       58 |        6 |     92% |29, 106, 139-144, 245, 299-300, 303->281, 310 |
 | fractal\_tasks\_core/lib\_glob.py                            |       19 |        1 |        8 |        1 |     93% |        28 |
+| fractal\_tasks\_core/lib\_input\_models.py                   |       48 |        0 |       12 |        0 |    100% |           |
 | fractal\_tasks\_core/lib\_masked\_loading.py                 |       61 |       42 |       16 |        2 |     27% |88-178, 205-206, 232-233, 243 |
 | fractal\_tasks\_core/lib\_metadata\_parsing.py               |       99 |        7 |       30 |        8 |     88% |96, 113, 226, 233, 235, 274, 318->326, 367 |
 | fractal\_tasks\_core/lib\_parse\_filename\_metadata.py       |       33 |        2 |       12 |        2 |     91% |   98, 105 |
@@ -17,7 +18,6 @@
 | fractal\_tasks\_core/lib\_upscale\_array.py                  |       71 |       11 |       46 |        8 |     80% |61, 72, 89, 94-95, 111, 126, 156, 188-193 |
 | fractal\_tasks\_core/lib\_zattrs\_utils.py                   |       51 |        2 |       28 |        2 |     95% |72->71, 89, 138 |
 | fractal\_tasks\_core/tasks/\_\_init\_\_.py                   |        0 |        0 |        0 |        0 |    100% |           |
-| fractal\_tasks\_core/tasks/\_input\_models.py                |       48 |        0 |       12 |        0 |    100% |           |
 | fractal\_tasks\_core/tasks/\_utils.py                        |       29 |        5 |        8 |        1 |     78% |36-38, 70-73 |
 | fractal\_tasks\_core/tasks/cellpose\_segmentation.py         |      238 |       30 |       78 |       22 |     82% |103-144, 283, 291-294, 325-331, 335->343, 339-340, 357->363, 392->401, 395, 403->419, 411, 426, 431, 438, 453->457, 454, 461, 512, 536->540, 599, 617->635, 629, 705, 726-728 |
 | fractal\_tasks\_core/tasks/compress\_tif.py                  |       35 |       30 |       14 |        1 |     12% |37-68, 72-88 |
