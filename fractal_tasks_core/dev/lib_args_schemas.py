@@ -13,18 +13,18 @@ Copyright 2022 (C)
 
 Helper functions to handle JSON schemas for task arguments.
 """
-import ast
-from pathlib import Path
 from typing import Any
 
-from docstring_parser import parse
 from pydantic.decorator import ALT_V_ARGS
 from pydantic.decorator import ALT_V_KWARGS
 from pydantic.decorator import V_DUPLICATE_KWARGS
 from pydantic.decorator import V_POSITIONAL_ONLY_NAME
 from pydantic.decorator import ValidatedFunction
 
-import fractal_tasks_core
+from fractal_tasks_core.dev.lib_descriptions import _get_args_descriptions
+from fractal_tasks_core.dev.lib_descriptions import (
+    _include_args_descriptions_in_schema,
+)
 from fractal_tasks_core.dev.lib_signature_constraints import _extract_function
 from fractal_tasks_core.dev.lib_signature_constraints import (
     _validate_function_signature,
@@ -75,49 +75,6 @@ def _remove_pydantic_internals(old_schema: _Schema) -> _Schema:
         ALT_V_KWARGS,
     ):
         new_schema["properties"].pop(key, None)
-    return new_schema
-
-
-def _get_args_descriptions(executable) -> dict[str, str]:
-    """
-    Extract argument descriptions for a task function
-    """
-    # Read docstring (via ast)
-    module_path = Path(fractal_tasks_core.__file__).parent / executable
-    module_name = module_path.with_suffix("").name
-    tree = ast.parse(module_path.read_text())
-    function = next(
-        f
-        for f in ast.walk(tree)
-        if (isinstance(f, ast.FunctionDef) and f.name == module_name)
-    )
-    docstring = ast.get_docstring(function)
-    # Parse docstring (via docstring_parser) and prepare output
-    parsed_docstring = parse(docstring)
-    descriptions = {
-        param.arg_name: param.description.replace("\n", " ")
-        for param in parsed_docstring.params
-    }
-    return descriptions
-
-
-def _include_args_descriptions_in_schema(*, schema, descriptions):
-    """
-    Merge the descriptions obtained via `_get_args_descriptions` into an
-    existing JSON Schema for task arguments
-    """
-    new_schema = schema.copy()
-    new_properties = schema["properties"].copy()
-    for key, value in schema["properties"].items():
-        if "description" in value:
-            raise ValueError("Property already has description")
-        else:
-            if key in descriptions:
-                value["description"] = descriptions[key]
-            else:
-                value["description"] = "Missing description"
-            new_properties[key] = value
-    new_schema["properties"] = new_properties
     return new_schema
 
 
