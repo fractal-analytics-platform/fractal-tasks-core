@@ -59,7 +59,7 @@ INNER_PYDANTIC_MODELS = {
 }
 
 
-def _get_args_model_descriptions(
+def _get_attributes_model_descriptions(
     models: dict[str, str] = INNER_PYDANTIC_MODELS
 ):
     """
