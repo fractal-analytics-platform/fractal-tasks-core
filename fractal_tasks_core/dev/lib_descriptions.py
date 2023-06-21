@@ -1,9 +1,44 @@
 import ast
+from importlib import import_module
 from pathlib import Path
 
 from docstring_parser import parse as docparse
 
 import fractal_tasks_core
+
+# import inspect
+# from inspect import signature
+# from typing import Callable
+
+
+"""
+pkg_name = fractal_task_core
+relative_module_path = lib_channels.py
+object_name = {class_name} / {function_name}
+
+
+_get_function_args_descriptions: dict[str, str]
+_get_class_attrs_descriptions: dict[str, str]
+
+l'import deve essere fatto tipo:
+    module = import_module(f"{package}.{module_name}")
+    task_function = getattr(module, module_name)
+
+Per una funzione deve ritornare quello che già abbiamo
+Per una classe dobbiamo fare quello che facciamo ma per una sola classe
+"""
+
+
+def _get_function_args_descriptions(
+    package_name: str, module_relative_path: str, function_name: str
+) -> dict[str, str]:
+
+    if not module_relative_path.endswith(".py"):
+        raise ValueError(f"Module {module_relative_path} must end with '.py'")
+
+    module = import_module(f"{package_name}.{module_relative_path}")
+    x = getattr(module, function_name)
+    return x
 
 
 def _get_args_descriptions(executable) -> dict[str, str]:
