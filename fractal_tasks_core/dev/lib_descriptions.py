@@ -1,4 +1,5 @@
 import ast
+import logging
 from pathlib import Path
 
 from docstring_parser import parse as docparse
@@ -119,7 +120,7 @@ def _include_attributs_descriptions_in_schema(*, schema, descriptions):
             for attribute in descriptions[key]:
                 if attribute in value["properties"]:
                     if "description" in value["properties"]:
-                        raise ValueError("Attribute already has description")
+                        logging.warning("Attribute already has description")
                     else:
                         new_definitions[key]["properties"][
                             "description"
