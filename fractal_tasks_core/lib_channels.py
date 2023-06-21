@@ -40,20 +40,20 @@ class Window(BaseModel):
     Main difference from the specs:
 
         1. ``min`` and ``max`` are optional, since we have custom logic to set
-            their values.
+           their values.
     """
 
     min: Optional[int]
-    """TBD"""
+    """If not provided, it will be set to ``0``."""
 
     max: Optional[int]
-    """TBD"""
+    """If not provided, it will be set according to bit-depth."""
 
     start: int
-    """TBD"""
+    """Start value of the visualization window."""
 
     end: int
-    """TBD"""
+    """End value of the visualization window."""
 
 
 class OmeroChannel(BaseModel):
@@ -61,7 +61,7 @@ class OmeroChannel(BaseModel):
     Custom class for Omero channels, related to OME-NGFF v0.4.
 
     Differences from OME-NGFF v0.4 specs
-    (https://ngff.openmicroscopy.org/0.4/#omero-md)
+    (https://ngff.openmicroscopy.org/0.4/#omero-md):
 
         1. Additional attributes ``wavelength_id`` and ``index``.
         2. We make ``color`` an optional attribute, since we have custom
@@ -73,30 +73,30 @@ class OmeroChannel(BaseModel):
     # Custom
 
     wavelength_id: str
-    """TBD"""
+    """Custom attribute (e.g. ``A01_C01``)."""
 
     index: Optional[int]
-    """TBD"""
+    """For internal use only."""
 
     # From OME-NGFF v0.4 transitional metadata
 
+    label: Optional[str]
+    """Channel label."""
+
     window: Optional[Window]
-    """TBD"""
+    """A ``Window`` object to display this channel in napari."""
 
     color: Optional[str]
-    """TBD"""
-
-    label: Optional[str]
-    """TBD"""
+    """A colormap to display the channel in napari (e.g. ``00FFFF``)."""
 
     active: bool = True
-    """TBD"""
+    """Omero-channel attribute."""
 
     coefficient: int = 1
-    """TBD"""
+    """Omero-channel attribute."""
 
     inverted: bool = False
-    """TBD"""
+    """Omero-channel attribute."""
 
 
 class ChannelNotFoundError(ValueError):
