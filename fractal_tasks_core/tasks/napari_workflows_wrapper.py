@@ -34,6 +34,8 @@ from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
 from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
+from fractal_tasks_core.lib_input_models import NapariWorkflowsInput
+from fractal_tasks_core.lib_input_models import NapariWorkflowsOutput
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
@@ -42,8 +44,6 @@ from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_upscale_array import upscale_array
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
-from fractal_tasks_core.tasks._input_models import NapariWorkflowsInput
-from fractal_tasks_core.tasks._input_models import NapariWorkflowsOutput
 
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__

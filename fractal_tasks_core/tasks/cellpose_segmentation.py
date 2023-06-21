@@ -39,6 +39,7 @@ import fractal_tasks_core
 from fractal_tasks_core.lib_channels import ChannelNotFoundError
 from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
 from fractal_tasks_core.lib_channels import OmeroChannel
+from fractal_tasks_core.lib_input_models import Channel
 from fractal_tasks_core.lib_masked_loading import masked_loading_wrapper
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
@@ -53,7 +54,6 @@ from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
 from fractal_tasks_core.lib_ROI_overlaps import get_overlapping_pairs_3D
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
-from fractal_tasks_core.tasks._input_models import Channel
 
 logger = logging.getLogger(__name__)
 
