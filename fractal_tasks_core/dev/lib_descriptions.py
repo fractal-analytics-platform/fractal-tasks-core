@@ -64,16 +64,6 @@ def _get_attributes_models_descriptions(
 ) -> dict[str, dict[str, str]]:
     """
     Extract attribut descriptions for Pydantic models
-
-    Returns:
-        descriptions == {
-            ... ,
-            'Channel': {
-                'wavelength_id': TBD,
-                'label': TBD,
-            },
-            ... ,
-        }
     """
     descriptions = {}
 
