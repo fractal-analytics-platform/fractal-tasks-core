@@ -27,6 +27,7 @@ class Channel(BaseModel):
 
     wavelength_id: Optional[str] = None
     """TBD"""
+
     label: Optional[str] = None
     """TBD"""
 
@@ -56,8 +57,10 @@ class NapariWorkflowsInput(BaseModel):
 
     type: Literal["image", "label"]
     """TBD"""
+
     label_name: Optional[str]
     """TBD"""
+
     channel: Optional[Channel]
     """TBD"""
 
@@ -85,8 +88,10 @@ class NapariWorkflowsOutput(BaseModel):
 
     type: Literal["label", "dataframe"]
     """TBD"""
+
     label_name: Optional[str] = None
     """TBD"""
+
     table_name: Optional[str] = None
     """TBD"""
 

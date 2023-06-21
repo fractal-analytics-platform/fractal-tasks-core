@@ -45,10 +45,13 @@ class Window(BaseModel):
 
     min: Optional[int]
     """TBD"""
+
     max: Optional[int]
     """TBD"""
+
     start: int
     """TBD"""
+
     end: int
     """TBD"""
 
@@ -68,22 +71,30 @@ class OmeroChannel(BaseModel):
     """
 
     # Custom
+
     wavelength_id: str
     """TBD"""
+
     index: Optional[int]
     """TBD"""
 
     # From OME-NGFF v0.4 transitional metadata
+
     window: Optional[Window]
     """TBD"""
+
     color: Optional[str]
     """TBD"""
+
     label: Optional[str]
     """TBD"""
+
     active: bool = True
     """TBD"""
+
     coefficient: int = 1
     """TBD"""
+
     inverted: bool = False
     """TBD"""
 
