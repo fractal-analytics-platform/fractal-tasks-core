@@ -1,5 +1,4 @@
 import ast
-import logging
 from pathlib import Path
 
 from docstring_parser import parse as docparse
@@ -82,15 +81,15 @@ def _get_attributes_models_descriptions(
         # get the class
         module_path = Path(fractal_tasks_core.__file__).parent / module
         tree = ast.parse(module_path.read_text())
-        _class = next(
-            c
-            for c in ast.walk(tree)
-            if (isinstance(c, ast.ClassDef) and c.name == model)
-        )
-        if not _class:
-            raise ValueError(f"Model {module_path}::{model} not found.")
-        else:
+        try:
+            _class = next(
+                c
+                for c in ast.walk(tree)
+                if (isinstance(c, ast.ClassDef) and c.name == model)
+            )
             descriptions[model] = {}
+        except StopIteration:
+            raise ValueError(f"Model {module_path}::{model} not found.")
 
         # extract attribute docstrings
         var_name: str = ""
@@ -122,7 +121,7 @@ def _include_attributs_descriptions_in_schema(*, schema, descriptions):
         if name in descriptions.keys():
             for prop in definition["properties"]:
                 if "description" in new_definitions[name]["properties"][prop]:
-                    logging.warning(
+                    raise ValueError(
                         f"Property {name}.{prop} already has description"
                     )
                 else:
