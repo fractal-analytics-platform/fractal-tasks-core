@@ -7,6 +7,9 @@ from fractal_tasks_core.dev.lib_descriptions import (
     _get_attributes_models_descriptions,
 )
 from fractal_tasks_core.dev.lib_descriptions import (
+    _get_class_attrs_descriptions,
+)
+from fractal_tasks_core.dev.lib_descriptions import (
     _get_function_args_descriptions,
 )
 from fractal_tasks_core.dev.lib_descriptions import (
@@ -15,12 +18,19 @@ from fractal_tasks_core.dev.lib_descriptions import (
 
 
 def test_get_function_args_descriptions():
-    function_doc = _get_function_args_descriptions(
+    args_descriptions = _get_function_args_descriptions(
         "fractal_tasks_core",
         "dev.lib_signature_constraints.py",
         "_extract_function",
     )
-    assert function_doc.keys() == set(("executable", "package"))
+    assert args_descriptions.keys() == set(("executable", "package"))
+
+
+def test_get_class_attrs_descriptions():
+    attrs_descriptions = _get_class_attrs_descriptions(
+        "fractal_tasks_core", "lib_input_models.py", "Channel"
+    )
+    assert attrs_descriptions.keys() == set(("wavelength_id", "label"))
 
 
 def test_descriptions():
