@@ -54,9 +54,9 @@ def _include_args_descriptions_in_schema(*, schema, descriptions):
 INNER_PYDANTIC_MODELS = {
     "OmeroChannel": "lib_channels.py",
     "Window": "lib_channels.py",
-    "Channel": "tasks/_input_models.py",
-    "NapariWorkflowsInput": "tasks/_input_models.py",
-    "NapariWorkflowsOutput": "tasks/_input_models.py",
+    "Channel": "lib_input_models.py",
+    "NapariWorkflowsInput": "lib_input_models.py",
+    "NapariWorkflowsOutput": "lib_input_models.py",
 }
 
 
@@ -70,9 +70,8 @@ def _get_attributes_models_descriptions(
         descriptions == {
             ... ,
             'Channel': {
-                '_class_docstring_': '...',
-                'wavelength_id': None,
-                'label': None,
+                'wavelength_id': TBD,
+                'label': TBD,
             },
             ... ,
         }
@@ -97,7 +96,7 @@ def _get_attributes_models_descriptions(
         var_name: str = ""
         for node in _class.body:
             if isinstance(node, ast.AnnAssign):
-                descriptions[model][node.target.id] = None
+                descriptions[model][node.target.id] = "Missing description"
                 var_name = node.target.id
             else:
                 if isinstance(node, ast.Expr) and var_name:
@@ -113,18 +112,22 @@ def _include_attributs_descriptions_in_schema(*, schema, descriptions):
     into an existing JSON Schema for task arguments.
     """
     new_schema = schema.copy()
-    new_definitions = schema["definitions"].copy()
 
-    for key, value in schema["definitions"].items():
-        if key in descriptions:
-            for attribute in descriptions[key]:
-                if attribute in value["properties"]:
-                    if "description" in value["properties"]:
-                        logging.warning("Attribute already has description")
-                    else:
-                        new_definitions[key]["properties"][
-                            "description"
-                        ] = descriptions[key][attribute]
+    if "definitions" not in schema:
+        return new_schema
+    else:
+        new_definitions = schema["definitions"].copy()
 
+    for name, definition in schema["definitions"].items():
+        if name in descriptions.keys():
+            for prop in definition["properties"]:
+                if "description" in new_definitions[name]["properties"][prop]:
+                    logging.warning(
+                        f"Property {name}.{prop} already has description"
+                    )
+                else:
+                    new_definitions[name]["properties"][prop][
+                        "description"
+                    ] = descriptions[name][prop]
     new_schema["definitions"] = new_definitions
     return new_schema

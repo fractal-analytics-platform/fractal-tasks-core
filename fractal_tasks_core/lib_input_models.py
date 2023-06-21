@@ -26,7 +26,9 @@ class Channel(BaseModel):
     """
 
     wavelength_id: Optional[str] = None
+    """TBD"""
     label: Optional[str] = None
+    """TBD"""
 
     @validator("label", always=True)
     def mutually_exclusive_channel_attributes(cls, v, values):
@@ -53,8 +55,11 @@ class NapariWorkflowsInput(BaseModel):
     """
 
     type: Literal["image", "label"]
+    """TBD"""
     label_name: Optional[str]
+    """TBD"""
     channel: Optional[Channel]
+    """TBD"""
 
     @validator("label_name", always=True)
     def label_name_is_present(cls, v, values):
@@ -79,8 +84,11 @@ class NapariWorkflowsOutput(BaseModel):
     """
 
     type: Literal["label", "dataframe"]
+    """TBD"""
     label_name: Optional[str] = None
+    """TBD"""
     table_name: Optional[str] = None
+    """TBD"""
 
     @validator("label_name", always=True)
     def label_name_only_for_label_type(cls, v, values):
