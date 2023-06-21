@@ -29,6 +29,7 @@ autodoc_default_options = {
     "private-members": True,
     "show-inheritance": True,
     "autosummary-no-nesting": True,
+    "autodoc_member_order": "bysource"  # valid options: bysource, groupwise, alphabetical
 }
 autodata_content = "both"
 source_suffix = ".rst"
