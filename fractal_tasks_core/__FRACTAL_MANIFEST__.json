@@ -77,7 +77,7 @@
         "definitions": {
           "Window": {
             "title": "Window",
-            "description": "Custom class for Omero-channel window, related to OME-NGFF v0.4\n\nSee https://ngff.openmicroscopy.org/0.4/#omero-md.\nMain difference from the specs:\n\n    1. ``min`` and ``max`` are optional, since we have custom logic to set\n        their values.",
+            "description": "Custom class for Omero-channel window, related to OME-NGFF v0.4\n\nSee https://ngff.openmicroscopy.org/0.4/#omero-md.\nMain difference from the specs:\n\n    1. ``min`` and ``max`` are optional, since we have custom logic to set\n       their values.",
             "type": "object",
             "properties": {
               "min": {
@@ -104,7 +104,7 @@
           },
           "OmeroChannel": {
             "title": "OmeroChannel",
-            "description": "Custom class for Omero channels, related to OME-NGFF v0.4.\n\nDifferences from OME-NGFF v0.4 specs\n(https://ngff.openmicroscopy.org/0.4/#omero-md)\n\n    1. Additional attributes ``wavelength_id`` and ``index``.\n    2. We make ``color`` an optional attribute, since we have custom\n       logic to set its value.\n    3. We make ``window`` an optional attribute, so that we can also\n       process zarr arrays which do not have this attribute.",
+            "description": "Custom class for Omero channels, related to OME-NGFF v0.4.\n\nDifferences from OME-NGFF v0.4 specs\n(https://ngff.openmicroscopy.org/0.4/#omero-md):\n\n    1. Additional attributes ``wavelength_id`` and ``index``.\n    2. We make ``color`` an optional attribute, since we have custom\n       logic to set its value.\n    3. We make ``window`` an optional attribute, so that we can also\n       process zarr arrays which do not have this attribute.",
             "type": "object",
             "properties": {
               "wavelength_id": {
@@ -115,15 +115,15 @@
                 "title": "Index",
                 "type": "integer"
               },
+              "label": {
+                "title": "Label",
+                "type": "string"
+              },
               "window": {
                 "$ref": "#/definitions/Window"
               },
               "color": {
                 "title": "Color",
-                "type": "string"
-              },
-              "label": {
-                "title": "Label",
                 "type": "string"
               },
               "active": {
@@ -804,7 +804,7 @@
         "definitions": {
           "Window": {
             "title": "Window",
-            "description": "Custom class for Omero-channel window, related to OME-NGFF v0.4\n\nSee https://ngff.openmicroscopy.org/0.4/#omero-md.\nMain difference from the specs:\n\n    1. ``min`` and ``max`` are optional, since we have custom logic to set\n        their values.",
+            "description": "Custom class for Omero-channel window, related to OME-NGFF v0.4\n\nSee https://ngff.openmicroscopy.org/0.4/#omero-md.\nMain difference from the specs:\n\n    1. ``min`` and ``max`` are optional, since we have custom logic to set\n       their values.",
             "type": "object",
             "properties": {
               "min": {
@@ -831,7 +831,7 @@
           },
           "OmeroChannel": {
             "title": "OmeroChannel",
-            "description": "Custom class for Omero channels, related to OME-NGFF v0.4.\n\nDifferences from OME-NGFF v0.4 specs\n(https://ngff.openmicroscopy.org/0.4/#omero-md)\n\n    1. Additional attributes ``wavelength_id`` and ``index``.\n    2. We make ``color`` an optional attribute, since we have custom\n       logic to set its value.\n    3. We make ``window`` an optional attribute, so that we can also\n       process zarr arrays which do not have this attribute.",
+            "description": "Custom class for Omero channels, related to OME-NGFF v0.4.\n\nDifferences from OME-NGFF v0.4 specs\n(https://ngff.openmicroscopy.org/0.4/#omero-md):\n\n    1. Additional attributes ``wavelength_id`` and ``index``.\n    2. We make ``color`` an optional attribute, since we have custom\n       logic to set its value.\n    3. We make ``window`` an optional attribute, so that we can also\n       process zarr arrays which do not have this attribute.",
             "type": "object",
             "properties": {
               "wavelength_id": {
@@ -842,15 +842,15 @@
                 "title": "Index",
                 "type": "integer"
               },
+              "label": {
+                "title": "Label",
+                "type": "string"
+              },
               "window": {
                 "$ref": "#/definitions/Window"
               },
               "color": {
                 "title": "Color",
-                "type": "string"
-              },
-              "label": {
-                "title": "Label",
                 "type": "string"
               },
               "active": {
