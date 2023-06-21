@@ -32,13 +32,27 @@ Per una classe dobbiamo fare quello che facciamo ma per una sola classe
 def _get_function_args_descriptions(
     package_name: str, module_relative_path: str, function_name: str
 ) -> dict[str, str]:
+    """
+    Extract argument descriptions from a function
+    """
 
     if not module_relative_path.endswith(".py"):
         raise ValueError(f"Module {module_relative_path} must end with '.py'")
+    else:
+        module_relative_path = module_relative_path.rstrip(".py")
+    module_name = Path(package_name).with_suffix("").name
+    module = import_module(f"{module_name}.{module_relative_path}")
+    function = getattr(module, function_name)
 
-    module = import_module(f"{package_name}.{module_relative_path}")
-    x = getattr(module, function_name)
-    return x
+    docstring = function.__doc__
+
+    # Parse docstring (via docstring_parser) and prepare output
+    parsed_docstring = docparse(docstring)
+    descriptions = {
+        param.arg_name: param.description.replace("\n", " ")
+        for param in parsed_docstring.params
+    }
+    return descriptions
 
 
 def _get_args_descriptions(executable) -> dict[str, str]:

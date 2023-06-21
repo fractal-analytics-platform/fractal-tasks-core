@@ -14,13 +14,14 @@ from fractal_tasks_core.dev.lib_descriptions import (
 )
 
 
-def test_get_args_model_descriptions():
+def test_descriptions():
 
-    x = _get_function_args_descriptions(
-        "fractal_tasks_core", "lib_input_models.py", "Channel"
+    function_doc = _get_function_args_descriptions(
+        "fractal_tasks_core",
+        "dev.lib_signature_constraints.py",
+        "_extract_function",
     )
-    debug(x, dir(x))
-    # assert False
+    assert function_doc.keys() == set(("executable", "package"))
 
     with pytest.raises(ValueError):
         _get_attributes_models_descriptions(models={"Foo": "__init__.py"})
