@@ -5,6 +5,7 @@ Copyright 2022 (C)
 
     Original authors:
     Tommaso Comparin <tommaso.comparin@exact-lab.it>
+    Yuri Chiucconi <yuri.chiucconi@exact-lab.it>
 
     This file is part of Fractal and was originally developed by eXact lab
     S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
@@ -13,9 +14,9 @@ Copyright 2022 (C)
 
 Helper functions to handle JSON schemas for task arguments.
 """
+from pathlib import Path
 from typing import Any
 
-import Path
 from pydantic.decorator import ALT_V_ARGS
 from pydantic.decorator import ALT_V_KWARGS
 from pydantic.decorator import V_DUPLICATE_KWARGS
@@ -41,6 +42,14 @@ from fractal_tasks_core.dev.lib_signature_constraints import (
 
 
 _Schema = dict[str, Any]
+
+INNER_PYDANTIC_MODELS = {
+    "OmeroChannel": "lib_channels.py",
+    "Window": "lib_channels.py",
+    "Channel": "lib_input_models.py",
+    "NapariWorkflowsInput": "lib_input_models.py",
+    "NapariWorkflowsOutput": "lib_input_models.py",
+}
 
 
 def _remove_args_kwargs_properties(old_schema: _Schema) -> _Schema:
@@ -89,13 +98,23 @@ def _remove_pydantic_internals(old_schema: _Schema) -> _Schema:
 
 def create_schema_for_single_task(
     executable: str,
-    package: str = "fractal_tasks_core.tasks",
+    package: str = "fractal_tasks_core",
+    inner_pydantic_models: dict[str, str] = INNER_PYDANTIC_MODELS,
 ) -> _Schema:
     """
     Main function to create a JSON Schema of task arguments
     """
+
+    # Extract the function name. Note: this could be made more general, but for
+    # the moment we assume the function has the same name as the module)
+    function_name = Path(executable).with_suffix("").name
+
     # Extract function from module
-    task_function = _extract_function(executable=executable, package=package)
+    task_function = _extract_function(
+        package_name=package,
+        module_relative_path=executable,
+        function_name=function_name,
+    )
 
     # Validate function signature against some custom constraints
     _validate_function_signature(task_function)
@@ -107,7 +126,6 @@ def create_schema_for_single_task(
     schema = _remove_pydantic_internals(schema)
 
     # Include arg descriptions
-    function_name = Path(executable).with_suffix("").name
     function_args_descriptions = _get_function_args_descriptions(
         package_name=package,
         module_relative_path=executable,
@@ -117,13 +135,7 @@ def create_schema_for_single_task(
         schema=schema, descriptions=function_args_descriptions
     )
     # Include inner Pydantic models attrs descriprions
-    INNER_PYDANTIC_MODELS = {
-        "OmeroChannel": "lib_channels.py",
-        "Window": "lib_channels.py",
-        "Channel": "lib_input_models.py",
-        "NapariWorkflowsInput": "lib_input_models.py",
-        "NapariWorkflowsOutput": "lib_input_models.py",
-    }
+
     for _class, module in INNER_PYDANTIC_MODELS.items():
         descriptions = _get_class_attrs_descriptions(
             package_name=package,
