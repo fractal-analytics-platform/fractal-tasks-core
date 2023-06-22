@@ -82,19 +82,23 @@
             "properties": {
               "min": {
                 "title": "Min",
-                "type": "integer"
+                "type": "integer",
+                "description": "If not provided, it will be set to ``0``."
               },
               "max": {
                 "title": "Max",
-                "type": "integer"
+                "type": "integer",
+                "description": "If not provided, it will be set according to bit-depth."
               },
               "start": {
                 "title": "Start",
-                "type": "integer"
+                "type": "integer",
+                "description": "Start value of the visualization window."
               },
               "end": {
                 "title": "End",
-                "type": "integer"
+                "type": "integer",
+                "description": "End value of the visualization window."
               }
             },
             "required": [
@@ -109,37 +113,45 @@
             "properties": {
               "wavelength_id": {
                 "title": "Wavelength Id",
-                "type": "string"
+                "type": "string",
+                "description": "Custom attribute (e.g. ``A01_C01``)."
               },
               "index": {
                 "title": "Index",
-                "type": "integer"
+                "type": "integer",
+                "description": "For internal use only."
               },
               "label": {
                 "title": "Label",
-                "type": "string"
+                "type": "string",
+                "description": "Channel label."
               },
               "window": {
-                "$ref": "#/definitions/Window"
+                "$ref": "#/definitions/Window",
+                "description": "A ``Window`` object to display this channel in napari."
               },
               "color": {
                 "title": "Color",
-                "type": "string"
+                "type": "string",
+                "description": "A colormap to display the channel in napari (e.g. ``00FFFF``)."
               },
               "active": {
                 "title": "Active",
                 "default": true,
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Omero-channel attribute."
               },
               "coefficient": {
                 "title": "Coefficient",
                 "default": 1,
-                "type": "integer"
+                "type": "integer",
+                "description": "Omero-channel attribute."
               },
               "inverted": {
                 "title": "Inverted",
                 "default": false,
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Omero-channel attribute."
               }
             },
             "required": [
@@ -462,11 +474,13 @@
             "properties": {
               "wavelength_id": {
                 "title": "Wavelength Id",
-                "type": "string"
+                "type": "string",
+                "description": "Unique ID for the channel wavelength, e.g. ``A01_C01``."
               },
               "label": {
                 "title": "Label",
-                "type": "string"
+                "type": "string",
+                "description": "Channel label."
               }
             }
           }
@@ -654,11 +668,13 @@
             "properties": {
               "wavelength_id": {
                 "title": "Wavelength Id",
-                "type": "string"
+                "type": "string",
+                "description": "Unique ID for the channel wavelength, e.g. ``A01_C01``."
               },
               "label": {
                 "title": "Label",
-                "type": "string"
+                "type": "string",
+                "description": "Channel label."
               }
             }
           },
@@ -673,14 +689,17 @@
                   "image",
                   "label"
                 ],
-                "type": "string"
+                "type": "string",
+                "description": "Input type (supported: ``image`` or ``label``)."
               },
               "label_name": {
                 "title": "Label Name",
-                "type": "string"
+                "type": "string",
+                "description": "Label name (for label inputs only)."
               },
               "channel": {
-                "$ref": "#/definitions/Channel"
+                "$ref": "#/definitions/Channel",
+                "description": "Channel object (for image inputs only)."
               }
             },
             "required": [
@@ -698,15 +717,18 @@
                   "label",
                   "dataframe"
                 ],
-                "type": "string"
+                "type": "string",
+                "description": "Output type (supported: ``label`` or ``dataframe``)."
               },
               "label_name": {
                 "title": "Label Name",
-                "type": "string"
+                "type": "string",
+                "description": "Label name (for label outputs only)."
               },
               "table_name": {
                 "title": "Table Name",
-                "type": "string"
+                "type": "string",
+                "description": "Table name (for dataframe outputs only)."
               }
             },
             "required": [
@@ -809,19 +831,23 @@
             "properties": {
               "min": {
                 "title": "Min",
-                "type": "integer"
+                "type": "integer",
+                "description": "If not provided, it will be set to ``0``."
               },
               "max": {
                 "title": "Max",
-                "type": "integer"
+                "type": "integer",
+                "description": "If not provided, it will be set according to bit-depth."
               },
               "start": {
                 "title": "Start",
-                "type": "integer"
+                "type": "integer",
+                "description": "Start value of the visualization window."
               },
               "end": {
                 "title": "End",
-                "type": "integer"
+                "type": "integer",
+                "description": "End value of the visualization window."
               }
             },
             "required": [
@@ -836,37 +862,45 @@
             "properties": {
               "wavelength_id": {
                 "title": "Wavelength Id",
-                "type": "string"
+                "type": "string",
+                "description": "Custom attribute (e.g. ``A01_C01``)."
               },
               "index": {
                 "title": "Index",
-                "type": "integer"
+                "type": "integer",
+                "description": "For internal use only."
               },
               "label": {
                 "title": "Label",
-                "type": "string"
+                "type": "string",
+                "description": "Channel label."
               },
               "window": {
-                "$ref": "#/definitions/Window"
+                "$ref": "#/definitions/Window",
+                "description": "A ``Window`` object to display this channel in napari."
               },
               "color": {
                 "title": "Color",
-                "type": "string"
+                "type": "string",
+                "description": "A colormap to display the channel in napari (e.g. ``00FFFF``)."
               },
               "active": {
                 "title": "Active",
                 "default": true,
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Omero-channel attribute."
               },
               "coefficient": {
                 "title": "Coefficient",
                 "default": 1,
-                "type": "integer"
+                "type": "integer",
+                "description": "Omero-channel attribute."
               },
               "inverted": {
                 "title": "Inverted",
                 "default": false,
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Omero-channel attribute."
               }
             },
             "required": [
