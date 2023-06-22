@@ -34,6 +34,15 @@ from fractal_tasks_core.dev.lib_signature_constraints import (
 _Schema = dict[str, Any]
 
 
+INNER_PYDANTIC_MODELS = {
+    "OmeroChannel": "lib_channels.py",
+    "Window": "lib_channels.py",
+    "Channel": "lib_input_models.py",
+    "NapariWorkflowsInput": "lib_input_models.py",
+    "NapariWorkflowsOutput": "lib_input_models.py",
+}
+
+
 def _remove_args_kwargs_properties(old_schema: _Schema) -> _Schema:
     """
     Remove ``args`` and ``kwargs`` schema properties
