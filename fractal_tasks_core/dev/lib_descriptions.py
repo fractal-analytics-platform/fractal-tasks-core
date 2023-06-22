@@ -11,8 +11,6 @@ def _get_function_args_descriptions(
     """
     Extract argument descriptions from a function
 
-    TODO: use ast instead of import, as in _get_class_attrs_descriptions
-
     :param package_name: Example ``fractal_tasks_core``
     :param module_relative_path: Example ``tasks/create_ome_zarr.py``
     :param function_name: Example ``create_ome_zarr``
