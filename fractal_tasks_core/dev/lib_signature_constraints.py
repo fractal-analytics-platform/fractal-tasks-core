@@ -3,7 +3,6 @@ from importlib import import_module
 from inspect import signature
 from pathlib import Path
 from typing import Callable
-from typing import Optional
 
 from pydantic.decorator import ALT_V_ARGS
 from pydantic.decorator import ALT_V_KWARGS
@@ -22,8 +21,8 @@ FORBIDDEN_PARAM_NAMES = (
 
 def _extract_function(
     module_relative_path: str,
+    function_name: str,
     package_name: str = "fractal_tasks_core",
-    function_name: Optional[str] = None,
 ) -> Callable:
     """
     Extract function from a module with the same name
