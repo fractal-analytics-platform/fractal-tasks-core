@@ -99,7 +99,8 @@ def test_task_functions_have_valid_signatures():
     Test that task functions have valid signatures.
     """
     for ind_task, task in enumerate(TASK_LIST):
-        task_function = _extract_function(task["executable"])
+        function_name = Path(task["executable"]).with_suffix("").name
+        task_function = _extract_function(task["executable"], function_name)
         _validate_function_signature(task_function)
 
 

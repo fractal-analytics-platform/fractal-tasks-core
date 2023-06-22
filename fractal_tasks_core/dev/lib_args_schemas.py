@@ -5,6 +5,7 @@ Copyright 2022 (C)
 
     Original authors:
     Tommaso Comparin <tommaso.comparin@exact-lab.it>
+    Yuri Chiucconi <yuri.chiucconi@exact-lab.it>
 
     This file is part of Fractal and was originally developed by eXact lab
     S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
@@ -13,18 +14,27 @@ Copyright 2022 (C)
 
 Helper functions to handle JSON schemas for task arguments.
 """
-import ast
 from pathlib import Path
 from typing import Any
 
-from docstring_parser import parse
 from pydantic.decorator import ALT_V_ARGS
 from pydantic.decorator import ALT_V_KWARGS
 from pydantic.decorator import V_DUPLICATE_KWARGS
 from pydantic.decorator import V_POSITIONAL_ONLY_NAME
 from pydantic.decorator import ValidatedFunction
 
-import fractal_tasks_core
+from fractal_tasks_core.dev.lib_descriptions import (
+    _get_class_attrs_descriptions,
+)
+from fractal_tasks_core.dev.lib_descriptions import (
+    _get_function_args_descriptions,
+)
+from fractal_tasks_core.dev.lib_descriptions import (
+    _insert_class_attrs_descriptions,
+)
+from fractal_tasks_core.dev.lib_descriptions import (
+    _insert_function_args_descriptions,
+)
 from fractal_tasks_core.dev.lib_signature_constraints import _extract_function
 from fractal_tasks_core.dev.lib_signature_constraints import (
     _validate_function_signature,
@@ -32,6 +42,14 @@ from fractal_tasks_core.dev.lib_signature_constraints import (
 
 
 _Schema = dict[str, Any]
+
+INNER_PYDANTIC_MODELS = {
+    "OmeroChannel": "lib_channels.py",
+    "Window": "lib_channels.py",
+    "Channel": "lib_input_models.py",
+    "NapariWorkflowsInput": "lib_input_models.py",
+    "NapariWorkflowsOutput": "lib_input_models.py",
+}
 
 
 def _remove_args_kwargs_properties(old_schema: _Schema) -> _Schema:
@@ -78,58 +96,25 @@ def _remove_pydantic_internals(old_schema: _Schema) -> _Schema:
     return new_schema
 
 
-def _get_args_descriptions(executable) -> dict[str, str]:
-    """
-    Extract argument descriptions for a task function
-    """
-    # Read docstring (via ast)
-    module_path = Path(fractal_tasks_core.__file__).parent / executable
-    module_name = module_path.with_suffix("").name
-    tree = ast.parse(module_path.read_text())
-    function = next(
-        f
-        for f in ast.walk(tree)
-        if (isinstance(f, ast.FunctionDef) and f.name == module_name)
-    )
-    docstring = ast.get_docstring(function)
-    # Parse docstring (via docstring_parser) and prepare output
-    parsed_docstring = parse(docstring)
-    descriptions = {
-        param.arg_name: param.description.replace("\n", " ")
-        for param in parsed_docstring.params
-    }
-    return descriptions
-
-
-def _include_args_descriptions_in_schema(*, schema, descriptions):
-    """
-    Merge the descriptions obtained via `_get_args_descriptions` into an
-    existing JSON Schema for task arguments
-    """
-    new_schema = schema.copy()
-    new_properties = schema["properties"].copy()
-    for key, value in schema["properties"].items():
-        if "description" in value:
-            raise ValueError("Property already has description")
-        else:
-            if key in descriptions:
-                value["description"] = descriptions[key]
-            else:
-                value["description"] = "Missing description"
-            new_properties[key] = value
-    new_schema["properties"] = new_properties
-    return new_schema
-
-
 def create_schema_for_single_task(
     executable: str,
-    package: str = "fractal_tasks_core.tasks",
+    package: str = "fractal_tasks_core",
+    inner_pydantic_models: dict[str, str] = INNER_PYDANTIC_MODELS,
 ) -> _Schema:
     """
     Main function to create a JSON Schema of task arguments
     """
+
+    # Extract the function name. Note: this could be made more general, but for
+    # the moment we assume the function has the same name as the module)
+    function_name = Path(executable).with_suffix("").name
+
     # Extract function from module
-    task_function = _extract_function(executable=executable, package=package)
+    task_function = _extract_function(
+        package_name=package,
+        module_relative_path=executable,
+        function_name=function_name,
+    )
 
     # Validate function signature against some custom constraints
     _validate_function_signature(task_function)
@@ -141,9 +126,24 @@ def create_schema_for_single_task(
     schema = _remove_pydantic_internals(schema)
 
     # Include arg descriptions
-    descriptions = _get_args_descriptions(executable)
-    schema = _include_args_descriptions_in_schema(
-        schema=schema, descriptions=descriptions
+    function_args_descriptions = _get_function_args_descriptions(
+        package_name=package,
+        module_relative_path=executable,
+        function_name=function_name,
     )
+    schema = _insert_function_args_descriptions(
+        schema=schema, descriptions=function_args_descriptions
+    )
+
+    # Include inner Pydantic models attrs descriprions
+    for _class, module in INNER_PYDANTIC_MODELS.items():
+        descriptions = _get_class_attrs_descriptions(
+            package_name=package,
+            module_relative_path=module,
+            class_name=_class,
+        )
+        schema = _insert_class_attrs_descriptions(
+            schema=schema, class_name=_class, descriptions=descriptions
+        )
 
     return schema

@@ -20,25 +20,25 @@ FORBIDDEN_PARAM_NAMES = (
 
 
 def _extract_function(
-    executable: str,
-    package: str = "fractal_tasks_core.tasks",
+    module_relative_path: str,
+    function_name: str,
+    package_name: str = "fractal_tasks_core",
 ) -> Callable:
     """
     Extract function from a module with the same name
 
-    This for instance extracts the function `my_function` from the module
-    `my_function.py`.
-
-    :param executable: Path to Python task script. Valid examples:
-                       `tasks/my_function.py` or `my_function.py`.
-    :param package: Name of the tasks subpackage (e.g.
-                    `fractal_tasks_core.tasks`).
+    :param package_name: Example ``fractal_tasks_core``
+    :param module_relative_path: Example ``tasks/create_ome_zarr.py``
+    :param function_name: Example ``create_ome_zarr``
     """
-    if not executable.endswith(".py"):
-        raise ValueError(f"{executable=} must end with '.py'")
-    module_name = Path(executable).with_suffix("").name
-    module = import_module(f"{package}.{module_name}")
-    task_function = getattr(module, module_name)
+    if not module_relative_path.endswith(".py"):
+        raise ValueError(f"{module_relative_path=} must end with '.py'")
+    module_relative_path_no_py = str(
+        Path(module_relative_path).with_suffix("")
+    )
+    module_relative_path_dots = module_relative_path_no_py.replace("/", ".")
+    module = import_module(f"{package_name}.{module_relative_path_dots}")
+    task_function = getattr(module, function_name)
     return task_function
 
 

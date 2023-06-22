@@ -77,24 +77,28 @@
         "definitions": {
           "Window": {
             "title": "Window",
-            "description": "Custom class for Omero-channel window, related to OME-NGFF v0.4\n\nSee https://ngff.openmicroscopy.org/0.4/#omero-md.\nMain difference from the specs:\n\n    1. ``min`` and ``max`` are optional, since we have custom logic to set\n        their values.",
+            "description": "Custom class for Omero-channel window, based on OME-NGFF v0.4.",
             "type": "object",
             "properties": {
               "min": {
                 "title": "Min",
-                "type": "integer"
+                "type": "integer",
+                "description": "If not provided, it will be set to ``0``."
               },
               "max": {
                 "title": "Max",
-                "type": "integer"
+                "type": "integer",
+                "description": "If not provided, it will be set according to bit-depth."
               },
               "start": {
                 "title": "Start",
-                "type": "integer"
+                "type": "integer",
+                "description": "Start value of the visualization window."
               },
               "end": {
                 "title": "End",
-                "type": "integer"
+                "type": "integer",
+                "description": "End value of the visualization window."
               }
             },
             "required": [
@@ -104,42 +108,50 @@
           },
           "OmeroChannel": {
             "title": "OmeroChannel",
-            "description": "Custom class for Omero channels, related to OME-NGFF v0.4.\n\nDifferences from OME-NGFF v0.4 specs\n(https://ngff.openmicroscopy.org/0.4/#omero-md)\n\n    1. Additional attributes ``wavelength_id`` and ``index``.\n    2. We make ``color`` an optional attribute, since we have custom\n       logic to set its value.\n    3. We make ``window`` an optional attribute, so that we can also\n       process zarr arrays which do not have this attribute.",
+            "description": "Custom class for Omero channels, based on OME-NGFF v0.4.",
             "type": "object",
             "properties": {
               "wavelength_id": {
                 "title": "Wavelength Id",
-                "type": "string"
+                "type": "string",
+                "description": "Custom attribute (e.g. ``A01_C01``)."
               },
               "index": {
                 "title": "Index",
-                "type": "integer"
-              },
-              "window": {
-                "$ref": "#/definitions/Window"
-              },
-              "color": {
-                "title": "Color",
-                "type": "string"
+                "type": "integer",
+                "description": "For internal use only."
               },
               "label": {
                 "title": "Label",
-                "type": "string"
+                "type": "string",
+                "description": "Channel label."
+              },
+              "window": {
+                "$ref": "#/definitions/Window",
+                "description": "Optional ``Window`` object to display this channel in napari."
+              },
+              "color": {
+                "title": "Color",
+                "type": "string",
+                "description": "Optional colormap to display the channel in napari (e.g. ``00FFFF``)."
               },
               "active": {
                 "title": "Active",
                 "default": true,
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Omero-channel attribute."
               },
               "coefficient": {
                 "title": "Coefficient",
                 "default": 1,
-                "type": "integer"
+                "type": "integer",
+                "description": "Omero-channel attribute."
               },
               "inverted": {
                 "title": "Inverted",
                 "default": false,
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Omero-channel attribute."
               }
             },
             "required": [
@@ -462,11 +474,13 @@
             "properties": {
               "wavelength_id": {
                 "title": "Wavelength Id",
-                "type": "string"
+                "type": "string",
+                "description": "Unique ID for the channel wavelength, e.g. ``A01_C01``."
               },
               "label": {
                 "title": "Label",
-                "type": "string"
+                "type": "string",
+                "description": "Channel label."
               }
             }
           }
@@ -654,11 +668,13 @@
             "properties": {
               "wavelength_id": {
                 "title": "Wavelength Id",
-                "type": "string"
+                "type": "string",
+                "description": "Unique ID for the channel wavelength, e.g. ``A01_C01``."
               },
               "label": {
                 "title": "Label",
-                "type": "string"
+                "type": "string",
+                "description": "Channel label."
               }
             }
           },
@@ -673,14 +689,17 @@
                   "image",
                   "label"
                 ],
-                "type": "string"
+                "type": "string",
+                "description": "Input type (supported: ``image`` or ``label``)."
               },
               "label_name": {
                 "title": "Label Name",
-                "type": "string"
+                "type": "string",
+                "description": "Label name (for label inputs only)."
               },
               "channel": {
-                "$ref": "#/definitions/Channel"
+                "$ref": "#/definitions/Channel",
+                "description": "Channel object (for image inputs only)."
               }
             },
             "required": [
@@ -698,15 +717,18 @@
                   "label",
                   "dataframe"
                 ],
-                "type": "string"
+                "type": "string",
+                "description": "Output type (supported: ``label`` or ``dataframe``)."
               },
               "label_name": {
                 "title": "Label Name",
-                "type": "string"
+                "type": "string",
+                "description": "Label name (for label outputs only)."
               },
               "table_name": {
                 "title": "Table Name",
-                "type": "string"
+                "type": "string",
+                "description": "Table name (for dataframe outputs only)."
               }
             },
             "required": [
@@ -804,24 +826,28 @@
         "definitions": {
           "Window": {
             "title": "Window",
-            "description": "Custom class for Omero-channel window, related to OME-NGFF v0.4\n\nSee https://ngff.openmicroscopy.org/0.4/#omero-md.\nMain difference from the specs:\n\n    1. ``min`` and ``max`` are optional, since we have custom logic to set\n        their values.",
+            "description": "Custom class for Omero-channel window, based on OME-NGFF v0.4.",
             "type": "object",
             "properties": {
               "min": {
                 "title": "Min",
-                "type": "integer"
+                "type": "integer",
+                "description": "If not provided, it will be set to ``0``."
               },
               "max": {
                 "title": "Max",
-                "type": "integer"
+                "type": "integer",
+                "description": "If not provided, it will be set according to bit-depth."
               },
               "start": {
                 "title": "Start",
-                "type": "integer"
+                "type": "integer",
+                "description": "Start value of the visualization window."
               },
               "end": {
                 "title": "End",
-                "type": "integer"
+                "type": "integer",
+                "description": "End value of the visualization window."
               }
             },
             "required": [
@@ -831,42 +857,50 @@
           },
           "OmeroChannel": {
             "title": "OmeroChannel",
-            "description": "Custom class for Omero channels, related to OME-NGFF v0.4.\n\nDifferences from OME-NGFF v0.4 specs\n(https://ngff.openmicroscopy.org/0.4/#omero-md)\n\n    1. Additional attributes ``wavelength_id`` and ``index``.\n    2. We make ``color`` an optional attribute, since we have custom\n       logic to set its value.\n    3. We make ``window`` an optional attribute, so that we can also\n       process zarr arrays which do not have this attribute.",
+            "description": "Custom class for Omero channels, based on OME-NGFF v0.4.",
             "type": "object",
             "properties": {
               "wavelength_id": {
                 "title": "Wavelength Id",
-                "type": "string"
+                "type": "string",
+                "description": "Custom attribute (e.g. ``A01_C01``)."
               },
               "index": {
                 "title": "Index",
-                "type": "integer"
-              },
-              "window": {
-                "$ref": "#/definitions/Window"
-              },
-              "color": {
-                "title": "Color",
-                "type": "string"
+                "type": "integer",
+                "description": "For internal use only."
               },
               "label": {
                 "title": "Label",
-                "type": "string"
+                "type": "string",
+                "description": "Channel label."
+              },
+              "window": {
+                "$ref": "#/definitions/Window",
+                "description": "Optional ``Window`` object to display this channel in napari."
+              },
+              "color": {
+                "title": "Color",
+                "type": "string",
+                "description": "Optional colormap to display the channel in napari (e.g. ``00FFFF``)."
               },
               "active": {
                 "title": "Active",
                 "default": true,
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Omero-channel attribute."
               },
               "coefficient": {
                 "title": "Coefficient",
                 "default": 1,
-                "type": "integer"
+                "type": "integer",
+                "description": "Omero-channel attribute."
               },
               "inverted": {
                 "title": "Inverted",
                 "default": false,
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Omero-channel attribute."
               }
             },
             "required": [

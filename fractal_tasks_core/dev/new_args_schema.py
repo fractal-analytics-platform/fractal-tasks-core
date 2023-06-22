@@ -44,10 +44,8 @@ if __name__ == "__main__":
         print(f"[{executable}] Start")
         try:
             schema = create_schema_for_single_task(executable)
-        except AttributeError:
-            print(f"[{executable}] Skip, due to AttributeError")
-            print()
-            continue
+        except Exception as e:
+            print(f"[{executable}] Skip. Original error:\n{str(e)}")
 
         manifest["task_list"][ind]["args_schema"] = schema
         print("Schema added to manifest")

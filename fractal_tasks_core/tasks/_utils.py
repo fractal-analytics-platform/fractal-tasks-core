@@ -13,11 +13,6 @@ Copyright 2022 (C)
 
 Standard input/output interface for tasks
 """
-# Starting from Python 3.9 (see PEP 585) we can use type hints like
-# `type[BaseModel]`. For versions 3.7 and 3.8, this is available through an
-# additional import
-from __future__ import annotations
-
 import json
 import logging
 from argparse import ArgumentParser
