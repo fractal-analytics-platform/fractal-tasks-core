@@ -34,13 +34,7 @@ if __OME_NGFF_VERSION__ != "0.4":
 
 class Window(BaseModel):
     """
-    Custom class for Omero-channel window, related to OME-NGFF v0.4
-
-    See https://ngff.openmicroscopy.org/0.4/#omero-md.
-    Main difference from the specs:
-
-        1. ``min`` and ``max`` are optional, since we have custom logic to set
-           their values.
+    Custom class for Omero-channel window, based on OME-NGFF v0.4.
     """
 
     min: Optional[int]
@@ -58,16 +52,7 @@ class Window(BaseModel):
 
 class OmeroChannel(BaseModel):
     """
-    Custom class for Omero channels, related to OME-NGFF v0.4.
-
-    Differences from OME-NGFF v0.4 specs
-    (https://ngff.openmicroscopy.org/0.4/#omero-md):
-
-        1. Additional attributes ``wavelength_id`` and ``index``.
-        2. We make ``color`` an optional attribute, since we have custom
-           logic to set its value.
-        3. We make ``window`` an optional attribute, so that we can also
-           process zarr arrays which do not have this attribute.
+    Custom class for Omero channels, based on OME-NGFF v0.4.
     """
 
     # Custom
@@ -84,10 +69,10 @@ class OmeroChannel(BaseModel):
     """Channel label."""
 
     window: Optional[Window]
-    """A ``Window`` object to display this channel in napari."""
+    """Optional ``Window`` object to display this channel in napari."""
 
     color: Optional[str]
-    """A colormap to display the channel in napari (e.g. ``00FFFF``)."""
+    """Optional colormap to display the channel in napari (e.g. ``00FFFF``)."""
 
     active: bool = True
     """Omero-channel attribute."""
