@@ -9,6 +9,12 @@ def _get_function_args_descriptions(
 ) -> dict[str, str]:
     """
     Extract argument descriptions from a function
+
+    TODO: use ast instead of import, as in _get_class_attrs_descriptions
+
+    :param package_name: Example ``fractal_tasks_core``
+    :param module_relative_path: Example ``tasks/create_ome_zarr.py``
+    :param function_name: Example ``create_ome_zarr``
     """
 
     if not module_relative_path.endswith(".py"):
@@ -37,6 +43,13 @@ def _get_function_args_descriptions(
 def _get_class_attrs_descriptions(
     package_name: str, module_relative_path: str, class_name: str
 ) -> dict[str, str]:
+    """
+    Extract attribute descriptions from a class
+
+    :param package_name: Example ``fractal_tasks_core``
+    :param module_relative_path: Example ``lib_channels.py``
+    :param class_name: Example ``OmeroChannel``
+    """
 
     if not module_relative_path.endswith(".py"):
         raise ValueError(f"Module {module_relative_path} must end with '.py'")
@@ -67,8 +80,9 @@ def _get_class_attrs_descriptions(
 
 def _insert_function_args_descriptions(*, schema, descriptions):
     """
-    Merge the descriptions obtained via `_get_args_descriptions` into an
-    existing JSON Schema for task arguments.
+    Merge the descriptions obtained via `_get_args_descriptions` into the
+    properties of an existing JSON Schema.
+
     """
     new_schema = schema.copy()
     new_properties = schema["properties"].copy()
@@ -88,15 +102,14 @@ def _insert_function_args_descriptions(*, schema, descriptions):
 def _insert_class_attrs_descriptions(*, schema, class_name, descriptions):
     """
     Merge the descriptions obtained via `_get_attributes_models_descriptions`
-    into an existing JSON Schema for task arguments.
+    into the ``class_name`` definition, within an existing JSON Schema
     """
     new_schema = schema.copy()
-
     if "definitions" not in schema:
         return new_schema
     else:
         new_definitions = schema["definitions"].copy()
-
+    # Loop over existing definitions
     for name, definition in schema["definitions"].items():
         if name == class_name:
             for prop in definition["properties"]:
