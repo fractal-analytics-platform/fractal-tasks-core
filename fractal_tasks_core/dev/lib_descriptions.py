@@ -1,4 +1,5 @@
 import ast
+from importlib import import_module
 from pathlib import Path
 
 from docstring_parser import parse as docparse
@@ -20,15 +21,17 @@ def _get_function_args_descriptions(
     if not module_relative_path.endswith(".py"):
         raise ValueError(f"Module {module_relative_path} must end with '.py'")
 
-    # get the function
-    module_path = Path(package_name) / module_relative_path
+    # Get the function ast.FunctionDef object
+    package_path = Path(import_module(package_name).__file__).parent
+    module_path = package_path / module_relative_path
     tree = ast.parse(module_path.read_text())
-
     _function = next(
         f
         for f in ast.walk(tree)
         if (isinstance(f, ast.FunctionDef) and f.name == function_name)
     )
+
+    # Extract docstring from ast.FunctionDef
     docstring = ast.get_docstring(_function)
 
     # Parse docstring (via docstring_parser) and prepare output
@@ -54,10 +57,10 @@ def _get_class_attrs_descriptions(
     if not module_relative_path.endswith(".py"):
         raise ValueError(f"Module {module_relative_path} must end with '.py'")
 
-    # get the class
-    module_path = Path(package_name) / module_relative_path
+    # Get the class ast.ClassDef object
+    package_path = Path(import_module(package_name).__file__).parent
+    module_path = package_path / module_relative_path
     tree = ast.parse(module_path.read_text())
-
     _class = next(
         c
         for c in ast.walk(tree)
