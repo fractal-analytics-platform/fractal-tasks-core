@@ -134,8 +134,8 @@ def create_schema_for_single_task(
     schema = _insert_function_args_descriptions(
         schema=schema, descriptions=function_args_descriptions
     )
-    # Include inner Pydantic models attrs descriprions
 
+    # Include inner Pydantic models attrs descriprions
     for _class, module in INNER_PYDANTIC_MODELS.items():
         descriptions = _get_class_attrs_descriptions(
             package_name=package,
