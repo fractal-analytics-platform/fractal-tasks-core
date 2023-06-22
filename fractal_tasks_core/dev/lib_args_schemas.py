@@ -15,15 +15,24 @@ Helper functions to handle JSON schemas for task arguments.
 """
 from typing import Any
 
+import Path
 from pydantic.decorator import ALT_V_ARGS
 from pydantic.decorator import ALT_V_KWARGS
 from pydantic.decorator import V_DUPLICATE_KWARGS
 from pydantic.decorator import V_POSITIONAL_ONLY_NAME
 from pydantic.decorator import ValidatedFunction
 
-from fractal_tasks_core.dev.lib_descriptions import _get_args_descriptions
 from fractal_tasks_core.dev.lib_descriptions import (
-    _include_args_descriptions_in_schema,
+    _get_class_attrs_descriptions,
+)
+from fractal_tasks_core.dev.lib_descriptions import (
+    _get_function_args_descriptions,
+)
+from fractal_tasks_core.dev.lib_descriptions import (
+    _insert_class_attrs_descriptions,
+)
+from fractal_tasks_core.dev.lib_descriptions import (
+    _insert_function_args_descriptions,
 )
 from fractal_tasks_core.dev.lib_signature_constraints import _extract_function
 from fractal_tasks_core.dev.lib_signature_constraints import (
@@ -32,15 +41,6 @@ from fractal_tasks_core.dev.lib_signature_constraints import (
 
 
 _Schema = dict[str, Any]
-
-
-INNER_PYDANTIC_MODELS = {
-    "OmeroChannel": "lib_channels.py",
-    "Window": "lib_channels.py",
-    "Channel": "lib_input_models.py",
-    "NapariWorkflowsInput": "lib_input_models.py",
-    "NapariWorkflowsOutput": "lib_input_models.py",
-}
 
 
 def _remove_args_kwargs_properties(old_schema: _Schema) -> _Schema:
@@ -107,9 +107,31 @@ def create_schema_for_single_task(
     schema = _remove_pydantic_internals(schema)
 
     # Include arg descriptions
-    descriptions = _get_args_descriptions(executable)
-    schema = _include_args_descriptions_in_schema(
-        schema=schema, descriptions=descriptions
+    function_name = Path(executable).with_suffix("").name
+    function_args_descriptions = _get_function_args_descriptions(
+        package_name=package,
+        module_relative_path=executable,
+        function_name=function_name,
     )
+    schema = _insert_function_args_descriptions(
+        schema=schema, descriptions=function_args_descriptions
+    )
+    # Include inner Pydantic models attrs descriprions
+    INNER_PYDANTIC_MODELS = {
+        "OmeroChannel": "lib_channels.py",
+        "Window": "lib_channels.py",
+        "Channel": "lib_input_models.py",
+        "NapariWorkflowsInput": "lib_input_models.py",
+        "NapariWorkflowsOutput": "lib_input_models.py",
+    }
+    for _class, module in INNER_PYDANTIC_MODELS.items():
+        descriptions = _get_class_attrs_descriptions(
+            package_name=package,
+            module_relative_path=module,
+            class_name=_class,
+        )
+        schema = _insert_class_attrs_descriptions(
+            schema=schema, class_name=_class, descriptions=descriptions
+        )
 
     return schema
