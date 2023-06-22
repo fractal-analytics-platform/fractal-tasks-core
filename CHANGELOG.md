@@ -14,7 +14,8 @@
     * Modify arguments of `illumination_correction` task (\#431);
     * Modify arguments of `create_ome_zarr` and `create_ome_zarr_multiplex` (\#433).
 * JSON Schemas for task arguments:
-    * Add JSON schemas for task arguments in the package manifest (\#369, \#384).
+    * Add JSON Schemas for task arguments in the package manifest (\#369, \#384).
+    * Add JSON Schemas for attributes of custom task-argument Pydantic models (\#436).
     * Remove `TaskArguments` models and switch to Pydantic V1 `validate_arguments` (\#369).
     * Make coercing&validating task arguments required, rather than optional (\#408).
     * Remove `default_args` from manifest (\#379, \#393).
