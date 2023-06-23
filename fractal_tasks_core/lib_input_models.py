@@ -29,7 +29,7 @@ class Channel(BaseModel):
     """Unique ID for the channel wavelength, e.g. ``A01_C01``."""
 
     label: Optional[str] = None
-    """Channel label."""
+    """Name of the channel"""
 
     @validator("label", always=True)
     def mutually_exclusive_channel_attributes(cls, v, values):

@@ -83,22 +83,22 @@
               "min": {
                 "title": "Min",
                 "type": "integer",
-                "description": "If not provided, it will be set to ``0``."
+                "description": "Do not change. It will be set to ``0`` by default."
               },
               "max": {
                 "title": "Max",
                 "type": "integer",
-                "description": "If not provided, it will be set according to bit-depth."
+                "description": "Do not change. It will be set according to bit-depth of the images by default (e.g. 65535 for 16 bit images)."
               },
               "start": {
                 "title": "Start",
                 "type": "integer",
-                "description": "Start value of the visualization window."
+                "description": "Lower-bound rescaling value for visualization."
               },
               "end": {
                 "title": "End",
                 "type": "integer",
-                "description": "End value of the visualization window."
+                "description": "Upper-bound rescaling value for visualization."
               }
             },
             "required": [
@@ -114,44 +114,44 @@
               "wavelength_id": {
                 "title": "Wavelength Id",
                 "type": "string",
-                "description": "Custom attribute (e.g. ``A01_C01``)."
+                "description": "Unique ID for the channel wavelength, e.g. ``A01_C01``."
               },
               "index": {
                 "title": "Index",
                 "type": "integer",
-                "description": "For internal use only."
+                "description": "Do not change. For internal use only."
               },
               "label": {
                 "title": "Label",
                 "type": "string",
-                "description": "Channel label."
+                "description": "Name of the channel"
               },
               "window": {
                 "$ref": "#/definitions/Window",
-                "description": "Optional ``Window`` object to display this channel in napari."
+                "description": "Optional ``Window`` object to set default display settings for napari."
               },
               "color": {
                 "title": "Color",
                 "type": "string",
-                "description": "Optional colormap to display the channel in napari (e.g. ``00FFFF``)."
+                "description": "Optional hex colormap to display the channel in napari (e.g. ``00FFFF``)."
               },
               "active": {
                 "title": "Active",
                 "default": true,
                 "type": "boolean",
-                "description": "Omero-channel attribute."
+                "description": "Should this channel be shown in the viewer?"
               },
               "coefficient": {
                 "title": "Coefficient",
                 "default": 1,
                 "type": "integer",
-                "description": "Omero-channel attribute."
+                "description": "Do not change. Omero-channel attribute. "
               },
               "inverted": {
                 "title": "Inverted",
                 "default": false,
                 "type": "boolean",
-                "description": "Omero-channel attribute."
+                "description": "Do not change. Omero-channel attribute."
               }
             },
             "required": [
@@ -368,7 +368,7 @@
           },
           "channel2": {
             "$ref": "#/definitions/Channel",
-            "description": "Second channel for segmentation (in the same format as ``channel``). If specified, cellpose runs in dual channel mode.  For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker."
+            "description": "Second channel for segmentation (in the same format as ``channel``). If specified, cellpose runs in dual channel mode. For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker."
           },
           "input_ROI_table": {
             "title": "Input Roi Table",
@@ -480,7 +480,7 @@
               "label": {
                 "title": "Label",
                 "type": "string",
-                "description": "Channel label."
+                "description": "Name of the channel"
               }
             }
           }
@@ -536,7 +536,7 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "Dictionary where keys match the ``wavelength_id`` attributes of existing channels (e.g.  ``A01_C01`` ) and values are the filenames of the corresponding illumination profiles."
+            "description": "Dictionary where keys match the ``wavelength_id`` attributes of existing channels (e.g. ``A01_C01`` ) and values are the filenames of the corresponding illumination profiles."
           },
           "background": {
             "title": "Background",
@@ -674,7 +674,7 @@
               "label": {
                 "title": "Label",
                 "type": "string",
-                "description": "Channel label."
+                "description": "Name of the channel"
               }
             }
           },
@@ -832,22 +832,22 @@
               "min": {
                 "title": "Min",
                 "type": "integer",
-                "description": "If not provided, it will be set to ``0``."
+                "description": "Do not change. It will be set to ``0`` by default."
               },
               "max": {
                 "title": "Max",
                 "type": "integer",
-                "description": "If not provided, it will be set according to bit-depth."
+                "description": "Do not change. It will be set according to bit-depth of the images by default (e.g. 65535 for 16 bit images)."
               },
               "start": {
                 "title": "Start",
                 "type": "integer",
-                "description": "Start value of the visualization window."
+                "description": "Lower-bound rescaling value for visualization."
               },
               "end": {
                 "title": "End",
                 "type": "integer",
-                "description": "End value of the visualization window."
+                "description": "Upper-bound rescaling value for visualization."
               }
             },
             "required": [
@@ -863,44 +863,44 @@
               "wavelength_id": {
                 "title": "Wavelength Id",
                 "type": "string",
-                "description": "Custom attribute (e.g. ``A01_C01``)."
+                "description": "Unique ID for the channel wavelength, e.g. ``A01_C01``."
               },
               "index": {
                 "title": "Index",
                 "type": "integer",
-                "description": "For internal use only."
+                "description": "Do not change. For internal use only."
               },
               "label": {
                 "title": "Label",
                 "type": "string",
-                "description": "Channel label."
+                "description": "Name of the channel"
               },
               "window": {
                 "$ref": "#/definitions/Window",
-                "description": "Optional ``Window`` object to display this channel in napari."
+                "description": "Optional ``Window`` object to set default display settings for napari."
               },
               "color": {
                 "title": "Color",
                 "type": "string",
-                "description": "Optional colormap to display the channel in napari (e.g. ``00FFFF``)."
+                "description": "Optional hex colormap to display the channel in napari (e.g. ``00FFFF``)."
               },
               "active": {
                 "title": "Active",
                 "default": true,
                 "type": "boolean",
-                "description": "Omero-channel attribute."
+                "description": "Should this channel be shown in the viewer?"
               },
               "coefficient": {
                 "title": "Coefficient",
                 "default": 1,
                 "type": "integer",
-                "description": "Omero-channel attribute."
+                "description": "Do not change. Omero-channel attribute. "
               },
               "inverted": {
                 "title": "Inverted",
                 "default": false,
                 "type": "boolean",
-                "description": "Omero-channel attribute."
+                "description": "Do not change. Omero-channel attribute."
               }
             },
             "required": [
