@@ -38,16 +38,17 @@ class Window(BaseModel):
     """
 
     min: Optional[int]
-    """If not provided, it will be set to ``0``."""
+    """Do not change. It will be set to ``0`` by default."""
 
     max: Optional[int]
-    """If not provided, it will be set according to bit-depth."""
+    """Do not change. It will be set according to bit-depth of the images by
+    default (e.g. 65535 for 16 bit images)."""
 
     start: int
-    """Start value of the visualization window."""
+    """Lower-bound rescaling value for visualization."""
 
     end: int
-    """End value of the visualization window."""
+    """Upper-bound rescaling value for visualization."""
 
 
 class OmeroChannel(BaseModel):
@@ -58,30 +59,32 @@ class OmeroChannel(BaseModel):
     # Custom
 
     wavelength_id: str
-    """Custom attribute (e.g. ``A01_C01``)."""
+    """Unique ID for the channel wavelength, e.g. ``A01_C01``."""
 
     index: Optional[int]
-    """For internal use only."""
+    """Do not change. For internal use only. """
 
     # From OME-NGFF v0.4 transitional metadata
 
     label: Optional[str]
-    """Channel label."""
+    """Name of the channel"""
 
     window: Optional[Window]
-    """Optional ``Window`` object to display this channel in napari."""
+    """Optional ``Window`` object to set default display settings for
+    napari."""
 
     color: Optional[str]
-    """Optional colormap to display the channel in napari (e.g. ``00FFFF``)."""
+    """Optional hex colormap to display the channel in napari
+    (e.g. ``00FFFF``)."""
 
     active: bool = True
-    """Omero-channel attribute."""
+    """Should this channel be shown in the viewer?"""
 
     coefficient: int = 1
-    """Omero-channel attribute."""
+    """Do not change. Omero-channel attribute. """
 
     inverted: bool = False
-    """Omero-channel attribute."""
+    """Do not change. Omero-channel attribute."""
 
 
 class ChannelNotFoundError(ValueError):
