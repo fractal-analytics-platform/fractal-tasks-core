@@ -88,7 +88,7 @@
               "max": {
                 "title": "Max",
                 "type": "integer",
-                "description": "Do not change. It will be set according to bit-depth of the images by\n    default (e.g. 65535 for 16 bit images)."
+                "description": "Do not change. It will be set according to bit-depth of the images by     default (e.g. 65535 for 16 bit images)."
               },
               "start": {
                 "title": "Start",
@@ -128,12 +128,12 @@
               },
               "window": {
                 "$ref": "#/definitions/Window",
-                "description": "Optional ``Window`` object to set default display settings for\n    napari."
+                "description": "Optional ``Window`` object to set default display settings for     napari."
               },
               "color": {
                 "title": "Color",
                 "type": "string",
-                "description": "Optional hex colormap to display the channel in napari\n    (e.g. ``00FFFF``)."
+                "description": "Optional hex colormap to display the channel in napari     (e.g. ``00FFFF``)."
               },
               "active": {
                 "title": "Active",
@@ -837,7 +837,7 @@
               "max": {
                 "title": "Max",
                 "type": "integer",
-                "description": "Do not change. It will be set according to bit-depth of the images by\n    default (e.g. 65535 for 16 bit images)."
+                "description": "Do not change. It will be set according to bit-depth of the images by     default (e.g. 65535 for 16 bit images)."
               },
               "start": {
                 "title": "Start",
@@ -877,12 +877,12 @@
               },
               "window": {
                 "$ref": "#/definitions/Window",
-                "description": "Optional ``Window`` object to set default display settings for\n    napari."
+                "description": "Optional ``Window`` object to set default display settings for     napari."
               },
               "color": {
                 "title": "Color",
                 "type": "string",
-                "description": "Optional hex colormap to display the channel in napari\n    (e.g. ``00FFFF``)."
+                "description": "Optional hex colormap to display the channel in napari     (e.g. ``00FFFF``)."
               },
               "active": {
                 "title": "Active",
