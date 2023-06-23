@@ -74,7 +74,9 @@ def _get_class_attrs_descriptions(
             var_name = node.target.id
         else:
             if isinstance(node, ast.Expr) and var_name:
-                descriptions[var_name] = node.value.s
+                description = node.value.s
+                description = description.replace("\n", " ")
+                descriptions[var_name] = description
                 var_name = ""
     return descriptions
 
