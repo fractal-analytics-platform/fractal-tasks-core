@@ -5,6 +5,23 @@ from pathlib import Path
 from docstring_parser import parse as docparse
 
 
+def _sanitize_description(string: str) -> str:
+    """
+    Sanitize a description string.
+
+    This is a provisional helper function that replaces newlines with spaces
+    and reduces multiple contiguous whitespace characters to a single one.
+    Future iterations of the docstrings format/parsing may render this function
+    not-needed or obsolete.
+    """
+    # Replace newline with space
+    new_string = string.replace("\n", " ")
+    # Replace N-whitespace characterss with a single one
+    while "  " in new_string:
+        new_string = new_string.replace("  ", " ")
+    return new_string
+
+
 def _get_function_args_descriptions(
     package_name: str, module_relative_path: str, function_name: str
 ) -> dict[str, str]:
@@ -35,7 +52,7 @@ def _get_function_args_descriptions(
     # Parse docstring (via docstring_parser) and prepare output
     parsed_docstring = docparse(docstring)
     descriptions = {
-        param.arg_name: param.description.replace("\n", " ")
+        param.arg_name: _sanitize_description(param.description)
         for param in parsed_docstring.params
     }
     return descriptions
@@ -74,9 +91,7 @@ def _get_class_attrs_descriptions(
             var_name = node.target.id
         else:
             if isinstance(node, ast.Expr) and var_name:
-                description = node.value.s
-                description = description.replace("\n", " ")
-                descriptions[var_name] = description
+                descriptions[var_name] = _sanitize_description(node.value.s)
                 var_name = ""
     return descriptions
 

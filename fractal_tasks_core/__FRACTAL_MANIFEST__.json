@@ -88,7 +88,7 @@
               "max": {
                 "title": "Max",
                 "type": "integer",
-                "description": "Do not change. It will be set according to bit-depth of the images by     default (e.g. 65535 for 16 bit images)."
+                "description": "Do not change. It will be set according to bit-depth of the images by default (e.g. 65535 for 16 bit images)."
               },
               "start": {
                 "title": "Start",
@@ -128,12 +128,12 @@
               },
               "window": {
                 "$ref": "#/definitions/Window",
-                "description": "Optional ``Window`` object to set default display settings for     napari."
+                "description": "Optional ``Window`` object to set default display settings for napari."
               },
               "color": {
                 "title": "Color",
                 "type": "string",
-                "description": "Optional hex colormap to display the channel in napari     (e.g. ``00FFFF``)."
+                "description": "Optional hex colormap to display the channel in napari (e.g. ``00FFFF``)."
               },
               "active": {
                 "title": "Active",
@@ -368,7 +368,7 @@
           },
           "channel2": {
             "$ref": "#/definitions/Channel",
-            "description": "Second channel for segmentation (in the same format as ``channel``). If specified, cellpose runs in dual channel mode.  For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker."
+            "description": "Second channel for segmentation (in the same format as ``channel``). If specified, cellpose runs in dual channel mode. For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker."
           },
           "input_ROI_table": {
             "title": "Input Roi Table",
@@ -536,7 +536,7 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "Dictionary where keys match the ``wavelength_id`` attributes of existing channels (e.g.  ``A01_C01`` ) and values are the filenames of the corresponding illumination profiles."
+            "description": "Dictionary where keys match the ``wavelength_id`` attributes of existing channels (e.g. ``A01_C01`` ) and values are the filenames of the corresponding illumination profiles."
           },
           "background": {
             "title": "Background",
@@ -837,7 +837,7 @@
               "max": {
                 "title": "Max",
                 "type": "integer",
-                "description": "Do not change. It will be set according to bit-depth of the images by     default (e.g. 65535 for 16 bit images)."
+                "description": "Do not change. It will be set according to bit-depth of the images by default (e.g. 65535 for 16 bit images)."
               },
               "start": {
                 "title": "Start",
@@ -877,12 +877,12 @@
               },
               "window": {
                 "$ref": "#/definitions/Window",
-                "description": "Optional ``Window`` object to set default display settings for     napari."
+                "description": "Optional ``Window`` object to set default display settings for napari."
               },
               "color": {
                 "title": "Color",
                 "type": "string",
-                "description": "Optional hex colormap to display the channel in napari     (e.g. ``00FFFF``)."
+                "description": "Optional hex colormap to display the channel in napari (e.g. ``00FFFF``)."
               },
               "active": {
                 "title": "Active",
