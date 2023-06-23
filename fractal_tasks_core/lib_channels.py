@@ -62,7 +62,7 @@ class OmeroChannel(BaseModel):
     """Unique ID for the channel wavelength, e.g. ``A01_C01``."""
 
     index: Optional[int]
-    """Do not change. For internal use only. """
+    """Do not change. For internal use only."""
 
     # From OME-NGFF v0.4 transitional metadata
 
