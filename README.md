@@ -6,7 +6,7 @@
 |------------------------------------------------------------- | -------: | -------: | -------: | -------: | ------: | --------: |
 | fractal\_tasks\_core/\_\_init\_\_.py                         |        4 |        0 |        0 |        0 |    100% |           |
 | fractal\_tasks\_core/lib\_ROI\_overlaps.py                   |      158 |        5 |       62 |        6 |     95% |134, 184, 224, 306, 317, 458->465 |
-| fractal\_tasks\_core/lib\_channels.py                        |      108 |        8 |       58 |        6 |     92% |29, 102, 135-140, 241, 295-296, 299->277, 306 |
+| fractal\_tasks\_core/lib\_channels.py                        |      108 |        8 |       58 |        6 |     92% |29, 105, 138-143, 244, 298-299, 302->280, 309 |
 | fractal\_tasks\_core/lib\_glob.py                            |       19 |        1 |        8 |        1 |     93% |        28 |
 | fractal\_tasks\_core/lib\_input\_models.py                   |       56 |        0 |       12 |        0 |    100% |           |
 | fractal\_tasks\_core/lib\_masked\_loading.py                 |       61 |       42 |       16 |        2 |     27% |88-178, 205-206, 232-233, 243 |
