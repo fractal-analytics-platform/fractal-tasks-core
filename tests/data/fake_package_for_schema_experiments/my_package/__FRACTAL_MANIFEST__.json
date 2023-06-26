@@ -1,0 +1,134 @@
+{
+  "task_list": [
+    {
+      "name": "Task Name",
+      "executable": "tasks/my_task.py",
+      "args_schema": {
+        "title": "MyTask",
+        "type": "object",
+        "properties": {
+          "x": {
+            "title": "X",
+            "type": "integer",
+            "description": "Missing description"
+          },
+          "y": {
+            "$ref": "#/definitions/OmeroChannel",
+            "description": "Missing description"
+          },
+          "z": {
+            "$ref": "#/definitions/CustomModel",
+            "description": "Missing description"
+          }
+        },
+        "required": [
+          "x",
+          "y",
+          "z"
+        ],
+        "additionalProperties": false,
+        "definitions": {
+          "Window": {
+            "title": "Window",
+            "description": "Custom class for Omero-channel window, based on OME-NGFF v0.4.",
+            "type": "object",
+            "properties": {
+              "min": {
+                "title": "Min",
+                "type": "integer",
+                "description": "Do not change. It will be set to ``0`` by default."
+              },
+              "max": {
+                "title": "Max",
+                "type": "integer",
+                "description": "Do not change. It will be set according to bit-depth of the images by default (e.g. 65535 for 16 bit images)."
+              },
+              "start": {
+                "title": "Start",
+                "type": "integer",
+                "description": "Lower-bound rescaling value for visualization."
+              },
+              "end": {
+                "title": "End",
+                "type": "integer",
+                "description": "Upper-bound rescaling value for visualization."
+              }
+            },
+            "required": [
+              "start",
+              "end"
+            ]
+          },
+          "OmeroChannel": {
+            "title": "OmeroChannel",
+            "description": "Custom class for Omero channels, based on OME-NGFF v0.4.",
+            "type": "object",
+            "properties": {
+              "wavelength_id": {
+                "title": "Wavelength Id",
+                "type": "string",
+                "description": "Unique ID for the channel wavelength, e.g. ``A01_C01``."
+              },
+              "index": {
+                "title": "Index",
+                "type": "integer",
+                "description": "Do not change. For internal use only."
+              },
+              "label": {
+                "title": "Label",
+                "type": "string",
+                "description": "Name of the channel"
+              },
+              "window": {
+                "$ref": "#/definitions/Window",
+                "description": "Optional ``Window`` object to set default display settings for napari."
+              },
+              "color": {
+                "title": "Color",
+                "type": "string",
+                "description": "Optional hex colormap to display the channel in napari (e.g. ``00FFFF``)."
+              },
+              "active": {
+                "title": "Active",
+                "default": true,
+                "type": "boolean",
+                "description": "Should this channel be shown in the viewer?"
+              },
+              "coefficient": {
+                "title": "Coefficient",
+                "default": 1,
+                "type": "integer",
+                "description": "Do not change. Omero-channel attribute. "
+              },
+              "inverted": {
+                "title": "Inverted",
+                "default": false,
+                "type": "boolean",
+                "description": "Do not change. Omero-channel attribute."
+              }
+            },
+            "required": [
+              "wavelength_id"
+            ]
+          },
+          "CustomModel": {
+            "title": "CustomModel",
+            "type": "object",
+            "properties": {
+              "x": {
+                "title": "X",
+                "type": "integer",
+                "description": "Missing description"
+              }
+            },
+            "required": [
+              "x"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "has_args_schemas": true,
+  "args_schema_version": "pydantic_v1"
+}
