@@ -95,10 +95,9 @@ def copy_ome_zarr(
     :param suffix: The suffix that is used to transform ``plate.zarr`` into
                    ``plate_suffix.zarr``. Note that `None` is not currently
                    supported.
-    :param ROI_table_names: List of Anndata table names to be copied.
-                            If ``None``, it is replaced by ``["FOV_ROI_table",
-                            "well_ROI_table"]``. Note: copying non-ROI tables
-                            may fail if ``project_to_2D=True``.
+    :param ROI_table_names: List of Anndata table names to be copied. Note:
+                            copying non-ROI tables may fail if
+                            ``project_to_2D=True``.
     :return: An update to the metadata table with new "plate", "well",
              "image" entries (now with the suffix in the plate name).
     """
