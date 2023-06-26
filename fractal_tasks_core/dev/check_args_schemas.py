@@ -98,6 +98,11 @@ if __name__ == "__main__":
             print()
             continue
 
+        # The following step is required because some arguments may have a
+        # default which has a non-JSON type (e.g. a tuple), which we need to
+        # convert to JSON type (i.e. an array) before comparison.
+        new_schema = json.loads(json.dumps(new_schema))
+
         # Try to provide an informative comparison of current_schema and
         # new_schema
         _compare_dicts(current_schema, new_schema, path=[])
