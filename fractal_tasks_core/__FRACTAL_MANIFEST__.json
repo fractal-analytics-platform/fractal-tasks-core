@@ -254,11 +254,15 @@
           },
           "ROI_table_names": {
             "title": "Roi Table Names",
+            "default": [
+              "FOV_ROI_table",
+              "well_ROI_table"
+            ],
             "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "List of Anndata table names to be copied. If ``None``, it is replaced by ``[\"FOV_ROI_table\", \"well_ROI_table\"]``. Note: copying non-ROI tables may fail if ``project_to_2D=True``."
+            "description": "List of Anndata table names to be copied. Note: copying non-ROI tables may fail if ``project_to_2D=True``."
           }
         },
         "required": [
