@@ -15,11 +15,16 @@
           "y": {
             "$ref": "#/definitions/OmeroChannel",
             "description": "Missing description"
+          },
+          "z": {
+            "$ref": "#/definitions/CustomModel",
+            "description": "Missing description"
           }
         },
         "required": [
           "x",
-          "y"
+          "y",
+          "z"
         ],
         "additionalProperties": false,
         "definitions": {
@@ -104,6 +109,20 @@
             },
             "required": [
               "wavelength_id"
+            ]
+          },
+          "CustomModel": {
+            "title": "CustomModel",
+            "type": "object",
+            "properties": {
+              "x": {
+                "title": "X",
+                "type": "integer",
+                "description": "Missing description"
+              }
+            },
+            "required": [
+              "x"
             ]
           }
         }

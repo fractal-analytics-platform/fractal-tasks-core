@@ -45,7 +45,11 @@ if __name__ == "__main__":
         print(f"[{executable}] Start")
         try:
             schema = create_schema_for_single_task(
-                executable, package="my_package"
+                executable,
+                package="my_package",
+                custom_pydantic_models=[
+                    ("my_package", "lib_custom_models.py", "CustomModel")
+                ],
             )
         except Exception as e:
             print(f"[{executable}] Skip. Original error:\n{str(e)}")
