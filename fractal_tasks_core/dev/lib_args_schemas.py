@@ -50,7 +50,7 @@ FRACTAL_TASKS_CORE_PYDANTIC_MODELS = [
     ("fractal_tasks_core", "lib_input_models.py", "Channel"),
     ("fractal_tasks_core", "lib_input_models.py", "NapariWorkflowsInput"),
     ("fractal_tasks_core", "lib_input_models.py", "NapariWorkflowsOutput"),
-    ]
+]
 
 
 def _remove_args_kwargs_properties(old_schema: _Schema) -> _Schema:
@@ -100,7 +100,7 @@ def _remove_pydantic_internals(old_schema: _Schema) -> _Schema:
 def create_schema_for_single_task(
     executable: str,
     package: str = "fractal_tasks_core",
-    custom_pydantic_models: Optional[list[tuple[str,str, str]]] = None,
+    custom_pydantic_models: Optional[list[tuple[str, str, str]]] = None,
 ) -> _Schema:
     """
     Main function to create a JSON Schema of task arguments
@@ -142,13 +142,17 @@ def create_schema_for_single_task(
 
     # Check that model names are unique
     tmp_class_names = set()
-    duplicate_class_names = set(item[2] for item in pydantic_models if (item[2] in tmp_class_names or tmp_class_names.add(item[2])))
+    duplicate_class_names = set(
+        item[2]
+        for item in pydantic_models
+        if (item[2] in tmp_class_names or tmp_class_names.add(item[2]))
+    )
     if duplicate_class_names:
         pydantic_models_str = "  " + "\n  ".join(map(str, pydantic_models))
         raise ValueError(
-                "Cannot parse docstrings for models with non-unique names "
-                f"{duplicate_class_names}, in\n{pydantic_models_str}"
-                )
+            "Cannot parse docstrings for models with non-unique names "
+            f"{duplicate_class_names}, in\n{pydantic_models_str}"
+        )
 
     # Extract model-attribute descriptions and insert them into schema
     for package_name, module_relative_path, class_name in pydantic_models:
@@ -158,7 +162,9 @@ def create_schema_for_single_task(
             class_name=class_name,
         )
         schema = _insert_class_attrs_descriptions(
-            schema=schema, class_name=class_name, descriptions=attrs_descriptions
+            schema=schema,
+            class_name=class_name,
+            descriptions=attrs_descriptions,
         )
 
     return schema
