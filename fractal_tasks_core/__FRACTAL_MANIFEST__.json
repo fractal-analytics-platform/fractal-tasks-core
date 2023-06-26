@@ -27,11 +27,13 @@
             "type": "object",
             "description": "This parameter is not used by this task (standard argument for Fractal tasks, managed by Fractal server)"
           },
-          "image_extension": {
-            "title": "Image Extension",
-            "default": "tif",
-            "type": "string",
-            "description": "Filename extension of images (e.g. ``\"tif\"`` or ``\"png\"``)"
+          "allowed_channels": {
+            "title": "Allowed Channels",
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/OmeroChannel"
+            },
+            "description": "A list of ``OmeroChannel`` s, where each channel must include the ``wavelength_id`` attribute and where the ``wavelength_id`` values must be unique across the list."
           },
           "image_glob_patterns": {
             "title": "Image Glob Patterns",
@@ -40,14 +42,6 @@
               "type": "string"
             },
             "description": "If specified, only parse images with filenames that match with all these patterns. Patterns must be defined as in https://docs.python.org/3/library/fnmatch.html, Example: ``image_glob_pattern=[\"*_B03_*\"]`` => only process well B03 ``image_glob_pattern=[\"*_C09_*\", \"*F016*\", \"*Z[0-5][0-9]C*\"]`` => only process well C09, field of view 16 and Z planes 0 - 59."
-          },
-          "allowed_channels": {
-            "title": "Allowed Channels",
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/OmeroChannel"
-            },
-            "description": "A list of ``OmeroChannel`` s, where each channel must include the ``wavelength_id`` attribute and where the ``wavelength_id`` values must be unique across the list."
           },
           "num_levels": {
             "title": "Num Levels",
@@ -60,6 +54,12 @@
             "default": 2,
             "type": "integer",
             "description": "Linear coarsening factor between subsequent levels. If set to 2, level 1 is 2x downsampled, level 2 is 4x downsampled etc."
+          },
+          "image_extension": {
+            "title": "Image Extension",
+            "default": "tif",
+            "type": "string",
+            "description": "Filename extension of images (e.g. ``\"tif\"`` or ``\"png\"``)"
           },
           "metadata_table_file": {
             "title": "Metadata Table File",
@@ -399,22 +399,22 @@
             "type": "boolean",
             "description": "If ``True``, apply relabeling so that label values are unique for all objects in the well."
           },
-          "use_gpu": {
-            "title": "Use Gpu",
-            "default": true,
-            "type": "boolean",
-            "description": "If ``False``, always use the CPU; if ``True``, use the GPU if possible (as defined in ``cellpose.core.use_gpu()``) and fall-back to the CPU otherwise."
-          },
-          "anisotropy": {
-            "title": "Anisotropy",
-            "type": "number",
-            "description": "Ratio of the pixel sizes along Z and XY axis (ignored if the image is not three-dimensional). If `None`, it is inferred from the OME-NGFF metadata."
-          },
           "diameter_level0": {
             "title": "Diameter Level0",
             "default": 30.0,
             "type": "number",
             "description": "Expected diameter of the objects that should be segmented in pixels at level 0. Initial diameter is rescaled using the ``level`` that was selected. The rescaled value is passed as the diameter to the ``CellposeModel.eval`` method."
+          },
+          "model_type": {
+            "title": "Model Type",
+            "default": "cyto2",
+            "type": "string",
+            "description": "Parameter of ``CellposeModel`` class. Defines which model should be used. Typical choices are nuclei, cyto, cyto2 etc."
+          },
+          "pretrained_model": {
+            "title": "Pretrained Model",
+            "type": "string",
+            "description": "Parameter of ``CellposeModel`` class (takes precedence over ``model_type``). Allows you to specify the path of a custom trained cellpose model."
           },
           "cellprob_threshold": {
             "title": "Cellprob Threshold",
@@ -428,16 +428,10 @@
             "type": "number",
             "description": "Parameter of ``CellposeModel.eval`` method. Valid values between 0.0 and 1.0. From Cellpose documentation: \"Increase this threshold if cellpose is not returning as many ROIs as you\u2019d expect. Similarly, decrease this threshold if cellpose is returning too many ill-shaped ROIs.\""
           },
-          "model_type": {
-            "title": "Model Type",
-            "default": "cyto2",
-            "type": "string",
-            "description": "Parameter of ``CellposeModel`` class. Defines which model should be used. Typical choices are nuclei, cyto, cyto2 etc."
-          },
-          "pretrained_model": {
-            "title": "Pretrained Model",
-            "type": "string",
-            "description": "Parameter of ``CellposeModel`` class (takes precedence over ``model_type``). Allows you to specify the path of a custom trained cellpose model."
+          "anisotropy": {
+            "title": "Anisotropy",
+            "type": "number",
+            "description": "Ratio of the pixel sizes along Z and XY axis (ignored if the image is not three-dimensional). If `None`, it is inferred from the OME-NGFF metadata."
           },
           "min_size": {
             "title": "Min Size",
@@ -456,6 +450,12 @@
             "default": false,
             "type": "boolean",
             "description": "Parameter of ``CellposeModel`` class. Whether to use cellpose net averaging to run the 4 built-in networks (useful for nuclei, cyto & cyto2, not sure it works for the others)."
+          },
+          "use_gpu": {
+            "title": "Use Gpu",
+            "default": true,
+            "type": "boolean",
+            "description": "If ``False``, always use the CPU; if ``True``, use the GPU if possible (as defined in ``cellpose.core.use_gpu()``) and fall-back to the CPU otherwise."
           }
         },
         "required": [
@@ -545,16 +545,16 @@
             "type": "integer",
             "description": "Background value that is subtracted from the image before the illumination correction is applied. Set it to 0 if you don't want any background subtraction."
           },
+          "overwrite": {
+            "title": "Overwrite",
+            "default": true,
+            "type": "boolean",
+            "description": "If True, the results of this task will overwrite the input image data. This task is only implemented for ``overwrite=True`` at the moment."
+          },
           "new_component": {
             "title": "New Component",
             "type": "string",
             "description": "Not implemented yet. This is not implemented well in Fractal server at the moment, it's unclear how a user would specify fitting new components. If the results shall not overwrite the input data and the output path is the same as the input path, a new component needs to be provided. Example: myplate_new_name.zarr/B/03/0/"
-          },
-          "overwrite": {
-            "title": "Overwrite",
-            "default": false,
-            "type": "boolean",
-            "description": "If True, the results of this task will overwrite the input image data. This task is only implemented for ``overwrite=True`` at the moment."
           }
         },
         "required": [
@@ -772,20 +772,6 @@
             "type": "object",
             "description": "This parameter is not used by this task (standard argument for Fractal tasks, managed by Fractal server)"
           },
-          "image_extension": {
-            "title": "Image Extension",
-            "default": "tif",
-            "type": "string",
-            "description": "Filename extension of images (e.g. `\"tif\"` or `\"png\"`)"
-          },
-          "image_glob_patterns": {
-            "title": "Image Glob Patterns",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "If specified, only parse images with filenames that match with all these patterns. Patterns must be defined as in https://docs.python.org/3/library/fnmatch.html, Example: ``image_glob_pattern=[\"*_B03_*\"]`` => only process well B03 ``image_glob_pattern=[\"*_C09_*\", \"*F016*\", \"*Z[0-5][0-9]C*\"]`` => only process well C09, field of view 16 and Z planes 0 - 59."
-          },
           "allowed_channels": {
             "title": "Allowed Channels",
             "type": "object",
@@ -796,6 +782,14 @@
               }
             },
             "description": "A dictionary of lists of ``OmeroChannel``s, where each channel must include the ``wavelength_id`` attribute and where the ``wavelength_id`` values must be unique across each list. Dictionary keys represent channel indices (``\"0\",\"1\",..``)."
+          },
+          "image_glob_patterns": {
+            "title": "Image Glob Patterns",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "If specified, only parse images with filenames that match with all these patterns. Patterns must be defined as in https://docs.python.org/3/library/fnmatch.html, Example: ``image_glob_pattern=[\"*_B03_*\"]`` => only process well B03 ``image_glob_pattern=[\"*_C09_*\", \"*F016*\", \"*Z[0-5][0-9]C*\"]`` => only process well C09, field of view 16 and Z planes 0 - 59."
           },
           "num_levels": {
             "title": "Num Levels",
@@ -808,6 +802,12 @@
             "default": 2,
             "type": "integer",
             "description": "Linear coarsening factor between subsequent levels. If set to 2, level 1 is 2x downsampled, level 2 is 4x downsampled etc."
+          },
+          "image_extension": {
+            "title": "Image Extension",
+            "default": "tif",
+            "type": "string",
+            "description": "Filename extension of images (e.g. `\"tif\"` or `\"png\"`)"
           },
           "metadata_table_files": {
             "title": "Metadata Table Files",

@@ -52,11 +52,11 @@ def create_ome_zarr_multiplex(
     input_paths: Sequence[str],
     output_path: str,
     metadata: Dict[str, Any],
-    image_extension: str = "tif",
-    image_glob_patterns: Optional[list[str]] = None,
     allowed_channels: Dict[str, list[OmeroChannel]],
+    image_glob_patterns: Optional[list[str]] = None,
     num_levels: int = 5,
     coarsening_xy: int = 2,
+    image_extension: str = "tif",
     metadata_table_files: Optional[Dict[str, str]] = None,
 ) -> Dict[str, Any]:
     """
@@ -87,8 +87,11 @@ def create_ome_zarr_multiplex(
     :param metadata: This parameter is not used by this task
                      (standard argument for Fractal tasks,
                      managed by Fractal server)
-    :param image_extension: Filename extension of images (e.g. `"tif"` or
-                            `"png"`)
+    :param allowed_channels: A dictionary of lists of ``OmeroChannel``s, where
+                             each channel must include the ``wavelength_id``
+                             attribute and where the ``wavelength_id`` values
+                             must be unique across each list. Dictionary keys
+                             represent channel indices (``"0","1",..``).
     :param image_glob_patterns: If specified, only parse images with filenames
                                 that match with all these patterns. Patterns
                                 must be defined as in
@@ -105,11 +108,8 @@ def create_ome_zarr_multiplex(
     :param coarsening_xy: Linear coarsening factor between subsequent levels.
                           If set to 2, level 1 is 2x downsampled, level 2 is
                           4x downsampled etc.
-    :param allowed_channels: A dictionary of lists of ``OmeroChannel``s, where
-                             each channel must include the ``wavelength_id``
-                             attribute and where the ``wavelength_id`` values
-                             must be unique across each list. Dictionary keys
-                             represent channel indices (``"0","1",..``).
+    :param image_extension: Filename extension of images (e.g. `"tif"` or
+                            `"png"`)
     :param metadata_table_files: If ``None``, parse Yokogawa metadata from
                                  mrf/mlf files in the input_path folder; else,
                                  a dictionary of key-value pairs like
