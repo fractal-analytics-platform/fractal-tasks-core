@@ -27,8 +27,8 @@
 | fractal\_tasks\_core/tasks/illumination\_correction.py       |       99 |       17 |       32 |       10 |     78% |64, 85-89, 171, 175, 178-183, 196-199, 238, 253, 266-267, 322-324 |
 | fractal\_tasks\_core/tasks/maximum\_intensity\_projection.py |       51 |        5 |       14 |        4 |     86% |83, 117, 136, 159-161 |
 | fractal\_tasks\_core/tasks/napari\_workflows\_wrapper.py     |      265 |       24 |      128 |       18 |     89% |160-162, 199, 213, 218, 316, 323, 329-334, 339, 370, 375, 415-419, 448, 462, 543->530, 582-587, 594->596, 651, 676-678 |
-| fractal\_tasks\_core/tasks/yokogawa\_to\_ome\_zarr.py        |       87 |       10 |       24 |        5 |     85% |117, 164, 206, 246-250, 256-258 |
-|                                                    **TOTAL** | **2107** |  **280** |  **818** |  **137** | **84%** |           |
+| fractal\_tasks\_core/tasks/yokogawa\_to\_ome\_zarr.py        |       80 |        5 |       20 |        4 |     91% |113, 160, 202, 252-254 |
+|                                                    **TOTAL** | **2100** |  **275** |  **814** |  **136** | **84%** |           |
 
 
 ## Setup coverage badge
