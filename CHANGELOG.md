@@ -13,9 +13,12 @@
     * Move all Pydantic models to main package (\#438).
     * Modify arguments of `illumination_correction` task (\#431);
     * Modify arguments of `create_ome_zarr` and `create_ome_zarr_multiplex` (\#433).
+    * Remove the delete option from yokogawa to ome zarr (\#443).
 * JSON Schemas for task arguments:
     * Add JSON Schemas for task arguments in the package manifest (\#369, \#384).
     * Add JSON Schemas for attributes of custom task-argument Pydantic models (\#436).
+    * Make schema-generation tools more general, when handling custom Pydantic models (\#445).
+    * Include titles for custom-model-typed arguments and argument attributes (\#447).
     * Remove `TaskArguments` models and switch to Pydantic V1 `validate_arguments` (\#369).
     * Make coercing&validating task arguments required, rather than optional (\#408).
     * Remove `default_args` from manifest (\#379, \#393).
