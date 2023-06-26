@@ -254,6 +254,10 @@
           },
           "ROI_table_names": {
             "title": "Roi Table Names",
+            "default": [
+              "FOV_ROI_table",
+              "well_ROI_table"
+            ],
             "type": "array",
             "items": {
               "type": "string"
