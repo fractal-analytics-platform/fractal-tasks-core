@@ -18,7 +18,6 @@ import logging
 from pathlib import Path
 from typing import Any
 from typing import Dict
-from typing import Optional
 from typing import Sequence
 
 import anndata as ad
@@ -46,7 +45,7 @@ def copy_ome_zarr(
     metadata: Dict[str, Any],
     project_to_2D: bool = True,
     suffix: str = "mip",
-    ROI_table_names: Optional[Sequence[str]] = None,
+    ROI_table_names: tuple[str, ...] = ("FOV_ROI_table", "well_ROI_table"),
 ) -> Dict[str, Any]:
 
     """
@@ -96,10 +95,9 @@ def copy_ome_zarr(
     :param suffix: The suffix that is used to transform ``plate.zarr`` into
                    ``plate_suffix.zarr``. Note that `None` is not currently
                    supported.
-    :param ROI_table_names: List of Anndata table names to be copied.
-                            If ``None``, it is replaced by ``["FOV_ROI_table",
-                            "well_ROI_table"]``. Note: copying non-ROI tables
-                            may fail if ``project_to_2D=True``.
+    :param ROI_table_names: List of Anndata table names to be copied. Note:
+                            copying non-ROI tables may fail if
+                            ``project_to_2D=True``.
     :return: An update to the metadata table with new "plate", "well",
              "image" entries (now with the suffix in the plate name).
     """
@@ -110,10 +108,6 @@ def copy_ome_zarr(
     if suffix is None:
         # FIXME create a standard suffix (with timestamp)
         raise NotImplementedError
-
-    if ROI_table_names is None:
-        # FIXME: are these defaults OK?
-        ROI_table_names = ["FOV_ROI_table", "well_ROI_table"]
 
     # List all plates
     in_path = Path(input_paths[0])
