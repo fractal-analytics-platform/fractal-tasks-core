@@ -76,11 +76,17 @@ def _get_class_attrs_descriptions(
     package_path = Path(import_module(package_name).__file__).parent
     module_path = package_path / module_relative_path
     tree = ast.parse(module_path.read_text())
-    _class = next(
-        c
-        for c in ast.walk(tree)
-        if (isinstance(c, ast.ClassDef) and c.name == class_name)
-    )
+    try:
+        _class = next(
+            c
+            for c in ast.walk(tree)
+            if (isinstance(c, ast.ClassDef) and c.name == class_name)
+        )
+    except StopIteration:
+        raise RuntimeError(
+            f"Cannot find {class_name=} for {package_name=} "
+            f"and {module_relative_path=}"
+        )
 
     descriptions = {}
     # extract attribute docstrings

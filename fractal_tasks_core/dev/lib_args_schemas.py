@@ -16,6 +16,7 @@ Helper functions to handle JSON schemas for task arguments.
 """
 from pathlib import Path
 from typing import Any
+from typing import Optional
 
 from pydantic.decorator import ALT_V_ARGS
 from pydantic.decorator import ALT_V_KWARGS
@@ -44,13 +45,13 @@ from fractal_tasks_core.dev.lib_titles import _include_titles
 
 _Schema = dict[str, Any]
 
-INNER_PYDANTIC_MODELS = {
-    "OmeroChannel": "lib_channels.py",
-    "Window": "lib_channels.py",
-    "Channel": "lib_input_models.py",
-    "NapariWorkflowsInput": "lib_input_models.py",
-    "NapariWorkflowsOutput": "lib_input_models.py",
-}
+FRACTAL_TASKS_CORE_PYDANTIC_MODELS = [
+    ("fractal_tasks_core", "lib_channels.py", "OmeroChannel"),
+    ("fractal_tasks_core", "lib_channels.py", "Window"),
+    ("fractal_tasks_core", "lib_input_models.py", "Channel"),
+    ("fractal_tasks_core", "lib_input_models.py", "NapariWorkflowsInput"),
+    ("fractal_tasks_core", "lib_input_models.py", "NapariWorkflowsOutput"),
+]
 
 
 def _remove_args_kwargs_properties(old_schema: _Schema) -> _Schema:
@@ -100,7 +101,7 @@ def _remove_pydantic_internals(old_schema: _Schema) -> _Schema:
 def create_schema_for_single_task(
     executable: str,
     package: str = "fractal_tasks_core",
-    inner_pydantic_models: dict[str, str] = INNER_PYDANTIC_MODELS,
+    custom_pydantic_models: Optional[list[tuple[str, str, str]]] = None,
 ) -> _Schema:
     """
     Main function to create a JSON Schema of task arguments
@@ -129,7 +130,7 @@ def create_schema_for_single_task(
     # Include titles for custom-model-typed arguments
     schema = _include_titles(schema)
 
-    # Include arg descriptions
+    # Include descriptions of function arguments
     function_args_descriptions = _get_function_args_descriptions(
         package_name=package,
         module_relative_path=executable,
@@ -139,15 +140,35 @@ def create_schema_for_single_task(
         schema=schema, descriptions=function_args_descriptions
     )
 
-    # Include inner Pydantic models attrs descriprions
-    for _class, module in INNER_PYDANTIC_MODELS.items():
-        descriptions = _get_class_attrs_descriptions(
-            package_name=package,
-            module_relative_path=module,
-            class_name=_class,
+    # Merge lists of fractal-tasks-core and user-provided Pydantic models
+    user_provided_models = custom_pydantic_models or []
+    pydantic_models = FRACTAL_TASKS_CORE_PYDANTIC_MODELS + user_provided_models
+
+    # Check that model names are unique
+    tmp_class_names = set()
+    duplicate_class_names = set(
+        item[2]
+        for item in pydantic_models
+        if (item[2] in tmp_class_names or tmp_class_names.add(item[2]))
+    )
+    if duplicate_class_names:
+        pydantic_models_str = "  " + "\n  ".join(map(str, pydantic_models))
+        raise ValueError(
+            "Cannot parse docstrings for models with non-unique names "
+            f"{duplicate_class_names}, in\n{pydantic_models_str}"
+        )
+
+    # Extract model-attribute descriptions and insert them into schema
+    for package_name, module_relative_path, class_name in pydantic_models:
+        attrs_descriptions = _get_class_attrs_descriptions(
+            package_name=package_name,
+            module_relative_path=module_relative_path,
+            class_name=class_name,
         )
         schema = _insert_class_attrs_descriptions(
-            schema=schema, class_name=_class, descriptions=descriptions
+            schema=schema,
+            class_name=class_name,
+            descriptions=attrs_descriptions,
         )
 
     return schema
