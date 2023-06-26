@@ -128,6 +128,7 @@
               },
               "window": {
                 "$ref": "#/definitions/Window",
+                "title": "Window",
                 "description": "Optional ``Window`` object to set default display settings for napari."
               },
               "color": {
@@ -358,10 +359,12 @@
           },
           "channel": {
             "$ref": "#/definitions/Channel",
+            "title": "Channel",
             "description": "Primary channel for segmentation; requires either ``wavelength_id`` (e.g. ``A01_C01``) or ``label`` (e.g. ``DAPI``)."
           },
           "channel2": {
             "$ref": "#/definitions/Channel",
+            "title": "Channel2",
             "description": "Second channel for segmentation (in the same format as ``channel``). If specified, cellpose runs in dual channel mode. For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker."
           },
           "input_ROI_table": {
@@ -693,6 +696,7 @@
               },
               "channel": {
                 "$ref": "#/definitions/Channel",
+                "title": "Channel",
                 "description": "Channel object (for image inputs only)."
               }
             },
@@ -871,6 +875,7 @@
               },
               "window": {
                 "$ref": "#/definitions/Window",
+                "title": "Window",
                 "description": "Optional ``Window`` object to set default display settings for napari."
               },
               "color": {

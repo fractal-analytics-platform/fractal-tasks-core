@@ -39,6 +39,7 @@ from fractal_tasks_core.dev.lib_signature_constraints import _extract_function
 from fractal_tasks_core.dev.lib_signature_constraints import (
     _validate_function_signature,
 )
+from fractal_tasks_core.dev.lib_titles import _include_titles
 
 
 _Schema = dict[str, Any]
@@ -124,6 +125,9 @@ def create_schema_for_single_task(
     schema = vf.model.schema()
     schema = _remove_args_kwargs_properties(schema)
     schema = _remove_pydantic_internals(schema)
+
+    # Include titles for custom-model-typed arguments
+    schema = _include_titles(schema)
 
     # Include arg descriptions
     function_args_descriptions = _get_function_args_descriptions(
