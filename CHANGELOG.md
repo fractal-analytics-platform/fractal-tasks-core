@@ -13,7 +13,9 @@
     * Move all Pydantic models to main package (\#438).
     * Modify arguments of `illumination_correction` task (\#431);
     * Modify arguments of `create_ome_zarr` and `create_ome_zarr_multiplex` (\#433).
+    * Modify argument default for `ROI_table_names`, in `copy_ome_zarr` (\#449).
     * Remove the delete option from yokogawa to ome zarr (\#443).
+    * Reorder task inputs (\#451).
 * JSON Schemas for task arguments:
     * Add JSON Schemas for task arguments in the package manifest (\#369, \#384).
     * Add JSON Schemas for attributes of custom task-argument Pydantic models (\#436).
