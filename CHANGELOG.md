@@ -1,3 +1,5 @@
+* Update Zenodo datasets used in tests (\#454).
+
 # 0.10.0
 
 * Restructure the package and repository:
