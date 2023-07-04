@@ -27,11 +27,13 @@
             "type": "object",
             "description": "This parameter is not used by this task (standard argument for Fractal tasks, managed by Fractal server)"
           },
-          "image_extension": {
-            "title": "Image Extension",
-            "default": "tif",
-            "type": "string",
-            "description": "Filename extension of images (e.g. ``\"tif\"`` or ``\"png\"``)"
+          "allowed_channels": {
+            "title": "Allowed Channels",
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/OmeroChannel"
+            },
+            "description": "A list of ``OmeroChannel`` s, where each channel must include the ``wavelength_id`` attribute and where the ``wavelength_id`` values must be unique across the list."
           },
           "image_glob_patterns": {
             "title": "Image Glob Patterns",
@@ -40,14 +42,6 @@
               "type": "string"
             },
             "description": "If specified, only parse images with filenames that match with all these patterns. Patterns must be defined as in https://docs.python.org/3/library/fnmatch.html, Example: ``image_glob_pattern=[\"*_B03_*\"]`` => only process well B03 ``image_glob_pattern=[\"*_C09_*\", \"*F016*\", \"*Z[0-5][0-9]C*\"]`` => only process well C09, field of view 16 and Z planes 0 - 59."
-          },
-          "allowed_channels": {
-            "title": "Allowed Channels",
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/OmeroChannel"
-            },
-            "description": "A list of ``OmeroChannel`` s, where each channel must include the ``wavelength_id`` attribute and where the ``wavelength_id`` values must be unique across the list."
           },
           "num_levels": {
             "title": "Num Levels",
@@ -60,6 +54,12 @@
             "default": 2,
             "type": "integer",
             "description": "Linear coarsening factor between subsequent levels. If set to 2, level 1 is 2x downsampled, level 2 is 4x downsampled etc."
+          },
+          "image_extension": {
+            "title": "Image Extension",
+            "default": "tif",
+            "type": "string",
+            "description": "Filename extension of images (e.g. ``\"tif\"`` or ``\"png\"``)"
           },
           "metadata_table_file": {
             "title": "Metadata Table File",
@@ -77,24 +77,28 @@
         "definitions": {
           "Window": {
             "title": "Window",
-            "description": "Custom class for Omero-channel window, related to OME-NGFF v0.4\n\nSee https://ngff.openmicroscopy.org/0.4/#omero-md.\nMain difference from the specs:\n\n    1. ``min`` and ``max`` are optional, since we have custom logic to set\n        their values.",
+            "description": "Custom class for Omero-channel window, based on OME-NGFF v0.4.",
             "type": "object",
             "properties": {
               "min": {
                 "title": "Min",
-                "type": "integer"
+                "type": "integer",
+                "description": "Do not change. It will be set to ``0`` by default."
               },
               "max": {
                 "title": "Max",
-                "type": "integer"
+                "type": "integer",
+                "description": "Do not change. It will be set according to bit-depth of the images by default (e.g. 65535 for 16 bit images)."
               },
               "start": {
                 "title": "Start",
-                "type": "integer"
+                "type": "integer",
+                "description": "Lower-bound rescaling value for visualization."
               },
               "end": {
                 "title": "End",
-                "type": "integer"
+                "type": "integer",
+                "description": "Upper-bound rescaling value for visualization."
               }
             },
             "required": [
@@ -104,42 +108,51 @@
           },
           "OmeroChannel": {
             "title": "OmeroChannel",
-            "description": "Custom class for Omero channels, related to OME-NGFF v0.4.\n\nDifferences from OME-NGFF v0.4 specs\n(https://ngff.openmicroscopy.org/0.4/#omero-md)\n\n    1. Additional attributes ``wavelength_id`` and ``index``.\n    2. We make ``color`` an optional attribute, since we have custom\n       logic to set its value.\n    3. We make ``window`` an optional attribute, so that we can also\n       process zarr arrays which do not have this attribute.",
+            "description": "Custom class for Omero channels, based on OME-NGFF v0.4.",
             "type": "object",
             "properties": {
               "wavelength_id": {
                 "title": "Wavelength Id",
-                "type": "string"
+                "type": "string",
+                "description": "Unique ID for the channel wavelength, e.g. ``A01_C01``."
               },
               "index": {
                 "title": "Index",
-                "type": "integer"
-              },
-              "window": {
-                "$ref": "#/definitions/Window"
-              },
-              "color": {
-                "title": "Color",
-                "type": "string"
+                "type": "integer",
+                "description": "Do not change. For internal use only."
               },
               "label": {
                 "title": "Label",
-                "type": "string"
+                "type": "string",
+                "description": "Name of the channel"
+              },
+              "window": {
+                "$ref": "#/definitions/Window",
+                "title": "Window",
+                "description": "Optional ``Window`` object to set default display settings for napari."
+              },
+              "color": {
+                "title": "Color",
+                "type": "string",
+                "description": "Optional hex colormap to display the channel in napari (e.g. ``00FFFF``)."
               },
               "active": {
                 "title": "Active",
                 "default": true,
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Should this channel be shown in the viewer?"
               },
               "coefficient": {
                 "title": "Coefficient",
                 "default": 1,
-                "type": "integer"
+                "type": "integer",
+                "description": "Do not change. Omero-channel attribute. "
               },
               "inverted": {
                 "title": "Inverted",
                 "default": false,
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Do not change. Omero-channel attribute."
               }
             },
             "required": [
@@ -184,12 +197,6 @@
             "title": "Metadata",
             "type": "object",
             "description": "dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata: \"original_paths\": list of paths that correspond to the ``input_paths`` of the create_ome_zarr task (=> where the microscopy image are stored) \"num_levels\": int, number of pyramid levels in the image. This determines how many pyramid levels are built for the segmentation. \"coarsening_xy\": int, coarsening factor in XY of the downsampling when building the pyramid. \"image_extension\": Filename extension of images (e.g. ``\"tif\"`` or ``\"png\"``) \"image_glob_patterns\": Parameter of ``create_ome_zarr`` task. If specified, only parse images with filenames that match with all these patterns. (standard argument for Fractal tasks, managed by Fractal server)"
-          },
-          "delete_input": {
-            "title": "Delete Input",
-            "default": false,
-            "type": "boolean",
-            "description": "Set to True if you want Fractal to remove the input files the microscope created."
           }
         },
         "required": [
@@ -247,11 +254,15 @@
           },
           "ROI_table_names": {
             "title": "Roi Table Names",
+            "default": [
+              "FOV_ROI_table",
+              "well_ROI_table"
+            ],
             "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "List of Anndata table names to be copied. If ``None``, it is replaced by ``[\"FOV_ROI_table\", \"well_ROI_table\"]``. Note: copying non-ROI tables may fail if ``project_to_2D=True``."
+            "description": "List of Anndata table names to be copied. Note: copying non-ROI tables may fail if ``project_to_2D=True``."
           }
         },
         "required": [
@@ -352,11 +363,13 @@
           },
           "channel": {
             "$ref": "#/definitions/Channel",
+            "title": "Channel",
             "description": "Primary channel for segmentation; requires either ``wavelength_id`` (e.g. ``A01_C01``) or ``label`` (e.g. ``DAPI``)."
           },
           "channel2": {
             "$ref": "#/definitions/Channel",
-            "description": "Second channel for segmentation (in the same format as ``channel``). If specified, cellpose runs in dual channel mode.  For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker."
+            "title": "Channel2",
+            "description": "Second channel for segmentation (in the same format as ``channel``). If specified, cellpose runs in dual channel mode. For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker."
           },
           "input_ROI_table": {
             "title": "Input Roi Table",
@@ -386,22 +399,22 @@
             "type": "boolean",
             "description": "If ``True``, apply relabeling so that label values are unique for all objects in the well."
           },
-          "use_gpu": {
-            "title": "Use Gpu",
-            "default": true,
-            "type": "boolean",
-            "description": "If ``False``, always use the CPU; if ``True``, use the GPU if possible (as defined in ``cellpose.core.use_gpu()``) and fall-back to the CPU otherwise."
-          },
-          "anisotropy": {
-            "title": "Anisotropy",
-            "type": "number",
-            "description": "Ratio of the pixel sizes along Z and XY axis (ignored if the image is not three-dimensional). If `None`, it is inferred from the OME-NGFF metadata."
-          },
           "diameter_level0": {
             "title": "Diameter Level0",
             "default": 30.0,
             "type": "number",
             "description": "Expected diameter of the objects that should be segmented in pixels at level 0. Initial diameter is rescaled using the ``level`` that was selected. The rescaled value is passed as the diameter to the ``CellposeModel.eval`` method."
+          },
+          "model_type": {
+            "title": "Model Type",
+            "default": "cyto2",
+            "type": "string",
+            "description": "Parameter of ``CellposeModel`` class. Defines which model should be used. Typical choices are nuclei, cyto, cyto2 etc."
+          },
+          "pretrained_model": {
+            "title": "Pretrained Model",
+            "type": "string",
+            "description": "Parameter of ``CellposeModel`` class (takes precedence over ``model_type``). Allows you to specify the path of a custom trained cellpose model."
           },
           "cellprob_threshold": {
             "title": "Cellprob Threshold",
@@ -415,16 +428,10 @@
             "type": "number",
             "description": "Parameter of ``CellposeModel.eval`` method. Valid values between 0.0 and 1.0. From Cellpose documentation: \"Increase this threshold if cellpose is not returning as many ROIs as you\u2019d expect. Similarly, decrease this threshold if cellpose is returning too many ill-shaped ROIs.\""
           },
-          "model_type": {
-            "title": "Model Type",
-            "default": "cyto2",
-            "type": "string",
-            "description": "Parameter of ``CellposeModel`` class. Defines which model should be used. Typical choices are nuclei, cyto, cyto2 etc."
-          },
-          "pretrained_model": {
-            "title": "Pretrained Model",
-            "type": "string",
-            "description": "Parameter of ``CellposeModel`` class (takes precedence over ``model_type``). Allows you to specify the path of a custom trained cellpose model."
+          "anisotropy": {
+            "title": "Anisotropy",
+            "type": "number",
+            "description": "Ratio of the pixel sizes along Z and XY axis (ignored if the image is not three-dimensional). If `None`, it is inferred from the OME-NGFF metadata."
           },
           "min_size": {
             "title": "Min Size",
@@ -443,6 +450,12 @@
             "default": false,
             "type": "boolean",
             "description": "Parameter of ``CellposeModel`` class. Whether to use cellpose net averaging to run the 4 built-in networks (useful for nuclei, cyto & cyto2, not sure it works for the others)."
+          },
+          "use_gpu": {
+            "title": "Use Gpu",
+            "default": true,
+            "type": "boolean",
+            "description": "If ``False``, always use the CPU; if ``True``, use the GPU if possible (as defined in ``cellpose.core.use_gpu()``) and fall-back to the CPU otherwise."
           }
         },
         "required": [
@@ -462,11 +475,13 @@
             "properties": {
               "wavelength_id": {
                 "title": "Wavelength Id",
-                "type": "string"
+                "type": "string",
+                "description": "Unique ID for the channel wavelength, e.g. ``A01_C01``."
               },
               "label": {
                 "title": "Label",
-                "type": "string"
+                "type": "string",
+                "description": "Name of the channel"
               }
             }
           }
@@ -522,7 +537,7 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "Dictionary where keys match the ``wavelength_id`` attributes of existing channels (e.g.  ``A01_C01`` ) and values are the filenames of the corresponding illumination profiles."
+            "description": "Dictionary where keys match the ``wavelength_id`` attributes of existing channels (e.g. ``A01_C01`` ) and values are the filenames of the corresponding illumination profiles."
           },
           "background": {
             "title": "Background",
@@ -530,16 +545,16 @@
             "type": "integer",
             "description": "Background value that is subtracted from the image before the illumination correction is applied. Set it to 0 if you don't want any background subtraction."
           },
+          "overwrite": {
+            "title": "Overwrite",
+            "default": true,
+            "type": "boolean",
+            "description": "If True, the results of this task will overwrite the input image data. This task is only implemented for ``overwrite=True`` at the moment."
+          },
           "new_component": {
             "title": "New Component",
             "type": "string",
             "description": "Not implemented yet. This is not implemented well in Fractal server at the moment, it's unclear how a user would specify fitting new components. If the results shall not overwrite the input data and the output path is the same as the input path, a new component needs to be provided. Example: myplate_new_name.zarr/B/03/0/"
-          },
-          "overwrite": {
-            "title": "Overwrite",
-            "default": false,
-            "type": "boolean",
-            "description": "If True, the results of this task will overwrite the input image data. This task is only implemented for ``overwrite=True`` at the moment."
           }
         },
         "required": [
@@ -654,11 +669,13 @@
             "properties": {
               "wavelength_id": {
                 "title": "Wavelength Id",
-                "type": "string"
+                "type": "string",
+                "description": "Unique ID for the channel wavelength, e.g. ``A01_C01``."
               },
               "label": {
                 "title": "Label",
-                "type": "string"
+                "type": "string",
+                "description": "Name of the channel"
               }
             }
           },
@@ -673,14 +690,18 @@
                   "image",
                   "label"
                 ],
-                "type": "string"
+                "type": "string",
+                "description": "Input type (supported: ``image`` or ``label``)."
               },
               "label_name": {
                 "title": "Label Name",
-                "type": "string"
+                "type": "string",
+                "description": "Label name (for label inputs only)."
               },
               "channel": {
-                "$ref": "#/definitions/Channel"
+                "$ref": "#/definitions/Channel",
+                "title": "Channel",
+                "description": "Channel object (for image inputs only)."
               }
             },
             "required": [
@@ -698,15 +719,18 @@
                   "label",
                   "dataframe"
                 ],
-                "type": "string"
+                "type": "string",
+                "description": "Output type (supported: ``label`` or ``dataframe``)."
               },
               "label_name": {
                 "title": "Label Name",
-                "type": "string"
+                "type": "string",
+                "description": "Label name (for label outputs only)."
               },
               "table_name": {
                 "title": "Table Name",
-                "type": "string"
+                "type": "string",
+                "description": "Table name (for dataframe outputs only)."
               }
             },
             "required": [
@@ -748,20 +772,6 @@
             "type": "object",
             "description": "This parameter is not used by this task (standard argument for Fractal tasks, managed by Fractal server)"
           },
-          "image_extension": {
-            "title": "Image Extension",
-            "default": "tif",
-            "type": "string",
-            "description": "Filename extension of images (e.g. `\"tif\"` or `\"png\"`)"
-          },
-          "image_glob_patterns": {
-            "title": "Image Glob Patterns",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "If specified, only parse images with filenames that match with all these patterns. Patterns must be defined as in https://docs.python.org/3/library/fnmatch.html, Example: ``image_glob_pattern=[\"*_B03_*\"]`` => only process well B03 ``image_glob_pattern=[\"*_C09_*\", \"*F016*\", \"*Z[0-5][0-9]C*\"]`` => only process well C09, field of view 16 and Z planes 0 - 59."
-          },
           "allowed_channels": {
             "title": "Allowed Channels",
             "type": "object",
@@ -772,6 +782,14 @@
               }
             },
             "description": "A dictionary of lists of ``OmeroChannel``s, where each channel must include the ``wavelength_id`` attribute and where the ``wavelength_id`` values must be unique across each list. Dictionary keys represent channel indices (``\"0\",\"1\",..``)."
+          },
+          "image_glob_patterns": {
+            "title": "Image Glob Patterns",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "If specified, only parse images with filenames that match with all these patterns. Patterns must be defined as in https://docs.python.org/3/library/fnmatch.html, Example: ``image_glob_pattern=[\"*_B03_*\"]`` => only process well B03 ``image_glob_pattern=[\"*_C09_*\", \"*F016*\", \"*Z[0-5][0-9]C*\"]`` => only process well C09, field of view 16 and Z planes 0 - 59."
           },
           "num_levels": {
             "title": "Num Levels",
@@ -784,6 +802,12 @@
             "default": 2,
             "type": "integer",
             "description": "Linear coarsening factor between subsequent levels. If set to 2, level 1 is 2x downsampled, level 2 is 4x downsampled etc."
+          },
+          "image_extension": {
+            "title": "Image Extension",
+            "default": "tif",
+            "type": "string",
+            "description": "Filename extension of images (e.g. `\"tif\"` or `\"png\"`)"
           },
           "metadata_table_files": {
             "title": "Metadata Table Files",
@@ -804,24 +828,28 @@
         "definitions": {
           "Window": {
             "title": "Window",
-            "description": "Custom class for Omero-channel window, related to OME-NGFF v0.4\n\nSee https://ngff.openmicroscopy.org/0.4/#omero-md.\nMain difference from the specs:\n\n    1. ``min`` and ``max`` are optional, since we have custom logic to set\n        their values.",
+            "description": "Custom class for Omero-channel window, based on OME-NGFF v0.4.",
             "type": "object",
             "properties": {
               "min": {
                 "title": "Min",
-                "type": "integer"
+                "type": "integer",
+                "description": "Do not change. It will be set to ``0`` by default."
               },
               "max": {
                 "title": "Max",
-                "type": "integer"
+                "type": "integer",
+                "description": "Do not change. It will be set according to bit-depth of the images by default (e.g. 65535 for 16 bit images)."
               },
               "start": {
                 "title": "Start",
-                "type": "integer"
+                "type": "integer",
+                "description": "Lower-bound rescaling value for visualization."
               },
               "end": {
                 "title": "End",
-                "type": "integer"
+                "type": "integer",
+                "description": "Upper-bound rescaling value for visualization."
               }
             },
             "required": [
@@ -831,42 +859,51 @@
           },
           "OmeroChannel": {
             "title": "OmeroChannel",
-            "description": "Custom class for Omero channels, related to OME-NGFF v0.4.\n\nDifferences from OME-NGFF v0.4 specs\n(https://ngff.openmicroscopy.org/0.4/#omero-md)\n\n    1. Additional attributes ``wavelength_id`` and ``index``.\n    2. We make ``color`` an optional attribute, since we have custom\n       logic to set its value.\n    3. We make ``window`` an optional attribute, so that we can also\n       process zarr arrays which do not have this attribute.",
+            "description": "Custom class for Omero channels, based on OME-NGFF v0.4.",
             "type": "object",
             "properties": {
               "wavelength_id": {
                 "title": "Wavelength Id",
-                "type": "string"
+                "type": "string",
+                "description": "Unique ID for the channel wavelength, e.g. ``A01_C01``."
               },
               "index": {
                 "title": "Index",
-                "type": "integer"
-              },
-              "window": {
-                "$ref": "#/definitions/Window"
-              },
-              "color": {
-                "title": "Color",
-                "type": "string"
+                "type": "integer",
+                "description": "Do not change. For internal use only."
               },
               "label": {
                 "title": "Label",
-                "type": "string"
+                "type": "string",
+                "description": "Name of the channel"
+              },
+              "window": {
+                "$ref": "#/definitions/Window",
+                "title": "Window",
+                "description": "Optional ``Window`` object to set default display settings for napari."
+              },
+              "color": {
+                "title": "Color",
+                "type": "string",
+                "description": "Optional hex colormap to display the channel in napari (e.g. ``00FFFF``)."
               },
               "active": {
                 "title": "Active",
                 "default": true,
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Should this channel be shown in the viewer?"
               },
               "coefficient": {
                 "title": "Coefficient",
                 "default": 1,
-                "type": "integer"
+                "type": "integer",
+                "description": "Do not change. Omero-channel attribute. "
               },
               "inverted": {
                 "title": "Inverted",
                 "default": false,
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Do not change. Omero-channel attribute."
               }
             },
             "required": [

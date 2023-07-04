@@ -10,7 +10,7 @@ copyright = (
     "2022, Friedrich Miescher Institute for Biomedical Research and "
     "University of Zurich"
 )
-version = "0.10.0a4"
+version = "0.10.0"
 language = "en"
 
 extensions = [
@@ -29,6 +29,9 @@ autodoc_default_options = {
     "private-members": True,
     "show-inheritance": True,
     "autosummary-no-nesting": True,
+    "autosummary_no_nesting": True,
+    # valid options: bysource, groupwise, alphabetical
+    "autodoc_member_order": "groupwise",
 }
 autodata_content = "both"
 source_suffix = ".rst"

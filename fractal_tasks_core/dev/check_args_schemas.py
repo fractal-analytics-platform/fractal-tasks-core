@@ -16,11 +16,54 @@ package manfest) are up-to-date.
 """
 import json
 from pathlib import Path
+from typing import Any
 
 import fractal_tasks_core
 from fractal_tasks_core.dev.lib_args_schemas import (
     create_schema_for_single_task,
 )
+
+
+def _compare_dicts(
+    old: dict[str, Any], new: dict[str, Any], path: list[str] = []
+):
+    """
+    Provide more informative comparison of two (possibly nested) dictionaries
+    """
+    path_str = "/".join(path)
+    keys_old = set(old.keys())
+    keys_new = set(new.keys())
+    if not keys_old == keys_new:
+        msg = (
+            "\n\n"
+            f"Dictionaries at path {path_str} have different keys:\n\n"
+            f"OLD KEYS:\n{keys_old}\n\n"
+            f"NEW KEYS:\n{keys_new}\n\n"
+        )
+        raise ValueError(msg)
+    for key, value_old in old.items():
+        value_new = new[key]
+        if type(value_old) != type(value_new):
+            msg = (
+                "\n\n"
+                f"Values at path {path_str}/{key} "
+                "have different types:\n\n"
+                f"OLD TYPE:\n{type(value_old)}\n\n"
+                f"NEW TYPE:\n{type(value_new)}\n\n"
+            )
+            raise ValueError(msg)
+        if isinstance(value_old, dict):
+            _compare_dicts(value_old, value_new, path=path + [key])
+        else:
+            if value_old != value_new:
+                msg = (
+                    "\n\n"
+                    f"Values at path {path_str}/{key} "
+                    "are different:\n\n"
+                    f"OLD VALUE:\n{value_old}\n\n"
+                    f"NEW VALUE:\n{value_new}\n\n"
+                )
+                raise ValueError(msg)
 
 
 if __name__ == "__main__":
@@ -32,26 +75,42 @@ if __name__ == "__main__":
     with manifest_path.open("r") as f:
         manifest = json.load(f)
 
-    # Set or check global properties of manifest
+    # Check global properties of manifest
     if not manifest["has_args_schemas"]:
         raise ValueError(f'{manifest["has_args_schemas"]=}')
     if manifest["args_schema_version"] != "pydantic_v1":
         raise ValueError(f'{manifest["args_schema_version"]=}')
 
-    # Loop over tasks and set or check args schemas
+    # Loop over tasks and check args schemas
     task_list = manifest["task_list"]
     for ind, task in enumerate(task_list):
+
+        # Read current schema
+        current_schema = task["args_schema"]
+
+        # Create new schema
         executable = task["executable"]
         print(f"[{executable}] Start")
         try:
-            schema = create_schema_for_single_task(executable)
+            new_schema = create_schema_for_single_task(executable)
         except AttributeError:
             print(f"[{executable}] Skip, due to AttributeError")
             print()
             continue
 
-        current_schema = task["args_schema"]
-        if not current_schema == schema:
+        # The following step is required because some arguments may have a
+        # default which has a non-JSON type (e.g. a tuple), which we need to
+        # convert to JSON type (i.e. an array) before comparison.
+        new_schema = json.loads(json.dumps(new_schema))
+
+        # Try to provide an informative comparison of current_schema and
+        # new_schema
+        _compare_dicts(current_schema, new_schema, path=[])
+
+        # Also directly check the equality of current_schema and new_schema
+        # (this is redundant, in principle)
+        if current_schema != new_schema:
             raise ValueError("Schemas are different.")
+
         print("Schema in manifest is up-to-date.")
         print()

@@ -18,7 +18,8 @@ to the package manifest.
 import json
 from pathlib import Path
 
-import fractal_tasks_core
+import my_package
+
 from fractal_tasks_core.dev.lib_args_schemas import (
     create_schema_for_single_task,
 )
@@ -28,7 +29,7 @@ if __name__ == "__main__":
 
     # Read manifest
     manifest_path = (
-        Path(fractal_tasks_core.__file__).parent / "__FRACTAL_MANIFEST__.json"
+        Path(my_package.__file__).parent / "__FRACTAL_MANIFEST__.json"
     )
     with manifest_path.open("r") as f:
         manifest = json.load(f)
@@ -43,7 +44,13 @@ if __name__ == "__main__":
         executable = task["executable"]
         print(f"[{executable}] Start")
         try:
-            schema = create_schema_for_single_task(executable)
+            schema = create_schema_for_single_task(
+                executable,
+                package="my_package",
+                custom_pydantic_models=[
+                    ("my_package", "lib_custom_models.py", "CustomModel")
+                ],
+            )
         except Exception as e:
             print(f"[{executable}] Skip. Original error:\n{str(e)}")
 

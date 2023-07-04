@@ -39,6 +39,7 @@ import fractal_tasks_core
 from fractal_tasks_core.lib_channels import ChannelNotFoundError
 from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
 from fractal_tasks_core.lib_channels import OmeroChannel
+from fractal_tasks_core.lib_input_models import Channel
 from fractal_tasks_core.lib_masked_loading import masked_loading_wrapper
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
@@ -53,7 +54,6 @@ from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
 from fractal_tasks_core.lib_ROI_overlaps import get_overlapping_pairs_3D
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
-from fractal_tasks_core.tasks._input_models import Channel
 
 logger = logging.getLogger(__name__)
 
@@ -162,16 +162,16 @@ def cellpose_segmentation(
     use_masks: bool = True,
     relabeling: bool = True,
     # Cellpose-related arguments
-    use_gpu: bool = True,
-    anisotropy: Optional[float] = None,
     diameter_level0: float = 30.0,
-    cellprob_threshold: float = 0.0,
-    flow_threshold: float = 0.4,
     model_type: str = "cyto2",
     pretrained_model: Optional[str] = None,
+    cellprob_threshold: float = 0.0,
+    flow_threshold: float = 0.4,
+    anisotropy: Optional[float] = None,
     min_size: int = 15,
     augment: bool = False,
     net_avg: bool = False,
+    use_gpu: bool = True,
 ) -> Dict[str, Any]:
     """
     Run cellpose segmentation on the ROIs of a single OME-Zarr image
@@ -233,17 +233,18 @@ def cellpose_segmentation(
                               (e.g. ``"organoids"``).
     :param relabeling: If ``True``, apply relabeling so that label values are
                        unique for all objects in the well.
-    :param use_gpu: If ``False``, always use the CPU; if ``True``, use the GPU
-                    if possible (as defined in ``cellpose.core.use_gpu()``) and
-                    fall-back to the CPU otherwise.
-    :param anisotropy: Ratio of the pixel sizes along Z and XY axis (ignored if
-                       the image is not three-dimensional). If `None`, it is
-                       inferred from the OME-NGFF metadata.
     :param diameter_level0: Expected diameter of the objects that should be
                             segmented in pixels at level 0. Initial diameter
                             is rescaled using the ``level`` that was selected.
                             The rescaled value is passed as the diameter to
                             the ``CellposeModel.eval`` method.
+    :param model_type: Parameter of ``CellposeModel`` class.
+                       Defines which model should be used. Typical choices are
+                       nuclei, cyto, cyto2 etc.
+    :param pretrained_model: Parameter of ``CellposeModel`` class (takes
+                             precedence over ``model_type``).
+                             Allows you to specify the path of a custom
+                             trained cellpose model.
     :param cellprob_threshold: Parameter of ``CellposeModel.eval`` method.
                                Valid values between -6 to 6.
                                From Cellpose documentation:
@@ -259,13 +260,9 @@ def cellpose_segmentation(
                            returning as many ROIs as you’d expect. Similarly,
                            decrease this threshold if cellpose is
                            returning too many ill-shaped ROIs."
-    :param model_type: Parameter of ``CellposeModel`` class.
-                       Defines which model should be used. Typical choices are
-                       nuclei, cyto, cyto2 etc.
-    :param pretrained_model: Parameter of ``CellposeModel`` class (takes
-                             precedence over ``model_type``).
-                             Allows you to specify the path of a custom
-                             trained cellpose model.
+    :param anisotropy: Ratio of the pixel sizes along Z and XY axis (ignored if
+                       the image is not three-dimensional). If `None`, it is
+                       inferred from the OME-NGFF metadata.
     :param min_size: Parameter of ``CellposeModel`` class.
                      Minimum size of the segmented objects (in pixels). Use -1
                      to turn off the size filter.
@@ -276,6 +273,9 @@ def cellpose_segmentation(
                     Whether to use cellpose net averaging to run the 4 built-in
                     networks (useful for nuclei, cyto & cyto2, not sure it
                     works for the others).
+    :param use_gpu: If ``False``, always use the CPU; if ``True``, use the GPU
+                    if possible (as defined in ``cellpose.core.use_gpu()``) and
+                    fall-back to the CPU otherwise.
     """
 
     # Set input path

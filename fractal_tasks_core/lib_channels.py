@@ -34,58 +34,57 @@ if __OME_NGFF_VERSION__ != "0.4":
 
 class Window(BaseModel):
     """
-    Custom class for Omero-channel window, related to OME-NGFF v0.4
-
-    See https://ngff.openmicroscopy.org/0.4/#omero-md.
-    Main difference from the specs:
-
-        1. ``min`` and ``max`` are optional, since we have custom logic to set
-            their values.
+    Custom class for Omero-channel window, based on OME-NGFF v0.4.
     """
 
     min: Optional[int]
-    """TBD"""
+    """Do not change. It will be set to ``0`` by default."""
+
     max: Optional[int]
-    """TBD"""
+    """Do not change. It will be set according to bit-depth of the images by
+    default (e.g. 65535 for 16 bit images)."""
+
     start: int
-    """TBD"""
+    """Lower-bound rescaling value for visualization."""
+
     end: int
-    """TBD"""
+    """Upper-bound rescaling value for visualization."""
 
 
 class OmeroChannel(BaseModel):
     """
-    Custom class for Omero channels, related to OME-NGFF v0.4.
-
-    Differences from OME-NGFF v0.4 specs
-    (https://ngff.openmicroscopy.org/0.4/#omero-md)
-
-        1. Additional attributes ``wavelength_id`` and ``index``.
-        2. We make ``color`` an optional attribute, since we have custom
-           logic to set its value.
-        3. We make ``window`` an optional attribute, so that we can also
-           process zarr arrays which do not have this attribute.
+    Custom class for Omero channels, based on OME-NGFF v0.4.
     """
 
     # Custom
+
     wavelength_id: str
-    """TBD"""
+    """Unique ID for the channel wavelength, e.g. ``A01_C01``."""
+
     index: Optional[int]
-    """TBD"""
+    """Do not change. For internal use only."""
 
     # From OME-NGFF v0.4 transitional metadata
-    window: Optional[Window]
-    """TBD"""
-    color: Optional[str]
-    """TBD"""
+
     label: Optional[str]
-    """TBD"""
+    """Name of the channel"""
+
+    window: Optional[Window]
+    """Optional ``Window`` object to set default display settings for
+    napari."""
+
+    color: Optional[str]
+    """Optional hex colormap to display the channel in napari
+    (e.g. ``00FFFF``)."""
+
     active: bool = True
-    """TBD"""
+    """Should this channel be shown in the viewer?"""
+
     coefficient: int = 1
-    """TBD"""
+    """Do not change. Omero-channel attribute. """
+
     inverted: bool = False
-    """TBD"""
+    """Do not change. Omero-channel attribute."""
 
 
 class ChannelNotFoundError(ValueError):

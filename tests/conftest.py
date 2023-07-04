@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 import shutil
 from pathlib import Path
@@ -70,7 +69,7 @@ def zenodo_images_multiplex(testdata_path, zenodo_images):
 @pytest.fixture(scope="session")
 def zenodo_zarr(testdata_path, tmpdir_factory):
 
-    doi = "10.5281/zenodo.7674545"
+    doi = "10.5281/zenodo.8091756"
     rootfolder = testdata_path / (doi.replace(".", "_").replace("/", "_"))
     platenames = ["plate.zarr", "plate_mip.zarr"]
     folders = [rootfolder / plate for plate in platenames]
@@ -86,36 +85,12 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
         ]
         for zarrname, folder in zip(zarrnames, folders):
             zipname = f"{zarrname}.zip"
-            url = f"https://zenodo.org/record/7674545/files/{zipname}"
+            url = f"https://zenodo.org/record/8091756/files/{zipname}"
             wget.download(url, out=str(tmp_path / zipname), bar=None)
             shutil.unpack_archive(
                 str(tmp_path / zipname), extract_dir=rootfolder, format="zip"
             )
             shutil.move(str(rootfolder / zarrname), str(folder))
-
-            # Fix a wrong piece of metadata
-            zattrs_path = folder / "B/03/0/.zattrs"
-            logging.warning(
-                f"Update coordinateTransformations in {str(zattrs_path)}, "
-                "see https://github.com/fractal-analytics-platform/"
-                "fractal-tasks-core/issues/420."
-            )
-            with zattrs_path.open("r") as f:
-                zattrs = json.load(f)
-            for ind, ds in enumerate(zattrs["multiscales"][0]["datasets"]):
-                new_ds = ds.copy()
-                old_transf = ds["coordinateTransformations"][0]
-                new_transf = old_transf.copy()
-                assert old_transf["type"] == "scale"
-                assert len(old_transf["scale"]) == 3
-                new_transf["scale"] = [1.0, *old_transf["scale"]]
-                new_ds["coordinateTransformations"][0] = new_transf
-                assert len(new_transf["scale"]) == len(
-                    zattrs["multiscales"][0]["axes"]
-                )
-                zattrs["multiscales"][0]["datasets"][ind] = new_ds
-            with zattrs_path.open("w") as f:
-                json.dump(zattrs, f, indent=2)
 
     folders = [str(f) for f in folders]
 

@@ -106,8 +106,8 @@ def illumination_correction(
     illumination_profiles_folder: str,
     dict_corr: dict[str, str],
     background: int = 110,
+    overwrite: bool = True,
     new_component: Optional[str] = None,
-    overwrite: bool = False,
 ) -> Dict[str, Any]:
 
     """

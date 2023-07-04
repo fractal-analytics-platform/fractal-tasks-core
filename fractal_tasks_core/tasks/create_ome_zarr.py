@@ -52,11 +52,11 @@ def create_ome_zarr(
     input_paths: Sequence[str],
     output_path: str,
     metadata: Dict[str, Any],
-    image_extension: str = "tif",
-    image_glob_patterns: Optional[list[str]] = None,
     allowed_channels: List[OmeroChannel],
+    image_glob_patterns: Optional[list[str]] = None,
     num_levels: int = 5,
     coarsening_xy: int = 2,
+    image_extension: str = "tif",
     metadata_table_file: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
@@ -89,8 +89,10 @@ def create_ome_zarr(
     :param metadata: This parameter is not used by this task
                      (standard argument for Fractal tasks,
                      managed by Fractal server)
-    :param image_extension: Filename extension of images (e.g. ``"tif"`` or
-                            ``"png"``)
+    :param allowed_channels: A list of ``OmeroChannel`` s, where each channel
+                             must include the ``wavelength_id`` attribute and
+                             where the ``wavelength_id`` values must be unique
+                             across the list.
     :param image_glob_patterns: If specified, only parse images with filenames
                                 that match with all these patterns. Patterns
                                 must be defined as in
@@ -107,10 +109,8 @@ def create_ome_zarr(
     :param coarsening_xy: Linear coarsening factor between subsequent levels.
                           If set to 2, level 1 is 2x downsampled, level 2 is
                           4x downsampled etc.
-    :param allowed_channels: A list of ``OmeroChannel`` s, where each channel
-                             must include the ``wavelength_id`` attribute and
-                             where the ``wavelength_id`` values must be unique
-                             across the list.
+    :param image_extension: Filename extension of images (e.g. ``"tif"`` or
+                            ``"png"``)
     :param metadata_table_file: If ``None``, parse Yokogawa metadata from
                                 mrf/mlf files in the input_path folder; else,
                                 the full path to a csv file containing the

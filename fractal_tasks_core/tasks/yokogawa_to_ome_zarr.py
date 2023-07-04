@@ -15,7 +15,6 @@ Copyright 2022 (C)
 Task that writes image data to an existing OME-NGFF zarr array
 """
 import logging
-import os
 from pathlib import Path
 from typing import Any
 from typing import Dict
@@ -65,7 +64,6 @@ def yokogawa_to_ome_zarr(
     output_path: str,
     component: str,
     metadata: Dict[str, Any],
-    delete_input: bool = False,
 ):
     """
     Convert Yokogawa output (png, tif) to zarr file
@@ -108,8 +106,6 @@ def yokogawa_to_ome_zarr(
                      that match with all these patterns.
                      (standard argument for Fractal tasks,
                      managed by Fractal server)
-    :param delete_input: Set to True if you want Fractal to remove the input
-                         files the microscope created.
     """
 
     # Preliminary checks
@@ -241,13 +237,13 @@ def yokogawa_to_ome_zarr(
         chunksize=chunksize,
     )
 
-    # Delete images (optional)
-    if delete_input:
-        for f in filenames:
-            try:
-                os.remove(f)
-            except OSError as e:
-                logging.info("Error: %s : %s" % (f, e.strerror))
+    # Deprecated: Delete images (optional)
+    # if delete_input:
+    #     for f in filenames:
+    #         try:
+    #             os.remove(f)
+    #         except OSError as e:
+    #             logging.info("Error: %s : %s" % (f, e.strerror))
 
     return {}
 

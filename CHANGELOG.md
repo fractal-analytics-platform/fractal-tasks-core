@@ -1,3 +1,5 @@
+* Update Zenodo datasets used in tests (\#454).
+
 # 0.10.0
 
 * Restructure the package and repository:
@@ -10,10 +12,17 @@
     * Add Pydantic model `tasks._input_models.Channel` (\#422);
     * Add Pydantic model `tasks._input_models.NapariWorkflowsInput` (\#422);
     * Add Pydantic model `tasks._input_models.NapariWorkflowsOutput` (\#422);
+    * Move all Pydantic models to main package (\#438).
     * Modify arguments of `illumination_correction` task (\#431);
     * Modify arguments of `create_ome_zarr` and `create_ome_zarr_multiplex` (\#433).
+    * Modify argument default for `ROI_table_names`, in `copy_ome_zarr` (\#449).
+    * Remove the delete option from yokogawa to ome zarr (\#443).
+    * Reorder task inputs (\#451).
 * JSON Schemas for task arguments:
-    * Add JSON schemas for task arguments in the package manifest (\#369, \#384).
+    * Add JSON Schemas for task arguments in the package manifest (\#369, \#384).
+    * Add JSON Schemas for attributes of custom task-argument Pydantic models (\#436).
+    * Make schema-generation tools more general, when handling custom Pydantic models (\#445).
+    * Include titles for custom-model-typed arguments and argument attributes (\#447).
     * Remove `TaskArguments` models and switch to Pydantic V1 `validate_arguments` (\#369).
     * Make coercing&validating task arguments required, rather than optional (\#408).
     * Remove `default_args` from manifest (\#379, \#393).
