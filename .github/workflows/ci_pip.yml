@@ -1,0 +1,67 @@
+name: CI (pip)
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+
+  tests_core:
+    name: "Core, Python ${{ matrix.python-version }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install package (without extra)
+        run: python -m pip install -e .
+
+      - name: Install some testing dependencies (hard-coded)
+        run: python -m pip install pytest devtools jsonschema requests wget
+
+      - name: Test core library with pytest
+        run: pytest tests --ignore tests/tasks
+
+  tests_tasks:
+    name: "Tasks, Python ${{ matrix.python-version }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10"]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install package (with fractal-tasks extra)
+        run: python -m pip install -e .[fractal-tasks]
+
+      - name: Install some testing dependencies (hard-coded)
+        run: python -m pip install pytest devtools jsonschema requests wget
+
+      - name: Test core library with pytest
+        run: pytest tests tests/tasks
