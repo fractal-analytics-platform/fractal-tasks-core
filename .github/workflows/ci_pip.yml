@@ -39,7 +39,6 @@ jobs:
         run: pytest tests --ignore tests/tasks
 
   tests_tasks:
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
@@ -66,4 +65,5 @@ jobs:
         run: python -m pip install pytest devtools jsonschema requests wget
 
       - name: Test core library with pytest
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         run: pytest tests tests/tasks
