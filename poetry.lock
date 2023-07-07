@@ -5876,13 +5876,13 @@ multidict = ">=4.0"
 
 [[package]]
 name = "zarr"
-version = "2.13.6"
+version = "2.15.0"
 description = "An implementation of chunked, compressed, N-dimensional arrays for Python"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "zarr-2.13.6-py3-none-any.whl", hash = "sha256:ce5d88e5e0e07487d7872e381e69593edb18b750c216a961d838a818c54bb6ed"},
-    {file = "zarr-2.13.6.tar.gz", hash = "sha256:f079444d5126db7ba5895a682797d86d02813f49b35854ee2d89c7503dc3677e"},
+    {file = "zarr-2.15.0-py3-none-any.whl", hash = "sha256:7296b9f42cdc9096c5349527e71492c1b05ed5464027bfa5d008339796d00b9f"},
+    {file = "zarr-2.15.0.tar.gz", hash = "sha256:3894001c0bb5d68d3d21a0562cc49e6ba14fee7d17ad2be8d088ab301665a4c6"},
 ]
 
 [package.dependencies]
@@ -5930,4 +5930,4 @@ fractal-tasks = ["Pillow", "cellpose", "imageio-ffmpeg", "llvmlite", "napari-seg
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "509ec26573e99635d8a33872a9a5ef2db6e6b2348c61aaf12c05616d04e42fcf"
+content-hash = "d219b32a3ca2dfd507fed031934d1a1cfeafa7d6e02e7de59fd7df1392e207bc"
