@@ -1,5 +1,14 @@
 * Update Zenodo datasets used in tests (\#454).
 
+* Update dependencies (\#455):
+    * Relax `dask` version to `>=2023.1.0`;
+    * Relax `zarr` version to `>=2.13.6,<3`;
+    * Relax `pandas` version to `>=1.2.0,<2`;
+    * Relax `Pillow` version to `>=9.1.1,<10.0.0`;
+    * Update the `poetry.lock` version of several dependencies (`cellpose`, `dask`, `napari-skimage-regionprops`, `Pillow`, `scikit-image`, `zarr`).
+    * Include `requests` and `wget` in the `dev` poetry dependency group.
+* Run tests both for the poetry- and pip-installed packages (\#455).
+
 # 0.10.0
 
 * Restructure the package and repository:
