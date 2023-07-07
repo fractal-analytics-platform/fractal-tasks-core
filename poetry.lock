@@ -2954,13 +2954,13 @@ test = ["pytest", "pytest-cov"]
 
 [[package]]
 name = "napari-segment-blobs-and-things-with-membranes"
-version = "0.3.4"
+version = "0.3.5"
 description = "A plugin based on scikit-image for segmenting nuclei and cells based on fluorescent microscopy images with high intensity in nuclei and/or membranes"
 optional = true
 python-versions = ">=3.8"
 files = [
-    {file = "napari-segment-blobs-and-things-with-membranes-0.3.4.tar.gz", hash = "sha256:849d6ac0a6a24d506b522ccc5b94404f7645c6035bb01fb37c3a4c5aa42b7e45"},
-    {file = "napari_segment_blobs_and_things_with_membranes-0.3.4-py3-none-any.whl", hash = "sha256:46cf8feacf6ab52312193b20a070b0d1cf5837ba38b7f05bb7ef3f38a43f4158"},
+    {file = "napari-segment-blobs-and-things-with-membranes-0.3.5.tar.gz", hash = "sha256:f1fc818c61212fed9c01d72d364500a93216ebec0ff4475b528ecf0f4880b719"},
+    {file = "napari_segment_blobs_and_things_with_membranes-0.3.5-py3-none-any.whl", hash = "sha256:73b20f00674e7b75dd0155af991c16a44a94e2cfa091e054a134f3fd3a19cd43"},
 ]
 
 [package.dependencies]
