@@ -42,7 +42,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python-version: ["3.9", "3.10"]
+        python-version: ["3.9", "3.10", "3.11"]
     name: "Tasks, Python ${{ matrix.python-version }}, ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
