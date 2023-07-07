@@ -8,12 +8,13 @@ on:
 
 jobs:
 
-  strategy:
-    matrix:
-      os: ["ubuntu-latest", "macos-latest"]
-      python-version: ["3.9", "3.10", "3.11"]
-
   tests_core:
+
+    strategy:
+      matrix:
+        os: ["ubuntu-latest", "macos-latest"]
+        python-version: ["3.9", "3.10", "3.11"]
+
     name: "Core, Python ${{ matrix.python-version }}, ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 5
@@ -39,6 +40,12 @@ jobs:
         run: pytest tests --ignore tests/tasks
 
   tests_tasks:
+
+    strategy:
+      matrix:
+        os: ["ubuntu-latest", "macos-latest"]
+        python-version: ["3.9", "3.10", "3.11"]
+
     name: "Tasks, Python ${{ matrix.python-version }}, ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
