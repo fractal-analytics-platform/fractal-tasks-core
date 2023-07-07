@@ -2612,19 +2612,6 @@ files = [
 ]
 
 [[package]]
-name = "memory-profiler"
-version = "0.60.0"
-description = "A module for monitoring memory usage of a python program"
-optional = false
-python-versions = ">=3.4"
-files = [
-    {file = "memory_profiler-0.60.0.tar.gz", hash = "sha256:6a12869511d6cebcb29b71ba26985675a58e16e06b3c523b49f67c5497a33d1c"},
-]
-
-[package.dependencies]
-psutil = "*"
-
-[[package]]
 name = "mistune"
 version = "2.0.5"
 description = "A sane Markdown parser with useful plugins and renderers"
@@ -5869,4 +5856,4 @@ fractal-tasks = ["Pillow", "cellpose", "imageio-ffmpeg", "llvmlite", "napari-seg
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "3379630261252aeaf46985651e8ee54a72575dbb2ddb6b82d2210043a312efd8"
+content-hash = "2cc4250d80f74b4e252b78942d5f3145493c7970a0b60e1cb7d0ec18323811b0"
