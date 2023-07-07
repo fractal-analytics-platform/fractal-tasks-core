@@ -5930,4 +5930,4 @@ fractal-tasks = ["Pillow", "cellpose", "imageio-ffmpeg", "llvmlite", "napari-seg
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "d219b32a3ca2dfd507fed031934d1a1cfeafa7d6e02e7de59fd7df1392e207bc"
+content-hash = "9640daa2bba807f28e84dc68d4b12603462f278ab8d9e95fa818287bc7b136f0"
