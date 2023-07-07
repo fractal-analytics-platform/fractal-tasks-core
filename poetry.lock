@@ -524,13 +524,13 @@ heapdict = "*"
 
 [[package]]
 name = "cellpose"
-version = "2.2"
+version = "2.2.2"
 description = "anatomical segmentation algorithm"
 optional = true
 python-versions = "*"
 files = [
-    {file = "cellpose-2.2-py3-none-any.whl", hash = "sha256:7a49723ddc3e359e69fc74204af0c8f237651047d4172af59320ffd1d050a45a"},
-    {file = "cellpose-2.2.tar.gz", hash = "sha256:96356571592901746f4c69559bd7f6a7123ac1bca90391b9b66d8a56fbbe026c"},
+    {file = "cellpose-2.2.2-py3-none-any.whl", hash = "sha256:10194c6044c6406d5564a8a05bbb9e2c45101c7c6c7dda73989ac69fdd4f366d"},
+    {file = "cellpose-2.2.2.tar.gz", hash = "sha256:f21773d364d117eb6fd84c3fb27375845ef373793139ef1668c15491294a3b47"},
 ]
 
 [package.dependencies]
@@ -541,6 +541,7 @@ natsort = "*"
 numba = ">=0.53.0"
 numpy = ">=1.20.0"
 opencv-python-headless = "*"
+roifile = "*"
 scipy = "*"
 tifffile = "*"
 torch = ">=1.6"
@@ -549,7 +550,7 @@ tqdm = "*"
 [package.extras]
 all = ["dask", "dask-image", "google-cloud-storage", "pyqt5", "pyqt5.sip", "pyqtgraph (>=0.11.0rc0)", "scikit-learn", "superqt"]
 distributed = ["dask", "dask-image", "scikit-learn"]
-docs = ["sphinx (>=3.0)", "sphinx-rtd-theme", "sphinxcontrib-apidoc"]
+docs = ["sphinx (>=3.0)", "sphinx-argparse", "sphinx-rtd-theme", "sphinxcontrib-apidoc"]
 gui = ["google-cloud-storage", "pyqt5", "pyqt5.sip", "pyqtgraph (>=0.11.0rc0)", "superqt"]
 
 [[package]]
@@ -4700,6 +4701,23 @@ pygments = ">=2.14.0,<3.0.0"
 
 [package.extras]
 jupyter = ["ipywidgets (>=7.5.1,<9)"]
+
+[[package]]
+name = "roifile"
+version = "2023.5.12"
+description = "Read and write ImageJ ROI format"
+optional = true
+python-versions = ">=3.8"
+files = [
+    {file = "roifile-2023.5.12-py3-none-any.whl", hash = "sha256:bc8d08b4ace913d4d8128083b5337fa5be7b1997dd1b061fe1df151c2d360242"},
+    {file = "roifile-2023.5.12.tar.gz", hash = "sha256:32eeba0d9ad52cc249d6a234b737c1808a6c5d7d9baae6453709eb74222b3433"},
+]
+
+[package.dependencies]
+numpy = "*"
+
+[package.extras]
+all = ["matplotlib", "tifffile"]
 
 [[package]]
 name = "s3fs"
