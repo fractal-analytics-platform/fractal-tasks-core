@@ -2976,13 +2976,13 @@ stackview = ">=0.3.2"
 
 [[package]]
 name = "napari-skimage-regionprops"
-version = "0.8.1"
+version = "0.8.2"
 description = "A regionprops table widget plugin for napari"
 optional = true
 python-versions = ">=3.8"
 files = [
-    {file = "napari-skimage-regionprops-0.8.1.tar.gz", hash = "sha256:9f9910f36345d849f6e16204453d01d9f6c5e3a5d716b4a8cb61907248de5db6"},
-    {file = "napari_skimage_regionprops-0.8.1-py3-none-any.whl", hash = "sha256:67e9390d30212d520f5d75e383b806f1b8f8ddd5cf0393d36044c4bbd8e09d3c"},
+    {file = "napari-skimage-regionprops-0.8.2.tar.gz", hash = "sha256:522abd4afcda1a88fcf9d887ab8287d20479a9059e3e0783319a97ba228ea5b0"},
+    {file = "napari_skimage_regionprops-0.8.2-py3-none-any.whl", hash = "sha256:e963a9df9776eb729d47e673c9a0c25ef7604ff4cde8017e6c9bf8b344545461"},
 ]
 
 [package.dependencies]
