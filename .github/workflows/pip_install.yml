@@ -37,7 +37,7 @@ jobs:
         run: python -c 'import fractal_tasks_core; print("OK")'
 
       - name: Install some dev dependencies (hard-coded)
-        run: python -m pip install pytest devtools jsonschema
+        run: python -m pip install pytest devtools jsonschema requests
 
       - name: Test core library with pytest
         run: pytest tests --ignore tests/tasks
