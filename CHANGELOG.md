@@ -6,7 +6,7 @@
     * Relax `Pillow` required version to `>=9.1.1,<10.0.0`;
 * Update default values for tolerance (`tol`) in `lib_ROI_overlaps.py` functions (\#466).
 * Internal changes (\#455):
-    * Improve coverage of core library (\#459, \#467).
+    * Improve coverage of core library (\#459, \#467, \#468).
     * Update Zenodo datasets used in tests (\#454).
     * Update the `poetry.lock` version of several dependencies (`cellpose`, `dask`, `napari-skimage-regionprops`, `Pillow`, `scikit-image`, `zarr`, `lxml`, `pydantic`).
     * Include `requests` and `wget` in the `dev` poetry dependency group.
