@@ -16,6 +16,7 @@ Construct and write pyramid of lower-resolution levels
 """
 import pathlib
 from typing import Callable
+from typing import Optional
 from typing import Sequence
 from typing import Union
 
@@ -29,9 +30,9 @@ def build_pyramid(
     overwrite: bool = False,
     num_levels: int = 2,
     coarsening_xy: int = 2,
-    chunksize: Sequence[int] = None,
-    aggregation_function: Callable = None,
-):
+    chunksize: Optional[Sequence[int]] = None,
+    aggregation_function: Optional[Callable] = None,
+) -> None:
 
     """
     Starting from on-disk highest-resolution data, build and write to disk a
@@ -59,7 +60,7 @@ def build_pyramid(
     # Check the number of axes and identify YX dimensions
     ndims = len(data_highres.shape)
     if ndims not in [2, 3, 4]:
-        raise Exception("{data_highres.shape=}, ndims not in [2,3,4]")
+        raise ValueError(f"{data_highres.shape=}, ndims not in [2,3,4]")
     y_axis = ndims - 2
     x_axis = ndims - 1
 
@@ -72,7 +73,7 @@ def build_pyramid(
     for ind_level in range(1, num_levels):
         # Verify that coarsening is doable
         if min(previous_level.shape[-2:]) < coarsening_xy:
-            raise Exception(
+            raise ValueError(
                 f"ERROR: at {ind_level}-th level, "
                 f"coarsening_xy={coarsening_xy} "
                 f"but previous level has shape {previous_level.shape}"
