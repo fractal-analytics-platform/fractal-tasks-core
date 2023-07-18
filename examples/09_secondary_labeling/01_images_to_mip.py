@@ -1,43 +1,40 @@
 import json
+from typing import Any
 
 from devtools import debug
 
-from fractal_tasks_core.copy_ome_zarr import copy_ome_zarr
-from fractal_tasks_core.create_ome_zarr import create_ome_zarr
-from fractal_tasks_core.maximum_intensity_projection import (
+from fractal_tasks_core.tasks.copy_ome_zarr import copy_ome_zarr
+from fractal_tasks_core.tasks.create_ome_zarr import create_ome_zarr
+from fractal_tasks_core.tasks.maximum_intensity_projection import (
     maximum_intensity_projection,
 )
-from fractal_tasks_core.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
+from fractal_tasks_core.tasks.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 
 
 allowed_channels = [
     {
         "wavelength_id": "A01_C01",
-        "colormap": "00FFFF",
-        "end": 2000,
+        "color": "00FFFF",
         "label": "Channel 1",
-        "start": 110,
+        "window": {"start": 110, "end": 2000},
     },
     {
         "wavelength_id": "A02_C02",
-        "colormap": "FF00FF",
-        "end": 500,
+        "color": "FF00FF",
         "label": "Channel 2",
-        "start": 110,
+        "window": {"start": 110, "end": 500},
     },
     {
         "wavelength_id": "A03_C03",
-        "colormap": "00FF00",
-        "end": 1600,
+        "color": "00FF00",
         "label": "Channel 3",
-        "start": 110,
+        "window": {"start": 110, "end": 1600},
     },
     {
         "wavelength_id": "A04_C04",
-        "colormap": "FFFF00",
-        "end": 1600,
+        "color": "FFFF00",
         "label": "Channel 4",
-        "start": 110,
+        "window": {"start": 110, "end": 1600},
     },
 ]
 
@@ -50,7 +47,7 @@ coarsening_xy = 2
 img_path = "images/"
 zarr_path = "output/"
 zarr_path_mip = "output_mip/"
-metadata = {}
+metadata: dict[str, Any] = {}
 
 # Create zarr structure
 metadata_update = create_ome_zarr(
@@ -62,7 +59,6 @@ metadata_update = create_ome_zarr(
     allowed_channels=allowed_channels,
     num_levels=num_levels,
     coarsening_xy=coarsening_xy,
-    metadata_table="mrf_mlf",
 )
 metadata.update(metadata_update)
 debug(metadata)
