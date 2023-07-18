@@ -17,14 +17,12 @@ Functions to handle .zattrs files and their contents
 import json
 import logging
 from typing import Any
-from typing import Dict
-from typing import List
 
 
 logger = logging.getLogger(__name__)
 
 
-def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0) -> List[float]:
+def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0) -> list[float]:
     """
     Load multiscales/datasets from .zattrs file and read the pixel sizes for a
     given resoluion level.
@@ -94,11 +92,11 @@ def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0) -> List[float]:
 
 def rescale_datasets(
     *,
-    datasets: List[Dict],
+    datasets: list[dict],
     coarsening_xy: int,
     reference_level: int,
     remove_channel_axis: bool = False,
-) -> List[Dict]:
+) -> list[dict]:
     """
     Given a set of datasets (as per OME-NGFF specs), update their "scale"
     transformations in the YX directions by including a prefactor
@@ -126,7 +124,7 @@ def rescale_datasets(
         new_transformations = []
         for t in old_transformations:
             if t["type"] == "scale":
-                new_t: Dict[str, Any] = t.copy()
+                new_t: dict[str, Any] = t.copy()
                 # Rescale last two dimensions (that is, Y and X)
                 prefactor = coarsening_xy**reference_level
                 new_t["scale"][-2] = new_t["scale"][-2] * prefactor

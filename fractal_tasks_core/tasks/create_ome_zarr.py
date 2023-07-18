@@ -16,8 +16,6 @@ Create structure for OME-NGFF zarr array
 import os
 from pathlib import Path
 from typing import Any
-from typing import Dict
-from typing import List
 from typing import Optional
 from typing import Sequence
 
@@ -51,14 +49,14 @@ def create_ome_zarr(
     *,
     input_paths: Sequence[str],
     output_path: str,
-    metadata: Dict[str, Any],
-    allowed_channels: List[OmeroChannel],
+    metadata: dict[str, Any],
+    allowed_channels: list[OmeroChannel],
     image_glob_patterns: Optional[list[str]] = None,
     num_levels: int = 5,
     coarsening_xy: int = 2,
     image_extension: str = "tif",
     metadata_table_file: Optional[str] = None,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Create a OME-NGFF zarr folder, without reading/writing image data
 
@@ -131,7 +129,7 @@ def create_ome_zarr(
     plates = []
     actual_wavelength_ids = None
     dict_plate_paths = {}
-    dict_plate_prefixes: Dict[str, Any] = {}
+    dict_plate_prefixes: dict[str, Any] = {}
 
     # Preliminary checks on allowed_channels argument
     check_unique_wavelength_ids(allowed_channels)
@@ -230,7 +228,7 @@ def create_ome_zarr(
         if channel.wavelength_id in actual_wavelength_ids
     ]
 
-    zarrurls: Dict[str, List[str]] = {"plate": [], "well": [], "image": []}
+    zarrurls: dict[str, list[str]] = {"plate": [], "well": [], "image": []}
 
     ################################################################
     for plate in plates:

@@ -14,8 +14,6 @@ Copyright 2022 (C)
 Helper functions to address channels via OME-NGFF/OMERO metadata
 """
 import logging
-from typing import Dict
-from typing import List
 from typing import Optional
 from typing import Union
 
@@ -96,7 +94,7 @@ class ChannelNotFoundError(ValueError):
     pass
 
 
-def check_unique_wavelength_ids(channels: List[OmeroChannel]):
+def check_unique_wavelength_ids(channels: list[OmeroChannel]):
     """
     Check that the `wavelength_id` attributes of a channel list are unique
     """
@@ -171,7 +169,7 @@ def get_channel_from_image_zarr(
     return channel
 
 
-def get_omero_channel_list(*, image_zarr_path: str) -> List[OmeroChannel]:
+def get_omero_channel_list(*, image_zarr_path: str) -> list[OmeroChannel]:
     """
     Extract the list of channels from OME-NGFF zarr attributes
 
@@ -186,7 +184,7 @@ def get_omero_channel_list(*, image_zarr_path: str) -> List[OmeroChannel]:
 
 def get_channel_from_list(
     *,
-    channels: List[OmeroChannel],
+    channels: list[OmeroChannel],
     label: Optional[str] = None,
     wavelength_id: Optional[str] = None,
 ) -> OmeroChannel:
@@ -250,10 +248,10 @@ def get_channel_from_list(
 
 def define_omero_channels(
     *,
-    channels: List[OmeroChannel],
+    channels: list[OmeroChannel],
     bit_depth: int,
     label_prefix: Optional[str] = None,
-) -> List[Dict[str, Union[str, int, bool, Dict[str, int]]]]:
+) -> list[dict[str, Union[str, int, bool, dict[str, int]]]]:
     """
     Update a channel list to use it in the OMERO/channels metadata
 
