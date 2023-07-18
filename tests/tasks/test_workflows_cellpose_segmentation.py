@@ -18,8 +18,6 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Any
-from typing import Dict
-from typing import List
 
 import anndata as ad
 import numpy as np
@@ -133,8 +131,8 @@ def patched_cellpose_core_use_gpu(*args, **kwargs):
 def test_failures(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -198,8 +196,8 @@ def test_failures(
 def test_workflow_with_per_FOV_labeling(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -258,8 +256,8 @@ def test_workflow_with_per_FOV_labeling(
 def test_workflow_with_multi_channel_input(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[Path],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
+    zenodo_zarr: list[Path],
+    zenodo_zarr_metadata: list[dict[str, Any]],
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -319,8 +317,8 @@ def test_workflow_with_multi_channel_input(
 def test_workflow_with_per_FOV_labeling_2D(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -469,8 +467,8 @@ def test_workflow_with_per_well_labeling_2D(
 def test_workflow_bounding_box(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -527,8 +525,8 @@ def test_workflow_bounding_box(
 def test_workflow_bounding_box_with_overlap(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -575,8 +573,8 @@ def test_workflow_bounding_box_with_overlap(
 def test_workflow_with_per_FOV_labeling_via_script(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
     # Use pre-made 3D zarr
     zarr_path = tmp_path / "tmp_out/"
@@ -646,8 +644,8 @@ def test_workflow_with_per_FOV_labeling_via_script(
 def test_workflow_with_per_FOV_labeling_with_empty_FOV_table(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -703,8 +701,8 @@ def test_workflow_with_per_FOV_labeling_with_empty_FOV_table(
 def test_CYX_input(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -763,8 +761,8 @@ def test_CYX_input(
 def test_workflow_secondary_labeling(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
     monkeypatch: MonkeyPatch,
 ):
 

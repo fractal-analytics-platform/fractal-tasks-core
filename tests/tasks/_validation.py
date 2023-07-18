@@ -3,7 +3,6 @@ import json
 import logging
 import urllib
 from pathlib import Path
-from typing import Dict
 
 import anndata as ad
 import dask.array as da
@@ -26,7 +25,7 @@ def validate_schema(*, path: str, type: str):
     )
     debug(url)
     with urllib.request.urlopen(url) as fin:
-        schema: Dict = json.load(fin)
+        schema: dict = json.load(fin)
     debug(path)
     debug(type)
     with open(f"{path}/.zattrs", "r") as fin:

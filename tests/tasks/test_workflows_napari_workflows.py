@@ -13,8 +13,6 @@ Zurich.
 """
 from pathlib import Path
 from typing import Any
-from typing import Dict
-from typing import List
 from typing import Union
 
 import anndata as ad
@@ -36,8 +34,8 @@ from fractal_tasks_core.tasks.napari_workflows_wrapper import (
 def test_napari_workflow(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
 
     # Init
@@ -50,10 +48,10 @@ def test_napari_workflow(
 
     # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
-    input_specs: Dict[str, Dict[str, Union[str, int]]] = {
+    input_specs: dict[str, dict[str, Union[str, int]]] = {
         "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
     }
-    output_specs: Dict[str, Dict[str, Union[str, int]]] = {
+    output_specs: dict[str, dict[str, Union[str, int]]] = {
         "Result of Expand labels (scikit-image, nsbatwm)": {
             "type": "label",
             "label_name": "label_DAPI",
@@ -128,8 +126,8 @@ def test_napari_workflow(
 def test_napari_worfklow_label_input_only(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
 
     # Prepare 3D zarr
@@ -142,10 +140,10 @@ def test_napari_worfklow_label_input_only(
 
     # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
-    input_specs: Dict[str, Dict[str, Union[str, int]]] = {
+    input_specs: dict[str, dict[str, Union[str, int]]] = {
         "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
     }
-    output_specs: Dict[str, Dict[str, Union[str, int]]] = {
+    output_specs: dict[str, dict[str, Union[str, int]]] = {
         "Result of Expand labels (scikit-image, nsbatwm)": {
             "type": "label",
             "label_name": "label_DAPI",
@@ -213,7 +211,7 @@ input_specs = dict(
     input_image={"type": "image", "channel": {"wavelength_id": "A01_C01"}}
 )
 output_specs = dict(output_label={"type": "label", "label_name": LABEL_NAME})
-RELABELING_CASE_1: List = [workflow_file_name, input_specs, output_specs]
+RELABELING_CASE_1: list = [workflow_file_name, input_specs, output_specs]
 # 2. Measurement-only workflow, from images+labels to dataframes.
 workflow_file_name = "wf_relab_2-measurement_only.yaml"
 input_specs = dict(
@@ -223,7 +221,7 @@ input_specs = dict(
 output_specs = dict(
     output_dataframe={"type": "dataframe", "table_name": TABLE_NAME}
 )
-RELABELING_CASE_2: List = [workflow_file_name, input_specs, output_specs]
+RELABELING_CASE_2: list = [workflow_file_name, input_specs, output_specs]
 # 3. Mixed labeling/measurement workflow.
 workflow_file_name = "wf_relab_3-labeling_and_measurement.yaml"
 input_specs = dict(
@@ -233,7 +231,7 @@ output_specs = dict(
     output_label={"type": "label", "label_name": LABEL_NAME},
     output_dataframe={"type": "dataframe", "table_name": TABLE_NAME},
 )
-RELABELING_CASE_3: List = [workflow_file_name, input_specs, output_specs]
+RELABELING_CASE_3: list = [workflow_file_name, input_specs, output_specs]
 # Assemble three cases
 relabeling_cases = []
 relabeling_cases.append(RELABELING_CASE_1 + [False])
@@ -247,13 +245,13 @@ relabeling_cases.append(RELABELING_CASE_3 + [False])
 )
 def test_relabeling(
     workflow_file_name: str,
-    input_specs: Dict[str, Dict],
-    output_specs: Dict[str, Dict],
+    input_specs: dict[str, dict],
+    output_specs: dict[str, dict],
     needs_labels: bool,
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
 
     # Prepare 3D zarr
@@ -321,8 +319,8 @@ def test_relabeling(
 def test_fail_if_no_relabeling(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
 
     # Prepare 3D zarr
@@ -382,8 +380,8 @@ def test_expected_dimensions(
     expected_success: bool,
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
 
     # Prepare zarr
@@ -409,13 +407,13 @@ def test_expected_dimensions(
     workflow_file = str(
         testdata_path / "napari_workflows/wf_5-labeling_only.yaml"
     )
-    input_specs: Dict[str, Dict[str, Union[str, int]]] = {
+    input_specs: dict[str, dict[str, Union[str, int]]] = {
         "input_image": {
             "type": "image",
             "channel": {"wavelength_id": "A01_C01"},
         },
     }
-    output_specs: Dict[str, Dict[str, Union[str, int]]] = {
+    output_specs: dict[str, dict[str, Union[str, int]]] = {
         "output_label": {
             "type": "label",
             "label_name": "label_DAPI",
@@ -446,8 +444,8 @@ def test_expected_dimensions(
 def test_napari_workflow_empty_input_ROI_table(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
     """
     Run the napari_workflows task, iterating over an empty table of ROIs
@@ -470,10 +468,10 @@ def test_napari_workflow_empty_input_ROI_table(
 
     # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
-    input_specs: Dict[str, Dict[str, Union[str, int]]] = {
+    input_specs: dict[str, dict[str, Union[str, int]]] = {
         "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
     }
-    output_specs: Dict[str, Dict[str, Union[str, int]]] = {
+    output_specs: dict[str, dict[str, Union[str, int]]] = {
         "Result of Expand labels (scikit-image, nsbatwm)": {
             "type": "label",
             "label_name": "label_DAPI",
@@ -544,8 +542,8 @@ def test_napari_workflow_empty_input_ROI_table(
 def test_napari_workflow_CYX(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
 
     # Init
@@ -562,10 +560,10 @@ def test_napari_workflow_CYX(
 
     # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
-    input_specs: Dict[str, Dict[str, Union[str, int]]] = {
+    input_specs: dict[str, dict[str, Union[str, int]]] = {
         "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
     }
-    output_specs: Dict[str, Dict[str, Union[str, int]]] = {
+    output_specs: dict[str, dict[str, Union[str, int]]] = {
         "Result of Expand labels (scikit-image, nsbatwm)": {
             "type": "label",
             "label_name": "label_DAPI",
@@ -642,8 +640,8 @@ def test_napari_workflow_CYX(
 def test_napari_workflow_CYX_wrong_dimensions(
     tmp_path: Path,
     testdata_path: Path,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
     """
     This will fail because of wrong expected_dimensions
@@ -663,10 +661,10 @@ def test_napari_workflow_CYX_wrong_dimensions(
 
     # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
-    input_specs: Dict[str, Dict[str, Union[str, int]]] = {
+    input_specs: dict[str, dict[str, Union[str, int]]] = {
         "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
     }
-    output_specs: Dict[str, Dict[str, Union[str, int]]] = {
+    output_specs: dict[str, dict[str, Union[str, int]]] = {
         "Result of Expand labels (scikit-image, nsbatwm)": {
             "type": "label",
             "label_name": "label_DAPI",
