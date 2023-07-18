@@ -18,7 +18,6 @@ import fnmatch
 import logging
 from pathlib import Path
 from typing import Optional
-from typing import Tuple
 from typing import Union
 
 import numpy as np
@@ -33,7 +32,7 @@ def parse_yokogawa_metadata(
     mlf_path: Union[str, Path],
     *,
     filename_patterns: Optional[list[str]] = None,
-) -> Tuple[pd.DataFrame, dict[str, int]]:
+) -> tuple[pd.DataFrame, dict[str, int]]:
     """
     Parse Yokogawa CV7000 metadata files and prepare site-level metadata
 
@@ -123,7 +122,7 @@ def read_metadata_files(
     mrf_path: str,
     mlf_path: str,
     filename_patterns: Optional[list[str]] = None,
-) -> Tuple[pd.DataFrame, pd.DataFrame, int]:
+) -> tuple[pd.DataFrame, pd.DataFrame, int]:
     """
     TBD
 
@@ -197,7 +196,7 @@ def read_mrf_file(mrf_path: str):
 def read_mlf_file(
     mlf_path: str,
     filename_patterns=None,
-) -> Tuple[pd.DataFrame, int]:
+) -> tuple[pd.DataFrame, int]:
     """
     TBD
 
