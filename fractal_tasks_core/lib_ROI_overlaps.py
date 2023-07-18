@@ -442,7 +442,7 @@ def check_well_for_FOV_overlap(
 
 def run_overlap_check(
     site_metadata: pd.DataFrame,
-    tol: float = 0,
+    tol: float = 1e-10,
     plotting_function: Optional[Callable] = None,
 ):
     """
