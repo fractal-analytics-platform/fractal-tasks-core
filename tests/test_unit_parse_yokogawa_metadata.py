@@ -191,37 +191,46 @@ def test_parse_yokogawa_metadata_multiwell():
     assert file_numbers == {"C03": 4, "B03": 4, "D04": 8}
 
 
-def test_manually_removing_overlap():
-    import logging
+def test_manually_removing_overlap(testdata_path):
 
-    logging.warning(
-        "test_manually_removing_overlap is relying on a wrong "
-        "behavior, i.e. the detection of overlaps due to tol=0. "
-        "To do: identify a DataFrame with an actual overlap and "
-        "update this test."
+    # Set paths
+    mlf_path = str(
+        testdata_path
+        / "metadata_files"
+        / "overlapping_ROIs"
+        / "MeasurementData.mlf"
     )
-    # Tests the overlap detection and manually removing the overlaps
-    site_metadata, _ = parse_yokogawa_metadata(mrf_path_1, mlf_path_1)
+    mrf_path = str(testdata_path / "metadata_files" / "MeasurementDetail.mrf")
+    expected_site_metadata_path = str(
+        testdata_path
+        / "metadata_files"
+        / "overlapping_ROIs"
+        / "corrected_site_metadata.csv"
+    )
+
+    # Tests that overlaps are identified
+    site_metadata, _ = parse_yokogawa_metadata(mrf_path, mlf_path)
     site_metadata["x_micrometer_original"] = site_metadata["x_micrometer"]
     site_metadata["y_micrometer_original"] = site_metadata["y_micrometer"]
-    overlapping_FOVs = run_overlap_check(site_metadata, tol=0)
-
+    overlapping_FOVs = run_overlap_check(site_metadata)
     expected_overlaps = [{"B03": [2, 1]}]
     assert overlapping_FOVs == expected_overlaps
-    site_metadata.loc[("B03", 2), "x_micrometer"] = -1032.2
+
+    # Manually remove overlap (by hand)
+    site_metadata.loc[("B03", 2), "x_micrometer"] = -1032.3
 
     # Check that overlap has been successfully removed
-    overlapping_FOVs_empty = run_overlap_check(site_metadata, tol=1e-10)
+    overlapping_FOVs_empty = run_overlap_check(site_metadata)
     assert len(overlapping_FOVs_empty) == 0
 
     # Load expected dataframe and set index + types correctly
-    expected_site_metadata = pd.read_csv(
-        Path(path) / "corrected_site_metadata_tiny_test.csv"
-    )
+    expected_site_metadata = pd.read_csv(expected_site_metadata_path)
     expected_site_metadata.set_index(["well_id", "FieldIndex"], inplace=True)
     expected_site_metadata["Time"] = pd.to_datetime(
         expected_site_metadata["Time"]
     )
+
+    # Assert equality with expected dataframe
     pd.testing.assert_frame_equal(site_metadata, expected_site_metadata)
 
 
