@@ -46,7 +46,7 @@ def find_omengff_acquisition(image_zarr_path: Path) -> Union[int, None]:
     well_zarr_path = image_zarr_path.parent
     if not (well_zarr_path / ".zattrs").exists():
         raise ValueError(
-            f"{str(well_zarr_path)} must be an OME-NGFF well"
+            f"{str(well_zarr_path)} must be an OME-NGFF well "
             "folder, but it does not include a .zattrs file."
         )
     well_group = zarr.open_group(str(well_zarr_path))
