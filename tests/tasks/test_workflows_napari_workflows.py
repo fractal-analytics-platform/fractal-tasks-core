@@ -21,12 +21,12 @@ import anndata as ad
 import pytest
 from devtools import debug
 
+from .._zenodo_ome_zarrs import prepare_2D_zarr
+from .._zenodo_ome_zarrs import prepare_3D_zarr
 from ._validation import check_file_number
 from ._validation import validate_axes_and_coordinateTransformations
 from ._validation import validate_labels_and_measurements
 from ._validation import validate_schema
-from ._zenodo_ome_zarrs import prepare_2D_zarr
-from ._zenodo_ome_zarrs import prepare_3D_zarr
 from .lib_empty_ROI_table import _add_empty_ROI_table
 from fractal_tasks_core.tasks.napari_workflows_wrapper import (
     napari_workflows_wrapper,
