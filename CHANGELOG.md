@@ -5,10 +5,12 @@
     * Relax `pandas` required version to `>=1.2.0,<2`;
     * Relax `Pillow` required version to `>=9.1.1,<10.0.0`;
 * Update Zenodo datasets used in tests (\#454).
+* Improve coverage of core library (\#459).
 * Internal changes (\#455):
     * Update the `poetry.lock` version of several dependencies (`cellpose`, `dask`, `napari-skimage-regionprops`, `Pillow`, `scikit-image`, `zarr`).
     * Include `requests` and `wget` in the `dev` poetry dependency group.
     * Run tests both for the poetry- and pip-installed package.
+    * Update generic type hints (\#462).
 
 # 0.10.0
 
