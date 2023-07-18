@@ -31,7 +31,7 @@ def test_build_pyramid(tmp_path):
     debug(e.value)
     assert "but previous level has shape" in str(e.value)
 
-    # Succed
+    # Succeed
     zarrurl = str(tmp_path / "D.zarr")
     da.ones(shape=(8, 8)).to_zarr(f"{zarrurl}/0")
     build_pyramid(zarrurl=zarrurl, coarsening_xy=2, num_levels=3)
@@ -42,7 +42,7 @@ def test_build_pyramid(tmp_path):
     assert level_1.shape == (4, 4)
     assert level_2.shape == (2, 2)
 
-    # Succed
+    # Succeed
     zarrurl = str(tmp_path / "E.zarr")
     da.ones(shape=(243 + 2, 243)).to_zarr(f"{zarrurl}/0")
     build_pyramid(zarrurl=zarrurl, coarsening_xy=3, num_levels=6, chunksize=9)
