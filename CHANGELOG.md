@@ -4,10 +4,11 @@
     * Relax `zarr` required version to `>=2.13.6,<3`;
     * Relax `pandas` required version to `>=1.2.0,<2`;
     * Relax `Pillow` required version to `>=9.1.1,<10.0.0`;
-* Update Zenodo datasets used in tests (\#454).
-* Improve coverage of core library (\#459, \#467).
+* Update default values for tolerance (`tol`) in `lib_ROI_overlaps.py` functions (\#466).
 * Internal changes (\#455):
-    * Update the `poetry.lock` version of several dependencies (`cellpose`, `dask`, `napari-skimage-regionprops`, `Pillow`, `scikit-image`, `zarr`).
+    * Improve coverage of core library (\#459, \#467).
+    * Update Zenodo datasets used in tests (\#454).
+    * Update the `poetry.lock` version of several dependencies (`cellpose`, `dask`, `napari-skimage-regionprops`, `Pillow`, `scikit-image`, `zarr`, `lxml`, `pydantic`).
     * Include `requests` and `wget` in the `dev` poetry dependency group.
     * Run tests both for the poetry- and pip-installed package.
     * Update generic type hints (\#462).
