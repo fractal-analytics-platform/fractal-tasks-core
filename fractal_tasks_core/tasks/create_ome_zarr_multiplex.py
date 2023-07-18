@@ -16,8 +16,6 @@ Create OME-NGFF zarr group, for multiplexing dataset
 import os
 from pathlib import Path
 from typing import Any
-from typing import Dict
-from typing import List
 from typing import Optional
 from typing import Sequence
 
@@ -51,14 +49,14 @@ def create_ome_zarr_multiplex(
     *,
     input_paths: Sequence[str],
     output_path: str,
-    metadata: Dict[str, Any],
-    allowed_channels: Dict[str, list[OmeroChannel]],
+    metadata: dict[str, Any],
+    allowed_channels: dict[str, list[OmeroChannel]],
     image_glob_patterns: Optional[list[str]] = None,
     num_levels: int = 5,
     coarsening_xy: int = 2,
     image_extension: str = "tif",
-    metadata_table_files: Optional[Dict[str, str]] = None,
-) -> Dict[str, Any]:
+    metadata_table_files: Optional[dict[str, str]] = None,
+) -> dict[str, Any]:
     """
     Create OME-NGFF structure and metadata to host a multiplexing dataset
 
@@ -152,7 +150,7 @@ def create_ome_zarr_multiplex(
         check_unique_wavelength_ids(_channels)
 
     # Identify all plates and all channels, per input folders
-    dict_acquisitions: Dict = {}
+    dict_acquisitions: dict = {}
 
     for ind_in_path, in_path_str in enumerate(input_paths):
         acquisition = str(ind_in_path)
@@ -265,7 +263,7 @@ def create_ome_zarr_multiplex(
         ]
     }
 
-    zarrurls: Dict[str, List[str]] = {"well": [], "image": []}
+    zarrurls: dict[str, list[str]] = {"well": [], "image": []}
     zarrurls["plate"] = [plate]
 
     ################################################################

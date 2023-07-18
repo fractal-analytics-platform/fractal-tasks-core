@@ -18,8 +18,6 @@ import json
 import logging
 from pathlib import Path
 from typing import Any
-from typing import Dict
-from typing import List
 from typing import Sequence
 
 import anndata as ad
@@ -67,11 +65,11 @@ def napari_workflows_wrapper(
     input_paths: Sequence[str],
     output_path: str,
     component: str,
-    metadata: Dict[str, Any],
+    metadata: dict[str, Any],
     # Task-specific arguments:
     workflow_file: str,
-    input_specs: Dict[str, NapariWorkflowsInput],
-    output_specs: Dict[str, NapariWorkflowsOutput],
+    input_specs: dict[str, NapariWorkflowsInput],
+    output_specs: dict[str, NapariWorkflowsOutput],
     input_ROI_table: str = "FOV_ROI_table",
     level: int = 0,
     relabeling: bool = True,
@@ -453,7 +451,7 @@ def napari_workflows_wrapper(
         labels_group.attrs["labels"] = existing_labels + new_labels
 
         # Loop over label outputs and (1) set zattrs, (2) create zarr group
-        output_label_zarr_groups: Dict[str, Any] = {}
+        output_label_zarr_groups: dict[str, Any] = {}
         for (name, out_params) in label_outputs:
             label_name = out_params.label_name
 
@@ -509,7 +507,7 @@ def napari_workflows_wrapper(
         for (name, out_params) in output_specs.items()
         if out_params.type == "dataframe"
     ]
-    output_dataframe_lists: Dict[str, List] = {}
+    output_dataframe_lists: dict[str, list] = {}
     for (name, out_params) in dataframe_outputs:
         output_dataframe_lists[name] = []
         logger.info(f"Prepared output with {name=} and {out_params=}")

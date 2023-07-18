@@ -17,7 +17,6 @@ Functions to handle regions of interests (via pandas and AnnData)
 import logging
 from typing import Optional
 from typing import Sequence
-from typing import Tuple
 from typing import Union
 
 import anndata as ad
@@ -366,7 +365,7 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
 
 def load_region(
     data_zyx: da.Array,
-    region: Tuple[slice, slice, slice],
+    region: tuple[slice, slice, slice],
     compute=True,
     return_as_3D=False,
 ) -> Union[da.Array, np.ndarray]:

@@ -15,8 +15,6 @@ import logging
 import shutil
 from pathlib import Path
 from typing import Any
-from typing import Dict
-from typing import List
 
 import pytest
 from devtools import debug
@@ -183,8 +181,8 @@ def test_yokogawa_to_ome_zarr(
 
 def test_MIP(
     tmp_path: Path,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
 
     # Init

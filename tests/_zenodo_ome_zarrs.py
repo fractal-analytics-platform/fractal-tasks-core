@@ -15,8 +15,6 @@ import json
 import shutil
 from pathlib import Path
 from typing import Any
-from typing import Dict
-from typing import List
 
 import dask.array as da
 from devtools import debug
@@ -24,8 +22,8 @@ from devtools import debug
 
 def prepare_3D_zarr(
     zarr_path: str,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
     zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
     metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
@@ -38,8 +36,8 @@ def prepare_3D_zarr(
 
 def prepare_2D_zarr(
     zarr_path: str,
-    zenodo_zarr: List[str],
-    zenodo_zarr_metadata: List[Dict[str, Any]],
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
     remove_labels: bool = False,
     make_CYX: bool = False,
 ):
