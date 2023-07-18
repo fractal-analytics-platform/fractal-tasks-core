@@ -15,8 +15,8 @@ Function to increase the shape of an array by replicating it
 """
 import logging
 import warnings
+from typing import Optional
 from typing import Sequence
-from typing import Tuple
 
 import numpy as np
 
@@ -24,8 +24,8 @@ import numpy as np
 def upscale_array(
     *,
     array: np.ndarray,
-    target_shape: Tuple[int],
-    axis: Sequence[int] = None,
+    target_shape: tuple[int, ...],
+    axis: Optional[Sequence[int]] = None,
     pad_with_zeros: bool = False,
     warn_if_inhomogeneous: bool = False,
 ) -> np.ndarray:
@@ -57,6 +57,8 @@ def upscale_array(
 
     if len(array_shape) != len(target_shape):
         raise ValueError(f"{info} Dimensions-number mismatch.")
+    if axis == []:
+        raise ValueError(f"{info} Empty axis list")
     if min(axis) < 0:
         raise ValueError(f"{info} Negative axis specification not allowed.")
 
@@ -92,7 +94,7 @@ def upscale_array(
     # Raise a warning if upscaling is non-homogeneous across all axis
     if warn_if_inhomogeneous:
         if len(set(upscale_factors.values())) > 1:
-            warnings.warn(info)
+            warnings.warn(f"{info} (inhomogeneous)")
 
     # Upscale array, via np.repeat
     upscaled_array = array
@@ -130,10 +132,10 @@ def upscale_array(
 
 def convert_region_to_low_res(
     *,
-    highres_region: Tuple[slice],
-    lowres_shape: Tuple[int],
-    highres_shape: Tuple[int],
-) -> Tuple[slice]:
+    highres_region: tuple[slice, ...],
+    lowres_shape: tuple[int, ...],
+    highres_shape: tuple[int, ...],
+) -> tuple[slice, ...]:
     """
     Convert a region defined for a high-resolution array to the corresponding
     region for a low-resolution array

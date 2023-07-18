@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 def _preprocess_input(
     image_array: np.ndarray,
     *,
-    region: tuple[slice],
+    region: tuple[slice],  # FIXME wrong type hint?
     current_label_path: str,
     ROI_table_path: str,
     ROI_positional_index: int,
