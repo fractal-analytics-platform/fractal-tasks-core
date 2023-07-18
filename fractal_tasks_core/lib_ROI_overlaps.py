@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 def is_overlapping_1D(
-    line1: Sequence[float], line2: Sequence[float], tol: float = 0
+    line1: Sequence[float], line2: Sequence[float], tol: float = 1e-10
 ) -> bool:
     """
     Given two intervals, finds whether they overlap
@@ -44,7 +44,7 @@ def is_overlapping_1D(
 
 
 def is_overlapping_2D(
-    box1: Sequence[float], box2: Sequence[float], tol: float = 0
+    box1: Sequence[float], box2: Sequence[float], tol: float = 1e-10
 ) -> bool:
     """
     Given two rectangular boxes, finds whether they overlap
@@ -67,7 +67,7 @@ def is_overlapping_2D(
     return overlap_x and overlap_y
 
 
-def is_overlapping_3D(box1, box2, tol=0) -> bool:
+def is_overlapping_3D(box1, box2, tol: float = 1e-10) -> bool:
     """
     Given two three-dimensional boxes, finds whether they overlap
 
@@ -94,7 +94,7 @@ def is_overlapping_3D(box1, box2, tol=0) -> bool:
 
 
 def get_overlapping_pair(
-    tmp_df: pd.DataFrame, tol: float = 0
+    tmp_df: pd.DataFrame, tol: float = 1e-10
 ) -> Union[tuple[int, int], bool]:
     """
     Finds the indices for the next overlapping FOVs pair
@@ -171,7 +171,7 @@ def apply_shift_in_one_direction(
     line_1: Sequence[float],
     line_2: Sequence[float],
     mu: str,
-    tol: float = 0,
+    tol: float = 1e-10,
 ):
     min_1, max_1 = line_1[:]
     min_2, max_2 = line_2[:]
@@ -393,7 +393,7 @@ def check_well_for_FOV_overlap(
     site_metadata: pd.DataFrame,
     selected_well: str,
     plotting_function: Callable,
-    tol: float = 0,
+    tol: float = 1e-10,
 ):
     """
     This function is currently only used in tests and examples.
