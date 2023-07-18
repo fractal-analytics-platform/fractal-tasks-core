@@ -21,6 +21,11 @@ def test_unit_glob_with_multiple_patterns(tmp_path):
     items = glob_with_multiple_patterns(folder=folder, patterns=patterns)
     assert len(items) == 2 * NUM_FILES + NUM_FOLDERS
 
+    # Look for all files and folders (with trailing slash)
+    patterns = None
+    items = glob_with_multiple_patterns(folder=f"{folder}/", patterns=patterns)
+    assert len(items) == 2 * NUM_FILES + NUM_FOLDERS
+
     # Look for a subset of files with a single pattern
     patterns = ["*.tif"]
     items = glob_with_multiple_patterns(folder=folder, patterns=patterns)
