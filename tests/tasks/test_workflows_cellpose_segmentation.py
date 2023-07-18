@@ -24,6 +24,7 @@ from typing import List
 import anndata as ad
 import numpy as np
 import pytest
+import zarr
 from devtools import debug
 from pytest import MonkeyPatch
 
@@ -34,6 +35,7 @@ from ._validation import check_file_number
 from ._validation import validate_axes_and_coordinateTransformations
 from ._validation import validate_schema
 from .lib_empty_ROI_table import _add_empty_ROI_table
+from fractal_tasks_core.lib_input_models import Channel
 from fractal_tasks_core.tasks.cellpose_segmentation import (
     cellpose_segmentation,
 )
@@ -170,14 +172,14 @@ def test_failures(
         # Attempt 1
         cellpose_segmentation(
             **kwargs,
-            channel=dict(wavelength_id="invalid_wavelength_id"),
+            channel=Channel(wavelength_id="invalid_wavelength_id"),
         )
         assert "ChannelNotFoundError" in caplog.records[0].msg
 
         # Attempt 2
         cellpose_segmentation(
             **kwargs,
-            channel=dict(label="invalid_channel_name"),
+            channel=Channel(label="invalid_channel_name"),
         )
         assert "ChannelNotFoundError" in caplog.records[0].msg
         assert "ChannelNotFoundError" in caplog.records[1].msg
@@ -186,7 +188,7 @@ def test_failures(
         with pytest.raises(ValueError):
             cellpose_segmentation(
                 **kwargs,
-                channel=dict(
+                channel=Channel(
                     wavelength_id="A01_C01",
                     label="invalid_channel_name",
                 ),
@@ -231,7 +233,7 @@ def test_workflow_with_per_FOV_labeling(
             output_path=str(zarr_path),
             metadata=metadata,
             component=component,
-            channel=dict(wavelength_id="A01_C01"),
+            channel=Channel(wavelength_id="A01_C01"),
             level=3,
             relabeling=True,
             diameter_level0=80.0,
@@ -280,7 +282,9 @@ def test_workflow_with_multi_channel_input(
 
     # Use pre-made 3D zarr
     zarr_path = tmp_path / "tmp_out/"
-    metadata = prepare_3D_zarr(zarr_path, zenodo_zarr, zenodo_zarr_metadata)
+    metadata = prepare_3D_zarr(
+        str(zarr_path), [str(x) for x in zenodo_zarr], zenodo_zarr_metadata
+    )
     debug(zarr_path)
     debug(metadata)
 
@@ -291,8 +295,8 @@ def test_workflow_with_multi_channel_input(
             output_path=str(zarr_path),
             metadata=metadata,
             component=component,
-            channel=dict(wavelength_id="A01_C01"),
-            channel2=dict(wavelength_id="A01_C01"),
+            channel=Channel(wavelength_id="A01_C01"),
+            channel2=Channel(wavelength_id="A01_C01"),
             level=3,
             relabeling=True,
             diameter_level0=80.0,
@@ -348,7 +352,7 @@ def test_workflow_with_per_FOV_labeling_2D(
             output_path=str(zarr_path_mip),
             metadata=metadata,
             component=component,
-            channel=dict(wavelength_id="A01_C01"),
+            channel=Channel(wavelength_id="A01_C01"),
             level=2,
             relabeling=True,
             diameter_level0=80.0,
@@ -389,7 +393,7 @@ def test_workflow_with_per_well_labeling_2D(
     img_path = Path(zenodo_images)
     zarr_path = tmp_path / "tmp_out/"
     zarr_path_mip = tmp_path / "tmp_out_mip/"
-    metadata = {}
+    metadata: dict[str, Any] = {}
 
     # Create zarr structure
     metadata_update = create_ome_zarr(
@@ -440,7 +444,7 @@ def test_workflow_with_per_well_labeling_2D(
             output_path=str(zarr_path_mip),
             metadata=metadata,
             component=component,
-            channel=dict(wavelength_id="A01_C01"),
+            channel=Channel(wavelength_id="A01_C01"),
             level=2,
             input_ROI_table="well_ROI_table",
             relabeling=True,
@@ -501,7 +505,7 @@ def test_workflow_bounding_box(
             output_path=str(zarr_path),
             metadata=metadata,
             component=component,
-            channel=dict(wavelength_id="A01_C01"),
+            channel=Channel(wavelength_id="A01_C01"),
             level=3,
             relabeling=True,
             diameter_level0=80.0,
@@ -558,7 +562,7 @@ def test_workflow_bounding_box_with_overlap(
             output_path=str(zarr_path),
             metadata=metadata,
             component=component,
-            channel=dict(wavelength_id="A01_C01"),
+            channel=Channel(wavelength_id="A01_C01"),
             level=3,
             relabeling=True,
             diameter_level0=80.0,
@@ -674,7 +678,7 @@ def test_workflow_with_per_FOV_labeling_with_empty_FOV_table(
             metadata=metadata,
             component=component,
             input_ROI_table=TABLE_NAME,
-            channel=dict(wavelength_id="A01_C01"),
+            channel=Channel(wavelength_id="A01_C01"),
             level=3,
             relabeling=True,
             diameter_level0=80.0,
@@ -737,7 +741,7 @@ def test_CYX_input(
             output_path=str(zarr_path_mip),
             metadata=metadata,
             component=component,
-            channel=dict(wavelength_id="A01_C01"),
+            channel=Channel(wavelength_id="A01_C01"),
             level=0,
             relabeling=True,
             diameter_level0=80.0,
@@ -754,3 +758,79 @@ def test_CYX_input(
     validate_schema(path=str(plate_zarr), type="plate")
     validate_axes_and_coordinateTransformations(image_zarr)
     validate_axes_and_coordinateTransformations(label_zarr)
+
+
+def test_workflow_secondary_labeling(
+    tmp_path: Path,
+    testdata_path: Path,
+    zenodo_zarr: List[str],
+    zenodo_zarr_metadata: List[Dict[str, Any]],
+    monkeypatch: MonkeyPatch,
+):
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
+        patched_cellpose_core_use_gpu,
+    )
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
+        patched_segment_ROI,
+    )
+
+    # Load pre-made 2D zarr array
+    zarr_path = tmp_path / "tmp_out_mip/"
+    metadata = prepare_2D_zarr(
+        str(zarr_path),
+        zenodo_zarr,
+        zenodo_zarr_metadata,
+        remove_labels=True,
+        make_CYX=False,
+    )
+
+    # Primary segmentation (organoid)
+    for component in metadata["image"]:
+        cellpose_segmentation(
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
+            metadata=metadata,
+            component=component,
+            channel=Channel(wavelength_id="A01_C01"),
+            level=0,
+            relabeling=True,
+            input_ROI_table="well_ROI_table",
+            output_label_name="organoids",
+            output_ROI_table="organoid_ROI_table",
+        )
+
+    organoid_ROI_table_path = str(
+        zarr_path / metadata["image"][0] / "tables/organoid_ROI_table"
+    )
+    organoid_ROI_table = ad.read_zarr(organoid_ROI_table_path)
+    organoid_ROI_table_zarr_group = zarr.open(organoid_ROI_table_path)
+    debug(organoid_ROI_table_zarr_group.attrs.asdict())
+    debug(organoid_ROI_table)
+    NUM_LABELS = 2
+    assert organoid_ROI_table.obs.shape == (NUM_LABELS, 1)
+    assert organoid_ROI_table.shape == (NUM_LABELS, 6)
+    assert len(organoid_ROI_table) > 0
+    assert np.max(organoid_ROI_table.X) == float(832)
+
+    debug(zarr_path / metadata["image"][0])
+
+    # Secondary segmentation (nuclei)
+    for component in metadata["image"]:
+        cellpose_segmentation(
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
+            metadata=metadata,
+            component=component,
+            channel=Channel(wavelength_id="A01_C01"),
+            level=0,
+            relabeling=True,
+            input_ROI_table="organoid_ROI_table",
+            use_masks=True,
+            output_label_name="nuclei",
+        )
+
+    # FIXME: what could we assert here?
