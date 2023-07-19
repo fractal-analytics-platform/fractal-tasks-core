@@ -14,6 +14,7 @@ Copyright 2022 (C)
 
 Helper functions to handle JSON schemas for task arguments.
 """
+from collections import Counter
 from pathlib import Path
 from typing import Any
 from typing import Optional
@@ -145,12 +146,12 @@ def create_schema_for_single_task(
     pydantic_models = FRACTAL_TASKS_CORE_PYDANTIC_MODELS + user_provided_models
 
     # Check that model names are unique
-    tmp_class_names = set()
-    duplicate_class_names = set(
-        item[2]
-        for item in pydantic_models
-        if (item[2] in tmp_class_names or tmp_class_names.add(item[2]))
-    )
+    pydantic_models_names = [item[2] for item in pydantic_models]
+    duplicate_class_names = [
+        name
+        for name, count in Counter(pydantic_models_names).items()
+        if count > 1
+    ]
     if duplicate_class_names:
         pydantic_models_str = "  " + "\n  ".join(map(str, pydantic_models))
         raise ValueError(
