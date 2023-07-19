@@ -1,4 +1,4 @@
-## Examples
+# Examples
 
 This `examples` folder offers a few examples of how to run `fractal-tasks-core`
 tasks as part of a Python script.
