@@ -14,6 +14,8 @@ Copyright 2022 (C)
 
 Helper functions to handle JSON schemas for task arguments.
 """
+import logging
+from collections import Counter
 from pathlib import Path
 from typing import Any
 from typing import Optional
@@ -80,6 +82,7 @@ def _remove_args_kwargs_properties(old_schema: _Schema) -> _Schema:
             f"{kwargs_property=}\ndiffers from\n"
             f"{expected_kwargs_property=}"
         )
+    logging.info("[_remove_args_kwargs_properties] END")
     return new_schema
 
 
@@ -95,6 +98,7 @@ def _remove_pydantic_internals(old_schema: _Schema) -> _Schema:
         ALT_V_KWARGS,
     ):
         new_schema["properties"].pop(key, None)
+    logging.info("[_remove_pydantic_internals] END")
     return new_schema
 
 
@@ -107,9 +111,12 @@ def create_schema_for_single_task(
     Main function to create a JSON Schema of task arguments
     """
 
+    logging.info("[create_schema_for_single_task] START")
+
     # Extract the function name. Note: this could be made more general, but for
     # the moment we assume the function has the same name as the module)
     function_name = Path(executable).with_suffix("").name
+    logging.info(f"[create_schema_for_single_task] {function_name=}")
 
     # Extract function from module
     task_function = _extract_function(
@@ -117,6 +124,7 @@ def create_schema_for_single_task(
         module_relative_path=executable,
         function_name=function_name,
     )
+    logging.info(f"[create_schema_for_single_task] {task_function=}")
 
     # Validate function signature against some custom constraints
     _validate_function_signature(task_function)
@@ -145,12 +153,12 @@ def create_schema_for_single_task(
     pydantic_models = FRACTAL_TASKS_CORE_PYDANTIC_MODELS + user_provided_models
 
     # Check that model names are unique
-    tmp_class_names = set()
-    duplicate_class_names = set(
-        item[2]
-        for item in pydantic_models
-        if (item[2] in tmp_class_names or tmp_class_names.add(item[2]))
-    )
+    pydantic_models_names = [item[2] for item in pydantic_models]
+    duplicate_class_names = [
+        name
+        for name, count in Counter(pydantic_models_names).items()
+        if count > 1
+    ]
     if duplicate_class_names:
         pydantic_models_str = "  " + "\n  ".join(map(str, pydantic_models))
         raise ValueError(
@@ -171,4 +179,5 @@ def create_schema_for_single_task(
             descriptions=attrs_descriptions,
         )
 
+    logging.info("[create_schema_for_single_task] END")
     return schema

@@ -1,4 +1,5 @@
 import inspect
+import logging
 from importlib import import_module
 from inspect import signature
 from pathlib import Path
@@ -78,4 +79,5 @@ def _validate_function_signature(function: Callable):
         if default_given and is_annotation_optional:
             raise ValueError("Optional parameter has non-None default value")
 
+    logging.info("[_validate_function_signature] END")
     return sig

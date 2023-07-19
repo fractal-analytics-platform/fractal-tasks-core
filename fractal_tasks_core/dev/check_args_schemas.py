@@ -15,6 +15,7 @@ Script to check that JSON schemas for task arguments (as reported in the
 package manfest) are up-to-date.
 """
 import json
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -90,13 +91,8 @@ if __name__ == "__main__":
 
         # Create new schema
         executable = task["executable"]
-        print(f"[{executable}] Start")
-        try:
-            new_schema = create_schema_for_single_task(executable)
-        except AttributeError:
-            print(f"[{executable}] Skip, due to AttributeError")
-            print()
-            continue
+        logging.info(f"[{executable}] START")
+        new_schema = create_schema_for_single_task(executable)
 
         # The following step is required because some arguments may have a
         # default which has a non-JSON type (e.g. a tuple), which we need to
@@ -112,5 +108,5 @@ if __name__ == "__main__":
         if current_schema != new_schema:
             raise ValueError("Schemas are different.")
 
-        print("Schema in manifest is up-to-date.")
+        logging.info(f"[{executable}] END (schema in manifest is up-to-date)")
         print()

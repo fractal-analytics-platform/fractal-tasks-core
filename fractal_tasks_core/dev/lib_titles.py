@@ -1,6 +1,7 @@
 """
 Module to include titles in JSON Schema properties
 """
+import logging
 from typing import Any
 
 
@@ -50,4 +51,5 @@ def _include_titles(schema: _Schema) -> _Schema:
             new_definitions[def_name]["properties"] = new_properties
         new_schema["definitions"] = new_definitions
 
+    logging.info("[_include_titles] END")
     return new_schema
