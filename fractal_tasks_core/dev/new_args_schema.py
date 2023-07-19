@@ -16,6 +16,7 @@ Script to generate JSON schemas for task arguments afresh, and write them
 to the package manifest.
 """
 import json
+import logging
 from pathlib import Path
 
 import fractal_tasks_core
@@ -41,13 +42,14 @@ if __name__ == "__main__":
     task_list = manifest["task_list"]
     for ind, task in enumerate(task_list):
         executable = task["executable"]
-        print(f"[{executable}] Start")
+        logging.info(f"[{executable}] START")
         schema = create_schema_for_single_task(executable)
 
         manifest["task_list"][ind]["args_schema"] = schema
-        print("Schema added to manifest")
+        logging.info(f"[{executable}] END (schema added to manifest)")
         print()
 
     with manifest_path.open("w") as f:
         json.dump(manifest, f, indent=2)
         f.write("\n")
+    logging.info(f"Up-to-date manifest stored in {manifest_path.as_posix()}")
