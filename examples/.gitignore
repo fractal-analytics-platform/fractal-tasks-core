@@ -1,1 +1,4 @@
 images
+venv
+activate_napari_venv.sh
+activate_venv.sh
