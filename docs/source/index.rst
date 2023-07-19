@@ -54,6 +54,7 @@ Fractal is released according to a BSD 3-Clause License, see `LICENSE <https://g
    Changelog <changelog>
    Task manifest <manifest>
    How to write a custom task <task_howto>
+   How to run tasks from Python scripts <run_in_python>
    api_files/fractal_tasks_core
    api_files/fractal_tasks_core.tasks
    api_files/fractal_tasks_core.dev
