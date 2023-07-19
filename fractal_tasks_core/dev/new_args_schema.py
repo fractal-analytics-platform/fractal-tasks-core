@@ -42,10 +42,7 @@ if __name__ == "__main__":
     for ind, task in enumerate(task_list):
         executable = task["executable"]
         print(f"[{executable}] Start")
-        try:
-            schema = create_schema_for_single_task(executable)
-        except Exception as e:
-            print(f"[{executable}] Skip. Original error:\n{str(e)}")
+        schema = create_schema_for_single_task(executable)
 
         manifest["task_list"][ind]["args_schema"] = schema
         print("Schema added to manifest")
