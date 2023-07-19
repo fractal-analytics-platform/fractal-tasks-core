@@ -1,4 +1,5 @@
 import ast
+import logging
 from importlib import import_module
 from pathlib import Path
 
@@ -55,6 +56,7 @@ def _get_function_args_descriptions(
         param.arg_name: _sanitize_description(param.description)
         for param in parsed_docstring.params
     }
+    logging.info(f"[_get_function_args_descriptions] END ({function_name=})")
     return descriptions
 
 
@@ -99,6 +101,7 @@ def _get_class_attrs_descriptions(
             if isinstance(node, ast.Expr) and var_name:
                 descriptions[var_name] = _sanitize_description(node.value.s)
                 var_name = ""
+    logging.info(f"[_get_class_attrs_descriptions] END ({class_name=})")
     return descriptions
 
 
@@ -120,6 +123,7 @@ def _insert_function_args_descriptions(*, schema, descriptions):
                 value["description"] = "Missing description"
             new_properties[key] = value
     new_schema["properties"] = new_properties
+    logging.info("[_insert_function_args_descriptions] END")
     return new_schema
 
 
@@ -146,4 +150,5 @@ def _insert_class_attrs_descriptions(*, schema, class_name, descriptions):
                         "description"
                     ] = descriptions[prop]
     new_schema["definitions"] = new_definitions
+    logging.info("[_insert_class_attrs_descriptions] END")
     return new_schema
