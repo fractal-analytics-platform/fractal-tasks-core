@@ -4,7 +4,7 @@ This example just works for the test dataset at `10.5281_zenodo.7057076`. Downlo
 
 To run a Fractal task from the command line, call `python Path/To/Task/File/Python.py -j Path/to/args.json --metadata-out Path/to/metadata_out.json`
 
-1. The Python environment needs to have fractal-tasks-core installed.
+1. The Python environment needs to have `fractal-tasks-core[fractal-tasks]` installed.
 2. The path to the python file for each task needs to be known
 3. The args.json file needs to be prepared (see below)
 4. An output path for the output metadata needs to be provided
