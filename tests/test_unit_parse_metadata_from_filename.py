@@ -12,6 +12,7 @@ Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
 import pytest
+from devtools import debug
 
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 
@@ -70,3 +71,10 @@ def test_parse_metadata_from_image_filename(filename, plate, A, C, Z):
     assert metadata["A"] == A
     assert metadata["C"] == C
     assert metadata["Z"] == Z
+
+
+def test_parse_metadata_from_image_filename_fail():
+    f = "210305NAR005AAN_210416_164828_B11_T0001F006L01A04Z14C01K01.tif"
+    with pytest.raises(ValueError) as e:
+        parse_filename(f)
+    debug(e.value)
