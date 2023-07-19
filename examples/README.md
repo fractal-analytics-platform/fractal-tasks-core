@@ -9,7 +9,7 @@ tasks as part of a Python script.
   problem, please feel free to [open an issue on the `fractal-tasks-core`
 GitHub
 repository](https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/new/choose).
-* Examples from 01 to 04 are currently aligned with fractal-tasks-core 0.10.0.
+* Examples from 01 to 05 are currently aligned with fractal-tasks-core 0.10.0.
 
 ## General instructions
 
