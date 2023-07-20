@@ -17,6 +17,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.viewcode",
+    "sphinx.ext.napoleon",
     "sphinx_rtd_theme",
     "sphinx_autodoc_typehints",
     "autodocsumm",
