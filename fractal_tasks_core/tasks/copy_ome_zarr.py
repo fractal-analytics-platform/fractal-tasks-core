@@ -66,8 +66,8 @@ def copy_ome_zarr(
     https://zarr.readthedocs.io/en/stable/api/attrs.html.
 
     Args:
-        input_paths: List of input paths where the image data is stored as OME-
-            Zarrs. Should point to the parent folder containing one or many
+        input_paths: List of input paths where the image data is stored as
+            OME-Zarrs. Should point to the parent folder containing one or many
             OME-Zarr files, not the actual OME-Zarr file. Example:
             ["/some/path/"] This task only supports a single input path.
             (standard argument for Fractal tasks, managed by Fractal server)
