@@ -9,7 +9,7 @@ tasks as part of a Python script.
   problem, please feel free to [open an issue on the `fractal-tasks-core`
 GitHub
 repository](https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/new/choose).
-* Examples from 01 to 06 are currently aligned with fractal-tasks-core 0.10.0.
+* Examples from 01 to 09 are currently aligned with fractal-tasks-core 0.10.0.
 
 ## General instructions
 
@@ -28,9 +28,8 @@ pip install zenodo-get
 ./fetch_test_data_from_zenodo.sh
 ```
 
-3. Enter one of the example folders (currently up-to-date are examples from 01
-   to 04), remove the `tmp_out` temporary output folder (if present), and run
-    one of the `run_workflow` Python scripts.
+3. Enter one of the example folders, remove the `tmp_out` temporary output
+   folder (if present), and run one of the `run_workflow` Python scripts.
 
 4. View the output OME-Zarr in the `tmp_out` folder with
    [napari](https://napari.org), which can be installed via `pip install
