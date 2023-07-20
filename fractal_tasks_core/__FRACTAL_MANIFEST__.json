@@ -691,7 +691,7 @@
                   "label"
                 ],
                 "type": "string",
-                "description": "Input type (supported: ``image`` or ``label``)."
+                "description": "Input type (either ``image`` or ``label``)."
               },
               "label_name": {
                 "title": "Label Name",
@@ -720,7 +720,7 @@
                   "dataframe"
                 ],
                 "type": "string",
-                "description": "Output type (supported: ``label`` or ``dataframe``)."
+                "description": "Output type (either ``label`` or ``dataframe``)."
               },
               "label_name": {
                 "title": "Label Name",
