@@ -37,7 +37,7 @@ Some additional tasks are currently being worked on and some older tasks are sti
 Contributors
 ~~~~~~~~~~~~
 
-Fractal was conceived in the Liberali Lab at the Friedrich Miescher Institute for Biomedical Research and in the Pelkmans Lab at the University of Zurich (both in Switzerland). The project lead is with `@gusqgm <https://github.com/gusqgm>`_ & `@jluethi <https://github.com/jluethi>`_. The core development is done under contract by `@mfranzon <https://github.com/mfranzon>`_, `@tcompa <https://github.com/tcompa>`_ & `@jacopo-exact <https://github.com/jacopo-exact>`_ from `eXact lab S.r.l. <https://exact-lab.it>`_.
+Fractal was conceived in the Liberali Lab at the Friedrich Miescher Institute for Biomedical Research and in the Pelkmans Lab at the University of Zurich (both in Switzerland). The project lead is with `@gusqgm <https://github.com/gusqgm>`_ & `@jluethi <https://github.com/jluethi>`_. The core development is done under contract by `eXact lab S.r.l. <https://exact-lab.it>`_.
 
 License
 ~~~~~~~
