@@ -3,6 +3,8 @@ from typing import Any
 
 from devtools import debug
 
+from fractal_tasks_core.lib_channels import OmeroChannel
+from fractal_tasks_core.lib_channels import Window
 from fractal_tasks_core.tasks.copy_ome_zarr import copy_ome_zarr
 from fractal_tasks_core.tasks.create_ome_zarr import create_ome_zarr
 from fractal_tasks_core.tasks.maximum_intensity_projection import (
@@ -12,30 +14,30 @@ from fractal_tasks_core.tasks.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 
 
 allowed_channels = [
-    {
-        "wavelength_id": "A01_C01",
-        "color": "00FFFF",
-        "label": "Channel 1",
-        "window": {"start": 110, "end": 2000},
-    },
-    {
-        "wavelength_id": "A02_C02",
-        "color": "FF00FF",
-        "label": "Channel 2",
-        "window": {"start": 110, "end": 500},
-    },
-    {
-        "wavelength_id": "A03_C03",
-        "color": "00FF00",
-        "label": "Channel 3",
-        "window": {"start": 110, "end": 1600},
-    },
-    {
-        "wavelength_id": "A04_C04",
-        "color": "FFFF00",
-        "label": "Channel 4",
-        "window": {"start": 110, "end": 1600},
-    },
+    OmeroChannel(
+        wavelength_id="A01_C01",
+        color="00FFFF",
+        label="Channel 1",
+        window=Window(start=110, end=2000),
+    ),
+    OmeroChannel(
+        wavelength_id="A02_C02",
+        color="FF00FF",
+        label="Channel 2",
+        window=Window(start=110, end=500),
+    ),
+    OmeroChannel(
+        wavelength_id="A03_C03",
+        color="00FF00",
+        label="Channel 3",
+        window=Window(start=110, end=1600),
+    ),
+    OmeroChannel(
+        wavelength_id="A04_C04",
+        color="FFFF00",
+        label="Channel 4",
+        window=Window(start=110, end=1600),
+    ),
 ]
 
 
@@ -81,7 +83,7 @@ metadata_update = copy_ome_zarr(
     metadata=metadata,
     project_to_2D=True,
     suffix="mip",
-    input_ROI_tables=["well_ROI_table", "FOV_ROI_table"],
+    ROI_table_names=("well_ROI_table", "FOV_ROI_table"),
 )
 metadata.update(metadata_update)
 debug(metadata)

@@ -5,6 +5,7 @@
     * Relax `pandas` required version to `>=1.2.0,<2`;
     * Relax `Pillow` required version to `>=9.1.1,<10.0.0`;
 * Update default values for tolerance (`tol`) in `lib_ROI_overlaps.py` functions (\#466).
+* Align examples to recent package version, and mention them in the documentation (\#470).
 * Internal changes (\#455):
     * Improve logging and error-handling in tools for args-schema creation (\#469).
     * Improve coverage of core library (\#459, \#467, \#468).

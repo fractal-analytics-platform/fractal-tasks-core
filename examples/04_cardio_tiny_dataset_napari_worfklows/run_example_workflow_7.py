@@ -16,37 +16,38 @@ from pathlib import Path
 
 from devtools import debug
 
-from fractal_tasks_core.cellpose_segmentation import cellpose_segmentation
-from fractal_tasks_core.create_ome_zarr import create_ome_zarr
-from fractal_tasks_core.napari_workflows_wrapper import (
+from fractal_tasks_core.lib_channels import OmeroChannel
+from fractal_tasks_core.lib_channels import Window
+from fractal_tasks_core.tasks.cellpose_segmentation import (
+    cellpose_segmentation,
+)
+from fractal_tasks_core.tasks.create_ome_zarr import create_ome_zarr
+from fractal_tasks_core.tasks.napari_workflows_wrapper import (
     napari_workflows_wrapper,
 )
-from fractal_tasks_core.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
-
+from fractal_tasks_core.tasks.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 
 allowed_channels = [
-    {
-        "label": "DAPI",
-        "wavelength_id": "A01_C01",
-        "colormap": "00FFFF",
-        "start": 0,
-        "end": 700,
-    },
-    {
-        "wavelength_id": "A01_C02",
-        "label": "nanog",
-        "colormap": "FF00FF",
-        "start": 0,
-        "end": 180,
-    },
-    {
-        "wavelength_id": "A02_C03",
-        "label": "Lamin B1",
-        "colormap": "FFFF00",
-        "start": 0,
-        "end": 1500,
-    },
+    OmeroChannel(
+        label="DAPI",
+        wavelength_id="A01_C01",
+        color="00FFFF",
+        window=Window(start=0, end=700),
+    ),
+    OmeroChannel(
+        wavelength_id="A01_C02",
+        label="nanog",
+        color="FF00FF",
+        window=Window(start=0, end=180),
+    ),
+    OmeroChannel(
+        wavelength_id="A02_C03",
+        label="Lamin B1",
+        color="FFFF00",
+        window=Window(start=0, end=1500),
+    ),
 ]
+
 
 num_levels = 6
 coarsening_xy = 2
@@ -60,7 +61,7 @@ if not os.path.isdir(Path(img_path).parent):
         " try running ./fetch_test_data_from_zenodo.sh"
     )
 zarr_path = "tmp_out/"
-metadata = {}
+metadata: dict = {}
 
 # Create zarr structure
 metadata_update = create_ome_zarr(
@@ -71,7 +72,6 @@ metadata_update = create_ome_zarr(
     image_extension="png",
     num_levels=num_levels,
     coarsening_xy=coarsening_xy,
-    metadata_table="mrf_mlf",
 )
 metadata.update(metadata_update)
 debug(metadata)
@@ -93,7 +93,7 @@ for component in metadata["image"]:
         output_path=zarr_path,
         metadata=metadata,
         component=component,
-        wavelength_id="A01_C01",
+        channel=dict(wavelength_id="A01_C01"),
         level=4,
         relabeling=True,
         diameter_level0=80.0,
@@ -103,8 +103,8 @@ debug(metadata)
 # napari-workflows
 workflow_file = "wf_7.yaml"
 input_specs = {
-    "dapi_img": {"type": "image", "wavelength_id": "A01_C01"},
-    "lamin_img": {"type": "image", "wavelength_id": "A01_C01"},
+    "dapi_img": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
+    "lamin_img": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
     "dapi_label_img": {"type": "label", "label_name": "label_DAPI"},
     "lamin_label_img": {"type": "label", "label_name": "label_DAPI"},
 }

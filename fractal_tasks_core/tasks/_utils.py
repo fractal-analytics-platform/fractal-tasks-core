@@ -78,4 +78,4 @@ def run_fractal_task(
 
     # Write output metadata to file, with custom JSON encoder
     with open(args.metadata_out, "w") as fout:
-        json.dump(metadata_update, fout, cls=TaskParameterEncoder)
+        json.dump(metadata_update, fout, cls=TaskParameterEncoder, indent=2)

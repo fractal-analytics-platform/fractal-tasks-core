@@ -10,7 +10,7 @@
         "num_levels": 5,
         "coarsening_xy": 2,
         "image_extension": "png",
-        "image_glob_pattern": null,
+        "image_glob_patterns": null,
         "original_paths": ["../images/10.5281_zenodo.7057076"]
     },
     "component": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr/B/03/0/"

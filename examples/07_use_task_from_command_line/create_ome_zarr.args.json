@@ -7,28 +7,33 @@
     "num_levels": 5,
     "coarsening_xy": 2,
     "image_extension": "png",
-    "metadata_table": "mrf_mlf",
     "allowed_channels": [
         {
-            "colormap": "00FFFF",
+            "color": "00FFFF",
             "wavelength_id": "A01_C01",
-            "end": 800,
             "label": "DAPI",
-            "start": 110
+            "window": {
+                "start": 110,
+                "end": 800
+            }
         },
         {
-            "colormap": "FF00FF",
-            "end": 290,
+            "color": "FF00FF",
             "wavelength_id": "A01_C02",
             "label": "nanog",
-            "start": 110
+            "window": {
+                "start": 110,
+                "end": 290
+            }
         },
         {
-            "colormap": "FFFF00",
-            "end": 1600,
+            "color": "FFFF00",
             "wavelength_id": "A02_C03",
             "label": "Lamin B1",
-            "start": 110
+            "window": {
+                "start": 110,
+                "end": 1600
+            }
         }
     ]
 }
