@@ -1,39 +1,14 @@
 import os
 
 from devtools import debug
+from tmp_channels import allowed_channels
 
-from fractal_tasks_core.copy_ome_zarr import copy_ome_zarr
-from fractal_tasks_core.create_ome_zarr import create_ome_zarr
-from fractal_tasks_core.maximum_intensity_projection import (
+from fractal_tasks_core.tasks.copy_ome_zarr import copy_ome_zarr
+from fractal_tasks_core.tasks.create_ome_zarr import create_ome_zarr
+from fractal_tasks_core.tasks.maximum_intensity_projection import (
     maximum_intensity_projection,
 )
-from fractal_tasks_core.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
-
-
-allowed_channels = [
-    {
-        "label": "DAPI",
-        "wavelength_id": "A01_C01",
-        "colormap": "00FFFF",
-        "start": 0,
-        "end": 700,
-    },
-    {
-        "wavelength_id": "A01_C02",
-        "label": "nanog",
-        "colormap": "FF00FF",
-        "start": 0,
-        "end": 180,
-    },
-    {
-        "wavelength_id": "A02_C03",
-        "label": "Lamin B1",
-        "colormap": "FFFF00",
-        "start": 0,
-        "end": 1500,
-    },
-]
-
+from fractal_tasks_core.tasks.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 
 num_levels = 6
 coarsening_xy = 2
@@ -47,7 +22,7 @@ if not os.path.isdir(img_path):
         " try running ./fetch_test_data_from_zenodo.sh"
     )
 zarr_path = "tmp_out"
-metadata = {}
+metadata: dict = {}
 
 # Create zarr structure
 metadata_update = create_ome_zarr(
@@ -59,7 +34,6 @@ metadata_update = create_ome_zarr(
     allowed_channels=allowed_channels,
     num_levels=num_levels,
     coarsening_xy=coarsening_xy,
-    metadata_table="mrf_mlf",
 )
 metadata.update(metadata_update)
 debug(metadata)
