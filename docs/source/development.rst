@@ -48,7 +48,7 @@ Preliminary checklist
 ^^^^^^^^^^^^^^^^^^^^^
 
 1. The main branch is checked out.
-2. You reviewed dependencies and dev dependencies and the lock file is up to date with ``pyproject.toml`` (it is useful to have a look at the output of ``deptry . -v``, where ``deptry`` is already installed as part of the dev dependencies).
+2. You reviewed dependencies and dev dependencies and the lock file is up to date with ``pyproject.toml`` (it is useful to have a look at the output of ``deptry . -v``, where ``deptry`` is already installed as part of the dev dependencies - NOTE: ``deptry`` should be installed independently, e.g. via ``pipx install deptry``).
 3. The current HEAD of the main branch passes all the tests (note: make sure that you are using the poetry-installed local package).
 4. Update changelog. First look at the list of commits since the last tag, via::
 

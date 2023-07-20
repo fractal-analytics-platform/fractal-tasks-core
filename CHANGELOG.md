@@ -10,7 +10,7 @@
     * Improve logging and error-handling in tools for args-schema creation (\#469).
     * Improve coverage of core library (\#459, \#467, \#468).
     * Update Zenodo datasets used in tests (\#454).
-    * Update the `poetry.lock` version of several dependencies (`cellpose`, `dask`, `napari-skimage-regionprops`, `Pillow`, `scikit-image`, `zarr`, `lxml`, `pydantic`).
+    * Full update of `poetry.lock` file (e.g. \#472).
     * Include `requests` and `wget` in the `dev` poetry dependency group.
     * Run tests both for the poetry- and pip-installed package.
     * Update generic type hints (\#462).
