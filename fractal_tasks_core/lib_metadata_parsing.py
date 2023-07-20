@@ -126,12 +126,12 @@ def read_metadata_files(
     """
     TBD
 
-    :param mrf_path: Full path to MeasurementDetail.mrf metadata file
-    :param mlf_path: Full path to MeasurementData.mlf metadata file
-    :param filename_patterns: List of patterns to filter the image filenames in
-                              the mlf metadata table. Patterns must be defined
-                              as in
-                              https://docs.python.org/3/library/fnmatch.html
+    Args:
+        mrf_path: Full path to MeasurementDetail.mrf metadata file
+        mlf_path: Full path to MeasurementData.mlf metadata file
+        filename_patterns: List of patterns to filter the image filenames in
+            the mlf metadata table. Patterns must be defined as in
+            https://docs.python.org/3/library/fnmatch.html
     """
 
     # parsing of mrf & mlf files are based on the
@@ -155,7 +155,8 @@ def read_mrf_file(mrf_path: str):
     """
     TBD
 
-    :param mrf_path: Full path to MeasurementDetail.mrf metadata file
+    Args:
+        mrf_path: Full path to MeasurementDetail.mrf metadata file
     """
 
     # Prepare mrf dataframe
@@ -200,11 +201,11 @@ def read_mlf_file(
     """
     TBD
 
-    :param mlf_path: Full path to MeasurementData.mlf metadata file
-    :param filename_patterns: List of patterns to filter the image filenames in
-                              the mlf metadata table. Patterns must be defined
-                              as in
-                              https://docs.python.org/3/library/fnmatch.html
+    Args:
+        mlf_path: Full path to MeasurementData.mlf metadata file
+        filename_patterns: List of patterns to filter the image filenames in
+            the mlf metadata table. Patterns must be defined as in
+            https://docs.python.org/3/library/fnmatch.html
     """
 
     # Load the whole MeasurementData.mlf file
@@ -261,7 +262,8 @@ def calculate_steps(site_series: pd.Series):
     """
     TBD
 
-    :param site_series: TBD
+    Args:
+        site_series: TBD
     """
 
     # site_series is the z_micrometer series for a given site of a given
@@ -282,7 +284,8 @@ def get_z_steps(mlf_frame):
     """
     TBD
 
-    :param mlf_frame: TBD
+    Args:
+        mlf_frame: TBD
     """
 
     # Process mlf_frame to extract Z information (pixel size & steps).
@@ -339,7 +342,8 @@ def get_earliest_time_per_site(mlf_frame) -> pd.DataFrame:
     """
     TBD
 
-    :param mlf_frame: TBD
+    Args:
+        mlf_frame: TBD
     """
 
     # Get the time information per site
@@ -355,8 +359,9 @@ def check_group_consistency(grouped_df, message: str = ""):
     """
     TBD
 
-    :param grouped_df: TBD
-    :param message: TBD
+    Args:
+        grouped_df: TBD
+        message: TBD
     """
 
     # Check consistency in grouped df for multi-index, multi-column dataframes

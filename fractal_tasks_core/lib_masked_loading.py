@@ -193,13 +193,15 @@ def _postprocess_output(
     flexible; see
     https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/340.
 
-    :param modified_array: The 3D (ZYX) array with the correct object data and
-                           wrong background data.
-    :param original_array: The 3D (ZYX) array with the wrong object data and
-                           correct background data.
-    :param background: The 3D (ZYX) boolean array that defines the
-                       background.
-    :returns: The postprocessed array.
+    Args:
+        modified_array: The 3D (ZYX) array with the correct object data and
+            wrong background data.
+        original_array: The 3D (ZYX) array with the wrong object data and
+            correct background data.
+        background: The 3D (ZYX) boolean array that defines the background.
+
+    Returns:
+        The postprocessed array.
     """
     # Restore background
     modified_array[background] = original_array[background]
@@ -217,15 +219,15 @@ def masked_loading_wrapper(
     """
     Wrap a function with some pre/post-processing functions
 
-    :param function: The callable function to be wrapped.
-    :param image_array: The image array to be preprocessed and then used as
-                        positional argument for ``function``.
-    :param kwargs: Keyword arguments for ``function``.
-    :param use_masks: If ``False``, the wrapper only calls ``function(*args,
-                      **kwargs)``.
-    :param preprocessing_kwargs: Keyword arguments for the preprocessing
-                                 function (see call signature of
-                                 ``_preprocess_input()``).
+    Args:
+        function: The callable function to be wrapped.
+        image_array: The image array to be preprocessed and then used as
+            positional argument for ``function``.
+        kwargs: Keyword arguments for ``function``.
+        use_masks: If ``False``, the wrapper only calls ``function(*args,
+            **kwargs)``.
+        preprocessing_kwargs: Keyword arguments for the preprocessing function
+            (see call signature of ``_preprocess_input()``).
     """
     # Optional preprocessing
     if use_masks:

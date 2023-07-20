@@ -32,7 +32,8 @@ def _get_plate_name(plate_prefix: str) -> str:
 
     For all non-matching filenames, plate name is plate_prefix.
 
-    :param plate_prefix: TBD
+    Args:
+        plate_prefix: TBD
     """
 
     fields = plate_prefix.split("_")
@@ -72,8 +73,11 @@ def parse_filename(filename: str) -> Dict[str, str]:
     """
     Parse image metadata from filename
 
-    :param filename: name of the image
-    :returns: metadata dictionary
+    Args:
+        filename: name of the image
+
+    Returns:
+        metadata dictionary
     """
 
     # Remove extension and folder from filename

@@ -41,7 +41,8 @@ def run_fractal_task(
     """
     Implement standard task interface and call task_function
 
-    :param task_function: the callable function that runs the task
+    Args:
+        task_function: the callable function that runs the task
     :logger_name: TBD
     """
 

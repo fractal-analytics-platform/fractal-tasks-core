@@ -52,11 +52,12 @@ def is_overlapping_2D(
     This is based on https://stackoverflow.com/a/70023212/19085332, and we
     additionally use a finite tolerance for floating-point comparisons.
 
-    :param box1: The boundaries of the first rectangle, written as
-                 ``[x_min, y_min, x_max, y_max]``.
-    :param box2: The boundaries of the second rectangle, written as
-                 ``[x_min, y_min, x_max, y_max]``.
-    :param tol: Finite tolerance for floating-point comparisons.
+    Args:
+        box1: The boundaries of the first rectangle, written as ``[x_min,
+            y_min, x_max, y_max]``.
+        box2: The boundaries of the second rectangle, written as ``[x_min,
+            y_min, x_max, y_max]``.
+        tol: Finite tolerance for floating-point comparisons.
     """
     overlap_x = is_overlapping_1D(
         [box1[0], box1[2]], [box2[0], box2[2]], tol=tol
@@ -74,11 +75,12 @@ def is_overlapping_3D(box1, box2, tol: float = 1e-10) -> bool:
     This is based on https://stackoverflow.com/a/70023212/19085332, and we
     additionally use a finite tolerance for floating-point comparisons.
 
-    :param box1: The boundaries of the first box, written as
-                 ``[x_min, y_min, z_min, x_max, y_max, z_max]``.
-    :param box2: The boundaries of the second box, written as
-                 ``[x_min, y_min, z_min, x_max, y_max, z_max]``.
-    :param tol: Finite tolerance for floating-point comparisons.
+    Args:
+        box1: The boundaries of the first box, written as ``[x_min, y_min,
+            z_min, x_max, y_max, z_max]``.
+        box2: The boundaries of the second box, written as ``[x_min, y_min,
+            z_min, x_max, y_max, z_max]``.
+        tol: Finite tolerance for floating-point comparisons.
     """
 
     overlap_x = is_overlapping_1D(
@@ -101,8 +103,9 @@ def get_overlapping_pair(
 
     Note: the returned indices are positional indices, starting from 0
 
-    :param tmp_df: Dataframe with columns `["xmin", "ymin", "xmax", "ymax"]`.
-    :param tol: Finite tolerance for floating-point comparisons.
+    Args:
+        tmp_df: Dataframe with columns `["xmin", "ymin", "xmax", "ymax"]`.
+        tol: Finite tolerance for floating-point comparisons.
     """
 
     num_lines = len(tmp_df.index)
@@ -124,9 +127,10 @@ def get_overlapping_pairs_3D(
 
     Note: the returned indices are positional indices, starting from 0
 
-    :param tmp_df: Dataframe with columns ``{x,y,z}_micrometer`` and
-                   ``len_{x,y,z}_micrometer``.
-    :param pixel_sizes: TBD
+    Args:
+        tmp_df: Dataframe with columns ``{x,y,z}_micrometer`` and
+            ``len_{x,y,z}_micrometer``.
+        pixel_sizes: TBD
     """
 
     tol = 1e-10
@@ -195,7 +199,8 @@ def remove_FOV_overlaps(df: pd.DataFrame):
     """
     Given a metadata dataframe, shift its columns to remove FOV overlaps
 
-    :param df: Metadata dataframe
+    Args:
+        df: Metadata dataframe
     """
 
     # Set tolerance (this should be much smaller than pixel size or expected
@@ -337,10 +342,11 @@ def _is_overlapping_1D_int(
     https://stackoverflow.com/a/70023212/19085332), for integer-valued
     intervals.
 
-    :param line1: The boundaries of the first interval , written as
-                  ``[x_min, x_max]``.
-    :param line2: The boundaries of the second interval , written as
-                  ``[x_min, x_max]``.
+    Args:
+        line1: The boundaries of the first interval , written as ``[x_min,
+            x_max]``.
+        line2: The boundaries of the second interval , written as ``[x_min,
+            x_max]``.
     """
     return line1[0] < line2[1] and line2[0] < line1[1]
 
@@ -353,10 +359,11 @@ def _is_overlapping_3D_int(box1: list[int], box2: list[int]) -> bool:
     https://stackoverflow.com/a/70023212/19085332), for integer-valued
     boxes.
 
-    :param box1: The boundaries of the first box, written as
-                 ``[x_min, y_min, z_min, x_max, y_max, z_max]``.
-    :param box2: The boundaries of the second box, written as
-                 ``[x_min, y_min, z_min, x_max, y_max, z_max]``.
+    Args:
+        box1: The boundaries of the first box, written as ``[x_min, y_min,
+            z_min, x_max, y_max, z_max]``.
+        box2: The boundaries of the second box, written as ``[x_min, y_min,
+            z_min, x_max, y_max, z_max]``.
     """
     overlap_x = _is_overlapping_1D_int([box1[0], box1[3]], [box2[0], box2[3]])
     overlap_y = _is_overlapping_1D_int([box1[1], box1[4]], [box2[1], box2[4]])
@@ -370,11 +377,14 @@ def find_overlaps_in_ROI_indices(
     """
     Given a list of integer ROI indices, find whether there are overlaps
 
-    :param list_indices: List of ROI indices, where each element in the list
-                         should look like ``[start_z, end_z, start_y, end_y,
-                         start_x, end_x]``.
-    :returns: ``None`` if no overlap was detected, otherwise a tuple with the
-              positional indices of a pair of overlapping ROIs.
+    Args:
+        list_indices: List of ROI indices, where each element in the list
+            should look like ``[start_z, end_z, start_y, end_y, start_x,
+            end_x]``.
+
+    Returns:
+        ``None`` if no overlap was detected, otherwise a tuple with the
+        positional indices of a pair of overlapping ROIs.
     """
 
     for ind_1, ROI_1 in enumerate(list_indices):

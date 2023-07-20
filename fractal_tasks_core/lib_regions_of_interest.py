@@ -98,8 +98,8 @@ def prepare_well_ROI_table(
     """
     Description
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    Args:
+        dummy: this is just a placeholder
     """
 
     # Make a local copy of the dataframe, to avoid SettingWithCopyWarning
@@ -169,8 +169,8 @@ def convert_ROIs_from_3D_to_2D(
     """
     Description
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    Args:
+        dummy: this is just a placeholder
     """
 
     # Compress a 3D stack of images to a single Z plane,
@@ -215,8 +215,8 @@ def convert_ROI_table_to_indices(
 
     FIXME add docstring
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    Args:
+        dummy: this is just a placeholder
     """
     # Handle empty ROI table
     if len(ROI) == 0:
@@ -278,8 +278,8 @@ def array_to_bounding_box_table(
     """
     Description
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    Args:
+        dummy: this is just a placeholder
     """
 
     labels = np.unique(mask_array)
@@ -326,11 +326,14 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
     these checks fail, ``use_masks`` should be set to ``False`` upstream in the
     parent function.
 
-    :param table_path: Path of the AnnData ROI table to be checked.
-    :param use_masks: If ``True``, perform some additional checks related to
-                      masked loading.
-    :returns: Always ``None`` if ``use_masks=False``, otherwise return whether
-             the table is valid for masked loading.
+    Args:
+        table_path: Path of the AnnData ROI table to be checked.
+        use_masks: If ``True``, perform some additional checks related to
+            masked loading.
+
+    Returns:
+        Always ``None`` if ``use_masks=False``, otherwise return whether the
+        table is valid for masked loading.
     """
 
     # Hard constraint: table columns must include some expected ones
@@ -375,12 +378,15 @@ def load_region(
     Can handle both 2D and 3D dask arrays as input and return them as is or
     always as a 3D array
 
-    :param data_zyx: dask array, 2D or 3D
-    :param region: region to load, tuple of three slices (ZYX)
-    :param compute: whether to compute the result. If True, returns a numpy
-                    array. If False, returns a dask array.
+    Args:
+        data_zyx: dask array, 2D or 3D
+        region: region to load, tuple of three slices (ZYX)
+        compute: whether to compute the result. If True, returns a numpy array.
+            If False, returns a dask array.
     :return_as_3D: whether to return a 3D array, even if the input is 2D
-    :return: 3D array
+
+    Returns:
+        3D array
     """
 
     if len(region) != 3:

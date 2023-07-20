@@ -112,7 +112,8 @@ def check_well_channel_labels(*, well_zarr_path: str) -> None:
     First identify the channel-labels list for each image in the well, then
     compare lists and verify their intersection is empty
 
-    :param well_zarr_path: path to an OME-NGFF well zarr group
+    Args:
+        well_zarr_path: path to an OME-NGFF well zarr group
     """
 
     # Iterate over all images (multiplexing cycles, multi-FOVs, ...)
@@ -156,11 +157,14 @@ def get_channel_from_image_zarr(
     This is a helper function that combines ``get_omero_channel_list`` with
     ``get_channel_from_list``.
 
-    :param image_zarr_path: Path to an OME-NGFF image zarr group
-    :param label: ``label`` attribute of the channel to be extracted
-    :param wavelength_id: ``wavelength_id`` attribute of the channel to be
-                          extracted
-    :returns: A single channel dictionary
+    Args:
+        image_zarr_path: Path to an OME-NGFF image zarr group
+        label: ``label`` attribute of the channel to be extracted
+        wavelength_id: ``wavelength_id`` attribute of the channel to be
+            extracted
+
+    Returns:
+        A single channel dictionary
     """
     omero_channels = get_omero_channel_list(image_zarr_path=image_zarr_path)
     channel = get_channel_from_list(
@@ -173,8 +177,11 @@ def get_omero_channel_list(*, image_zarr_path: str) -> list[OmeroChannel]:
     """
     Extract the list of channels from OME-NGFF zarr attributes
 
-    :param image_zarr_path: Path to an OME-NGFF image zarr group
-    :returns: A list of channel dictionaries
+    Args:
+        image_zarr_path: Path to an OME-NGFF image zarr group
+
+    Returns:
+        A list of channel dictionaries
     """
     group = zarr.open_group(image_zarr_path, mode="r+")
     channels_dicts = group.attrs["omero"]["channels"]
@@ -195,12 +202,14 @@ def get_channel_from_list(
     ``wavelength_id``, and identify its positional index (which also
     corresponds to its index in the zarr array).
 
-    :param channels: A list of channel dictionary, where each channel includes
-                     (at least) the ``label`` and ``wavelength_id`` keys
-    :param label: The label to look for in the list of channels.
-    :param wavelength_id: The wavelength_id to look for in the list of
-                          channels.
-    :returns: A single channel dictionary
+    Args:
+        channels: A list of channel dictionary, where each channel includes (at
+            least) the ``label`` and ``wavelength_id`` keys
+        label: The label to look for in the list of channels.
+        wavelength_id: The wavelength_id to look for in the list of channels.
+
+    Returns:
+        A single channel dictionary
     """
 
     # Identify matching channels
@@ -263,13 +272,15 @@ def define_omero_channels(
     The ``new_channels`` output can be used in the
     ``attrs["omero"]["channels"]`` attribute of an image group.
 
-    :param channels: A list of channel dictionaries (each one must include the
-                     ``wavelength_id`` key).
-    :param bit_depth: bit depth
-    :param label_prefix: TBD
-    :returns: ``new_channels``, a new list of consistent channel dictionaries
-              that can be written to OMERO metadata.
+    Args:
+        channels: A list of channel dictionaries (each one must include the
+            ``wavelength_id`` key).
+        bit_depth: bit depth
+        label_prefix: TBD
 
+    Returns:
+        ``new_channels``, a new list of consistent channel dictionaries that
+        can be written to OMERO metadata.
     """
 
     new_channels = [c.copy(deep=True) for c in channels]
