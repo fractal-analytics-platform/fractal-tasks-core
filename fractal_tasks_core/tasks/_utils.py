@@ -28,6 +28,10 @@ class TaskParameterEncoder(JSONEncoder):
     """
 
     def default(self, value):
+        """
+        Subclass implementation of ``default``, to serialize Path objects as
+        strings.
+        """
         if isinstance(value, Path):
             return value.as_posix()
         return JSONEncoder.default(self, value)
