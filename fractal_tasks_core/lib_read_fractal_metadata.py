@@ -39,7 +39,8 @@ def find_omengff_acquisition(image_zarr_path: Path) -> Union[int, None]:
     2. This function fails if we use an image that does not belong to
        an OME-NGFF well.
 
-    :param image_zarr_path: full path to an OME-NGFF image folder
+    Args:
+        image_zarr_path: full path to an OME-NGFF image folder
     """
 
     # Identify well path and attrs
@@ -82,12 +83,10 @@ def get_parameters_from_metadata(
         metadata[acquisition]["some_parameter"]  # acquisition available
         metadata["some_parameter"]               # acquisition not available
 
-
-
-    :param keys: list of required parameters
-    :param metadata: metadata dictionary
-    :param image_zarr_path: full path to image, e.g.
-                             ``/path/plate.zarr/B/03/0``
+    Args:
+        keys: list of required parameters
+        metadata: metadata dictionary
+        image_zarr_path: full path to image, e.g. ``/path/plate.zarr/B/03/0``
     """
 
     parameters = {}

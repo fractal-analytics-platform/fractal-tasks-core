@@ -65,41 +65,34 @@ def copy_ome_zarr(
     Note: this task makes use of methods from the ``Attributes`` class, see
     https://zarr.readthedocs.io/en/stable/api/attrs.html.
 
-    :param input_paths: List of input paths where the image data is stored
-                        as OME-Zarrs. Should point to the parent folder
-                        containing one or many OME-Zarr files, not the
-                        actual OME-Zarr file.
-                        Example: ["/some/path/"]
-                        This task only supports a single input path.
-                        (standard argument for Fractal tasks,
-                        managed by Fractal server)
-    :param output_path: Path were the output of this task is stored.
-                        Example: "/some/path/" => puts the new OME-Zarr file
-                        in the same folder as the input OME-Zarr file
-                        "/some/new_path" => puts the new OME-Zarr file
-                        into a new folder at ``/some/new_path``
-                        (standard argument for Fractal tasks,
-                        managed by Fractal server)
-    :param metadata: dictionary containing metadata about the OME-Zarr.
-                     This task requires the following elements to be present
-                     in the metadata:
-                     "plate": List of plates. Example: ["MyPlate.zarr"]
-                     "well": List of wells in the OME-Zarr plate.
-                     ["MyPlate.zarr/B/03", "MyPlate.zarr/B/05"]
-                     "image": List of images in the OME-Zarr plate. Example:
-                     ["MyPlate.zarr/B/03/0", "MyPlate.zarr/B/05/0"]
-                     (standard argument for Fractal tasks,
-                     managed by Fractal server)
-    :param project_to_2D: If ``True``, apply a 3D->2D projection to the ROI
-                          tables that are copied to the new OME-Zarr.
-    :param suffix: The suffix that is used to transform ``plate.zarr`` into
-                   ``plate_suffix.zarr``. Note that `None` is not currently
-                   supported.
-    :param ROI_table_names: List of Anndata table names to be copied. Note:
-                            copying non-ROI tables may fail if
-                            ``project_to_2D=True``.
-    :return: An update to the metadata table with new "plate", "well",
-             "image" entries (now with the suffix in the plate name).
+    Args:
+        input_paths: List of input paths where the image data is stored as
+            OME-Zarrs. Should point to the parent folder containing one or many
+            OME-Zarr files, not the actual OME-Zarr file. Example:
+            ["/some/path/"] This task only supports a single input path.
+            (standard argument for Fractal tasks, managed by Fractal server)
+        output_path: Path were the output of this task is stored. Example:
+            "/some/path/" => puts the new OME-Zarr file in the same folder as
+            the input OME-Zarr file "/some/new_path" => puts the new OME-Zarr
+            file into a new folder at ``/some/new_path`` (standard argument for
+            Fractal tasks, managed by Fractal server)
+        metadata: dictionary containing metadata about the OME-Zarr. This task
+            requires the following elements to be present in the metadata:
+            "plate": List of plates. Example: ["MyPlate.zarr"] "well": List of
+            wells in the OME-Zarr plate. ["MyPlate.zarr/B/03",
+            "MyPlate.zarr/B/05"] "image": List of images in the OME-Zarr plate.
+            Example: ["MyPlate.zarr/B/03/0", "MyPlate.zarr/B/05/0"] (standard
+            argument for Fractal tasks, managed by Fractal server)
+        project_to_2D: If ``True``, apply a 3D->2D projection to the ROI tables
+            that are copied to the new OME-Zarr.
+        suffix: The suffix that is used to transform ``plate.zarr`` into
+            ``plate_suffix.zarr``. Note that `None` is not currently supported.
+        ROI_table_names: List of Anndata table names to be copied. Note:
+            copying non-ROI tables may fail if ``project_to_2D=True``.
+
+    Returns:
+        An update to the metadata table with new "plate", "well", "image"
+        entries (now with the suffix in the plate name).
     """
 
     # Preliminary check

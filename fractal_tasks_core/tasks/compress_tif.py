@@ -25,12 +25,10 @@ def compress_tif(in_path, out_path, delete_input=False):
     """
     Compress tiff files
 
-    :param in_path: directory containing the input files
-    :type in_path: str
-    :param out_path: directory containing the output files
-    :type out_path: str
-    :param delete_input: delete input files
-    :type delete_input: bool
+    Args:
+        in_path: directory containing the input files
+        out_path: directory containing the output files
+        delete_input: delete input files
     """
 
     # Sanitize input/output paths

@@ -28,6 +28,10 @@ class TaskParameterEncoder(JSONEncoder):
     """
 
     def default(self, value):
+        """
+        Subclass implementation of ``default``, to serialize Path objects as
+        strings.
+        """
         if isinstance(value, Path):
             return value.as_posix()
         return JSONEncoder.default(self, value)
@@ -41,7 +45,8 @@ def run_fractal_task(
     """
     Implement standard task interface and call task_function
 
-    :param task_function: the callable function that runs the task
+    Args:
+        task_function: the callable function that runs the task
     :logger_name: TBD
     """
 

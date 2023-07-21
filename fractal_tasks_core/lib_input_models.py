@@ -56,7 +56,7 @@ class NapariWorkflowsInput(BaseModel):
     """
 
     type: Literal["image", "label"]
-    """Input type (supported: ``image`` or ``label``)."""
+    """Input type (either ``image`` or ``label``)."""
 
     label_name: Optional[str]
     """Label name (for label inputs only)."""
@@ -93,7 +93,7 @@ class NapariWorkflowsOutput(BaseModel):
     """
 
     type: Literal["label", "dataframe"]
-    """Output type (supported: ``label`` or ``dataframe``)."""
+    """Output type (either ``label`` or ``dataframe``)."""
 
     label_name: Optional[str] = None
     """Label name (for label outputs only)."""

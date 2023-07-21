@@ -102,11 +102,12 @@ def rescale_datasets(
     transformations in the YX directions by including a prefactor
     (coarsening_xy**reference_level).
 
-    :param datasets: list of datasets (as per OME-NGFF specs)
-    :param coarsening_xy: linear coarsening factor between subsequent levels
-    :param reference_level: TBD
-    :param remove_channel_axis: If ``True``, remove the first item of all
-                                ``scale`` transformations.
+    Args:
+        datasets: list of datasets (as per OME-NGFF specs)
+        coarsening_xy: linear coarsening factor between subsequent levels
+        reference_level: TBD
+        remove_channel_axis: If ``True``, remove the first item of all
+            ``scale`` transformations.
     """
 
     # Construct rescaled datasets

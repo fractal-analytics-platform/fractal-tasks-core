@@ -16,11 +16,11 @@ def glob_with_multiple_patterns(
     List all the items (files and folders) in a given folder that
     simultaneously match a series of glob patterns
 
-    Arguments:
-        :folder: Base folder where items will be searched.
-        :patterns: If specified, the list of patterns (defined as in
-                   https://docs.python.org/3/library/fnmatch.html) that item
-                   names will match with.
+    Args:
+        folder: Base folder where items will be searched.
+        patterns: If specified, the list of patterns (defined as in
+            https://docs.python.org/3/library/fnmatch.html) that item
+            names will match with.
     """
 
     # Sanitize base-folder path

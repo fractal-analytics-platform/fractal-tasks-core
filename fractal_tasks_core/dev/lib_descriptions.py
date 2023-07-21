@@ -29,9 +29,10 @@ def _get_function_args_descriptions(
     """
     Extract argument descriptions from a function
 
-    :param package_name: Example ``fractal_tasks_core``
-    :param module_relative_path: Example ``tasks/create_ome_zarr.py``
-    :param function_name: Example ``create_ome_zarr``
+    Args:
+        package_name: Example ``fractal_tasks_core``
+        module_relative_path: Example ``tasks/create_ome_zarr.py``
+        function_name: Example ``create_ome_zarr``
     """
 
     if not module_relative_path.endswith(".py"):
@@ -66,9 +67,10 @@ def _get_class_attrs_descriptions(
     """
     Extract attribute descriptions from a class
 
-    :param package_name: Example ``fractal_tasks_core``
-    :param module_relative_path: Example ``lib_channels.py``
-    :param class_name: Example ``OmeroChannel``
+    Args:
+        package_name: Example ``fractal_tasks_core``
+        module_relative_path: Example ``lib_channels.py``
+        class_name: Example ``OmeroChannel``
     """
 
     if not module_relative_path.endswith(".py"):

@@ -11,7 +11,6 @@ Copyright 2022 (C)
     Miescher Institute for Biomedical Research and Pelkmans Lab from the
     University of Zurich.
 
-
 Script to generate JSON schemas for task arguments afresh, and write them
 to the package manifest.
 """

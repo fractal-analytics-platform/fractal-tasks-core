@@ -33,16 +33,18 @@ def upscale_array(
     Upscale an array along a given list of axis (through repeated application
     of ``np.repeat``), to match a target shape.
 
-    :param array: The array to be upscaled
-    :param target_shape: The shape of the rescaled array
-    :param axis: The axis along which to upscale the array (if ``None``, then \
-                 all axis are used)
-    :param pad_with_zeros: If ``True``, pad the upscaled array with zeros to
-                           match ``target_shape``.
-    :param warn_if_inhomogeneous: If ``True``, raise a warning when the
-                                  conversion factors are not identical across
-                                  all dimensions.
-    :returns: The upscaled array, with shape ``target_shape``.
+    Args:
+        array: The array to be upscaled
+        target_shape: The shape of the rescaled array
+        axis: The axis along which to upscale the array (if ``None``, then \
+            all axis are used)
+        pad_with_zeros: If ``True``, pad the upscaled array with zeros to match
+            ``target_shape``.
+        warn_if_inhomogeneous: If ``True``, raise a warning when the conversion
+            factors are not identical across all dimensions.
+
+    Returns:
+        The upscaled array, with shape ``target_shape``.
     """
 
     # Default behavior: use all axis
@@ -140,12 +142,14 @@ def convert_region_to_low_res(
     Convert a region defined for a high-resolution array to the corresponding
     region for a low-resolution array
 
-    :param highres_region: A region of the high-resolution array, defined in a
-                           form like ``(slice(0, 2), slice(1000, 2000),
-                           slice(1000, 2000))``.
-    :param highres_shape: The shape of the high-resolution array.
-    :param lowres_shape: The shape of the low-resolution array.
-    :return: Region for low-resolution array.
+    Args:
+        highres_region: A region of the high-resolution array, defined in a
+            form like ``(slice(0, 2), slice(1000, 2000), slice(1000, 2000))``.
+        highres_shape: The shape of the high-resolution array.
+        lowres_shape: The shape of the low-resolution array.
+
+    Returns:
+        Region for low-resolution array.
     """
 
     error_msg = (

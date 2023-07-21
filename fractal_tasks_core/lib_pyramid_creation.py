@@ -42,12 +42,13 @@ def build_pyramid(
     Example input:
         zarrurl = "some/path/plate.zarr/B/03/0
 
-    :param zarrurl: path of the zarr group, which must already include level 0
-    :param overwrite: whether to overwrite existing pyramid levels
-    :param num_levels: total number of pyramid levels (including 0)
-    :param coarsening_xy: linear coarsening factor between subsequent levels
-    :param chunksize: shape of a single chunk
-    :param aggregation_function: function to be used when downsampling
+    Args:
+        zarrurl: path of the zarr group, which must already include level 0
+        overwrite: whether to overwrite existing pyramid levels
+        num_levels: total number of pyramid levels (including 0)
+        coarsening_xy: linear coarsening factor between subsequent levels
+        chunksize: shape of a single chunk
+        aggregation_function: function to be used when downsampling
     """
 
     # Clean up zarrurl
