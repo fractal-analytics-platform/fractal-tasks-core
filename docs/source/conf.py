@@ -27,7 +27,7 @@ extensions = [
 
 autodoc_default_options = {
     "autosummary": True,
-    "private-members": False,
+    "private-members": True,
     "show-inheritance": True,
     "autosummary-no-nesting": True,
     "autosummary_no_nesting": True,
