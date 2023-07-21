@@ -65,6 +65,7 @@ autodocsumm = "^0.2.9"
 sphinx-autodoc-defaultargs = "^0.1.2"
 myst-parser = "^0.18.1"
 sphinx-autobuild = "^2021.3.14"
+sphinxcontrib-napoleon = "^0.7"
 
 
 [build-system]
