@@ -6,6 +6,7 @@
     * Relax `pandas` required version to `>=1.2.0,<2` (\#455);
     * Relax `Pillow` required version to `>=9.1.1,<10.0.0` (\#455);
 * Update default values for tolerance (`tol`) in `lib_ROI_overlaps.py` functions (\#466).
+* Include `image-label/source/image` OME-NGFF attribute when creating labels (\#478).
 * Align examples to recent package version, and mention them in the documentation (\#470).
 * Internal changes (\#455):
     * Convert docstrings to Google style (\#473).
