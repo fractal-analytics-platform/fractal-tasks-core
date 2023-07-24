@@ -91,18 +91,12 @@ def _get_class_attrs_descriptions(
             f"Cannot find {class_name=} for {package_name=} "
             f"and {module_relative_path=}"
         )
-
-    descriptions = {}
-    # extract attribute docstrings
-    var_name: str = ""
-    for node in _class.body:
-        if isinstance(node, ast.AnnAssign):
-            descriptions[node.target.id] = "Missing description"
-            var_name = node.target.id
-        else:
-            if isinstance(node, ast.Expr) and var_name:
-                descriptions[var_name] = _sanitize_description(node.value.s)
-                var_name = ""
+    docstring = ast.get_docstring(_class)
+    parsed_docstring = docparse(docstring)
+    descriptions = {
+        x.arg_name: x.description if x.description else "Missing description"
+        for x in parsed_docstring.params
+    }
     logging.info(f"[_get_class_attrs_descriptions] END ({class_name=})")
     return descriptions
 

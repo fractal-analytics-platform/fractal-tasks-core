@@ -21,15 +21,15 @@ from pydantic import validator
 
 
 class Channel(BaseModel):
-    """
-    A channel which is specified by either ``wavelength_id`` or ``label``.
+    """A channel which is specified by either ``wavelength_id`` or ``label``.
+
+    Attributes:
+        wavelength_id: Unique ID for the channel wavelength, e.g. ``A01_C01``.
+        label: Name of the channel.
     """
 
     wavelength_id: Optional[str] = None
-    """Unique ID for the channel wavelength, e.g. ``A01_C01``."""
-
     label: Optional[str] = None
-    """Name of the channel"""
 
     @validator("label", always=True)
     def mutually_exclusive_channel_attributes(cls, v, values):
@@ -51,18 +51,17 @@ class Channel(BaseModel):
 
 
 class NapariWorkflowsInput(BaseModel):
-    """
-    A value of the ``input_specs`` argument in ``napari_workflows_wrapper``.
+    """A value of the ``input_specs`` argument in ``napari_workflows_wrapper``.
+
+    Attributes:
+        type: Input type (either ``image`` or ``label``).
+        label_name: Label name (for label inputs only).
+        channel: Channel object (for image inputs only).
     """
 
     type: Literal["image", "label"]
-    """Input type (either ``image`` or ``label``)."""
-
     label_name: Optional[str]
-    """Label name (for label inputs only)."""
-
     channel: Optional[Channel]
-    """Channel object (for image inputs only)."""
 
     @validator("label_name", always=True)
     def label_name_is_present(cls, v, values):
@@ -88,18 +87,17 @@ class NapariWorkflowsInput(BaseModel):
 
 
 class NapariWorkflowsOutput(BaseModel):
-    """
-    A value of the ``output_specs`` argument in ``napari_workflows_wrapper``.
+    """A value of the ``output_specs`` argument in ``napari_workflows_wrapper``.
+
+    Attributes:
+        type: Output type (either ``label`` or ``dataframe``).
+        label_name: Label name (for label outputs only).
+        table_name: Table name (for dataframe outputs only).
     """
 
     type: Literal["label", "dataframe"]
-    """Output type (either ``label`` or ``dataframe``)."""
-
     label_name: Optional[str] = None
-    """Label name (for label outputs only)."""
-
     table_name: Optional[str] = None
-    """Table name (for dataframe outputs only)."""
 
     @validator("label_name", always=True)
     def label_name_only_for_label_type(cls, v, values):
