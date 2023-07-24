@@ -458,7 +458,8 @@ def napari_workflows_wrapper(
             # (1b) Write zattrs for specific label
             label_group = labels_group.create_group(label_name)
             label_group.attrs["image-label"] = {
-                "version": __OME_NGFF_VERSION__
+                "version": __OME_NGFF_VERSION__,
+                "source": {"image": "../../"},
             }
             label_group.attrs["multiscales"] = [
                 {
