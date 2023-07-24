@@ -1,9 +1,10 @@
 
 * Update dependencies (\#455):
-    * Relax `dask` required version to `>=2023.1.0`;
-    * Relax `zarr` required version to `>=2.13.6,<3`;
-    * Relax `pandas` required version to `>=1.2.0,<2`;
-    * Relax `Pillow` required version to `>=9.1.1,<10.0.0`;
+    * Relax `numpy` required version to `<2` (\#477);
+    * Relax `dask` required version to `>=2023.1.0` (\#455);
+    * Relax `zarr` required version to `>=2.13.6,<3` (\#455);
+    * Relax `pandas` required version to `>=1.2.0,<2` (\#455);
+    * Relax `Pillow` required version to `>=9.1.1,<10.0.0` (\#455);
 * Update default values for tolerance (`tol`) in `lib_ROI_overlaps.py` functions (\#466).
 * Align examples to recent package version, and mention them in the documentation (\#470).
 * Internal changes (\#455):
