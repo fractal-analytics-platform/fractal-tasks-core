@@ -380,8 +380,8 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
 def load_region(
     data_zyx: da.Array,
     region: tuple[slice, slice, slice],
-    compute=True,
-    return_as_3D=False,
+    compute: bool = True,
+    return_as_3D: bool = False,
 ) -> Union[da.Array, np.ndarray]:
     """
     Load a region from a dask array
@@ -394,7 +394,7 @@ def load_region(
         region: region to load, tuple of three slices (ZYX)
         compute: whether to compute the result. If True, returns a numpy array.
             If False, returns a dask array.
-    :return_as_3D: whether to return a 3D array, even if the input is 2D
+        return_as_3D: whether to return a 3D array, even if the input is 2D
 
     Returns:
         3D array
