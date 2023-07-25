@@ -31,11 +31,14 @@ if __OME_NGFF_VERSION__ != "0.4":
 
 
 class Window(BaseModel):
-    """Custom class for Omero-channel window, based on OME-NGFF v0.4.
+    """
+    Custom class for Omero-channel window, based on OME-NGFF v0.4.
 
     Attributes:
         min: Do not change. It will be set to ``0`` by default.
-        max: Do not change. It will be set according to bit-depth of the images by default (e.g. 65535 for 16 bit images).
+        max:
+            Do not change. It will be set according to bit-depth of the images
+            by default (e.g. 65535 for 16 bit images).
         start: Lower-bound rescaling value for visualization.
         end: Upper-bound rescaling value for visualization.
     """
@@ -47,14 +50,17 @@ class Window(BaseModel):
 
 
 class OmeroChannel(BaseModel):
-    """Custom class for Omero channels, based on OME-NGFF v0.4.
+    """
+    Custom class for Omero channels, based on OME-NGFF v0.4.
 
     Attributes:
         wavelength_id: Unique ID for the channel wavelength, e.g. ``A01_C01``.
         index: Do not change. For internal use only.
         label: Name of the channel.
-        window: Optional ``Window`` object to set default display settings for napari.
-        color: Optional hex colormap to display the channel in napari (e.g. ``00FFFF``).
+        window: Optional ``Window`` object to set default display settings for
+            napari.
+        color: Optional hex colormap to display the channel in napari
+            (e.g. ``00FFFF``).
         active: Should this channel be shown in the viewer?
         coefficient: Do not change. Omero-channel attribute.
         inverted: Do not change. Omero-channel attribute.
