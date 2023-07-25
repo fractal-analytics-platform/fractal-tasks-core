@@ -69,7 +69,9 @@ def is_overlapping_2D(
     return overlap_x and overlap_y
 
 
-def is_overlapping_3D(box1, box2, tol: float = 1e-10) -> bool:
+def is_overlapping_3D(
+    box1: Sequence[float], box2: Sequence[float], tol: float = 1e-10
+) -> bool:
     """
     Given two three-dimensional boxes, finds whether they overlap
 
@@ -131,7 +133,7 @@ def get_overlapping_pairs_3D(
     Args:
         tmp_df: Dataframe with columns ``{x,y,z}_micrometer`` and
             ``len_{x,y,z}_micrometer``.
-        pixel_sizes: TBD
+        full_res_pxl_sizes_zyx: TBD
     """
 
     tol = 1e-10

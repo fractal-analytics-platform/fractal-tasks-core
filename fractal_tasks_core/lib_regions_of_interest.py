@@ -35,8 +35,9 @@ def prepare_FOV_ROI_table(
     """
     Description
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    Args:
+        df: TBD
+        metadata: TBD
     """
 
     # Make a local copy of the dataframe, to avoid SettingWithCopyWarning
@@ -99,7 +100,8 @@ def prepare_well_ROI_table(
     Description
 
     Args:
-        dummy: this is just a placeholder
+        df: TBD
+        metadata: TBD
     """
 
     # Make a local copy of the dataframe, to avoid SettingWithCopyWarning
@@ -170,7 +172,8 @@ def convert_ROIs_from_3D_to_2D(
     Description
 
     Args:
-        dummy: this is just a placeholder
+        adata: TBD
+        pixel_size_z: TBD
     """
 
     # Compress a 3D stack of images to a single Z plane,
@@ -216,7 +219,13 @@ def convert_ROI_table_to_indices(
     FIXME add docstring
 
     Args:
-        dummy: this is just a placeholder
+        ROI: TBD
+        full_res_pxl_sizes_zyx: TBD
+        level: TBD
+        coarsening_xy: TBD
+        cols_xyz_pos: TBD
+        cols_xyz_len: TBD
+        reset_origin: TBD
     """
     # Handle empty ROI table
     if len(ROI) == 0:
@@ -279,7 +288,9 @@ def array_to_bounding_box_table(
     Description
 
     Args:
-        dummy: this is just a placeholder
+        mask_array: TBD
+        pxl_sizes_zyx: TBD
+
     """
 
     labels = np.unique(mask_array)

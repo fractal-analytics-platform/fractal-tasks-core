@@ -64,7 +64,7 @@ def segment_ROI(
     x: np.ndarray,
     model: models.CellposeModel = None,
     do_3D: bool = True,
-    channels=[0, 0],
+    channels: list[int] = [0, 0],
     anisotropy: Optional[float] = None,
     diameter: float = 30.0,
     cellprob_threshold: float = 0.0,

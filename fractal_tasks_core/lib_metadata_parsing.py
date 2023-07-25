@@ -196,7 +196,7 @@ def read_mrf_file(mrf_path: str):
 
 def read_mlf_file(
     mlf_path: str,
-    filename_patterns=None,
+    filename_patterns: Optional[list[str]] = None,
 ) -> tuple[pd.DataFrame, int]:
     """
     TBD
@@ -280,7 +280,7 @@ def calculate_steps(site_series: pd.Series):
     return steps.mean()
 
 
-def get_z_steps(mlf_frame):
+def get_z_steps(mlf_frame: pd.DataFrame) -> pd.DataFrame:
     """
     TBD
 
@@ -338,7 +338,7 @@ def get_z_steps(mlf_frame):
     return z_frame
 
 
-def get_earliest_time_per_site(mlf_frame) -> pd.DataFrame:
+def get_earliest_time_per_site(mlf_frame: pd.DataFrame) -> pd.DataFrame:
     """
     TBD
 
@@ -355,7 +355,7 @@ def get_earliest_time_per_site(mlf_frame) -> pd.DataFrame:
     )
 
 
-def check_group_consistency(grouped_df, message: str = ""):
+def check_group_consistency(grouped_df: pd.DataFrame, message: str = ""):
     """
     TBD
 
