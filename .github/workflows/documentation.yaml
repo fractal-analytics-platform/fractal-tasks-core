@@ -11,13 +11,13 @@ jobs:
   docs:
     name: "Documentation"
     runs-on: ubuntu-latest
-    steps:
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
 
+    steps:
       - uses: actions/checkout@v3
 
       - name: Deploy docs
         uses: mhausenblas/mkdocs-deploy-gh-pages@master
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REQUIREMENTS: docs/doc-requirements.txt
