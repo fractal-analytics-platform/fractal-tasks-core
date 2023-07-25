@@ -42,4 +42,4 @@ jobs:
         run: poetry install --with docs --without dev --no-interaction
 
       - name: MKDocs build
-        run: poetry run mkdocs build --config-file mkdocs.yml # --strict
+        run: poetry run mkdocs build --config-file mkdocs.yml --strict
