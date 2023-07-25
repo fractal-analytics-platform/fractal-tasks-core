@@ -34,9 +34,9 @@ def is_overlapping_1D(
 
     Args:
         line1: The boundaries of the first interval, written as
-            ``[x_min, x_max]``.
+            `[x_min, x_max]`.
         line2: The boundaries of the second interval, written as
-            ``[x_min, x_max]``.
+            `[x_min, x_max]`.
         tol: Finite tolerance for floating-point comparisons.
     """
     return line1[0] <= line2[1] - tol and line2[0] <= line1[1] - tol
@@ -53,9 +53,9 @@ def is_overlapping_2D(
 
     Args:
         box1: The boundaries of the first rectangle, written as
-            ``[x_min, y_min, x_max, y_max]``.
+            `[x_min, y_min, x_max, y_max]`.
         box2: The boundaries of the second rectangle, written as
-            ``[x_min, y_min, x_max, y_max]``.
+            `[x_min, y_min, x_max, y_max]`.
         tol: Finite tolerance for floating-point comparisons.
     """
     overlap_x = is_overlapping_1D(
@@ -78,9 +78,9 @@ def is_overlapping_3D(
 
     Args:
         box1: The boundaries of the first box, written as
-            ``[x_min, y_min, z_min, x_max, y_max, z_max]``.
+            `[x_min, y_min, z_min, x_max, y_max, z_max]`.
         box2: The boundaries of the second box, written as
-            ``[x_min, y_min, z_min, x_max, y_max, z_max]``.
+            `[x_min, y_min, z_min, x_max, y_max, z_max]`.
         tol: Finite tolerance for floating-point comparisons.
     """
 
@@ -129,8 +129,8 @@ def get_overlapping_pairs_3D(
     Note: the returned indices are positional indices, starting from 0
 
     Args:
-        tmp_df: Dataframe with columns ``{x,y,z}_micrometer`` and
-            ``len_{x,y,z}_micrometer``.
+        tmp_df: Dataframe with columns `{x,y,z}_micrometer` and
+            `len_{x,y,z}_micrometer`.
         full_res_pxl_sizes_zyx: TBD
     """
 
@@ -178,6 +178,16 @@ def apply_shift_in_one_direction(
     mu: str,
     tol: float = 1e-10,
 ):
+    """
+    TBD
+
+    Args:
+        tmp_df_well: TBD
+        line_1: TBD
+        line_2: TBD
+        mu: TBD
+        tol: TBD
+    """
     min_1, max_1 = line_1[:]
     min_2, max_2 = line_2[:]
     min_max = min(max_1, max_2)
@@ -345,9 +355,9 @@ def _is_overlapping_1D_int(
 
     Args:
         line1: The boundaries of the first interval , written as
-            ``[x_min, x_max]``.
+            `[x_min, x_max]`.
         line2: The boundaries of the second interval , written as
-            ``[x_min, x_max]``.
+            `[x_min, x_max]`.
     """
     return line1[0] < line2[1] and line2[0] < line1[1]
 
@@ -362,9 +372,9 @@ def _is_overlapping_3D_int(box1: list[int], box2: list[int]) -> bool:
 
     Args:
         box1: The boundaries of the first box, written as
-            ``[x_min, y_min, z_min, x_max, y_max, z_max]``.
+            `[x_min, y_min, z_min, x_max, y_max, z_max]`.
         box2: The boundaries of the second box, written as
-            ``[x_min, y_min, z_min, x_max, y_max, z_max]``.
+            `[x_min, y_min, z_min, x_max, y_max, z_max]`.
     """
     overlap_x = _is_overlapping_1D_int([box1[0], box1[3]], [box2[0], box2[3]])
     overlap_y = _is_overlapping_1D_int([box1[1], box1[4]], [box2[1], box2[4]])
@@ -381,11 +391,11 @@ def find_overlaps_in_ROI_indices(
     Args:
         list_indices: List of ROI indices, where each element in the list
             should look like
-            ``[start_z, end_z, start_y, end_y, start_x, end_x]``.
+            `[start_z, end_z, start_y, end_y, start_x, end_x]`.
 
     Returns:
-        ``None`` if no overlap was detected, otherwise a tuple with the
-        positional indices of a pair of overlapping ROIs.
+        `None` if no overlap was detected, otherwise a tuple with the
+            positional indices of a pair of overlapping ROIs.
     """
 
     for ind_1, ROI_1 in enumerate(list_indices):
@@ -407,10 +417,16 @@ def check_well_for_FOV_overlap(
     tol: float = 1e-10,
 ):
     """
-    This function is currently only used in tests and examples.
+    This function is currently only used in tests and examples
 
-    The ``plotting_function`` parameter is exposed so that other tools (see
+    The `plotting_function` parameter is exposed so that other tools (see
     examples in this repository) may use it to show the FOV ROIs.
+
+    Args:
+        site_metadata: TBD
+        selected_well: TBD
+        plotting_function: TBD
+        tol: TBD
     """
 
     df = site_metadata.loc[selected_well].copy()
@@ -461,9 +477,14 @@ def run_overlap_check(
 
     This function is currently only used in tests and examples.
 
-    The ``plotting_function`` parameter is exposed so that other tools (see
+    The `plotting_function` parameter is exposed so that other tools (see
     examples in this repository) may use it to show the FOV ROIs. Its arguments
-    are: ``[xmin, xmax, ymin, ymax, list_overlapping_FOVs, selected_well]``.
+    are: `[xmin, xmax, ymin, ymax, list_overlapping_FOVs, selected_well]`.
+
+    Args:
+        site_metadata: TBD
+        tol: TBD
+        plotting_function: TBD
     """
 
     if plotting_function is None:
