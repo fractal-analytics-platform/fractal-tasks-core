@@ -1,4 +1,4 @@
-site_name: Fractal Analytics Platform
+site_name: Fractal Tasks Core
 
 repo_url: https://github.com/fractal-analytics-platform/fractal-tasks-core
 repo_name: fractal-tasks-core
@@ -31,20 +31,21 @@ theme:
   palette:
   - media: "(prefers-color-scheme: light)"
     scheme: default
-    primary: amber
+    primary: deep purple
     accent: light blue
     toggle:
       icon: material/weather-sunny
       name: Switch to dark mode
   - media: "(prefers-color-scheme: dark)"
     scheme: slate
-    primary: amber
+    primary: deep purple
     accent: light blue
     toggle:
       icon: material/weather-night
       name: Switch to light mode
   icon:
     repo: fontawesome/brands/github
+
 
 nav:
   - Home page: index.md
@@ -81,5 +82,7 @@ plugins:
             filters: []
   - include-markdown
 
+extra_css:
+  - extra.css
 
 copyright: © Copyright 2022, Friedrich Miescher Institute for Biomedical Research and University of Zurich.
