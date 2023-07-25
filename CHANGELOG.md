@@ -1,3 +1,4 @@
+**Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-server repository.
 
 * Update dependencies (\#455):
     * Relax `numpy` required version to `<2` (\#477);
