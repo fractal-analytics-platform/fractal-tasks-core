@@ -70,9 +70,8 @@ plugins:
       default_handler: python
       handlers:
         python:
-          selection:
-              docstring_style: "google"
           options:
+            docstring_style: "google"
             show_source: true
   - include-markdown
 
