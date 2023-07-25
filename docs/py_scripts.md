@@ -5,8 +5,6 @@ The `fractal-tasks-core` GitHub repository includes an [examples folder](https:/
 What follows is the content of [examples/README.md](https://github.com/fractal-analytics-platform/fractal-tasks-core/tree/main/examples/README.md):
 
 
-```markdown
---8<-----
-../examples/README.md
---8<-----
-```
+{%
+   include-markdown "../examples/README.md"
+%}
