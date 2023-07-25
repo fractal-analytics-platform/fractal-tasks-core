@@ -50,9 +50,10 @@ def correct(
 
     img_stack is a four-dimensional (czyx) numpy array, with dummy size along c
 
-    :param img_stack: TBD
-    :param corr_img: TBD
-    :param background: TBD
+    Args:
+        img_stack: TBD
+        corr_img: TBD
+        background: TBD
     """
 
     logger.info(f"Start correct, {img_stack.shape}")
