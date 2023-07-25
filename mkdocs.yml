@@ -1,0 +1,79 @@
+site_name: Fractal Analytics Platform
+
+repo_url: https://github.com/fractal-analytics-platform/fractal-tasks-core
+repo_name: fractal-tasks-core
+
+extra_css:
+  - css/mkdocstrings.css
+
+markdown_extensions:
+- admonition
+  #- callouts
+- pymdownx.details
+- pymdownx.emoji
+- pymdownx.magiclink
+- pymdownx.snippets:
+    check_paths: true
+    base_path:
+      - docs
+      - fractal_tasks_core/__FRACTAL_MANIFEST__.json
+      - examples/README.md
+- pymdownx.superfences
+- pymdownx.tabbed:
+    alternate_style: true
+- pymdownx.tasklist
+- toc:
+    permalink: true
+
+theme:
+  name: material
+  features:
+  - content.code.annotate
+  palette:
+  - media: '(prefers-color-scheme: light)'
+    scheme: default
+    primary: amber
+    accent: light blue
+    toggle:
+      icon: material/weather-sunny
+      name: Switch to dark mode
+  - media: '(prefers-color-scheme: dark)'
+    scheme: slate
+    primary: amber
+    accent: light blue
+    toggle:
+      icon: material/weather-night
+      name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
+
+nav:
+  - Home page: index.md
+  - How to install: how_to_install.md
+  - Changelog: changelog.md
+  - Task manifest: task_manifest.md
+  - How to write a custom task: custom_task.md
+  - How to run tasks from Python scripts: py_scripts.md
+  - fractal_tasks_core package: fractal_tasks_core/
+  - fractal_tasks_core.tasks package: fractal_tasks_core_tasks/
+  - fractal_tasks_core.dev package: fractal_tasks_core_dev/
+  - Contribute: contribute.md
+
+watch:
+  - fractal_tasks_core
+
+plugins:
+  - search
+  - autorefs
+  - gen-files:
+      scripts:
+        - docs/gen_ref_pages.py
+  - section-index
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_signature_annotations: false
+            docstring_section_style: "table"
+
+copyright: © Copyright 2022, Friedrich Miescher Institute for Biomedical Research and University of Zurich.
