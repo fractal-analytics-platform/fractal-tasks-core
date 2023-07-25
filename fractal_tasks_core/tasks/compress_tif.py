@@ -20,7 +20,7 @@ import os
 from PIL import Image
 
 
-def compress_tif(in_path, out_path, delete_input=False):
+def compress_tif(in_path: str, out_path: str, delete_input: bool = False):
 
     """
     Compress tiff files
