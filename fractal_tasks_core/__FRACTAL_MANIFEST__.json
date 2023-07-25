@@ -124,7 +124,7 @@
               "label": {
                 "title": "Label",
                 "type": "string",
-                "description": "Name of the channel"
+                "description": "Name of the channel."
               },
               "window": {
                 "$ref": "#/definitions/Window",
@@ -146,7 +146,7 @@
                 "title": "Coefficient",
                 "default": 1,
                 "type": "integer",
-                "description": "Do not change. Omero-channel attribute. "
+                "description": "Do not change. Omero-channel attribute."
               },
               "inverted": {
                 "title": "Inverted",
@@ -481,7 +481,7 @@
               "label": {
                 "title": "Label",
                 "type": "string",
-                "description": "Name of the channel"
+                "description": "Name of the channel."
               }
             }
           }
@@ -675,7 +675,7 @@
               "label": {
                 "title": "Label",
                 "type": "string",
-                "description": "Name of the channel"
+                "description": "Name of the channel."
               }
             }
           },
@@ -875,7 +875,7 @@
               "label": {
                 "title": "Label",
                 "type": "string",
-                "description": "Name of the channel"
+                "description": "Name of the channel."
               },
               "window": {
                 "$ref": "#/definitions/Window",
@@ -897,7 +897,7 @@
                 "title": "Coefficient",
                 "default": 1,
                 "type": "integer",
-                "description": "Do not change. Omero-channel attribute. "
+                "description": "Do not change. Omero-channel attribute."
               },
               "inverted": {
                 "title": "Inverted",

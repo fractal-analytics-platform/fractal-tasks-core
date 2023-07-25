@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 from typing import Optional
 
+from docstring_parser import parse as docparse
 from pydantic.decorator import ALT_V_ARGS
 from pydantic.decorator import ALT_V_KWARGS
 from pydantic.decorator import V_DUPLICATE_KWARGS
@@ -102,6 +103,35 @@ def _remove_pydantic_internals(old_schema: _Schema) -> _Schema:
     return new_schema
 
 
+def _remove_attributes_from_descriptions(old_schema: _Schema) -> _Schema:
+    """
+    From
+    ```
+    'Custom class for Omero-channel window, based on OME-NGFF v0.4.\n'
+    '\n'
+    'Attributes:\n'
+    'min: Do not change. It will be set to ``0`` by default.\n'
+    'max: Do not change. It will be set according to bit-depth of the images\n'
+    '    by default (e.g. 65535 for 16 bit images).\n'
+    'start: Lower-bound rescaling value for visualization.\n'
+    'end: Upper-bound rescaling value for visualization.'
+    ```
+    to
+    ```
+    'Custom class for Omero-channel window, based on OME-NGFF v0.4.\n'
+    ```
+    """
+    new_schema = old_schema.copy()
+    if "definitions" in new_schema:
+        for name, definition in new_schema["definitions"].items():
+            parsed_docstring = docparse(definition["description"])
+            new_schema["definitions"][name][
+                "description"
+            ] = parsed_docstring.short_description
+    logging.info("[_remove_attributes_from_descriptions] END")
+    return new_schema
+
+
 def create_schema_for_single_task(
     executable: str,
     package: str = "fractal_tasks_core",
@@ -124,6 +154,7 @@ def create_schema_for_single_task(
         module_relative_path=executable,
         function_name=function_name,
     )
+
     logging.info(f"[create_schema_for_single_task] {task_function=}")
 
     # Validate function signature against some custom constraints
@@ -134,6 +165,7 @@ def create_schema_for_single_task(
     schema = vf.model.schema()
     schema = _remove_args_kwargs_properties(schema)
     schema = _remove_pydantic_internals(schema)
+    schema = _remove_attributes_from_descriptions(schema)
 
     # Include titles for custom-model-typed arguments
     schema = _include_titles(schema)
