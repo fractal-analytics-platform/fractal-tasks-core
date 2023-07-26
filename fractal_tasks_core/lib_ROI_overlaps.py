@@ -27,7 +27,7 @@ def is_overlapping_1D(
     line1: Sequence[float], line2: Sequence[float], tol: float = 1e-10
 ) -> bool:
     """
-    Given two intervals, finds whether they overlap
+    Given two intervals, finds whether they overlap.
 
     This is based on https://stackoverflow.com/a/70023212/19085332, and we
     additionally use a finite tolerance for floating-point comparisons.
@@ -46,7 +46,7 @@ def is_overlapping_2D(
     box1: Sequence[float], box2: Sequence[float], tol: float = 1e-10
 ) -> bool:
     """
-    Given two rectangular boxes, finds whether they overlap
+    Given two rectangular boxes, finds whether they overlap.
 
     This is based on https://stackoverflow.com/a/70023212/19085332, and we
     additionally use a finite tolerance for floating-point comparisons.
@@ -71,7 +71,7 @@ def is_overlapping_3D(
     box1: Sequence[float], box2: Sequence[float], tol: float = 1e-10
 ) -> bool:
     """
-    Given two three-dimensional boxes, finds whether they overlap
+    Given two three-dimensional boxes, finds whether they overlap.
 
     This is based on https://stackoverflow.com/a/70023212/19085332, and we
     additionally use a finite tolerance for floating-point comparisons.
@@ -100,9 +100,9 @@ def get_overlapping_pair(
     tmp_df: pd.DataFrame, tol: float = 1e-10
 ) -> Union[tuple[int, int], bool]:
     """
-    Finds the indices for the next overlapping FOVs pair
+    Finds the indices for the next overlapping FOVs pair.
 
-    Note: the returned indices are positional indices, starting from 0
+    Note: the returned indices are positional indices, starting from 0.
 
     Args:
         tmp_df: Dataframe with columns `["xmin", "ymin", "xmax", "ymax"]`.
@@ -124,9 +124,9 @@ def get_overlapping_pairs_3D(
     full_res_pxl_sizes_zyx: Sequence[float],
 ):
     """
-    Finds the indices for the all overlapping FOVs pair, in three dimensions
+    Finds the indices for the all overlapping FOVs pair, in three dimensions.
 
-    Note: the returned indices are positional indices, starting from 0
+    Note: the returned indices are positional indices, starting from 0.
 
     Args:
         tmp_df: Dataframe with columns `{x,y,z}_micrometer` and
@@ -208,10 +208,10 @@ def apply_shift_in_one_direction(
 
 def remove_FOV_overlaps(df: pd.DataFrame):
     """
-    Given a metadata dataframe, shift its columns to remove FOV overlaps
+    Given a metadata dataframe, shift its columns to remove FOV overlaps.
 
     Args:
-        df: Metadata dataframe
+        df: Metadata dataframe.
     """
 
     # Set tolerance (this should be much smaller than pixel size or expected
@@ -364,7 +364,7 @@ def _is_overlapping_1D_int(
 
 def _is_overlapping_3D_int(box1: list[int], box2: list[int]) -> bool:
     """
-    Given two three-dimensional integer boxes, find whether they overlap
+    Given two three-dimensional integer boxes, find whether they overlap.
 
     This is the same as is_overlapping_3D (based on
     https://stackoverflow.com/a/70023212/19085332), for integer-valued
@@ -386,7 +386,7 @@ def find_overlaps_in_ROI_indices(
     list_indices: list[list[int]],
 ) -> Optional[tuple[int, int]]:
     """
-    Given a list of integer ROI indices, find whether there are overlaps
+    Given a list of integer ROI indices, find whether there are overlaps.
 
     Args:
         list_indices: List of ROI indices, where each element in the list
@@ -417,7 +417,7 @@ def check_well_for_FOV_overlap(
     tol: float = 1e-10,
 ):
     """
-    This function is currently only used in tests and examples
+    This function is currently only used in tests and examples.
 
     The `plotting_function` parameter is exposed so that other tools (see
     examples in this repository) may use it to show the FOV ROIs.
@@ -473,7 +473,7 @@ def run_overlap_check(
     plotting_function: Optional[Callable] = None,
 ):
     """
-    Run an overlap check over all wells and optionally plots overlaps
+    Run an overlap check over all wells and optionally plots overlaps.
 
     This function is currently only used in tests and examples.
 
