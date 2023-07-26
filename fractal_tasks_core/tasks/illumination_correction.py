@@ -10,7 +10,7 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Apply illumination correction to all fields of view
+Apply illumination correction to all fields of view.
 """
 import logging
 import time

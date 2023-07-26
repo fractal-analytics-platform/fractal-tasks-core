@@ -10,7 +10,7 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Task to compress tiff images (currently obsolete)
+Task to compress tiff images (currently obsolete).
 """
 import glob
 import os
@@ -21,12 +21,12 @@ from PIL import Image
 def compress_tif(in_path: str, out_path: str, delete_input: bool = False):
 
     """
-    Compress tiff files
+    Compress tiff files.
 
     Args:
-        in_path: directory containing the input files
-        out_path: directory containing the output files
-        delete_input: delete input files
+        in_path: directory containing the input files.
+        out_path: directory containing the output files.
+        delete_input: delete input files.
     """
 
     # Sanitize input/output paths

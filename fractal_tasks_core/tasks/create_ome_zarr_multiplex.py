@@ -9,7 +9,7 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Create OME-NGFF zarr group, for multiplexing dataset
+Create OME-NGFF zarr group, for multiplexing dataset.
 """
 import os
 from pathlib import Path
@@ -56,13 +56,13 @@ def create_ome_zarr_multiplex(
     metadata_table_files: Optional[dict[str, str]] = None,
 ) -> dict[str, Any]:
     """
-    Create OME-NGFF structure and metadata to host a multiplexing dataset
+    Create OME-NGFF structure and metadata to host a multiplexing dataset.
 
     This task takes a set of image folders (i.e. different acquisition cycles)
     and build the internal structure and metadata of a OME-NGFF zarr group,
     without actually loading/writing the image data.
 
-    Each element in input_paths should be treated as a different acquisition
+    Each element in input_paths should be treated as a different acquisition.
 
     Args:
         input_paths: List of input paths where the image data from the
@@ -70,42 +70,43 @@ def create_ome_zarr_multiplex(
             treated as another cycle of the multiplexing data, the cycles are
             ordered by their order in this list.  Should point to the parent
             folder containing the images and the metadata files
-            ``MeasurementData.mlf`` and ``MeasurementDetail.mrf`` (if present).
-            Example: ``["/path/cycle1/", "/path/cycle2/"]`` (standard argument
-            for Fractal tasks, managed by Fractal server)
+            `MeasurementData.mlf` and `MeasurementDetail.mrf` (if present).
+            Example: `["/path/cycle1/", "/path/cycle2/"]` (standard argument
+            for Fractal tasks, managed by Fractal server).
         output_path: Path were the output of this task is stored.
             Example: "/some/path/" => puts the new OME-Zarr file in the
             "/some/path/" (standard argument for Fractal tasks, managed by
-            Fractal server)
+            Fractal server).
         metadata: This parameter is not used by this task
-            (standard argument for Fractal tasks, managed by Fractal server)
-        allowed_channels: A dictionary of lists of ``OmeroChannel``s, where
-            each channel must include the ``wavelength_id`` attribute and where
-            the ``wavelength_id`` values must be unique across each list.
-            Dictionary keys represent channel indices (``"0","1",..``).
+            (standard argument for Fractal tasks, managed by Fractal server).
+        allowed_channels: A dictionary of lists of `OmeroChannel`s, where
+            each channel must include the `wavelength_id` attribute and where
+            the `wavelength_id` values must be unique across each list.
+            Dictionary keys represent channel indices (`"0","1",..`).
         image_glob_patterns: If specified, only parse images with filenames
             that match with all these patterns. Patterns must be defined as in
             https://docs.python.org/3/library/fnmatch.html, Example:
-            ``image_glob_pattern=["*_B03_*"]`` => only process well B03
-            ``image_glob_pattern=["*_C09_*", "*F016*", "*Z[0-5][0-9]C*"]`` =>
+            `image_glob_pattern=["*_B03_*"]` => only process well B03
+            `image_glob_pattern=["*_C09_*", "*F016*", "*Z[0-5][0-9]C*"]` =>
             only process well C09, field of view 16 and Z planes 0 - 59.
         num_levels: Number of resolution-pyramid levels. If set to 5, there
-            will be the full-resolution level and 4 levels of
-            downsampled images.
+            will be the full-resolution level and 4 levels of downsampled
+            images.
         coarsening_xy: Linear coarsening factor between subsequent levels.
-            If set to 2, level 1 is 2x downsampled, level 2 is
-            4x downsampled etc.
-        image_extension: Filename extension of images (e.g. `"tif"` or `"png"`)
-        metadata_table_files: If ``None``, parse Yokogawa metadata from mrf/mlf
+            If set to 2, level 1 is 2x downsampled, level 2 is 4x downsampled
+            etc.
+        image_extension: Filename extension of images
+            (e.g. `"tif"` or `"png"`).
+        metadata_table_files: If `None`, parse Yokogawa metadata from mrf/mlf
             files in the input_path folder; else, a dictionary of key-value
-            pairs like ``(acquisition, path)`` with ``acquisition`` a string
-            and ``path`` pointing to a csv file containing the parsed metadata
+            pairs like `(acquisition, path)` with `acquisition` a string
+            and `path` pointing to a csv file containing the parsed metadata
             table.
 
     Returns:
         A metadata dictionary containing important metadata about the OME-Zarr
-        plate, the images and some parameters required by downstream tasks
-        (like `num_levels`).
+            plate, the images and some parameters required by downstream tasks
+            (like `num_levels`).
     """
 
     if metadata_table_files:

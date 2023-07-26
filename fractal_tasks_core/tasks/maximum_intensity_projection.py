@@ -10,7 +10,7 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Task for 3D->2D maximum-intensity projection
+Task for 3D->2D maximum-intensity projection.
 """
 import logging
 from pathlib import Path
@@ -46,15 +46,15 @@ def maximum_intensity_projection(
     Args:
         input_paths: This parameter is not used by this task
             This task only supports a single input path.
-            (standard argument for Fractal tasks, managed by Fractal server)
+            (standard argument for Fractal tasks, managed by Fractal server).
         output_path: Path were the output of this task is stored.
             Example: "/some/path/" => puts the new OME-Zarr file in that folder
-            (standard argument for Fractal tasks, managed by Fractal server)
+            (standard argument for Fractal tasks, managed by Fractal server).
         component: Path to the OME-Zarr image in the OME-Zarr plate that
             is processed. Component is typically changed by the copy_ome_zarr
             task before to point to a new mip Zarr file. Example:
             "some_plate_mip.zarr/B/03/0" (standard argument for Fractal tasks,
-            managed by Fractal server)
+            managed by Fractal server).
         metadata: dictionary containing metadata about the OME-Zarr.
             This task requires the following elements to be present in the
             metadata: "num_levels": int, number of pyramid levels in the image.
@@ -65,7 +65,7 @@ def maximum_intensity_projection(
             plate. ["MyPlate.zarr/B/03", "MyPlate.zarr/B/05"] "image": List of
             images in the OME-Zarr plate. Example: ["MyPlate.zarr/B/03/0",
             "MyPlate.zarr/B/05/0"] (standard argument for Fractal tasks,
-            managed by Fractal server)
+            managed by Fractal server).
     """
 
     # Preliminary checks

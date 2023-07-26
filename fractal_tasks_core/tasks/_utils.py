@@ -9,7 +9,7 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Standard input/output interface for tasks
+Standard input/output interface for tasks.
 """
 import json
 import logging
@@ -22,12 +22,12 @@ from typing import Optional
 
 class TaskParameterEncoder(JSONEncoder):
     """
-    Custom JSONEncoder that transforms Path objects to strings
+    Custom JSONEncoder that transforms Path objects to strings.
     """
 
     def default(self, value):
         """
-        Subclass implementation of ``default``, to serialize Path objects as
+        Subclass implementation of `default`, to serialize Path objects as
         strings.
         """
         if isinstance(value, Path):
@@ -41,11 +41,11 @@ def run_fractal_task(
     logger_name: Optional[str] = None,
 ):
     """
-    Implement standard task interface and call task_function
+    Implement standard task interface and call task_function.
 
     Args:
-        task_function: the callable function that runs the task
-    :logger_name: TBD
+        task_function: the callable function that runs the task.
+        logger_name: TBD
     """
 
     # Parse `-j` and `--metadata-out` arguments
