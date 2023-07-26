@@ -19,7 +19,8 @@ from pydantic import validator
 
 
 class Channel(BaseModel):
-    """A channel which is specified by either `wavelength_id` or `label`.
+    """
+    A channel which is specified by either `wavelength_id` or `label`.
 
     Attributes:
         wavelength_id: Unique ID for the channel wavelength, e.g. `A01_C01`.
@@ -49,7 +50,8 @@ class Channel(BaseModel):
 
 
 class NapariWorkflowsInput(BaseModel):
-    """A value of the `input_specs` argument in `napari_workflows_wrapper`.
+    """
+    A value of the `input_specs` argument in `napari_workflows_wrapper`.
 
     Attributes:
         type: Input type (either `image` or `label`).
@@ -85,7 +87,8 @@ class NapariWorkflowsInput(BaseModel):
 
 
 class NapariWorkflowsOutput(BaseModel):
-    """A value of the `output_specs` argument in `napari_workflows_wrapper`.
+    """
+    A value of the `output_specs` argument in `napari_workflows_wrapper`.
 
     Attributes:
         type: Output type (either `label` or `dataframe`).
