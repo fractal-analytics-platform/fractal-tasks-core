@@ -848,13 +848,13 @@ files = [
 
 [[package]]
 name = "devtools"
-version = "0.8.0"
-description = "Python's missing debug print command and other development tools."
+version = "0.9.0"
+description = "Python's missing debug print command, and more."
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 files = [
-    {file = "devtools-0.8.0-py3-none-any.whl", hash = "sha256:00717ef184223cf36c65bbd17c6eb412f8a7564f47957f9e8b2b7610661b17fb"},
-    {file = "devtools-0.8.0.tar.gz", hash = "sha256:6162a2f61c70242479dff3163e7837e6a9bf32451661af1347bfa3115602af16"},
+    {file = "devtools-0.9.0-py3-none-any.whl", hash = "sha256:689cf4e7c75024237c42093ba19f4fa9cf15980269f02463aeab4d97d4b0a215"},
+    {file = "devtools-0.9.0.tar.gz", hash = "sha256:86ede6e0273e023db766344d14098228785b48a80f31716f28e8b9453d52fa1e"},
 ]
 
 [package.dependencies]
@@ -862,7 +862,7 @@ asttokens = ">=2.0.0,<3.0.0"
 executing = ">=0.8.0,<1.0.0"
 
 [package.extras]
-pygments = ["Pygments (>=2.2.0)"]
+pygments = ["pygments (>=2.2.0)"]
 
 [[package]]
 name = "distlib"
@@ -5679,4 +5679,4 @@ fractal-tasks = ["Pillow", "cellpose", "imageio-ffmpeg", "napari-segment-blobs-a
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "59fab6c0821676b35574420f166ef53fb531b7106bf0d8fa1b86181595f77b30"
+content-hash = "7b59d6223fed111e9f428a1a0fc478799fa6350dfb3b9b8801a783725bf87a54"
