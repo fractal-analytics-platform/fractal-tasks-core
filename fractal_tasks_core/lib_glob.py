@@ -10,7 +10,7 @@
 # Zurich.
 """
 Auxiliary functions related to globbing (i.e. listing some items from a
-directory)
+directory).
 """
 import logging
 from glob import glob
@@ -24,7 +24,7 @@ def glob_with_multiple_patterns(
 ) -> set[str]:
     """
     List all the items (files and folders) in a given folder that
-    simultaneously match a series of glob patterns
+    simultaneously match a series of glob patterns.
 
     Args:
         folder: Base folder where items will be searched.

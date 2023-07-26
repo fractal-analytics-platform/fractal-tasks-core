@@ -10,7 +10,7 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Construct and write pyramid of lower-resolution levels
+Construct and write pyramid of lower-resolution levels.
 """
 import pathlib
 from typing import Callable
@@ -38,15 +38,15 @@ def build_pyramid(
     This function works for 2D, 3D or 4D arrays.
 
     Example input:
-        zarrurl = "some/path/plate.zarr/B/03/0
+        zarrurl = "some/path/plate.zarr/B/03/0"
 
     Args:
-        zarrurl: path of the zarr group, which must already include level 0
-        overwrite: whether to overwrite existing pyramid levels
-        num_levels: total number of pyramid levels (including 0)
-        coarsening_xy: linear coarsening factor between subsequent levels
-        chunksize: shape of a single chunk
-        aggregation_function: function to be used when downsampling
+        zarrurl: path of the zarr group, which must already include level 0.
+        overwrite: whether to overwrite existing pyramid levels.
+        num_levels: total number of pyramid levels (including 0).
+        coarsening_xy: linear coarsening factor between subsequent levels.
+        chunksize: shape of a single chunk.
+        aggregation_function: function to be used when downsampling.
     """
 
     # Clean up zarrurl

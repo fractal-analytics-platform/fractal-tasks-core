@@ -9,7 +9,7 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Helper functions to address channels via OME-NGFF/OMERO metadata
+Helper functions to address channels via OME-NGFF/OMERO metadata.
 """
 import logging
 from typing import Optional

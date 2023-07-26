@@ -9,7 +9,7 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Functions to use masked loading of ROIs before/after processing
+Functions to use masked loading of ROIs before/after processing.
 """
 import logging
 from pathlib import Path
@@ -36,16 +36,16 @@ def _preprocess_input(
     ROI_positional_index: int,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Preprocess a four-dimensional cellpose input
+    Preprocess a four-dimensional cellpose input.
 
     This involves :
 
     - Loading the masking label array for the appropriate ROI;
-    - Extracting the appropriate label value from the ``ROI_table.obs``
+    - Extracting the appropriate label value from the `ROI_table.obs`
       dataframe;
     - Constructing the background mask, where the masking label matches with a
       specific label value;
-    - Setting the background of ``image_array`` to ``0``;
+    - Setting the background of `image_array` to `0`;
     - Loading the array which will be needed in postprocessing to restore
       background.
 
@@ -61,26 +61,25 @@ def _preprocess_input(
     Naming of variables refers to a two-steps labeling, as in "first identify
     organoids, then look for nuclei inside each organoid") :
 
-    - ``"masking"`` refers to the labels that are used to identify the object
+    - `"masking"` refers to the labels that are used to identify the object
       vs background (e.g. the organoid labels); these labels already exist.
-    - ``"current"`` refers to the labels that are currently being computed in
-      the ``cellpose_segmentation`` task, e.g. the nuclear labels.
+    - `"current"` refers to the labels that are currently being computed in
+      the `cellpose_segmentation` task, e.g. the nuclear labels.
 
-    :param image_array: The 4D CZYX array with image data for a specific ROI.
-    :param region: The ZYX indices of the ROI, in a form like ``(slice(0, 1),
-                   slice(1000, 2000), slice(1000, 2000))``.
-    :param current_label_path: Path to the image used as current
-                               label, in a form like
-                               ``/somewhere/plate.zarr/A/01/0/labels/nuclei_in_organoids/0``.
-    :param ROI_table_path: Path of the AnnData table for the masking-label
-                           ROIs; this is used (together with
-                           ``ROI_positional_index``) to extract
-                           ``label_value``.
-    :param ROI_positional_index: Index of the current ROI, which is used to
-                                 extract ``label_value`` from
-                                 ``ROI_table_obs``.
-    :returns: A tuple with three arrays: the preprocessed image array, the
-              background mask, the current label.
+    Args:
+        image_array: The 4D CZYX array with image data for a specific ROI.
+        region: The ZYX indices of the ROI, in a form like
+            `(slice(0, 1), slice(1000, 2000), slice(1000, 2000))`.
+        current_label_path: Path to the image used as current label, in a form
+        like `/somewhere/plate.zarr/A/01/0/labels/nuclei_in_organoids/0`.
+        ROI_table_path: Path of the AnnData table for the masking-label ROIs;
+            this is used (together with `ROI_positional_index`) to extract
+            `label_value`.
+        ROI_positional_index: Index of the current ROI, which is used to
+            extract `label_value` from `ROI_table_obs`.
+    Returns:
+        A tuple with three arrays: the preprocessed image array, the background
+            mask, the current label.
     """
 
     logger.info(f"[_preprocess_input] {image_array.shape=}")
@@ -183,7 +182,7 @@ def _postprocess_output(
     background: np.ndarray,
 ) -> np.ndarray:
     """
-    Postprocess cellpose output, mainly to restore its original background
+    Postprocess cellpose output, mainly to restore its original background.
 
     **NOTE**: The pre/post-processing functions and the
     masked_loading_wrapper are currently meant to work as part of the
@@ -220,12 +219,12 @@ def masked_loading_wrapper(
     Args:
         function: The callable function to be wrapped.
         image_array: The image array to be preprocessed and then used as
-            positional argument for ``function``.
-        kwargs: Keyword arguments for ``function``.
-        use_masks: If ``False``, the wrapper only calls ``function(*args,
-            **kwargs)``.
+            positional argument for `function`.
+        kwargs: Keyword arguments for `function`.
+        use_masks: If `False`, the wrapper only calls
+            `function(*args, **kwargs)`.
         preprocessing_kwargs: Keyword arguments for the preprocessing function
-            (see call signature of ``_preprocess_input()``).
+            (see call signature of `_preprocess_input()`).
     """
     # Optional preprocessing
     if use_masks:

@@ -10,7 +10,7 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Functions to create a metadata dataframe from Yokogawa files
+Functions to create a metadata dataframe from Yokogawa files.
 """
 import fnmatch
 import logging
@@ -32,14 +32,15 @@ def parse_yokogawa_metadata(
     filename_patterns: Optional[list[str]] = None,
 ) -> tuple[pd.DataFrame, dict[str, int]]:
     """
-    Parse Yokogawa CV7000 metadata files and prepare site-level metadata
+    Parse Yokogawa CV7000 metadata files and prepare site-level metadata.
 
-    :param mrf_path: Full path to MeasurementDetail.mrf metadata file
-    :param mlf_path: Full path to MeasurementData.mlf metadata file
-    :param filename_patterns: List of patterns to filter the image filenames in
-                              the mlf metadata table. Patterns must be defined
-                              as in
-                              https://docs.python.org/3/library/fnmatch.html
+    Args:
+        mrf_path: Full path to MeasurementDetail.mrf metadata file.
+        mlf_path: Full path to MeasurementData.mlf metadata file.
+        filename_patterns:
+            List of patterns to filter the image filenames in the mlf metadata
+            table. Patterns must be defined as in
+            https://docs.python.org/3/library/fnmatch.html
     """
 
     # Convert paths to strings
@@ -125,11 +126,11 @@ def read_metadata_files(
     TBD
 
     Args:
-        mrf_path: Full path to MeasurementDetail.mrf metadata file
-        mlf_path: Full path to MeasurementData.mlf metadata file
+        mrf_path: Full path to MeasurementDetail.mrf metadata file.
+        mlf_path: Full path to MeasurementData.mlf metadata file.
         filename_patterns: List of patterns to filter the image filenames in
             the mlf metadata table. Patterns must be defined as in
-            https://docs.python.org/3/library/fnmatch.html
+            https://docs.python.org/3/library/fnmatch.html.
     """
 
     # parsing of mrf & mlf files are based on the
@@ -154,7 +155,7 @@ def read_mrf_file(mrf_path: str):
     TBD
 
     Args:
-        mrf_path: Full path to MeasurementDetail.mrf metadata file
+        mrf_path: Full path to MeasurementDetail.mrf metadata file.
     """
 
     # Prepare mrf dataframe
@@ -200,10 +201,10 @@ def read_mlf_file(
     TBD
 
     Args:
-        mlf_path: Full path to MeasurementData.mlf metadata file
+        mlf_path: Full path to MeasurementData.mlf metadata file.
         filename_patterns: List of patterns to filter the image filenames in
             the mlf metadata table. Patterns must be defined as in
-            https://docs.python.org/3/library/fnmatch.html
+            https://docs.python.org/3/library/fnmatch.html.
     """
 
     # Load the whole MeasurementData.mlf file

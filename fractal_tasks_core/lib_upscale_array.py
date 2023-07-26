@@ -9,7 +9,7 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Function to increase the shape of an array by replicating it
+Function to increase the shape of an array by replicating it.
 """
 import logging
 import warnings
@@ -29,20 +29,20 @@ def upscale_array(
 ) -> np.ndarray:
     """
     Upscale an array along a given list of axis (through repeated application
-    of ``np.repeat``), to match a target shape.
+    of `np.repeat`), to match a target shape.
 
     Args:
-        array: The array to be upscaled
-        target_shape: The shape of the rescaled array
-        axis: The axis along which to upscale the array (if ``None``, then \
-            all axis are used)
-        pad_with_zeros: If ``True``, pad the upscaled array with zeros to match
-            ``target_shape``.
-        warn_if_inhomogeneous: If ``True``, raise a warning when the conversion
+        array: The array to be upscaled.
+        target_shape: The shape of the rescaled array.
+        axis: The axis along which to upscale the array (if `None`, then all
+            axis are used).
+        pad_with_zeros: If `True`, pad the upscaled array with zeros to match
+            `target_shape`.
+        warn_if_inhomogeneous: If `True`, raise a warning when the conversion
             factors are not identical across all dimensions.
 
     Returns:
-        The upscaled array, with shape ``target_shape``.
+        The upscaled array, with shape `target_shape`.
     """
 
     # Default behavior: use all axis
@@ -138,11 +138,11 @@ def convert_region_to_low_res(
 ) -> tuple[slice, ...]:
     """
     Convert a region defined for a high-resolution array to the corresponding
-    region for a low-resolution array
+    region for a low-resolution array.
 
     Args:
         highres_region: A region of the high-resolution array, defined in a
-            form like ``(slice(0, 2), slice(1000, 2000), slice(1000, 2000))``.
+            form like `(slice(0, 2), slice(1000, 2000), slice(1000, 2000))`.
         highres_shape: The shape of the high-resolution array.
         lowres_shape: The shape of the low-resolution array.
 

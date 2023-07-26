@@ -10,7 +10,7 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Extract metadata from image filename
+Extract metadata from image filename.
 """
 import re
 from pathlib import Path
@@ -23,10 +23,10 @@ def _get_plate_name(plate_prefix: str) -> str:
 
     1) Filenames from FMI, with successful barcode reading:
        210305NAR005AAN_210416_164828
-       with plate name 210305NAR005AAN
+       with plate name 210305NAR005AAN;
     2) Filenames from FMI, with failed barcode reading:
        yymmdd_hhmmss_210416_164828
-       with plate name RS{yymmddhhmmss}
+       with plate name RS{yymmddhhmmss}.
 
     For all non-matching filenames, plate name is plate_prefix.
 
@@ -69,13 +69,13 @@ def _get_plate_name(plate_prefix: str) -> str:
 
 def parse_filename(filename: str) -> Dict[str, str]:
     """
-    Parse image metadata from filename
+    Parse image metadata from filename.
 
     Args:
-        filename: name of the image
+        filename: name of the image.
 
     Returns:
-        metadata dictionary
+        metadata dictionary.
     """
 
     # Remove extension and folder from filename

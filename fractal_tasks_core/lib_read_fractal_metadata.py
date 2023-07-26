@@ -9,7 +9,7 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Helper functions to extract parameters from metadata dictionary
+Helper functions to extract parameters from metadata dictionary.
 """
 from pathlib import Path
 from typing import Any
@@ -22,23 +22,23 @@ import zarr
 
 def find_omengff_acquisition(image_zarr_path: Path) -> Union[int, None]:
     """
-    Discover the acquisition index based on OME-NGFF metadata
+    Discover the acquisition index based on OME-NGFF metadata.
 
-    Given the path to a zarr image folder (e.g. ``/path/plate.zarr/B/03/0``),
-    extract the acquisition index from the ``.zattrs`` file of the parent
-    folder (i.e. at the well level), or return ``None`` if acquisition is not
+    Given the path to a zarr image folder (e.g. `/path/plate.zarr/B/03/0`),
+    extract the acquisition index from the `.zattrs` file of the parent
+    folder (i.e. at the well level), or return `None` if acquisition is not
     specified.
 
     Notes:
 
     1. For non-multiplexing datasets, acquisition is not a required
        information in the metadata. If it is not there, this function
-       returns ``None``.
+       returns `None`.
     2. This function fails if we use an image that does not belong to
        an OME-NGFF well.
 
     Args:
-        image_zarr_path: full path to an OME-NGFF image folder
+        image_zarr_path: full path to an OME-NGFF image folder.
     """
 
     # Identify well path and attrs
@@ -76,15 +76,16 @@ def get_parameters_from_metadata(
     This covers both parameters which are acquisition-specific (if the image
     belongs to an OME-NGFF array and its acquisition is specified) or simply
     available in the dictionary.
-    The two cases are handled as::
-
-        metadata[acquisition]["some_parameter"]  # acquisition available
-        metadata["some_parameter"]               # acquisition not available
+    The two cases are handled as:
+    ```
+    metadata[acquisition]["some_parameter"]  # acquisition available
+    metadata["some_parameter"]               # acquisition not available
+    ```
 
     Args:
-        keys: list of required parameters
-        metadata: metadata dictionary
-        image_zarr_path: full path to image, e.g. ``/path/plate.zarr/B/03/0``
+        keys: list of required parameters.
+        metadata: metadata dictionary.
+        image_zarr_path: full path to image, e.g. `/path/plate.zarr/B/03/0`.
     """
 
     parameters = {}

@@ -9,7 +9,7 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Pydantic models for some task parameters
+Pydantic models for some task parameters.
 """
 from typing import Literal
 from typing import Optional
@@ -19,10 +19,10 @@ from pydantic import validator
 
 
 class Channel(BaseModel):
-    """A channel which is specified by either ``wavelength_id`` or ``label``.
+    """A channel which is specified by either `wavelength_id` or `label`.
 
     Attributes:
-        wavelength_id: Unique ID for the channel wavelength, e.g. ``A01_C01``.
+        wavelength_id: Unique ID for the channel wavelength, e.g. `A01_C01`.
         label: Name of the channel.
     """
 
@@ -32,7 +32,7 @@ class Channel(BaseModel):
     @validator("label", always=True)
     def mutually_exclusive_channel_attributes(cls, v, values):
         """
-        Check that either ``label`` or ``wavelength_id`` is set.
+        Check that either `label` or `wavelength_id` is set.
         """
         wavelength_id = values.get("wavelength_id")
         label = v
@@ -49,10 +49,10 @@ class Channel(BaseModel):
 
 
 class NapariWorkflowsInput(BaseModel):
-    """A value of the ``input_specs`` argument in ``napari_workflows_wrapper``.
+    """A value of the `input_specs` argument in `napari_workflows_wrapper`.
 
     Attributes:
-        type: Input type (either ``image`` or ``label``).
+        type: Input type (either `image` or `label`).
         label_name: Label name (for label inputs only).
         channel: Channel object (for image inputs only).
     """
@@ -64,7 +64,7 @@ class NapariWorkflowsInput(BaseModel):
     @validator("label_name", always=True)
     def label_name_is_present(cls, v, values):
         """
-        Check that label inputs have ``label_name`` set.
+        Check that label inputs have `label_name` set.
         """
         _type = values.get("type")
         if _type == "label" and not v:
@@ -76,7 +76,7 @@ class NapariWorkflowsInput(BaseModel):
     @validator("channel", always=True)
     def channel_is_present(cls, v, values):
         """
-        Check that image inputs have ``channel`` set.
+        Check that image inputs have `channel` set.
         """
         _type = values.get("type")
         if _type == "image" and not v:
@@ -85,10 +85,10 @@ class NapariWorkflowsInput(BaseModel):
 
 
 class NapariWorkflowsOutput(BaseModel):
-    """A value of the ``output_specs`` argument in ``napari_workflows_wrapper``.
+    """A value of the `output_specs` argument in `napari_workflows_wrapper`.
 
     Attributes:
-        type: Output type (either ``label`` or ``dataframe``).
+        type: Output type (either `label` or `dataframe`).
         label_name: Label name (for label outputs only).
         table_name: Table name (for dataframe outputs only).
     """
