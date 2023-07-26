@@ -33,7 +33,7 @@ class Window(BaseModel):
     Custom class for Omero-channel window, based on OME-NGFF v0.4.
 
     Attributes:
-        min: Do not change. It will be set to ``0`` by default.
+        min: Do not change. It will be set to `0` by default.
         max:
             Do not change. It will be set according to bit-depth of the images
             by default (e.g. 65535 for 16 bit images).
@@ -52,13 +52,13 @@ class OmeroChannel(BaseModel):
     Custom class for Omero channels, based on OME-NGFF v0.4.
 
     Attributes:
-        wavelength_id: Unique ID for the channel wavelength, e.g. ``A01_C01``.
+        wavelength_id: Unique ID for the channel wavelength, e.g. `A01_C01`.
         index: Do not change. For internal use only.
         label: Name of the channel.
-        window: Optional ``Window`` object to set default display settings for
+        window: Optional `Window` object to set default display settings for
             napari.
         color: Optional hex colormap to display the channel in napari
-            (e.g. ``00FFFF``).
+            (e.g. `00FFFF`).
         active: Should this channel be shown in the viewer?
         coefficient: Do not change. Omero-channel attribute.
         inverted: Do not change. Omero-channel attribute.
@@ -80,7 +80,7 @@ class OmeroChannel(BaseModel):
 
 
 class ChannelNotFoundError(ValueError):
-    """Custom error for when ``get_channel_from_list`` fails,
+    """Custom error for when `get_channel_from_list` fails,
     that can be captured and handled upstream if needed.
     """
 
@@ -89,7 +89,10 @@ class ChannelNotFoundError(ValueError):
 
 def check_unique_wavelength_ids(channels: list[OmeroChannel]):
     """
-    Check that the `wavelength_id` attributes of a channel list are unique
+    Check that the `wavelength_id` attributes of a channel list are unique.
+
+    Args:
+        channels: TBD
     """
     wavelength_ids = [c.wavelength_id for c in channels]
     if len(set(wavelength_ids)) < len(wavelength_ids):
@@ -100,13 +103,13 @@ def check_unique_wavelength_ids(channels: list[OmeroChannel]):
 
 def check_well_channel_labels(*, well_zarr_path: str) -> None:
     """
-    Check that the channel labels for a well are unique
+    Check that the channel labels for a well are unique.
 
     First identify the channel-labels list for each image in the well, then
-    compare lists and verify their intersection is empty
+    compare lists and verify their intersection is empty.
 
     Args:
-        well_zarr_path: path to an OME-NGFF well zarr group
+        well_zarr_path: path to an OME-NGFF well zarr group.
     """
 
     # Iterate over all images (multiplexing cycles, multi-FOVs, ...)
@@ -145,19 +148,19 @@ def get_channel_from_image_zarr(
     wavelength_id: Optional[str] = None,
 ) -> OmeroChannel:
     """
-    Extract a channel from OME-NGFF zarr attributes
+    Extract a channel from OME-NGFF zarr attributes.
 
-    This is a helper function that combines ``get_omero_channel_list`` with
-    ``get_channel_from_list``.
+    This is a helper function that combines `get_omero_channel_list` with
+    `get_channel_from_list`.
 
     Args:
-        image_zarr_path: Path to an OME-NGFF image zarr group
-        label: ``label`` attribute of the channel to be extracted
-        wavelength_id: ``wavelength_id`` attribute of the channel to be
-            extracted
+        image_zarr_path: Path to an OME-NGFF image zarr group.
+        label: `label` attribute of the channel to be extracted.
+        wavelength_id: `wavelength_id` attribute of the channel to be
+            extracted.
 
     Returns:
-        A single channel dictionary
+        A single channel dictionary.
     """
     omero_channels = get_omero_channel_list(image_zarr_path=image_zarr_path)
     channel = get_channel_from_list(
@@ -168,13 +171,13 @@ def get_channel_from_image_zarr(
 
 def get_omero_channel_list(*, image_zarr_path: str) -> list[OmeroChannel]:
     """
-    Extract the list of channels from OME-NGFF zarr attributes
+    Extract the list of channels from OME-NGFF zarr attributes.
 
     Args:
-        image_zarr_path: Path to an OME-NGFF image zarr group
+        image_zarr_path: Path to an OME-NGFF image zarr group.
 
     Returns:
-        A list of channel dictionaries
+        A list of channel dictionaries.
     """
     group = zarr.open_group(image_zarr_path, mode="r+")
     channels_dicts = group.attrs["omero"]["channels"]
@@ -189,20 +192,20 @@ def get_channel_from_list(
     wavelength_id: Optional[str] = None,
 ) -> OmeroChannel:
     """
-    Find matching channel in a list
+    Find matching channel in a list.
 
-    Find the channel that has the required values of ``label`` and/or
-    ``wavelength_id``, and identify its positional index (which also
+    Find the channel that has the required values of `label` and/or
+    `wavelength_id`, and identify its positional index (which also
     corresponds to its index in the zarr array).
 
     Args:
         channels: A list of channel dictionary, where each channel includes (at
-            least) the ``label`` and ``wavelength_id`` keys
+            least) the `label` and `wavelength_id` keys.
         label: The label to look for in the list of channels.
         wavelength_id: The wavelength_id to look for in the list of channels.
 
     Returns:
-        A single channel dictionary
+        A single channel dictionary.
     """
 
     # Identify matching channels
@@ -255,24 +258,24 @@ def define_omero_channels(
     label_prefix: Optional[str] = None,
 ) -> list[dict[str, Union[str, int, bool, dict[str, int]]]]:
     """
-    Update a channel list to use it in the OMERO/channels metadata
+    Update a channel list to use it in the OMERO/channels metadata.
 
     Given a list of channel dictionaries, update each one of them by:
         1. Adding a label (if missing);
         2. Adding a set of OMERO-specific attributes;
         3. Discarding all other attributes.
 
-    The ``new_channels`` output can be used in the
-    ``attrs["omero"]["channels"]`` attribute of an image group.
+    The `new_channels` output can be used in the `attrs["omero"]["channels"]`
+    attribute of an image group.
 
     Args:
         channels: A list of channel dictionaries (each one must include the
-            ``wavelength_id`` key).
-        bit_depth: bit depth
+            `wavelength_id` key).
+        bit_depth: bit depth.
         label_prefix: TBD
 
     Returns:
-        ``new_channels``, a new list of consistent channel dictionaries that
+        `new_channels`, a new list of consistent channel dictionaries that
         can be written to OMERO metadata.
     """
 
