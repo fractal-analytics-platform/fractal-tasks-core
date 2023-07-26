@@ -8,7 +8,6 @@ extra_css:
 
 markdown_extensions:
 - admonition
-  #- callouts
 - pymdownx.details
 - pymdownx.emoji
 - pymdownx.magiclink
