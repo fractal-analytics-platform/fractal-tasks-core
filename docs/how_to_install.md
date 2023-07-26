@@ -15,4 +15,4 @@ pip install fractal-tasks-core[fractal-tasks]
 * The `fractal_tasks_core.dev` subpackage, which includes some developement tools, mostly related to creation of JSON Schemas for task arguments.
 
 
-> The main _fractal_tasks_core_ package is tested with Python 3.9, 3.10 and 3.11, while the _fractal_tasks_core.tasks_ subpackage (that requires the _fractal-tasks_ installation extra) is tested with Python 3.9 and 3.10.
+> Both the main _fractal_tasks_core_ package and the _fractal_tasks_core.tasks_ subpackage (that requires the _fractal-tasks_ installation extra) are tested with Python 3.9, 3.10 and 3.11.

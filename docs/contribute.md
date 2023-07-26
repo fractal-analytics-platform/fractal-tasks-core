@@ -19,7 +19,10 @@ We use [pytest](https://docs.pytest.org) for unit and integration testing of Fra
 poetry run pytest
 ```
 
-The tests files are in the `tests` folder of the repository, and they are also run on GitHub (with both python 3.8 and 3.9 versions).
+The tests files are in the `tests` folder of the repository, and they are also
+run through GitHub Actions; both the main _fractal_tasks_core_ tests (in
+`tests/`) and the _fractal_tasks_core.tasks_ tests (in `tests/tasks/`) are run
+with Python 3.9, 3.10 and 3.11.
 
 ## Mypy
 
