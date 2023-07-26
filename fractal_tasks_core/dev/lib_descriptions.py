@@ -116,7 +116,7 @@ def _get_class_attrs_descriptions(
     return descriptions
 
 
-def _insert_function_args_descriptions(*, schema, descriptions):
+def _insert_function_args_descriptions(*, schema: dict, descriptions: dict):
     """
     Merge the descriptions obtained via `_get_args_descriptions` into the
     properties of an existing JSON Schema.
@@ -141,7 +141,9 @@ def _insert_function_args_descriptions(*, schema, descriptions):
     return new_schema
 
 
-def _insert_class_attrs_descriptions(*, schema, class_name, descriptions):
+def _insert_class_attrs_descriptions(
+    *, schema: dict, class_name: str, descriptions: dict
+):
     """
     Merge the descriptions obtained via `_get_attributes_models_descriptions`
     into the `class_name` definition, within an existing JSON Schema

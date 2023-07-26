@@ -71,7 +71,7 @@ def _preprocess_input(
         region: The ZYX indices of the ROI, in a form like
             `(slice(0, 1), slice(1000, 2000), slice(1000, 2000))`.
         current_label_path: Path to the image used as current label, in a form
-        like `/somewhere/plate.zarr/A/01/0/labels/nuclei_in_organoids/0`.
+            like `/somewhere/plate.zarr/A/01/0/labels/nuclei_in_organoids/0`.
         ROI_table_path: Path of the AnnData table for the masking-label ROIs;
             this is used (together with `ROI_positional_index`) to extract
             `label_value`.
