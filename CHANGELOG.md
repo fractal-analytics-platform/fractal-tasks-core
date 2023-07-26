@@ -9,7 +9,8 @@
 * Update default values for tolerance (`tol`) in `lib_ROI_overlaps.py` functions (\#466).
 * Align examples to recent package version, and mention them in the documentation (\#470).
 * Internal changes (\#455):
-    * Convert docstrings to Google style (\#473).
+    * Convert docstrings to Google style (\#473, \#479).
+    * Switch from sphinx to mkdocs for documentation (\#479).
     * Improve logging and error-handling in tools for args-schema creation (\#469).
     * Improve coverage of core library (\#459, \#467, \#468).
     * Update Zenodo datasets used in tests (\#454).
