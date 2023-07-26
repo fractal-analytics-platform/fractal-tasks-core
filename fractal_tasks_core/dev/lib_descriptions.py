@@ -24,6 +24,9 @@ def _sanitize_description(string: str) -> str:
     and reduces multiple contiguous whitespace characters to a single one.
     Future iterations of the docstrings format/parsing may render this function
     not-needed or obsolete.
+
+    Args:
+        string: TBD
     """
     # Replace newline with space
     new_string = string.replace("\n", " ")
@@ -37,12 +40,12 @@ def _get_function_args_descriptions(
     package_name: str, module_relative_path: str, function_name: str
 ) -> dict[str, str]:
     """
-    Extract argument descriptions from a function
+    Extract argument descriptions from a function.
 
     Args:
-        package_name: Example ``fractal_tasks_core``
-        module_relative_path: Example ``tasks/create_ome_zarr.py``
-        function_name: Example ``create_ome_zarr``
+        package_name: Example `fractal_tasks_core`.
+        module_relative_path: Example `tasks/create_ome_zarr.py`.
+        function_name: Example `create_ome_zarr`.
     """
 
     if not module_relative_path.endswith(".py"):
@@ -75,12 +78,12 @@ def _get_class_attrs_descriptions(
     package_name: str, module_relative_path: str, class_name: str
 ) -> dict[str, str]:
     """
-    Extract attribute descriptions from a class
+    Extract attribute descriptions from a class.
 
     Args:
-        package_name: Example ``fractal_tasks_core``
-        module_relative_path: Example ``lib_channels.py``
-        class_name: Example ``OmeroChannel``
+        package_name: Example `fractal_tasks_core`.
+        module_relative_path: Example `lib_channels.py`.
+        class_name: Example `OmeroChannel`.
     """
 
     if not module_relative_path.endswith(".py"):
@@ -118,6 +121,9 @@ def _insert_function_args_descriptions(*, schema, descriptions):
     Merge the descriptions obtained via `_get_args_descriptions` into the
     properties of an existing JSON Schema.
 
+    Args:
+        schema: TBD
+        descriptions: TBD
     """
     new_schema = schema.copy()
     new_properties = schema["properties"].copy()
@@ -138,7 +144,12 @@ def _insert_function_args_descriptions(*, schema, descriptions):
 def _insert_class_attrs_descriptions(*, schema, class_name, descriptions):
     """
     Merge the descriptions obtained via `_get_attributes_models_descriptions`
-    into the ``class_name`` definition, within an existing JSON Schema
+    into the `class_name` definition, within an existing JSON Schema
+
+    Args:
+        schema: TBD
+        class_name: TBD
+        descriptions: TBD
     """
     new_schema = schema.copy()
     if "definitions" not in schema:

@@ -27,7 +27,12 @@ def _compare_dicts(
     old: dict[str, Any], new: dict[str, Any], path: list[str] = []
 ):
     """
-    Provide more informative comparison of two (possibly nested) dictionaries
+    Provide more informative comparison of two (possibly nested) dictionaries.
+
+    Args:
+        old: TBD
+        new: TBD
+        path: TBD
     """
     path_str = "/".join(path)
     keys_old = set(old.keys())
