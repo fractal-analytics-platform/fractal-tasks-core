@@ -54,7 +54,7 @@ nav:
   - Task manifest: task_manifest.md
   - How to write a custom task: custom_task.md
   - How to run tasks from Python scripts: py_scripts.md
-  - Reference: reference/
+  - Code reference: reference/fractal_tasks_core/
   - Contribute: contribute.md
 
 watch:
@@ -68,7 +68,6 @@ plugins:
         - docs/gen_ref_pages.py
   - literate-nav:
       nav_file: SUMMARY.md
-
   - section-index
   - mkdocstrings:
       default_handler: python
@@ -80,6 +79,7 @@ plugins:
             docstring_style: "google"
             show_source: true
             filters: []
+            show_root_full_path: false
   - include-markdown
 
 extra_css:
