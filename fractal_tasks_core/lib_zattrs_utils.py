@@ -10,7 +10,7 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Functions to handle .zattrs files and their contents.
+Functions to handle `.zattrs` files and their contents.
 """
 import json
 import logging
@@ -22,11 +22,11 @@ logger = logging.getLogger(__name__)
 
 def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0) -> list[float]:
     """
-    Load multiscales/datasets from .zattrs file and read the pixel sizes for a
-    given resoluion level.
+    Load multiscales/datasets from `.zattrs` file and read the pixel sizes for
+    a given resoluion level.
 
     Args:
-        zattrs_path: Path to .zattrs file.
+        zattrs_path: Path to `.zattrs` file.
         level: Resolution level for which the pixe sizes are required.
 
     Returns:
