@@ -9,13 +9,13 @@
 * Testing:
     * Improve coverage of core library (\#459, \#467, \#468).
     * Update Zenodo datasets used in tests (\#454).
-    * Run tests both for the poetry- and pip-installed package.
+    * Run tests both for the poetry-installed and pip-installed package (\#455).
 * Dependencies:
-    * Relax `numpy` required version to `<2` (\#477);
-    * Relax `dask` required version to `>=2023.1.0` (\#455);
-    * Relax `zarr` required version to `>=2.13.6,<3` (\#455);
-    * Relax `pandas` required version to `>=1.2.0,<2` (\#455);
-    * Relax `Pillow` required version to `>=9.1.1,<10.0.0` (\#455);
+    * Relax `numpy` required version to `<2` (\#477).
+    * Relax `dask` required version to `>=2023.1.0` (\#455).
+    * Relax `zarr` required version to `>=2.13.6,<3` (\#455).
+    * Relax `pandas` required version to `>=1.2.0,<2` (\#455).
+    * Relax `Pillow` required version to `>=9.1.1,<10.0.0` (\#455).
     * Full update of `poetry.lock` file (mutiple PRs, e.g. \#472).
     * Include `requests` and `wget` in the `dev` poetry dependency group (\#455).
 * Development tools:
