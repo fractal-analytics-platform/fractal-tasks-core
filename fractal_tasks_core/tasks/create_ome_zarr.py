@@ -59,11 +59,13 @@ def create_ome_zarr(
     Create a OME-NGFF zarr folder, without reading/writing image data.
 
     Find plates (for each folder in input_paths):
+
     - glob image files,
     - parse metadata from image filename to identify plates,
     - identify populated channels.
 
-    Create a zarr folder (for each plate)
+    Create a zarr folder (for each plate):
+
     - parse mlf metadata,
     - identify wells and field of view (FOV),
     - create FOV ZARR,
@@ -90,12 +92,12 @@ def create_ome_zarr(
             https://docs.python.org/3/library/fnmatch.html, Example:
             `image_glob_pattern=["*_B03_*"]` => only process well B03
             `image_glob_pattern=["*_C09_*", "*F016*", "*Z[0-5][0-9]C*"]` =>
-            only process well C09, field of view 16 and Z planes 0 - 59.
-        num_levels: Number of resolution-pyramid levels. If set to 5, there
+            only process well C09, field of view 16 and Z planes 0-59.
+        num_levels: Number of resolution-pyramid levels. If set to `5`, there
             will be the full-resolution level and 4 levels of
             downsampled images.
         coarsening_xy: Linear coarsening factor between subsequent levels.
-            If set to 2, level 1 is 2x downsampled, level 2 is
+            If set to `2`, level 1 is 2x downsampled, level 2 is
             4x downsampled etc.
         image_extension: Filename extension of images (e.g. `"tif"` or `"png"`)
         metadata_table_file: If `None`, parse Yokogawa metadata from mrf/mlf

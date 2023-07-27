@@ -71,13 +71,13 @@ def create_ome_zarr_multiplex(
             ordered by their order in this list.  Should point to the parent
             folder containing the images and the metadata files
             `MeasurementData.mlf` and `MeasurementDetail.mrf` (if present).
-            Example: `["/path/cycle1/", "/path/cycle2/"]` (standard argument
+            Example: `["/path/cycle1/", "/path/cycle2/"]`. (standard argument
             for Fractal tasks, managed by Fractal server).
         output_path: Path were the output of this task is stored.
-            Example: "/some/path/" => puts the new OME-Zarr file in the
-            "/some/path/" (standard argument for Fractal tasks, managed by
-            Fractal server).
-        metadata: This parameter is not used by this task
+            Example: `"/some/path/"` => puts the new OME-Zarr file in the
+            `/some/path/`.
+            (standard argument for Fractal tasks, managed by Fractal server).
+        metadata: This parameter is not used by this task.
             (standard argument for Fractal tasks, managed by Fractal server).
         allowed_channels: A dictionary of lists of `OmeroChannel`s, where
             each channel must include the `wavelength_id` attribute and where
@@ -88,12 +88,12 @@ def create_ome_zarr_multiplex(
             https://docs.python.org/3/library/fnmatch.html, Example:
             `image_glob_pattern=["*_B03_*"]` => only process well B03
             `image_glob_pattern=["*_C09_*", "*F016*", "*Z[0-5][0-9]C*"]` =>
-            only process well C09, field of view 16 and Z planes 0 - 59.
-        num_levels: Number of resolution-pyramid levels. If set to 5, there
+            only process well C09, field of view 16 and Z planes 0-59.
+        num_levels: Number of resolution-pyramid levels. If set to `5`, there
             will be the full-resolution level and 4 levels of downsampled
             images.
         coarsening_xy: Linear coarsening factor between subsequent levels.
-            If set to 2, level 1 is 2x downsampled, level 2 is 4x downsampled
+            If set to `2`, level 1 is 2x downsampled, level 2 is 4x downsampled
             etc.
         image_extension: Filename extension of images
             (e.g. `"tif"` or `"png"`).
