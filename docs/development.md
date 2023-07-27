@@ -33,16 +33,12 @@ poetry run mypy --package fractal_tasks_core --ignore-missing-imports --warn-red
 
 ## Documentation
 
-To build the documentation, you should first install the package with `poetry
-install --with docs`; then use one of:
-```console
-# Static build at docs/build/index.html
-poetry run sphinx-build docs/source docs/build -W
-
-# Automatically-updated build, at http://127.0.0.1:8000:
-poetry run sphinx-autobuild docs/source docs/build -W
+The documentations is built with mkdocs.
+To build the documentation locally, setup a development python environment (e.g. with `poetry install --with docs`) and then run one of these commands:
 ```
-
+poetry run mkdocs serve --config-file mkdocs.yml  # serves the docs at http://127.0.0.1:8000
+poetry run mkdocs build --config-file mkdocs.yml  # creates a build in the `site` folder
+```
 
 ## How to release
 
