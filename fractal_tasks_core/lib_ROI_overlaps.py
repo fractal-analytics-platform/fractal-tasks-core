@@ -349,7 +349,7 @@ def _is_overlapping_1D_int(
     """
     Given two integer intervals, find whether they overlap
 
-    This is the same as is_overlapping_1D (based on
+    This is the same as `is_overlapping_1D` (based on
     https://stackoverflow.com/a/70023212/19085332), for integer-valued
     intervals.
 

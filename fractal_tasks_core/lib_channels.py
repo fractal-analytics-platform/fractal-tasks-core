@@ -277,7 +277,7 @@ def define_omero_channels(
 
     Returns:
         `new_channels`, a new list of consistent channel dictionaries that
-        can be written to OMERO metadata.
+            can be written to OMERO metadata.
     """
 
     new_channels = [c.copy(deep=True) for c in channels]

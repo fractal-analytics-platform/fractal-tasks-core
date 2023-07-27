@@ -38,7 +38,7 @@ def find_omengff_acquisition(image_zarr_path: Path) -> Union[int, None]:
        an OME-NGFF well.
 
     Args:
-        image_zarr_path: full path to an OME-NGFF image folder.
+        image_zarr_path: Full path to an OME-NGFF image folder.
     """
 
     # Identify well path and attrs

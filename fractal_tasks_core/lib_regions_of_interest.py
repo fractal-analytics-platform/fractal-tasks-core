@@ -339,7 +339,7 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
 
     Returns:
         Always `None` if `use_masks=False`, otherwise return whether the table
-        is valid for masked loading.
+            is valid for masked loading.
     """
 
     # Hard constraint: table columns must include some expected ones
@@ -385,11 +385,11 @@ def load_region(
     always as a 3D array.
 
     Args:
-        data_zyx: dask array, 2D or 3D.
-        region: region to load, tuple of three slices (ZYX).
-        compute: whether to compute the result. If True, returns a numpy array.
-            If False, returns a dask array.
-        return_as_3D: whether to return a 3D array, even if the input is 2D.
+        data_zyx: Dask array (2D or 3D).
+        region: Region to load, tuple of three slices (ZYX).
+        compute: Whether to compute the result. If `True`, returns a numpy
+            array. If `False`, returns a dask array.
+        return_as_3D: Whether to return a 3D array, even if the input is 2D.
 
     Returns:
         3D array.

@@ -34,19 +34,17 @@ def build_pyramid(
 
     """
     Starting from on-disk highest-resolution data, build and write to disk a
-    pyramid with (num_levels-1) coarsened levels.
+    pyramid with `(num_levels - 1)` coarsened levels.
     This function works for 2D, 3D or 4D arrays.
 
-    Example input:
-        zarrurl = "some/path/plate.zarr/B/03/0"
-
     Args:
-        zarrurl: path of the zarr group, which must already include level 0.
-        overwrite: whether to overwrite existing pyramid levels.
-        num_levels: total number of pyramid levels (including 0).
-        coarsening_xy: linear coarsening factor between subsequent levels.
-        chunksize: shape of a single chunk.
-        aggregation_function: function to be used when downsampling.
+        zarrurl: Path of the zarr group, which must already include level 0
+            (e.g. `"some/path/plate.zarr/B/03/0"`).
+        overwrite: Whether to overwrite existing pyramid levels.
+        num_levels: Total number of pyramid levels (including 0).
+        coarsening_xy: Linear coarsening factor between subsequent levels.
+        chunksize: Shape of a single chunk.
+        aggregation_function: Function to be used when downsampling.
     """
 
     # Clean up zarrurl
