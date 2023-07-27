@@ -6,7 +6,7 @@ tasks as part of a Python script.
 ## Notes
 
 * This folder is not always kept up-to-date. If you encounter any unexpected
-  problem, please feel free to [open an issue on the `fractal-tasks-core`
+  problem, please open a [new issue on the `fractal-tasks-core`
 GitHub
 repository](https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/new/choose).
 * Examples from 01 to 09 are currently aligned with fractal-tasks-core 0.10.0.
@@ -20,7 +20,7 @@ The following instructions are valid for all examples; check the specific
 ```bash
 pip install fractal-tasks-core[fractal-tasks]
 ```
-(note this can be done e.g. from a venv or from a conda environment).
+(note: this can be done e.g. from a venv or from a conda environment).
 
 2. Download the example data from Zenodo, if necessary, via
 ```bash
