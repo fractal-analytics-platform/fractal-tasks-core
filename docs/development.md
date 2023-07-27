@@ -43,7 +43,7 @@ poetry run mypy --package fractal_tasks_core --ignore-missing-imports --warn-red
 
 ## How to release
 
-### Preliminary checklist
+Preliminary check-list:
 
 1. The main branch is checked out.
 2. You reviewed dependencies and dev dependencies and the lock file is up to date with `pyproject.toml` (it is useful to have a look at the output of `deptry . -v`, where `deptry` is already installed as part of the dev dependencies - NOTE: `deptry` should be installed independently, e.g. via `pipx install deptry`).
@@ -58,7 +58,7 @@ then add the upcoming release to `docs/source/changelog.rst` with the main infor
 poetry run python fractal_tasks_core/dev/create_args_schemas.py
 ```
 
-### Actual release
+Actual release
 
 6. Use:
 ```console
