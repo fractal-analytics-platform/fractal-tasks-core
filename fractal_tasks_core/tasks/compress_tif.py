@@ -10,7 +10,10 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Task to compress tiff images (currently obsolete).
+Task to compress tiff images.
+
+**This task cannot be used in the current form, and it should first be
+aligned with the other tasks' structure.**
 """
 import glob
 import os
