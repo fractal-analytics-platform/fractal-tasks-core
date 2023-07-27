@@ -24,13 +24,6 @@ run through GitHub Actions; both the main _fractal_tasks_core_ tests (in
 `tests/`) and the _fractal_tasks_core.tasks_ tests (in `tests/tasks/`) are run
 with Python 3.9, 3.10 and 3.11.
 
-## Mypy
-
-You can run `mypy` for instance as:
-```console
-poetry run mypy --package fractal_tasks_core --ignore-missing-imports --warn-redundant-casts --warn-unused-ignores --warn-unreachable --pretty
-```
-
 ## Documentation
 
 The documentations is built with mkdocs.
@@ -38,6 +31,14 @@ To build the documentation locally, setup a development python environment (e.g.
 ```
 poetry run mkdocs serve --config-file mkdocs.yml  # serves the docs at http://127.0.0.1:8000
 poetry run mkdocs build --config-file mkdocs.yml  # creates a build in the `site` folder
+```
+
+## Mypy
+
+We do not enforce strict `mypy` compliance, but we do run it as part of [a specific GitHub Action](https://github.com/fractal-analytics-platform/fractal-tasks-core/actions/workflows/package.yml).
+You can run `mypy` locally for instance as:
+```console
+poetry run mypy --package fractal_tasks_core --ignore-missing-imports --warn-redundant-casts --warn-unused-ignores --warn-unreachable --pretty
 ```
 
 ## How to release
