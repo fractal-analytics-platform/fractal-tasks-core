@@ -49,13 +49,13 @@ theme:
 
 nav:
   - Home page: index.md
-  - How to install: how_to_install.md
-  - Changelog: changelog.md
+  - Install: install.md
   - Task manifest: task_manifest.md
   - How to write a custom task: custom_task.md
   - How to run tasks from Python scripts: py_scripts.md
   - Code reference: reference/fractal_tasks_core/
-  - Contribute: contribute.md
+  - Development: development.md
+  - Changelog: changelog.md
 
 watch:
   - fractal_tasks_core
@@ -85,4 +85,10 @@ plugins:
 extra_css:
   - extra.css
 
-copyright: © Copyright 2022, Friedrich Miescher Institute for Biomedical Research and University of Zurich.
+copyright: |
+  © Copyright 2022
+  Friedrich Miescher Institute for Biomedical Research and
+  University of Zurich
+  (see <u><a href="https://github.com/fractal-analytics-platform/fractal-tasks-core/blob/main/LICENSE">
+  LICENSE
+  </a></u>).
