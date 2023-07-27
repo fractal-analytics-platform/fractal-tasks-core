@@ -15,7 +15,6 @@ Task that copies the structure of an OME-NGFF zarr array to a new one.
 import logging
 from pathlib import Path
 from typing import Any
-from typing import Dict
 from typing import Sequence
 
 import anndata as ad
@@ -40,11 +39,11 @@ def copy_ome_zarr(
     *,
     input_paths: Sequence[str],
     output_path: str,
-    metadata: Dict[str, Any],
+    metadata: dict[str, Any],
     project_to_2D: bool = True,
     suffix: str = "mip",
     ROI_table_names: tuple[str, ...] = ("FOV_ROI_table", "well_ROI_table"),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
 
     """
     Duplicate an input zarr structure to a new path.
@@ -107,7 +106,7 @@ def copy_ome_zarr(
     list_plates = [p.as_posix() for p in Path(in_path).glob("*.zarr")]
     logger.info(f"{list_plates=}")
 
-    meta_update: Dict[str, Any] = {"copy_ome_zarr": {}}
+    meta_update: dict[str, Any] = {"copy_ome_zarr": {}}
     meta_update["copy_ome_zarr"]["suffix"] = suffix
     meta_update["copy_ome_zarr"]["sources"] = {}
 

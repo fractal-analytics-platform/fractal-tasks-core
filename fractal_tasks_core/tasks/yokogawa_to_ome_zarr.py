@@ -15,7 +15,6 @@ Task that writes image data to an existing OME-NGFF zarr array.
 import logging
 from pathlib import Path
 from typing import Any
-from typing import Dict
 from typing import Sequence
 
 import dask.array as da
@@ -62,7 +61,7 @@ def yokogawa_to_ome_zarr(
     input_paths: Sequence[str],
     output_path: str,
     component: str,
-    metadata: Dict[str, Any],
+    metadata: dict[str, Any],
 ):
     """
     Convert Yokogawa output (png, tif) to zarr file.

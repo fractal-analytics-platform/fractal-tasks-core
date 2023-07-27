@@ -17,7 +17,6 @@ import time
 import warnings
 from pathlib import Path
 from typing import Any
-from typing import Dict
 from typing import Optional
 from typing import Sequence
 
@@ -99,14 +98,14 @@ def illumination_correction(
     input_paths: Sequence[str],
     output_path: str,
     component: str,
-    metadata: Dict[str, Any],
+    metadata: dict[str, Any],
     # Task-specific arguments
     illumination_profiles_folder: str,
     dict_corr: dict[str, str],
     background: int = 110,
     overwrite: bool = True,
     new_component: Optional[str] = None,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
 
     """
     Applies illumination correction to the images in the OME-Zarr.

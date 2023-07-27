@@ -19,7 +19,6 @@ import os
 import time
 from pathlib import Path
 from typing import Any
-from typing import Dict
 from typing import Optional
 from typing import Sequence
 
@@ -150,7 +149,7 @@ def cellpose_segmentation(
     input_paths: Sequence[str],
     output_path: str,
     component: str,
-    metadata: Dict[str, Any],
+    metadata: dict[str, Any],
     # Task-specific arguments
     level: int,
     channel: Channel,
@@ -171,7 +170,7 @@ def cellpose_segmentation(
     augment: bool = False,
     net_avg: bool = False,
     use_gpu: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Run cellpose segmentation on the ROIs of a single OME-Zarr image.
 

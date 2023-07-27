@@ -15,7 +15,6 @@ Task for 3D->2D maximum-intensity projection.
 import logging
 from pathlib import Path
 from typing import Any
-from typing import Dict
 from typing import Sequence
 
 import anndata as ad
@@ -37,8 +36,8 @@ def maximum_intensity_projection(
     input_paths: Sequence[str],
     output_path: str,
     component: str,
-    metadata: Dict[str, Any],
-) -> Dict[str, Any]:
+    metadata: dict[str, Any],
+) -> dict[str, Any]:
     """
     Perform maximum-intensity projection along Z axis, and store the output in
     a new zarr file.

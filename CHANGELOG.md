@@ -17,7 +17,7 @@
     * Full update of `poetry.lock` file (e.g. \#472).
     * Include `requests` and `wget` in the `dev` poetry dependency group.
     * Run tests both for the poetry- and pip-installed package.
-    * Update generic type hints (\#462).
+    * Update generic type hints (\#462, \#479).
 
 # 0.10.0
 
