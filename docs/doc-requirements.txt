@@ -2,6 +2,7 @@ mkdocs
 mkdocs-material
 mkdocs-autorefs
 mkdocs-gen-files
+mkdocs-literate-nav
 mkdocs-section-index
 mkdocstrings[python]
 mkdocs-include-markdown-plugin
