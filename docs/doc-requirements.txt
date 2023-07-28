@@ -3,5 +3,5 @@ mkdocs-material
 mkdocs-autorefs
 mkdocs-gen-files
 mkdocs-section-index
-mkdocstrings["python"]
+mkdocstrings[python]
 mkdocs-include-markdown-plugin
