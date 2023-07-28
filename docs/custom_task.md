@@ -23,10 +23,14 @@ a single task, and then for a task package.
 
 ## Single custom task
 
+We describe how to define the multiple aspects of a task, and provide a [Full task example](#full-task-example).
+
 ### Task metadata
 
 Each task must be associated to some metadata, so that it can be used in
-Fractal. The full specification is [here](https://fractal-analytics-platform.github.io/fractal-server/reference/fractal_server/app/models/task/#fractal_server.app.models.task.Task), and the required attributes are:
+Fractal. The full specification is
+[here](https://fractal-analytics-platform.github.io/fractal-server/reference/fractal_server/app/models/task/#fractal_server.app.models.task.Task),
+and the required attributes are:
 
 * `name`: the task name, e.g. `"Create OME-Zarr structure"`;
 * `command`: a command that can be executed from the command line;
@@ -69,13 +73,16 @@ If the task is a Python script, this can be achieved easily by using the
 `run_fractal_task` function - which is available as part of
 [`fractal_tasks_core.tasks._utils`](https://github.com/fractal-analytics-platform/fractal-tasks-core/blob/main/fractal_tasks_core/tasks/_utils.py).
 
-
 ### Task input parameters
 
-`input_paths, output_paths, and metadata, plus the optional component`
+**WIP**
+
+`input_paths, output_path, and metadata, plus the optional component`
 output dict[str,Any]
 
 ### Task meta-parameters
+
+**WIP**
 
 In the simplest example, a task will run
 
@@ -95,53 +102,56 @@ page.
    v1`](https://docs.pydantic.dev/1.10) to fully coerce and validate the input
    parameters into a set of given types.
 
-Moreover
+### Full task example
 
+Here we describe a simplified example of a Fractal-compatible Python task (for
+more realistic examples see the `fractal-task-core` [tasks
+folder](https://github.com/fractal-analytics-platform/fractal-tasks-core/tree/main/fractal_tasks_core/tasks)).
 
-### Full example
-
-Here is a somewhat artificial example of a Python task (based on those in the
-[`fractal-demos`
-repository](https://github.com/fractal-analytics-platform/fractal-demos/tree/main/examples/99_stress_test/fractal-tasks-stresstest/fractal_tasks_stresstest)):
-
+The script `/some/path/my_task.py` may look like
 ```python
+# Import a helper function from fractal_tasks_core
+from fractal_tasks_core.tasks._utils import run_fractal_task
 
-import logging
-from typing import Any
-from typing import dict
-from typing import Optional
-from typing import Sequence
-
-
-logger = logging.getLogger(__name__)
-
-
-def prepare_metadata(
-    *,
-    input_paths: Sequence[str],
-    output_path: str,
-    metadata: Dict[str, Any],
+def my_task_function(
+    # Reserved Fractal arguments
+    input_paths,
+    output_path,
+    metadata,
     # Task-specific arguments
-    num_components: int = 10,
-) -> Dict[str, Any]:
-    """
-    Prepare metadata
+    argument_A,
+    argument_B = "default_B_value",
+):
+    # Do something, based on the task parameters
+    print("Here we go, we are in `my_task_function`")
+    with open(f"{output_path}/output.txt", "w") as f:
+        f.write(f"argument_A={argument_A}\n")
+        f.write(f"argument_B={argument_B}\n")
+    # Compile the output metadata update and return
+    output_metadata_update = {"nothing": "to add"}
+    return output_metadata_update
 
-    :param num_components: Number of components
-    """
-
-    list_components = [f"{ind:04d}" for ind in range(num_components)]
-    metadata_update = {"component": list_components}
-    logger.info(f"This is a log from prepare_metadata, with {num_components=}")
-    return metadata_update
-
-
+# Thi block is executed when running the Python script directly
 if __name__ == "__main__":
-    from fractal_tasks_core.tasks._utils import run_fractal_task
+    run_fractal_task(task_function=my_task_function)
+```
+where we use `run_fractal_task` so that we don't have to take care of the [command-line arguments](#command-line-interface).
 
-    run_fractal_task(task_function=prepare_metadata)
+Some valid [metadata attributes](#task-metadata) for this task would be:
+```python
+name="My Task"
+command="python3 /some/path/my_task.py"
+input_type="Any"
+output_type="Any"
+source="my_custom_task"
+meta={}
 ```
 
+> Note that this was an example of a non-parallel tasks; to have a parallel
+> one, we would also need to:
+>
+> 1. Set `meta={"parallelization_level": "something"}`;
+> 2. Include `component` in the input arguments of `my_task_function`.
 
 ## Task package
 
