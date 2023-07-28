@@ -73,31 +73,52 @@ If the task is a Python script, this can be achieved easily by using the
 `run_fractal_task` function - which is available as part of
 [`fractal_tasks_core.tasks._utils`](https://github.com/fractal-analytics-platform/fractal-tasks-core/blob/main/fractal_tasks_core/tasks/_utils.py).
 
-### Task input parameters
-
-**WIP**
-
-`input_paths, output_path, and metadata, plus the optional component`
-output dict[str,Any]
-
 ### Task meta-parameters
 
-**WIP**
+The `meta` attribute of tasks (see the corresponding item in [Task
+metadata](#task-metadata)) is where we specify some requirements on how the
+task should be run. This notably includes:
 
-In the simplest example, a task will run
+* If the task has to be run in parallel (e.g. over multiple wells of an
+  OME-Zarr dataset), then `meta` should include a key-value pair like
+  `{"parallelization_level": "well"}`. If the `parallelization_level` key is
+  missing, the task is considered as non-parallel.
+* If Fractal is configured to run on a SLURM cluster, `meta` may include
+  additional information on the SLRUM requirements (more info on the Fractal
+  SLURM backend
+  [here](https://fractal-analytics-platform.github.io/fractal-server/internals/runners/slurm/)).
 
-parallel or not
+### Task input parameters
+
+When a task is run via Fractal, its input parameters (i.e. the ones in the file
+specified via the `-j` command-line otion) will always include a set of keyword
+arguments with specific names:
+
+* `input_paths`
+* `output_path`
+* `metadata`
+* `component` (only for parallel tasks)
+
+### Task output
+
+The only task output which will be visible to Fractal is what goes in the
+output metadata-update file (i.e. the one specified through the
+`--metadata-out` command-line option). Note that this only holds for
+non-parallel tasks, while (for the moment) Fractal fully ignores the output of
+parallel tasks.
+
+> **IMPORTANT**: This means that each task must always write any output to
+> disk, before ending.
 
 
 ### Advanced features
 
-The description of some more advanced features is not yet available in this
-page.
+The description of other advanced features is not yet available in this page.
 
-1. There exist other attributes that can be included in the task metadata in
-   the database, and will be recognized by other Fractal components (e.g.
-   `fractal-server` or `fractal-web`). These include JSON Schemas for input
-   parameters and additional documentation-related attributes.
+1. Also other attributes of the [Task metadata](#task-metadata) exist, and they
+   would be recognized by other Fractal components (e.g.  `fractal-server` or
+   `fractal-web`). These include JSON Schemas for input parameters and additional
+   documentation-related attributes.
 2. In `fractal-tasks-core`, we use [`pydantic
    v1`](https://docs.pydantic.dev/1.10) to fully coerce and validate the input
    parameters into a set of given types.
@@ -153,30 +174,64 @@ meta={}
 > 1. Set `meta={"parallelization_level": "something"}`;
 > 2. Include `component` in the input arguments of `my_task_function`.
 
+
 ## Task package
 
-Given a set of Python scripts corresponding to Fractal tasks, it is often a good practice to combine them into a single Python package, using the [standard tools](https://packaging.python.org/en/latest/tutorials/packaging-projects) or other options (e.g. for `fractal-tasks-core` we use [poetry](https://python-poetry.org/)).
+Given a set of Python scripts corresponding to Fractal tasks, it is useful to
+combine them into a single Python package, using the [standard
+tools](https://packaging.python.org/en/latest/tutorials/packaging-projects) or
+other options (e.g. for `fractal-tasks-core` we use
+[poetry](https://python-poetry.org/)).
 
-Some reasons are unrelated to Fractal:
-* Avoid duplication:
-    * The different scripts may depend on a shared set of external packages, which only need to be defined once when packaging.
-    * The difference scripts may use a shared set of helper functions, which can be included in the package.
-* It is simple to assign a global version to the package;
+### Reasons
 
-(possibly using some common external dependencies, and possibly sharing some common helper functions), it is often good practice to transform them into a built package.using
+Creating a package is often a good practice, for reasons unrelated to Fractal:
 
-Building a package for a set of task Python
+1. It makes it simple to assign a global version to the package, and to host it
+   on a public index like PyPI;
+2. It may reduce code duplication:
+    * The scripts may have a shared set of external dependencies, which are
+      defined in a single place for a package.
+    * The scripts may import functions from a shared set of auxiliary Python
+      modules, which can be included in the package.
 
-After creating a bunch of Fractal-compatible tasks, it's useful to bundle them
-up in a single package (possibly hosted on a public index like PyPI). If this is done for a package `MyTasks`, then the Fractal platform (i.e. the server and the command-line/web clients) offers a feature that automatically:
-* Downloads the wheel file of package `MyTasks` (if it's on a public index, rather than a local file);
-* Creates a Python virtual environment (venv) which is specific for a given version of the `MyTasks` package, and installs the `MyTasks` package;
-* Populates all the corresponding rows in the `task` database table with the appropriate metadata, which are extracted from the package manifest.
+Moreover, having a single package also streamlines some Fractal-related
+operations. Given the package `MyTasks` (available on PyPI, or locally), the
+Fractal platform offers a feature that automatically:
+
+3. Downloads the wheel file of package `MyTasks` (if it's on a public index,
+   rather than a local file);
+4. Creates a Python virtual environment (venv) which is specific for a given
+   version of the `MyTasks` package, and installs the `MyTasks` package in that
+   venv;
+5. Populates all the corresponding entries in the `task` database table with
+   the appropriate [Task metadata](#task-metadata), which are extracted from
+   the package manifest.
 
 This feature is currently exposed in the `/api/v1/task/collect/pip/` endpoint of `fractal-server` (see [API documentation](https://fractal-analytics-platform.github.io/fractal-server/openapi)).
 
-### How
+### Requirements
 
-- The package is built as a a wheel file, and can be installed via `pip`.
-- The `__FRACTAL_MANIFEST__.json` file is bundled in the package, at its root. If you are using `poetry`, no special operation is needed. If you are using a `setup.cfg` file, see [here](https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/151#issuecomment-1524929477).
-- Include JSON Schemas. The tools in `fractal_tasks_core.dev` are used to generate JSON Schema's for the input parameters of each task in `fractal-tasks-core`. They are meant to be flexible and re-usable to perform the same operation on an independent package, but they are not thoroughly documented/tested for more general use; feel free to open an issue if something is not clear.
+To be compatible with Fractal, a task package must satisfy some additional requirements:
+
+* The package is built as a a wheel file, and can be installed via `pip`.
+* The `__FRACTAL_MANIFEST__.json` file is bundled in the package, in its root
+  folder. If you are using `poetry`, no special operation is needed. If you
+  are using a `setup.cfg` file, see
+  [this
+  comment](https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/151#issuecomment-1524929477).
+* Include JSON Schemas. The tools in `fractal_tasks_core.dev` are used to
+  generate JSON Schema's for the input parameters of each task in
+  `fractal-tasks-core`. They are meant to be flexible and re-usable to perform
+  the same operation on an independent package, but they are not thoroughly
+  documented/tested for more general use; feel free to open an issue if something
+  is not clear.
+* Include additional task metadata like `docs_info` or `docs_link`, which will
+  be displayed in the Fractal web-client. Note: this feature is not yet
+  implemented.
+
+
+> The ones in the list are the main requirements; if you hit unexpected
+> behaviors, also have a look at
+> https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/151
+> or open a new issue.
