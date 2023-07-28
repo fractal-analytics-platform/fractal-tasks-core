@@ -1,18 +1,16 @@
+# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
+# University of Zurich
+#
+# Original authors:
+# Tommaso Comparin <tommaso.comparin@exact-lab.it>
+# Marco Franzon <marco.franzon@exact-lab.it>
+#
+# This file is part of Fractal and was originally developed by eXact lab S.r.l.
+# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
+# Institute for Biomedical Research and Pelkmans Lab from the University of
+# Zurich.
 """
-Copyright 2022 (C)
-    Friedrich Miescher Institute for Biomedical Research and
-    University of Zurich
-
-    Original authors:
-    Tommaso Comparin <tommaso.comparin@exact-lab.it>
-    Marco Franzon <marco.franzon@exact-lab.it>
-
-    This file is part of Fractal and was originally developed by eXact lab
-    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
-    Miescher Institute for Biomedical Research and Pelkmans Lab from the
-    University of Zurich.
-
-Wrapper of napari-workflows
+Wrapper of napari-workflows.
 """
 import json
 import logging
@@ -52,7 +50,7 @@ logger = logging.getLogger(__name__)
 
 class OutOfTaskScopeError(NotImplementedError):
     """
-    Encapsulates features that are out-of-scope for the current wrapper task
+    Encapsulates features that are out-of-scope for the current wrapper task.
     """
 
     pass
@@ -76,14 +74,13 @@ def napari_workflows_wrapper(
     expected_dimensions: int = 3,
 ):
     """
-    Run a napari-workflow on the ROIs of a single OME-NGFF image
+    Run a napari-workflow on the ROIs of a single OME-NGFF image.
 
     This task takes images and labels and runs a napari-workflow on them that
     can produce a label and tables as output.
 
-    .. code-block::
+    Examples of allowed entries for `input_specs` and `output_specs`:
 
-        # Examples of allowed entries for input_specs and output_specs
         input_specs = {
             "in_1": {"type": "image", "channel": {"wavelength_id": "A01_C02"}},
             "in_2": {"type": "image", "channel": {"label": "DAPI"}},
@@ -97,42 +94,48 @@ def napari_workflows_wrapper(
     Args:
         input_paths: List of input paths where the image data is stored as
             OME-Zarrs. Should point to the parent folder containing one or many
-            OME-Zarr files, not the actual OME-Zarr file. Example:
-            ["/some/path/"] This task only supports a single input path.
-            (standard argument for Fractal tasks, managed by Fractal server)
-        output_path: This parameter is not used by this task (standard argument
-            for Fractal tasks, managed by Fractal server)
+            OME-Zarr files, not the actual OME-Zarr file.
+            Example: `["/some/path/"]`.
+            his task only supports a single input path.
+            (standard argument for Fractal tasks, managed by Fractal server).
+        output_path: This parameter is not used by this task.
+            (standard argument for Fractal tasks, managed by Fractal server).
         component: Path to the OME-Zarr image in the OME-Zarr plate that is
-            processed. Example: "some_plate.zarr/B/03/0" (standard argument for
-            Fractal tasks, managed by Fractal server)
-        metadata: dictionary containing metadata about the OME-Zarr. This task
-            requires the following elements to be present in the metadata:
-            "num_levels": int, number of pyramid levels in the image. This
-            determines how many pyramid levels are built for the segmentation.
-            "coarsening_xy": int, coarsening factor in XY of the downsampling
-            when building the pyramid. (standard argument for Fractal tasks,
-            managed by Fractal server)
+            processed.
+            Example: `"some_plate.zarr/B/03/0"`.
+            (standard argument for Fractal tasks, managed by Fractal server).
+        metadata: Dictionary containing metadata about the OME-Zarr. This task
+            requires the following elements to be present in the metadata.
+            `num_levels (int)`: number of pyramid levels in the image (this
+            determines how many pyramid levels are built for the segmentation);
+            `coarsening_xy (int)`: coarsening factor in XY of the downsampling
+            when building the pyramid.
+            (standard argument for Fractal tasks, managed by Fractal server).
         workflow_file: Absolute path to napari-workflows YAML file
-        input_specs: A dictionary of ``NapariWorkflowsInput`` values.
-        output_specs: A dictionary of ``NapariWorkflowsOutput`` values.
+        input_specs: A dictionary of `NapariWorkflowsInput` values.
+        output_specs: A dictionary of `NapariWorkflowsOutput` values.
         input_ROI_table: Name of the ROI table over which the task loops to
-            apply napari workflows. Example: "FOV_ROI_table" => loop over the
-            field of views "organoid_ROI_table" => loop over the organoid ROI
-            table generated by another task "well_ROI_table" => process the
-            whole well as one image
+            apply napari workflows.
+            Examples:
+            `FOV_ROI_table`
+            => loop over the field of views;
+            `organoid_ROI_table`
+            => loop over the organoid ROI table (generated by another task);
+            `well_ROI_table`
+            => process the whole well as one image.
         level: Pyramid level of the image to be used as input for
-            napari-workflows. Choose 0 to process at full resolution. Levels >
-            0 are currently only supported for workflows that only have
-            intensity images as input and only produce a label images as
+            napari-workflows. Choose `0` to process at full resolution.
+            Levels > 0 are currently only supported for workflows that only
+            have intensity images as input and only produce a label images as
             output.
-        relabeling: If ``True``, apply relabeling so that label values are
+        relabeling: If `True`, apply relabeling so that label values are
             unique across all ROIs in the well.
-        expected_dimensions: Expected dimensions (either 2 or 3). Useful when
-            loading 2D images that are stored in a 3D array as (1, size_x,
-            size_y) [which is the default way Fractal stored 2D images], but
-            you want to make sure the napari workflow gets a 2D array to
-            process. Also useful to set to 2 when loading a 2D OME-Zarr that is
-            saved as (size_x, size_y).
+        expected_dimensions: Expected dimensions (either `2` or `3`). Useful
+            when loading 2D images that are stored in a 3D array with shape
+            `(1, size_x, size_y)` [which is the default way Fractal stores 2D
+            images], but you want to make sure the napari workflow gets a 2D
+            array to process. Also useful to set to `2` when loading a 2D
+            OME-Zarr that is saved as `(size_x, size_y)`.
     """
     wf: napari_workflows.Worfklow = load_workflow(workflow_file)
     logger.info(f"Loaded workflow from {workflow_file}")

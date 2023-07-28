@@ -1,3 +1,13 @@
+# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
+# University of Zurich
+#
+# Original authors:
+# Tommaso Comparin <tommaso.comparin@exact-lab.it>
+#
+# This file is part of Fractal and was originally developed by eXact lab S.r.l.
+# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
+# Institute for Biomedical Research and Pelkmans Lab from the University of
+# Zurich.
 import inspect
 import logging
 from importlib import import_module
@@ -26,11 +36,12 @@ def _extract_function(
     package_name: str = "fractal_tasks_core",
 ) -> Callable:
     """
-    Extract function from a module with the same name
+    Extract function from a module with the same name.
 
-    :param package_name: Example ``fractal_tasks_core``
-    :param module_relative_path: Example ``tasks/create_ome_zarr.py``
-    :param function_name: Example ``create_ome_zarr``
+    Args:
+        package_name: Example `fractal_tasks_core`.
+        module_relative_path: Example `tasks/create_ome_zarr.py`.
+        function_name: Example `create_ome_zarr`.
     """
     if not module_relative_path.endswith(".py"):
         raise ValueError(f"{module_relative_path=} must end with '.py'")
@@ -45,11 +56,14 @@ def _extract_function(
 
 def _validate_function_signature(function: Callable):
     """
-    Validate the function signature
+    Validate the function signature.
 
     Implement a set of checks for type hints that do not play well with the
     creation of JSON Schema, see
     https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/399.
+
+    Args:
+        function: TBD
     """
     sig = signature(function)
     for param in sig.parameters.values():

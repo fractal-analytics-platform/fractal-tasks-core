@@ -1,18 +1,19 @@
+# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
+# University of Zurich
+#
+# Original authors:
+# Tommaso Comparin <tommaso.comparin@exact-lab.it>
+# Marco Franzon <marco.franzon@exact-lab.it>
+#
+# This file is part of Fractal and was originally developed by eXact lab S.r.l.
+# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
+# Institute for Biomedical Research and Pelkmans Lab from the University of
+# Zurich.
 """
-Copyright 2022 (C)
-    Friedrich Miescher Institute for Biomedical Research and
-    University of Zurich
+Task to compress tiff images.
 
-    Original authors:
-    Tommaso Comparin <tommaso.comparin@exact-lab.it>
-    Marco Franzon <marco.franzon@exact-lab.it>
-
-    This file is part of Fractal and was originally developed by eXact lab
-    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
-    Miescher Institute for Biomedical Research and Pelkmans Lab from the
-    University of Zurich.
-
-Task to compress tiff images (currently obsolete)
+**This task cannot be used in the current form, and it should first be
+aligned with the other tasks' structure.**
 """
 import glob
 import os
@@ -20,15 +21,15 @@ import os
 from PIL import Image
 
 
-def compress_tif(in_path, out_path, delete_input=False):
+def compress_tif(in_path: str, out_path: str, delete_input: bool = False):
 
     """
-    Compress tiff files
+    Compress tiff files.
 
     Args:
-        in_path: directory containing the input files
-        out_path: directory containing the output files
-        delete_input: delete input files
+        in_path: directory containing the input files.
+        out_path: directory containing the output files.
+        delete_input: delete input files.
     """
 
     # Sanitize input/output paths

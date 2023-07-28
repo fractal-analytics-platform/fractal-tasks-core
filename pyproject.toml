@@ -46,13 +46,13 @@ fractal-tasks = ["Pillow", "imageio-ffmpeg", "scikit-image", "llvmlite", "napari
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.1.2"
-devtools = "^0.8.0"
-bumpver = "^2022.1116"
+devtools = "^0.9.0"
 pre-commit = "^2.19.0"
-coverage = {extras = ["toml"], version = "^6.4.4"}
-jsonschema = "^4.16.0"
+pytest = "^7.1.2"
+bumpver = "^2022.1118"
+coverage = {extras = ["toml"], version = "^6.5.0"}
 pytest-pretty = "^1.1.0"
+jsonschema = "^4.16.0"
 mypy = "^1.3.0"
 requests = ">=2.28.0"
 wget = ">=3.2"
@@ -61,15 +61,13 @@ wget = ">=3.2"
 optional = true
 
 [tool.poetry.group.docs.dependencies]
-sphinx = "^5.3.0"
-sphinx-rtd-theme = "^1.1.1"
-sphinx-autodoc-typehints = "^1.19.5"
-autodocsumm = "^0.2.9"
-sphinx-autodoc-defaultargs = "^0.1.2"
-myst-parser = "^0.18.1"
-sphinx-autobuild = "^2021.3.14"
-sphinxcontrib-napoleon = "^0.7"
-
+mkdocs = "^1.4.3"
+mkdocs-material = "^9.1.19"
+mkdocs-literate-nav = "^0.5.0"
+mkdocs-gen-files = "^0.4.0"
+mkdocs-section-index = "^0.3.5"
+mkdocstrings = { extras = ["python"], version = "^0.22" }
+mkdocs-include-markdown-plugin = { version = "^4.0", python = "^3.8,<3.12" }
 
 [build-system]
 requires = ["poetry-core"]
@@ -80,7 +78,7 @@ branch = true
 parallel = true
 relative_files = true
 source = ["fractal_tasks_core"]
-omit = ["tests/*", "examples/*", "fractal_tasks_core/dev/*"]
+omit = ["tests/*", "examples/*", "fractal_tasks_core/dev/*", "fractal_tasks_core/tasks/compress_tif.py"]
 
 [tool.bumpver]
 current_version = "0.10.0"

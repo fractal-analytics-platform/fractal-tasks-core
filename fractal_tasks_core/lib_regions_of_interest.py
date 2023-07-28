@@ -1,18 +1,16 @@
+# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
+# University of Zurich
+#
+# Original authors:
+# Tommaso Comparin <tommaso.comparin@exact-lab.it>
+# Joel Lüthi <joel.luethi@uzh.ch>
+#
+# This file is part of Fractal and was originally developed by eXact lab S.r.l.
+# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
+# Institute for Biomedical Research and Pelkmans Lab from the University of
+# Zurich.
 """
-Copyright 2022 (C)
-    Friedrich Miescher Institute for Biomedical Research and
-    University of Zurich
-
-    Original authors:
-    Tommaso Comparin <tommaso.comparin@exact-lab.it>
-    Joel Lüthi <joel.luethi@uzh.ch>
-
-    This file is part of Fractal and was originally developed by eXact lab
-    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
-    Miescher Institute for Biomedical Research and Pelkmans Lab from the
-    University of Zurich.
-
-Functions to handle regions of interests (via pandas and AnnData)
+Functions to handle regions of interests (via pandas and AnnData).
 """
 import logging
 from typing import Optional
@@ -33,10 +31,11 @@ def prepare_FOV_ROI_table(
     df: pd.DataFrame, metadata: list[str] = ["time"]
 ) -> ad.AnnData:
     """
-    Description
+    TBD
 
-    :param dummy: this is just a placeholder
-    :type dummy: int
+    Args:
+        df: TBD
+        metadata: TBD
     """
 
     # Make a local copy of the dataframe, to avoid SettingWithCopyWarning
@@ -96,10 +95,11 @@ def prepare_well_ROI_table(
     df: pd.DataFrame, metadata: list[str] = ["time"]
 ) -> ad.AnnData:
     """
-    Description
+    TBD
 
     Args:
-        dummy: this is just a placeholder
+        df: TBD
+        metadata: TBD
     """
 
     # Make a local copy of the dataframe, to avoid SettingWithCopyWarning
@@ -167,10 +167,11 @@ def convert_ROIs_from_3D_to_2D(
     pixel_size_z: float,
 ) -> ad.AnnData:
     """
-    Description
+    TBD
 
     Args:
-        dummy: this is just a placeholder
+        adata: TBD
+        pixel_size_z: TBD
     """
 
     # Compress a 3D stack of images to a single Z plane,
@@ -211,12 +212,16 @@ def convert_ROI_table_to_indices(
     reset_origin: bool = True,
 ) -> list[list[int]]:
     """
-    Description
-
-    FIXME add docstring
+    TBD
 
     Args:
-        dummy: this is just a placeholder
+        ROI: TBD
+        full_res_pxl_sizes_zyx: TBD
+        level: TBD
+        coarsening_xy: TBD
+        cols_xyz_pos: TBD
+        cols_xyz_len: TBD
+        reset_origin: TBD
     """
     # Handle empty ROI table
     if len(ROI) == 0:
@@ -276,10 +281,11 @@ def array_to_bounding_box_table(
 ) -> pd.DataFrame:
 
     """
-    Description
+    TBD
 
     Args:
-        dummy: this is just a placeholder
+        mask_array: TBD
+        pxl_sizes_zyx: TBD
     """
 
     labels = np.unique(mask_array)
@@ -316,24 +322,24 @@ def array_to_bounding_box_table(
 
 def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
     """
-    Verify some validity assumptions on a ROI table
+    Verify some validity assumptions on a ROI table.
 
     This function reflects our current working assumptions (e.g. the presence
     of some specific columns); this may change in future versions.
 
-    If ``use_masks=True``, we verify that the table is suitable to be used as
-    part of our masked-loading functions (see ``lib_masked_loading.py``); if
-    these checks fail, ``use_masks`` should be set to ``False`` upstream in the
+    If `use_masks=True`, we verify that the table is suitable to be used as
+    part of our masked-loading functions (see `lib_masked_loading.py`); if
+    these checks fail, `use_masks` should be set to `False` upstream in the
     parent function.
 
     Args:
         table_path: Path of the AnnData ROI table to be checked.
-        use_masks: If ``True``, perform some additional checks related to
+        use_masks: If `True`, perform some additional checks related to
             masked loading.
 
     Returns:
-        Always ``None`` if ``use_masks=False``, otherwise return whether the
-        table is valid for masked loading.
+        Always `None` if `use_masks=False`, otherwise return whether the table
+            is valid for masked loading.
     """
 
     # Hard constraint: table columns must include some expected ones
@@ -369,24 +375,24 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
 def load_region(
     data_zyx: da.Array,
     region: tuple[slice, slice, slice],
-    compute=True,
-    return_as_3D=False,
+    compute: bool = True,
+    return_as_3D: bool = False,
 ) -> Union[da.Array, np.ndarray]:
     """
-    Load a region from a dask array
+    Load a region from a dask array.
 
     Can handle both 2D and 3D dask arrays as input and return them as is or
-    always as a 3D array
+    always as a 3D array.
 
     Args:
-        data_zyx: dask array, 2D or 3D
-        region: region to load, tuple of three slices (ZYX)
-        compute: whether to compute the result. If True, returns a numpy array.
-            If False, returns a dask array.
-    :return_as_3D: whether to return a 3D array, even if the input is 2D
+        data_zyx: Dask array (2D or 3D).
+        region: Region to load, tuple of three slices (ZYX).
+        compute: Whether to compute the result. If `True`, returns a numpy
+            array. If `False`, returns a dask array.
+        return_as_3D: Whether to return a 3D array, even if the input is 2D.
 
     Returns:
-        3D array
+        3D array.
     """
 
     if len(region) != 3:

@@ -1,16 +1,14 @@
+# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
+# University of Zurich
+#
+# Original authors:
+# Tommaso Comparin <tommaso.comparin@exact-lab.it>
+#
+# This file is part of Fractal and was originally developed by eXact lab S.r.l.
+# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
+# Institute for Biomedical Research and Pelkmans Lab from the University of
+# Zurich.
 """
-Copyright 2022 (C)
-    Friedrich Miescher Institute for Biomedical Research and
-    University of Zurich
-
-    Original authors:
-    Tommaso Comparin <tommaso.comparin@exact-lab.it>
-
-    This file is part of Fractal and was originally developed by eXact lab
-    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
-    Miescher Institute for Biomedical Research and Pelkmans Lab from the
-    University of Zurich.
-
 Script to check that JSON schemas for task arguments (as reported in the
 package manfest) are up-to-date.
 """
@@ -29,7 +27,12 @@ def _compare_dicts(
     old: dict[str, Any], new: dict[str, Any], path: list[str] = []
 ):
     """
-    Provide more informative comparison of two (possibly nested) dictionaries
+    Provide more informative comparison of two (possibly nested) dictionaries.
+
+    Args:
+        old: TBD
+        new: TBD
+        path: TBD
     """
     path_str = "/".join(path)
     keys_old = set(old.keys())

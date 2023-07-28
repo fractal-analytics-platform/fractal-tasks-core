@@ -1,21 +1,25 @@
+**Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-* Update dependencies (\#455):
-    * Relax `numpy` required version to `<2` (\#477);
-    * Relax `dask` required version to `>=2023.1.0` (\#455);
-    * Relax `zarr` required version to `>=2.13.6,<3` (\#455);
-    * Relax `pandas` required version to `>=1.2.0,<2` (\#455);
-    * Relax `Pillow` required version to `>=9.1.1,<10.0.0` (\#455);
 * Update default values for tolerance (`tol`) in `lib_ROI_overlaps.py` functions (\#466).
-* Align examples to recent package version, and mention them in the documentation (\#470).
-* Internal changes (\#455):
-    * Convert docstrings to Google style (\#473).
-    * Improve logging and error-handling in tools for args-schema creation (\#469).
+* Documentation:
+    * Convert docstrings to Google style (\#473, \#479).
+    * Switch from sphinx to mkdocs for documentation (\#479).
+    * Update generic type hints (\#462, \#479).
+    * Align examples to recent package version, and mention them in the documentation (\#470).
+* Testing:
     * Improve coverage of core library (\#459, \#467, \#468).
     * Update Zenodo datasets used in tests (\#454).
-    * Full update of `poetry.lock` file (e.g. \#472).
-    * Include `requests` and `wget` in the `dev` poetry dependency group.
-    * Run tests both for the poetry- and pip-installed package.
-    * Update generic type hints (\#462).
+    * Run tests both for the poetry-installed and pip-installed package (\#455).
+* Dependencies:
+    * Relax `numpy` required version to `<2` (\#477).
+    * Relax `dask` required version to `>=2023.1.0` (\#455).
+    * Relax `zarr` required version to `>=2.13.6,<3` (\#455).
+    * Relax `pandas` required version to `>=1.2.0,<2` (\#455).
+    * Relax `Pillow` required version to `>=9.1.1,<10.0.0` (\#455).
+    * Full update of `poetry.lock` file (mutiple PRs, e.g. \#472).
+    * Include `requests` and `wget` in the `dev` poetry dependency group (\#455).
+* Development tools:
+    * Improve logging and error-handling in tools for args-schema creation (\#469).
 
 # 0.10.0
 

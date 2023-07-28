@@ -1,17 +1,15 @@
+# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
+# University of Zurich
+#
+# Original authors:
+# Tommaso Comparin <tommaso.comparin@exact-lab.it>
+#
+# This file is part of Fractal and was originally developed by eXact lab S.r.l.
+# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
+# Institute for Biomedical Research and Pelkmans Lab from the University of
+# Zurich.
 """
-Copyright 2022 (C)
-    Friedrich Miescher Institute for Biomedical Research and
-    University of Zurich
-
-    Original authors:
-    Tommaso Comparin <tommaso.comparin@exact-lab.it>
-
-    This file is part of Fractal and was originally developed by eXact lab
-    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
-    Miescher Institute for Biomedical Research and Pelkmans Lab from the
-    University of Zurich.
-
-Create structure for OME-NGFF zarr array
+Create structure for OME-NGFF zarr array.
 """
 import os
 from pathlib import Path
@@ -58,64 +56,58 @@ def create_ome_zarr(
     metadata_table_file: Optional[str] = None,
 ) -> dict[str, Any]:
     """
-    Create a OME-NGFF zarr folder, without reading/writing image data
+    Create a OME-NGFF zarr folder, without reading/writing image data.
 
-    Find plates (for each folder in input_paths)
-        * glob image files
-        * parse metadata from image filename to identify plates
-        * identify populated channels
+    Find plates (for each folder in input_paths):
 
-    Create a zarr folder (for each plate)
-        * parse mlf metadata
-        * identify wells and field of view (FOV)
-        * create FOV ZARR
-        * verify that channels are uniform (i.e., same channels)
+    - glob image files,
+    - parse metadata from image filename to identify plates,
+    - identify populated channels.
 
-    :param input_paths: List of input paths where the image data from
-                        the microscope is stored (as TIF or PNG).
-                        Should point to the parent folder containing the
-                        images and the metadata files ``MeasurementData.mlf``
-                        and ``MeasurementDetail.mrf`` (if present).
-                        Example: ``["/some/path/"]``
-                        (standard argument for Fractal tasks,
-                        managed by Fractal server)
-    :param output_path: Path were the output of this task is stored.
-                        Example: "/some/path/" => puts the new OME-Zarr file
-                        in the "/some/path/"
-                        (standard argument for Fractal tasks,
-                        managed by Fractal server)
-    :param metadata: This parameter is not used by this task
-                     (standard argument for Fractal tasks,
-                     managed by Fractal server)
-    :param allowed_channels: A list of ``OmeroChannel`` s, where each channel
-                             must include the ``wavelength_id`` attribute and
-                             where the ``wavelength_id`` values must be unique
-                             across the list.
-    :param image_glob_patterns: If specified, only parse images with filenames
-                                that match with all these patterns. Patterns
-                                must be defined as in
-                                https://docs.python.org/3/library/fnmatch.html,
-                                Example: ``image_glob_pattern=["*_B03_*"]``
-                                => only process well B03
-                                ``image_glob_pattern=["*_C09_*", "*F016*",
-                                "*Z[0-5][0-9]C*"]``
-                                => only process well C09, field of view 16
-                                and Z planes 0 - 59.
-    :param num_levels: Number of resolution-pyramid levels. If set to 5, there
-                       will be the full-resolution level and 4 levels of
-                       downsampled images.
-    :param coarsening_xy: Linear coarsening factor between subsequent levels.
-                          If set to 2, level 1 is 2x downsampled, level 2 is
-                          4x downsampled etc.
-    :param image_extension: Filename extension of images (e.g. ``"tif"`` or
-                            ``"png"``)
-    :param metadata_table_file: If ``None``, parse Yokogawa metadata from
-                                mrf/mlf files in the input_path folder; else,
-                                the full path to a csv file containing the
-                                parsed metadata table.
-    :return: A metadata dictionary containing important metadata about the
-            OME-Zarr plate, the images and some parameters required by
-            downstream tasks (like `num_levels`).
+    Create a zarr folder (for each plate):
+
+    - parse mlf metadata,
+    - identify wells and field of view (FOV),
+    - create FOV ZARR,
+    - verify that channels are uniform (i.e., same channels).
+
+    Args:
+        input_paths: List of input paths where the image data from
+            the microscope is stored (as TIF or PNG).  Should point to the
+            parent folder containing the images and the metadata files
+            `MeasurementData.mlf` and `MeasurementDetail.mrf` (if present).
+            Example: `["/some/path/"]`.
+            (standard argument for Fractal tasks, managed by Fractal server).
+        output_path: Path were the output of this task is stored.
+            Example: "/some/path/" => puts the new OME-Zarr file in the
+            "/some/path/".
+            (standard argument for Fractal tasks, managed by Fractal server).
+        metadata: This parameter is not used by this task
+            (standard argument for Fractal tasks, managed by Fractal server).
+        allowed_channels: A list of `OmeroChannel` s, where each channel must
+            include the `wavelength_id` attribute and where the
+            `wavelength_id` values must be unique across the list.
+        image_glob_patterns: If specified, only parse images with filenames
+            that match with all these patterns. Patterns must be defined as in
+            https://docs.python.org/3/library/fnmatch.html, Example:
+            `image_glob_pattern=["*_B03_*"]` => only process well B03
+            `image_glob_pattern=["*_C09_*", "*F016*", "*Z[0-5][0-9]C*"]` =>
+            only process well C09, field of view 16 and Z planes 0-59.
+        num_levels: Number of resolution-pyramid levels. If set to `5`, there
+            will be the full-resolution level and 4 levels of
+            downsampled images.
+        coarsening_xy: Linear coarsening factor between subsequent levels.
+            If set to `2`, level 1 is 2x downsampled, level 2 is
+            4x downsampled etc.
+        image_extension: Filename extension of images (e.g. `"tif"` or `"png"`)
+        metadata_table_file: If `None`, parse Yokogawa metadata from mrf/mlf
+            files in the input_path folder; else, the full path to a csv file
+            containing the parsed metadata table.
+
+    Returns:
+        A metadata dictionary containing important metadata about the OME-Zarr
+            plate, the images and some parameters required by downstream tasks
+            (like `num_levels`).
     """
 
     # Preliminary checks on metadata_table_file

@@ -1,23 +1,20 @@
+# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
+# University of Zurich
+#
+# Original authors:
+# Tommaso Comparin <tommaso.comparin@exact-lab.it>
+# Marco Franzon <marco.franzon@exact-lab.it>
+#
+# This file is part of Fractal and was originally developed by eXact lab S.r.l.
+# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
+# Institute for Biomedical Research and Pelkmans Lab from the University of
+# Zurich.
 """
-Copyright 2022 (C)
-    Friedrich Miescher Institute for Biomedical Research and
-    University of Zurich
-
-    Original authors:
-    Tommaso Comparin <tommaso.comparin@exact-lab.it>
-    Marco Franzon <marco.franzon@exact-lab.it>
-
-    This file is part of Fractal and was originally developed by eXact lab
-    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
-    Miescher Institute for Biomedical Research and Pelkmans Lab from the
-    University of Zurich.
-
-Task that writes image data to an existing OME-NGFF zarr array
+Task that writes image data to an existing OME-NGFF zarr array.
 """
 import logging
 from pathlib import Path
 from typing import Any
-from typing import Dict
 from typing import Sequence
 
 import dask.array as da
@@ -43,12 +40,13 @@ from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 logger = logging.getLogger(__name__)
 
 
-def sort_fun(filename: str):
+def sort_fun(filename: str) -> list[int]:
     """
-    sort_fun takes a string (filename of a yokogawa images), extract site and
-    z-index metadata and returns them as a list of integers
+    Takes a string (filename of a Yokogawa image), extract site and
+    z-index metadata and returns them as a list of integers.
 
-    :param filename: name of the image file
+    Args:
+        filename: Name of the image file.
     """
 
     filename_metadata = parse_filename(filename)
@@ -63,10 +61,10 @@ def yokogawa_to_ome_zarr(
     input_paths: Sequence[str],
     output_path: str,
     component: str,
-    metadata: Dict[str, Any],
+    metadata: dict[str, Any],
 ):
     """
-    Convert Yokogawa output (png, tif) to zarr file
+    Convert Yokogawa output (png, tif) to zarr file.
 
     This task is typically run after Create OME-Zarr or
     Create OME-Zarr Multiplexing and populates the empty OME-Zarr files that
@@ -75,27 +73,32 @@ def yokogawa_to_ome_zarr(
     Args:
         input_paths: List of input paths where the OME-Zarrs. Should point to
             the parent folder containing one or many OME-Zarr files, not the
-            actual OME-Zarr file. Example: ["/some/path/"] This task only
-            supports a single input path. (standard argument for Fractal tasks,
-            managed by Fractal server)
-        output_path: Unclear. Should be the same as input_path. (standard
-            argument for Fractal tasks, managed by Fractal server)
+            actual OME-Zarr file. Example: `["/some/path/"]`.
+            This task only supports a single input path.
+            (standard argument for Fractal tasks,
+            managed by Fractal server).
+        output_path: Unclear. Should be the same as `input_path`.
+            (standard argument for Fractal tasks, managed by Fractal server).
         component: Path to the OME-Zarr image in the OME-Zarr plate that is
-            processed. Example: "some_plate.zarr/B/03/0" (standard argument for
-            Fractal tasks, managed by Fractal server)
-        metadata: dictionary containing metadata about the OME-Zarr. This task
-            requires the following elements to be present in the metadata:
-            "original_paths": list of paths that correspond to the
-            ``input_paths`` of the create_ome_zarr task (=> where the
-            microscopy image are stored) "num_levels": int, number of pyramid
-            levels in the image. This determines how many pyramid levels are
-            built for the segmentation. "coarsening_xy": int, coarsening factor
-            in XY of the downsampling when building the pyramid.
-            "image_extension": Filename extension of images (e.g. ``"tif"`` or
-            ``"png"``) "image_glob_patterns": Parameter of ``create_ome_zarr``
-            task. If specified, only parse images with filenames that match
-            with all these patterns. (standard argument for Fractal tasks,
-            managed by Fractal server)
+            processed. Example: `"some_plate.zarr/B/03/0"`
+            (standard argument for Fractal tasks, managed by Fractal server).
+        metadata: Dictionary containing metadata about the OME-Zarr. This task
+            requires the following elements to be present in the metadata.
+            `original_paths`:
+            list of paths that correspond to the `input_paths` of the
+            `create_ome_zarr` task (=> where the microscopy image are stored);
+            `num_levels (int)`:
+            number of pyramid levels in the image (this determines how many
+            pyramid levels are built for the segmentation);
+            `coarsening_xy (int)`:
+            coarsening factor in XY of the downsampling when building the
+            pyramid;
+            `image_extension`:
+            filename extension of images (e.g. `"tif"` or `"png"`);
+            `image_glob_patterns`:
+            parameter of `create_ome_zarr` task (if specified, only parse
+            images with filenames that match with all these patterns).
+            (standard argument for Fractal tasks, managed by Fractal server).
     """
 
     # Preliminary checks
