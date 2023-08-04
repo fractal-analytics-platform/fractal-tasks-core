@@ -116,6 +116,25 @@ def _get_class_attrs_descriptions(
     return descriptions
 
 
+def _insert_docstring_and_link(schema, task_function) -> dict[str, str]:
+    new_schema = schema.copy()
+    if hasattr(task_function, "func_doc"):
+        new_schema["docs_info"] = str(task_function.func_doc).split("Args")[0]
+    else:
+        pass
+
+    if hasattr(task_function, "func_name"):
+        new_schema["docs_link"] = (
+            "https://fractal-analytics-platform.github.io/fractal-tasks-core/"
+            f"reference/fractal_tasks_core/tasks/{task_function.func_name}/"
+        )
+    else:
+        pass
+
+    logging.info("[_insert_docstring_and_link] END")
+    return new_schema
+
+
 def _insert_function_args_descriptions(*, schema: dict, descriptions: dict):
     """
     Merge the descriptions obtained via `_get_args_descriptions` into the

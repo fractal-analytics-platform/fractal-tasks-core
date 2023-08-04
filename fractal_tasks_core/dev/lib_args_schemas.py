@@ -34,6 +34,7 @@ from fractal_tasks_core.dev.lib_descriptions import (
 from fractal_tasks_core.dev.lib_descriptions import (
     _insert_class_attrs_descriptions,
 )
+from fractal_tasks_core.dev.lib_descriptions import _insert_docstring_and_link
 from fractal_tasks_core.dev.lib_descriptions import (
     _insert_function_args_descriptions,
 )
@@ -174,16 +175,8 @@ def create_schema_for_single_task(
     # Include titles for custom-model-typed arguments
     schema = _include_titles(schema)
 
-    # FIXME ---
-    docs_link = (
-        "https://fractal-analytics-platform.github.io/fractal-tasks-core/"
-        f"reference/fractal_tasks_core/tasks/{task_function.func_name}/"
-    )
-    docs_info = str(task_function.func_doc).split("Args")[0]
-
-    schema["docs_link"] = docs_link
-    schema["docs_info"] = docs_info
-    # FIXME ---
+    # Insert main docstring and link to documentation
+    schema = _insert_docstring_and_link(schema, task_function)
 
     # Include descriptions of function arguments
     function_args_descriptions = _get_function_args_descriptions(
