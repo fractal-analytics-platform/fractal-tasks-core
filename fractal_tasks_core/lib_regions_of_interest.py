@@ -415,3 +415,23 @@ def load_region(
         return img.compute()
     else:
         return img
+
+
+def convert_indices_to_regions(
+    index: tuple,
+):
+    """
+    Converts index tuples to region tuple
+
+    Args:
+        indices: Tuple containing 6 entries of (z_start, z_end, y_start,
+            y_end, x_start, x_end).
+
+    Returns:
+        region: tuple of three slices (ZYX)
+    """
+    return (
+        slice(index[0], index[1]),
+        slice(index[2], index[3]),
+        slice(index[4], index[5]),
+    )

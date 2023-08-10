@@ -11,6 +11,9 @@ from fractal_tasks_core.lib_regions_of_interest import (
     array_to_bounding_box_table,
 )
 from fractal_tasks_core.lib_regions_of_interest import (
+    convert_indices_to_regions,
+)
+from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
 from fractal_tasks_core.lib_regions_of_interest import (
@@ -20,7 +23,6 @@ from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
 from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
-
 
 PIXEL_SIZE_X = 0.1625
 PIXEL_SIZE_Y = 0.1625
@@ -349,3 +351,20 @@ def test_load_region_fail():
             region=(slice(0, 1), slice(0, 1), slice(0, 1)),
         )
     debug(e.value)
+
+
+index_regions = [
+    (
+        [0, 1, 0, 540, 640, 1280],
+        (slice(0, 1, None), slice(0, 540, None), slice(640, 1280, None)),
+    ),
+    (
+        [0, 20, 100, 540, 900, 2000],
+        (slice(0, 20, None), slice(100, 540, None), slice(900, 2000, None)),
+    ),
+]
+
+
+@pytest.mark.parametrize("index,expected_results", index_regions)
+def test_indices_to_region_conversion(index, expected_results):
+    assert convert_indices_to_regions(index) == expected_results
