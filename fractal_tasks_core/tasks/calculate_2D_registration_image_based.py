@@ -61,7 +61,7 @@ def calculate_2D_registration_image_based(
         3. Storing the calculated transformation in the ROI table
 
     Args:
-       input_paths: List of input paths where the image data is stored as
+        input_paths: List of input paths where the image data is stored as
             OME-Zarrs. Should point to the parent folder containing one or many
             OME-Zarr files, not the actual OME-Zarr file. Example:
             `["/some/path/"]`. This task only supports a single input path.
