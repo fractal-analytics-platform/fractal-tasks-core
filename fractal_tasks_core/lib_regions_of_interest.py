@@ -419,12 +419,12 @@ def load_region(
 
 def convert_indices_to_regions(
     index: tuple,
-):
+) -> tuple(slice):
     """
     Converts index tuples to region tuple
 
     Args:
-        indices: Tuple containing 6 entries of (z_start, z_end, y_start,
+        index: Tuple containing 6 entries of (z_start, z_end, y_start,
             y_end, x_start, x_end).
 
     Returns:
