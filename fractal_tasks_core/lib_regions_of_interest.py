@@ -342,19 +342,8 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
             is valid for masked loading.
     """
 
-    # Hard constraint: table columns must include some expected ones
     table = ad.read_zarr(table_path)
-    columns = [
-        "x_micrometer",
-        "y_micrometer",
-        "z_micrometer",
-        "len_x_micrometer",
-        "len_y_micrometer",
-        "len_z_micrometer",
-    ]
-    for column in columns:
-        if column not in table.var_names:
-            raise ValueError(f"Column {column} is not present in ROI table")
+    are_ROI_table_columns_valid(table=table, use_masks=use_masks)
     if not use_masks:
         return None
 
@@ -370,6 +359,37 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
         return True
     else:
         return False
+
+
+def are_ROI_table_columns_valid(*, table: ad.AnnData) -> Optional[bool]:
+    """
+    Verify some validity assumptions on a ROI table.
+
+    This function reflects our current working assumptions (e.g. the presence
+    of some specific columns); this may change in future versions.
+
+    Args:
+        table: AnnData table to be checked
+        use_masks: If `True`, perform some additional checks related to
+            masked loading.
+
+    Returns:
+        Always `None` if `use_masks=False`, otherwise return whether the table
+            is valid for masked loading.
+    """
+
+    # Hard constraint: table columns must include some expected ones
+    columns = [
+        "x_micrometer",
+        "y_micrometer",
+        "z_micrometer",
+        "len_x_micrometer",
+        "len_y_micrometer",
+        "len_z_micrometer",
+    ]
+    for column in columns:
+        if column not in table.var_names:
+            raise ValueError(f"Column {column} is not present in ROI table")
 
 
 def load_region(
@@ -435,3 +455,21 @@ def convert_indices_to_regions(
         slice(index[2], index[3]),
         slice(index[4], index[5]),
     )
+
+
+def reset_origin(
+    ROI_table: ad.AnnData,
+    x_pos="x_micrometer",
+    y_pos="y_micrometer",
+    z_pos="z_micrometer",
+):
+
+    origin_x = min(ROI_table[:, x_pos].X[:, 0])
+    origin_y = min(ROI_table[:, y_pos].X[:, 0])
+    origin_z = min(ROI_table[:, z_pos].X[:, 0])
+    for FOV in ROI_table.obs_names:
+        ROI_table[FOV, x_pos] = ROI_table[FOV, x_pos].X[0, 0] - origin_x
+        ROI_table[FOV, y_pos] = ROI_table[FOV, y_pos].X[0, 0] - origin_y
+        ROI_table[FOV, z_pos] = ROI_table[FOV, z_pos].X[0, 0] - origin_z
+
+    return ROI_table
