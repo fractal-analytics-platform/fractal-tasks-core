@@ -48,9 +48,9 @@ def calculate_2D_registration_image_based(
     metadata: dict[str, Any],
     # Task-specific arguments
     wavelength_id: str,
-    roi_table="FOV_ROI_table",
-    reference_cycle="0",
-    level=2,
+    roi_table: str = "FOV_ROI_table",
+    reference_cycle: int = 0,
+    level: int = 2,
 ) -> dict[str, Any]:
     """
     Calculate registration based on 2D images
@@ -96,7 +96,7 @@ def calculate_2D_registration_image_based(
     # TODO: Improve the input for this: Can we filter components to not
     # run for itself?
     alignment_cycle = zarr_img_cycle_x.parts[-1]
-    if alignment_cycle == reference_cycle:
+    if alignment_cycle == str(reference_cycle):
         logger.info(
             "Calculate 2D registration image-based is running for "
             f"cycle {alignment_cycle}, which is the reference_cycle."
@@ -109,7 +109,7 @@ def calculate_2D_registration_image_based(
             f"cycle {alignment_cycle}"
         )
 
-    zarr_img_ref_cycle = zarr_img_cycle_x.parent / reference_cycle
+    zarr_img_ref_cycle = zarr_img_cycle_x.parent / str(reference_cycle)
 
     # Read some parameters from metadata
     coarsening_xy = metadata["coarsening_xy"]
@@ -253,7 +253,7 @@ def calculate_physical_shifts(
     level: int,
     coarsening_xy: int,
     full_res_pxl_sizes_zyx: list,
-):
+) -> list[float]:
     """
     Calculates shifts in physical units based on pixel shifts
 
