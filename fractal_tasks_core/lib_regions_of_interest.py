@@ -343,7 +343,7 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
     """
 
     table = ad.read_zarr(table_path)
-    are_ROI_table_columns_valid(table=table, use_masks=use_masks)
+    are_ROI_table_columns_valid(table=table)
     if not use_masks:
         return None
 
@@ -370,8 +370,6 @@ def are_ROI_table_columns_valid(*, table: ad.AnnData) -> Optional[bool]:
 
     Args:
         table: AnnData table to be checked
-        use_masks: If `True`, perform some additional checks related to
-            masked loading.
 
     Returns:
         Always `None` if `use_masks=False`, otherwise return whether the table
