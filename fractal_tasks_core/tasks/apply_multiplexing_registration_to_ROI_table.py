@@ -155,6 +155,8 @@ def apply_multiplexing_registration_to_ROI_table(
 
     # TODO: Optionally apply registration to other tables as well?
     # e.g. to well_ROI_table based on FOV_ROI_table
+    # => out of scope for the initial task, apply registration separately
+    # to each table
 
     return {}
 
