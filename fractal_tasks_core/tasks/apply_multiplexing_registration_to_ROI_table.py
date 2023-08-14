@@ -231,7 +231,6 @@ def apply_registration_to_roi_table(roi_table, max_df, min_df, rois):
     # l = len - max(shift, 0) + min(shift, 0)
     roi_table = copy.deepcopy(roi_table)
     for roi in rois:
-        # FIXME: Do those need to be > 0? Gets tricky
         roi_table[[roi], ["z_micrometer"]] = (
             roi_table[[roi], ["z_micrometer"]].X
             + float(max_df.loc[roi, "translation_z"])
