@@ -181,3 +181,17 @@ def test_define_omero_channels(testdata_path: Path, omero_channel_schema):
         )
     debug(e.value)
     assert "Non-unique" in str(e.value)
+
+
+def test_color_validator():
+    """
+    Test the pydantic validator for hex colors in OmeroChannel.
+    """
+    valid_colors = ["aaaaaa", "abc123", "AAAAAA", "000000", "00ff00"]
+    invalid_colors = ["#aaaaaa", "abc", "abc12", "abcde-"]
+    for c in valid_colors:
+        OmeroChannel(wavelength_id="A01_C01", color=c)
+
+    for c in invalid_colors:
+        with pytest.raises(ValueError):
+            OmeroChannel(wavelength_id="A01_C01", color=c)
