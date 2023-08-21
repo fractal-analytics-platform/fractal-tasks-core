@@ -134,7 +134,7 @@
               "color": {
                 "title": "Color",
                 "type": "string",
-                "description": "Optional hex colormap to display the channel in napari (e.g. `00FFFF`)."
+                "description": "Optional hex colormap to display the channel in napari (it must be of length 6, e.g. `00FFFF`)."
               },
               "active": {
                 "title": "Active",
@@ -885,7 +885,7 @@
               "color": {
                 "title": "Color",
                 "type": "string",
-                "description": "Optional hex colormap to display the channel in napari (e.g. `00FFFF`)."
+                "description": "Optional hex colormap to display the channel in napari (it must be of length 6, e.g. `00FFFF`)."
               },
               "active": {
                 "title": "Active",

@@ -17,6 +17,7 @@ from typing import Union
 
 import zarr
 from pydantic import BaseModel
+from pydantic import validator
 
 from fractal_tasks_core import __OME_NGFF_VERSION__
 
@@ -57,8 +58,8 @@ class OmeroChannel(BaseModel):
         label: Name of the channel.
         window: Optional `Window` object to set default display settings for
             napari.
-        color: Optional hex colormap to display the channel in napari
-            (e.g. `00FFFF`).
+        color: Optional hex colormap to display the channel in napari (it
+            must be of length 6, e.g. `00FFFF`).
         active: Should this channel be shown in the viewer?
         coefficient: Do not change. Omero-channel attribute.
         inverted: Do not change. Omero-channel attribute.
@@ -77,6 +78,23 @@ class OmeroChannel(BaseModel):
     active: bool = True
     coefficient: int = 1
     inverted: bool = False
+
+    @validator("color", always=True)
+    def valid_hex_color(cls, v, values):
+        """
+        Check that `color` is made of exactly six elements which are letters
+        (a-f or A-F) or digits (0-9).
+        """
+        if len(v) != 6:
+            raise ValueError(f'color must have length 6 (given: "{v}")')
+        allowed_characters = "abcdefABCDEF0123456789"
+        for character in v:
+            if character not in allowed_characters:
+                raise ValueError(
+                    "color must only include characters from "
+                    f'"{allowed_characters}" (given: "{v}")'
+                )
+        return v
 
 
 class ChannelNotFoundError(ValueError):
