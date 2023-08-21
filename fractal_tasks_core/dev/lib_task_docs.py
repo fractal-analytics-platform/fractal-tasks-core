@@ -84,6 +84,7 @@ def create_docs_link(executable: str) -> str:
     docs_link = (
         "https://fractal-analytics-platform.github.io/fractal-tasks-core/"
         f"reference/fractal_tasks_core/tasks/{function_name}/"
+        f"#fractal_tasks_core.tasks.{function_name}.{function_name}"
     )
     logging.info("[create_docs_link] END")
     return docs_link
