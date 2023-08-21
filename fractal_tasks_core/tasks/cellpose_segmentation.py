@@ -438,7 +438,10 @@ def cellpose_segmentation(
     labels_group.attrs["labels"] = existing_labels + new_labels
 
     label_group = labels_group.create_group(output_label_name)
-    label_group.attrs["image-label"] = {"version": __OME_NGFF_VERSION__}
+    label_group.attrs["image-label"] = {
+        "version": __OME_NGFF_VERSION__,
+        "source": {"image": "../../"},
+    }
     label_group.attrs["multiscales"] = [
         {
             "name": output_label_name,
