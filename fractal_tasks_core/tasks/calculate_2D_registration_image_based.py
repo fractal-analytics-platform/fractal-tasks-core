@@ -311,3 +311,12 @@ def get_ROI_table_with_translation(FOV_ROI_table, new_shifts):
     adata.obs_names = new_roi_table.index
     adata.var_names = list(map(str, positional_columns))
     return adata
+
+
+if __name__ == "__main__":
+    from fractal_tasks_core.tasks._utils import run_fractal_task
+
+    run_fractal_task(
+        task_function=calculate_2D_registration_image_based,
+        logger_name=logger.name,
+    )

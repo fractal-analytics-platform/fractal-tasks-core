@@ -270,3 +270,12 @@ def apply_registration_to_roi_table(roi_table, max_df, min_df, rois):
             + float(min_df.loc[roi, "translation_x"])
         )
     return roi_table
+
+
+if __name__ == "__main__":
+    from fractal_tasks_core.tasks._utils import run_fractal_task
+
+    run_fractal_task(
+        task_function=apply_registration_to_ROI_table,
+        logger_name=logger.name,
+    )

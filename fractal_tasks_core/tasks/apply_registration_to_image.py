@@ -12,6 +12,7 @@
 Calculates translation for 2D image-based registration
 """
 import json
+import logging
 import os
 import shutil
 from pathlib import Path
@@ -34,8 +35,7 @@ from fractal_tasks_core.lib_regions_of_interest import (
 from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
-
-# Parameters
+logger = logging.getLogger(__name__)
 
 
 def apply_registration_to_image(
@@ -342,4 +342,13 @@ def write_registered_zarr(
         coarsening_xy=coarsening_xy,
         chunksize=data_array.chunksize,
         aggregation_function=aggregation_function,
+    )
+
+
+if __name__ == "__main__":
+    from fractal_tasks_core.tasks._utils import run_fractal_task
+
+    run_fractal_task(
+        task_function=apply_registration_to_image,
+        logger_name=logger.name,
     )

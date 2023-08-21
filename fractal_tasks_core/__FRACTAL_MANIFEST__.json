@@ -920,6 +920,206 @@
       },
       "name": "Create OME-ZARR structure (multiplexing)",
       "output_type": "zarr"
+    },
+    {
+      "executable": "tasks/calculate_2D_registration_image_based.py",
+      "input_type": "zarr",
+      "meta": {
+        "cpus_per_task": 1,
+        "mem": 8000,
+        "parallelization_level": "image"
+      },
+      "name": "Calculate 2D registration (image-based)",
+      "output_type": "zarr",
+      "args_schema": {
+        "title": "Calculate2dRegistrationImageBased",
+        "type": "object",
+        "properties": {
+          "input_paths": {
+            "title": "Input Paths",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of input paths where the image data is stored as OME-Zarrs. Should point to the parent folder containing one or many OME-Zarr files, not the actual OME-Zarr file. Example: `[\"/some/path/\"]`. This task only supports a single input path. (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "output_path": {
+            "title": "Output Path",
+            "type": "string",
+            "description": "This parameter is not used by this task. (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "component": {
+            "title": "Component",
+            "type": "string",
+            "description": "Path to the OME-Zarr image in the OME-Zarr plate that is processed. Example: `\"some_plate.zarr/B/03/0\"`. (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "metadata": {
+            "title": "Metadata",
+            "type": "object",
+            "description": "dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata. `coarsening_xy (int)`: coarsening factor in XY of the downsampling when building the pyramid. (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "wavelength_id": {
+            "title": "Wavelength Id",
+            "type": "string",
+            "description": "Wavelength that will be used for image-based registration; e.g. A01_C01 for Yokogawa, C01 for MD."
+          },
+          "roi_table": {
+            "title": "Roi Table",
+            "default": "FOV_ROI_table",
+            "type": "string",
+            "description": "Name of the ROI table over which the task loops to calculate the registration. Examples: `FOV_ROI_table` => loop over the field of views, `well_ROI_table` => process the whole well as one image."
+          },
+          "reference_cycle": {
+            "title": "Reference Cycle",
+            "default": 0,
+            "type": "integer",
+            "description": "Which cycle to register against. Defaults to 0, which is the first OME-Zarr image in the well, usually the first cycle that was provided"
+          },
+          "level": {
+            "title": "Level",
+            "default": 2,
+            "type": "integer",
+            "description": "Pyramid level of the image to be segmented. Choose `0` to process at full resolution."
+          }
+        },
+        "required": [
+          "input_paths",
+          "output_path",
+          "component",
+          "metadata",
+          "wavelength_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "executable": "tasks/apply_registration_to_ROI_table.py",
+      "input_type": "zarr",
+      "meta": {
+        "cpus_per_task": 1,
+        "mem": 1000,
+        "parallelization_level": "well"
+      },
+      "name": "Apply Registration to ROI Tables",
+      "output_type": "zarr",
+      "args_schema": {
+        "title": "ApplyRegistrationToRoiTable",
+        "type": "object",
+        "properties": {
+          "input_paths": {
+            "title": "Input Paths",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of input paths where the image data is stored as OME-Zarrs. Should point to the parent folder containing one or many OME-Zarr files, not the actual OME-Zarr file. Example: `[\"/some/path/\"]`. This task only supports a single input path. (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "output_path": {
+            "title": "Output Path",
+            "type": "string",
+            "description": "This parameter is not used by this task. (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "component": {
+            "title": "Component",
+            "type": "string",
+            "description": "Path to the OME-Zarr image in the OME-Zarr plate that is processed. Example: `\"some_plate.zarr/B/03/0\"`. (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "metadata": {
+            "title": "Metadata",
+            "type": "object",
+            "description": "dictionary containing metadata about the OME-Zarr. This task does not use the metadata."
+          },
+          "roi_table": {
+            "title": "Roi Table",
+            "default": "FOV_ROI_table",
+            "type": "string",
+            "description": "Name of the ROI table over which the task loops to calculate the registration. Examples: `FOV_ROI_table` => loop over the field of views, `well_ROI_table` => process the whole well as one image."
+          },
+          "reference_cycle": {
+            "title": "Reference Cycle",
+            "default": 0,
+            "type": "integer",
+            "description": "Which cycle to register against. Defaults to 0, which is the first OME-Zarr image in the well, usually the first cycle that was provided"
+          },
+          "new_roi_table": {
+            "title": "New Roi Table",
+            "type": "string",
+            "description": "Optional name for the new, registered ROI table. If no name is given, it will default to \"registered_\" + `roi_table`"
+          }
+        },
+        "required": [
+          "input_paths",
+          "output_path",
+          "component",
+          "metadata"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "executable": "tasks/apply_registration_to_image.py",
+      "input_type": "zarr",
+      "meta": {
+        "cpus_per_task": 1,
+        "mem": 4000,
+        "parallelization_level": "image"
+      },
+      "name": "Apply Registration to Image",
+      "output_type": "zarr",
+      "args_schema": {
+        "title": "ApplyRegistrationToImage",
+        "type": "object",
+        "properties": {
+          "input_paths": {
+            "title": "Input Paths",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of input paths where the image data is stored as OME-Zarrs. Should point to the parent folder containing one or many OME-Zarr files, not the actual OME-Zarr file. Example: `[\"/some/path/\"]`. This task only supports a single input path. (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "output_path": {
+            "title": "Output Path",
+            "type": "string",
+            "description": "This parameter is not used by this task. (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "component": {
+            "title": "Component",
+            "type": "string",
+            "description": "Path to the OME-Zarr image in the OME-Zarr plate that is processed. Example: `\"some_plate.zarr/B/03/0\"`. (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "metadata": {
+            "title": "Metadata",
+            "type": "object",
+            "description": "dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata. `coarsening_xy (int)`: coarsening factor in XY of the downsampling when building the pyramid. (standard argument for Fractal tasks, managed by Fractal server). `num_levels (int)`: number of pyramid levels in the image; this determines how many pyramid levels are built for the segmentation."
+          },
+          "registered_roi_table": {
+            "title": "Registered Roi Table",
+            "type": "string",
+            "description": "Name of the ROI table which has been registered and will be applied to mask and shift the images. Examples: `registered_FOV_ROI_table` => loop over the field of views, `registered_well_ROI_table` => process the whole well as one image."
+          },
+          "reference_cycle": {
+            "title": "Reference Cycle",
+            "default": "0",
+            "type": "string",
+            "description": "Which cycle to register against. Defaults to 0, which is the first OME-Zarr image in the well, usually the first cycle that was provided"
+          },
+          "overwrite": {
+            "title": "Overwrite",
+            "default": true,
+            "type": "boolean",
+            "description": "Whether the old image data should be replaced with the newly registered image data. Currently only implemented for overwrite=True."
+          }
+        },
+        "required": [
+          "input_paths",
+          "output_path",
+          "component",
+          "metadata",
+          "registered_roi_table"
+        ],
+        "additionalProperties": false
+      }
     }
   ]
 }
