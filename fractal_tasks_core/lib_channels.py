@@ -85,6 +85,8 @@ class OmeroChannel(BaseModel):
         Check that `color` is made of exactly six elements which are letters
         (a-f or A-F) or digits (0-9).
         """
+        if v is None:
+            return v
         if len(v) != 6:
             raise ValueError(f'color must have length 6 (given: "{v}")')
         allowed_characters = "abcdefABCDEF0123456789"
