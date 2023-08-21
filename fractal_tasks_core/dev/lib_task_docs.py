@@ -35,17 +35,15 @@ def _get_function_description(
     # Combine short/long descriptions (if present)
     short_description = parsed_docstring.short_description
     long_description = parsed_docstring.long_description
+    items = []
     if short_description:
-        if long_description:
-            description = f"{short_description}\n\n{long_description}"
-        else:
-            description = short_description
+        items.append(short_description)
+    if long_description:
+        items.append(long_description)
+    if items:
+        return "\n\n".join(items)
     else:
-        if long_description:
-            description = long_description
-        else:
-            description = ""
-    return description
+        return ""
 
 
 def create_docs_info(
