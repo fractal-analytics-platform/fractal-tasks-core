@@ -104,7 +104,7 @@ def apply_registration_to_image(
         )
     coarsening_xy = metadata["coarsening_xy"]
     num_levels = metadata["num_levels"]
-    input_path = input_paths[0]
+    input_path = Path(input_paths[0])
     new_component = "/".join(
         component.split("/")[:-1] + [component.split("/")[-1] + "_registered"]
     )
