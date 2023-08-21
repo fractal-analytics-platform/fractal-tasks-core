@@ -1,8 +1,13 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-* Improve validation for `OmeroChannel.color` field (\#488).
-* Include `image-label/source/image` OME-NGFF attribute when creating labels (\#478).
-* Update default values for tolerance (`tol`) in `lib_ROI_overlaps.py` functions (\#466).
+* Tasks:
+    * Improve validation for `OmeroChannel.color` field (\#488).
+    * Include `image-label/source/image` OME-NGFF attribute when creating labels (\#478).
+    * Update default values for tolerance (`tol`) in `lib_ROI_overlaps.py` functions (\#466).
+* Development tools:
+    * Include `docs_info` and `docs_link` attributes in manifest tasks (\#486).
+    * Rename and revamp scripts to update/check the manifest (\#486).
+    * Improve logging and error-handling in tools for args-schema creation (\#469).
 * Documentation:
     * Convert docstrings to Google style (\#473, \#479).
     * Switch from sphinx to mkdocs for documentation (\#479).
@@ -20,8 +25,6 @@
     * Relax `Pillow` required version to `>=9.1.1,<10.0.0` (\#455).
     * Full update of `poetry.lock` file (mutiple PRs, e.g. \#472).
     * Include `requests` and `wget` in the `dev` poetry dependency group (\#455).
-* Development tools:
-    * Improve logging and error-handling in tools for args-schema creation (\#469).
 
 # 0.10.0
 
