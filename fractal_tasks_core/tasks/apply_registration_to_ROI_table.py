@@ -23,6 +23,7 @@ import numpy as np
 import pandas as pd
 import zarr
 from anndata._io.specs import write_elem
+from pydantic.decorator import validate_arguments
 
 from fractal_tasks_core.lib_regions_of_interest import (
     are_ROI_table_columns_valid,
@@ -32,6 +33,7 @@ from fractal_tasks_core.lib_regions_of_interest import reset_origin
 logger = logging.getLogger(__name__)
 
 
+@validate_arguments
 def apply_registration_to_ROI_table(
     *,
     # Fractal arguments

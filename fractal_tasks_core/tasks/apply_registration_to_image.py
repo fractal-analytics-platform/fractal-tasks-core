@@ -24,6 +24,7 @@ import dask.array as da
 import numpy as np
 import zarr
 from anndata._io.specs import write_elem
+from pydantic.decorator import validate_arguments
 
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
@@ -38,6 +39,7 @@ from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 logger = logging.getLogger(__name__)
 
 
+@validate_arguments
 def apply_registration_to_image(
     *,
     # Fractal arguments

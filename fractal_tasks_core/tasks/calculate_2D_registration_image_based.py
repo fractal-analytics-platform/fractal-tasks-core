@@ -23,6 +23,7 @@ import numpy as np
 import pandas as pd
 import zarr
 from anndata._io.specs import write_elem
+from pydantic.decorator import validate_arguments
 from skimage.registration import phase_cross_correlation
 
 from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
@@ -39,6 +40,7 @@ from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 logger = logging.getLogger(__name__)
 
 
+@validate_arguments
 def calculate_2D_registration_image_based(
     *,
     # Fractal arguments
