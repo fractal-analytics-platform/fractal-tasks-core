@@ -6,7 +6,7 @@
 |------------------------------------------------------------- | -------: | -------: | -------: | -------: | ------: | --------: |
 | fractal\_tasks\_core/\_\_init\_\_.py                         |        4 |        0 |        0 |        0 |    100% |           |
 | fractal\_tasks\_core/lib\_ROI\_overlaps.py                   |      159 |        5 |       62 |        6 |     95% |139, 199, 240, 322, 333, 490->497 |
-| fractal\_tasks\_core/lib\_channels.py                        |       95 |        1 |       58 |        1 |     99% |        25 |
+| fractal\_tasks\_core/lib\_channels.py                        |      107 |        1 |       68 |        2 |     98% |26, 83->82 |
 | fractal\_tasks\_core/lib\_glob.py                            |       20 |        0 |        8 |        0 |    100% |           |
 | fractal\_tasks\_core/lib\_input\_models.py                   |       49 |        0 |       22 |        5 |     93% |34->33, 67->66, 79->78, 104->103, 116->115 |
 | fractal\_tasks\_core/lib\_masked\_loading.py                 |       62 |        9 |       16 |        6 |     81% |90, 101, 107, 136-143, 157, 167 |
@@ -27,7 +27,7 @@
 | fractal\_tasks\_core/tasks/maximum\_intensity\_projection.py |       51 |        5 |       16 |        5 |     85% |34->33, 75, 109, 128, 151-153 |
 | fractal\_tasks\_core/tasks/napari\_workflows\_wrapper.py     |      264 |       24 |      130 |       19 |     89% |60->59, 148-150, 187, 201, 206, 304, 311, 317-322, 327, 358, 363, 403-407, 436, 450, 531->518, 570-575, 582->584, 639, 664-666 |
 | fractal\_tasks\_core/tasks/yokogawa\_to\_ome\_zarr.py        |       80 |        5 |       22 |        5 |     90% |59->58, 106, 153, 195, 245-247 |
-|                                                    **TOTAL** | **2029** |  **167** |  **824** |  **128** | **89%** |           |
+|                                                    **TOTAL** | **2041** |  **167** |  **834** |  **129** | **89%** |           |
 
 
 ## Setup coverage badge
