@@ -20,6 +20,8 @@ import fractal_tasks_core
 from fractal_tasks_core.dev.lib_args_schemas import (
     create_schema_for_single_task,
 )
+from fractal_tasks_core.dev.lib_task_docs import create_docs_info
+from fractal_tasks_core.dev.lib_task_docs import create_docs_link
 
 
 if __name__ == "__main__":
@@ -35,15 +37,25 @@ if __name__ == "__main__":
     manifest["has_args_schemas"] = True
     manifest["args_schema_version"] = "pydantic_v1"
 
-    # Loop over tasks and set args schemas
+    # Loop over tasks
     task_list = manifest["task_list"]
     for ind, task in enumerate(task_list):
         executable = task["executable"]
         logging.info(f"[{executable}] START")
-        schema = create_schema_for_single_task(executable)
 
+        # Create new JSON Schema for task arguments
+        schema = create_schema_for_single_task(executable)
         manifest["task_list"][ind]["args_schema"] = schema
-        logging.info(f"[{executable}] END (schema added to manifest)")
+
+        # Update docs_info, based on task-function description
+        docs_info = create_docs_info(executable)
+        docs_link = create_docs_link(executable)
+        if docs_info:
+            manifest["task_list"][ind]["docs_info"] = docs_info
+        if docs_link:
+            manifest["task_list"][ind]["docs_link"] = docs_link
+
+        logging.info(f"[{executable}] END (new schema/description/link)")
         print()
 
     with manifest_path.open("w") as f:

@@ -65,39 +65,6 @@ def _get_function_docstring(
     return ast.get_docstring(_function)
 
 
-def _get_function_description(
-    package_name: str, module_relative_path: str, function_name: str
-) -> str:
-    """
-    Extract function description from its docstring.
-
-    Args:
-        package_name: Example `fractal_tasks_core`.
-        module_relative_path: Example `tasks/create_ome_zarr.py`.
-        function_name: Example `create_ome_zarr`.
-    """
-    # Extract docstring from ast.FunctionDef
-    docstring = _get_function_docstring(
-        package_name, module_relative_path, function_name
-    )
-    # Parse docstring (via docstring_parser)
-    parsed_docstring = docparse(docstring)
-    # Combine short/long descriptions (if present)
-    short_description = parsed_docstring.short_description
-    long_description = parsed_docstring.long_description
-    if short_description:
-        if long_description:
-            description = f"{short_description}\n{long_description}"
-        else:
-            description = short_description
-    else:
-        if long_description:
-            description = long_description
-        else:
-            description = ""
-    return description
-
-
 def _get_function_args_descriptions(
     package_name: str, module_relative_path: str, function_name: str
 ) -> dict[str, str]:
@@ -165,25 +132,6 @@ def _get_class_attrs_descriptions(
     }
     logging.info(f"[_get_class_attrs_descriptions] END ({class_name=})")
     return descriptions
-
-
-def _insert_docstring_and_link(schema, task_function) -> dict[str, str]:
-    new_schema = schema.copy()
-    if hasattr(task_function, "func_doc"):
-        new_schema["docs_info"] = str(task_function.func_doc).split("Args")[0]
-    else:
-        pass
-
-    if hasattr(task_function, "func_name"):
-        new_schema["docs_link"] = (
-            "https://fractal-analytics-platform.github.io/fractal-tasks-core/"
-            f"reference/fractal_tasks_core/tasks/{task_function.func_name}/"
-        )
-    else:
-        pass
-
-    logging.info("[_insert_docstring_and_link] END")
-    return new_schema
 
 
 def _insert_function_args_descriptions(*, schema: dict, descriptions: dict):
