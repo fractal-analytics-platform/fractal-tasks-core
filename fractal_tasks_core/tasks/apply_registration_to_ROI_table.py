@@ -32,7 +32,7 @@ from fractal_tasks_core.lib_regions_of_interest import reset_origin
 logger = logging.getLogger(__name__)
 
 
-def apply_multiplexing_registration_to_ROI_table(
+def apply_registration_to_ROI_table(
     *,
     # Fractal arguments
     input_paths: Sequence[str],
@@ -157,6 +157,11 @@ def apply_multiplexing_registration_to_ROI_table(
     # e.g. to well_ROI_table based on FOV_ROI_table
     # => out of scope for the initial task, apply registration separately
     # to each table
+    # Easiest implementation: Apply average shift calculcated here to other
+    # ROIs. From many to 1 (e.g. FOV => well) => average shift, but crop len
+    # From well to many (e.g. well to FOVs) => average shift, crop len by that
+    # amount
+    # Many to many (FOVs to organoids) => tricky because of matching
 
     return {}
 

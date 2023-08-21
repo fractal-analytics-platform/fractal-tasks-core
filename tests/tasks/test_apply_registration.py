@@ -3,13 +3,13 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from fractal_tasks_core.tasks.apply_multiplexing_registration_to_ROI_table import (  # noqa: E501
+from fractal_tasks_core.tasks.apply_registration_to_ROI_table import (
     add_zero_translation_columns,
 )
-from fractal_tasks_core.tasks.apply_multiplexing_registration_to_ROI_table import (  # noqa: E501
+from fractal_tasks_core.tasks.apply_registration_to_ROI_table import (
     apply_registration_to_roi_table,
 )
-from fractal_tasks_core.tasks.apply_multiplexing_registration_to_ROI_table import (  # noqa: E501
+from fractal_tasks_core.tasks.apply_registration_to_ROI_table import (
     calculate_min_max_across_dfs,
 )
 
