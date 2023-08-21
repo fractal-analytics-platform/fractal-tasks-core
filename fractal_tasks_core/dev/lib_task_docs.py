@@ -37,7 +37,7 @@ def _get_function_description(
     long_description = parsed_docstring.long_description
     if short_description:
         if long_description:
-            description = f"{short_description}\n{long_description}"
+            description = f"{short_description}\n\n{long_description}"
         else:
             description = short_description
     else:
