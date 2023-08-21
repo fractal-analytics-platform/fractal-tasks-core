@@ -1,3 +1,13 @@
+# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
+# University of Zurich
+#
+# Original authors:
+# Tommaso Comparin <tommaso.comparin@exact-lab.it>
+#
+# This file is part of Fractal and was originally developed by eXact lab S.r.l.
+# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
+# Institute for Biomedical Research and Pelkmans Lab from the University of
+# Zurich.
 import ast
 import logging
 from importlib import import_module
@@ -14,6 +24,9 @@ def _sanitize_description(string: str) -> str:
     and reduces multiple contiguous whitespace characters to a single one.
     Future iterations of the docstrings format/parsing may render this function
     not-needed or obsolete.
+
+    Args:
+        string: TBD
     """
     # Replace newline with space
     new_string = string.replace("\n", " ")
@@ -27,12 +40,12 @@ def _get_function_args_descriptions(
     package_name: str, module_relative_path: str, function_name: str
 ) -> dict[str, str]:
     """
-    Extract argument descriptions from a function
+    Extract argument descriptions from a function.
 
     Args:
-        package_name: Example ``fractal_tasks_core``
-        module_relative_path: Example ``tasks/create_ome_zarr.py``
-        function_name: Example ``create_ome_zarr``
+        package_name: Example `fractal_tasks_core`.
+        module_relative_path: Example `tasks/create_ome_zarr.py`.
+        function_name: Example `create_ome_zarr`.
     """
 
     if not module_relative_path.endswith(".py"):
@@ -65,12 +78,12 @@ def _get_class_attrs_descriptions(
     package_name: str, module_relative_path: str, class_name: str
 ) -> dict[str, str]:
     """
-    Extract attribute descriptions from a class
+    Extract attribute descriptions from a class.
 
     Args:
-        package_name: Example ``fractal_tasks_core``
-        module_relative_path: Example ``lib_channels.py``
-        class_name: Example ``OmeroChannel``
+        package_name: Example `fractal_tasks_core`.
+        module_relative_path: Example `lib_channels.py`.
+        class_name: Example `OmeroChannel`.
     """
 
     if not module_relative_path.endswith(".py"):
@@ -91,27 +104,26 @@ def _get_class_attrs_descriptions(
             f"Cannot find {class_name=} for {package_name=} "
             f"and {module_relative_path=}"
         )
-
-    descriptions = {}
-    # extract attribute docstrings
-    var_name: str = ""
-    for node in _class.body:
-        if isinstance(node, ast.AnnAssign):
-            descriptions[node.target.id] = "Missing description"
-            var_name = node.target.id
-        else:
-            if isinstance(node, ast.Expr) and var_name:
-                descriptions[var_name] = _sanitize_description(node.value.s)
-                var_name = ""
+    docstring = ast.get_docstring(_class)
+    parsed_docstring = docparse(docstring)
+    descriptions = {
+        x.arg_name: _sanitize_description(x.description)
+        if x.description
+        else "Missing description"
+        for x in parsed_docstring.params
+    }
     logging.info(f"[_get_class_attrs_descriptions] END ({class_name=})")
     return descriptions
 
 
-def _insert_function_args_descriptions(*, schema, descriptions):
+def _insert_function_args_descriptions(*, schema: dict, descriptions: dict):
     """
     Merge the descriptions obtained via `_get_args_descriptions` into the
     properties of an existing JSON Schema.
 
+    Args:
+        schema: TBD
+        descriptions: TBD
     """
     new_schema = schema.copy()
     new_properties = schema["properties"].copy()
@@ -129,10 +141,17 @@ def _insert_function_args_descriptions(*, schema, descriptions):
     return new_schema
 
 
-def _insert_class_attrs_descriptions(*, schema, class_name, descriptions):
+def _insert_class_attrs_descriptions(
+    *, schema: dict, class_name: str, descriptions: dict
+):
     """
     Merge the descriptions obtained via `_get_attributes_models_descriptions`
-    into the ``class_name`` definition, within an existing JSON Schema
+    into the `class_name` definition, within an existing JSON Schema
+
+    Args:
+        schema: TBD
+        class_name: TBD
+        descriptions: TBD
     """
     new_schema = schema.copy()
     if "definitions" not in schema:

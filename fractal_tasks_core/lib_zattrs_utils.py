@@ -1,18 +1,16 @@
+# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
+# University of Zurich
+#
+# Original authors:
+# Tommaso Comparin <tommaso.comparin@exact-lab.it>
+# Marco Franzon <marco.franzon@exact-lab.it>
+#
+# This file is part of Fractal and was originally developed by eXact lab S.r.l.
+# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
+# Institute for Biomedical Research and Pelkmans Lab from the University of
+# Zurich.
 """
-Copyright 2022 (C)
-    Friedrich Miescher Institute for Biomedical Research and
-    University of Zurich
-
-    Original authors:
-    Tommaso Comparin <tommaso.comparin@exact-lab.it>
-    Marco Franzon <marco.franzon@exact-lab.it>
-
-    This file is part of Fractal and was originally developed by eXact lab
-    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
-    Miescher Institute for Biomedical Research and Pelkmans Lab from the
-    University of Zurich.
-
-Functions to handle .zattrs files and their contents
+Functions to handle `.zattrs` files and their contents.
 """
 import json
 import logging
@@ -24,12 +22,15 @@ logger = logging.getLogger(__name__)
 
 def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0) -> list[float]:
     """
-    Load multiscales/datasets from .zattrs file and read the pixel sizes for a
-    given resoluion level.
+    Load multiscales/datasets from `.zattrs` file and read the pixel sizes for
+    a given resoluion level.
 
-    :param zattrs_path: Path to .zattrs file
-    :param level: Resolution level for which the pixe sizes are required
-    :returns: ZYX pixel sizes
+    Args:
+        zattrs_path: Path to `.zattrs` file.
+        level: Resolution level for which the pixe sizes are required.
+
+    Returns:
+        ZYX pixel sizes.
     """
 
     with open(zattrs_path, "r") as jsonfile:
@@ -103,11 +104,11 @@ def rescale_datasets(
     (coarsening_xy**reference_level).
 
     Args:
-        datasets: list of datasets (as per OME-NGFF specs)
-        coarsening_xy: linear coarsening factor between subsequent levels
+        datasets: list of datasets (as per OME-NGFF specs).
+        coarsening_xy: linear coarsening factor between subsequent levels.
         reference_level: TBD
-        remove_channel_axis: If ``True``, remove the first item of all
-            ``scale`` transformations.
+        remove_channel_axis: If `True`, remove the first item of all `scale`
+            transformations.
     """
 
     # Construct rescaled datasets

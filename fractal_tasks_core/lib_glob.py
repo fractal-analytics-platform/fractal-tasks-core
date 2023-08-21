@@ -1,6 +1,16 @@
+# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
+# University of Zurich
+#
+# Original authors:
+# Tommaso Comparin <tommaso.comparin@exact-lab.it>
+#
+# This file is part of Fractal and was originally developed by eXact lab S.r.l.
+# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
+# Institute for Biomedical Research and Pelkmans Lab from the University of
+# Zurich.
 """
 Auxiliary functions related to globbing (i.e. listing some items from a
-directory)
+directory).
 """
 import logging
 from glob import glob
@@ -14,7 +24,7 @@ def glob_with_multiple_patterns(
 ) -> set[str]:
     """
     List all the items (files and folders) in a given folder that
-    simultaneously match a series of glob patterns
+    simultaneously match a series of glob patterns.
 
     Args:
         folder: Base folder where items will be searched.

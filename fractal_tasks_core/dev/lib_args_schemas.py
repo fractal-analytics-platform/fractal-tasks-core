@@ -1,17 +1,15 @@
+# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
+# University of Zurich
+#
+# Original authors:
+# Tommaso Comparin <tommaso.comparin@exact-lab.it>
+# Yuri Chiucconi <yuri.chiucconi@exact-lab.it>
+#
+# This file is part of Fractal and was originally developed by eXact lab S.r.l.
+# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
+# Institute for Biomedical Research and Pelkmans Lab from the University of
+# Zurich.
 """
-Copyright 2022 (C)
-    Friedrich Miescher Institute for Biomedical Research and
-    University of Zurich
-
-    Original authors:
-    Tommaso Comparin <tommaso.comparin@exact-lab.it>
-    Yuri Chiucconi <yuri.chiucconi@exact-lab.it>
-
-    This file is part of Fractal and was originally developed by eXact lab
-    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
-    Miescher Institute for Biomedical Research and Pelkmans Lab from the
-    University of Zurich.
-
 Helper functions to handle JSON schemas for task arguments.
 """
 import logging
@@ -20,6 +18,7 @@ from pathlib import Path
 from typing import Any
 from typing import Optional
 
+from docstring_parser import parse as docparse
 from pydantic.decorator import ALT_V_ARGS
 from pydantic.decorator import ALT_V_KWARGS
 from pydantic.decorator import V_DUPLICATE_KWARGS
@@ -58,15 +57,18 @@ FRACTAL_TASKS_CORE_PYDANTIC_MODELS = [
 
 def _remove_args_kwargs_properties(old_schema: _Schema) -> _Schema:
     """
-    Remove ``args`` and ``kwargs`` schema properties
+    Remove `args` and `kwargs` schema properties.
 
-    Pydantic v1 automatically includes ``args`` and ``kwargs`` properties in
-    JSON Schemas generated via ``ValidatedFunction(task_function,
-    config=None).model.schema()``, with some default (empty) values -- see see
+    Pydantic v1 automatically includes `args` and `kwargs` properties in
+    JSON Schemas generated via `ValidatedFunction(task_function,
+    config=None).model.schema()`, with some default (empty) values -- see see
     https://github.com/pydantic/pydantic/blob/1.10.X-fixes/pydantic/decorator.py.
 
     Verify that these properties match with their expected default values, and
     then remove them from the schema.
+
+    Args:
+        old_schema: TBD
     """
     new_schema = old_schema.copy()
     args_property = new_schema["properties"].pop("args")
@@ -89,6 +91,9 @@ def _remove_args_kwargs_properties(old_schema: _Schema) -> _Schema:
 def _remove_pydantic_internals(old_schema: _Schema) -> _Schema:
     """
     Remove schema properties that are only used internally by Pydantic V1.
+
+    Args:
+        old_schema: TBD
     """
     new_schema = old_schema.copy()
     for key in (
@@ -99,6 +104,35 @@ def _remove_pydantic_internals(old_schema: _Schema) -> _Schema:
     ):
         new_schema["properties"].pop(key, None)
     logging.info("[_remove_pydantic_internals] END")
+    return new_schema
+
+
+def _remove_attributes_from_descriptions(old_schema: _Schema) -> _Schema:
+    """
+    Keeps only the description part of the docstrings: e.g from
+    ```
+    'Custom class for Omero-channel window, based on OME-NGFF v0.4.\\n'
+    '\\n'
+    'Attributes:\\n'
+    'min: Do not change. It will be set to `0` by default.\\n'
+    'max: Do not change. It will be set according to bitdepth of the images\\n'
+    '    by default (e.g. 65535 for 16 bit images).\\n'
+    'start: Lower-bound rescaling value for visualization.\\n'
+    'end: Upper-bound rescaling value for visualization.'
+    ```
+    to `'Custom class for Omero-channel window, based on OME-NGFF v0.4.\\n'`.
+
+    Args:
+        old_schema: TBD
+    """
+    new_schema = old_schema.copy()
+    if "definitions" in new_schema:
+        for name, definition in new_schema["definitions"].items():
+            parsed_docstring = docparse(definition["description"])
+            new_schema["definitions"][name][
+                "description"
+            ] = parsed_docstring.short_description
+    logging.info("[_remove_attributes_from_descriptions] END")
     return new_schema
 
 
@@ -124,6 +158,7 @@ def create_schema_for_single_task(
         module_relative_path=executable,
         function_name=function_name,
     )
+
     logging.info(f"[create_schema_for_single_task] {task_function=}")
 
     # Validate function signature against some custom constraints
@@ -134,6 +169,7 @@ def create_schema_for_single_task(
     schema = vf.model.schema()
     schema = _remove_args_kwargs_properties(schema)
     schema = _remove_pydantic_internals(schema)
+    schema = _remove_attributes_from_descriptions(schema)
 
     # Include titles for custom-model-typed arguments
     schema = _include_titles(schema)

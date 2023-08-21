@@ -1,36 +1,31 @@
+# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
+# University of Zurich
+#
+# Original authors:
+# Tommaso Comparin <tommaso.comparin@exact-lab.it>
+# Marco Franzon <marco.franzon@exact-lab.it>
+#
+# This file is part of Fractal and was originally developed by eXact lab S.r.l.
+# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
+# Institute for Biomedical Research and Pelkmans Lab from the University of
+# Zurich.
 """
-Copyright 2022 (C)
-    Friedrich Miescher Institute for Biomedical Research and
-    University of Zurich
-
-    Original authors:
-    Tommaso Comparin <tommaso.comparin@exact-lab.it>
-    Marco Franzon <marco.franzon@exact-lab.it>
-
-    This file is part of Fractal and was originally developed by eXact lab
-    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
-    Miescher Institute for Biomedical Research and Pelkmans Lab from the
-    University of Zurich.
-
-Extract metadata from image filename
+Extract metadata from image filename.
 """
 import re
 from pathlib import Path
-from typing import Dict
 
 
 def _get_plate_name(plate_prefix: str) -> str:
     """
     Two kinds of plate_prefix values are handled in a special way:
 
-    1) Filenames from FMI, with successful barcode reading:
-       210305NAR005AAN_210416_164828
-       with plate name 210305NAR005AAN
-    2) Filenames from FMI, with failed barcode reading:
-       yymmdd_hhmmss_210416_164828
-       with plate name RS{yymmddhhmmss}
+    1. Filenames from FMI, with successful barcode reading:
+       `210305NAR005AAN_210416_164828` with plate name `210305NAR005AAN`;
+    2. Filenames from FMI, with failed barcode reading:
+       `yymmdd_hhmmss_210416_164828` with plate name `RS{yymmddhhmmss}`.
 
-    For all non-matching filenames, plate name is plate_prefix.
+    For all non-matching filenames, plate name is `plate_prefix`.
 
     Args:
         plate_prefix: TBD
@@ -69,15 +64,15 @@ def _get_plate_name(plate_prefix: str) -> str:
     return plate
 
 
-def parse_filename(filename: str) -> Dict[str, str]:
+def parse_filename(filename: str) -> dict[str, str]:
     """
-    Parse image metadata from filename
+    Parse image metadata from filename.
 
     Args:
-        filename: name of the image
+        filename: Name of the image.
 
     Returns:
-        metadata dictionary
+        Metadata dictionary.
     """
 
     # Remove extension and folder from filename

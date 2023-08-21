@@ -1,23 +1,20 @@
+# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
+# University of Zurich
+#
+# Original authors:
+# Tommaso Comparin <tommaso.comparin@exact-lab.it>
+# Marco Franzon <marco.franzon@exact-lab.it>
+#
+# This file is part of Fractal and was originally developed by eXact lab S.r.l.
+# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
+# Institute for Biomedical Research and Pelkmans Lab from the University of
+# Zurich.
 """
-Copyright 2022 (C)
-    Friedrich Miescher Institute for Biomedical Research and
-    University of Zurich
-
-    Original authors:
-    Tommaso Comparin <tommaso.comparin@exact-lab.it>
-    Marco Franzon <marco.franzon@exact-lab.it>
-
-    This file is part of Fractal and was originally developed by eXact lab
-    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
-    Miescher Institute for Biomedical Research and Pelkmans Lab from the
-    University of Zurich.
-
-Task that copies the structure of an OME-NGFF zarr array to a new one
+Task that copies the structure of an OME-NGFF zarr array to a new one.
 """
 import logging
 from pathlib import Path
 from typing import Any
-from typing import Dict
 from typing import Sequence
 
 import anndata as ad
@@ -42,57 +39,59 @@ def copy_ome_zarr(
     *,
     input_paths: Sequence[str],
     output_path: str,
-    metadata: Dict[str, Any],
+    metadata: dict[str, Any],
     project_to_2D: bool = True,
     suffix: str = "mip",
     ROI_table_names: tuple[str, ...] = ("FOV_ROI_table", "well_ROI_table"),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
 
     """
     Duplicate an input zarr structure to a new path.
 
     This task copies all the structure, but none of the image data:
 
-        1. For each plate, create a new zarr group with the same attributes as
-           the original one.
-        2. For each well (in each plate), create a new zarr subgroup with the
-           same attributes as the original one.
-        3. For each image (in each well), create a new zarr subgroup with the
-           same attributes as the original one.
-        4. For each image (in each well), copy the relevant AnnData tables from
-           the original source.
+    - For each plate, create a new zarr group with the same attributes as
+       the original one.
+    - For each well (in each plate), create a new zarr subgroup with the
+       same attributes as the original one.
+    - For each image (in each well), create a new zarr subgroup with the
+       same attributes as the original one.
+    - For each image (in each well), copy the relevant AnnData tables from
+       the original source.
 
-    Note: this task makes use of methods from the ``Attributes`` class, see
+    Note: this task makes use of methods from the `Attributes` class, see
     https://zarr.readthedocs.io/en/stable/api/attrs.html.
 
     Args:
         input_paths: List of input paths where the image data is stored as
             OME-Zarrs. Should point to the parent folder containing one or many
             OME-Zarr files, not the actual OME-Zarr file. Example:
-            ["/some/path/"] This task only supports a single input path.
-            (standard argument for Fractal tasks, managed by Fractal server)
+            `["/some/path/"]`. This task only supports a single input path.
+            (standard argument for Fractal tasks, managed by Fractal server).
         output_path: Path were the output of this task is stored. Example:
-            "/some/path/" => puts the new OME-Zarr file in the same folder as
-            the input OME-Zarr file "/some/new_path" => puts the new OME-Zarr
-            file into a new folder at ``/some/new_path`` (standard argument for
-            Fractal tasks, managed by Fractal server)
-        metadata: dictionary containing metadata about the OME-Zarr. This task
+            `"/some/path/"` => puts the new OME-Zarr file in the same folder as
+            the input OME-Zarr file `"/some/new_path"` => puts the new OME-Zarr
+            file into a new folder at `/some/new_path`. (standard argument for
+            Fractal tasks, managed by Fractal server).
+        metadata: Dictionary containing metadata about the OME-Zarr. This task
             requires the following elements to be present in the metadata:
-            "plate": List of plates. Example: ["MyPlate.zarr"] "well": List of
-            wells in the OME-Zarr plate. ["MyPlate.zarr/B/03",
-            "MyPlate.zarr/B/05"] "image": List of images in the OME-Zarr plate.
-            Example: ["MyPlate.zarr/B/03/0", "MyPlate.zarr/B/05/0"] (standard
-            argument for Fractal tasks, managed by Fractal server)
-        project_to_2D: If ``True``, apply a 3D->2D projection to the ROI tables
+            `plate`: List of plates
+            (e.g. `["MyPlate.zarr"]`);
+            `well`: List of wells in the OME-Zarr plate
+            (e.g. `["MyPlate.zarr/B/03/MyPlate.zarr/B/05"]`);
+            "image": List of images in the OME-Zarr plate
+            (e.g. `["MyPlate.zarr/B/03/0", "MyPlate.zarr/B/05/0"]`).
+            standard argument for Fractal tasks, managed by Fractal server).
+        project_to_2D: If `True`, apply a 3D->2D projection to the ROI tables
             that are copied to the new OME-Zarr.
-        suffix: The suffix that is used to transform ``plate.zarr`` into
-            ``plate_suffix.zarr``. Note that `None` is not currently supported.
+        suffix: The suffix that is used to transform `plate.zarr` into
+            `plate_suffix.zarr`. Note that `None` is not currently supported.
         ROI_table_names: List of Anndata table names to be copied. Note:
-            copying non-ROI tables may fail if ``project_to_2D=True``.
+            copying non-ROI tables may fail if `project_to_2D=True`.
 
     Returns:
-        An update to the metadata table with new "plate", "well", "image"
-        entries (now with the suffix in the plate name).
+        An update to the metadata table with new `plate`, `well`, `image`
+            entries (now with the suffix in the plate name).
     """
 
     # Preliminary check
@@ -107,7 +106,7 @@ def copy_ome_zarr(
     list_plates = [p.as_posix() for p in Path(in_path).glob("*.zarr")]
     logger.info(f"{list_plates=}")
 
-    meta_update: Dict[str, Any] = {"copy_ome_zarr": {}}
+    meta_update: dict[str, Any] = {"copy_ome_zarr": {}}
     meta_update["copy_ome_zarr"]["suffix"] = suffix
     meta_update["copy_ome_zarr"]["sources"] = {}
 

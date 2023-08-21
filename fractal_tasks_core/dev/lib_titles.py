@@ -1,5 +1,15 @@
+# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
+# University of Zurich
+#
+# Original authors:
+# Tommaso Comparin <tommaso.comparin@exact-lab.it>
+#
+# This file is part of Fractal and was originally developed by eXact lab S.r.l.
+# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
+# Institute for Biomedical Research and Pelkmans Lab from the University of
+# Zurich.
 """
-Module to include titles in JSON Schema properties
+Module to include titles in JSON Schema properties.
 """
 import logging
 from typing import Any
@@ -17,6 +27,9 @@ def _include_titles_for_properties(
 
     The title is set to `name.title()`, where `title` is a standard string
     method - see https://docs.python.org/3/library/stdtypes.html#str.title.
+
+    Args:
+        properties: TBD
     """
     new_properties = properties.copy()
     for prop_name, prop in properties.items():
@@ -29,11 +42,17 @@ def _include_titles_for_properties(
 
 def _include_titles(schema: _Schema) -> _Schema:
     """
-    Include property titles, when missing
+    Include property titles, when missing.
 
-    This handles both (1) first-level JSON Schema properties (corresponding to
-    task arguments) and (2) properties of JSON Schema definitions
-    (corresponding to task-argument attributes).
+    This handles both:
+
+    - first-level JSON Schema properties (corresponding to task
+        arguments);
+    - properties of JSON Schema definitions (corresponding to
+        task-argument attributes).
+
+    Args:
+        schema: TBD
     """
     new_schema = schema.copy()
 

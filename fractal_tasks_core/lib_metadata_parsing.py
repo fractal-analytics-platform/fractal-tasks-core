@@ -1,18 +1,16 @@
+# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
+# University of Zurich
+#
+# Original authors:
+# Joel Lüthi  <joel.luethi@fmi.ch>
+# Tommaso Comparin <tommaso.comparin@exact-lab.it>
+#
+# This file is part of Fractal and was originally developed by eXact lab S.r.l.
+# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
+# Institute for Biomedical Research and Pelkmans Lab from the University of
+# Zurich.
 """
-Copyright 2022 (C)
-    Friedrich Miescher Institute for Biomedical Research and
-    University of Zurich
-
-    Original authors:
-    Joel Lüthi  <joel.luethi@fmi.ch>
-    Tommaso Comparin <tommaso.comparin@exact-lab.it>
-
-    This file is part of Fractal and was originally developed by eXact lab
-    S.r.l.  <exact-lab.it> under contract with Liberali Lab from the Friedrich
-    Miescher Institute for Biomedical Research and Pelkmans Lab from the
-    University of Zurich.
-
-Functions to create a metadata dataframe from Yokogawa files
+Functions to create a metadata dataframe from Yokogawa files.
 """
 import fnmatch
 import logging
@@ -34,14 +32,15 @@ def parse_yokogawa_metadata(
     filename_patterns: Optional[list[str]] = None,
 ) -> tuple[pd.DataFrame, dict[str, int]]:
     """
-    Parse Yokogawa CV7000 metadata files and prepare site-level metadata
+    Parse Yokogawa CV7000 metadata files and prepare site-level metadata.
 
-    :param mrf_path: Full path to MeasurementDetail.mrf metadata file
-    :param mlf_path: Full path to MeasurementData.mlf metadata file
-    :param filename_patterns: List of patterns to filter the image filenames in
-                              the mlf metadata table. Patterns must be defined
-                              as in
-                              https://docs.python.org/3/library/fnmatch.html
+    Args:
+        mrf_path: Full path to MeasurementDetail.mrf metadata file.
+        mlf_path: Full path to MeasurementData.mlf metadata file.
+        filename_patterns:
+            List of patterns to filter the image filenames in the mlf metadata
+            table. Patterns must be defined as in
+            https://docs.python.org/3/library/fnmatch.html
     """
 
     # Convert paths to strings
@@ -127,11 +126,11 @@ def read_metadata_files(
     TBD
 
     Args:
-        mrf_path: Full path to MeasurementDetail.mrf metadata file
-        mlf_path: Full path to MeasurementData.mlf metadata file
+        mrf_path: Full path to MeasurementDetail.mrf metadata file.
+        mlf_path: Full path to MeasurementData.mlf metadata file.
         filename_patterns: List of patterns to filter the image filenames in
             the mlf metadata table. Patterns must be defined as in
-            https://docs.python.org/3/library/fnmatch.html
+            https://docs.python.org/3/library/fnmatch.html.
     """
 
     # parsing of mrf & mlf files are based on the
@@ -156,7 +155,7 @@ def read_mrf_file(mrf_path: str):
     TBD
 
     Args:
-        mrf_path: Full path to MeasurementDetail.mrf metadata file
+        mrf_path: Full path to MeasurementDetail.mrf metadata file.
     """
 
     # Prepare mrf dataframe
@@ -196,16 +195,16 @@ def read_mrf_file(mrf_path: str):
 
 def read_mlf_file(
     mlf_path: str,
-    filename_patterns=None,
+    filename_patterns: Optional[list[str]] = None,
 ) -> tuple[pd.DataFrame, int]:
     """
     TBD
 
     Args:
-        mlf_path: Full path to MeasurementData.mlf metadata file
+        mlf_path: Full path to MeasurementData.mlf metadata file.
         filename_patterns: List of patterns to filter the image filenames in
             the mlf metadata table. Patterns must be defined as in
-            https://docs.python.org/3/library/fnmatch.html
+            https://docs.python.org/3/library/fnmatch.html.
     """
 
     # Load the whole MeasurementData.mlf file
@@ -280,7 +279,7 @@ def calculate_steps(site_series: pd.Series):
     return steps.mean()
 
 
-def get_z_steps(mlf_frame):
+def get_z_steps(mlf_frame: pd.DataFrame) -> pd.DataFrame:
     """
     TBD
 
@@ -338,7 +337,7 @@ def get_z_steps(mlf_frame):
     return z_frame
 
 
-def get_earliest_time_per_site(mlf_frame) -> pd.DataFrame:
+def get_earliest_time_per_site(mlf_frame: pd.DataFrame) -> pd.DataFrame:
     """
     TBD
 
@@ -355,7 +354,7 @@ def get_earliest_time_per_site(mlf_frame) -> pd.DataFrame:
     )
 
 
-def check_group_consistency(grouped_df, message: str = ""):
+def check_group_consistency(grouped_df: pd.DataFrame, message: str = ""):
     """
     TBD
 
