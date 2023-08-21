@@ -86,7 +86,7 @@ jobs:
         run: poetry install --with dev --no-interaction -E fractal-tasks
 
       - name: Task-arguments JSON schemas
-        run: poetry run python fractal_tasks_core/dev/check_args_schemas.py
+        run: poetry run python fractal_tasks_core/dev/check_manifest.py
 
       - name: Test tasks with pytest
         run: poetry run coverage run -m pytest tests/tasks
