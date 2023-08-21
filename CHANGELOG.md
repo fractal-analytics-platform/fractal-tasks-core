@@ -1,6 +1,7 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
 * Update default values for tolerance (`tol`) in `lib_ROI_overlaps.py` functions (\#466).
+* Improve validation for `OmeroChannel.color` field (\#488).
 * Documentation:
     * Convert docstrings to Google style (\#473, \#479).
     * Switch from sphinx to mkdocs for documentation (\#479).
