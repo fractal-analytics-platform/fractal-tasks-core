@@ -760,7 +760,7 @@
       },
       "name": "Napari workflows wrapper",
       "output_type": "zarr",
-      "docs_info": "Run a napari-workflow on the ROIs of a single OME-NGFF image.\n\nThis task takes images and labels and runs a napari-workflow on them that\ncan produce a label and tables as output.\n\nExamples of allowed entries for `input_specs` and `output_specs`:\n\n    input_specs = {\n        \"in_1\": {\"type\": \"image\", \"channel\": {\"wavelength_id\": \"A01_C02\"}},\n        \"in_2\": {\"type\": \"image\", \"channel\": {\"label\": \"DAPI\"}},\n        \"in_3\": {\"type\": \"label\", \"label_name\": \"label_DAPI\"},\n    }\n    output_specs = {\n        \"out_1\": {\"type\": \"label\", \"label_name\": \"label_DAPI_new\"},\n        \"out_2\": {\"type\": \"dataframe\", \"table_name\": \"measurements\"},\n    }",
+      "docs_info": "Run a napari-workflow on the ROIs of a single OME-NGFF image.\n\nThis task takes images and labels and runs a napari-workflow on them that\ncan produce a label and tables as output.\n\nExamples of allowed entries for `input_specs` and `output_specs`:\n\n```\ninput_specs = {\n    \"in_1\": {\"type\": \"image\", \"channel\": {\"wavelength_id\": \"A01_C02\"}},\n    \"in_2\": {\"type\": \"image\", \"channel\": {\"label\": \"DAPI\"}},\n    \"in_3\": {\"type\": \"label\", \"label_name\": \"label_DAPI\"},\n}\n\noutput_specs = {\n    \"out_1\": {\"type\": \"label\", \"label_name\": \"label_DAPI_new\"},\n    \"out_2\": {\"type\": \"dataframe\", \"table_name\": \"measurements\"},\n}\n```",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core/reference/fractal_tasks_core/tasks/napari_workflows_wrapper/#fractal_tasks_core.tasks.napari_workflows_wrapper.napari_workflows_wrapper"
     },
     {
