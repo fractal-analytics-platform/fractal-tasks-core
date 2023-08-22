@@ -24,8 +24,8 @@
 | fractal\_tasks\_core/tasks/create\_ome\_zarr.py              |      164 |       25 |       72 |       11 |     83% |46->45, 116, 118, 171, 178-188, 196-197, 210-213, 263, 294, 310-311, 314, 450-452 |
 | fractal\_tasks\_core/tasks/create\_ome\_zarr\_multiplex.py   |      190 |       19 |       80 |       14 |     88% |46->45, 119, 126, 130, 139, 157, 188, 209-212, 239, 287, 293, 310, 323-324, 330, 496-498 |
 | fractal\_tasks\_core/tasks/illumination\_correction.py       |       99 |       17 |       34 |       11 |     77% |61, 82-86, 95->94, 154, 158, 161-166, 179-182, 221, 236, 249-250, 305-307 |
-| fractal\_tasks\_core/tasks/maximum\_intensity\_projection.py |       51 |        5 |       16 |        5 |     85% |34->33, 75, 109, 128, 151-153 |
-| fractal\_tasks\_core/tasks/napari\_workflows\_wrapper.py     |      264 |       24 |      130 |       19 |     89% |60->59, 148-150, 187, 201, 206, 304, 311, 317-322, 327, 358, 363, 403-407, 436, 450, 532->519, 571-576, 583->585, 640, 665-667 |
+| fractal\_tasks\_core/tasks/maximum\_intensity\_projection.py |       51 |        5 |       16 |        5 |     85% |34->33, 76, 110, 129, 152-154 |
+| fractal\_tasks\_core/tasks/napari\_workflows\_wrapper.py     |      264 |       24 |      130 |       19 |     89% |60->59, 151-153, 190, 204, 209, 307, 314, 320-325, 330, 361, 366, 406-410, 439, 453, 535->522, 574-579, 586->588, 643, 668-670 |
 | fractal\_tasks\_core/tasks/yokogawa\_to\_ome\_zarr.py        |       80 |        5 |       22 |        5 |     90% |59->58, 106, 153, 195, 245-247 |
 |                                                    **TOTAL** | **2041** |  **167** |  **834** |  **129** | **89%** |           |
 
