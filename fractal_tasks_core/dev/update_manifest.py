@@ -14,9 +14,9 @@ to the package manifest.
 """
 import json
 import logging
+from importlib import import_module
 from pathlib import Path
 
-import fractal_tasks_core
 from fractal_tasks_core.dev.lib_args_schemas import (
     create_schema_for_single_task,
 )
@@ -24,11 +24,15 @@ from fractal_tasks_core.dev.lib_task_docs import create_docs_info
 from fractal_tasks_core.dev.lib_task_docs import create_docs_link
 
 
+PACKAGE = "fractal_tasks_core"
+
+
 if __name__ == "__main__":
 
     # Read manifest
+    imported_package = import_module(PACKAGE)
     manifest_path = (
-        Path(fractal_tasks_core.__file__).parent / "__FRACTAL_MANIFEST__.json"
+        Path(imported_package.__file__).parent / "__FRACTAL_MANIFEST__.json"
     )
     with manifest_path.open("r") as f:
         manifest = json.load(f)
@@ -44,11 +48,11 @@ if __name__ == "__main__":
         logging.info(f"[{executable}] START")
 
         # Create new JSON Schema for task arguments
-        schema = create_schema_for_single_task(executable)
+        schema = create_schema_for_single_task(executable, package=PACKAGE)
         manifest["task_list"][ind]["args_schema"] = schema
 
         # Update docs_info, based on task-function description
-        docs_info = create_docs_info(executable)
+        docs_info = create_docs_info(executable, package=PACKAGE)
         docs_link = create_docs_link(executable)
         if docs_info:
             manifest["task_list"][ind]["docs_info"] = docs_info
