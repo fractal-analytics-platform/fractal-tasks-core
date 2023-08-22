@@ -12,7 +12,8 @@ import logging
 from pathlib import Path
 
 from docstring_parser import parse as docparse
-from lib_descriptions import _get_function_docstring
+
+from fractal_tasks_core.dev.lib_descriptions import _get_function_docstring
 
 
 def _get_function_description(
