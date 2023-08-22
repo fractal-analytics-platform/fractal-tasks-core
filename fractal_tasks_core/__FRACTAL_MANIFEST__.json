@@ -168,7 +168,9 @@
         "mem": 4000
       },
       "name": "Create OME-Zarr structure",
-      "output_type": "zarr"
+      "output_type": "zarr",
+      "docs_info": "Create a OME-NGFF zarr folder, without reading/writing image data.\n\nFind plates (for each folder in input_paths):\n\n- glob image files,\n- parse metadata from image filename to identify plates,\n- identify populated channels.\n\nCreate a zarr folder (for each plate):\n\n- parse mlf metadata,\n- identify wells and field of view (FOV),\n- create FOV ZARR,\n- verify that channels are uniform (i.e., same channels).",
+      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core/reference/fractal_tasks_core/tasks/create_ome_zarr/#fractal_tasks_core.tasks.create_ome_zarr.create_ome_zarr"
     },
     {
       "args_schema": {
@@ -215,7 +217,9 @@
         "parallelization_level": "image"
       },
       "name": "Convert Yokogawa to OME-Zarr",
-      "output_type": "zarr"
+      "output_type": "zarr",
+      "docs_info": "Convert Yokogawa output (png, tif) to zarr file.\n\nThis task is typically run after Create OME-Zarr or\nCreate OME-Zarr Multiplexing and populates the empty OME-Zarr files that\nwere prepared.",
+      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core/reference/fractal_tasks_core/tasks/yokogawa_to_ome_zarr/#fractal_tasks_core.tasks.yokogawa_to_ome_zarr.yokogawa_to_ome_zarr"
     },
     {
       "args_schema": {
@@ -279,7 +283,9 @@
         "mem": 1000
       },
       "name": "Copy OME-Zarr structure",
-      "output_type": "zarr"
+      "output_type": "zarr",
+      "docs_info": "Duplicate an input zarr structure to a new path.\n\nThis task copies all the structure, but none of the image data:\n\n- For each plate, create a new zarr group with the same attributes as\n   the original one.\n- For each well (in each plate), create a new zarr subgroup with the\n   same attributes as the original one.\n- For each image (in each well), create a new zarr subgroup with the\n   same attributes as the original one.\n- For each image (in each well), copy the relevant AnnData tables from\n   the original source.\n\nNote: this task makes use of methods from the `Attributes` class, see\nhttps://zarr.readthedocs.io/en/stable/api/attrs.html.",
+      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core/reference/fractal_tasks_core/tasks/copy_ome_zarr/#fractal_tasks_core.tasks.copy_ome_zarr.copy_ome_zarr"
     },
     {
       "args_schema": {
@@ -326,7 +332,9 @@
         "parallelization_level": "image"
       },
       "name": "Maximum Intensity Projection",
-      "output_type": "zarr"
+      "output_type": "zarr",
+      "docs_info": "Perform maximum-intensity projection along Z axis.\n\nNote: this task stores the output in a new zarr file.",
+      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core/reference/fractal_tasks_core/tasks/maximum_intensity_projection/#fractal_tasks_core.tasks.maximum_intensity_projection.maximum_intensity_projection"
     },
     {
       "args_schema": {
@@ -496,7 +504,9 @@
         "parallelization_level": "image"
       },
       "name": "Cellpose Segmentation",
-      "output_type": "zarr"
+      "output_type": "zarr",
+      "docs_info": "Run cellpose segmentation on the ROIs of a single OME-Zarr image.",
+      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core/reference/fractal_tasks_core/tasks/cellpose_segmentation/#fractal_tasks_core.tasks.cellpose_segmentation.cellpose_segmentation"
     },
     {
       "args_schema": {
@@ -575,7 +585,9 @@
         "parallelization_level": "image"
       },
       "name": "Illumination correction",
-      "output_type": "zarr"
+      "output_type": "zarr",
+      "docs_info": "Applies illumination correction to the images in the OME-Zarr.",
+      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core/reference/fractal_tasks_core/tasks/illumination_correction/#fractal_tasks_core.tasks.illumination_correction.illumination_correction"
     },
     {
       "args_schema": {
@@ -747,7 +759,9 @@
         "parallelization_level": "image"
       },
       "name": "Napari workflows wrapper",
-      "output_type": "zarr"
+      "output_type": "zarr",
+      "docs_info": "Run a napari-workflow on the ROIs of a single OME-NGFF image.\n\nThis task takes images and labels and runs a napari-workflow on them that\ncan produce a label and tables as output.\n\nExamples of allowed entries for `input_specs` and `output_specs`:\n\n```\ninput_specs = {\n    \"in_1\": {\"type\": \"image\", \"channel\": {\"wavelength_id\": \"A01_C02\"}},\n    \"in_2\": {\"type\": \"image\", \"channel\": {\"label\": \"DAPI\"}},\n    \"in_3\": {\"type\": \"label\", \"label_name\": \"label_DAPI\"},\n}\n\noutput_specs = {\n    \"out_1\": {\"type\": \"label\", \"label_name\": \"label_DAPI_new\"},\n    \"out_2\": {\"type\": \"dataframe\", \"table_name\": \"measurements\"},\n}\n```",
+      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core/reference/fractal_tasks_core/tasks/napari_workflows_wrapper/#fractal_tasks_core.tasks.napari_workflows_wrapper.napari_workflows_wrapper"
     },
     {
       "args_schema": {
@@ -919,7 +933,9 @@
         "mem": 4000
       },
       "name": "Create OME-ZARR structure (multiplexing)",
-      "output_type": "zarr"
+      "output_type": "zarr",
+      "docs_info": "Create OME-NGFF structure and metadata to host a multiplexing dataset.\n\nThis task takes a set of image folders (i.e. different acquisition cycles)\nand build the internal structure and metadata of a OME-NGFF zarr group,\nwithout actually loading/writing the image data.\n\nEach element in input_paths should be treated as a different acquisition.",
+      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core/reference/fractal_tasks_core/tasks/create_ome_zarr_multiplex/#fractal_tasks_core.tasks.create_ome_zarr_multiplex.create_ome_zarr_multiplex"
     }
   ]
 }

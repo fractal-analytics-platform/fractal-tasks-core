@@ -81,15 +81,18 @@ def napari_workflows_wrapper(
 
     Examples of allowed entries for `input_specs` and `output_specs`:
 
-        input_specs = {
-            "in_1": {"type": "image", "channel": {"wavelength_id": "A01_C02"}},
-            "in_2": {"type": "image", "channel": {"label": "DAPI"}},
-            "in_3": {"type": "label", "label_name": "label_DAPI"},
-        }
-        output_specs = {
-            "out_1": {"type": "label", "label_name": "label_DAPI_new"},
-            "out_2": {"type": "dataframe", "table_name": "measurements"},
-        }
+    ```
+    input_specs = {
+        "in_1": {"type": "image", "channel": {"wavelength_id": "A01_C02"}},
+        "in_2": {"type": "image", "channel": {"label": "DAPI"}},
+        "in_3": {"type": "label", "label_name": "label_DAPI"},
+    }
+
+    output_specs = {
+        "out_1": {"type": "label", "label_name": "label_DAPI_new"},
+        "out_2": {"type": "dataframe", "table_name": "measurements"},
+    }
+    ```
 
     Args:
         input_paths: List of input paths where the image data is stored as
