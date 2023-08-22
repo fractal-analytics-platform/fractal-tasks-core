@@ -42,7 +42,10 @@ def _get_function_description(
     if long_description:
         items.append(long_description)
     if items:
-        return "\n\n".join(items)
+        if parsed_docstring.blank_after_short_description:
+            return "\n\n".join(items)
+        else:
+            return "\n".join(items)
     else:
         return ""
 
