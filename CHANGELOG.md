@@ -1,5 +1,9 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# Unreleased
+
+# 0.10.1
+
 * Tasks:
     * Improve validation for `OmeroChannel.color` field (\#488).
     * Include `image-label/source/image` OME-NGFF attribute when creating labels (\#478).
