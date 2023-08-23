@@ -80,12 +80,21 @@ def apply_registration_to_ROI_table(
     """
     if not new_roi_table:
         new_roi_table = "registered_" + roi_table
+    logger.info(
+        f"Running for {input_paths=}, {component=}. \n"
+        f"Applying translation registration to {roi_table=} and store it as "
+        f"{new_roi_table=}."
+    )
 
     well_zarr = f"{input_paths[0]}/{component}"
     with open(f"{well_zarr}/.zattrs", "r") as jsonfile:
         zattrs = json.load(jsonfile)
 
     acquisition_dict = get_acquisition_paths(zattrs)
+    logger.info(
+        "Calculating common registration for the following cycles: "
+        f"{acquisition_dict}"
+    )
 
     # TODO: Allow a filter on which acquisitions should get processed?
 
@@ -118,6 +127,7 @@ def apply_registration_to_ROI_table(
     # https://github.com/fractal-analytics-platform/fractal-tasks-core/pull/487
     # May not be necessary long-term if we move to 0, 0, 0 origins or specific
     # coordinate systems with defined origins
+    logger.info(f"Reset ROI origins for new {new_roi_table} table")
     for acq, acq_roi_table in roi_tables.items():
         roi_tables[acq] = reset_origin(acq_roi_table)
 
@@ -136,6 +146,7 @@ def apply_registration_to_ROI_table(
         roi_table.to_df().loc[:, translation_columns]
         for roi_table in roi_tables.values()
     ]
+    logger.info("Calculating min & max translation across cycles.")
     max_df, min_df = calculate_min_max_across_dfs(roi_table_dfs)
     shifted_rois = {}
     # Loop over acquisitions
@@ -146,6 +157,9 @@ def apply_registration_to_ROI_table(
 
         # TODO: Drop translation columns from this table?
 
+        logger.info(
+            f"Write the registered ROI table {new_roi_table} for {acq=}"
+        )
         # Save the shifted ROI tables as a new tables per acquisition
         group_tables = zarr.group(f"{well_zarr}/{acq}/tables/")
         write_elem(group_tables, new_roi_table, shifted_rois[acq])

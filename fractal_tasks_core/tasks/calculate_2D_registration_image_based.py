@@ -91,6 +91,11 @@ def calculate_2D_registration_image_based(
             process at full resolution.
 
     """
+    logger.info(
+        f"Running for {input_paths=}, {component=}. \n"
+        f"Calculating translation registration per {roi_table=} for "
+        f"{wavelength_id=}."
+    )
     # Set OME-Zarr paths
     zarr_img_cycle_x = Path(input_paths[0]) / component
 
@@ -143,6 +148,9 @@ def calculate_2D_registration_image_based(
         f"{zarr_img_ref_cycle}/tables/{roi_table}"
     )
     FOV_ROI_table_x = ad.read_zarr(f"{zarr_img_ref_cycle}/tables/{roi_table}")
+    logger.info(
+        f"Found {len(FOV_ROI_table_x)} ROIs in {roi_table=} to be processed."
+    )
 
     # For each cycle, get the relevant info
     # TODO: Add additional checks on ROIs?
@@ -192,7 +200,7 @@ def calculate_2D_registration_image_based(
     for i_ROI in range(num_ROIs):
         logger.info(
             f"Now processing ROI {i_ROI+1}/{num_ROIs} "
-            f"for channel {channel_index_align}"
+            f"for channel {channel_align}."
         )
         img_ref = load_region(
             data_zyx=data_reference_zyx,
@@ -242,6 +250,7 @@ def calculate_2D_registration_image_based(
         )
 
     # Write physical shifts to disk (as part of the ROI table)
+    logger.info(f"Updating the {roi_table=} with translation columns")
     new_ROI_table = get_ROI_table_with_translation(FOV_ROI_table_x, new_shifts)
     group_tables = zarr.group(f"{zarr_img_cycle_x}/tables/")
     write_elem(group_tables, roi_table, new_ROI_table)

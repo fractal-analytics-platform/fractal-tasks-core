@@ -102,6 +102,11 @@ def apply_registration_to_image(
         raise NotImplementedError(
             "This task is only implemented for the overwrite version"
         )
+    logger.info(
+        f"Running `apply_registration_to_image` on {input_paths=}, "
+        f"{component=}, {registered_roi_table=} and {reference_cycle=}. "
+        f"Using {overwrite=}"
+    )
     coarsening_xy = metadata["coarsening_xy"]
     num_levels = metadata["num_levels"]
     input_path = Path(input_paths[0])
@@ -122,7 +127,7 @@ def apply_registration_to_image(
     ####################
     # Process images
     ####################
-    # Copy Zarr structure
+    logger.info("Write the registered Zarr image to disk")
     write_registered_zarr(
         input_path=input_path,
         component=component,
@@ -144,6 +149,7 @@ def apply_registration_to_image(
         label_list = []
 
     if label_list:
+        logger.info(f"Processing the label images: {label_list}")
         labels_group = zarr.group(f"{input_path / new_component}/labels")
         labels_group.attrs["labels"] = label_list
 
@@ -189,10 +195,12 @@ def apply_registration_to_image(
         tabel_list = []
 
     if tabel_list:
+        logger.info(f"Processing the tables: {tabel_list}")
         new_tables_group = zarr.group(f"{input_path / new_component}/tables")
         new_tables_group.attrs["tables"] = tabel_list
 
         for table in tabel_list:
+            logger.info(f"Copying table {table}")
             curr_table = ad.read_zarr(
                 f"{input_path / reference_component}/tables/{table}"
             )
@@ -209,6 +217,9 @@ def apply_registration_to_image(
     # Clean up Zarr file
     ####################
     if overwrite:
+        logger.info(
+            "Replace original zarr image with the newly created Zarr image"
+        )
         shutil.rmtree(f"{input_path / component}")
         os.rename(f"{input_path / new_component}", f"{input_path / component}")
     else:
