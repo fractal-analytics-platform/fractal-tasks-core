@@ -72,11 +72,17 @@ def _shift_image(
     new_array[:-shift_y_pxl] = new_array[shift_y_pxl:, :]
 
     # Replace offset stripes with random values
-    new_array[:, -shift_x_pxl:] = np.random.randint(
-        0, 1000, size=new_array[:, -shift_x_pxl:].shape
+    # new_array[:, -shift_x_pxl:] = np.random.randint(
+    #     0, 1000, size=new_array[:, -shift_x_pxl:].shape
+    # )
+    # new_array[-shift_y_pxl:, :] = np.random.randint(
+    #     0, 1000, size=new_array[-shift_y_pxl:, :].shape
+    # )
+    new_array[:, -shift_x_pxl:] = (
+        np.ones(new_array[:, -shift_x_pxl:].shape) * 110
     )
-    new_array[-shift_y_pxl:, :] = np.random.randint(
-        0, 1000, size=new_array[-shift_y_pxl:, :].shape
+    new_array[-shift_y_pxl:, :] = (
+        np.ones(new_array[-shift_y_pxl:, :].shape) * 110
     )
 
     # Save new image
@@ -136,10 +142,10 @@ expected_registered_table = {
         "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr/B/03/0": pd.DataFrame(  # noqa: E501
             {
                 "x_micrometer": [32.5, 448.5],
-                "y_micrometer": [7.8, 8.45],
+                "y_micrometer": [7.8, 7.8],
                 "z_micrometer": [0.0, 0.0],
                 "len_x_micrometer": [383.5, 383.5],
-                "len_y_micrometer": [343.200012, 342.549988],
+                "len_y_micrometer": [343.2, 343.2],
                 "len_z_micrometer": [1.0, 1.0],
             },
             index=["FOV_1", "FOV_2"],
@@ -152,7 +158,7 @@ expected_registered_table = {
                 "y_micrometer": [0, 0],
                 "z_micrometer": [0.0, 0.0],
                 "len_x_micrometer": [383.5, 383.5],
-                "len_y_micrometer": [343.200012, 342.549988],
+                "len_y_micrometer": [343.2, 343.2],
                 "len_z_micrometer": [1.0, 1.0],
             },
             index=["FOV_1", "FOV_2"],
