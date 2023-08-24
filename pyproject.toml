@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fractal-tasks-core"
-version = "0.10.0"
+version = "0.10.1"
 description = ""
 authors = [
     "Joel Lüthi  <joel.luethi@fmi.ch>",
@@ -81,7 +81,7 @@ source = ["fractal_tasks_core"]
 omit = ["tests/*", "examples/*", "fractal_tasks_core/dev/*", "fractal_tasks_core/tasks/compress_tif.py"]
 
 [tool.bumpver]
-current_version = "0.10.0"
+current_version = "0.10.1"
 version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true
@@ -90,9 +90,6 @@ push = true
 
 [tool.bumpver.file_patterns]
 "pyproject.toml" = [
-    'version = "{version}"',
-]
-"docs/source/conf.py" = [
     'version = "{version}"',
 ]
 "fractal_tasks_core/__init__.py" = [

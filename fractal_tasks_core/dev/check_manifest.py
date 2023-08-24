@@ -14,13 +14,18 @@ package manfest) are up-to-date.
 """
 import json
 import logging
+from importlib import import_module
 from pathlib import Path
 from typing import Any
 
-import fractal_tasks_core
 from fractal_tasks_core.dev.lib_args_schemas import (
     create_schema_for_single_task,
 )
+from fractal_tasks_core.dev.lib_task_docs import create_docs_info
+from fractal_tasks_core.dev.lib_task_docs import create_docs_link
+
+
+PACKAGE = "fractal_tasks_core"
 
 
 def _compare_dicts(
@@ -73,8 +78,9 @@ def _compare_dicts(
 if __name__ == "__main__":
 
     # Read manifest
+    imported_package = import_module(PACKAGE)
     manifest_path = (
-        Path(fractal_tasks_core.__file__).parent / "__FRACTAL_MANIFEST__.json"
+        Path(imported_package.__file__).parent / "__FRACTAL_MANIFEST__.json"
     )
     with manifest_path.open("r") as f:
         manifest = json.load(f)
@@ -85,7 +91,7 @@ if __name__ == "__main__":
     if manifest["args_schema_version"] != "pydantic_v1":
         raise ValueError(f'{manifest["args_schema_version"]=}')
 
-    # Loop over tasks and check args schemas
+    # Loop over tasks
     task_list = manifest["task_list"]
     for ind, task in enumerate(task_list):
 
@@ -95,7 +101,7 @@ if __name__ == "__main__":
         # Create new schema
         executable = task["executable"]
         logging.info(f"[{executable}] START")
-        new_schema = create_schema_for_single_task(executable)
+        new_schema = create_schema_for_single_task(executable, package=PACKAGE)
 
         # The following step is required because some arguments may have a
         # default which has a non-JSON type (e.g. a tuple), which we need to
@@ -111,5 +117,13 @@ if __name__ == "__main__":
         if current_schema != new_schema:
             raise ValueError("Schemas are different.")
 
-        logging.info(f"[{executable}] END (schema in manifest is up-to-date)")
+        # Check docs_info and docs_link
+        docs_info = create_docs_info(executable, package=PACKAGE)
+        docs_link = create_docs_link(executable)
+        if docs_info != task.get("docs_info", ""):
+            raise ValueError("docs_info not up-to-date")
+        if docs_link != task.get("docs_link", ""):
+            raise ValueError("docs_link not up-to-date")
+
+        logging.info(f"[{executable}] END (task is up-to-date in manifest)")
         print()

@@ -39,8 +39,9 @@ def maximum_intensity_projection(
     metadata: dict[str, Any],
 ) -> dict[str, Any]:
     """
-    Perform maximum-intensity projection along Z axis, and store the output in
-    a new zarr file.
+    Perform maximum-intensity projection along Z axis.
+
+    Note: this task stores the output in a new zarr file.
 
     Args:
         input_paths: This parameter is not used by this task.

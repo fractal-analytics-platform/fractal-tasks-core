@@ -55,7 +55,7 @@ git log --pretty="[%cs] %h - %s" `git tag --sort version:refname | tail -n 1`..H
 then add the upcoming release to `docs/source/changelog.rst` with the main information about it, using standard categories like "New features", "Fixes" and "Other changes", and including PR numbers when relevant. Commit `docs/source/changelog.rst` and push.
 5. If appropriate (e.g. if you added some new task arguments, or if you modified some of their descriptions), update the JSON Schemas in the manifest via:
 ```console
-poetry run python fractal_tasks_core/dev/create_args_schemas.py
+poetry run python fractal_tasks_core/dev/update_manifest.py
 ```
 
 Actual release
