@@ -3,9 +3,6 @@ site_name: Fractal Tasks Core
 repo_url: https://github.com/fractal-analytics-platform/fractal-tasks-core
 repo_name: fractal-tasks-core
 
-extra_css:
-  - css/mkdocstrings.css
-
 markdown_extensions:
 - admonition
 - pymdownx.details

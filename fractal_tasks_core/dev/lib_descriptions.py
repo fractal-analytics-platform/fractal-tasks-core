@@ -36,11 +36,11 @@ def _sanitize_description(string: str) -> str:
     return new_string
 
 
-def _get_function_args_descriptions(
+def _get_function_docstring(
     package_name: str, module_relative_path: str, function_name: str
-) -> dict[str, str]:
+) -> str:
     """
-    Extract argument descriptions from a function.
+    Extract docstring from a function.
 
     Args:
         package_name: Example `fractal_tasks_core`.
@@ -62,7 +62,25 @@ def _get_function_args_descriptions(
     )
 
     # Extract docstring from ast.FunctionDef
-    docstring = ast.get_docstring(_function)
+    return ast.get_docstring(_function)
+
+
+def _get_function_args_descriptions(
+    package_name: str, module_relative_path: str, function_name: str
+) -> dict[str, str]:
+    """
+    Extract argument descriptions from a function.
+
+    Args:
+        package_name: Example `fractal_tasks_core`.
+        module_relative_path: Example `tasks/create_ome_zarr.py`.
+        function_name: Example `create_ome_zarr`.
+    """
+
+    # Extract docstring from ast.FunctionDef
+    docstring = _get_function_docstring(
+        package_name, module_relative_path, function_name
+    )
 
     # Parse docstring (via docstring_parser) and prepare output
     parsed_docstring = docparse(docstring)
