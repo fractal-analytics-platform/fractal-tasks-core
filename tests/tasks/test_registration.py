@@ -1,4 +1,5 @@
 import glob
+import json
 import os
 import shutil
 from pathlib import Path
@@ -11,6 +12,7 @@ import pytest
 from devtools import debug
 from PIL import Image
 
+from fractal_tasks_core.lib_input_models import Channel
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_indices_to_regions,
 )
@@ -27,6 +29,9 @@ from fractal_tasks_core.tasks.apply_registration_to_ROI_table import (
 )
 from fractal_tasks_core.tasks.calculate_2D_registration_image_based import (
     calculate_2D_registration_image_based,
+)
+from fractal_tasks_core.tasks.cellpose_segmentation import (
+    cellpose_segmentation,
 )
 from fractal_tasks_core.tasks.copy_ome_zarr import (
     copy_ome_zarr,
@@ -217,6 +222,17 @@ def test_multiplexing_registration(
             component=component,
         )
 
+    # Cellpose segmentation (so that we test handling of label images)
+    for component in metadata["image"]:
+        cellpose_segmentation(
+            input_paths=[str(zarr_path_mip)],
+            output_path=str(zarr_path_mip),
+            metadata=metadata,
+            component=component,
+            level=4,
+            channel=Channel(wavelength_id="A01_C01"),
+        )
+
     # Calculate registration
     for component in metadata["image"]:
         calculate_2D_registration_image_based(
@@ -313,3 +329,13 @@ def test_multiplexing_registration(
             data_zyx=data_array, region=region, compute=True
         )
         assert np.sum(img_array_reg == 0) == 0
+
+        # Check that the Zarr files contains the relevant label channels:
+        with open(
+            f"{str(zarr_path_mip / component)}/labels/.zattrs", "r"
+        ) as jsonfile:
+            zattrs = json.load(jsonfile)
+        assert len(zattrs["labels"]) == 1
+        assert (
+            zattrs["labels"][0] == f"label_{component.split('/')[-1]}_A01_C01"
+        )
