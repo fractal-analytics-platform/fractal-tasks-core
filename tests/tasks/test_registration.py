@@ -374,4 +374,3 @@ def test_multiplexing_registration(
         assert (
             zattrs["labels"][0] == f"label_{component.split('/')[-1]}_A01_C01"
         )
-    print(zarr_path_mip)

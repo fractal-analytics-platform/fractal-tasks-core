@@ -169,45 +169,43 @@ def apply_registration_to_image(
 
     ####################
     # Copy tabels
+    # 1. Copy all standard ROI tables from cycle 0.
+    # 2. Copy all tables that aren't standard ROI tables from the given cycle
     ####################
-    # FIXME: Works well for cycle 0. But for other cycles, the raw tables
-    # aren't that meaningful (because not shifted correctly). 2 options:
-    # 1. Copy only from cycle 0 (fine for well and FOV ROIs, not necessarily
-    # others) => currently doing this by loading reference_component instead
-    # of component tables
-    # Downsides:
-    # a) Does not work well for measurement tables (just copies the
-    # one from cycle 0) => should filter for region_tables, get the others
-    # from the real cycle
-    # b) What if there are other ROI tables that don't match between cycles?
-    # 2. Apply shifts to these ROI tables (that would be the more generalizable
-    # solution)
-    # => figure out how this interacts with ROI alignment in the other task
-    try:
-        # with open(
-        #   f"{input_path / component}/tables/.zattrs", "r"
-        # ) as f_zattrs:
-        with open(
-            f"{input_path / reference_component}/tables/.zattrs", "r"
-        ) as f_zattrs:
-            tabel_list = json.load(f_zattrs)["tables"]
-    except FileNotFoundError:
-        tabel_list = []
+    tabel_dict_reference = get_table_path_dict(input_path, reference_component)
+    tabel_dict_component = get_table_path_dict(input_path, component)
 
-    if tabel_list:
-        logger.info(f"Processing the tables: {tabel_list}")
+    table_dict = {}
+    # Define which table should get copied:
+    for table in tabel_dict_reference:
+        if is_standard_roi_table(table):
+            table_dict[table] = tabel_dict_reference[table]
+    for table in tabel_dict_component:
+        if not is_standard_roi_table(table):
+            if reference_component != component:
+                logger.warning(
+                    f"{component} contained a table that is not a standard "
+                    "ROI table. The `Apply Registration To Image task` is "
+                    "best used before additional tables are generated. It "
+                    f"will copy the {table} from this cycle without applying "
+                    f"any transformations. This will work well if {table} "
+                    f"contains measurements. But if {table} is a custom ROI "
+                    "table coming from another task, the transformation is "
+                    "not applied and it will not match with the registered "
+                    "image anymore"
+                )
+            table_dict[table] = tabel_dict_component[table]
+
+    if table_dict:
+        logger.info(f"Processing the tables: {table_dict}")
         new_tables_group = zarr.group(f"{input_path / new_component}/tables")
-        new_tables_group.attrs["tables"] = tabel_list
+        new_tables_group.attrs["tables"] = list(table_dict.keys())
 
-        for table in tabel_list:
+        for table in table_dict.keys():
             logger.info(f"Copying table {table}")
-            curr_table = ad.read_zarr(
-                f"{input_path / reference_component}/tables/{table}"
-            )
+            curr_table = ad.read_zarr(table_dict[table])
             write_elem(new_tables_group, table, curr_table)
-            old_table_group = zarr.open_group(
-                f"{input_path / reference_component}/tables/{table}", mode="r"
-            )
+            old_table_group = zarr.open_group(table_dict[table], mode="r")
             new_table_group = zarr.open_group(
                 f"{input_path / new_component}/tables/{table}"
             )
@@ -224,8 +222,35 @@ def apply_registration_to_image(
         os.rename(f"{input_path / new_component}", f"{input_path / component}")
     else:
         raise NotImplementedError
-        # TODO: The thing that would be missing in this branch is that Fractal
-        # isn't aware of the new component
+        # The thing that would be missing in this branch is that Fractal
+        # isn't aware of the new component. If there's a way to add it back,
+        # that's the only thing that would be required here
+
+
+def get_table_path_dict(
+    input_path: Path,
+    component: str,
+):
+    try:
+        with open(f"{input_path / component}/tables/.zattrs", "r") as f_zattrs:
+            table_list = json.load(f_zattrs)["tables"]
+    except FileNotFoundError:
+        table_list = []
+
+    table_path_dict = {}
+    for table in table_list:
+        table_path_dict[table] = f"{input_path / component}/tables/{table}"
+
+    return table_path_dict
+
+
+def is_standard_roi_table(table: str):
+    if "well_ROI_table" in table:
+        return True
+    elif "FOV_ROI_table" in table:
+        return True
+    else:
+        return False
 
 
 def write_registered_zarr(
