@@ -11,6 +11,7 @@ import pandas as pd
 import pytest
 from devtools import debug
 from PIL import Image
+from pytest import MonkeyPatch
 
 from fractal_tasks_core.lib_input_models import Channel
 from fractal_tasks_core.lib_regions_of_interest import (
@@ -174,11 +175,45 @@ expected_registered_table = {
 }
 
 
+def patched_segment_ROI(
+    x, do_3D=True, label_dtype=None, well_id=None, **kwargs
+):
+    # Expects x to always be a 4D image
+
+    import logging
+
+    logger = logging.getLogger("cellpose_segmentation.py")
+
+    logger.info(f"[{well_id}][patched_segment_ROI] START")
+    assert x.ndim == 4
+    # Actual labeling: segment_ROI returns a 3D mask with the same shape as x,
+    # except for the first dimension
+    mask = np.zeros_like(x[0, :, :, :])
+    nz, ny, nx = mask.shape
+    if do_3D:
+        mask[:, 0 : ny // 4, 0 : nx // 4] = 1  # noqa
+        mask[:, ny // 4 : ny // 2, 0:nx] = 2  # noqa
+    else:
+        mask[:, 0 : ny // 4, 0 : nx // 4] = 1  # noqa
+        mask[:, ny // 4 : ny // 2, 0:nx] = 2  # noqa
+
+    logger.info(f"[{well_id}][patched_segment_ROI] END")
+
+    return mask.astype(label_dtype)
+
+
 def test_multiplexing_registration(
     zenodo_images_multiplex_shifted: list[str],
     tmp_path,
+    monkeypatch: MonkeyPatch,
     roi_table="FOV_ROI_table",  # Given the test data, only implemented per FOV
 ):
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
+        patched_segment_ROI,
+    )
+
     zarr_path = tmp_path / "registration_output/"
     zarr_path_mip = tmp_path / "registration_output_mip/"
     metadata = {}
@@ -229,7 +264,7 @@ def test_multiplexing_registration(
             output_path=str(zarr_path_mip),
             metadata=metadata,
             component=component,
-            level=4,
+            level=1,
             channel=Channel(wavelength_id="A01_C01"),
         )
 
@@ -339,3 +374,4 @@ def test_multiplexing_registration(
         assert (
             zattrs["labels"][0] == f"label_{component.split('/')[-1]}_A01_C01"
         )
+    print(zarr_path_mip)
