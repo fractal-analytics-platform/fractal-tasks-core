@@ -18,7 +18,6 @@ from typing import Optional
 from typing import Sequence
 
 import pandas as pd
-import zarr
 from anndata._io.specs import write_elem
 from pydantic.decorator import validate_arguments
 
@@ -33,6 +32,7 @@ from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
 from fractal_tasks_core.lib_ROI_overlaps import remove_FOV_overlaps
+from fractal_tasks_core.lib_zarr import open_zarr_group_with_overwrite
 
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
@@ -54,6 +54,7 @@ def create_ome_zarr(
     coarsening_xy: int = 2,
     image_extension: str = "tif",
     metadata_table_file: Optional[str] = None,
+    overwrite: bool = False,
 ) -> dict[str, Any]:
     """
     Create a OME-NGFF zarr folder, without reading/writing image data.
@@ -103,6 +104,7 @@ def create_ome_zarr(
         metadata_table_file: If `None`, parse Yokogawa metadata from mrf/mlf
             files in the input_path folder; else, the full path to a csv file
             containing the parsed metadata table.
+        overwrite: FIXME
 
     Returns:
         A metadata dictionary containing important metadata about the OME-Zarr
@@ -228,7 +230,11 @@ def create_ome_zarr(
         zarrurl = f"{plate}.zarr"
         in_path = dict_plate_paths[plate]
         logger.info(f"Creating {zarrurl}")
-        group_plate = zarr.group(Path(output_path) / zarrurl)
+        # Call zarr.open_group wrapper, which handles overwrite=True/False
+        group_plate = open_zarr_group_with_overwrite(
+            str(Path(output_path) / zarrurl),
+            overwrite=overwrite,
+        )
         zarrurls["plate"].append(zarrurl)
 
         # Obtain FOV-metadata dataframe
