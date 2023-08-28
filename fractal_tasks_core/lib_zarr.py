@@ -89,7 +89,7 @@ def open_zarr_group_with_overwrite(
 
     # Raise warning if we are overriding an existing value of `mode`
     if "mode" in open_group_kwargs.keys():
-        mode = open_group_kwargs["mode"]
+        mode = open_group_kwargs.pop("mode")
         logger.warning(
             f"Overriding {mode=} with {new_mode=}, "
             "in open_zarr_group_with_overwrite"
