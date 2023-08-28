@@ -13,6 +13,7 @@ Module with custom wrappers of the Zarr API.
 """
 import logging
 from collections.abc import MutableMapping
+from typing import Any
 from typing import Optional
 from typing import Union
 
@@ -29,7 +30,7 @@ def open_zarr_group_with_overwrite(
     *,
     overwrite: bool,
     logger: Optional[logging.Logger] = None,
-    **open_group_kwargs,
+    **open_group_kwargs: Any,
 ) -> zarr.Group:
     """
     Wrap `zarr.open_group` and add `overwrite` argument.
