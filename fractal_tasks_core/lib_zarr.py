@@ -237,8 +237,8 @@ def write_table(
             raise OverwriteNotAllowedError(error_msg)
         if table_name in current_tables:
             error_msg = (
-                f"Key '{table_name}' already exists in attributes of group "
-                f"{image_group.store.path}, but `{overwrite=}`. "
+                f"Item '{table_name}' already exists in `tables` attribute of "
+                f"group {image_group.store.path}, but `{overwrite=}`. "
                 "Hint: try setting `overwrite=True`."
             )
             logger.error(error_msg)
