@@ -66,8 +66,7 @@ def open_zarr_group_with_overwrite(
             Determines the `mode` parameter of `zarr.open_group`, which is
             `"w"` (if `overwrite=True`) or `"w-"` (if `overwrite=False`).
         logger:
-            A `logging.Logger` instance; if unset, it will be set to
-            `logging.getLogger(None)`.
+            The logger to use (if unset, use `logging.getLogger(None)`)
         open_group_kwargs:
             Keyword arguments of `zarr.open_group`.
 
@@ -146,6 +145,10 @@ def _write_elem_with_overwrite(
         elem:
             The element to write. Typically an in-memory object, e.g. an
             AnnData, pandas dataframe, scipy sparse matrix, etc.
+        overwrite:
+            TBD
+        logger:
+            The logger to use (if unset, use `logging.getLogger(None)`)
 
     Raises:
         OverwriteNotAllowedError:
@@ -173,25 +176,29 @@ def write_table(
     table_name: str,
     table: ad.AnnData,
     overwrite: bool = False,
-    ngff_roi_attrs: Optional[dict[str, str]] = None,
+    ngff_table_attrs: Optional[dict[str, str]] = None,
     logger: Optional[logging.Logger] = None,
 ) -> zarr.group:
     """
-    FIXME
+    Handle multiple options for writing an AnnData table to a zarr group.
+
 
     Args:
         image_group:
-            TBD
+            The group to write to.
         table_name:
-            TBD
+            The key to write to in the group. Note that absolute paths will be
+            written from the root.
         table:
-            TBD
+            The AnnData table to write.
         overwrite:
             TBD
-        ngff_roi_attrs:
-            TBD
+        ngff_table_attrs:
+            If set, a dictionary with keys `region_path` (required), `type`
+            (optional, defaults to `"ngff:region_table"`) and `instance_key`
+            (optional, defaults to `"label"`).
         logger:
-            TBD
+            The logger to use (if unset, use `logging.getLogger(None)`)
 
     Returns:
         Zarr group of the new table.
@@ -201,15 +208,32 @@ def write_table(
     if logger is None:
         logger = logging.getLogger(None)
 
-    # Create tables group, if needed
+    # Create tables group (if needed) and extract current_tables
     if "tables" not in set(image_group.group_keys()):
         tables_group = image_group.create_group("tables", overwrite=False)
     else:
         tables_group = image_group["tables"]
+    current_tables = tables_group.attrs.asdict().get("tables", [])
 
-    # Check whether subgroup already exists, and proceed accordingly
-    if table_name in set(tables_group.group_keys()) and not overwrite:
-        raise
+    # If overwrite=False, check that the new table does not exist (as a zarr
+    # sub-group or as part of the zarr-group attributes)
+    if not overwrite:
+        if table_name in set(tables_group.group_keys()):
+            error_msg = (
+                f"Sub-group '{table_name}' of group {image_group.store.path} "
+                f"already exists, but `{overwrite=}`. "
+                "Hint: try setting `overwrite=True`."
+            )
+            logger.error(error_msg)
+            raise OverwriteNotAllowedError(error_msg)
+        if table_name in current_tables:
+            error_msg = (
+                f"Key '{table_name}' already exists in attributes of group "
+                f"{image_group.store.path}, but `{overwrite=}`. "
+                "Hint: try setting `overwrite=True`."
+            )
+            logger.error(error_msg)
+            raise OverwriteNotAllowedError(error_msg)
 
     # If it's all OK, proceed and write the table
     _write_elem_with_overwrite(
@@ -219,24 +243,28 @@ def write_table(
         overwrite=overwrite,
     )
 
-    # Update the `tables` metadata of the image group
-    current_tables = tables_group.attrs.asdict().get("tables") or []
-    if table_name in current_tables and not overwrite:
-        raise
+    # Update the `tables` metadata of the image group, if needed
     if table_name not in current_tables:
         new_tables = current_tables + [table_name]
         tables_group.attrs["tables"] = new_tables
 
-    # Update OME-NGFF metadata for current-table group
-    # WARNING: the following OME-NGFF metadata are based on a proposed
-    # change to the specs (https://github.com/ome/ngff/pull/64)
-    if ngff_roi_attrs is not None:
-        _type = ngff_roi_attrs.get("type", "ngff:region_table")
-        instance_key = ngff_roi_attrs.get("instance_key", "label")
+    # Optionally update OME-NGFF metadata for table_group (based on a proposed
+    # change to the OME-NGFF table specs - see
+    # https://github.com/ome/ngff/pull/64)
+    if ngff_table_attrs is not None:
+        # Define region attribute (with no default)
         try:
-            region = dict(path=ngff_roi_attrs["region_path"])
+            region = dict(path=ngff_table_attrs["region_path"])
         except KeyError:
-            raise
+            raise ValueError(
+                "If provided, `ngff_table_attrs` argument of "
+                "`write_table` must include a `region_path` key. "
+                f"Given: {ngff_table_attrs}."
+            )
+        # Define type attribute (defaulting to 'ngff:region_table')
+        _type = ngff_table_attrs.get("type", "ngff:region_table")
+        # Define instance_key attribute (defaulting to 'label')
+        instance_key = ngff_table_attrs.get("instance_key", "label")
         table_group = tables_group[table_name]
         table_group.attrs["type"] = _type
         table_group.attrs["region"] = region
