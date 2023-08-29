@@ -37,6 +37,7 @@ def maximum_intensity_projection(
     output_path: str,
     component: str,
     metadata: dict[str, Any],
+    overwrite: bool = False,
 ) -> dict[str, Any]:
     """
     Perform maximum-intensity projection along Z axis.
@@ -69,6 +70,8 @@ def maximum_intensity_projection(
             `image: List of images in the OME-Zarr plate
             (e.g. `["MyPlate.zarr/B/03/0", "MyPlate.zarr/B/05/0"]`).
             (standard argument for Fractal tasks, managed by Fractal server).
+        overwrite:
+            TBD
     """
 
     # Preliminary checks
