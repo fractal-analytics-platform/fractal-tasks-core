@@ -65,6 +65,12 @@
             "title": "Metadata Table File",
             "type": "string",
             "description": "If `None`, parse Yokogawa metadata from mrf/mlf files in the input_path folder; else, the full path to a csv file containing the parsed metadata table."
+          },
+          "overwrite": {
+            "title": "Overwrite",
+            "default": false,
+            "type": "boolean",
+            "description": "FIXME"
           }
         },
         "required": [
