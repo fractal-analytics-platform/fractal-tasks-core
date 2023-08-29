@@ -176,7 +176,7 @@ def write_table(
     table_name: str,
     table: ad.AnnData,
     overwrite: bool = False,
-    ngff_table_attrs: Optional[dict[str, str]] = None,
+    table_attrs: Optional[dict[str, Any]] = None,
     logger: Optional[logging.Logger] = None,
 ) -> zarr.group:
     """
@@ -188,9 +188,10 @@ def write_table(
     3. Call the `_write_elem_with_overwrite` wrapper with the appropriate
        `overwrite` parameter.
     4. Update the `tables` attribute of the image group.
-    5. If `ngff_table_attrs` is set, include a set of attributes in the
-       new-table zarr group, based on a proposed change to the OME-NGFF specs
-       (https://github.com/ome/ngff/pull/64)
+    5. If `table_attrs` is set, include this set of attributes in the
+       new-table zarr group. One intended usage, within fractal-tasks-core, is
+       to comply with a proposed change to the OME-NGFF specs
+       (https://github.com/ome/ngff/pull/64).
 
     Args:
         image_group:
@@ -202,10 +203,9 @@ def write_table(
             The AnnData table to write.
         overwrite:
             TBD
-        ngff_table_attrs:
-            If set, a dictionary with keys `region_path` (required), `type`
-            (optional, defaults to `"ngff:region_table"`) and `instance_key`
-            (optional, defaults to `"label"`).
+        table_attrs:
+            If set, overwrite all attributes of the new-table zarr group with
+            the key/value pairs in `table_attrs`.
         logger:
             The logger to use (if unset, use `logging.getLogger(None)`)
 
@@ -258,26 +258,19 @@ def write_table(
         new_tables = current_tables + [table_name]
         tables_group.attrs["tables"] = new_tables
 
-    # Optionally update OME-NGFF metadata for the new-table zarr group, based
-    # on a proposed change to the OME-NGFF table specs
-    # (https://github.com/ome/ngff/pull/64)
-    if ngff_table_attrs is not None:
-        # Define region attribute (with no default)
-        try:
-            region = dict(path=ngff_table_attrs["region_path"])
-        except KeyError:
-            raise ValueError(
-                "If provided, `ngff_table_attrs` argument of "
-                "`write_table` must include a `region_path` key. "
-                f"Given: {ngff_table_attrs}."
-            )
-        # Define type attribute (defaulting to 'ngff:region_table')
-        _type = ngff_table_attrs.get("type", "ngff:region_table")
-        # Define instance_key attribute (defaulting to 'label')
-        instance_key = ngff_table_attrs.get("instance_key", "label")
-        # Set attributes of the new-table group
-        table_group.attrs["type"] = _type
-        table_group.attrs["region"] = region
-        table_group.attrs["instance_key"] = instance_key
+    # Optionally update attributes of the new-table zarr group
+    if table_attrs is not None:
+        if table_attrs.get("type") == "ngff:region_table":
+            # on a proposed change to the OME-NGFF table specs
+            # (https://github.com/ome/ngff/pull/64)
+            for key in ["region", "instance_key"]:
+                if key not in table_attrs.keys():
+                    logger.warning(
+                        "The `write_table` parameter `table_attrs` has "
+                        "type='ngff:region_table' but the required key "
+                        f"{key} is missing."
+                    )
+        # Overwrite all attributes with the key/value pairs from table_attrs
+        table_group.attrs.put(table_attrs)
 
     return table_group

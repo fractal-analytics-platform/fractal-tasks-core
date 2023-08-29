@@ -137,24 +137,25 @@ def test_write_table(tmp_path):
         assert key not in table_a_group.attrs.keys()
     assert table_a_group.X.shape == (2, 2)  # Verify that it was overwritten
 
-    # Run write_table, with ngff_table_attrs parameters
+    # Run write_table, with table_attrs parameters
     INSTANCE_KEY = "Label"
-    REGION_PATH = "../labels/MyLabel"
+    REGION = dict(path="../labels/MyLabel")
     TYPE = "ngff:region_table"
     table_b_group = write_table(
         image_group,
         "table_b",
         ROI_table_2,
-        ngff_table_attrs=dict(
+        table_attrs=dict(
+            type=TYPE,
             instance_key=INSTANCE_KEY,
-            region_path=REGION_PATH,
+            region=REGION,
         ),
     )
     assert image_group["tables"].attrs.asdict() == dict(
         tables=["table_a", "table_b"]
     )
     assert table_b_group.attrs["instance_key"] == INSTANCE_KEY
-    assert table_b_group.attrs["region"] == dict(path=REGION_PATH)
+    assert table_b_group.attrs["region"] == REGION
     assert table_b_group.attrs["type"] == TYPE
 
     # Verify the overwrite=False failure if sub-group already exists
