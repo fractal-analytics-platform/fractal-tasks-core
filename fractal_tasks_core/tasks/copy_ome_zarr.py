@@ -43,6 +43,7 @@ def copy_ome_zarr(
     project_to_2D: bool = True,
     suffix: str = "mip",
     ROI_table_names: tuple[str, ...] = ("FOV_ROI_table", "well_ROI_table"),
+    overwrite: bool = False,
 ) -> dict[str, Any]:
 
     """
@@ -88,6 +89,8 @@ def copy_ome_zarr(
             `plate_suffix.zarr`. Note that `None` is not currently supported.
         ROI_table_names: List of Anndata table names to be copied. Note:
             copying non-ROI tables may fail if `project_to_2D=True`.
+        overwrite:
+            FIXME
 
     Returns:
         An update to the metadata table with new `plate`, `well`, `image`
