@@ -21,6 +21,7 @@ import anndata as ad
 import zarr
 from anndata.experimental import write_elem
 from pydantic import BaseModel
+from pydantic.decorator import validate_arguments
 from zarr.errors import ContainsGroupError
 
 
@@ -177,9 +178,10 @@ class ROITableAttrs(BaseModel):
 
     type: str = "ngff:region_table"
     region_path: str
-    instance_key: Optional[str] = "label"
+    instance_key: str = "label"
 
 
+@validate_arguments
 def write_table(
     image_group: zarr.group,
     table_name: str,
@@ -242,10 +244,8 @@ def write_table(
     # Update OME-NGFF metadata for current-table group
     if ngff_roi_attrs is not None:
         table_group = tables_group[table_name]
-        region_path = ngff_roi_attrs["region_path"]
-        instance_key = ngff_roi_attrs.get("instance_key", "label")
-        table_group.attrs["type"] = "ngff:region_table"
-        table_group.attrs["region"] = {"path": region_path}
-        table_group.attrs["instance_key"] = instance_key
+        table_group.attrs["type"] = ngff_roi_attrs.type
+        table_group.attrs["region"] = {"path": ngff_roi_attrs.region_path}
+        table_group.attrs["instance_key"] = ngff_roi_attrs.instance_key
 
     return table_group
