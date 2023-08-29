@@ -270,6 +270,17 @@ def test_MIP(
     )
     assert metadata_update_second_try == metadata_update
 
+    # Run again, with overwrite=False
+    with pytest.raises(OverwriteNotAllowedError):
+        copy_ome_zarr(
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path_mip),
+            metadata=_original_metadata,
+            project_to_2D=True,
+            suffix="mip",
+            overwrite=False,
+        )
+
     # MIP
     for component in metadata["image"]:
         maximum_intensity_projection(
@@ -278,6 +289,27 @@ def test_MIP(
             metadata=metadata,
             component=component,
         )
+
+    # Re-run with overwrite=True
+    for component in metadata["image"]:
+        maximum_intensity_projection(
+            input_paths=[str(zarr_path_mip)],
+            output_path=str(zarr_path_mip),
+            metadata=metadata,
+            component=component,
+            overwrite=True,
+        )
+
+    # Re-run with overwrite=False
+    with pytest.raises(OverwriteNotAllowedError):
+        for component in metadata["image"]:
+            maximum_intensity_projection(
+                input_paths=[str(zarr_path_mip)],
+                output_path=str(zarr_path_mip),
+                metadata=metadata,
+                component=component,
+                overwrite=False,
+            )
 
     # OME-NGFF JSON validation
     image_zarr = Path(zarr_path_mip / metadata["image"][0])

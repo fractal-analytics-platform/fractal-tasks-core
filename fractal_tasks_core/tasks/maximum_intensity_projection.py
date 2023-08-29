@@ -20,11 +20,13 @@ from typing import Sequence
 import anndata as ad
 import dask.array as da
 from pydantic.decorator import validate_arguments
+from zarr.errors import ContainsArrayError
 
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
+from fractal_tasks_core.lib_zarr import OverwriteNotAllowedError
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 logger = logging.getLogger(__name__)
@@ -130,18 +132,22 @@ def maximum_intensity_projection(
     # Write to disk (triggering execution)
     if accumulated_array.chunksize != chunksize:
         raise Exception("ERROR\n{accumulated_array.chunksize=}\n{chunksize=}")
-    accumulated_array.to_zarr(
-        f"{zarrurl_new}/0",
-        overwrite=False,
-        dimension_separator="/",
-        write_empty_chunks=False,
-    )
+    try:
+        accumulated_array.to_zarr(
+            f"{zarrurl_new}/0",
+            overwrite=overwrite,
+            dimension_separator="/",
+            write_empty_chunks=False,
+        )
+    except ContainsArrayError:
+        error_msg = "FIXME"
+        raise OverwriteNotAllowedError(error_msg)
 
     # Starting from on-disk highest-resolution data, build and write to disk a
     # pyramid of coarser levels
     build_pyramid(
         zarrurl=zarrurl_new,
-        overwrite=False,
+        overwrite=overwrite,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         chunksize=chunksize,
