@@ -26,6 +26,7 @@ import fractal_tasks_core
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROIs_from_3D_to_2D,
 )
+from fractal_tasks_core.lib_zarr import open_zarr_group_with_overwrite
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 logger = logging.getLogger(__name__)
@@ -128,7 +129,9 @@ def copy_ome_zarr(
 
         # Replicate plate attrs
         old_plate_group = zarr.open_group(zarrurl_old, mode="r")
-        new_plate_group = zarr.open_group(zarrurl_new)
+        new_plate_group = open_zarr_group_with_overwrite(
+            zarrurl_new, overwrite=overwrite
+        )
         new_plate_group.attrs.put(old_plate_group.attrs.asdict())
 
         well_paths = [

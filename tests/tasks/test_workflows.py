@@ -146,6 +146,7 @@ def test_yokogawa_to_ome_zarr(
 
     # Create zarr structure
     metadata: dict = {}
+    _original_metadata: dict = {}
     metadata_update = create_ome_zarr(
         input_paths=[str(img_path)],
         output_path=str(output_path),
@@ -164,7 +165,7 @@ def test_yokogawa_to_ome_zarr(
         create_ome_zarr(
             input_paths=[str(img_path)],
             output_path=str(output_path),
-            metadata=metadata,
+            metadata=_original_metadata,
             allowed_channels=allowed_channels,
             num_levels=num_levels,
             coarsening_xy=coarsening_xy,
@@ -177,7 +178,7 @@ def test_yokogawa_to_ome_zarr(
     metadata_update = create_ome_zarr(
         input_paths=[str(img_path)],
         output_path=str(output_path),
-        metadata=metadata,
+        metadata=_original_metadata,
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
@@ -247,6 +248,7 @@ def test_MIP(
     metadata = metadata_3D.copy()
 
     # Replicate
+    _original_metadata = metadata.copy()
     metadata_update = copy_ome_zarr(
         input_paths=[str(zarr_path)],
         output_path=str(zarr_path_mip),
@@ -256,6 +258,17 @@ def test_MIP(
     )
     metadata.update(metadata_update)
     debug(metadata)
+
+    # Run again, with overwrite=True
+    metadata_update_second_try = copy_ome_zarr(
+        input_paths=[str(zarr_path)],
+        output_path=str(zarr_path_mip),
+        metadata=_original_metadata,
+        project_to_2D=True,
+        suffix="mip",
+        overwrite=True,
+    )
+    assert metadata_update_second_try == metadata_update
 
     # MIP
     for component in metadata["image"]:
