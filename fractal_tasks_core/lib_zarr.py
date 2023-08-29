@@ -41,12 +41,11 @@ def open_zarr_group_with_overwrite(
 
     The expected behavior is
 
-    * if `overwrite=False` and the group does not exist, create it;
-    * if `overwrite=True` and the group does not exist, create it;
-    * if `overwrite=True` and the group already exists, replace it with a new
-      empty group;
-    * if `overwrite=False` and the group already exists, fail with a relevant
-      error.
+
+    * if the group does not exist, create it (independently on `overwrite`);
+    * if the group already exists and `overwrite=True`, replace the group with
+      an empty one;
+    * if the group already exists and `overwrite=False`, fail.
 
     From the [`zarr.open_group`
     docs](https://zarr.readthedocs.io/en/stable/api/hierarchy.html#zarr.hierarchy.open_group):
@@ -125,13 +124,14 @@ def write_elem_with_overwrite(
     See docs for the original function
     [here](https://anndata.readthedocs.io/en/stable/generated/anndata.experimental.write_elem.html).
 
-    The expected behavior is
-    * if `overwrite=False` and the sub-group does not exist, create it;
-    * if `overwrite=True` and the sub-group does not exist, create it;
-    * if `overwrite=True` and the sub-group already exists, replace it with a
-      new empty group;
-    * if `overwrite=False` and the sub-group already exists, fail with a
-      relevant error.
+    This function writes `elem` to the sub-group `key` of `group`. The
+    `overwrite`-related expected behavior is:
+
+    * if the sub-group does not exist, create it (independently on
+      `overwrite`);
+    * if the sub-group already exists and `overwrite=True`, overwrite the
+      sub-group;
+    * if the sub-group already exists and `overwrite=False`, fail.
 
     Note that this version of the wrapper does not include the original
     `dataset_kwargs` parameter.
