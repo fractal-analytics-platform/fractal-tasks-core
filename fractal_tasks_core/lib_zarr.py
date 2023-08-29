@@ -20,8 +20,6 @@ from typing import Union
 import anndata as ad
 import zarr
 from anndata.experimental import write_elem
-from pydantic import BaseModel
-from pydantic.decorator import validate_arguments
 from zarr.errors import ContainsGroupError
 
 
@@ -170,24 +168,12 @@ def _write_elem_with_overwrite(
     write_elem(group, key, elem)
 
 
-class ROITableAttrs(BaseModel):
-    """
-    WARNING: the following OME-NGFF metadata are based on a proposed
-    change to the specs (https://github.com/ome/ngff/pull/64)
-    """
-
-    type: str = "ngff:region_table"
-    region_path: str
-    instance_key: str = "label"
-
-
-@validate_arguments
 def write_table(
-    image_group: zarr.group,
+    image_group: zarr.Group,
     table_name: str,
     table: ad.AnnData,
     overwrite: bool = False,
-    ngff_roi_attrs: Optional[ROITableAttrs] = None,
+    ngff_roi_attrs: Optional[dict[str, str]] = None,
     logger: Optional[logging.Logger] = None,
 ) -> zarr.group:
     """
@@ -242,10 +228,18 @@ def write_table(
         tables_group.attrs["tables"] = new_tables
 
     # Update OME-NGFF metadata for current-table group
+    # WARNING: the following OME-NGFF metadata are based on a proposed
+    # change to the specs (https://github.com/ome/ngff/pull/64)
     if ngff_roi_attrs is not None:
+        _type = ngff_roi_attrs.get("type", "ngff:region_table")
+        instance_key = ngff_roi_attrs.get("instance_key", "label")
+        try:
+            region = dict(path=ngff_roi_attrs["region_path"])
+        except KeyError:
+            raise
         table_group = tables_group[table_name]
-        table_group.attrs["type"] = ngff_roi_attrs.type
-        table_group.attrs["region"] = {"path": ngff_roi_attrs.region_path}
-        table_group.attrs["instance_key"] = ngff_roi_attrs.instance_key
+        table_group.attrs["type"] = _type
+        table_group.attrs["region"] = region
+        table_group.attrs["instance_key"] = instance_key
 
     return table_group
