@@ -270,7 +270,8 @@ def write_table(
                 logger.warning(
                     f"The table_attrs parameter of write_elem has "
                     "type='ngff:region_table' but does not comply with the "
-                    f"proposed table specs. Original error:\n{str(e)}"
+                    "proposed table specs. "
+                    f"Original error: KeyError: {str(e)}"
                 )
         # Overwrite all table_attrs key/value pairs into table_group attributes
         table_group.attrs.put(table_attrs)
