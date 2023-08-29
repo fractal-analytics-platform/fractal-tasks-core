@@ -62,6 +62,7 @@ def yokogawa_to_ome_zarr(
     output_path: str,
     component: str,
     metadata: dict[str, Any],
+    overwrite: bool = False,
 ):
     """
     Convert Yokogawa output (png, tif) to zarr file.
@@ -99,6 +100,8 @@ def yokogawa_to_ome_zarr(
             parameter of `create_ome_zarr` task (if specified, only parse
             images with filenames that match with all these patterns).
             (standard argument for Fractal tasks, managed by Fractal server).
+        overwrite:
+            TBD
     """
 
     # Preliminary checks
@@ -175,7 +178,7 @@ def yokogawa_to_ome_zarr(
         chunks=chunksize,
         dtype=sample.dtype,
         store=zarr.storage.FSStore(zarrurl + "/0"),
-        overwrite=False,
+        overwrite=overwrite,
         dimension_separator="/",
     )
 
@@ -224,7 +227,7 @@ def yokogawa_to_ome_zarr(
     # pyramid of coarser levels
     build_pyramid(
         zarrurl=zarrurl,
-        overwrite=False,
+        overwrite=overwrite,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         chunksize=chunksize,
