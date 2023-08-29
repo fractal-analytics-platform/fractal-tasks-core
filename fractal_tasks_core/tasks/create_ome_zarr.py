@@ -31,8 +31,8 @@ from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
 from fractal_tasks_core.lib_ROI_overlaps import remove_FOV_overlaps
+from fractal_tasks_core.lib_zarr import _write_elem_with_overwrite
 from fractal_tasks_core.lib_zarr import open_zarr_group_with_overwrite
-from fractal_tasks_core.lib_zarr import write_elem_with_overwrite
 
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
@@ -426,13 +426,13 @@ def create_ome_zarr(
             )
 
             # Write AnnData tables in the tables zarr group
-            write_elem_with_overwrite(
+            _write_elem_with_overwrite(
                 group_tables,
                 "FOV_ROI_table",
                 FOV_ROIs_table,
                 overwrite=overwrite,
             )
-            write_elem_with_overwrite(
+            _write_elem_with_overwrite(
                 group_tables,
                 "well_ROI_table",
                 well_ROIs_table,

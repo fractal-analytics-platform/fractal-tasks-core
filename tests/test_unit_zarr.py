@@ -4,9 +4,9 @@ import pytest
 import zarr
 from devtools import debug
 
+from fractal_tasks_core.lib_zarr import _write_elem_with_overwrite
 from fractal_tasks_core.lib_zarr import open_zarr_group_with_overwrite
 from fractal_tasks_core.lib_zarr import OverwriteNotAllowedError
-from fractal_tasks_core.lib_zarr import write_elem_with_overwrite
 
 
 def test_open_zarr_group_with_overwrite(tmp_path, caplog):
@@ -75,21 +75,21 @@ def test_write_elem_with_overwrite(tmp_path):
     assert set(tables_group.group_keys()) == set()
 
     # If overwrite=True and the sub-group does not exist, create it
-    write_elem_with_overwrite(
+    _write_elem_with_overwrite(
         tables_group, "table_a", ROI_table_1, overwrite=True
     )
     debug(set(tables_group.group_keys()))
     assert set(tables_group.group_keys()) == {"table_a"}
 
     # If overwrite=False and the sub-group does not exist, create it
-    write_elem_with_overwrite(
+    _write_elem_with_overwrite(
         tables_group, "table_b", ROI_table_2, overwrite=False
     )
     debug(set(tables_group.group_keys()))
     assert set(tables_group.group_keys()) == {"table_a", "table_b"}
 
     # If overwrite=True and the sub-group already exists, replace it
-    write_elem_with_overwrite(
+    _write_elem_with_overwrite(
         tables_group, "table_a", ROI_table_3, overwrite=True
     )
     debug(set(tables_group.group_keys()))
@@ -99,7 +99,7 @@ def test_write_elem_with_overwrite(tmp_path):
 
     # If overwrite=False and the sub-group already exists, fail
     with pytest.raises(OverwriteNotAllowedError):
-        write_elem_with_overwrite(
+        _write_elem_with_overwrite(
             tables_group, "table_a", ROI_table_4, overwrite=False
         )
     assert subgroup.X.shape == (3, 3)  # Verify that it was not replaced

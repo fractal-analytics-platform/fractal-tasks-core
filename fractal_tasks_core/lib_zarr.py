@@ -110,7 +110,7 @@ def open_zarr_group_with_overwrite(
         raise OverwriteNotAllowedError(error_msg)
 
 
-def write_elem_with_overwrite(
+def _write_elem_with_overwrite(
     group: zarr.Group,
     key: str,
     elem: Any,
