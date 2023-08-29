@@ -21,6 +21,7 @@ from devtools import debug
 
 from ._validation import check_file_number
 from ._validation import validate_schema
+from fractal_tasks_core.lib_zarr import OverwriteNotAllowedError
 from fractal_tasks_core.tasks.copy_ome_zarr import copy_ome_zarr
 from fractal_tasks_core.tasks.create_ome_zarr import create_ome_zarr
 from fractal_tasks_core.tasks.illumination_correction import (
@@ -144,7 +145,7 @@ def test_yokogawa_to_ome_zarr(
     output_path = tmp_path / "output"
 
     # Create zarr structure
-    metadata = {}
+    metadata: dict = {}
     metadata_update = create_ome_zarr(
         input_paths=[str(img_path)],
         output_path=str(output_path),
@@ -154,6 +155,35 @@ def test_yokogawa_to_ome_zarr(
         coarsening_xy=coarsening_xy,
         metadata_table_file=metadata_table_file,
         image_extension="png",
+    )
+    metadata.update(metadata_update)
+    debug(metadata)
+
+    # Re-run (with overwrite=False) and fail
+    with pytest.raises(OverwriteNotAllowedError):
+        create_ome_zarr(
+            input_paths=[str(img_path)],
+            output_path=str(output_path),
+            metadata=metadata,
+            allowed_channels=allowed_channels,
+            num_levels=num_levels,
+            coarsening_xy=coarsening_xy,
+            metadata_table_file=metadata_table_file,
+            image_extension="png",
+            overwrite=False,
+        )
+
+    # Re-run (with overwrite=True)
+    metadata_update = create_ome_zarr(
+        input_paths=[str(img_path)],
+        output_path=str(output_path),
+        metadata=metadata,
+        allowed_channels=allowed_channels,
+        num_levels=num_levels,
+        coarsening_xy=coarsening_xy,
+        metadata_table_file=metadata_table_file,
+        image_extension="png",
+        overwrite=True,
     )
     metadata.update(metadata_update)
     debug(metadata)
@@ -239,7 +269,7 @@ def test_MIP_subset_of_images(
     zarr_path_mip = tmp_path / "tmp_out_mip/"
 
     # Create zarr structure
-    metadata = {}
+    metadata: dict = {}
     metadata_update = create_ome_zarr(
         input_paths=[zenodo_images],
         output_path=str(zarr_path),
@@ -308,7 +338,7 @@ def test_illumination_correction(
     # Init
     img_path = Path(zenodo_images)
     zarr_path = tmp_path / "tmp_out"
-    metadata = {}
+    metadata: dict = {}
 
     testdata_str = testdata_path.as_posix()
     illum_params = {"A01_C01": "illum_corr_matrix.png"}
