@@ -422,7 +422,7 @@ def create_ome_zarr(
                 site_metadata.loc[well_id]
             )
 
-            # Write AnnData tables in the tables zarr group
+            # Write AnnData tables into the `tables` zarr group
             write_table(
                 group_image,
                 "FOV_ROI_table",
