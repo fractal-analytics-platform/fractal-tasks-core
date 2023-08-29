@@ -31,8 +31,8 @@ from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
 from fractal_tasks_core.lib_ROI_overlaps import remove_FOV_overlaps
-from fractal_tasks_core.lib_zarr import _write_elem_with_overwrite
 from fractal_tasks_core.lib_zarr import open_zarr_group_with_overwrite
+from fractal_tasks_core.lib_zarr import write_table
 
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
@@ -415,30 +415,28 @@ def create_ome_zarr(
                 ),
             }
 
-            # Create tables zarr group for ROI tables
-            group_tables = group_image.create_group("tables/")  # noqa: F841
-            well_id = row + column
-
             # Prepare AnnData tables for FOV/well ROIs
+            well_id = row + column
             FOV_ROIs_table = prepare_FOV_ROI_table(site_metadata.loc[well_id])
             well_ROIs_table = prepare_well_ROI_table(
                 site_metadata.loc[well_id]
             )
 
             # Write AnnData tables in the tables zarr group
-            _write_elem_with_overwrite(
-                group_tables,
+            write_table(
+                group_image,
                 "FOV_ROI_table",
                 FOV_ROIs_table,
                 overwrite=overwrite,
+                logger=logger,
             )
-            _write_elem_with_overwrite(
-                group_tables,
+            write_table(
+                group_image,
                 "well_ROI_table",
                 well_ROIs_table,
                 overwrite=overwrite,
+                logger=logger,
             )
-            group_tables.attrs["tables"] = ["FOV_ROI_table", "well_ROI_table"]
 
     # Check that the different images in each well have unique channel labels.
     # Since we currently merge all fields of view in the same image, this check
