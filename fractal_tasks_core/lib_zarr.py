@@ -182,6 +182,15 @@ def write_table(
     """
     Handle multiple options for writing an AnnData table to a zarr group.
 
+    1. Create the `tables` group, if needed.
+    2. If `overwrite=False`, check that the new table does not exist (either in
+       zarr attributes or as a zarr sub-group).
+    3. Call the `_write_elem_with_overwrite` wrapper with the appropriate
+       `overwrite` parameter.
+    4. Update the `tables` attribute of the image group.
+    5. If `ngff_table_attrs` is set, include a set of attributes in the
+       new-table zarr group, based on a proposed change to the OME-NGFF specs
+       (https://github.com/ome/ngff/pull/64)
 
     Args:
         image_group:
@@ -215,8 +224,8 @@ def write_table(
         tables_group = image_group["tables"]
     current_tables = tables_group.attrs.asdict().get("tables", [])
 
-    # If overwrite=False, check that the new table does not exist (as a zarr
-    # sub-group or as part of the zarr-group attributes)
+    # If overwrite=False, check that the new table does not exist (either as a
+    # zarr sub-group or as part of the zarr-group attributes)
     if not overwrite:
         if table_name in set(tables_group.group_keys()):
             error_msg = (
@@ -242,15 +251,16 @@ def write_table(
         table,
         overwrite=overwrite,
     )
+    table_group = tables_group[table_name]
 
     # Update the `tables` metadata of the image group, if needed
     if table_name not in current_tables:
         new_tables = current_tables + [table_name]
         tables_group.attrs["tables"] = new_tables
 
-    # Optionally update OME-NGFF metadata for table_group (based on a proposed
-    # change to the OME-NGFF table specs - see
-    # https://github.com/ome/ngff/pull/64)
+    # Optionally update OME-NGFF metadata for the new-table zarr group, based
+    # on a proposed change to the OME-NGFF table specs
+    # (https://github.com/ome/ngff/pull/64)
     if ngff_table_attrs is not None:
         # Define region attribute (with no default)
         try:
@@ -265,7 +275,7 @@ def write_table(
         _type = ngff_table_attrs.get("type", "ngff:region_table")
         # Define instance_key attribute (defaulting to 'label')
         instance_key = ngff_table_attrs.get("instance_key", "label")
-        table_group = tables_group[table_name]
+        # Set attributes of the new-table group
         table_group.attrs["type"] = _type
         table_group.attrs["region"] = region
         table_group.attrs["instance_key"] = instance_key
