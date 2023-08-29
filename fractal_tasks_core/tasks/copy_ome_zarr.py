@@ -128,7 +128,7 @@ def copy_ome_zarr(
 
         # Replicate plate attrs
         old_plate_group = zarr.open_group(zarrurl_old, mode="r")
-        new_plate_group = zarr.open(zarrurl_new)
+        new_plate_group = zarr.open_group(zarrurl_new)
         new_plate_group.attrs.put(old_plate_group.attrs.asdict())
 
         well_paths = [
