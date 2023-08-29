@@ -17,8 +17,10 @@ from typing import Any
 from typing import Optional
 from typing import Union
 
+import anndata as ad
 import zarr
 from anndata.experimental import write_elem
+from pydantic import BaseModel
 from zarr.errors import ContainsGroupError
 
 
@@ -165,3 +167,85 @@ def _write_elem_with_overwrite(
             logger.error(error_msg)
             raise OverwriteNotAllowedError(error_msg)
     write_elem(group, key, elem)
+
+
+class ROITableAttrs(BaseModel):
+    """
+    WARNING: the following OME-NGFF metadata are based on a proposed
+    change to the specs (https://github.com/ome/ngff/pull/64)
+    """
+
+    type: str = "ngff:region_table"
+    region_path: str
+    instance_key: Optional[str] = "label"
+
+
+def write_table(
+    image_group: zarr.group,
+    table_name: str,
+    table: ad.AnnData,
+    overwrite: bool = False,
+    ngff_roi_attrs: Optional[ROITableAttrs] = None,
+    logger: Optional[logging.Logger] = None,
+) -> zarr.group:
+    """
+    FIXME
+
+    Args:
+        image_group:
+            TBD
+        table_name:
+            TBD
+        table:
+            TBD
+        overwrite:
+            TBD
+        ngff_roi_attrs:
+            TBD
+        logger:
+            TBD
+
+    Returns:
+        Zarr group of the new table.
+    """
+
+    # Set logger
+    if logger is None:
+        logger = logging.getLogger(None)
+
+    # Create tables group, if needed
+    if "tables" not in set(image_group.group_keys()):
+        tables_group = image_group.create_group("tables", overwrite=False)
+    else:
+        tables_group = image_group["tables"]
+
+    # Check whether subgroup already exists, and proceed accordingly
+    if table_name in set(tables_group.group_keys()) and not overwrite:
+        raise
+
+    # If it's all OK, proceed and write the table
+    _write_elem_with_overwrite(
+        tables_group,
+        table_name,
+        table,
+        overwrite=overwrite,
+    )
+
+    # Update the `tables` metadata of the image group
+    current_tables = tables_group.attrs.asdict().get("tables") or []
+    if table_name in current_tables and not overwrite:
+        raise
+    if table_name not in current_tables:
+        new_tables = current_tables + [table_name]
+        tables_group.attrs["tables"] = new_tables
+
+    # Update OME-NGFF metadata for current-table group
+    if ngff_roi_attrs is not None:
+        table_group = tables_group[table_name]
+        region_path = ngff_roi_attrs["region_path"]
+        instance_key = ngff_roi_attrs.get("instance_key", "label")
+        table_group.attrs["type"] = "ngff:region_table"
+        table_group.attrs["region"] = {"path": region_path}
+        table_group.attrs["instance_key"] = instance_key
+
+    return table_group
