@@ -106,7 +106,7 @@ def test_write_elem_with_overwrite(tmp_path):
     assert subgroup.X.shape == (3, 3)  # Verify that it was not overwritten
 
 
-def test_write_table(tmp_path, caplog):
+def test_write_table(tmp_path):
     """
     Test some specific behaviors of `write_table`, especially the logic which
     is not part of `_write_elem_with_overwrite`.
@@ -138,25 +138,15 @@ def test_write_table(tmp_path, caplog):
     assert table_a_group.X.shape == (2, 2)  # Verify that it was overwritten
 
     # Run write_table, with table_attrs parameters
-    REGION = dict(path="../labels/MyLabel")
-    TYPE = "ngff:region_table"
-    caplog.clear()
+    KEY = "KEY"
+    VALUE = "VALUE"
     table_b_group = write_table(
-        image_group,
-        "table_b",
-        ROI_table_2,
-        table_attrs=dict(
-            type=TYPE,
-            region=REGION,
-        ),
+        image_group, "table_b", ROI_table_2, table_attrs=dict(KEY=VALUE)
     )
-    debug(caplog.text)
-    assert "does not comply with the proposed table specs" in caplog.text
     assert image_group["tables"].attrs.asdict() == dict(
         tables=["table_a", "table_b"]
     )
-    assert table_b_group.attrs["region"] == REGION
-    assert table_b_group.attrs["type"] == TYPE
+    assert table_b_group.attrs[KEY] == VALUE
 
     # Verify the overwrite=False failure if sub-group already exists
     image_group["tables"].create_group("table_c")
@@ -170,3 +160,56 @@ def test_write_table(tmp_path, caplog):
     with pytest.raises(OverwriteNotAllowedError) as e:
         write_table(image_group, "table_d", ROI_table_2)
     assert str(e.value).startswith("Item ")
+
+
+def test_write_table_warnings(tmp_path, caplog):
+    """
+    Test that the appropriate warnings are raised when not complying with the
+    new proposed table specs.
+    """
+
+    table = ad.AnnData(np.ones((2, 2)))
+    zarr_path = str(tmp_path / "my_image.zarr")
+    img_group = zarr.open(zarr_path, mode="w")
+
+    def _check_warnings(_ATTRS, expect_warning=True):
+        caplog.clear()
+        write_table(
+            img_group, "table", table, table_attrs=_ATTRS, overwrite=True
+        )
+        debug(caplog.text)
+        WARNING_MSG = "does not comply with the proposed table specs"
+        if expect_warning:
+            assert WARNING_MSG in caplog.text
+        else:
+            assert WARNING_MSG not in caplog.text
+
+    # Run without warnings
+    ATTRS = dict(
+        type="ngff:region_table",
+        region=dict(path="../labels/something"),
+        instance_key="label",
+    )
+    _check_warnings(ATTRS, expect_warning=False)
+
+    # Run with warnings, case 1
+    ATTRS = dict(
+        type="ngff:region_table",
+        region=dict(path="../labels/something"),
+    )
+    _check_warnings(ATTRS)
+
+    # Run with warnings, case 2
+    ATTRS = dict(
+        type="ngff:region_table",
+        instance_key="label",
+        region=dict(key="value"),
+    )
+    _check_warnings(ATTRS)
+
+    # Run with warnings, case 3
+    ATTRS = dict(
+        type="ngff:region_table",
+        instance_key="label",
+    )
+    _check_warnings(ATTRS)
