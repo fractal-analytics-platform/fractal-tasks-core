@@ -205,6 +205,12 @@
             "title": "Metadata",
             "type": "object",
             "description": "Dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata. `original_paths`: list of paths that correspond to the `input_paths` of the `create_ome_zarr` task (=> where the microscopy image are stored); `num_levels (int)`: number of pyramid levels in the image (this determines how many pyramid levels are built for the segmentation); `coarsening_xy (int)`: coarsening factor in XY of the downsampling when building the pyramid; `image_extension`: filename extension of images (e.g. `\"tif\"` or `\"png\"`); `image_glob_patterns`: parameter of `create_ome_zarr` task (if specified, only parse images with filenames that match with all these patterns). (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "overwrite": {
+            "title": "Overwrite",
+            "default": false,
+            "type": "boolean",
+            "description": "TBD"
           }
         },
         "required": [
@@ -836,6 +842,12 @@
               "type": "string"
             },
             "description": "If `None`, parse Yokogawa metadata from mrf/mlf files in the input_path folder; else, a dictionary of key-value pairs like `(acquisition, path)` with `acquisition` a string and `path` pointing to a csv file containing the parsed metadata table."
+          },
+          "overwrite": {
+            "title": "Overwrite",
+            "default": false,
+            "type": "boolean",
+            "description": "TBD"
           }
         },
         "required": [
