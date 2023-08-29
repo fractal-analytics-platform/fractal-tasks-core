@@ -22,6 +22,7 @@ import zarr
 from anndata import read_zarr
 from dask.array.image import imread
 from pydantic.decorator import validate_arguments
+from zarr.errors import ContainsArrayError
 
 from fractal_tasks_core.lib_channels import get_omero_channel_list
 from fractal_tasks_core.lib_channels import OmeroChannel
@@ -34,6 +35,7 @@ from fractal_tasks_core.lib_read_fractal_metadata import (
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
+from fractal_tasks_core.lib_zarr import OverwriteNotAllowedError
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 
@@ -173,14 +175,23 @@ def yokogawa_to_ome_zarr(
 
     # Initialize zarr
     chunksize = (1, 1, sample.shape[1], sample.shape[2])
-    canvas_zarr = zarr.create(
-        shape=(len(wavelength_ids), max_z, max_y, max_x),
-        chunks=chunksize,
-        dtype=sample.dtype,
-        store=zarr.storage.FSStore(zarrurl + "/0"),
-        overwrite=overwrite,
-        dimension_separator="/",
-    )
+    try:
+        canvas_zarr = zarr.create(
+            shape=(len(wavelength_ids), max_z, max_y, max_x),
+            chunks=chunksize,
+            dtype=sample.dtype,
+            store=zarr.storage.FSStore(zarrurl + "/0"),
+            overwrite=overwrite,
+            dimension_separator="/",
+        )
+    except ContainsArrayError as e:
+        error_msg = (
+            f"Cannot create a zarr group at '{zarrurl}/0', "
+            f"with {overwrite=} (original error: {str(e)}). "
+            "Hint: try setting overwrite=True."
+        )
+        logger.error(error_msg)
+        raise OverwriteNotAllowedError(error_msg)
 
     # Loop over channels
     for i_c, wavelength_id in enumerate(wavelength_ids):

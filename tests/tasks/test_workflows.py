@@ -198,6 +198,27 @@ def test_yokogawa_to_ome_zarr(
         )
     debug(metadata)
 
+    # Re-run (with overwrite=True)
+    for component in metadata["image"]:
+        yokogawa_to_ome_zarr(
+            input_paths=[str(output_path)],
+            output_path=str(output_path),
+            metadata=metadata,
+            component=component,
+            overwrite=True,
+        )
+
+    # Re-run (with overwrite=False)
+    with pytest.raises(OverwriteNotAllowedError):
+        for component in metadata["image"]:
+            yokogawa_to_ome_zarr(
+                input_paths=[str(output_path)],
+                output_path=str(output_path),
+                metadata=metadata,
+                component=component,
+                overwrite=False,
+            )
+
     # OME-NGFF JSON validation
     image_zarr = Path(output_path / metadata["image"][0])
     well_zarr = image_zarr.parent
