@@ -279,6 +279,12 @@
               "type": "string"
             },
             "description": "List of Anndata table names to be copied. Note: copying non-ROI tables may fail if `project_to_2D=True`."
+          },
+          "overwrite": {
+            "title": "Overwrite",
+            "default": false,
+            "type": "boolean",
+            "description": "FIXME"
           }
         },
         "required": [
