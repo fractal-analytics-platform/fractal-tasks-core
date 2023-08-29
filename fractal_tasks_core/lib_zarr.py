@@ -261,16 +261,18 @@ def write_table(
     # Optionally update attributes of the new-table zarr group
     if table_attrs is not None:
         if table_attrs.get("type") == "ngff:region_table":
-            # on a proposed change to the OME-NGFF table specs
-            # (https://github.com/ome/ngff/pull/64)
-            for key in ["region", "instance_key"]:
-                if key not in table_attrs.keys():
-                    logger.warning(
-                        "The `write_table` parameter `table_attrs` has "
-                        "type='ngff:region_table' but the required key "
-                        f"{key} is missing."
-                    )
-        # Overwrite all attributes with the key/value pairs from table_attrs
+            # Verify whether we comply with a proposed change to the OME-NGFF
+            # table specs (https://github.com/ome/ngff/pull/64)
+            try:
+                table_attrs["instance_key"]
+                table_attrs["region"]["path"]
+            except KeyError as e:
+                logger.warning(
+                    f"The table_attrs parameter of write_elem has "
+                    "type='ngff:region_table' but does not comply with the "
+                    f"proposed table specs. Original error:\n{str(e)}"
+                )
+        # Overwrite all table_attrs key/value pairs into table_group attributes
         table_group.attrs.put(table_attrs)
 
     return table_group

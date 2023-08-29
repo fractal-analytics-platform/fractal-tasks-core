@@ -106,7 +106,7 @@ def test_write_elem_with_overwrite(tmp_path):
     assert subgroup.X.shape == (3, 3)  # Verify that it was not overwritten
 
 
-def test_write_table(tmp_path):
+def test_write_table(tmp_path, caplog):
     """
     Test some specific behaviors of `write_table`, especially the logic which
     is not part of `_write_elem_with_overwrite`.
@@ -138,23 +138,23 @@ def test_write_table(tmp_path):
     assert table_a_group.X.shape == (2, 2)  # Verify that it was overwritten
 
     # Run write_table, with table_attrs parameters
-    INSTANCE_KEY = "Label"
     REGION = dict(path="../labels/MyLabel")
     TYPE = "ngff:region_table"
+    caplog.clear()
     table_b_group = write_table(
         image_group,
         "table_b",
         ROI_table_2,
         table_attrs=dict(
             type=TYPE,
-            instance_key=INSTANCE_KEY,
             region=REGION,
         ),
     )
+    debug(caplog.text)
+    assert "does not comply with the proposed table specs" in caplog.text
     assert image_group["tables"].attrs.asdict() == dict(
         tables=["table_a", "table_b"]
     )
-    assert table_b_group.attrs["instance_key"] == INSTANCE_KEY
     assert table_b_group.attrs["region"] == REGION
     assert table_b_group.attrs["type"] == TYPE
 
