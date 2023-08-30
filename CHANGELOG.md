@@ -2,6 +2,18 @@
 
 # Unreleased
 
+* Rename `illumination_correction` parameter from `overwrite` to `overwrite_input` (\#499).
+* Introduce `overwrite` argument for most tasks:
+  `create_ome_zarr`,
+  `create_ome_zarr_multiplex`,
+  `yokogawa_to_ome_zarr`,
+  `copy_ome_zarr`,
+  `maximum_intensity_projection`,
+  `cellpose_segmentation`,
+  `napari_workflows_wrapper`
+  (\#499).
+
+
 # 0.10.1
 
 * Tasks:
