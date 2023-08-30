@@ -28,7 +28,6 @@ import dask.array as da
 import numpy as np
 import pandas as pd
 import zarr
-from anndata._io.specs import write_elem
 from cellpose import models
 from pydantic.decorator import validate_arguments
 
@@ -50,6 +49,7 @@ from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
 from fractal_tasks_core.lib_ROI_overlaps import get_overlapping_pairs_3D
 from fractal_tasks_core.lib_zarr import prepare_label_group
+from fractal_tasks_core.lib_zarr import write_table
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
 
@@ -662,37 +662,26 @@ def cellpose_segmentation(
         # Convert to anndata
         bbox_table = ad.AnnData(df_well, dtype=bbox_dtype)
         bbox_table.obs = labels
+
         # Write to zarr group
-        group_tables = zarr.group(f"{in_path}/{component}/tables/")
-        write_elem(group_tables, output_ROI_table, bbox_table)
+        image_group = zarr.group(f"{in_path}/{component}")
         logger.info(
-            "Bounding box ROI table written to "
+            "Now writing bounding-box ROI table to "
             f"{in_path}/{component}/tables/{output_ROI_table}"
         )
-
-        # WARNING: the following OME-NGFF metadata are based on a proposed
-        # change to the specs (https://github.com/ome/ngff/pull/64)
-
-        # Update OME-NGFF metadata for tables group
-        current_tables = group_tables.attrs.asdict().get("tables") or []
-        if output_ROI_table in current_tables:
-            # FIXME: move this check to an earlier stage of the task
-            raise ValueError(
-                f"{in_path}/{component}/tables/ already includes "
-                f"{output_ROI_table=} in {current_tables=}"
-            )
-        new_tables = current_tables + [output_ROI_table]
-        group_tables.attrs["tables"] = new_tables
-
-        # Update OME-NGFF metadata for current-table group
-        bbox_table_group = zarr.group(
-            f"{in_path}/{component}/tables/{output_ROI_table}"
-        )
-        bbox_table_group.attrs["type"] = "ngff:region_table"
-        bbox_table_group.attrs["region"] = {
-            "path": f"../labels/{output_label_name}"
+        table_attrs = {
+            "type": "ngff:region_table",
+            "region": {"path": f"../labels/{output_label_name}"},
+            "instance_key": "label",
         }
-        bbox_table_group.attrs["instance_key"] = "label"
+        write_table(
+            image_group,
+            output_ROI_table,
+            bbox_table,
+            overwrite=overwrite,
+            logger=logger,
+            table_attrs=table_attrs,
+        )
 
     return {}
 
