@@ -1,4 +1,4 @@
-import logging
+import warnings
 
 import numpy as np
 import pandas
@@ -27,12 +27,9 @@ def regionprops_table(
     MOCK OF THE ORIGINAL FUNCTION
     """
 
-    import numpy as np
-
     num_labels = len(np.unique(labels))
-
-    int_values = np.arange(30)
-    float_values = np.arange(30) + 0.5
+    int_values = np.arange(num_labels)
+    float_values = np.arange(num_labels) + 0.5
     table = dict(
         label=int_values,
         area=float_values,
