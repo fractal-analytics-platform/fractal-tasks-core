@@ -72,6 +72,7 @@ def napari_workflows_wrapper(
     level: int = 0,
     relabeling: bool = True,
     expected_dimensions: int = 3,
+    overwrite: bool = True,
 ):
     """
     Run a napari-workflow on the ROIs of a single OME-NGFF image.
@@ -139,6 +140,8 @@ def napari_workflows_wrapper(
             images], but you want to make sure the napari workflow gets a 2D
             array to process. Also useful to set to `2` when loading a 2D
             OME-Zarr that is saved as `(size_x, size_y)`.
+        overwrite:
+            FIXME
     """
     wf: napari_workflows.Worfklow = load_workflow(workflow_file)
     logger.info(f"Loaded workflow from {workflow_file}")
