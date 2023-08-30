@@ -20,9 +20,22 @@ from fractal_tasks_core.tasks.illumination_correction import (
 )
 
 
-@pytest.mark.parametrize("overwrite_input", [True])
+def test_illumination_correction_ovewrite_input_false(tmp_path):
+    with pytest.raises(NotImplementedError):
+        illumination_correction(
+            input_paths=["/tmp"],
+            output_path="/tmp",
+            metadata={},
+            component="something",
+            overwrite_input=False,
+            new_component="something_else",
+            illumination_profiles_folder="/tmp",
+            dict_corr={},
+            background=0,
+        )
+
+
 def test_illumination_correction(
-    overwrite_input: bool,
     tmp_path: Path,
     testdata_path: Path,
     monkeypatch: MonkeyPatch,
@@ -88,28 +101,16 @@ def test_illumination_correction(
     )
 
     # Call illumination correction task, with patched correct()
-    if overwrite_input:
-        illumination_correction(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
-            metadata=metadata,
-            component=component,
-            overwrite_input=overwrite_input,
-            illumination_profiles_folder=illumination_profiles_folder,
-            dict_corr=illum_params,
-            background=0,
-        )
-    else:
-        illumination_correction(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
-            metadata=metadata,
-            component=component,
-            overwrite_input=overwrite_input,
-            new_component="plate_new.zarr/B/03/0",
-            dict_corr=illum_params,
-            background=0,
-        )
+    illumination_correction(
+        input_paths=[zarr_path],
+        output_path=zarr_path,
+        metadata=metadata,
+        component=component,
+        overwrite_input=True,
+        illumination_profiles_folder=illumination_profiles_folder,
+        dict_corr=illum_params,
+        background=0,
+    )
 
     print(caplog.text)
     caplog.clear()
@@ -120,8 +121,6 @@ def test_illumination_correction(
     assert tot_calls_correct == expected_tot_calls_correct
 
     # Verify the output
-    if not overwrite_input:
-        zarrurl = zarrurl.replace(".zarr", "_new.zarr")
     for ind_level in range(num_levels):
         old = da.from_zarr(
             testdata_path / f"plate_ones.zarr/B/03/0/{ind_level}"
