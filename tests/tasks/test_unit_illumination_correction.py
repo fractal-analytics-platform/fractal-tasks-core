@@ -20,7 +20,20 @@ from fractal_tasks_core.tasks.illumination_correction import (
 )
 
 
-def test_illumination_correction_ovewrite_input_false(tmp_path):
+def test_illumination_correction_fail(tmp_path):
+
+    with pytest.raises(ValueError):
+        illumination_correction(
+            input_paths=["/tmp"],
+            output_path="/tmp",
+            metadata={},
+            component="something",
+            overwrite_input=False,
+            illumination_profiles_folder="/tmp",
+            dict_corr={},
+            background=0,
+        )
+
     with pytest.raises(NotImplementedError):
         illumination_correction(
             input_paths=["/tmp"],
