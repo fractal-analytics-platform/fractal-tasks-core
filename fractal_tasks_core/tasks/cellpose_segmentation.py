@@ -640,7 +640,7 @@ def cellpose_segmentation(
     # pyramid of coarser levels
     build_pyramid(
         zarrurl=f"{zarrurl}/labels/{output_label_name}",
-        overwrite=False,
+        overwrite=overwrite,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         chunksize=chunks,
