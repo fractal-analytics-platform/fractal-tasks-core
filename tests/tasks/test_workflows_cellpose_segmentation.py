@@ -619,7 +619,7 @@ def test_workflow_with_per_FOV_labeling_via_script(
     with args_path.open("w") as f:
         json.dump(this_task_args, f, indent=2)
     with pytest.raises(subprocess.TimeoutExpired):
-        res = subprocess.run(shlex.split(command), **run_options)
+        res = subprocess.run(shlex.split(command), **run_options)  # type: ignore  # noqa
         print(res.stdout)
         print(res.stderr)
         # Also check that we are not hitting
@@ -632,7 +632,7 @@ def test_workflow_with_per_FOV_labeling_via_script(
     this_task_args = dict(**task_args, model_type=INVALID_MODEL_TYPE)
     with args_path.open("w") as f:
         json.dump(this_task_args, f, indent=2)
-    res = subprocess.run(shlex.split(command), **run_options)
+    res = subprocess.run(shlex.split(command), **run_options)  # type: ignore
     print(res.stdout)
     print(res.stderr)
     error_msg = f"ERROR model_type={INVALID_MODEL_TYPE} is not allowed"
