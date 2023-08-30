@@ -7,6 +7,7 @@ from devtools import debug
 from fractal_tasks_core.lib_zarr import _write_elem_with_overwrite
 from fractal_tasks_core.lib_zarr import open_zarr_group_with_overwrite
 from fractal_tasks_core.lib_zarr import OverwriteNotAllowedError
+from fractal_tasks_core.lib_zarr import prepare_label_group
 from fractal_tasks_core.lib_zarr import write_table
 
 
@@ -213,3 +214,47 @@ def test_write_table_warnings(tmp_path, caplog):
         instance_key="label",
     )
     _check_warnings(ATTRS)
+
+
+def test_prepare_label_group(tmp_path):
+    """
+    Test some specific behaviors of `prepare_label_group`.
+    """
+
+    # Create zarr groups for image and labels
+    zarr_path = str(tmp_path / "my_image.zarr")
+    image_group = zarr.open(zarr_path, mode="w")
+
+    # Run prepare_label_group
+    prepare_label_group(image_group, "label_a")
+    assert set(image_group.group_keys()) == {"labels"}
+    assert image_group["labels"].attrs.asdict() == dict(labels=["label_a"])
+
+    # Run prepare_label_group again, with overwrite=True
+    prepare_label_group(image_group, "label_a", overwrite=True)
+    assert set(image_group.group_keys()) == {"labels"}
+    assert image_group["labels"].attrs.asdict() == dict(labels=["label_a"])
+
+    # Run prepare_label_group, with label_attrs parameters
+    KEY = "KEY"
+    VALUE = "VALUE"
+    label_b_group = prepare_label_group(
+        image_group, "label_b", label_attrs=dict(KEY=VALUE)
+    )
+    assert image_group["labels"].attrs.asdict() == dict(
+        labels=["label_a", "label_b"]
+    )
+    assert label_b_group.attrs[KEY] == VALUE
+
+    # Verify the overwrite=False failure if sub-group already exists
+    image_group["labels"].create_group("label_c")
+    with pytest.raises(OverwriteNotAllowedError) as e:
+        prepare_label_group(image_group, "label_c")
+    assert str(e.value).startswith("Sub-group ")
+
+    # Verify the overwrite=False failure if item already exists in labels
+    # attribute
+    image_group["labels"].attrs["labels"] = ["label_a", "label_b", "label_d"]
+    with pytest.raises(OverwriteNotAllowedError) as e:
+        prepare_label_group(image_group, "label_d")
+    assert str(e.value).startswith("Item ")
