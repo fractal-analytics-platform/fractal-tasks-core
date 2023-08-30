@@ -32,6 +32,14 @@ from fractal_tasks_core.tasks.napari_workflows_wrapper import (
     napari_workflows_wrapper,
 )
 
+try:
+    import napari_skimage_regionprops_mock
+
+    has_napari_skimage_regionprops_mock = True
+    print(napari_skimage_regionprops_mock)
+except ModuleNotFoundError:
+    has_napari_skimage_regionprops_mock = False
+
 
 def test_napari_workflow(
     tmp_path: Path,
@@ -754,6 +762,10 @@ def test_napari_workflow_CYX_wrong_dimensions(
         debug(e.value)
 
 
+@pytest.mark.skipif(
+    not has_napari_skimage_regionprops_mock,
+    reason="napari_skimage_regionprops_mock not available",
+)
 def test_napari_workflow_mock(
     tmp_path: Path,
     testdata_path: Path,
