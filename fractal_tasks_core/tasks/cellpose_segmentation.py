@@ -170,6 +170,7 @@ def cellpose_segmentation(
     augment: bool = False,
     net_avg: bool = False,
     use_gpu: bool = True,
+    overwrite: bool = True,
 ) -> dict[str, Any]:
     """
     Run cellpose segmentation on the ROIs of a single OME-Zarr image.
@@ -249,6 +250,8 @@ def cellpose_segmentation(
         use_gpu: If `False`, always use the CPU; if `True`, use the GPU if
             possible (as defined in `cellpose.core.use_gpu()`) and fall-back
             to the CPU otherwise.
+        overwrite:
+            FIXME
     """
 
     # Set input path

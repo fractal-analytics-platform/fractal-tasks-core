@@ -488,6 +488,12 @@
             "default": true,
             "type": "boolean",
             "description": "If `False`, always use the CPU; if `True`, use the GPU if possible (as defined in `cellpose.core.use_gpu()`) and fall-back to the CPU otherwise."
+          },
+          "overwrite": {
+            "title": "Overwrite",
+            "default": true,
+            "type": "boolean",
+            "description": "FIXME"
           }
         },
         "required": [
