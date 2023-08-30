@@ -428,6 +428,7 @@ def napari_workflows_wrapper(
         logger.info(f"{label_chunksize=}")
 
         # Create labels zarr group and combine existing/new labels in .zattrs
+        # FIXME INCLUDE OVERWRITE OPTION
         new_labels = [params.label_name for (name, params) in label_outputs]
         zarrurl = f"{in_path}/{component}"
         try:
@@ -447,6 +448,7 @@ def napari_workflows_wrapper(
         labels_group.attrs["labels"] = existing_labels + new_labels
 
         # Loop over label outputs and (1) set zattrs, (2) create zarr group
+        # FIXME INCLUDE OVERWRITE OPTION
         output_label_zarr_groups: dict[str, Any] = {}
         for (name, out_params) in label_outputs:
             label_name = out_params.label_name
@@ -486,6 +488,7 @@ def napari_workflows_wrapper(
             store = zarr.storage.FSStore(
                 f"{in_path}/{component}/labels/{label_name}/0"
             )
+            # FIXME INCLUDE OVERWRITE OPTION
             mask_zarr = zarr.create(
                 shape=label_shape,
                 chunks=label_chunksize,
@@ -609,6 +612,7 @@ def napari_workflows_wrapper(
                     f"new {max_label_for_relabeling=}"
                 )
 
+            # FIXME INCLUDE OVERWRITE OPTION
             da.array(mask).to_zarr(
                 url=output_label_zarr_groups[output_name],
                 region=region,
@@ -637,6 +641,7 @@ def napari_workflows_wrapper(
             measurement_table = ad.AnnData(df_well, dtype=measurement_dtype)
             measurement_table.obs = labels
         # Write to zarr group
+        # FIXME INCLUDE OVERWRITE OPTION
         group_tables = zarr.group(f"{in_path}/{component}/tables/")
         write_elem(group_tables, table_name, measurement_table)
         # Update OME-NGFF metadata
@@ -657,7 +662,7 @@ def napari_workflows_wrapper(
         label_name = out_params.label_name
         build_pyramid(
             zarrurl=f"{zarrurl}/labels/{label_name}",
-            overwrite=False,
+            overwrite=False,  # FIXME INCLUDE OVERWRITE OPTION
             num_levels=num_levels,
             coarsening_xy=coarsening_xy,
             chunksize=label_chunksize,
