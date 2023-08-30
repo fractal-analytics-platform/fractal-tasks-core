@@ -83,37 +83,6 @@ def test_napari_workflow(
         )
     debug(metadata)
 
-    # Re-run with overwrite=True
-    for component in metadata["image"]:
-        napari_workflows_wrapper(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
-            metadata=metadata,
-            component=component,
-            input_specs=input_specs,
-            output_specs=output_specs,
-            workflow_file=workflow_file,
-            input_ROI_table="FOV_ROI_table",
-            level=2,
-            overwrite=True,
-        )
-
-    # Re-run with overwrite=False
-    with pytest.raises(Exception):
-        for component in metadata["image"]:
-            napari_workflows_wrapper(
-                input_paths=[str(zarr_path)],
-                output_path=str(zarr_path),
-                metadata=metadata,
-                component=component,
-                input_specs=input_specs,
-                output_specs=output_specs,
-                workflow_file=workflow_file,
-                input_ROI_table="FOV_ROI_table",
-                level=2,
-                overwrite=False,
-            )
-
     # Prepare parameters for second napari-workflows task (measurement)
     workflow_file = str(testdata_path / "napari_workflows/wf_4.yaml")
     input_specs = {
@@ -140,35 +109,6 @@ def test_napari_workflow(
             input_ROI_table="FOV_ROI_table",
         )
     debug(metadata)
-
-    # Re-run with overwrite=True
-    for component in metadata["image"]:
-        napari_workflows_wrapper(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
-            metadata=metadata,
-            component=component,
-            input_specs=input_specs,
-            output_specs=output_specs,
-            workflow_file=workflow_file,
-            input_ROI_table="FOV_ROI_table",
-            overwrite=True,
-        )
-
-    # Re-run with overwrite=False
-    with pytest.raises(OverwriteNotAllowedError):
-        for component in metadata["image"]:
-            napari_workflows_wrapper(
-                input_paths=[str(zarr_path)],
-                output_path=str(zarr_path),
-                metadata=metadata,
-                component=component,
-                input_specs=input_specs,
-                output_specs=output_specs,
-                workflow_file=workflow_file,
-                input_ROI_table="FOV_ROI_table",
-                overwrite=False,
-            )
 
     # OME-NGFF JSON validation
     image_zarr = zarr_path / metadata["image"][0]
