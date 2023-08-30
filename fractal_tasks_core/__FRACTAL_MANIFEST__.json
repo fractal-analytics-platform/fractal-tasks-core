@@ -579,11 +579,11 @@
             "type": "integer",
             "description": "Background value that is subtracted from the image before the illumination correction is applied. Set it to `0` if you don't want any background subtraction."
           },
-          "overwrite": {
-            "title": "Overwrite",
+          "overwrite_input": {
+            "title": "Overwrite Input",
             "default": true,
             "type": "boolean",
-            "description": "If True, the results of this task will overwrite the input image data. This task is only implemented for ``overwrite=True`` at the moment."
+            "description": "If `True`, the results of this task will overwrite the input image data. In the current version, `overwrite_input=False` is not implemented."
           },
           "new_component": {
             "title": "New Component",

@@ -103,7 +103,7 @@ def illumination_correction(
     illumination_profiles_folder: str,
     dict_corr: dict[str, str],
     background: int = 110,
-    overwrite: bool = True,
+    overwrite_input: bool = True,
     new_component: Optional[str] = None,
 ) -> dict[str, Any]:
 
@@ -138,9 +138,10 @@ def illumination_correction(
         background: Background value that is subtracted from the image before
             the illumination correction is applied. Set it to `0` if you don't
             want any background subtraction.
-        overwrite: If True, the results of this task will overwrite the input
-            image data. This task is only implemented for ``overwrite=True`` at
-            the moment.
+        overwrite_input:
+            If `True`, the results of this task will overwrite the input image
+            data. In the current version, `overwrite_input=False` is not
+            implemented.
         new_component: Not implemented yet. This is not implemented well in
             Fractal server at the moment, it's unclear how a user would specify
             fitting new components. If the results shall not overwrite the
@@ -152,12 +153,12 @@ def illumination_correction(
     # Preliminary checks
     if len(input_paths) > 1:
         raise NotImplementedError
-    if (overwrite and new_component is not None) or (
-        new_component is None and not overwrite
+    if (overwrite_input and new_component is not None) or (
+        new_component is None and not overwrite_input
     ):
-        raise Exception(f"{overwrite=}, but {new_component=}")
+        raise Exception(f"{overwrite_input=}, but {new_component=}")
 
-    if not overwrite:
+    if not overwrite_input:
         msg = (
             "We still have to harmonize illumination_correction("
             "overwrite=False) with replicate_zarr_structure(..., "
@@ -173,7 +174,7 @@ def illumination_correction(
     plate, well = component.split(".zarr/")
     in_path = Path(input_paths[0])
     zarrurl_old = (in_path / component).as_posix()
-    if overwrite:
+    if overwrite_input:
         zarrurl_new = zarrurl_old
     else:
         new_plate, new_well = new_component.split(".zarr/")
@@ -183,7 +184,7 @@ def illumination_correction(
 
     t_start = time.perf_counter()
     logger.info("Start illumination_correction")
-    logger.info(f"  {overwrite=}")
+    logger.info(f"  {overwrite_input=}")
     logger.info(f"  {zarrurl_old=}")
     logger.info(f"  {zarrurl_new=}")
 
@@ -242,7 +243,7 @@ def illumination_correction(
     data_czyx = da.from_zarr(f"{zarrurl_old}/0")
 
     # Create zarr for output
-    if overwrite:
+    if overwrite_input:
         fov_path = zarrurl_old
         new_zarr = zarr.open(f"{zarrurl_old}/0")
     else:
@@ -252,7 +253,7 @@ def illumination_correction(
             chunks=data_czyx.chunksize,
             dtype=data_czyx.dtype,
             store=zarr.storage.FSStore(f"{zarrurl_new}/0"),
-            overwrite=False,
+            overwrite_input=False,
             dimension_separator="/",
         )
 
@@ -289,7 +290,7 @@ def illumination_correction(
     # pyramid of coarser levels
     build_pyramid(
         zarrurl=fov_path,
-        overwrite=overwrite,
+        overwrite=overwrite_input,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         chunksize=data_czyx.chunksize,

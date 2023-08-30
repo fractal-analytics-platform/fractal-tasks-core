@@ -443,7 +443,7 @@ def test_illumination_correction(
             output_path=str(zarr_path),
             metadata=metadata,
             component=component,
-            overwrite=True,
+            overwrite_input=True,
             illumination_profiles_folder=illumination_profiles_folder,
             dict_corr=illum_params,
         )
