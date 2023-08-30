@@ -17,7 +17,6 @@ repos:
     rev: 3.9.2
     hooks:
     -   id: flake8
-        exclude: ^tests/data/napari_workflows/mock_package/napari_skimage_regionprops_mock\.py$
 -   repo: https://github.com/PyCQA/bandit
     rev: '1.7.4'
     hooks:
