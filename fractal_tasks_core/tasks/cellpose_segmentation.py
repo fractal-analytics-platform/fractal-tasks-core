@@ -384,7 +384,7 @@ def cellpose_segmentation(
             pixel_size_z, pixel_size_y, pixel_size_x = pxl_zyx[:]
             logger.info(f"{pxl_zyx=}")
             if not np.allclose(pixel_size_x, pixel_size_y):
-                raise Exception(
+                raise ValueError(
                     "ERROR: XY anisotropy detected"
                     f"pixel_size_x={pixel_size_x}"
                     f"pixel_size_y={pixel_size_y}"
@@ -600,7 +600,7 @@ def cellpose_segmentation(
 
             # Check that total number of labels is under control
             if num_labels_tot > np.iinfo(label_dtype).max:
-                raise Exception(
+                raise ValueError(
                     "ERROR in re-labeling:"
                     f"Reached {num_labels_tot} labels, "
                     f"but dtype={label_dtype}"

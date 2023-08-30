@@ -111,7 +111,7 @@ def maximum_intensity_projection(
             ref_img_size = img_size
         else:
             if img_size != ref_img_size:
-                raise Exception(
+                raise ValueError(
                     "ERROR: inconsistent image sizes in list_indices"
                 )
     chunk_size_y, chunk_size_x = img_size[:]
@@ -130,7 +130,7 @@ def maximum_intensity_projection(
 
     # Write to disk (triggering execution)
     if accumulated_array.chunksize != chunksize:
-        raise Exception("ERROR\n{accumulated_array.chunksize=}\n{chunksize=}")
+        raise ValueError("ERROR\n{accumulated_array.chunksize=}\n{chunksize=}")
     try:
         accumulated_array.to_zarr(
             f"{zarrurl_new}/0",

@@ -291,7 +291,7 @@ def create_ome_zarr_multiplex(
         bit_depth = site_metadata["bit_depth"][0]
 
         if min(pixel_size_z, pixel_size_y, pixel_size_x) < 1e-9:
-            raise Exception(pixel_size_z, pixel_size_y, pixel_size_x)
+            raise ValueError(pixel_size_z, pixel_size_y, pixel_size_x)
 
         # Identify all wells
         plate_prefix = dict_acquisitions[acquisition]["plate_prefix"]
@@ -334,7 +334,7 @@ def create_ome_zarr_multiplex(
                 "actual_wavelength_ids"
             ]
             if well_wavelength_ids != actual_wavelength_ids:
-                raise Exception(
+                raise ValueError(
                     f"ERROR: well {well} in plate {plate} (prefix: "
                     f"{plate_prefix}) has missing channels.\n"
                     f"Expected: {actual_wavelength_ids}\n"

@@ -154,7 +154,7 @@ def yokogawa_to_ome_zarr(
         adata_well, full_res_pxl_sizes_zyx=pxl_size
     )
     if len(well_indices) > 1:
-        raise Exception(f"Something wrong with {well_indices=}")
+        raise ValueError(f"Something wrong with {well_indices=}")
 
     # FIXME: Put back the choice of columns by name? Not here..
 
@@ -205,7 +205,7 @@ def yokogawa_to_ome_zarr(
         )
         filenames = sorted(list(filenames_set), key=sort_fun)
         if len(filenames) == 0:
-            raise Exception(
+            raise ValueError(
                 "Error in yokogawa_to_ome_zarr: len(filenames)=0.\n"
                 f"  in_path: {in_path}\n"
                 f"  image_extension: {image_extension}\n"

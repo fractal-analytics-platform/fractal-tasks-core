@@ -58,7 +58,7 @@ def correct(
 
     # Check shapes
     if corr_img.shape != img_stack.shape[2:] or img_stack.shape[0] != 1:
-        raise Exception(
+        raise ValueError(
             "Error in illumination_correction:\n"
             f"{img_stack.shape=}\n{corr_img.shape=}"
         )
@@ -156,7 +156,7 @@ def illumination_correction(
     if (overwrite_input and new_component is not None) or (
         new_component is None and not overwrite_input
     ):
-        raise Exception(f"{overwrite_input=}, but {new_component=}")
+        raise ValueError(f"{overwrite_input=}, but {new_component=}")
 
     if not overwrite_input:
         msg = (
@@ -179,7 +179,7 @@ def illumination_correction(
     else:
         new_plate, new_well = new_component.split(".zarr/")
         if new_well != well:
-            raise Exception(f"{well=}, {new_well=}")
+            raise ValueError(f"{well=}, {new_well=}")
         zarrurl_new = (Path(output_path) / new_component).as_posix()
 
     t_start = time.perf_counter()
@@ -219,7 +219,7 @@ def illumination_correction(
             ref_img_size = img_size
         else:
             if img_size != ref_img_size:
-                raise Exception(
+                raise ValueError(
                     "ERROR: inconsistent image sizes in list_indices"
                 )
     img_size_y, img_size_x = img_size[:]
@@ -234,7 +234,7 @@ def illumination_correction(
             ).as_posix()
         )
         if corrections[wavelength_id].shape != (img_size_y, img_size_x):
-            raise Exception(
+            raise ValueError(
                 "Error in illumination_correction, "
                 "correction matrix has wrong shape."
             )

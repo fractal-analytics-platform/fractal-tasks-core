@@ -196,7 +196,7 @@ def create_ome_zarr(
             actual_wavelength_ids = tmp_wavelength_ids[:]
         else:
             if actual_wavelength_ids != tmp_wavelength_ids:
-                raise Exception(
+                raise ValueError(
                     f"ERROR\n{info}\nERROR:"
                     f" expected channels {actual_wavelength_ids}"
                 )
@@ -212,7 +212,7 @@ def create_ome_zarr(
         msg = "ERROR in create_ome_zarr\n"
         msg += f"actual_wavelength_ids: {actual_wavelength_ids}\n"
         msg += f"allowed_wavelength_ids: {allowed_wavelength_ids}\n"
-        raise Exception(msg)
+        raise ValueError(msg)
 
     # Create actual_channels, i.e. a list of the channel dictionaries which are
     # present
@@ -266,7 +266,7 @@ def create_ome_zarr(
         bit_depth = site_metadata["bit_depth"][0]
 
         if min(pixel_size_z, pixel_size_y, pixel_size_x) < 1e-9:
-            raise Exception(pixel_size_z, pixel_size_y, pixel_size_x)
+            raise ValueError(pixel_size_z, pixel_size_y, pixel_size_x)
 
         # Identify all wells
         plate_prefix = dict_plate_prefixes[plate]
@@ -317,7 +317,7 @@ def create_ome_zarr(
                     logger.info(f"Skipping {fpath}")
             well_wavelength_ids = sorted(list(set(well_wavelength_ids)))
             if well_wavelength_ids != actual_wavelength_ids:
-                raise Exception(
+                raise ValueError(
                     f"ERROR: well {well} in plate {plate} (prefix: "
                     f"{plate_prefix}) has missing channels.\n"
                     f"Expected: {actual_channels}\n"
