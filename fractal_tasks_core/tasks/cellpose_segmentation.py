@@ -251,8 +251,7 @@ def cellpose_segmentation(
         use_gpu: If `False`, always use the CPU; if `True`, use the GPU if
             possible (as defined in `cellpose.core.use_gpu()`) and fall-back
             to the CPU otherwise.
-        overwrite:
-            FIXME
+        overwrite: If `True`, overwrite the task output.
     """
 
     # Set input path

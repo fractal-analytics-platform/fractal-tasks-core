@@ -104,7 +104,7 @@ def create_ome_zarr(
         metadata_table_file: If `None`, parse Yokogawa metadata from mrf/mlf
             files in the input_path folder; else, the full path to a csv file
             containing the parsed metadata table.
-        overwrite: FIXME
+        overwrite: If `True`, overwrite the task output.
 
     Returns:
         A metadata dictionary containing important metadata about the OME-Zarr

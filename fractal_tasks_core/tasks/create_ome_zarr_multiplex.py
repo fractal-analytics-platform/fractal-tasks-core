@@ -105,8 +105,7 @@ def create_ome_zarr_multiplex(
             pairs like `(acquisition, path)` with `acquisition` a string
             and `path` pointing to a csv file containing the parsed metadata
             table.
-        overwrite:
-            TBD
+        overwrite: If `True`, overwrite the task output.
 
     Returns:
         A metadata dictionary containing important metadata about the OME-Zarr

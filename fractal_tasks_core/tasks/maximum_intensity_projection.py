@@ -72,8 +72,7 @@ def maximum_intensity_projection(
             `image: List of images in the OME-Zarr plate
             (e.g. `["MyPlate.zarr/B/03/0", "MyPlate.zarr/B/05/0"]`).
             (standard argument for Fractal tasks, managed by Fractal server).
-        overwrite:
-            TBD
+        overwrite: If `True`, overwrite the task output.
     """
 
     # Preliminary checks

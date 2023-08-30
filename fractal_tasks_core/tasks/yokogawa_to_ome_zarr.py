@@ -102,8 +102,7 @@ def yokogawa_to_ome_zarr(
             parameter of `create_ome_zarr` task (if specified, only parse
             images with filenames that match with all these patterns).
             (standard argument for Fractal tasks, managed by Fractal server).
-        overwrite:
-            TBD
+        overwrite: If `True`, overwrite the task output.
     """
 
     # Preliminary checks
