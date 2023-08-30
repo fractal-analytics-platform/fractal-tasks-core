@@ -1,0 +1,6 @@
+include requirements.txt
+
+recursive-exclude * __pycache__
+recursive-exclude demo *
+recursive-exclude images *
+recursive-exclude * *.py[co]

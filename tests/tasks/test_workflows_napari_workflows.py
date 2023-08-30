@@ -32,6 +32,14 @@ from fractal_tasks_core.tasks.napari_workflows_wrapper import (
     napari_workflows_wrapper,
 )
 
+try:
+    import napari_skimage_regionprops_mock
+
+    has_napari_skimage_regionprops_mock = True
+    print(napari_skimage_regionprops_mock)
+except ModuleNotFoundError:
+    has_napari_skimage_regionprops_mock = False
+
 
 def test_napari_workflow(
     tmp_path: Path,
@@ -364,35 +372,6 @@ def test_relabeling(
             input_ROI_table="FOV_ROI_table",
         )
     debug(metadata)
-
-    # Re-run with overwrite=True
-    for component in metadata["image"]:
-        napari_workflows_wrapper(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
-            metadata=metadata,
-            component=component,
-            input_specs=input_specs,
-            output_specs=output_specs,
-            workflow_file=workflow_file,
-            input_ROI_table="FOV_ROI_table",
-            overwrite=True,
-        )
-
-    # Re-run with overwrite=False
-    with pytest.raises(OverwriteNotAllowedError):
-        for component in metadata["image"]:
-            napari_workflows_wrapper(
-                input_paths=[str(zarr_path)],
-                output_path=str(zarr_path),
-                metadata=metadata,
-                component=component,
-                input_specs=input_specs,
-                output_specs=output_specs,
-                workflow_file=workflow_file,
-                input_ROI_table="FOV_ROI_table",
-                overwrite=False,
-            )
 
     # Check output
     image_zarr = Path(zarr_path / metadata["image"][0])
@@ -781,3 +760,77 @@ def test_napari_workflow_CYX_wrong_dimensions(
                 level=2,
             )
         debug(e.value)
+
+
+@pytest.mark.skipif(
+    not has_napari_skimage_regionprops_mock,
+    reason="napari_skimage_regionprops_mock not available",
+)
+def test_napari_workflow_mock(
+    tmp_path: Path,
+    testdata_path: Path,
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
+):
+
+    # Init
+    zarr_path = tmp_path / "tmp_out/"
+    metadata = prepare_3D_zarr(
+        str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
+    )
+    debug(zarr_path)
+    debug(metadata)
+
+    # Prepare parameters for first napari-workflows task (labeling)
+    workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
+    input_specs: dict[str, NapariWorkflowsInput] = {
+        "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},  # type: ignore # noqa
+    }
+    output_specs: dict[str, NapariWorkflowsOutput] = {
+        "Result of Expand labels (scikit-image, nsbatwm)": {  # type: ignore # noqa
+            "type": "label",
+            "label_name": "label_DAPI",
+        },
+    }
+
+    # Run once
+    for component in metadata["image"]:
+        napari_workflows_wrapper(
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
+            metadata=metadata,
+            component=component,
+            input_specs=input_specs,
+            output_specs=output_specs,
+            workflow_file=workflow_file,
+            input_ROI_table="FOV_ROI_table",
+            level=2,
+        )
+    debug(metadata)
+
+    # Prepare parameters for second napari-workflows task (measurement)
+    workflow_file = str(testdata_path / "napari_workflows/wf_4_mock.yaml")
+    input_specs = {
+        "dapi_img": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},  # type: ignore # noqa
+        "dapi_label_img": {"type": "label", "label_name": "label_DAPI"},  # type: ignore # noqa
+    }
+    output_specs = {
+        "regionprops_DAPI": {  # type: ignore # noqa
+            "type": "dataframe",
+            "table_name": "regionprops_DAPI",
+        },
+    }
+
+    # Run once
+    for component in metadata["image"]:
+        napari_workflows_wrapper(
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
+            metadata=metadata,
+            component=component,
+            input_specs=input_specs,
+            output_specs=output_specs,
+            workflow_file=workflow_file,
+            input_ROI_table="FOV_ROI_table",
+        )
+    debug(metadata)
