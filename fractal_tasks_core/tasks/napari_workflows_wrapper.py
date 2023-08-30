@@ -24,7 +24,6 @@ import napari_workflows
 import numpy as np
 import pandas as pd
 import zarr
-from anndata._io.specs import write_elem
 from napari_workflows._io_yaml_v1 import load_workflow
 from pydantic.decorator import validate_arguments
 
@@ -38,6 +37,8 @@ from fractal_tasks_core.lib_regions_of_interest import (
 )
 from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_upscale_array import upscale_array
+from fractal_tasks_core.lib_zarr import prepare_label_group
+from fractal_tasks_core.lib_zarr import write_table
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
 
@@ -427,31 +428,9 @@ def napari_workflows_wrapper(
         logger.info(f"{label_shape=}")
         logger.info(f"{label_chunksize=}")
 
-        # Create labels zarr group and combine existing/new labels in .zattrs
-        # FIXME INCLUDE OVERWRITE OPTION
-        new_labels = [params.label_name for (name, params) in label_outputs]
-        zarrurl = f"{in_path}/{component}"
-        try:
-            with open(f"{zarrurl}/labels/.zattrs", "r") as f_zattrs:
-                existing_labels = json.load(f_zattrs)["labels"]
-        except FileNotFoundError:
-            existing_labels = []
-        intersection = set(new_labels) & set(existing_labels)
-        logger.info(f"{new_labels=}")
-        logger.info(f"{existing_labels=}")
-        if intersection:
-            raise OutOfTaskScopeError(
-                f"Labels {intersection} already exist "
-                "but are part of outputs"
-            )
-        labels_group = zarr.group(f"{zarrurl}/labels")
-        labels_group.attrs["labels"] = existing_labels + new_labels
-
         # Loop over label outputs and (1) set zattrs, (2) create zarr group
-        # FIXME INCLUDE OVERWRITE OPTION
         output_label_zarr_groups: dict[str, Any] = {}
         for (name, out_params) in label_outputs:
-            label_name = out_params.label_name
 
             # (1a) Rescale OME-NGFF datasets (relevant for level>0)
             if not multiscales[0]["axes"][0]["name"] == "c":
@@ -466,35 +445,53 @@ def napari_workflows_wrapper(
                 reference_level=level,
                 remove_channel_axis=True,
             )
-            # (1b) Write zattrs for specific label
-            label_group = labels_group.create_group(label_name)
-            label_group.attrs["image-label"] = {
-                "version": __OME_NGFF_VERSION__,
-                "source": {"image": "../../"},
-            }
-            label_group.attrs["multiscales"] = [
-                {
-                    "name": label_name,
+
+            # (1b) Prepare attrs for label group
+            label_name = out_params.label_name
+            label_attrs = {
+                "image-label": {
                     "version": __OME_NGFF_VERSION__,
-                    "axes": [
-                        ax
-                        for ax in multiscales[0]["axes"]
-                        if ax["type"] != "channel"
-                    ],
-                    "datasets": new_datasets,
-                }
-            ]
-            # (2) Create zarr group at level=0
+                    "source": {"image": "../../"},
+                },
+                "multiscales": [
+                    {
+                        "name": label_name,
+                        "version": __OME_NGFF_VERSION__,
+                        "axes": [
+                            ax
+                            for ax in multiscales[0]["axes"]
+                            if ax["type"] != "channel"
+                        ],
+                        "datasets": new_datasets,
+                    }
+                ],
+            }
+
+            # (2) Prepare label group
+            zarrurl = f"{in_path}/{component}"
+            image_group = zarr.group(zarrurl)
+            label_group = prepare_label_group(
+                image_group,
+                label_name,
+                overwrite=overwrite,
+                label_attrs=label_attrs,
+                logger=logger,
+            )
+            logger.info(
+                "Helper function `prepare_label_group` returned "
+                f"{label_group=}"
+            )
+
+            # (3) Create zarr group at level=0
             store = zarr.storage.FSStore(
                 f"{in_path}/{component}/labels/{label_name}/0"
             )
-            # FIXME INCLUDE OVERWRITE OPTION
             mask_zarr = zarr.create(
                 shape=label_shape,
                 chunks=label_chunksize,
                 dtype=label_dtype,
                 store=store,
-                overwrite=False,
+                overwrite=overwrite,
                 dimension_separator="/",
             )
             output_label_zarr_groups[name] = mask_zarr
@@ -612,11 +609,11 @@ def napari_workflows_wrapper(
                     f"new {max_label_for_relabeling=}"
                 )
 
-            # FIXME INCLUDE OVERWRITE OPTION
             da.array(mask).to_zarr(
                 url=output_label_zarr_groups[output_name],
                 region=region,
                 compute=True,
+                overwrite=overwrite,
             )
         logger.info(f"ROI {i_ROI+1}/{num_ROIs}: output handling complete")
 
@@ -640,21 +637,17 @@ def napari_workflows_wrapper(
             # Convert to anndata
             measurement_table = ad.AnnData(df_well, dtype=measurement_dtype)
             measurement_table.obs = labels
+
         # Write to zarr group
-        # FIXME INCLUDE OVERWRITE OPTION
-        group_tables = zarr.group(f"{in_path}/{component}/tables/")
-        write_elem(group_tables, table_name, measurement_table)
-        # Update OME-NGFF metadata
-        current_tables = group_tables.attrs.asdict().get("tables") or []
-        if table_name in current_tables:
-            # FIXME: move this check to an earlier stage of the task
-            raise ValueError(
-                f"{in_path}/{component}/tables/ already includes "
-                f"{table_name=} in {current_tables=}"
-            )
-        new_tables = current_tables + [table_name]
-        group_tables.attrs["tables"] = new_tables
-        # FIXME: also include table metadata, see issue #333
+        image_group = zarr.group(f"{in_path}/{component}")
+        # TODO: should we include any table_attrs? (ref issue #333)
+        write_table(
+            image_group,
+            table_name,
+            measurement_table,
+            overwrite=overwrite,
+            logger=logger,
+        )
 
     # Output handling: "label" type (for each output, build and write to disk
     # pyramid of coarser levels)
@@ -662,7 +655,7 @@ def napari_workflows_wrapper(
         label_name = out_params.label_name
         build_pyramid(
             zarrurl=f"{zarrurl}/labels/{label_name}",
-            overwrite=False,  # FIXME INCLUDE OVERWRITE OPTION
+            overwrite=overwrite,
             num_levels=num_levels,
             coarsening_xy=coarsening_xy,
             chunksize=label_chunksize,
