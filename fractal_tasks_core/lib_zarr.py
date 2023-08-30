@@ -290,7 +290,7 @@ def prepare_label_group(
 
     This helper function is similar to `write_table`, in that it prepares the
     appropriate zarr groups (`labels` and the new-label one) and performs
-    `overwrite`-dependent checks; at a difference with `write_table`, this
+    `overwrite`-dependent checks. At a difference with `write_table`, this
     function does not actually write the label array to the new zarr group;
     such writing operation must take place in the actual task function, since
     in fractal-tasks-core it is done sequentially on different `region`s of the
@@ -359,7 +359,7 @@ def prepare_label_group(
         labels_group.attrs["labels"] = new_labels
 
     # Define new-label group
-    label_group = labels_group.create_group(label_name)
+    label_group = labels_group.create_group(label_name, overwrite=overwrite)
 
     # Optionally update attributes of the new-table zarr group
     if label_attrs is not None:
