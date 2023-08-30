@@ -139,8 +139,13 @@ def maximum_intensity_projection(
             dimension_separator="/",
             write_empty_chunks=False,
         )
-    except ContainsArrayError:
-        error_msg = "FIXME"
+    except ContainsArrayError as e:
+        error_msg = (
+            f"Cannot create a zarr group at '{zarrurl_new}/0', "
+            f"with {overwrite=} (original error: {str(e)}). "
+            "Hint: try setting overwrite=True."
+        )
+        logger.error(error_msg)
         raise OverwriteNotAllowedError(error_msg)
 
     # Starting from on-disk highest-resolution data, build and write to disk a
