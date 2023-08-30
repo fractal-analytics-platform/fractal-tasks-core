@@ -49,6 +49,7 @@ from fractal_tasks_core.lib_regions_of_interest import is_ROI_table_valid
 from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
 from fractal_tasks_core.lib_ROI_overlaps import get_overlapping_pairs_3D
+from fractal_tasks_core.lib_zarr import prepare_label_group
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
 
@@ -423,42 +424,37 @@ def cellpose_segmentation(
         remove_channel_axis=True,
     )
 
-    # Write zattrs for labels and for specific label
-    new_labels = [output_label_name]
-    try:
-        with open(f"{zarrurl}/labels/.zattrs", "r") as f_zattrs:
-            existing_labels = json.load(f_zattrs)["labels"]
-    except FileNotFoundError:
-        existing_labels = []
-    intersection = set(new_labels) & set(existing_labels)
-    logger.info(f"{new_labels=}")
-    logger.info(f"{existing_labels=}")
-    if intersection:
-        raise RuntimeError(
-            f"Labels {intersection} already exist but are also part of outputs"
-        )
-    labels_group = zarr.group(f"{zarrurl}/labels")
-    labels_group.attrs["labels"] = existing_labels + new_labels
-
-    label_group = labels_group.create_group(output_label_name)
-    label_group.attrs["image-label"] = {
-        "version": __OME_NGFF_VERSION__,
-        "source": {"image": "../../"},
-    }
-    label_group.attrs["multiscales"] = [
-        {
-            "name": output_label_name,
+    label_attrs = {
+        "image-label": {
             "version": __OME_NGFF_VERSION__,
-            "axes": [
-                ax for ax in multiscales[0]["axes"] if ax["type"] != "channel"
-            ],
-            "datasets": new_datasets,
-        }
-    ]
+            "source": {"image": "../../"},
+        },
+        "multiscales": [
+            {
+                "name": output_label_name,
+                "version": __OME_NGFF_VERSION__,
+                "axes": [
+                    ax
+                    for ax in multiscales[0]["axes"]
+                    if ax["type"] != "channel"
+                ],
+                "datasets": new_datasets,
+            }
+        ],
+    }
 
-    # Open new zarr group for mask 0-th level
-    zarr.group(f"{zarrurl}/labels")
-    zarr.group(f"{zarrurl}/labels/{output_label_name}")
+    image_group = zarr.group(zarrurl)
+    label_group = prepare_label_group(
+        image_group,
+        output_label_name,
+        overwrite=overwrite,
+        label_attrs=label_attrs,
+        logger=logger,
+    )
+
+    logger.info(
+        f"Helper function `prepare_label_group` returned {label_group=}"
+    )
     logger.info(f"Output label path: {zarrurl}/labels/{output_label_name}/0")
     store = zarr.storage.FSStore(f"{zarrurl}/labels/{output_label_name}/0")
     label_dtype = np.uint32

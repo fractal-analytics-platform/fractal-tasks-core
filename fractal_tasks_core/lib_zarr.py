@@ -197,17 +197,16 @@ def write_table(
         image_group:
             The group to write to.
         table_name:
-            The key to write to in the group. Note that absolute paths will be
-            written from the root.
+            The name of the new table.
         table:
             The AnnData table to write.
         overwrite:
-            TBD
+            TBD.
         table_attrs:
-            If set, overwrite all attributes of the new-table zarr group with
-            the key/value pairs in `table_attrs`.
+            If set, overwrite table_group attributes with table_attrs key/value
+            pairs.
         logger:
-            The logger to use (if unset, use `logging.getLogger(None)`)
+            The logger to use (if unset, use `logging.getLogger(None)`).
 
     Returns:
         Zarr group of the new table.
@@ -273,7 +272,98 @@ def write_table(
                     "proposed table specs. "
                     f"Original error: KeyError: {str(e)}"
                 )
-        # Overwrite all table_attrs key/value pairs into table_group attributes
+        # Overwrite table_group attributes with table_attrs key/value pairs
         table_group.attrs.put(table_attrs)
 
     return table_group
+
+
+def prepare_label_group(
+    image_group: zarr.Group,
+    label_name: str,
+    overwrite: bool = False,
+    label_attrs: Optional[dict[str, Any]] = None,
+    logger: Optional[logging.Logger] = None,
+) -> zarr.group:
+    """
+    Set the stage for writing labels to a zarr group
+
+    This helper function is similar to `write_table`, in that it prepares the
+    appropriate zarr groups (`labels` and the new-label one) and performs
+    `overwrite`-dependent checks; at a difference with `write_table`, this
+    function does not actually write the label array to the new zarr group;
+    such writing operation must take place in the actual task function, since
+    in fractal-tasks-core it is done sequentially on different `region`s of the
+    zarr array.
+
+    What this function does is:
+
+    1. Create the `labels` group, if needed.
+    2. If `overwrite=False`, check that the new label does not exist (either in
+       zarr attributes or as a zarr sub-group).
+    3. Update the `labels` attribute of the image group.
+    4. If `label_attrs` is set, include this set of attributes in the
+       new-label zarr group.
+
+    Args:
+        image_group:
+            The group to write to.
+        label_name:
+            The name of the new label.
+        overwrite:
+            TBD
+        label_attrs:
+            If set, overwrite label_group attributes with label_attrs key/value
+            pairs.
+        logger:
+            The logger to use (if unset, use `logging.getLogger(None)`).
+
+    Returns:
+        Zarr group of the new label.
+    """
+
+    # Set logger
+    if logger is None:
+        logger = logging.getLogger(None)
+
+    # Create labels group (if needed) and extract current_labels
+    if "labels" not in set(image_group.group_keys()):
+        labels_group = image_group.create_group("labels", overwrite=False)
+    else:
+        labels_group = image_group["labels"]
+    current_labels = labels_group.attrs.asdict().get("labels", [])
+
+    # If overwrite=False, check that the new label does not exist (either as a
+    # zarr sub-group or as part of the zarr-group attributes)
+    if not overwrite:
+        if label_name in set(labels_group.group_keys()):
+            error_msg = (
+                f"Sub-group '{label_name}' of group {image_group.store.path} "
+                f"already exists, but `{overwrite=}`. "
+                "Hint: try setting `overwrite=True`."
+            )
+            logger.error(error_msg)
+            raise OverwriteNotAllowedError(error_msg)
+        if label_name in current_labels:
+            error_msg = (
+                f"Item '{label_name}' already exists in `labels` attribute of "
+                f"group {image_group.store.path}, but `{overwrite=}`. "
+                "Hint: try setting `overwrite=True`."
+            )
+            logger.error(error_msg)
+            raise OverwriteNotAllowedError(error_msg)
+
+    # Update the `labels` metadata of the image group, if needed
+    if label_name not in current_labels:
+        new_labels = current_labels + [label_name]
+        labels_group.attrs["labels"] = new_labels
+
+    # Define new-label group
+    label_group = labels_group.create_group(label_name)
+
+    # Optionally update attributes of the new-table zarr group
+    if label_attrs is not None:
+        # Overwrite label_group attributes with label_attrs key/value pairs
+        label_group.attrs.put(label_attrs)
+
+    return label_group
