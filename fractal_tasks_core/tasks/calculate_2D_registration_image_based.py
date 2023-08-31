@@ -144,23 +144,21 @@ def calculate_2D_registration_image_based(
         channel_index_align
     ]
 
-    # Read FOV ROIs
-    FOV_ROI_table_ref = ad.read_zarr(
-        f"{zarr_img_ref_cycle}/tables/{roi_table}"
-    )
-    FOV_ROI_table_x = ad.read_zarr(f"{zarr_img_ref_cycle}/tables/{roi_table}")
+    # Read ROIs
+    ROI_table_ref = ad.read_zarr(f"{zarr_img_ref_cycle}/tables/{roi_table}")
+    ROI_table_x = ad.read_zarr(f"{zarr_img_ref_cycle}/tables/{roi_table}")
     logger.info(
-        f"Found {len(FOV_ROI_table_x)} ROIs in {roi_table=} to be processed."
+        f"Found {len(ROI_table_x)} ROIs in {roi_table=} to be processed."
     )
 
     # For each cycle, get the relevant info
     # TODO: Add additional checks on ROIs?
-    if (FOV_ROI_table_ref.obs.index != FOV_ROI_table_x.obs.index).all():
+    if (ROI_table_ref.obs.index != ROI_table_x.obs.index).all():
         raise ValueError(
             "Registration is only implemented for ROIs that match between the "
             "cycles (e.g. well, FOV ROIs). Here, the ROIs in the reference "
-            "cycles were {FOV_ROI_table_ref.obs.index}, but the ROIs in the "
-            "alignment cycle were {FOV_ROI_table_x.obs.index}"
+            "cycles were {ROI_table_ref.obs.index}, but the ROIs in the "
+            "alignment cycle were {ROI_table_x.obs.index}"
         )
     # TODO: Make this less restrictive? i.e. could we also run it if different
     # cycles have different FOVs? But then how do we know which FOVs to match?
@@ -180,16 +178,16 @@ def calculate_2D_registration_image_based(
             "Pixel sizes need to be equal between cycles for registration"
         )
 
-    # Create list of indices for 3D FOVs spanning the entire Z direction
+    # Create list of indices for 3D ROIs spanning the entire Z direction
     list_indices_ref = convert_ROI_table_to_indices(
-        FOV_ROI_table_ref,
+        ROI_table_ref,
         level=level,
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=pxl_sizes_zyx,
     )
 
     list_indices_cycle_x = convert_ROI_table_to_indices(
-        FOV_ROI_table_x,
+        ROI_table_x,
         level=level,
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=pxl_sizes_zyx,
@@ -242,7 +240,7 @@ def calculate_2D_registration_image_based(
         # per ROI storage?
 
         # Adapt ROIs for the given ROI table:
-        ROI_name = FOV_ROI_table_ref.obs.index[i_ROI]
+        ROI_name = ROI_table_ref.obs.index[i_ROI]
         new_shifts[ROI_name] = calculate_physical_shifts(
             shifts,
             level=level,
@@ -252,7 +250,7 @@ def calculate_2D_registration_image_based(
 
     # Write physical shifts to disk (as part of the ROI table)
     logger.info(f"Updating the {roi_table=} with translation columns")
-    new_ROI_table = get_ROI_table_with_translation(FOV_ROI_table_x, new_shifts)
+    new_ROI_table = get_ROI_table_with_translation(ROI_table_x, new_shifts)
     group_tables = zarr.group(f"{zarr_img_cycle_x}/tables/")
     write_elem(group_tables, roi_table, new_ROI_table)
     group_tables[roi_table].attrs["type"] = "ngff:region_table"
@@ -296,7 +294,7 @@ def calculate_physical_shifts(
 
 
 def get_ROI_table_with_translation(
-    FOV_ROI_table: ad.AnnData,
+    ROI_table: ad.AnnData,
     new_shifts: dict[str, Any],
 ) -> ad.AnnData:
     """
@@ -306,14 +304,14 @@ def get_ROI_table_with_translation(
     shift_table = pd.DataFrame(new_shifts).T
     shift_table.columns = ["translation_z", "translation_y", "translation_x"]
     shift_table = shift_table.rename_axis("FieldIndex")
-    new_roi_table = FOV_ROI_table.to_df().merge(
+    new_roi_table = ROI_table.to_df().merge(
         shift_table, left_index=True, right_index=True
     )
-    if not len(new_roi_table) == len(FOV_ROI_table):
+    if not len(new_roi_table) == len(ROI_table):
         raise ValueError(
             "New ROI table with registration info has a "
             f"different length ({len(new_roi_table)=}) "
-            f"from the original ROI table ({len(FOV_ROI_table)=})"
+            f"from the original ROI table ({len(ROI_table)=})"
         )
     positional_columns = [
         "x_micrometer",
