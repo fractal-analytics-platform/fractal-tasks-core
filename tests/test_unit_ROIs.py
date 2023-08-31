@@ -28,6 +28,9 @@ from fractal_tasks_core.lib_regions_of_interest import is_ROI_table_valid
 from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
+from fractal_tasks_core.lib_regions_of_interest import (
+    reset_origin,
+)
 from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
 
 PIXEL_SIZE_X = 0.1625
@@ -428,3 +431,17 @@ index_regions = [
 @pytest.mark.parametrize("index,expected_results", index_regions)
 def test_indices_to_region_conversion(index, expected_results):
     assert convert_indices_to_regions(index) == expected_results
+
+
+def test_reset_origin():
+    # Prepare ROI
+    columns = EXPECTED_COLUMNS.copy()
+    old_adata = ad.AnnData(np.ones((1, len(columns))))
+    old_adata.var_names = columns
+    debug(old_adata.X)
+    # Reset origin
+    new_adata = reset_origin(old_adata)
+    debug(new_adata.X)
+    assert abs(new_adata[:, "x_micrometer"].X[0, 0]) < 1e-10
+    assert abs(new_adata[:, "y_micrometer"].X[0, 0]) < 1e-10
+    assert abs(new_adata[:, "z_micrometer"].X[0, 0]) < 1e-10
