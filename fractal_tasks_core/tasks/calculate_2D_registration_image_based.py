@@ -264,7 +264,7 @@ def calculate_physical_shifts(
     shifts: np.array,
     level: int,
     coarsening_xy: int,
-    full_res_pxl_sizes_zyx: list,
+    full_res_pxl_sizes_zyx: list[float],
 ) -> list[float]:
     """
     Calculates shifts in physical units based on pixel shifts
@@ -288,6 +288,10 @@ def calculate_physical_shifts(
             shifts[0] * curr_pixel_size[1],
             shifts[1] * curr_pixel_size[2],
         ]
+    else:
+        raise ValueError(
+            f"Wrong input for calculate_physical_shifts ({shifts=})"
+        )
     return shifts_physical
 
 
