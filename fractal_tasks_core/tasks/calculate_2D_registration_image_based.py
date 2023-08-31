@@ -116,7 +116,7 @@ def calculate_2D_registration_image_based(
             f"cycle {alignment_cycle}"
         )
 
-    zarr_img_ref_cycle = zarr_img_cycle_x.parent / str(reference_cycle)
+    zarr_img_ref_cycle = str(zarr_img_cycle_x.parent / str(reference_cycle))
 
     # Read some parameters from metadata
     coarsening_xy = metadata["coarsening_xy"]
@@ -130,7 +130,7 @@ def calculate_2D_registration_image_based(
     channel_index_ref = channel_ref.index
 
     channel_align: OmeroChannel = get_channel_from_image_zarr(
-        image_zarr_path=zarr_img_cycle_x,
+        image_zarr_path=str(zarr_img_cycle_x),
         wavelength_id=wavelength_id,
     )
     channel_index_align = channel_align.index
