@@ -8,6 +8,9 @@ import pytest
 from devtools import debug
 
 from fractal_tasks_core.lib_regions_of_interest import (
+    are_ROI_table_columns_valid,
+)  # noqa
+from fractal_tasks_core.lib_regions_of_interest import (
     array_to_bounding_box_table,
 )
 from fractal_tasks_core.lib_regions_of_interest import (
@@ -351,6 +354,34 @@ def test_load_region_fail():
             region=(slice(0, 1), slice(0, 1), slice(0, 1)),
         )
     debug(e.value)
+
+
+def test_are_ROI_table_columns_valid():
+
+    EXPECTED_COLUMNS = [
+        "x_micrometer",
+        "y_micrometer",
+        "z_micrometer",
+        "len_x_micrometer",
+        "len_y_micrometer",
+        "len_z_micrometer",
+    ]
+
+    # Success
+    columns = EXPECTED_COLUMNS.copy()
+    adata = ad.AnnData(np.ones((1, len(columns))))
+    adata.var_names = columns
+    debug(adata)
+    are_ROI_table_columns_valid(table=adata)
+
+    # Failure
+    columns = EXPECTED_COLUMNS.copy()
+    columns[0] = "something_else"
+    adata = ad.AnnData(np.ones((1, len(columns))))
+    adata.var_names = columns
+    debug(adata)
+    with pytest.raises(ValueError):
+        are_ROI_table_columns_valid(table=adata)
 
 
 index_regions = [
