@@ -361,7 +361,7 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
         return False
 
 
-def are_ROI_table_columns_valid(*, table: ad.AnnData) -> None:
+def are_ROI_table_columns_valid(*, table: ad.AnnData) -> Optional[bool]:
     """
     Verify some validity assumptions on a ROI table.
 
