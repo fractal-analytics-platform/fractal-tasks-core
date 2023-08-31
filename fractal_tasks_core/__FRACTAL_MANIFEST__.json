@@ -972,12 +972,12 @@
           "metadata": {
             "title": "Metadata",
             "type": "object",
-            "description": "dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata. `coarsening_xy (int)`: coarsening factor in XY of the downsampling when building the pyramid. (standard argument for Fractal tasks, managed by Fractal server)."
+            "description": "Dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata. `coarsening_xy (int)`: coarsening factor in XY of the downsampling when building the pyramid. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "wavelength_id": {
             "title": "Wavelength Id",
             "type": "string",
-            "description": "Wavelength that will be used for image-based registration; e.g. A01_C01 for Yokogawa, C01 for MD."
+            "description": "Wavelength that will be used for image-based registration; e.g. `A01_C01` for Yokogawa, `C01` for MD."
           },
           "roi_table": {
             "title": "Roi Table",
@@ -989,7 +989,7 @@
             "title": "Reference Cycle",
             "default": 0,
             "type": "integer",
-            "description": "Which cycle to register against. Defaults to 0, which is the first OME-Zarr image in the well, usually the first cycle that was provided"
+            "description": "Which cycle to register against. Defaults to 0, which is the first OME-Zarr image in the well (usually the first cycle that was provided)."
           },
           "level": {
             "title": "Level",
@@ -1007,7 +1007,7 @@
         ],
         "additionalProperties": false
       },
-      "docs_info": "Calculate registration based on 2D images\n\nThis task consists of 3 parts:\n    1. Loading the images of a given ROI (=> loop over ROIs)\n    2. Calculating the transformation for that ROI\n    3. Storing the calculated transformation in the ROI table",
+      "docs_info": "Calculate registration based on 2D images\n\nThis task consists of 3 parts:\n\n1. Loading the images of a given ROI (=> loop over ROIs)\n2. Calculating the transformation for that ROI\n3. Storing the calculated transformation in the ROI table",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core/reference/fractal_tasks_core/tasks/calculate_2D_registration_image_based/#fractal_tasks_core.tasks.calculate_2D_registration_image_based.calculate_2D_registration_image_based"
     },
     {
@@ -1045,7 +1045,7 @@
           "metadata": {
             "title": "Metadata",
             "type": "object",
-            "description": "dictionary containing metadata about the OME-Zarr. This task does not use the metadata."
+            "description": "Dictionary containing metadata about the OME-Zarr. This task does not use the metadata."
           },
           "roi_table": {
             "title": "Roi Table",
@@ -1111,7 +1111,7 @@
           "metadata": {
             "title": "Metadata",
             "type": "object",
-            "description": "dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata. `coarsening_xy (int)`: coarsening factor in XY of the downsampling when building the pyramid. (standard argument for Fractal tasks, managed by Fractal server). `num_levels (int)`: number of pyramid levels in the image; this determines how many pyramid levels are built for the segmentation."
+            "description": "Dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata. `coarsening_xy (int)`: coarsening factor in XY of the downsampling when building the pyramid. (standard argument for Fractal tasks, managed by Fractal server). `num_levels (int)`: number of pyramid levels in the image; this determines how many pyramid levels are built for the segmentation."
           },
           "registered_roi_table": {
             "title": "Registered Roi Table",

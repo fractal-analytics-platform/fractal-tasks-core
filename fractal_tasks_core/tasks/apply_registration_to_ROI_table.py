@@ -65,7 +65,7 @@ def apply_registration_to_ROI_table(
         component: Path to the OME-Zarr image in the OME-Zarr plate that is
             processed. Example: `"some_plate.zarr/B/03/0"`.
             (standard argument for Fractal tasks, managed by Fractal server).
-        metadata: dictionary containing metadata about the OME-Zarr. This task
+        metadata: Dictionary containing metadata about the OME-Zarr. This task
             does not use the metadata.
         roi_table: Name of the ROI table over which the task loops to
             calculate the registration. Examples: `FOV_ROI_table` => loop over

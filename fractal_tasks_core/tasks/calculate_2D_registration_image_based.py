@@ -58,9 +58,10 @@ def calculate_2D_registration_image_based(
     Calculate registration based on 2D images
 
     This task consists of 3 parts:
-        1. Loading the images of a given ROI (=> loop over ROIs)
-        2. Calculating the transformation for that ROI
-        3. Storing the calculated transformation in the ROI table
+
+    1. Loading the images of a given ROI (=> loop over ROIs)
+    2. Calculating the transformation for that ROI
+    3. Storing the calculated transformation in the ROI table
 
     Args:
         input_paths: List of input paths where the image data is stored as
@@ -73,20 +74,20 @@ def calculate_2D_registration_image_based(
         component: Path to the OME-Zarr image in the OME-Zarr plate that is
             processed. Example: `"some_plate.zarr/B/03/0"`.
             (standard argument for Fractal tasks, managed by Fractal server).
-        metadata: dictionary containing metadata about the OME-Zarr. This task
+        metadata: Dictionary containing metadata about the OME-Zarr. This task
             requires the following elements to be present in the metadata.
             `coarsening_xy (int)`: coarsening factor in XY of the downsampling
             when building the pyramid. (standard argument for Fractal tasks,
             managed by Fractal server).
         wavelength_id: Wavelength that will be used for image-based
-            registration; e.g. A01_C01 for Yokogawa, C01 for MD.
+            registration; e.g. `A01_C01` for Yokogawa, `C01` for MD.
         roi_table: Name of the ROI table over which the task loops to
             calculate the registration. Examples: `FOV_ROI_table` => loop over
             the field of views, `well_ROI_table` => process the whole well as
             one image.
         reference_cycle: Which cycle to register against. Defaults to 0,
-            which is the first OME-Zarr image in the well, usually the first
-            cycle that was provided
+            which is the first OME-Zarr image in the well (usually the first
+            cycle that was provided).
         level: Pyramid level of the image to be segmented. Choose `0` to
             process at full resolution.
 

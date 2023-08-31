@@ -78,7 +78,7 @@ def apply_registration_to_image(
         component: Path to the OME-Zarr image in the OME-Zarr plate that is
             processed. Example: `"some_plate.zarr/B/03/0"`.
             (standard argument for Fractal tasks, managed by Fractal server).
-        metadata: dictionary containing metadata about the OME-Zarr. This task
+        metadata: Dictionary containing metadata about the OME-Zarr. This task
             requires the following elements to be present in the metadata.
             `coarsening_xy (int)`: coarsening factor in XY of the downsampling
             when building the pyramid. (standard argument for Fractal tasks,
