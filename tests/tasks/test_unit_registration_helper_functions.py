@@ -48,7 +48,8 @@ def test_calculate_physical_shifts(shifts):
     assert np.allclose(shifts_physical, expected_shifts_physical)
 
 
-def test_get_ROI_table_with_translation():
+@pytest.mark.parametrize("fail", [False, True])
+def test_get_ROI_table_with_translation(fail: bool):
     new_shifts = {
         "FOV_1": [
             0,
@@ -61,6 +62,8 @@ def test_get_ROI_table_with_translation():
             32.5,
         ],
     }
+    if fail:
+        new_shifts.pop("FOV_2")
     ROI_table = ad.AnnData(
         X=np.array(
             [
@@ -99,4 +102,10 @@ def test_get_ROI_table_with_translation():
         "x_micrometer_original",
         "y_micrometer_original",
     ]
-    get_ROI_table_with_translation(ROI_table, new_shifts)
+    if fail:
+        with pytest.raises(ValueError) as e:
+            get_ROI_table_with_translation(ROI_table, new_shifts)
+        debug(e.value)
+        assert "different length" in str(e.value)
+    else:
+        get_ROI_table_with_translation(ROI_table, new_shifts)
