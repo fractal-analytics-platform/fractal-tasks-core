@@ -48,23 +48,47 @@ def test_calculate_physical_shifts(shifts):
     assert np.allclose(shifts_physical, expected_shifts_physical)
 
 
-@pytest.mark.xfail(
-    reason="Not ready yet (something wrong with the `merge` operation)"
-)
 def test_get_ROI_table_with_translation():
     new_shifts = {
         "FOV_1": [
             0,
-            7.800000000000001,
+            7.8,
             32.5,
         ],
         "FOV_2": [
             0,
-            7.800000000000001,
+            7.8,
             32.5,
         ],
     }
-    ROI_table = ad.AnnData(X=np.ones((2, 8)))
+    ROI_table = ad.AnnData(
+        X=np.array(
+            [
+                [
+                    -1.4483e03,
+                    -1.5177e03,
+                    0.0000e00,
+                    4.1600e02,
+                    3.5100e02,
+                    1.0000e00,
+                    -1.4483e03,
+                    -1.5177e03,
+                ],
+                [
+                    -1.0323e03,
+                    -1.5177e03,
+                    0.0000e00,
+                    4.1600e02,
+                    3.5100e02,
+                    1.0000e00,
+                    -1.0323e03,
+                    -1.5177e03,
+                ],
+            ],
+            dtype=np.float32,
+        )
+    )
+    ROI_table.obs_names = ["FOV_1", "FOV_2"]
     ROI_table.var_names = [
         "x_micrometer",
         "y_micrometer",
@@ -75,5 +99,4 @@ def test_get_ROI_table_with_translation():
         "x_micrometer_original",
         "y_micrometer_original",
     ]
-    debug(ROI_table)
     get_ROI_table_with_translation(ROI_table, new_shifts)
