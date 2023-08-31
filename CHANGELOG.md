@@ -2,17 +2,18 @@
 
 # Unreleased
 
-* Rename `illumination_correction` parameter from `overwrite` to `overwrite_input` (\#499).
-* Introduce `overwrite` argument for most tasks:
-  `create_ome_zarr`,
-  `create_ome_zarr_multiplex`,
-  `yokogawa_to_ome_zarr`,
-  `copy_ome_zarr`,
-  `maximum_intensity_projection`,
-  `cellpose_segmentation`,
-  `napari_workflows_wrapper`
-  (\#499).
-
+* **(major)** Rename `illumination_correction` parameter from `overwrite` to
+  `overwrite_input` (\#499).
+* Introduce new `overwrite` argument for most tasks: `create_ome_zarr`,
+  `create_ome_zarr_multiplex`, `yokogawa_to_ome_zarr`, `copy_ome_zarr`,
+  `maximum_intensity_projection`, `cellpose_segmentation`,
+  `napari_workflows_wrapper` (\#499).
+* Introduce new helper functions `write_table`, `prepare_label_group` and
+  `open_zarr_group_with_overwrite` (\#499).
+* Testing:
+    * Add tests for `overwrite`-related task behaviors (\#499).
+    * Introduce mock-up of `napari_skimage_regionprops` package, for testing of
+      `napari_workflows_wrapper` task (\#499).
 
 # 0.10.1
 
