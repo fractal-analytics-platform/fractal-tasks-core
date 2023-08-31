@@ -1,7 +1,7 @@
 !!python/object:napari_workflows._workflow.Workflow
 _tasks:
   regionprops_DAPI: !!python/tuple
-  - !!python/name:napari_skimage_regionprops_mock._regionprops.regionprops_table ''
+  - !!python/name:napari_skimage_regionprops_mock.regionprops_table ''
   - dapi_img
   - dapi_label_img
   - true

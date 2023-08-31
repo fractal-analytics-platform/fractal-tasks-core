@@ -1,5 +1,0 @@
-napari-plugin-engine>=0.1.4
-numpy
-pandas
-napari-tools-menu>=0.1.19
-napari-workflows

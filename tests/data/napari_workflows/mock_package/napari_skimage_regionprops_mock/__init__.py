@@ -1,15 +1,39 @@
 import logging
 
-from napari_plugin_engine import napari_hook_implementation
-
-from ._regionprops import regionprops_table  # , regionprops_table_all_frames
+import numpy as np
+import pandas
 
 logging.critical(
-    "WARNING: THIS IS A MOCK OF THE ACTUAL "
-    "'napari_skimage_regionprops' PACKAGE"
+    "Using a mocked version of "
+    "napari_skimage_regionprops, which only exposes a "
+    "mock-up of the `regionprops_table` function."
 )
 
 
-@napari_hook_implementation
-def napari_experimental_provide_function():
-    return [regionprops_table]
+def regionprops_table(
+    image,
+    labels,
+    size: bool = True,
+    intensity: bool = True,
+    perimeter: bool = False,
+    shape: bool = False,
+    position: bool = False,
+    moments: bool = False,
+    napari_viewer=None,
+) -> pandas.DataFrame:
+    """
+    This is a mock of the original regionprops_table from
+    napari_skimage_regionprops, only used for testing.
+    """
+    num_labels = len(np.unique(labels))
+    int_values = np.arange(num_labels)
+    float_values = np.arange(num_labels) + 0.5
+    table = dict(
+        label=int_values,
+        area=float_values,
+        bbox_area=float_values,
+        equivalent_diameter=float_values,
+        convex_area=float_values,
+    )
+    df = pandas.DataFrame(table)
+    return df
