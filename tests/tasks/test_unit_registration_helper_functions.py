@@ -1,10 +1,14 @@
+import anndata as ad
 import numpy as np
 import pytest
 from devtools import debug
 
 from fractal_tasks_core.tasks.calculate_2D_registration_image_based import (
     calculate_physical_shifts,
-)  # noqa
+)
+from fractal_tasks_core.tasks.calculate_2D_registration_image_based import (
+    get_ROI_table_with_translation,
+)
 
 
 @pytest.mark.parametrize(
@@ -42,3 +46,34 @@ def test_calculate_physical_shifts(shifts):
     )
     debug(shifts_physical)
     assert np.allclose(shifts_physical, expected_shifts_physical)
+
+
+@pytest.mark.xfail(
+    reason="Not ready yet (something wrong with the `merge` operation)"
+)
+def test_get_ROI_table_with_translation():
+    new_shifts = {
+        "FOV_1": [
+            0,
+            7.800000000000001,
+            32.5,
+        ],
+        "FOV_2": [
+            0,
+            7.800000000000001,
+            32.5,
+        ],
+    }
+    ROI_table = ad.AnnData(X=np.ones((2, 8)))
+    ROI_table.var_names = [
+        "x_micrometer",
+        "y_micrometer",
+        "z_micrometer",
+        "len_x_micrometer",
+        "len_y_micrometer",
+        "len_z_micrometer",
+        "x_micrometer_original",
+        "y_micrometer_original",
+    ]
+    debug(ROI_table)
+    get_ROI_table_with_translation(ROI_table, new_shifts)
