@@ -103,7 +103,7 @@ def calculate_2D_registration_image_based(
     # If the task is run for the reference cycle, exit
     # TODO: Improve the input for this: Can we filter components to not
     # run for itself?
-    alignment_cycle = zarr_img_cycle_x.parts[-1]
+    alignment_cycle = zarr_img_cycle_x.name
     if alignment_cycle == str(reference_cycle):
         logger.info(
             "Calculate 2D registration image-based is running for "
