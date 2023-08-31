@@ -295,7 +295,14 @@ def calculate_physical_shifts(
     return shifts_physical
 
 
-def get_ROI_table_with_translation(FOV_ROI_table, new_shifts):
+def get_ROI_table_with_translation(
+    FOV_ROI_table: ad.AnnData,
+    new_shifts: dict[str, Any],
+) -> ad.AnnData:
+    """
+    FIXME: missing docstring
+    """
+
     shift_table = pd.DataFrame(new_shifts).T
     shift_table.columns = ["translation_z", "translation_y", "translation_x"]
     shift_table = shift_table.rename_axis("FieldIndex")
@@ -305,7 +312,8 @@ def get_ROI_table_with_translation(FOV_ROI_table, new_shifts):
     if not len(new_roi_table) == len(FOV_ROI_table):
         raise ValueError(
             "New ROI table with registration info has a "
-            "different length from the original ROI table"
+            f"different length ({len(new_roi_table)=}) "
+            f"from the original ROI table ({len(FOV_ROI_table)=})"
         )
     positional_columns = [
         "x_micrometer",
