@@ -21,6 +21,7 @@ import anndata as ad
 import zarr
 from anndata.experimental import write_elem
 from zarr.errors import ContainsGroupError
+from zarr.errors import GroupNotFoundError
 
 
 class OverwriteNotAllowedError(RuntimeError):
@@ -87,6 +88,16 @@ def open_zarr_group_with_overwrite(
         new_mode = "w"
     else:
         new_mode = "w-"
+
+    # Write log about current status
+    logger.info(f"Start open_zarr_group_with_overwrite ({overwrite=}).")
+    try:
+        # Call `zarr.open_group` with `mode="r"`, which fails for missing group
+        current_group = zarr.open_group(path, mode="r")
+        keys = list(current_group.group_keys())
+        logger.info(f"Zarr group {path} already exists, with {keys=}")
+    except GroupNotFoundError:
+        logger.info(f"Zarr group {path} does not exist yet.")
 
     # Raise warning if we are overriding an existing value of `mode`
     if "mode" in open_group_kwargs.keys():
