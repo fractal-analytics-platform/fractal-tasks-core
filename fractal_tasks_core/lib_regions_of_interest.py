@@ -432,8 +432,8 @@ def load_region(
 
 
 def convert_indices_to_regions(
-    index: tuple,
-) -> tuple[slice, ...]:
+    index: list[int],
+) -> tuple[slice, slice, slice]:
     """
     Converts index tuples to region tuple
 
