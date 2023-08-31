@@ -5,11 +5,13 @@ import dask.array as da
 import numpy as np
 import pandas as pd
 import pytest
+import zarr
+from anndata._io.specs import write_elem
 from devtools import debug
 
 from fractal_tasks_core.lib_regions_of_interest import (
     are_ROI_table_columns_valid,
-)  # noqa
+)
 from fractal_tasks_core.lib_regions_of_interest import (
     array_to_bounding_box_table,
 )
@@ -22,6 +24,7 @@ from fractal_tasks_core.lib_regions_of_interest import (
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROIs_from_3D_to_2D,
 )
+from fractal_tasks_core.lib_regions_of_interest import is_ROI_table_valid
 from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
@@ -356,24 +359,50 @@ def test_load_region_fail():
     debug(e.value)
 
 
+EXPECTED_COLUMNS = [
+    "x_micrometer",
+    "y_micrometer",
+    "z_micrometer",
+    "len_x_micrometer",
+    "len_y_micrometer",
+    "len_z_micrometer",
+]
+
+
+def test_is_ROI_table_valid(tmp_path):
+
+    # Write valid table to a zarr group
+    columns = EXPECTED_COLUMNS.copy()
+    adata = ad.AnnData(np.ones((1, len(columns))))
+    adata.var_names = columns
+    group = zarr.group(str(tmp_path / "group.zarr"))
+    table_name = "table1"
+    write_elem(group, table_name, adata)
+    table_path = str(tmp_path / "group.zarr" / table_name)
+
+    # Case 1: use_masks=False
+    is_valid = is_ROI_table_valid(table_path=table_path, use_masks=False)
+    assert is_valid is None
+
+    # Case 2: use_masks=True, invalid attrs
+    is_valid = is_ROI_table_valid(table_path=table_path, use_masks=True)
+    assert not is_valid
+
+    # Case 3: use_masks=True, valid attrs
+    group[table_name].attrs["type"] = "ngff:region_table"
+    group[table_name].attrs["instance_key"] = "label"
+    group[table_name].attrs["region"] = {"path": "/tmp/"}
+    is_valid = is_ROI_table_valid(table_path=table_path, use_masks=True)
+    assert is_valid
+
+
 def test_are_ROI_table_columns_valid():
-
-    EXPECTED_COLUMNS = [
-        "x_micrometer",
-        "y_micrometer",
-        "z_micrometer",
-        "len_x_micrometer",
-        "len_y_micrometer",
-        "len_z_micrometer",
-    ]
-
     # Success
     columns = EXPECTED_COLUMNS.copy()
     adata = ad.AnnData(np.ones((1, len(columns))))
     adata.var_names = columns
     debug(adata)
     are_ROI_table_columns_valid(table=adata)
-
     # Failure
     columns = EXPECTED_COLUMNS.copy()
     columns[0] = "something_else"
