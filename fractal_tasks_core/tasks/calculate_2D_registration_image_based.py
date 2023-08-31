@@ -117,15 +117,15 @@ def calculate_2D_registration_image_based(
             f"cycle {alignment_cycle}"
         )
 
-    zarr_img_ref_cycle = str(zarr_img_cycle_x.parent / str(reference_cycle))
+    zarr_img_ref_cycle = zarr_img_cycle_x.parent / str(reference_cycle)
 
     # Read some parameters from metadata
     coarsening_xy = metadata["coarsening_xy"]
 
-    # Get channel_index that via wavelength.
+    # Get channel_index via wavelength_id.
     # Intially only allow registration of the same wavelength
     channel_ref: OmeroChannel = get_channel_from_image_zarr(
-        image_zarr_path=zarr_img_ref_cycle,
+        image_zarr_path=str(zarr_img_ref_cycle),
         wavelength_id=wavelength_id,
     )
     channel_index_ref = channel_ref.index
@@ -177,7 +177,7 @@ def calculate_2D_registration_image_based(
 
     if pxl_sizes_zyx != pxl_sizes_zyx_cycle_x:
         raise ValueError(
-            "Pixel sizes need to be " "equal between cycles for registration"
+            "Pixel sizes need to be equal between cycles for registration"
         )
 
     # Create list of indices for 3D FOVs spanning the entire Z direction
