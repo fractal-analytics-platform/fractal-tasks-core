@@ -240,7 +240,7 @@ def calculate_min_max_across_dfs(tables_list):
 
     # Loop through the tables and calculate max and min values
     for table in tables_list:
-        if max_df is None:
+        if max_df is None:  # FIXME: is this check correct?
             max_df = table.copy()
         else:
             max_df = pd.DataFrame(
@@ -249,7 +249,7 @@ def calculate_min_max_across_dfs(tables_list):
                 index=max_df.index,
             )
 
-        if min_df is None:
+        if min_df is None:  # FIXME: is this check correct?
             min_df = table.copy()
         else:
             min_df = pd.DataFrame(
