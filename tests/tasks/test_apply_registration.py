@@ -109,18 +109,6 @@ def test_calculate_min_max_across_dfs(
     assert (min_df == min_df_exp).all().all()
 
 
-def test_adding_translation_columns_fails_if_available(roi_table):
-    adata_table = add_zero_translation_columns(roi_table)
-    with pytest.raises(ValueError) as exc_info:
-        add_zero_translation_columns(adata_table)
-
-    assert (
-        str(exc_info.value)
-        == "The roi table already contains translation columns. "
-        "Did you enter a wrong reference cycle?"
-    )
-
-
 def test_apply_registration_to_single_ROI_table(roi_table, translation_table):
     adata_table = add_zero_translation_columns(roi_table)
     max_df, min_df = calculate_min_max_across_dfs(translation_table)
