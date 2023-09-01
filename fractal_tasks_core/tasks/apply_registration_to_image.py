@@ -17,6 +17,7 @@ import os
 import shutil
 from pathlib import Path
 from typing import Any
+from typing import Callable
 from typing import Sequence
 
 import anndata as ad
@@ -262,7 +263,7 @@ def write_registered_zarr(
     ROI_table_ref: ad.AnnData,
     num_levels: int,
     coarsening_xy: int = 2,
-    aggregation_function=np.mean,
+    aggregation_function: Callable = np.mean,
 ):
     """
     Write registered zarr array based on ROI tables
@@ -287,6 +288,9 @@ def write_registered_zarr(
         ROI_table_ref: Fractal ROI table for the reference cycle
         num_levels: Number of pyramid layers to be created
         coarsening_xy: Coarsening factor between pyramid levels
+        aggregation_function: Function to be used when downsampling (argument
+            of `build_pyramid`).
+
     """
     # Read pixel sizes from zattrs file
     pxl_sizes_zyx = extract_zyx_pixel_sizes(
