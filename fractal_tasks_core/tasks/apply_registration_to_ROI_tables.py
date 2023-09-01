@@ -83,7 +83,7 @@ def apply_registration_to_ROI_tables(
         new_roi_table = "registered_" + roi_table
     logger.info(
         f"Running for {input_paths=}, {component=}. \n"
-        f"Applying translation registration to {roi_table=} and store it as "
+        f"Applyg translation registration to {roi_table=} and storing it as "
         f"{new_roi_table=}."
     )
 
@@ -119,7 +119,7 @@ def apply_registration_to_ROI_tables(
             raise ValueError(
                 f"Cycle {acq}'s {roi_table} does not contain the "
                 f"translation columns {translation_columns} necessary to use "
-                "this task"
+                "this task."
             )
         roi_tables[acq] = curr_ROI_table
 
