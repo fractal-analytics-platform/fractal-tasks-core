@@ -213,12 +213,11 @@ def get_acquisition_paths(zattrs: dict) -> dict[int, str]:
     return acquisition_dict
 
 
-def add_zero_translation_columns(ad_table):
+def add_zero_translation_columns(ad_table: ad.AnnData):
     """
-    Adds 3 columns with translation zyx with 0 values to an Anndata table
+    Add three zero-filled columns (`translation_{x,y,z}`) to an AnnData table.
     """
     columns = ["translation_z", "translation_y", "translation_x"]
-    # FIXME: I don't think this check is working as planned. Write some tests
     if ad_table.var.index.isin(columns).any().any():
         raise ValueError(
             "The roi table already contains translation columns. Did you "
