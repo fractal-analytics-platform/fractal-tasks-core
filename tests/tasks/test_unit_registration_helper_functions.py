@@ -3,10 +3,10 @@ import numpy as np
 import pytest
 from devtools import debug
 
-from fractal_tasks_core.tasks.apply_registration_to_ROI_table import (
+from fractal_tasks_core.tasks.apply_registration_to_ROI_tables import (
     add_zero_translation_columns,
 )
-from fractal_tasks_core.tasks.apply_registration_to_ROI_table import (
+from fractal_tasks_core.tasks.apply_registration_to_ROI_tables import (
     get_acquisition_paths,
 )
 from fractal_tasks_core.tasks.calculate_2D_registration_image_based import (
