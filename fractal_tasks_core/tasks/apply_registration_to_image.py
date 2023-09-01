@@ -265,25 +265,24 @@ def write_registered_zarr(
     aggregation_function=np.mean,
 ):
     """
-    Writes registered zarr array based on ROI tables
+    Write registered zarr array based on ROI tables
 
     This function loads the image or label data from a zarr array based on the
     ROI bounding-box coordinates and stores them into a new zarr array.
     The new Zarr array has the same shape as the original array, but will have
     0s where the ROI tables don't specify loading of the image data.
-    The ROIs loaded from list_indices will be written into the list_indices_ref
-    position, thus performing translational registration if the two lists of
-    ROI indices vary.
+    The ROIs loaded from `list_indices` will be written into the
+    `list_indices_ref` position, thus performing translational registration if
+    the two lists of ROI indices vary.
 
     Args:
         input_path: Base folder where the Zarr is stored
             (does not contain the Zarr file itself)
         component: Path to the OME-Zarr image that is processed. For example:
-            "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr/B/03/1"
+            `"20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr/B/03/1"`
         new_component: Path to the new Zarr image that will be written
             (also in the input_path folder). For example:
-            "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr/
-            B/03/1_registered"
+            `"20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr/B/03/1_registered"`
         ROI_table: Fractal ROI table for the component
         ROI_table_ref: Fractal ROI table for the reference cycle
         num_levels: Number of pyramid layers to be created
