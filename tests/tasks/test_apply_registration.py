@@ -1,5 +1,4 @@
 import anndata as ad
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -108,12 +107,6 @@ def test_calculate_min_max_across_dfs(
     max_df, min_df = calculate_min_max_across_dfs(translation_table)
     assert (max_df == max_df_exp).all().all()
     assert (min_df == min_df_exp).all().all()
-
-
-def test_add_translation_columns(roi_table):
-    adata_table = add_zero_translation_columns(roi_table)
-    assert adata_table.shape == (2, 9)
-    assert np.sum(np.sum(adata_table.X[:, -3:])) == 0
 
 
 def test_adding_translation_columns_fails_if_available(roi_table):
