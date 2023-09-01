@@ -3,6 +3,9 @@ import numpy as np
 import pytest
 from devtools import debug
 
+from fractal_tasks_core.tasks.apply_registration_to_ROI_table import (
+    get_acquisition_paths,
+)
 from fractal_tasks_core.tasks.calculate_2D_registration_image_based import (
     calculate_physical_shifts,
 )
@@ -109,3 +112,28 @@ def test_get_ROI_table_with_translation(fail: bool):
         assert "different length" in str(e.value)
     else:
         get_ROI_table_with_translation(ROI_table, new_shifts)
+
+
+def test_get_acquisition_paths():
+
+    # Successful call
+    image_1 = dict(path="path1", acquisition=1)
+    image_2 = dict(path="path2", acquisition=2)
+    zattrs = dict(well=dict(images=[image_1, image_2]))
+    res = get_acquisition_paths(zattrs)
+    debug(res)
+    assert res == {1: "path1", 2: "path2"}
+
+    # Fail (missing acquisition key)
+    image_1 = dict(path="path1", acquisition=1)
+    image_2 = dict(path="path2")
+    zattrs = dict(well=dict(images=[image_1, image_2]))
+    with pytest.raises(ValueError):
+        get_acquisition_paths(zattrs)
+
+    # Fail (non-unique acquisition value)
+    image_1 = dict(path="path1", acquisition=1)
+    image_2 = dict(path="path2", acquisition=1)
+    zattrs = dict(well=dict(images=[image_1, image_2]))
+    with pytest.raises(NotImplementedError):
+        get_acquisition_paths(zattrs)
