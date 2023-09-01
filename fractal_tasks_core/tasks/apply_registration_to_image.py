@@ -56,14 +56,15 @@ def apply_registration_to_image(
     Apply registration to images by using a registered ROI table
 
     This task consists of 4 parts:
+
     1. Mask all regions in images that are not available in the
     registered ROI table and store each cycle aligned to the
-    reference_cycle (by looping over ROIs)
-    2. Do the same for all label images
+    reference_cycle (by looping over ROIs).
+    2. Do the same for all label images.
     3. Copy all tables from the non-aligned image to the aligned image
     (currently only works well if the only tables are well & FOV ROI tables
     (registered and original). Not implemented for measurement tables and
-    other ROI tables)
+    other ROI tables).
     4. Clean up: Delete the old, non-aligned image and rename the new,
     aligned image to take over its place.
 
@@ -95,7 +96,7 @@ def apply_registration_to_image(
             cycle that was provided
         overwrite: Whether the old image data should be replaced with the
             newly registered image data. Currently only implemented for
-            overwrite=True.
+            `overwrite=True`.
 
     """
     if not overwrite:

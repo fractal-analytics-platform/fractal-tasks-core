@@ -1128,7 +1128,7 @@
             "title": "Overwrite",
             "default": true,
             "type": "boolean",
-            "description": "Whether the old image data should be replaced with the newly registered image data. Currently only implemented for overwrite=True."
+            "description": "Whether the old image data should be replaced with the newly registered image data. Currently only implemented for `overwrite=True`."
           }
         },
         "required": [
@@ -1140,7 +1140,7 @@
         ],
         "additionalProperties": false
       },
-      "docs_info": "Apply registration to images by using a registered ROI table\n\nThis task consists of 4 parts:\n1. Mask all regions in images that are not available in the\nregistered ROI table and store each cycle aligned to the\nreference_cycle (by looping over ROIs)\n2. Do the same for all label images\n3. Copy all tables from the non-aligned image to the aligned image\n(currently only works well if the only tables are well & FOV ROI tables\n(registered and original). Not implemented for measurement tables and\nother ROI tables)\n4. Clean up: Delete the old, non-aligned image and rename the new,\naligned image to take over its place.",
+      "docs_info": "Apply registration to images by using a registered ROI table\n\nThis task consists of 4 parts:\n\n1. Mask all regions in images that are not available in the\nregistered ROI table and store each cycle aligned to the\nreference_cycle (by looping over ROIs).\n2. Do the same for all label images.\n3. Copy all tables from the non-aligned image to the aligned image\n(currently only works well if the only tables are well & FOV ROI tables\n(registered and original). Not implemented for measurement tables and\nother ROI tables).\n4. Clean up: Delete the old, non-aligned image and rename the new,\naligned image to take over its place.",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core/reference/fractal_tasks_core/tasks/apply_registration_to_image/#fractal_tasks_core.tasks.apply_registration_to_image.apply_registration_to_image"
     }
   ]
