@@ -151,7 +151,7 @@ def apply_registration_to_ROI_tables(
     shifted_rois = {}
     # Loop over acquisitions
     for acq in acquisition_dict.keys():
-        shifted_rois[acq] = apply_registration_to_roi_table(
+        shifted_rois[acq] = apply_registration_to_single_ROI_table(
             roi_tables[acq], max_df, min_df, rois
         )
 
@@ -261,7 +261,7 @@ def calculate_min_max_across_dfs(tables_list):
     return max_df, min_df
 
 
-def apply_registration_to_roi_table(roi_table, max_df, min_df, rois):
+def apply_registration_to_single_ROI_table(roi_table, max_df, min_df, rois):
     """
     FIXME: add docstring
     """
