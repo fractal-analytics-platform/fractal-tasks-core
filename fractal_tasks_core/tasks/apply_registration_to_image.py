@@ -286,7 +286,8 @@ def write_registered_zarr(
             `"20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr/B/03/1_registered"`
         ROI_table: Fractal ROI table for the component
         ROI_table_ref: Fractal ROI table for the reference cycle
-        num_levels: Number of pyramid layers to be created
+        num_levels: Number of pyramid layers to be created (argument of
+            `build_pyramid`).
         coarsening_xy: Coarsening factor between pyramid levels
         aggregation_function: Function to be used when downsampling (argument
             of `build_pyramid`).
