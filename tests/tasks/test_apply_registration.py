@@ -7,7 +7,7 @@ from fractal_tasks_core.tasks.apply_registration_to_ROI_tables import (
     add_zero_translation_columns,
 )
 from fractal_tasks_core.tasks.apply_registration_to_ROI_tables import (
-    apply_registration_to_roi_table,
+    apply_registration_to_single_ROI_table,
 )
 from fractal_tasks_core.tasks.apply_registration_to_ROI_tables import (
     calculate_min_max_across_dfs,
@@ -128,10 +128,10 @@ def test_adding_translation_columns_fails_if_available(roi_table):
     )
 
 
-def test_apply_registration_to_roi_table(roi_table, translation_table):
+def test_apply_registration_to_single_ROI_table(roi_table, translation_table):
     adata_table = add_zero_translation_columns(roi_table)
     max_df, min_df = calculate_min_max_across_dfs(translation_table)
-    registered_table = apply_registration_to_roi_table(
+    registered_table = apply_registration_to_single_ROI_table(
         adata_table, max_df, min_df, rois=["FOV_1", "FOV_2"]
     ).to_df()
     assert (registered_table == translated_ROI_table_df).all().all()
