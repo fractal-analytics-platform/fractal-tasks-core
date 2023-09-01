@@ -4,6 +4,9 @@ import pytest
 from devtools import debug
 
 from fractal_tasks_core.tasks.apply_registration_to_ROI_table import (
+    add_zero_translation_columns,
+)
+from fractal_tasks_core.tasks.apply_registration_to_ROI_table import (
     get_acquisition_paths,
 )
 from fractal_tasks_core.tasks.calculate_2D_registration_image_based import (
@@ -137,3 +140,22 @@ def test_get_acquisition_paths():
     zattrs = dict(well=dict(images=[image_1, image_2]))
     with pytest.raises(NotImplementedError):
         get_acquisition_paths(zattrs)
+
+
+def test_add_zero_translation_columns():
+    # Run successfully
+    adata = ad.AnnData(X=np.ones((4, 2)))
+    adata.var_names = ["old_column_A", "old_column_B"]
+    new_adata = add_zero_translation_columns(adata)
+    debug(new_adata.X)
+    for ax in ["x", "y", "z"]:
+        column = f"translation_{ax}"
+        assert column in new_adata.var_names
+        assert np.allclose(new_adata.to_df()[column], 0.0)
+    # Fail because of one column already present
+    adata = ad.AnnData(X=np.ones((4, 2)))
+    adata.var_names = ["old_column_A", "translation_x"]
+    with pytest.raises(ValueError) as e:
+        add_zero_translation_columns(adata)
+    debug(e.value)
+    assert "roi table already contains translation columns" in str(e.value)
