@@ -307,7 +307,7 @@ def get_ROI_table_with_translation(
     new_roi_table = ROI_table.to_df().merge(
         shift_table, left_index=True, right_index=True
     )
-    if not len(new_roi_table) == len(ROI_table):
+    if len(new_roi_table) != len(ROI_table):
         raise ValueError(
             "New ROI table with registration info has a "
             f"different length ({len(new_roi_table)=}) "
