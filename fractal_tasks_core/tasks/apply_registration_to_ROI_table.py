@@ -184,6 +184,19 @@ def apply_registration_to_ROI_table(
 
 # Helper functions
 def get_acquisition_paths(zattrs: dict) -> dict[int, str]:
+    """
+    Create mapping from acquisition indices to corresponding paths.
+
+    FIXME: this looks like a function that should be part of
+    ../lib_read_fractal_metadata.py.
+
+    Attrs:
+        zattrs:
+            Attributes of a plate zarr group.
+
+    Returns:
+        Dictionary with `(acquisition index: image path)` key/value pairs.
+    """
     acquisition_dict = {}
     for image in zattrs["well"]["images"]:
         if "acquisition" not in image:
