@@ -16,6 +16,7 @@ import copy
 import json
 import logging
 from typing import Any
+from typing import Optional
 from typing import Sequence
 
 import anndata as ad
@@ -44,7 +45,7 @@ def apply_registration_to_ROI_tables(
     # Task-specific arguments
     roi_table: str = "FOV_ROI_table",
     reference_cycle: int = 0,
-    new_roi_table: str = None,
+    new_roi_table: Optional[str] = None,
 ) -> dict[str, Any]:
     """
     Applies pre-calculated registration to ROI tables.
