@@ -25,8 +25,8 @@ from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.tasks.apply_registration_to_image import (
     apply_registration_to_image,
 )
-from fractal_tasks_core.tasks.apply_registration_to_ROI_table import (
-    apply_registration_to_ROI_table,
+from fractal_tasks_core.tasks.apply_registration_to_ROI_tables import (
+    apply_registration_to_ROI_tables,
 )
 from fractal_tasks_core.tasks.calculate_2D_registration_image_based import (
     calculate_2D_registration_image_based,
@@ -290,7 +290,7 @@ def test_multiplexing_registration(
     )
     # Apply registration to ROI table
     for component in metadata["well"]:
-        apply_registration_to_ROI_table(
+        apply_registration_to_ROI_tables(
             input_paths=[str(zarr_path_mip)],
             output_path=str(zarr_path_mip),
             metadata=metadata,

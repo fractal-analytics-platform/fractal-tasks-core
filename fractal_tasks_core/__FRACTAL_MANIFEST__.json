@@ -1011,7 +1011,7 @@
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core/reference/fractal_tasks_core/tasks/calculate_2D_registration_image_based/#fractal_tasks_core.tasks.calculate_2D_registration_image_based.calculate_2D_registration_image_based"
     },
     {
-      "executable": "tasks/apply_registration_to_ROI_table.py",
+      "executable": "tasks/apply_registration_to_ROI_tables.py",
       "input_type": "zarr",
       "meta": {
         "cpus_per_task": 1,
@@ -1021,7 +1021,7 @@
       "name": "Apply Registration to ROI Tables",
       "output_type": "zarr",
       "args_schema": {
-        "title": "ApplyRegistrationToRoiTable",
+        "title": "ApplyRegistrationToRoiTables",
         "type": "object",
         "properties": {
           "input_paths": {
@@ -1074,7 +1074,7 @@
         "additionalProperties": false
       },
       "docs_info": "Applies pre-calculated registration to ROI tables.\n\nApplies pre-calculated registration such that resulting ROIs contain\nthe consensus align region between all cycles.\n\nThis task runs on the well level.",
-      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core/reference/fractal_tasks_core/tasks/apply_registration_to_ROI_table/#fractal_tasks_core.tasks.apply_registration_to_ROI_table.apply_registration_to_ROI_table"
+      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core/reference/fractal_tasks_core/tasks/apply_registration_to_ROI_tables/#fractal_tasks_core.tasks.apply_registration_to_ROI_tables.apply_registration_to_ROI_tables"
     },
     {
       "executable": "tasks/apply_registration_to_image.py",

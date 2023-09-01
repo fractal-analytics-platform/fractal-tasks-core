@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 
 @validate_arguments
-def apply_registration_to_ROI_table(
+def apply_registration_to_ROI_tables(
     *,
     # Fractal arguments
     input_paths: Sequence[str],
@@ -262,6 +262,9 @@ def calculate_min_max_across_dfs(tables_list):
 
 
 def apply_registration_to_roi_table(roi_table, max_df, min_df, rois):
+    """
+    FIXME: add docstring
+    """
     # p = position + max(shift, 0) - own_shift
     # l = len - max(shift, 0) + min(shift, 0)
     roi_table = copy.deepcopy(roi_table)
@@ -304,6 +307,6 @@ if __name__ == "__main__":
     from fractal_tasks_core.tasks._utils import run_fractal_task
 
     run_fractal_task(
-        task_function=apply_registration_to_ROI_table,
+        task_function=apply_registration_to_ROI_tables,
         logger_name=logger.name,
     )
