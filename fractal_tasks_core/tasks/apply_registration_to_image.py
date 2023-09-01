@@ -358,11 +358,6 @@ def write_registered_zarr(
             new_array[reference_region] = load_region(
                 data_zyx=data_array, region=region, compute=False
             )
-        elif data_array.ndim == 2:
-            raise NotImplementedError(
-                "`write_registered_zarr` has not been implemented for "
-                f"{data_array.ndim}-dimensional Zarr files."
-            )
         else:
             raise NotImplementedError(
                 "`write_registered_zarr` has not been implemented for "
