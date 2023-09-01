@@ -53,7 +53,7 @@ def apply_registration_to_image(
     overwrite: bool = True,
 ):
     """
-    Applies registration to images by using a registered ROI table
+    Apply registration to images by using a registered ROI table
 
     This task consists of 4 parts:
     1. Mask all regions in images that are not available in the

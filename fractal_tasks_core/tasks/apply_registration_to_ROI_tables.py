@@ -50,7 +50,7 @@ def apply_registration_to_ROI_tables(
     """
     Applies pre-calculated registration to ROI tables.
 
-    Applies pre-calculated registration such that resulting ROIs contain
+    Apply pre-calculated registration such that resulting ROIs contain
     the consensus align region between all cycles.
 
     This task runs on the well level.
