@@ -132,15 +132,15 @@ def apply_registration_to_ROI_tables(
     for acq, acq_roi_table in roi_tables.items():
         roi_tables[acq] = reset_origin(acq_roi_table)
 
-    # Check that all acquisition have the same ROIs
+    # Check that all acquisitions have the same ROIs
     rois = roi_tables[reference_cycle].obs.index
     for acq, acq_roi_table in roi_tables.items():
         if not (acq_roi_table.obs.index == rois).all():
             raise ValueError(
                 f"Acquisition {acq} does not contain the same ROIs as the "
-                f"reference acquisition {reference_cycle}: \n"
-                f"{acq}: {acq_roi_table.obs.index} \n"
-                f"{reference_cycle}: {rois} \n"
+                f"reference acquisition {reference_cycle}:\n"
+                f"{acq}: {acq_roi_table.obs.index}\n"
+                f"{reference_cycle}: {rois}"
             )
 
     roi_table_dfs = [
@@ -161,6 +161,7 @@ def apply_registration_to_ROI_tables(
         logger.info(
             f"Write the registered ROI table {new_roi_table} for {acq=}"
         )
+        # TODO rewrite this block through `write_table` (ref PR #499)
         # Save the shifted ROI tables as a new tables per acquisition
         group_tables = zarr.group(f"{well_zarr}/{acq}/tables/")
         write_elem(group_tables, new_roi_table, shifted_rois[acq])
