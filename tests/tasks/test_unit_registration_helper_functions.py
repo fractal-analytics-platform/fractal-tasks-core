@@ -2,8 +2,15 @@ import anndata as ad
 import numpy as np
 import pandas as pd
 import pytest
+import zarr
 from devtools import debug
 
+from fractal_tasks_core.tasks.apply_registration_to_image import (
+    get_table_path_dict,
+)
+from fractal_tasks_core.tasks.apply_registration_to_image import (
+    is_standard_roi_table,
+)
 from fractal_tasks_core.tasks.apply_registration_to_ROI_tables import (
     add_zero_translation_columns,
 )
@@ -271,3 +278,36 @@ def test_apply_registration_to_single_ROI_table(roi_table, translation_table):
         adata_table, max_df, min_df, rois=["FOV_1", "FOV_2"]
     ).to_df()
     assert (registered_table == translated_ROI_table_df).all().all()
+
+
+def test_get_table_path_dict(tmp_path):
+
+    input_path = tmp_path
+    component = "plate.zarr/B/03/0"
+    img_group = zarr.open_group(str(input_path / component))
+
+    # Missing tables sub-group
+    table_path_dict = get_table_path_dict(input_path, component)
+    debug(table_path_dict)
+    assert table_path_dict == {}
+
+    tables_group = img_group.create_group("tables")
+    table_path_dict = get_table_path_dict(input_path, component)
+    debug(table_path_dict)
+    assert table_path_dict == {}
+
+    tables_group.attrs.update({"tables": ["table1", "table2"]})
+    table_path_dict = get_table_path_dict(input_path, component)
+    debug(table_path_dict)
+    assert table_path_dict.pop("table1") == str(
+        input_path / component / "tables/table1"
+    )
+    assert table_path_dict.pop("table2") == str(
+        input_path / component / "tables/table2"
+    )
+
+
+def test_is_standard_roi_table():
+    assert is_standard_roi_table("xxx_well_ROI_table_xxx")
+    assert is_standard_roi_table("xxx_FOV_ROI_table_xxx")
+    assert not is_standard_roi_table("something_else")
