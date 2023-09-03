@@ -14,6 +14,7 @@ Functions to handle `.zattrs` files and their contents.
 """
 import json
 import logging
+from pathlib import Path
 from typing import Any
 
 
@@ -140,3 +141,49 @@ def rescale_datasets(
         new_datasets.append(new_ds)
 
     return new_datasets
+
+
+def get_acquisition_paths(zattrs: dict) -> dict[int, str]:
+    """
+    Create mapping from acquisition indices to corresponding paths.
+
+    Runs on the well .zattrs content and loads the relative paths in the well.
+
+    Args:
+        zattrs:
+            Attributes of a well zarr group.
+
+    Returns:
+        Dictionary with `(acquisition index: image path)` key/value pairs.
+    """
+    acquisition_dict = {}
+    for image in zattrs["well"]["images"]:
+        if "acquisition" not in image:
+            raise ValueError(
+                "Cannot get acquisition paths for Zarr files without "
+                "'acquisition' metadata at the well level"
+            )
+        if image["acquisition"] in acquisition_dict:
+            raise NotImplementedError(
+                "This task is not implemented for wells with multiple images "
+                "of the same acquisition"
+            )
+        acquisition_dict[image["acquisition"]] = image["path"]
+    return acquisition_dict
+
+
+def get_table_path_dict(
+    input_path: Path,
+    component: str,
+):
+    try:
+        with open(f"{input_path / component}/tables/.zattrs", "r") as f_zattrs:
+            table_list = json.load(f_zattrs)["tables"]
+    except FileNotFoundError:
+        table_list = []
+
+    table_path_dict = {}
+    for table in table_list:
+        table_path_dict[table] = f"{input_path / component}/tables/{table}"
+
+    return table_path_dict

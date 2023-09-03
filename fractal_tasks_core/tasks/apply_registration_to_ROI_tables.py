@@ -30,6 +30,7 @@ from fractal_tasks_core.lib_regions_of_interest import (
     are_ROI_table_columns_valid,
 )
 from fractal_tasks_core.lib_regions_of_interest import reset_origin
+from fractal_tasks_core.lib_zattrs_utils import get_acquisition_paths
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +54,7 @@ def apply_registration_to_ROI_tables(
     Apply pre-calculated registration such that resulting ROIs contain
     the consensus align region between all cycles.
 
-    This task runs on the well level.
+    Parallelization level: well
 
     Args:
         input_paths: List of input paths where the image data is stored as
@@ -188,36 +189,6 @@ def apply_registration_to_ROI_tables(
 
 
 # Helper functions
-def get_acquisition_paths(zattrs: dict) -> dict[int, str]:
-    """
-    Create mapping from acquisition indices to corresponding paths.
-
-    FIXME: this looks like a function that should be part of
-    ../lib_read_fractal_metadata.py.
-
-    Args:
-        zattrs:
-            Attributes of a plate zarr group.
-
-    Returns:
-        Dictionary with `(acquisition index: image path)` key/value pairs.
-    """
-    acquisition_dict = {}
-    for image in zattrs["well"]["images"]:
-        if "acquisition" not in image:
-            raise ValueError(
-                "Cannot get acquisition paths for Zarr files without "
-                "'acquisition' metadata at the well level"
-            )
-        if image["acquisition"] in acquisition_dict:
-            raise NotImplementedError(
-                "This task is not implemented for wells with multiple images "
-                "of the same acquisition"
-            )
-        acquisition_dict[image["acquisition"]] = image["path"]
-    return acquisition_dict
-
-
 def add_zero_translation_columns(ad_table: ad.AnnData):
     """
     Add three zero-filled columns (`translation_{x,y,z}`) to an AnnData table.

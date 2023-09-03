@@ -1,9 +1,16 @@
 import json
 
 import pytest
+import zarr
 from devtools import debug
 
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
+from fractal_tasks_core.lib_zattrs_utils import (
+    get_acquisition_paths,
+)
+from fractal_tasks_core.lib_zattrs_utils import (
+    get_table_path_dict,
+)
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets  # noqa
 
 
@@ -141,3 +148,55 @@ def test_rescale_datasets(tmp_path):
         4,
         2,
     ]
+
+
+def test_get_acquisition_paths():
+
+    # Successful call
+    image_1 = dict(path="path1", acquisition=1)
+    image_2 = dict(path="path2", acquisition=2)
+    zattrs = dict(well=dict(images=[image_1, image_2]))
+    res = get_acquisition_paths(zattrs)
+    debug(res)
+    assert res == {1: "path1", 2: "path2"}
+
+    # Fail (missing acquisition key)
+    image_1 = dict(path="path1", acquisition=1)
+    image_2 = dict(path="path2")
+    zattrs = dict(well=dict(images=[image_1, image_2]))
+    with pytest.raises(ValueError):
+        get_acquisition_paths(zattrs)
+
+    # Fail (non-unique acquisition value)
+    image_1 = dict(path="path1", acquisition=1)
+    image_2 = dict(path="path2", acquisition=1)
+    zattrs = dict(well=dict(images=[image_1, image_2]))
+    with pytest.raises(NotImplementedError):
+        get_acquisition_paths(zattrs)
+
+
+def test_get_table_path_dict(tmp_path):
+
+    input_path = tmp_path
+    component = "plate.zarr/B/03/0"
+    img_group = zarr.open_group(str(input_path / component))
+
+    # Missing tables sub-group
+    table_path_dict = get_table_path_dict(input_path, component)
+    debug(table_path_dict)
+    assert table_path_dict == {}
+
+    tables_group = img_group.create_group("tables")
+    table_path_dict = get_table_path_dict(input_path, component)
+    debug(table_path_dict)
+    assert table_path_dict == {}
+
+    tables_group.attrs.update({"tables": ["table1", "table2"]})
+    table_path_dict = get_table_path_dict(input_path, component)
+    debug(table_path_dict)
+    assert table_path_dict.pop("table1") == str(
+        input_path / component / "tables/table1"
+    )
+    assert table_path_dict.pop("table2") == str(
+        input_path / component / "tables/table2"
+    )

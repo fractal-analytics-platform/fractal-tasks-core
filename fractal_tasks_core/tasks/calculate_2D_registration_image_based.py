@@ -63,6 +63,8 @@ def calculate_2D_registration_image_based(
     2. Calculating the transformation for that ROI
     3. Storing the calculated transformation in the ROI table
 
+    Parallelization level: image
+
     Args:
         input_paths: List of input paths where the image data is stored as
             OME-Zarrs. Should point to the parent folder containing one or many
