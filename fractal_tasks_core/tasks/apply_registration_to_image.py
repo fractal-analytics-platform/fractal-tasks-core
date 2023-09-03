@@ -34,10 +34,8 @@ from fractal_tasks_core.lib_regions_of_interest import (
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
-from fractal_tasks_core.lib_regions_of_interest import is_standard_roi_table
 from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
-from fractal_tasks_core.lib_zattrs_utils import get_table_path_dict
 
 logger = logging.getLogger(__name__)
 
@@ -70,8 +68,6 @@ def apply_registration_to_image(
     other ROI tables).
     4. Clean up: Delete the old, non-aligned image and rename the new,
     aligned image to take over its place.
-
-    Parallelization level: image
 
     Args:
         input_paths: List of input paths where the image data is stored as
@@ -231,6 +227,32 @@ def apply_registration_to_image(
         # The thing that would be missing in this branch is that Fractal
         # isn't aware of the new component. If there's a way to add it back,
         # that's the only thing that would be required here
+
+
+def get_table_path_dict(
+    input_path: Path,
+    component: str,
+):
+    try:
+        with open(f"{input_path / component}/tables/.zattrs", "r") as f_zattrs:
+            table_list = json.load(f_zattrs)["tables"]
+    except FileNotFoundError:
+        table_list = []
+
+    table_path_dict = {}
+    for table in table_list:
+        table_path_dict[table] = f"{input_path / component}/tables/{table}"
+
+    return table_path_dict
+
+
+def is_standard_roi_table(table: str):
+    if "well_ROI_table" in table:
+        return True
+    elif "FOV_ROI_table" in table:
+        return True
+    else:
+        return False
 
 
 def write_registered_zarr(

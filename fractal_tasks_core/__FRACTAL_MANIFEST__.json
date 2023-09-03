@@ -938,17 +938,17 @@
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core/reference/fractal_tasks_core/tasks/create_ome_zarr_multiplex/#fractal_tasks_core.tasks.create_ome_zarr_multiplex.create_ome_zarr_multiplex"
     },
     {
-      "executable": "tasks/calculate_registration_image_based.py",
+      "executable": "tasks/calculate_2D_registration_image_based.py",
       "input_type": "zarr",
       "meta": {
         "cpus_per_task": 1,
         "mem": 8000,
         "parallelization_level": "image"
       },
-      "name": "Calculate registration (image-based)",
+      "name": "Calculate 2D registration (image-based)",
       "output_type": "zarr",
       "args_schema": {
-        "title": "CalculateRegistrationImageBased",
+        "title": "Calculate2dRegistrationImageBased",
         "type": "object",
         "properties": {
           "input_paths": {
@@ -1007,8 +1007,8 @@
         ],
         "additionalProperties": false
       },
-      "docs_info": "Calculate registration based on images\n\nThis task consists of 3 parts:\n\n1. Loading the images of a given ROI (=> loop over ROIs)\n2. Calculating the transformation for that ROI\n3. Storing the calculated transformation in the ROI table\n\nParallelization level: image",
-      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core/reference/fractal_tasks_core/tasks/calculate_registration_image_based/#fractal_tasks_core.tasks.calculate_registration_image_based.calculate_registration_image_based"
+      "docs_info": "Calculate registration based on 2D images\n\nThis task consists of 3 parts:\n\n1. Loading the images of a given ROI (=> loop over ROIs)\n2. Calculating the transformation for that ROI\n3. Storing the calculated transformation in the ROI table",
+      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core/reference/fractal_tasks_core/tasks/calculate_2D_registration_image_based/#fractal_tasks_core.tasks.calculate_2D_registration_image_based.calculate_2D_registration_image_based"
     },
     {
       "executable": "tasks/apply_registration_to_ROI_tables.py",
@@ -1073,7 +1073,7 @@
         ],
         "additionalProperties": false
       },
-      "docs_info": "Applies pre-calculated registration to ROI tables.\n\nApply pre-calculated registration such that resulting ROIs contain\nthe consensus align region between all cycles.\n\nParallelization level: well",
+      "docs_info": "Applies pre-calculated registration to ROI tables.\n\nApply pre-calculated registration such that resulting ROIs contain\nthe consensus align region between all cycles.\n\nThis task runs on the well level.",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core/reference/fractal_tasks_core/tasks/apply_registration_to_ROI_tables/#fractal_tasks_core.tasks.apply_registration_to_ROI_tables.apply_registration_to_ROI_tables"
     },
     {
@@ -1140,7 +1140,7 @@
         ],
         "additionalProperties": false
       },
-      "docs_info": "Apply registration to images by using a registered ROI table\n\nThis task consists of 4 parts:\n\n1. Mask all regions in images that are not available in the\nregistered ROI table and store each cycle aligned to the\nreference_cycle (by looping over ROIs).\n2. Do the same for all label images.\n3. Copy all tables from the non-aligned image to the aligned image\n(currently only works well if the only tables are well & FOV ROI tables\n(registered and original). Not implemented for measurement tables and\nother ROI tables).\n4. Clean up: Delete the old, non-aligned image and rename the new,\naligned image to take over its place.\n\nParallelization level: image",
+      "docs_info": "Apply registration to images by using a registered ROI table\n\nThis task consists of 4 parts:\n\n1. Mask all regions in images that are not available in the\nregistered ROI table and store each cycle aligned to the\nreference_cycle (by looping over ROIs).\n2. Do the same for all label images.\n3. Copy all tables from the non-aligned image to the aligned image\n(currently only works well if the only tables are well & FOV ROI tables\n(registered and original). Not implemented for measurement tables and\nother ROI tables).\n4. Clean up: Delete the old, non-aligned image and rename the new,\naligned image to take over its place.",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core/reference/fractal_tasks_core/tasks/apply_registration_to_image/#fractal_tasks_core.tasks.apply_registration_to_image.apply_registration_to_image"
     }
   ]

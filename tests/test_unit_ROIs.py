@@ -25,9 +25,6 @@ from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROIs_from_3D_to_2D,
 )
 from fractal_tasks_core.lib_regions_of_interest import is_ROI_table_valid
-from fractal_tasks_core.lib_regions_of_interest import (
-    is_standard_roi_table,
-)
 from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
@@ -448,9 +445,3 @@ def test_reset_origin():
     assert abs(new_adata[:, "x_micrometer"].X[0, 0]) < 1e-10
     assert abs(new_adata[:, "y_micrometer"].X[0, 0]) < 1e-10
     assert abs(new_adata[:, "z_micrometer"].X[0, 0]) < 1e-10
-
-
-def test_is_standard_roi_table():
-    assert is_standard_roi_table("xxx_well_ROI_table_xxx")
-    assert is_standard_roi_table("xxx_FOV_ROI_table_xxx")
-    assert not is_standard_roi_table("something_else")

@@ -10,7 +10,7 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Calculates translation for image-based registration
+Calculates translation for 2D image-based registration
 """
 import logging
 from pathlib import Path
@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 
 @validate_arguments
-def calculate_registration_image_based(
+def calculate_2D_registration_image_based(
     *,
     # Fractal arguments
     input_paths: Sequence[str],
@@ -55,15 +55,13 @@ def calculate_registration_image_based(
     level: int = 2,
 ) -> dict[str, Any]:
     """
-    Calculate registration based on images
+    Calculate registration based on 2D images
 
     This task consists of 3 parts:
 
     1. Loading the images of a given ROI (=> loop over ROIs)
     2. Calculating the transformation for that ROI
     3. Storing the calculated transformation in the ROI table
-
-    Parallelization level: image
 
     Args:
         input_paths: List of input paths where the image data is stored as
@@ -108,14 +106,14 @@ def calculate_registration_image_based(
     alignment_cycle = zarr_img_cycle_x.name
     if alignment_cycle == str(reference_cycle):
         logger.info(
-            "Calculate registration image-based is running for "
+            "Calculate 2D registration image-based is running for "
             f"cycle {alignment_cycle}, which is the reference_cycle."
             "Thus, exiting the task."
         )
         return {}
     else:
         logger.info(
-            "Calculate registration image-based is running for "
+            "Calculate 2D registration image-based is running for "
             f"cycle {alignment_cycle}"
         )
 
@@ -196,7 +194,7 @@ def calculate_registration_image_based(
     )
 
     num_ROIs = len(list_indices_ref)
-    compute = True
+    compute = True  # TODO: Check whether compute is needed
     new_shifts = {}
     for i_ROI in range(num_ROIs):
         logger.info(
@@ -227,11 +225,11 @@ def calculate_registration_image_based(
             np.squeeze(img_ref), np.squeeze(img_cycle_x)
         )[0]
 
-        # Registration based on scmultiplex, image-based
+        # 2D registration based on scmultiplex, image-based
         # shifts, _, _ = calculate_shift(np.squeeze(img_ref),
         #           np.squeeze(img_cycle_x), bin=binning, binarize=False)
 
-        # TODO: Make this work on label images
+        # TODO: Make this work on 3D images, label images
         # (=> different loading) etc.
 
         ##############
@@ -331,6 +329,7 @@ def get_ROI_table_with_translation(
     adata = ad.AnnData(
         X=new_roi_table.loc[:, positional_columns].astype(np.float32)
     )
+    # adata.obs["Field_Index"] = new_roi_table.index.astype(str)
     adata.obs_names = new_roi_table.index
     adata.var_names = list(map(str, positional_columns))
     return adata
@@ -340,6 +339,6 @@ if __name__ == "__main__":
     from fractal_tasks_core.tasks._utils import run_fractal_task
 
     run_fractal_task(
-        task_function=calculate_registration_image_based,
+        task_function=calculate_2D_registration_image_based,
         logger_name=logger.name,
     )
