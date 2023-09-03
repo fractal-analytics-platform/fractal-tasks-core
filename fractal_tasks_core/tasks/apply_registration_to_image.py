@@ -54,7 +54,7 @@ def apply_registration_to_image(
     # Task-specific arguments
     registered_roi_table: str,
     reference_cycle: str = "0",
-    overwrite: bool = True,
+    overwrite_input: bool = True,
 ):
     """
     Apply registration to images by using a registered ROI table
@@ -100,19 +100,19 @@ def apply_registration_to_image(
         reference_cycle: Which cycle to register against. Defaults to 0,
             which is the first OME-Zarr image in the well, usually the first
             cycle that was provided
-        overwrite: Whether the old image data should be replaced with the
+        overwrite_input: Whether the old image data should be replaced with the
             newly registered image data. Currently only implemented for
-            `overwrite=True`.
+            `overwrite_input=True`.
 
     """
-    if not overwrite:
+    if not overwrite_input:
         raise NotImplementedError(
-            "This task is only implemented for the overwrite version"
+            "This task is only implemented for the overwrite_input version"
         )
     logger.info(
         f"Running `apply_registration_to_image` on {input_paths=}, "
         f"{component=}, {registered_roi_table=} and {reference_cycle=}. "
-        f"Using {overwrite=}"
+        f"Using {overwrite_input=}"
     )
     coarsening_xy = metadata["coarsening_xy"]
     num_levels = metadata["num_levels"]
@@ -221,7 +221,7 @@ def apply_registration_to_image(
     ####################
     # Clean up Zarr file
     ####################
-    if overwrite:
+    if overwrite_input:
         logger.info(
             "Replace original zarr image with the newly created Zarr image"
         )

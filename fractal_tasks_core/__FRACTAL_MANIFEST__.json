@@ -1124,11 +1124,11 @@
             "type": "string",
             "description": "Which cycle to register against. Defaults to 0, which is the first OME-Zarr image in the well, usually the first cycle that was provided"
           },
-          "overwrite": {
-            "title": "Overwrite",
+          "overwrite_input": {
+            "title": "Overwrite Input",
             "default": true,
             "type": "boolean",
-            "description": "Whether the old image data should be replaced with the newly registered image data. Currently only implemented for `overwrite=True`."
+            "description": "Whether the old image data should be replaced with the newly registered image data. Currently only implemented for `overwrite_input=True`."
           }
         },
         "required": [
