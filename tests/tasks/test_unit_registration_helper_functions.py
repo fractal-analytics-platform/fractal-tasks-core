@@ -2,15 +2,8 @@ import anndata as ad
 import numpy as np
 import pandas as pd
 import pytest
-import zarr
 from devtools import debug
 
-from fractal_tasks_core.tasks.apply_registration_to_image import (
-    get_table_path_dict,
-)
-from fractal_tasks_core.tasks.apply_registration_to_image import (
-    is_standard_roi_table,
-)
 from fractal_tasks_core.tasks.apply_registration_to_ROI_tables import (
     add_zero_translation_columns,
 )
@@ -20,13 +13,10 @@ from fractal_tasks_core.tasks.apply_registration_to_ROI_tables import (
 from fractal_tasks_core.tasks.apply_registration_to_ROI_tables import (
     calculate_min_max_across_dfs,
 )
-from fractal_tasks_core.tasks.apply_registration_to_ROI_tables import (
-    get_acquisition_paths,
-)
-from fractal_tasks_core.tasks.calculate_2D_registration_image_based import (
+from fractal_tasks_core.tasks.calculate_registration_image_based import (
     calculate_physical_shifts,
 )
-from fractal_tasks_core.tasks.calculate_2D_registration_image_based import (
+from fractal_tasks_core.tasks.calculate_registration_image_based import (
     get_ROI_table_with_translation,
 )
 
@@ -129,31 +119,6 @@ def test_get_ROI_table_with_translation(fail: bool):
         assert "different length" in str(e.value)
     else:
         get_ROI_table_with_translation(ROI_table, new_shifts)
-
-
-def test_get_acquisition_paths():
-
-    # Successful call
-    image_1 = dict(path="path1", acquisition=1)
-    image_2 = dict(path="path2", acquisition=2)
-    zattrs = dict(well=dict(images=[image_1, image_2]))
-    res = get_acquisition_paths(zattrs)
-    debug(res)
-    assert res == {1: "path1", 2: "path2"}
-
-    # Fail (missing acquisition key)
-    image_1 = dict(path="path1", acquisition=1)
-    image_2 = dict(path="path2")
-    zattrs = dict(well=dict(images=[image_1, image_2]))
-    with pytest.raises(ValueError):
-        get_acquisition_paths(zattrs)
-
-    # Fail (non-unique acquisition value)
-    image_1 = dict(path="path1", acquisition=1)
-    image_2 = dict(path="path2", acquisition=1)
-    zattrs = dict(well=dict(images=[image_1, image_2]))
-    with pytest.raises(NotImplementedError):
-        get_acquisition_paths(zattrs)
 
 
 def test_add_zero_translation_columns():
@@ -275,39 +240,23 @@ def test_apply_registration_to_single_ROI_table(roi_table, translation_table):
     adata_table = add_zero_translation_columns(roi_table)
     max_df, min_df = calculate_min_max_across_dfs(translation_table)
     registered_table = apply_registration_to_single_ROI_table(
-        adata_table, max_df, min_df, rois=["FOV_1", "FOV_2"]
+        adata_table, max_df, min_df
     ).to_df()
     assert (registered_table == translated_ROI_table_df).all().all()
 
 
-def test_get_table_path_dict(tmp_path):
-
-    input_path = tmp_path
-    component = "plate.zarr/B/03/0"
-    img_group = zarr.open_group(str(input_path / component))
-
-    # Missing tables sub-group
-    table_path_dict = get_table_path_dict(input_path, component)
-    debug(table_path_dict)
-    assert table_path_dict == {}
-
-    tables_group = img_group.create_group("tables")
-    table_path_dict = get_table_path_dict(input_path, component)
-    debug(table_path_dict)
-    assert table_path_dict == {}
-
-    tables_group.attrs.update({"tables": ["table1", "table2"]})
-    table_path_dict = get_table_path_dict(input_path, component)
-    debug(table_path_dict)
-    assert table_path_dict.pop("table1") == str(
-        input_path / component / "tables/table1"
+def test_failure_apply_registration_to_single_ROI_table(
+    roi_table, translation_table
+):
+    adata_table = add_zero_translation_columns(roi_table)
+    max_df, min_df = calculate_min_max_across_dfs(translation_table)
+    max_df = pd.DataFrame(
+        {
+            "translation_z": [0, 0, 0],
+            "translation_y": [6, 6, 6],
+            "translation_x": [9, 12, 12],
+        },
+        index=["FOV_1", "FOV_2", "Fov_3"],
     )
-    assert table_path_dict.pop("table2") == str(
-        input_path / component / "tables/table2"
-    )
-
-
-def test_is_standard_roi_table():
-    assert is_standard_roi_table("xxx_well_ROI_table_xxx")
-    assert is_standard_roi_table("xxx_FOV_ROI_table_xxx")
-    assert not is_standard_roi_table("something_else")
+    with pytest.raises(ValueError):
+        apply_registration_to_single_ROI_table(adata_table, max_df, min_df)

@@ -30,6 +30,7 @@ from fractal_tasks_core.lib_regions_of_interest import (
     are_ROI_table_columns_valid,
 )
 from fractal_tasks_core.lib_regions_of_interest import reset_origin
+from fractal_tasks_core.lib_zattrs_utils import get_acquisition_paths
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +54,7 @@ def apply_registration_to_ROI_tables(
     Apply pre-calculated registration such that resulting ROIs contain
     the consensus align region between all cycles.
 
-    This task runs on the well level.
+    Parallelization level: well
 
     Args:
         input_paths: List of input paths where the image data is stored as
@@ -102,7 +103,10 @@ def apply_registration_to_ROI_tables(
     # Collect all the ROI tables
     roi_tables = {}
     for acq in acquisition_dict.keys():
-        curr_ROI_table = ad.read_zarr(f"{well_zarr}/{acq}/tables/{roi_table}")
+        acq_path = acquisition_dict[acq]
+        curr_ROI_table = ad.read_zarr(
+            f"{well_zarr}/{acq_path}/tables/{roi_table}"
+        )
 
         # For reference_cycle acquisition, handle the fact that it doesn't
         # have the shifts
@@ -153,7 +157,7 @@ def apply_registration_to_ROI_tables(
     # Loop over acquisitions
     for acq in acquisition_dict.keys():
         shifted_rois[acq] = apply_registration_to_single_ROI_table(
-            roi_tables[acq], max_df, min_df, rois
+            roi_tables[acq], max_df, min_df
         )
 
         # TODO: Drop translation columns from this table?
@@ -185,36 +189,6 @@ def apply_registration_to_ROI_tables(
 
 
 # Helper functions
-def get_acquisition_paths(zattrs: dict) -> dict[int, str]:
-    """
-    Create mapping from acquisition indices to corresponding paths.
-
-    FIXME: this looks like a function that should be part of
-    ../lib_read_fractal_metadata.py.
-
-    Attrs:
-        zattrs:
-            Attributes of a plate zarr group.
-
-    Returns:
-        Dictionary with `(acquisition index: image path)` key/value pairs.
-    """
-    acquisition_dict = {}
-    for image in zattrs["well"]["images"]:
-        if "acquisition" not in image:
-            raise ValueError(
-                "Cannot get acquisition paths for Zarr files without "
-                "'acquisition' metadata at the well level"
-            )
-        if image["acquisition"] in acquisition_dict:
-            raise NotImplementedError(
-                "This task is not implemented for wells with multiple images "
-                "of the same acquisition"
-            )
-        acquisition_dict[image["acquisition"]] = image["path"]
-    return acquisition_dict
-
-
 def add_zero_translation_columns(ad_table: ad.AnnData):
     """
     Add three zero-filled columns (`translation_{x,y,z}`) to an AnnData table.
@@ -256,13 +230,36 @@ def calculate_min_max_across_dfs(tables_list):
     return max_df, min_df
 
 
-def apply_registration_to_single_ROI_table(roi_table, max_df, min_df, rois):
+def apply_registration_to_single_ROI_table(
+    roi_table: ad.AnnData,
+    max_df: pd.DataFrame,
+    min_df: pd.DataFrame,
+) -> ad.AnnData:
     """
-    FIXME: add docstring
+    Applies the registration to a ROI table
+
+    Calculates the new position as: p = position + max(shift, 0) - own_shift
+    Calculates the new len as: l = len - max(shift, 0) + min(shift, 0)
+
+    Args:
+        roi_table: AnnData table which contains a Fractal ROI table.
+            Rows are ROIs
+        max_df: Max translation shift in z, y, x for each ROI. Rows are ROIs,
+            columns are translation_z, translation_y, translation_x
+        min_df: Min translation shift in z, y, x for each ROI. Rows are ROIs,
+            columns are translation_z, translation_y, translation_x
+    Returns:
+        ROI table where all ROIs are registered to the smallest common area
+        across all cycles.
     """
-    # p = position + max(shift, 0) - own_shift
-    # l = len - max(shift, 0) + min(shift, 0)
     roi_table = copy.deepcopy(roi_table)
+    rois = roi_table.obs.index
+    if (rois != max_df.index).all() or (rois != min_df.index).all():
+        raise ValueError(
+            "ROI table and max & min translation need to contain the same "
+            f"ROIS, but they were {rois=}, {max_df.index=}, {min_df.index=}"
+        )
+
     for roi in rois:
         roi_table[[roi], ["z_micrometer"]] = (
             roi_table[[roi], ["z_micrometer"]].X

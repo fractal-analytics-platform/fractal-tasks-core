@@ -34,8 +34,11 @@ from fractal_tasks_core.lib_regions_of_interest import (
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
+from fractal_tasks_core.lib_regions_of_interest import is_standard_roi_table
 from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
+from fractal_tasks_core.lib_zattrs_utils import get_axes_names
+from fractal_tasks_core.lib_zattrs_utils import get_table_path_dict
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +71,8 @@ def apply_registration_to_image(
     other ROI tables).
     4. Clean up: Delete the old, non-aligned image and rename the new,
     aligned image to take over its place.
+
+    Parallelization level: image
 
     Args:
         input_paths: List of input paths where the image data is stored as
@@ -229,32 +234,6 @@ def apply_registration_to_image(
         # that's the only thing that would be required here
 
 
-def get_table_path_dict(
-    input_path: Path,
-    component: str,
-):
-    try:
-        with open(f"{input_path / component}/tables/.zattrs", "r") as f_zattrs:
-            table_list = json.load(f_zattrs)["tables"]
-    except FileNotFoundError:
-        table_list = []
-
-    table_path_dict = {}
-    for table in table_list:
-        table_path_dict[table] = f"{input_path / component}/tables/{table}"
-
-    return table_path_dict
-
-
-def is_standard_roi_table(table: str):
-    if "well_ROI_table" in table:
-        return True
-    elif "FOV_ROI_table" in table:
-        return True
-    else:
-        return False
-
-
 def write_registered_zarr(
     input_path: Path,
     component: str,
@@ -332,17 +311,9 @@ def write_registered_zarr(
         reference_region = convert_indices_to_regions(list_indices_ref[i])
         region = convert_indices_to_regions(roi_indices)
 
-        # FIXME: More robust handling of the different dimensionalities
-        # Handle: Optional t, optional c, optional z. Always xy
-        if data_array.ndim == 5:
-            raise NotImplementedError(
-                "`write_registered_zarr` has not been implemented for "
-                "5-dimensional Zarr files yet."
-            )
-            # Would need to loop over time points. Not defined yet how ROI
-            # tables relate to timepoints (same for each time point or a ROI
-            # table per timepoint?)
-        elif data_array.ndim == 4:
+        axes_list = get_axes_names(old_image_group.attrs.asdict())
+
+        if axes_list == ["c", "z", "y", "x"]:
             num_channels = data_array.shape[0]
             # Loop over channels
             for ind_ch in range(num_channels):
@@ -352,16 +323,26 @@ def write_registered_zarr(
                 new_array[idx] = load_region(
                     data_zyx=data_array[ind_ch], region=region, compute=False
                 )
-        elif data_array.ndim == 3:
-            # FIXME: Could be zyx or cyx => handle differently!
-            # Currently assuming zyx
+        elif axes_list == ["z", "y", "x"]:
             new_array[reference_region] = load_region(
                 data_zyx=data_array, region=region, compute=False
+            )
+        elif axes_list == ["c", "y", "x"]:
+            # TODO: Implement cyx case (based on looping over xy case)
+            raise NotImplementedError(
+                "`write_registered_zarr` has not been implemented for "
+                f"a zarr with {axes_list=}"
+            )
+        elif axes_list == ["y", "x"]:
+            # TODO: Implement yx case
+            raise NotImplementedError(
+                "`write_registered_zarr` has not been implemented for "
+                f"a zarr with {axes_list=}"
             )
         else:
             raise NotImplementedError(
                 "`write_registered_zarr` has not been implemented for "
-                f"{data_array.ndim}-dimensional Zarr files."
+                f"a zarr with {axes_list=}"
             )
 
     new_array.to_zarr(

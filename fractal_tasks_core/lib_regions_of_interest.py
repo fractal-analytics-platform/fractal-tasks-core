@@ -467,3 +467,25 @@ def reset_origin(
         ROI_table[FOV, z_pos] = ROI_table[FOV, z_pos].X[0, 0] - origin_z
 
     return ROI_table
+
+
+def is_standard_roi_table(table: str) -> bool:
+    """
+    True if the name of the table contains one of the standard Fractal tables
+
+    If a table name is well_ROI_table, FOV_ROI_table or contains either of the
+    two (e.g. registered_FOV_ROI_table), this function returns True.
+
+    Args:
+        table: table name
+
+    Returns:
+        bool of whether it's a standard ROI table
+
+    """
+    if "well_ROI_table" in table:
+        return True
+    elif "FOV_ROI_table" in table:
+        return True
+    else:
+        return False
