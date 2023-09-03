@@ -194,7 +194,7 @@ def calculate_2D_registration_image_based(
     )
 
     num_ROIs = len(list_indices_ref)
-    compute = True  # TODO: Check whether compute is needed
+    compute = True
     new_shifts = {}
     for i_ROI in range(num_ROIs):
         logger.info(
@@ -329,7 +329,6 @@ def get_ROI_table_with_translation(
     adata = ad.AnnData(
         X=new_roi_table.loc[:, positional_columns].astype(np.float32)
     )
-    # adata.obs["Field_Index"] = new_roi_table.index.astype(str)
     adata.obs_names = new_roi_table.index
     adata.var_names = list(map(str, positional_columns))
     return adata

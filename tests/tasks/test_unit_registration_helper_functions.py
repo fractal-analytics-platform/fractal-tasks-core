@@ -275,9 +275,26 @@ def test_apply_registration_to_single_ROI_table(roi_table, translation_table):
     adata_table = add_zero_translation_columns(roi_table)
     max_df, min_df = calculate_min_max_across_dfs(translation_table)
     registered_table = apply_registration_to_single_ROI_table(
-        adata_table, max_df, min_df, rois=["FOV_1", "FOV_2"]
+        adata_table, max_df, min_df
     ).to_df()
     assert (registered_table == translated_ROI_table_df).all().all()
+
+
+def test_failure_apply_registration_to_single_ROI_table(
+    roi_table, translation_table
+):
+    adata_table = add_zero_translation_columns(roi_table)
+    max_df, min_df = calculate_min_max_across_dfs(translation_table)
+    max_df = pd.DataFrame(
+        {
+            "translation_z": [0, 0, 0],
+            "translation_y": [6, 6, 6],
+            "translation_x": [9, 12, 12],
+        },
+        index=["FOV_1", "FOV_2", "Fov_3"],
+    )
+    with pytest.raises(ValueError):
+        apply_registration_to_single_ROI_table(adata_table, max_df, min_df)
 
 
 def test_get_table_path_dict(tmp_path):

@@ -77,13 +77,6 @@ def _shift_image(
     new_array[:, :-shift_x_pxl] = new_array[:, shift_x_pxl:]
     new_array[:-shift_y_pxl] = new_array[shift_y_pxl:, :]
 
-    # Replace offset stripes with random values
-    # new_array[:, -shift_x_pxl:] = np.random.randint(
-    #     0, 1000, size=new_array[:, -shift_x_pxl:].shape
-    # )
-    # new_array[-shift_y_pxl:, :] = np.random.randint(
-    #     0, 1000, size=new_array[-shift_y_pxl:, :].shape
-    # )
     new_array[:, -shift_x_pxl:] = (
         np.ones(new_array[:, -shift_x_pxl:].shape) * 110
     )
