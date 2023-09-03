@@ -13,10 +13,10 @@ from fractal_tasks_core.tasks.apply_registration_to_ROI_tables import (
 from fractal_tasks_core.tasks.apply_registration_to_ROI_tables import (
     calculate_min_max_across_dfs,
 )
-from fractal_tasks_core.tasks.calculate_2D_registration_image_based import (
+from fractal_tasks_core.tasks.calculate_registration_image_based import (
     calculate_physical_shifts,
 )
-from fractal_tasks_core.tasks.calculate_2D_registration_image_based import (
+from fractal_tasks_core.tasks.calculate_registration_image_based import (
     get_ROI_table_with_translation,
 )
 

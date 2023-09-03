@@ -10,7 +10,7 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Calculates translation for 2D image-based registration
+Calculates translation for image-based registration
 """
 import logging
 from pathlib import Path
@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 
 @validate_arguments
-def calculate_2D_registration_image_based(
+def calculate_registration_image_based(
     *,
     # Fractal arguments
     input_paths: Sequence[str],
@@ -55,7 +55,7 @@ def calculate_2D_registration_image_based(
     level: int = 2,
 ) -> dict[str, Any]:
     """
-    Calculate registration based on 2D images
+    Calculate registration based on images
 
     This task consists of 3 parts:
 
@@ -108,14 +108,14 @@ def calculate_2D_registration_image_based(
     alignment_cycle = zarr_img_cycle_x.name
     if alignment_cycle == str(reference_cycle):
         logger.info(
-            "Calculate 2D registration image-based is running for "
+            "Calculate registration image-based is running for "
             f"cycle {alignment_cycle}, which is the reference_cycle."
             "Thus, exiting the task."
         )
         return {}
     else:
         logger.info(
-            "Calculate 2D registration image-based is running for "
+            "Calculate registration image-based is running for "
             f"cycle {alignment_cycle}"
         )
 
@@ -227,11 +227,11 @@ def calculate_2D_registration_image_based(
             np.squeeze(img_ref), np.squeeze(img_cycle_x)
         )[0]
 
-        # 2D registration based on scmultiplex, image-based
+        # Registration based on scmultiplex, image-based
         # shifts, _, _ = calculate_shift(np.squeeze(img_ref),
         #           np.squeeze(img_cycle_x), bin=binning, binarize=False)
 
-        # TODO: Make this work on 3D images, label images
+        # TODO: Make this work on label images
         # (=> different loading) etc.
 
         ##############
@@ -340,6 +340,6 @@ if __name__ == "__main__":
     from fractal_tasks_core.tasks._utils import run_fractal_task
 
     run_fractal_task(
-        task_function=calculate_2D_registration_image_based,
+        task_function=calculate_registration_image_based,
         logger_name=logger.name,
     )

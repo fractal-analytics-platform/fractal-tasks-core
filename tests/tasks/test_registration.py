@@ -28,8 +28,8 @@ from fractal_tasks_core.tasks.apply_registration_to_image import (
 from fractal_tasks_core.tasks.apply_registration_to_ROI_tables import (
     apply_registration_to_ROI_tables,
 )
-from fractal_tasks_core.tasks.calculate_2D_registration_image_based import (
-    calculate_2D_registration_image_based,
+from fractal_tasks_core.tasks.calculate_registration_image_based import (
+    calculate_registration_image_based,
 )
 from fractal_tasks_core.tasks.cellpose_segmentation import (
     cellpose_segmentation,
@@ -263,7 +263,7 @@ def test_multiplexing_registration(
 
     # Calculate registration
     for component in metadata["image"]:
-        calculate_2D_registration_image_based(
+        calculate_registration_image_based(
             input_paths=[str(zarr_path_mip)],
             output_path=str(zarr_path_mip),
             metadata=metadata,
