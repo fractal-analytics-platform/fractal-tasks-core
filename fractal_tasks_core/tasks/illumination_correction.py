@@ -161,7 +161,7 @@ def illumination_correction(
     if not overwrite_input:
         msg = (
             "We still have to harmonize illumination_correction("
-            "overwrite=False) with replicate_zarr_structure(..., "
+            "overwrite_input=False) with replicate_zarr_structure(..., "
             "suffix=..)"
         )
         raise NotImplementedError(msg)
