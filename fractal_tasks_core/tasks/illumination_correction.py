@@ -253,7 +253,7 @@ def illumination_correction(
             chunks=data_czyx.chunksize,
             dtype=data_czyx.dtype,
             store=zarr.storage.FSStore(f"{zarrurl_new}/0"),
-            overwrite_input=False,
+            overwrite=False,
             dimension_separator="/",
         )
 
@@ -290,7 +290,7 @@ def illumination_correction(
     # pyramid of coarser levels
     build_pyramid(
         zarrurl=fov_path,
-        overwrite=overwrite_input,
+        overwrite=True,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         chunksize=data_czyx.chunksize,
