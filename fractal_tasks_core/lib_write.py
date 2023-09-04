@@ -157,7 +157,8 @@ def _write_elem_with_overwrite(
             The element to write. Typically an in-memory object, e.g. an
             AnnData, pandas dataframe, scipy sparse matrix, etc.
         overwrite:
-            TBD
+            If `True`, overwrite the `key` sub-group (if present); if `False`
+            and `key` sub-group exists, raise an error.
         logger:
             The logger to use (if unset, use `logging.getLogger(None)`)
 
@@ -212,7 +213,11 @@ def write_table(
         table:
             The AnnData table to write.
         overwrite:
-            TBD.
+            If `False`, check that the new table does not exist (either as a
+            zarr sub-group or as part of the zarr-group attributes). In all
+            cases, propagate parameter to `_write_elem_with_overwrite`, to
+            determine the behavior in case of an existing sub-group named as
+            `table_name`.
         table_attrs:
             If set, overwrite table_group attributes with table_attrs key/value
             pairs.
@@ -322,7 +327,10 @@ def prepare_label_group(
         label_name:
             The name of the new label.
         overwrite:
-            TBD
+            If `False`, check that the new label does not exist (either in zarr
+            attributes or as a zarr sub-group); if `True` propagate parameter
+            to `create_group` method, making it overwrite any existing
+            sub-group with the given name.
         label_attrs:
             If set, overwrite label_group attributes with label_attrs key/value
             pairs.
