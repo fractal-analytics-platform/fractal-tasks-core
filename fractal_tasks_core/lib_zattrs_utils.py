@@ -172,10 +172,22 @@ def get_acquisition_paths(zattrs: dict) -> dict[int, str]:
     return acquisition_dict
 
 
-def get_table_path_dict(
-    input_path: Path,
-    component: str,
-):
+def get_table_path_dict(input_path: Path, component: str) -> dict[str, str]:
+    """
+    Compile dictionary of (table name, table path) key/value pairs.
+
+    Args:
+        input_path:
+            Path to the parent folder of a plate zarr group (e.g.
+            `/some/path/`).
+        component:
+            Path (relative to `input_path`) to an image zarr group (e.g.
+            `plate.zarr/B/03/0`).
+
+    Returns:
+        Dictionary with table names as keys and table paths as values.
+    """
+
     try:
         with open(f"{input_path / component}/tables/.zattrs", "r") as f_zattrs:
             table_list = json.load(f_zattrs)["tables"]
