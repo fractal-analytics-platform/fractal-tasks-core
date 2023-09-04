@@ -58,7 +58,7 @@ def correct(
 
     # Check shapes
     if corr_img.shape != img_stack.shape[2:] or img_stack.shape[0] != 1:
-        raise Exception(
+        raise ValueError(
             "Error in illumination_correction:\n"
             f"{img_stack.shape=}\n{corr_img.shape=}"
         )
@@ -103,7 +103,7 @@ def illumination_correction(
     illumination_profiles_folder: str,
     dict_corr: dict[str, str],
     background: int = 110,
-    overwrite: bool = True,
+    overwrite_input: bool = True,
     new_component: Optional[str] = None,
 ) -> dict[str, Any]:
 
@@ -138,9 +138,10 @@ def illumination_correction(
         background: Background value that is subtracted from the image before
             the illumination correction is applied. Set it to `0` if you don't
             want any background subtraction.
-        overwrite: If True, the results of this task will overwrite the input
-            image data. This task is only implemented for ``overwrite=True`` at
-            the moment.
+        overwrite_input:
+            If `True`, the results of this task will overwrite the input image
+            data. In the current version, `overwrite_input=False` is not
+            implemented.
         new_component: Not implemented yet. This is not implemented well in
             Fractal server at the moment, it's unclear how a user would specify
             fitting new components. If the results shall not overwrite the
@@ -152,15 +153,15 @@ def illumination_correction(
     # Preliminary checks
     if len(input_paths) > 1:
         raise NotImplementedError
-    if (overwrite and new_component is not None) or (
-        new_component is None and not overwrite
+    if (overwrite_input and new_component is not None) or (
+        new_component is None and not overwrite_input
     ):
-        raise Exception(f"{overwrite=}, but {new_component=}")
+        raise ValueError(f"{overwrite_input=}, but {new_component=}")
 
-    if not overwrite:
+    if not overwrite_input:
         msg = (
             "We still have to harmonize illumination_correction("
-            "overwrite=False) with replicate_zarr_structure(..., "
+            "overwrite_input=False) with replicate_zarr_structure(..., "
             "suffix=..)"
         )
         raise NotImplementedError(msg)
@@ -173,17 +174,17 @@ def illumination_correction(
     plate, well = component.split(".zarr/")
     in_path = Path(input_paths[0])
     zarrurl_old = (in_path / component).as_posix()
-    if overwrite:
+    if overwrite_input:
         zarrurl_new = zarrurl_old
     else:
         new_plate, new_well = new_component.split(".zarr/")
         if new_well != well:
-            raise Exception(f"{well=}, {new_well=}")
+            raise ValueError(f"{well=}, {new_well=}")
         zarrurl_new = (Path(output_path) / new_component).as_posix()
 
     t_start = time.perf_counter()
     logger.info("Start illumination_correction")
-    logger.info(f"  {overwrite=}")
+    logger.info(f"  {overwrite_input=}")
     logger.info(f"  {zarrurl_old=}")
     logger.info(f"  {zarrurl_new=}")
 
@@ -218,7 +219,7 @@ def illumination_correction(
             ref_img_size = img_size
         else:
             if img_size != ref_img_size:
-                raise Exception(
+                raise ValueError(
                     "ERROR: inconsistent image sizes in list_indices"
                 )
     img_size_y, img_size_x = img_size[:]
@@ -233,7 +234,7 @@ def illumination_correction(
             ).as_posix()
         )
         if corrections[wavelength_id].shape != (img_size_y, img_size_x):
-            raise Exception(
+            raise ValueError(
                 "Error in illumination_correction, "
                 "correction matrix has wrong shape."
             )
@@ -242,7 +243,7 @@ def illumination_correction(
     data_czyx = da.from_zarr(f"{zarrurl_old}/0")
 
     # Create zarr for output
-    if overwrite:
+    if overwrite_input:
         fov_path = zarrurl_old
         new_zarr = zarr.open(f"{zarrurl_old}/0")
     else:
@@ -289,7 +290,7 @@ def illumination_correction(
     # pyramid of coarser levels
     build_pyramid(
         zarrurl=fov_path,
-        overwrite=overwrite,
+        overwrite=True,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         chunksize=data_czyx.chunksize,

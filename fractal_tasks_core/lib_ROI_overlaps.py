@@ -237,7 +237,7 @@ def remove_FOV_overlaps(df: pd.DataFrame):
     # Check that tolerance is much smaller than pixel sizes
     min_pixel_size = df[["pixel_size_x", "pixel_size_y"]].min().min()
     if tol > min_pixel_size / 1e3:
-        raise Exception(
+        raise ValueError(
             f"In remove_FOV_overlaps, {tol=} but {min_pixel_size=}"
         )
 

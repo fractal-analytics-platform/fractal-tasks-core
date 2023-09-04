@@ -271,7 +271,7 @@ def calculate_steps(site_series: pd.Series):
     # First diff is always NaN because there is nothing to compare it to
     steps = site_series.diff().dropna().astype(float)
     if not np.allclose(steps.iloc[0], np.array(steps)):
-        raise Exception(
+        raise NotImplementedError(
             "When parsing the Yokogawa mlf file, some sites "
             "had varying step size in Z. "
             "That is not supported for the OME-Zarr parsing"
@@ -367,7 +367,7 @@ def check_group_consistency(grouped_df: pd.DataFrame, message: str = ""):
     # raises an exception if there is variability
     diff_df = grouped_df.max() - grouped_df.min()
     if not np.isclose(np.sum(np.sum(diff_df)), 0.0):
-        raise Exception(
+        raise ValueError(
             "During metadata parsing, a consistency check failed: \n"
             f"{message}\n"
             f"Difference dataframe: \n{diff_df}"

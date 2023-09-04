@@ -26,6 +26,7 @@ import fractal_tasks_core
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROIs_from_3D_to_2D,
 )
+from fractal_tasks_core.lib_write import open_zarr_group_with_overwrite
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 logger = logging.getLogger(__name__)
@@ -43,6 +44,7 @@ def copy_ome_zarr(
     project_to_2D: bool = True,
     suffix: str = "mip",
     ROI_table_names: tuple[str, ...] = ("FOV_ROI_table", "well_ROI_table"),
+    overwrite: bool = False,
 ) -> dict[str, Any]:
 
     """
@@ -88,6 +90,7 @@ def copy_ome_zarr(
             `plate_suffix.zarr`. Note that `None` is not currently supported.
         ROI_table_names: List of Anndata table names to be copied. Note:
             copying non-ROI tables may fail if `project_to_2D=True`.
+        overwrite: If `True`, overwrite the task output.
 
     Returns:
         An update to the metadata table with new `plate`, `well`, `image`
@@ -125,7 +128,9 @@ def copy_ome_zarr(
 
         # Replicate plate attrs
         old_plate_group = zarr.open_group(zarrurl_old, mode="r")
-        new_plate_group = zarr.open(zarrurl_new)
+        new_plate_group = open_zarr_group_with_overwrite(
+            zarrurl_new, overwrite=overwrite
+        )
         new_plate_group.attrs.put(old_plate_group.attrs.asdict())
 
         well_paths = [

@@ -19,6 +19,7 @@ from devtools import debug
 
 from ._validation import check_file_number
 from ._validation import validate_schema
+from fractal_tasks_core.lib_write import OverwriteNotAllowedError
 from fractal_tasks_core.tasks.copy_ome_zarr import (
     copy_ome_zarr,
 )
@@ -114,7 +115,7 @@ def test_multiplexing_yokogawa_to_ome_zarr(
 
     # Init
     zarr_path = tmp_path / "tmp_out/"
-    metadata = {}
+    metadata: dict = {}
 
     # Create zarr structure
     metadata_update = create_ome_zarr_multiplex(
@@ -129,6 +130,34 @@ def test_multiplexing_yokogawa_to_ome_zarr(
     )
     metadata.update(metadata_update)
     debug(metadata)
+
+    # Run again, with overwrite=True
+    metadata_update_second_time = create_ome_zarr_multiplex(
+        input_paths=zenodo_images_multiplex,
+        output_path=str(zarr_path),
+        metadata=metadata,
+        image_extension="png",
+        allowed_channels=allowed_channels,
+        num_levels=num_levels,
+        coarsening_xy=coarsening_xy,
+        metadata_table_files=metadata_table_files,
+        overwrite=True,
+    )
+    assert metadata_update_second_time == metadata_update
+
+    # Run again, with overwrite=False
+    with pytest.raises(OverwriteNotAllowedError):
+        create_ome_zarr_multiplex(
+            input_paths=zenodo_images_multiplex,
+            output_path=str(zarr_path),
+            metadata=metadata,
+            image_extension="png",
+            allowed_channels=allowed_channels,
+            num_levels=num_levels,
+            coarsening_xy=coarsening_xy,
+            metadata_table_files=metadata_table_files,
+            overwrite=False,
+        )
 
     # Yokogawa to zarr
     for component in metadata["image"]:
@@ -161,7 +190,7 @@ def test_multiplexing_MIP(
     # Init
     zarr_path = tmp_path / "tmp_out/"
     zarr_path_mip = tmp_path / "tmp_out_mip/"
-    metadata = {}
+    metadata: dict = {}
 
     # Create zarr structure
     metadata_update = create_ome_zarr_multiplex(
