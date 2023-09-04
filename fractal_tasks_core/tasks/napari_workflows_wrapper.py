@@ -37,8 +37,8 @@ from fractal_tasks_core.lib_regions_of_interest import (
 )
 from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_upscale_array import upscale_array
-from fractal_tasks_core.lib_zarr import prepare_label_group
-from fractal_tasks_core.lib_zarr import write_table
+from fractal_tasks_core.lib_write import prepare_label_group
+from fractal_tasks_core.lib_write import write_table
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
 

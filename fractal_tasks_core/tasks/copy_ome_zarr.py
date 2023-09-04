@@ -26,7 +26,7 @@ import fractal_tasks_core
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROIs_from_3D_to_2D,
 )
-from fractal_tasks_core.lib_zarr import open_zarr_group_with_overwrite
+from fractal_tasks_core.lib_write import open_zarr_group_with_overwrite
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 logger = logging.getLogger(__name__)

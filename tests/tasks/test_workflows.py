@@ -21,7 +21,7 @@ from devtools import debug
 
 from ._validation import check_file_number
 from ._validation import validate_schema
-from fractal_tasks_core.lib_zarr import OverwriteNotAllowedError
+from fractal_tasks_core.lib_write import OverwriteNotAllowedError
 from fractal_tasks_core.tasks.copy_ome_zarr import copy_ome_zarr
 from fractal_tasks_core.tasks.create_ome_zarr import create_ome_zarr
 from fractal_tasks_core.tasks.illumination_correction import (

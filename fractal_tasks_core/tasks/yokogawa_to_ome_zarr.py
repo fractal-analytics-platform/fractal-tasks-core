@@ -35,7 +35,7 @@ from fractal_tasks_core.lib_read_fractal_metadata import (
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
-from fractal_tasks_core.lib_zarr import OverwriteNotAllowedError
+from fractal_tasks_core.lib_write import OverwriteNotAllowedError
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 
