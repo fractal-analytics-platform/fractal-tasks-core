@@ -16,18 +16,19 @@
 | fractal\_tasks\_core/lib\_read\_fractal\_metadata.py         |       35 |        0 |       14 |        0 |    100% |           |
 | fractal\_tasks\_core/lib\_regions\_of\_interest.py           |      136 |        3 |       42 |        3 |     97% |154, 357, 359 |
 | fractal\_tasks\_core/lib\_upscale\_array.py                  |       74 |        7 |       48 |        6 |     88% |63, 91, 96->100, 113, 128, 192-197 |
+| fractal\_tasks\_core/lib\_write.py                           |       97 |        0 |       42 |        2 |     99% |83->87, 171->174 |
 | fractal\_tasks\_core/lib\_zattrs\_utils.py                   |       50 |        2 |       28 |        2 |     95% |71->70, 88, 138 |
 | fractal\_tasks\_core/tasks/\_\_init\_\_.py                   |        0 |        0 |        0 |        0 |    100% |           |
 | fractal\_tasks\_core/tasks/\_utils.py                        |       29 |        5 |        8 |        1 |     78% |33-35, 68-71 |
-| fractal\_tasks\_core/tasks/cellpose\_segmentation.py         |      238 |       28 |       80 |       17 |     85% |101-142, 146->145, 256, 264-267, 298-304, 312-313, 368, 376->392, 384, 399, 404, 411, 434, 488, 512->516, 593->611, 605, 681, 702-704 |
-| fractal\_tasks\_core/tasks/copy\_ome\_zarr.py                |       70 |        4 |       32 |        7 |     89% |38->37, 99, 102, 162->150, 166->176, 188->193, 207-209 |
-| fractal\_tasks\_core/tasks/create\_ome\_zarr.py              |      164 |       25 |       72 |       11 |     83% |46->45, 116, 118, 171, 178-188, 196-197, 210-213, 263, 294, 310-311, 314, 450-452 |
-| fractal\_tasks\_core/tasks/create\_ome\_zarr\_multiplex.py   |      190 |       19 |       80 |       14 |     88% |46->45, 119, 126, 130, 139, 157, 188, 209-212, 239, 287, 293, 310, 323-324, 330, 496-498 |
-| fractal\_tasks\_core/tasks/illumination\_correction.py       |       99 |       17 |       34 |       11 |     77% |61, 82-86, 95->94, 154, 158, 161-166, 179-182, 221, 236, 249-250, 305-307 |
-| fractal\_tasks\_core/tasks/maximum\_intensity\_projection.py |       51 |        5 |       16 |        5 |     85% |34->33, 76, 110, 129, 152-154 |
-| fractal\_tasks\_core/tasks/napari\_workflows\_wrapper.py     |      264 |       24 |      130 |       19 |     89% |60->59, 151-153, 190, 204, 209, 307, 314, 320-325, 330, 361, 366, 406-410, 439, 453, 535->522, 574-579, 586->588, 643, 668-670 |
-| fractal\_tasks\_core/tasks/yokogawa\_to\_ome\_zarr.py        |       80 |        5 |       22 |        5 |     90% |59->58, 106, 153, 195, 245-247 |
-|                                                    **TOTAL** | **2041** |  **167** |  **834** |  **129** | **89%** |           |
+| fractal\_tasks\_core/tasks/cellpose\_segmentation.py         |      217 |       26 |       74 |       15 |     85% |102-143, 147->146, 259, 267-270, 301-307, 315-316, 371, 379->395, 387, 402, 407, 414, 486, 510->514, 591->609, 603, 689-691 |
+| fractal\_tasks\_core/tasks/copy\_ome\_zarr.py                |       71 |        4 |       32 |        7 |     89% |39->38, 102, 105, 167->155, 171->181, 193->198, 212-214 |
+| fractal\_tasks\_core/tasks/create\_ome\_zarr.py              |      162 |       25 |       72 |       11 |     83% |46->45, 118, 120, 173, 180-190, 198-199, 212-215, 269, 300, 316-317, 320, 464-466 |
+| fractal\_tasks\_core/tasks/create\_ome\_zarr\_multiplex.py   |      189 |       19 |       80 |       14 |     88% |48->47, 123, 130, 134, 143, 161, 192, 213-216, 243, 294, 300, 317, 330-331, 337, 509-511 |
+| fractal\_tasks\_core/tasks/illumination\_correction.py       |       99 |       14 |       34 |        9 |     81% |61, 82-86, 95->94, 155, 180-183, 222, 237, 250-251, 306-308 |
+| fractal\_tasks\_core/tasks/maximum\_intensity\_projection.py |       58 |        5 |       16 |        5 |     86% |36->35, 80, 114, 133, 165-167 |
+| fractal\_tasks\_core/tasks/napari\_workflows\_wrapper.py     |      248 |       22 |      122 |       17 |     89% |61->60, 154-156, 193, 207, 212, 310, 317, 323-328, 333, 364, 369, 409-413, 436, 537->524, 576-581, 588->590, 668-670 |
+| fractal\_tasks\_core/tasks/yokogawa\_to\_ome\_zarr.py        |       87 |        5 |       22 |        5 |     91% |61->60, 110, 157, 208, 258-260 |
+|                                                    **TOTAL** | **2113** |  **160** |  **862** |  **125** | **90%** |           |
 
 
 ## Setup coverage badge
