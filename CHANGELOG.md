@@ -23,6 +23,7 @@
     * Add tests for `overwrite`-related task behaviors (\#499).
     * Introduce mock-up of `napari_skimage_regionprops` package, for testing of
       `napari_workflows_wrapper` task (\#499).
+* Require `fsspec` version to be `<=2023.6` (\#509).
 
 # 0.10.1
 
