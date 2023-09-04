@@ -34,6 +34,7 @@ from ._validation import validate_axes_and_coordinateTransformations
 from ._validation import validate_schema
 from .lib_empty_ROI_table import _add_empty_ROI_table
 from fractal_tasks_core.lib_input_models import Channel
+from fractal_tasks_core.lib_write import OverwriteNotAllowedError
 from fractal_tasks_core.tasks.cellpose_segmentation import (
     cellpose_segmentation,
 )
@@ -510,6 +511,37 @@ def test_workflow_bounding_box(
             output_ROI_table="bbox_table",
         )
 
+    # Re-run with overwrite=True
+    for component in metadata["image"]:
+        cellpose_segmentation(
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
+            metadata=metadata,
+            component=component,
+            channel=Channel(wavelength_id="A01_C01"),
+            level=3,
+            relabeling=True,
+            diameter_level0=80.0,
+            output_ROI_table="bbox_table",
+            overwrite=True,
+        )
+
+    # Re-run with overwrite=False
+    with pytest.raises(OverwriteNotAllowedError):
+        for component in metadata["image"]:
+            cellpose_segmentation(
+                input_paths=[str(zarr_path)],
+                output_path=str(zarr_path),
+                metadata=metadata,
+                component=component,
+                channel=Channel(wavelength_id="A01_C01"),
+                level=3,
+                relabeling=True,
+                diameter_level0=80.0,
+                output_ROI_table="bbox_table",
+                overwrite=False,
+            )
+
     bbox_ROIs = ad.read_zarr(
         str(zarr_path / metadata["image"][0] / "tables/bbox_table/")
     )
@@ -619,7 +651,7 @@ def test_workflow_with_per_FOV_labeling_via_script(
     with args_path.open("w") as f:
         json.dump(this_task_args, f, indent=2)
     with pytest.raises(subprocess.TimeoutExpired):
-        res = subprocess.run(shlex.split(command), **run_options)
+        res = subprocess.run(shlex.split(command), **run_options)  # type: ignore  # noqa
         print(res.stdout)
         print(res.stderr)
         # Also check that we are not hitting
@@ -632,7 +664,7 @@ def test_workflow_with_per_FOV_labeling_via_script(
     this_task_args = dict(**task_args, model_type=INVALID_MODEL_TYPE)
     with args_path.open("w") as f:
         json.dump(this_task_args, f, indent=2)
-    res = subprocess.run(shlex.split(command), **run_options)
+    res = subprocess.run(shlex.split(command), **run_options)  # type: ignore
     print(res.stdout)
     print(res.stderr)
     error_msg = f"ERROR model_type={INVALID_MODEL_TYPE} is not allowed"

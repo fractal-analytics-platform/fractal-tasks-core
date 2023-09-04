@@ -19,8 +19,8 @@ from typing import Sequence
 
 import pandas as pd
 import zarr
-from anndata._io.specs import write_elem
 from pydantic.decorator import validate_arguments
+from zarr.errors import ContainsGroupError
 
 import fractal_tasks_core
 from fractal_tasks_core.lib_channels import check_unique_wavelength_ids
@@ -33,6 +33,8 @@ from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
 from fractal_tasks_core.lib_ROI_overlaps import remove_FOV_overlaps
+from fractal_tasks_core.lib_write import open_zarr_group_with_overwrite
+from fractal_tasks_core.lib_write import write_table
 
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
@@ -54,6 +56,7 @@ def create_ome_zarr_multiplex(
     coarsening_xy: int = 2,
     image_extension: str = "tif",
     metadata_table_files: Optional[dict[str, str]] = None,
+    overwrite: bool = False,
 ) -> dict[str, Any]:
     """
     Create OME-NGFF structure and metadata to host a multiplexing dataset.
@@ -102,6 +105,7 @@ def create_ome_zarr_multiplex(
             pairs like `(acquisition, path)` with `acquisition` a string
             and `path` pointing to a csv file containing the parsed metadata
             table.
+        overwrite: If `True`, overwrite the task output.
 
     Returns:
         A metadata dictionary containing important metadata about the OME-Zarr
@@ -242,7 +246,10 @@ def create_ome_zarr_multiplex(
     zarrurl = dict_acquisitions[acquisitions[0]]["plate"] + ".zarr"
     full_zarrurl = str(Path(output_path) / zarrurl)
     logger.info(f"Creating {full_zarrurl=}")
-    group_plate = zarr.group(full_zarrurl)
+    # Call zarr.open_group wrapper, which handles overwrite=True/False
+    group_plate = open_zarr_group_with_overwrite(
+        full_zarrurl, overwrite=overwrite
+    )
     group_plate.attrs["plate"] = {
         "acquisitions": [
             {
@@ -284,7 +291,7 @@ def create_ome_zarr_multiplex(
         bit_depth = site_metadata["bit_depth"][0]
 
         if min(pixel_size_z, pixel_size_y, pixel_size_x) < 1e-9:
-            raise Exception(pixel_size_z, pixel_size_y, pixel_size_x)
+            raise ValueError(pixel_size_z, pixel_size_y, pixel_size_x)
 
         # Identify all wells
         plate_prefix = dict_acquisitions[acquisition]["plate_prefix"]
@@ -327,7 +334,7 @@ def create_ome_zarr_multiplex(
                 "actual_wavelength_ids"
             ]
             if well_wavelength_ids != actual_wavelength_ids:
-                raise Exception(
+                raise ValueError(
                     f"ERROR: well {well} in plate {plate} (prefix: "
                     f"{plate_prefix}) has missing channels.\n"
                     f"Expected: {actual_wavelength_ids}\n"
@@ -360,8 +367,6 @@ def create_ome_zarr_multiplex(
         group_plate.attrs["plate"] = plate_attrs
 
         for row, column in well_rows_columns:
-
-            from zarr.errors import ContainsGroupError
 
             try:
                 group_well = group_plate.create_group(f"{row}/{column}/")
@@ -452,20 +457,28 @@ def create_ome_zarr_multiplex(
                 ),
             }
 
-            # Create tables zarr group for ROI tables
-            group_tables = group_image.create_group("tables/")  # noqa: F841
-            well_id = row + column
-
             # Prepare AnnData tables for FOV/well ROIs
+            well_id = row + column
             FOV_ROIs_table = prepare_FOV_ROI_table(site_metadata.loc[well_id])
             well_ROIs_table = prepare_well_ROI_table(
                 site_metadata.loc[well_id]
             )
 
-            # Write AnnData tables in the tables zarr group
-            write_elem(group_tables, "FOV_ROI_table", FOV_ROIs_table)
-            write_elem(group_tables, "well_ROI_table", well_ROIs_table)
-            group_tables.attrs["tables"] = ["FOV_ROI_table", "well_ROI_table"]
+            # Write AnnData tables into the `tables` zarr group
+            write_table(
+                group_image,
+                "FOV_ROI_table",
+                FOV_ROIs_table,
+                overwrite=overwrite,
+                logger=logger,
+            )
+            write_table(
+                group_image,
+                "well_ROI_table",
+                well_ROIs_table,
+                overwrite=overwrite,
+                logger=logger,
+            )
 
     # Check that the different images (e.g. different cycles) in the each well
     # have unique labels

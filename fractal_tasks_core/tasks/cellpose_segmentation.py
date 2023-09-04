@@ -28,7 +28,6 @@ import dask.array as da
 import numpy as np
 import pandas as pd
 import zarr
-from anndata._io.specs import write_elem
 from cellpose import models
 from pydantic.decorator import validate_arguments
 
@@ -49,6 +48,8 @@ from fractal_tasks_core.lib_regions_of_interest import is_ROI_table_valid
 from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
 from fractal_tasks_core.lib_ROI_overlaps import get_overlapping_pairs_3D
+from fractal_tasks_core.lib_write import prepare_label_group
+from fractal_tasks_core.lib_write import write_table
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
 
@@ -170,6 +171,7 @@ def cellpose_segmentation(
     augment: bool = False,
     net_avg: bool = False,
     use_gpu: bool = True,
+    overwrite: bool = True,
 ) -> dict[str, Any]:
     """
     Run cellpose segmentation on the ROIs of a single OME-Zarr image.
@@ -249,6 +251,7 @@ def cellpose_segmentation(
         use_gpu: If `False`, always use the CPU; if `True`, use the GPU if
             possible (as defined in `cellpose.core.use_gpu()`) and fall-back
             to the CPU otherwise.
+        overwrite: If `True`, overwrite the task output.
     """
 
     # Set input path
@@ -381,7 +384,7 @@ def cellpose_segmentation(
             pixel_size_z, pixel_size_y, pixel_size_x = pxl_zyx[:]
             logger.info(f"{pxl_zyx=}")
             if not np.allclose(pixel_size_x, pixel_size_y):
-                raise Exception(
+                raise ValueError(
                     "ERROR: XY anisotropy detected"
                     f"pixel_size_x={pixel_size_x}"
                     f"pixel_size_y={pixel_size_y}"
@@ -420,42 +423,37 @@ def cellpose_segmentation(
         remove_channel_axis=True,
     )
 
-    # Write zattrs for labels and for specific label
-    new_labels = [output_label_name]
-    try:
-        with open(f"{zarrurl}/labels/.zattrs", "r") as f_zattrs:
-            existing_labels = json.load(f_zattrs)["labels"]
-    except FileNotFoundError:
-        existing_labels = []
-    intersection = set(new_labels) & set(existing_labels)
-    logger.info(f"{new_labels=}")
-    logger.info(f"{existing_labels=}")
-    if intersection:
-        raise RuntimeError(
-            f"Labels {intersection} already exist but are also part of outputs"
-        )
-    labels_group = zarr.group(f"{zarrurl}/labels")
-    labels_group.attrs["labels"] = existing_labels + new_labels
-
-    label_group = labels_group.create_group(output_label_name)
-    label_group.attrs["image-label"] = {
-        "version": __OME_NGFF_VERSION__,
-        "source": {"image": "../../"},
-    }
-    label_group.attrs["multiscales"] = [
-        {
-            "name": output_label_name,
+    label_attrs = {
+        "image-label": {
             "version": __OME_NGFF_VERSION__,
-            "axes": [
-                ax for ax in multiscales[0]["axes"] if ax["type"] != "channel"
-            ],
-            "datasets": new_datasets,
-        }
-    ]
+            "source": {"image": "../../"},
+        },
+        "multiscales": [
+            {
+                "name": output_label_name,
+                "version": __OME_NGFF_VERSION__,
+                "axes": [
+                    ax
+                    for ax in multiscales[0]["axes"]
+                    if ax["type"] != "channel"
+                ],
+                "datasets": new_datasets,
+            }
+        ],
+    }
 
-    # Open new zarr group for mask 0-th level
-    zarr.group(f"{zarrurl}/labels")
-    zarr.group(f"{zarrurl}/labels/{output_label_name}")
+    image_group = zarr.group(zarrurl)
+    label_group = prepare_label_group(
+        image_group,
+        output_label_name,
+        overwrite=overwrite,
+        label_attrs=label_attrs,
+        logger=logger,
+    )
+
+    logger.info(
+        f"Helper function `prepare_label_group` returned {label_group=}"
+    )
     logger.info(f"Output label path: {zarrurl}/labels/{output_label_name}/0")
     store = zarr.storage.FSStore(f"{zarrurl}/labels/{output_label_name}/0")
     label_dtype = np.uint32
@@ -602,7 +600,7 @@ def cellpose_segmentation(
 
             # Check that total number of labels is under control
             if num_labels_tot > np.iinfo(label_dtype).max:
-                raise Exception(
+                raise ValueError(
                     "ERROR in re-labeling:"
                     f"Reached {num_labels_tot} labels, "
                     f"but dtype={label_dtype}"
@@ -641,7 +639,7 @@ def cellpose_segmentation(
     # pyramid of coarser levels
     build_pyramid(
         zarrurl=f"{zarrurl}/labels/{output_label_name}",
-        overwrite=False,
+        overwrite=overwrite,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         chunksize=chunks,
@@ -663,37 +661,26 @@ def cellpose_segmentation(
         # Convert to anndata
         bbox_table = ad.AnnData(df_well, dtype=bbox_dtype)
         bbox_table.obs = labels
+
         # Write to zarr group
-        group_tables = zarr.group(f"{in_path}/{component}/tables/")
-        write_elem(group_tables, output_ROI_table, bbox_table)
+        image_group = zarr.group(f"{in_path}/{component}")
         logger.info(
-            "Bounding box ROI table written to "
+            "Now writing bounding-box ROI table to "
             f"{in_path}/{component}/tables/{output_ROI_table}"
         )
-
-        # WARNING: the following OME-NGFF metadata are based on a proposed
-        # change to the specs (https://github.com/ome/ngff/pull/64)
-
-        # Update OME-NGFF metadata for tables group
-        current_tables = group_tables.attrs.asdict().get("tables") or []
-        if output_ROI_table in current_tables:
-            # FIXME: move this check to an earlier stage of the task
-            raise ValueError(
-                f"{in_path}/{component}/tables/ already includes "
-                f"{output_ROI_table=} in {current_tables=}"
-            )
-        new_tables = current_tables + [output_ROI_table]
-        group_tables.attrs["tables"] = new_tables
-
-        # Update OME-NGFF metadata for current-table group
-        bbox_table_group = zarr.group(
-            f"{in_path}/{component}/tables/{output_ROI_table}"
-        )
-        bbox_table_group.attrs["type"] = "ngff:region_table"
-        bbox_table_group.attrs["region"] = {
-            "path": f"../labels/{output_label_name}"
+        table_attrs = {
+            "type": "ngff:region_table",
+            "region": {"path": f"../labels/{output_label_name}"},
+            "instance_key": "label",
         }
-        bbox_table_group.attrs["instance_key"] = "label"
+        write_table(
+            image_group,
+            output_ROI_table,
+            bbox_table,
+            overwrite=overwrite,
+            logger=logger,
+            table_attrs=table_attrs,
+        )
 
     return {}
 

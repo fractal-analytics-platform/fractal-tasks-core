@@ -21,6 +21,7 @@ from devtools import debug
 
 from ._validation import check_file_number
 from ._validation import validate_schema
+from fractal_tasks_core.lib_write import OverwriteNotAllowedError
 from fractal_tasks_core.tasks.copy_ome_zarr import copy_ome_zarr
 from fractal_tasks_core.tasks.create_ome_zarr import create_ome_zarr
 from fractal_tasks_core.tasks.illumination_correction import (
@@ -144,7 +145,8 @@ def test_yokogawa_to_ome_zarr(
     output_path = tmp_path / "output"
 
     # Create zarr structure
-    metadata = {}
+    metadata: dict = {}
+    _original_metadata: dict = {}
     metadata_update = create_ome_zarr(
         input_paths=[str(img_path)],
         output_path=str(output_path),
@@ -158,6 +160,35 @@ def test_yokogawa_to_ome_zarr(
     metadata.update(metadata_update)
     debug(metadata)
 
+    # Re-run (with overwrite=False) and fail
+    with pytest.raises(OverwriteNotAllowedError):
+        create_ome_zarr(
+            input_paths=[str(img_path)],
+            output_path=str(output_path),
+            metadata=_original_metadata,
+            allowed_channels=allowed_channels,
+            num_levels=num_levels,
+            coarsening_xy=coarsening_xy,
+            metadata_table_file=metadata_table_file,
+            image_extension="png",
+            overwrite=False,
+        )
+
+    # Re-run (with overwrite=True)
+    metadata_update = create_ome_zarr(
+        input_paths=[str(img_path)],
+        output_path=str(output_path),
+        metadata=_original_metadata,
+        allowed_channels=allowed_channels,
+        num_levels=num_levels,
+        coarsening_xy=coarsening_xy,
+        metadata_table_file=metadata_table_file,
+        image_extension="png",
+        overwrite=True,
+    )
+    metadata.update(metadata_update)
+    debug(metadata)
+
     # Yokogawa to zarr
     for component in metadata["image"]:
         yokogawa_to_ome_zarr(
@@ -167,6 +198,27 @@ def test_yokogawa_to_ome_zarr(
             component=component,
         )
     debug(metadata)
+
+    # Re-run (with overwrite=True)
+    for component in metadata["image"]:
+        yokogawa_to_ome_zarr(
+            input_paths=[str(output_path)],
+            output_path=str(output_path),
+            metadata=metadata,
+            component=component,
+            overwrite=True,
+        )
+
+    # Re-run (with overwrite=False)
+    with pytest.raises(OverwriteNotAllowedError):
+        for component in metadata["image"]:
+            yokogawa_to_ome_zarr(
+                input_paths=[str(output_path)],
+                output_path=str(output_path),
+                metadata=metadata,
+                component=component,
+                overwrite=False,
+            )
 
     # OME-NGFF JSON validation
     image_zarr = Path(output_path / metadata["image"][0])
@@ -196,6 +248,7 @@ def test_MIP(
     metadata = metadata_3D.copy()
 
     # Replicate
+    _original_metadata = metadata.copy()
     metadata_update = copy_ome_zarr(
         input_paths=[str(zarr_path)],
         output_path=str(zarr_path_mip),
@@ -206,6 +259,28 @@ def test_MIP(
     metadata.update(metadata_update)
     debug(metadata)
 
+    # Run again, with overwrite=True
+    metadata_update_second_try = copy_ome_zarr(
+        input_paths=[str(zarr_path)],
+        output_path=str(zarr_path_mip),
+        metadata=_original_metadata,
+        project_to_2D=True,
+        suffix="mip",
+        overwrite=True,
+    )
+    assert metadata_update_second_try == metadata_update
+
+    # Run again, with overwrite=False
+    with pytest.raises(OverwriteNotAllowedError):
+        copy_ome_zarr(
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path_mip),
+            metadata=_original_metadata,
+            project_to_2D=True,
+            suffix="mip",
+            overwrite=False,
+        )
+
     # MIP
     for component in metadata["image"]:
         maximum_intensity_projection(
@@ -214,6 +289,27 @@ def test_MIP(
             metadata=metadata,
             component=component,
         )
+
+    # Re-run with overwrite=True
+    for component in metadata["image"]:
+        maximum_intensity_projection(
+            input_paths=[str(zarr_path_mip)],
+            output_path=str(zarr_path_mip),
+            metadata=metadata,
+            component=component,
+            overwrite=True,
+        )
+
+    # Re-run with overwrite=False
+    with pytest.raises(OverwriteNotAllowedError):
+        for component in metadata["image"]:
+            maximum_intensity_projection(
+                input_paths=[str(zarr_path_mip)],
+                output_path=str(zarr_path_mip),
+                metadata=metadata,
+                component=component,
+                overwrite=False,
+            )
 
     # OME-NGFF JSON validation
     image_zarr = Path(zarr_path_mip / metadata["image"][0])
@@ -239,7 +335,7 @@ def test_MIP_subset_of_images(
     zarr_path_mip = tmp_path / "tmp_out_mip/"
 
     # Create zarr structure
-    metadata = {}
+    metadata: dict = {}
     metadata_update = create_ome_zarr(
         input_paths=[zenodo_images],
         output_path=str(zarr_path),
@@ -308,7 +404,7 @@ def test_illumination_correction(
     # Init
     img_path = Path(zenodo_images)
     zarr_path = tmp_path / "tmp_out"
-    metadata = {}
+    metadata: dict = {}
 
     testdata_str = testdata_path.as_posix()
     illum_params = {"A01_C01": "illum_corr_matrix.png"}
@@ -347,7 +443,7 @@ def test_illumination_correction(
             output_path=str(zarr_path),
             metadata=metadata,
             component=component,
-            overwrite=True,
+            overwrite_input=True,
             illumination_profiles_folder=illumination_profiles_folder,
             dict_corr=illum_params,
         )

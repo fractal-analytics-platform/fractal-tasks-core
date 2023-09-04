@@ -65,6 +65,12 @@
             "title": "Metadata Table File",
             "type": "string",
             "description": "If `None`, parse Yokogawa metadata from mrf/mlf files in the input_path folder; else, the full path to a csv file containing the parsed metadata table."
+          },
+          "overwrite": {
+            "title": "Overwrite",
+            "default": false,
+            "type": "boolean",
+            "description": "If `True`, overwrite the task output."
           }
         },
         "required": [
@@ -199,6 +205,12 @@
             "title": "Metadata",
             "type": "object",
             "description": "Dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata. `original_paths`: list of paths that correspond to the `input_paths` of the `create_ome_zarr` task (=> where the microscopy image are stored); `num_levels (int)`: number of pyramid levels in the image (this determines how many pyramid levels are built for the segmentation); `coarsening_xy (int)`: coarsening factor in XY of the downsampling when building the pyramid; `image_extension`: filename extension of images (e.g. `\"tif\"` or `\"png\"`); `image_glob_patterns`: parameter of `create_ome_zarr` task (if specified, only parse images with filenames that match with all these patterns). (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "overwrite": {
+            "title": "Overwrite",
+            "default": false,
+            "type": "boolean",
+            "description": "If `True`, overwrite the task output."
           }
         },
         "required": [
@@ -267,6 +279,12 @@
               "type": "string"
             },
             "description": "List of Anndata table names to be copied. Note: copying non-ROI tables may fail if `project_to_2D=True`."
+          },
+          "overwrite": {
+            "title": "Overwrite",
+            "default": false,
+            "type": "boolean",
+            "description": "If `True`, overwrite the task output."
           }
         },
         "required": [
@@ -314,6 +332,12 @@
             "title": "Metadata",
             "type": "object",
             "description": "Dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata. `num_levels (int)`: number of pyramid levels in the image (this determines how many pyramid levels are built for the segmentation); `coarsening_xy (int)`: coarsening factor in XY of the downsampling when building the pyramid `plate`: List of plates (e.g. `[\"MyPlate.zarr\"]`); `well`: List of wells in the OME-Zarr plate (e.g. `[\"MyPlate.zarr/B/03\", \"MyPlate.zarr/B/05\"]`); `image: List of images in the OME-Zarr plate (e.g. `[\"MyPlate.zarr/B/03/0\", \"MyPlate.zarr/B/05/0\"]`). (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "overwrite": {
+            "title": "Overwrite",
+            "default": false,
+            "type": "boolean",
+            "description": "If `True`, overwrite the task output."
           }
         },
         "required": [
@@ -464,6 +488,12 @@
             "default": true,
             "type": "boolean",
             "description": "If `False`, always use the CPU; if `True`, use the GPU if possible (as defined in `cellpose.core.use_gpu()`) and fall-back to the CPU otherwise."
+          },
+          "overwrite": {
+            "title": "Overwrite",
+            "default": true,
+            "type": "boolean",
+            "description": "If `True`, overwrite the task output."
           }
         },
         "required": [
@@ -555,11 +585,11 @@
             "type": "integer",
             "description": "Background value that is subtracted from the image before the illumination correction is applied. Set it to `0` if you don't want any background subtraction."
           },
-          "overwrite": {
-            "title": "Overwrite",
+          "overwrite_input": {
+            "title": "Overwrite Input",
             "default": true,
             "type": "boolean",
-            "description": "If True, the results of this task will overwrite the input image data. This task is only implemented for ``overwrite=True`` at the moment."
+            "description": "If `True`, the results of this task will overwrite the input image data. In the current version, `overwrite_input=False` is not implemented."
           },
           "new_component": {
             "title": "New Component",
@@ -661,6 +691,12 @@
             "default": 3,
             "type": "integer",
             "description": "Expected dimensions (either `2` or `3`). Useful when loading 2D images that are stored in a 3D array with shape `(1, size_x, size_y)` [which is the default way Fractal stores 2D images], but you want to make sure the napari workflow gets a 2D array to process. Also useful to set to `2` when loading a 2D OME-Zarr that is saved as `(size_x, size_y)`."
+          },
+          "overwrite": {
+            "title": "Overwrite",
+            "default": true,
+            "type": "boolean",
+            "description": "If `True`, overwrite the task output."
           }
         },
         "required": [
@@ -830,6 +866,12 @@
               "type": "string"
             },
             "description": "If `None`, parse Yokogawa metadata from mrf/mlf files in the input_path folder; else, a dictionary of key-value pairs like `(acquisition, path)` with `acquisition` a string and `path` pointing to a csv file containing the parsed metadata table."
+          },
+          "overwrite": {
+            "title": "Overwrite",
+            "default": false,
+            "type": "boolean",
+            "description": "If `True`, overwrite the task output."
           }
         },
         "required": [

@@ -13,7 +13,6 @@ Zurich.
 """
 from pathlib import Path
 from typing import Any
-from typing import Union
 
 import anndata as ad
 import pytest
@@ -26,9 +25,20 @@ from ._validation import validate_axes_and_coordinateTransformations
 from ._validation import validate_labels_and_measurements
 from ._validation import validate_schema
 from .lib_empty_ROI_table import _add_empty_ROI_table
+from fractal_tasks_core.lib_input_models import NapariWorkflowsInput
+from fractal_tasks_core.lib_input_models import NapariWorkflowsOutput
+from fractal_tasks_core.lib_write import OverwriteNotAllowedError
 from fractal_tasks_core.tasks.napari_workflows_wrapper import (
     napari_workflows_wrapper,
 )
+
+try:
+    import napari_skimage_regionprops_mock
+
+    has_napari_skimage_regionprops_mock = True
+    print(napari_skimage_regionprops_mock)
+except ModuleNotFoundError:
+    has_napari_skimage_regionprops_mock = False
 
 
 def test_napari_workflow(
@@ -46,17 +56,19 @@ def test_napari_workflow(
     debug(zarr_path)
     debug(metadata)
 
-    # First napari-workflows task (labeling)
+    # Prepare parameters for first napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
-    input_specs: dict[str, dict[str, Union[str, int]]] = {
-        "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
+    input_specs: dict[str, NapariWorkflowsInput] = {
+        "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},  # type: ignore # noqa
     }
-    output_specs: dict[str, dict[str, Union[str, int]]] = {
-        "Result of Expand labels (scikit-image, nsbatwm)": {
+    output_specs: dict[str, NapariWorkflowsOutput] = {
+        "Result of Expand labels (scikit-image, nsbatwm)": {  # type: ignore # noqa
             "type": "label",
             "label_name": "label_DAPI",
         },
     }
+
+    # Run once
     for component in metadata["image"]:
         napari_workflows_wrapper(
             input_paths=[str(zarr_path)],
@@ -71,18 +83,20 @@ def test_napari_workflow(
         )
     debug(metadata)
 
-    # Second napari-workflows task (measurement)
+    # Prepare parameters for second napari-workflows task (measurement)
     workflow_file = str(testdata_path / "napari_workflows/wf_4.yaml")
     input_specs = {
-        "dapi_img": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
-        "dapi_label_img": {"type": "label", "label_name": "label_DAPI"},
+        "dapi_img": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},  # type: ignore # noqa
+        "dapi_label_img": {"type": "label", "label_name": "label_DAPI"},  # type: ignore # noqa
     }
     output_specs = {
-        "regionprops_DAPI": {
+        "regionprops_DAPI": {  # type: ignore # noqa
             "type": "dataframe",
             "table_name": "regionprops_DAPI",
         },
     }
+
+    # Run once
     for component in metadata["image"]:
         napari_workflows_wrapper(
             input_paths=[str(zarr_path)],
@@ -140,11 +154,11 @@ def test_napari_worfklow_label_input_only(
 
     # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
-    input_specs: dict[str, dict[str, Union[str, int]]] = {
-        "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
+    input_specs: dict[str, NapariWorkflowsInput] = {
+        "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},  # type: ignore # noqa
     }
-    output_specs: dict[str, dict[str, Union[str, int]]] = {
-        "Result of Expand labels (scikit-image, nsbatwm)": {
+    output_specs: dict[str, NapariWorkflowsOutput] = {
+        "Result of Expand labels (scikit-image, nsbatwm)": {  # type: ignore # noqa
             "type": "label",
             "label_name": "label_DAPI",
         },
@@ -168,10 +182,10 @@ def test_napari_worfklow_label_input_only(
         testdata_path / "napari_workflows" / "wf_from_labels_to_labels.yaml"
     )
     input_specs = {
-        "test_labels": {"type": "label", "label_name": "label_DAPI"},
+        "test_labels": {"type": "label", "label_name": "label_DAPI"},  # type: ignore # noqa
     }
     output_specs = {
-        "Result of Expand labels (scikit-image, nsbatwm)": {
+        "Result of Expand labels (scikit-image, nsbatwm)": {  # type: ignore # noqa
             "type": "label",
             "label_name": "label_DAPI_expanded",
         },
@@ -279,7 +293,7 @@ def test_relabeling(
                 input_ROI_table="FOV_ROI_table",
             )
 
-    # Run napari-workflow
+    # Run napari-workflow for the first time
     workflow_file = str(
         testdata_path / "napari_workflows" / workflow_file_name
     )
@@ -299,6 +313,7 @@ def test_relabeling(
         )
     debug(metadata)
 
+    # Check output
     image_zarr = Path(zarr_path / metadata["image"][0])
     validate_labels_and_measurements(
         image_zarr, label_name=LABEL_NAME, table_name=TABLE_NAME
@@ -407,14 +422,14 @@ def test_expected_dimensions(
     workflow_file = str(
         testdata_path / "napari_workflows/wf_5-labeling_only.yaml"
     )
-    input_specs: dict[str, dict[str, Union[str, int]]] = {
-        "input_image": {
+    input_specs: dict[str, NapariWorkflowsInput] = {
+        "input_image": {  # type: ignore # noqa
             "type": "image",
             "channel": {"wavelength_id": "A01_C01"},
         },
     }
-    output_specs: dict[str, dict[str, Union[str, int]]] = {
-        "output_label": {
+    output_specs: dict[str, NapariWorkflowsOutput] = {
+        "output_label": {  # type: ignore # noqa
             "type": "label",
             "label_name": "label_DAPI",
         },
@@ -468,11 +483,11 @@ def test_napari_workflow_empty_input_ROI_table(
 
     # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
-    input_specs: dict[str, dict[str, Union[str, int]]] = {
-        "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
+    input_specs: dict[str, NapariWorkflowsInput] = {
+        "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},  # type: ignore # noqa
     }
-    output_specs: dict[str, dict[str, Union[str, int]]] = {
-        "Result of Expand labels (scikit-image, nsbatwm)": {
+    output_specs: dict[str, NapariWorkflowsOutput] = {
+        "Result of Expand labels (scikit-image, nsbatwm)": {  # type: ignore # noqa
             "type": "label",
             "label_name": "label_DAPI",
         },
@@ -494,11 +509,11 @@ def test_napari_workflow_empty_input_ROI_table(
     # Second napari-workflows task (measurement)
     workflow_file = str(testdata_path / "napari_workflows/wf_4.yaml")
     input_specs = {
-        "dapi_img": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
-        "dapi_label_img": {"type": "label", "label_name": "label_DAPI"},
+        "dapi_img": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},  # type: ignore # noqa
+        "dapi_label_img": {"type": "label", "label_name": "label_DAPI"},  # type: ignore # noqa
     }
     output_specs = {
-        "regionprops_DAPI": {
+        "regionprops_DAPI": {  # type: ignore # noqa
             "type": "dataframe",
             "table_name": "regionprops_DAPI",
         },
@@ -560,11 +575,11 @@ def test_napari_workflow_CYX(
 
     # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
-    input_specs: dict[str, dict[str, Union[str, int]]] = {
-        "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
+    input_specs: dict[str, NapariWorkflowsInput] = {
+        "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},  # type: ignore # noqa
     }
-    output_specs: dict[str, dict[str, Union[str, int]]] = {
-        "Result of Expand labels (scikit-image, nsbatwm)": {
+    output_specs: dict[str, NapariWorkflowsOutput] = {
+        "Result of Expand labels (scikit-image, nsbatwm)": {  # type: ignore # noqa
             "type": "label",
             "label_name": "label_DAPI",
         },
@@ -587,11 +602,11 @@ def test_napari_workflow_CYX(
     # Second napari-workflows task (measurement)
     workflow_file = str(testdata_path / "napari_workflows/wf_4.yaml")
     input_specs = {
-        "dapi_img": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
-        "dapi_label_img": {"type": "label", "label_name": "label_DAPI"},
+        "dapi_img": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},  # type: ignore # noqa
+        "dapi_label_img": {"type": "label", "label_name": "label_DAPI"},  # type: ignore # noqa
     }
     output_specs = {
-        "regionprops_DAPI": {
+        "regionprops_DAPI": {  # type: ignore # noqa
             "type": "dataframe",
             "table_name": "regionprops_DAPI",
         },
@@ -661,11 +676,11 @@ def test_napari_workflow_CYX_wrong_dimensions(
 
     # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
-    input_specs: dict[str, dict[str, Union[str, int]]] = {
-        "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},
+    input_specs: dict[str, NapariWorkflowsInput] = {
+        "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},  # type: ignore # noqa
     }
-    output_specs: dict[str, dict[str, Union[str, int]]] = {
-        "Result of Expand labels (scikit-image, nsbatwm)": {
+    output_specs: dict[str, NapariWorkflowsOutput] = {
+        "Result of Expand labels (scikit-image, nsbatwm)": {  # type: ignore # noqa
             "type": "label",
             "label_name": "label_DAPI",
         },
@@ -685,3 +700,137 @@ def test_napari_workflow_CYX_wrong_dimensions(
                 level=2,
             )
         debug(e.value)
+
+
+@pytest.mark.skipif(
+    not has_napari_skimage_regionprops_mock,
+    reason="napari_skimage_regionprops_mock not available",
+)
+def test_napari_workflow_mock(
+    tmp_path: Path,
+    testdata_path: Path,
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
+):
+
+    # Init
+    zarr_path = tmp_path / "tmp_out/"
+    metadata = prepare_3D_zarr(
+        str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
+    )
+    debug(zarr_path)
+    debug(metadata)
+
+    # Prepare parameters for first napari-workflows task (labeling)
+    workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
+    input_specs: dict[str, NapariWorkflowsInput] = {
+        "input": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},  # type: ignore # noqa
+    }
+    output_specs: dict[str, NapariWorkflowsOutput] = {
+        "Result of Expand labels (scikit-image, nsbatwm)": {  # type: ignore # noqa
+            "type": "label",
+            "label_name": "label_DAPI",
+        },
+    }
+
+    # Run once
+    for component in metadata["image"]:
+        napari_workflows_wrapper(
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
+            metadata=metadata,
+            component=component,
+            input_specs=input_specs,
+            output_specs=output_specs,
+            workflow_file=workflow_file,
+            input_ROI_table="FOV_ROI_table",
+            level=2,
+        )
+    debug(metadata)
+
+    # Re-run with overwrite=True
+    for component in metadata["image"]:
+        napari_workflows_wrapper(
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
+            metadata=metadata,
+            component=component,
+            input_specs=input_specs,
+            output_specs=output_specs,
+            workflow_file=workflow_file,
+            input_ROI_table="FOV_ROI_table",
+            level=2,
+            overwrite=True,
+        )
+
+    # Re-run with overwrite=False
+    with pytest.raises(OverwriteNotAllowedError):
+        for component in metadata["image"]:
+            napari_workflows_wrapper(
+                input_paths=[str(zarr_path)],
+                output_path=str(zarr_path),
+                metadata=metadata,
+                component=component,
+                input_specs=input_specs,
+                output_specs=output_specs,
+                workflow_file=workflow_file,
+                input_ROI_table="FOV_ROI_table",
+                level=2,
+                overwrite=False,
+            )
+
+    # Prepare parameters for second napari-workflows task (measurement)
+    workflow_file = str(testdata_path / "napari_workflows/wf_4_mock.yaml")
+    input_specs = {
+        "dapi_img": {"type": "image", "channel": {"wavelength_id": "A01_C01"}},  # type: ignore # noqa
+        "dapi_label_img": {"type": "label", "label_name": "label_DAPI"},  # type: ignore # noqa
+    }
+    output_specs = {
+        "regionprops_DAPI": {  # type: ignore # noqa
+            "type": "dataframe",
+            "table_name": "regionprops_DAPI",
+        },
+    }
+
+    # Run once
+    for component in metadata["image"]:
+        napari_workflows_wrapper(
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
+            metadata=metadata,
+            component=component,
+            input_specs=input_specs,
+            output_specs=output_specs,
+            workflow_file=workflow_file,
+            input_ROI_table="FOV_ROI_table",
+        )
+    debug(metadata)
+
+    # Re-run with overwrite=True
+    for component in metadata["image"]:
+        napari_workflows_wrapper(
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
+            metadata=metadata,
+            component=component,
+            input_specs=input_specs,
+            output_specs=output_specs,
+            workflow_file=workflow_file,
+            input_ROI_table="FOV_ROI_table",
+            overwrite=True,
+        )
+
+    # Re-run with overwrite=False
+    with pytest.raises(OverwriteNotAllowedError):
+        for component in metadata["image"]:
+            napari_workflows_wrapper(
+                input_paths=[str(zarr_path)],
+                output_path=str(zarr_path),
+                metadata=metadata,
+                component=component,
+                input_specs=input_specs,
+                output_specs=output_specs,
+                workflow_file=workflow_file,
+                input_ROI_table="FOV_ROI_table",
+                overwrite=False,
+            )

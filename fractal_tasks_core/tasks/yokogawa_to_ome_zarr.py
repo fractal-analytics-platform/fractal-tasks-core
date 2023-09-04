@@ -22,6 +22,7 @@ import zarr
 from anndata import read_zarr
 from dask.array.image import imread
 from pydantic.decorator import validate_arguments
+from zarr.errors import ContainsArrayError
 
 from fractal_tasks_core.lib_channels import get_omero_channel_list
 from fractal_tasks_core.lib_channels import OmeroChannel
@@ -34,6 +35,7 @@ from fractal_tasks_core.lib_read_fractal_metadata import (
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
+from fractal_tasks_core.lib_write import OverwriteNotAllowedError
 from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 
@@ -62,6 +64,7 @@ def yokogawa_to_ome_zarr(
     output_path: str,
     component: str,
     metadata: dict[str, Any],
+    overwrite: bool = False,
 ):
     """
     Convert Yokogawa output (png, tif) to zarr file.
@@ -99,6 +102,7 @@ def yokogawa_to_ome_zarr(
             parameter of `create_ome_zarr` task (if specified, only parse
             images with filenames that match with all these patterns).
             (standard argument for Fractal tasks, managed by Fractal server).
+        overwrite: If `True`, overwrite the task output.
     """
 
     # Preliminary checks
@@ -150,7 +154,7 @@ def yokogawa_to_ome_zarr(
         adata_well, full_res_pxl_sizes_zyx=pxl_size
     )
     if len(well_indices) > 1:
-        raise Exception(f"Something wrong with {well_indices=}")
+        raise ValueError(f"Something wrong with {well_indices=}")
 
     # FIXME: Put back the choice of columns by name? Not here..
 
@@ -170,14 +174,23 @@ def yokogawa_to_ome_zarr(
 
     # Initialize zarr
     chunksize = (1, 1, sample.shape[1], sample.shape[2])
-    canvas_zarr = zarr.create(
-        shape=(len(wavelength_ids), max_z, max_y, max_x),
-        chunks=chunksize,
-        dtype=sample.dtype,
-        store=zarr.storage.FSStore(zarrurl + "/0"),
-        overwrite=False,
-        dimension_separator="/",
-    )
+    try:
+        canvas_zarr = zarr.create(
+            shape=(len(wavelength_ids), max_z, max_y, max_x),
+            chunks=chunksize,
+            dtype=sample.dtype,
+            store=zarr.storage.FSStore(zarrurl + "/0"),
+            overwrite=overwrite,
+            dimension_separator="/",
+        )
+    except ContainsArrayError as e:
+        error_msg = (
+            f"Cannot create a zarr group at '{zarrurl}/0', "
+            f"with {overwrite=} (original error: {str(e)}). "
+            "Hint: try setting overwrite=True."
+        )
+        logger.error(error_msg)
+        raise OverwriteNotAllowedError(error_msg)
 
     # Loop over channels
     for i_c, wavelength_id in enumerate(wavelength_ids):
@@ -192,7 +205,7 @@ def yokogawa_to_ome_zarr(
         )
         filenames = sorted(list(filenames_set), key=sort_fun)
         if len(filenames) == 0:
-            raise Exception(
+            raise ValueError(
                 "Error in yokogawa_to_ome_zarr: len(filenames)=0.\n"
                 f"  in_path: {in_path}\n"
                 f"  image_extension: {image_extension}\n"
@@ -224,7 +237,7 @@ def yokogawa_to_ome_zarr(
     # pyramid of coarser levels
     build_pyramid(
         zarrurl=zarrurl,
-        overwrite=False,
+        overwrite=overwrite,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         chunksize=chunksize,
