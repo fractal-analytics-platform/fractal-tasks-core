@@ -2,28 +2,18 @@
 
 # Unreleased
 
-* **(major)** Introduce new tasks for registration of multiplexing cycles:
-  `calculate_registration_image_based`, `apply_registration_to_ROI_tables`,
-  `apply_registration_to_image` (\#487).
-* **(major)** Introduce new `overwrite` argument for most tasks:
-  `create_ome_zarr`, `create_ome_zarr_multiplex`, `yokogawa_to_ome_zarr`,
-  `copy_ome_zarr`, `maximum_intensity_projection`, `cellpose_segmentation`,
-  `napari_workflows_wrapper` (\#499).
-* **(major)** Rename `illumination_correction` parameter from `overwrite` to
-  `overwrite_input` (\#499).
-* Introduce new helper functions `write_table`, `prepare_label_group` and
-  `open_zarr_group_with_overwrite` (\#499).
-* Introduce new helper functions `are_ROI_table_columns_valid`,
-  `convert_indices_to_regions`, `reset_origin`, `is_standard_roi_table`,
-  `get_acquisition_paths`, `get_table_path_dict`, `get_axes_names`,
-  `add_zero_translation_columns`, `calculate_min_max_across_dfs`,
-  `apply_registration_to_single_ROI_table`, `write_registered_zarr`,
-  `calculate_physical_shifts`, `get_ROI_table_with_translation` (\#487).
+* Tasks:
+    * **(major)** Introduce new tasks for registration of multiplexing cycles: `calculate_registration_image_based`, `apply_registration_to_ROI_tables`, `apply_registration_to_image` (\#487).
+    * **(major)** Introduce new `overwrite` argument for tasks `create_ome_zarr`, `create_ome_zarr_multiplex`, `yokogawa_to_ome_zarr`, `copy_ome_zarr`, `maximum_intensity_projection`, `cellpose_segmentation`, `napari_workflows_wrapper` (\#499).
+    * **(major)** Rename `illumination_correction` parameter from `overwrite` to `overwrite_input` (\#499).
+    * Introduce new helper functions `write_table`, `prepare_label_group` and `open_zarr_group_with_overwrite` (\#499).
+    * Introduce new helper functions `are_ROI_table_columns_valid`, `convert_indices_to_regions`, `reset_origin`, `is_standard_roi_table`, `get_acquisition_paths`, `get_table_path_dict`, `get_axes_names`, `add_zero_translation_columns`, `calculate_min_max_across_dfs`, `apply_registration_to_single_ROI_table`, `write_registered_zarr`, `calculate_physical_shifts`, `get_ROI_table_with_translation` (\#487).
 * Testing:
     * Add tests for `overwrite`-related task behaviors (\#499).
     * Introduce mock-up of `napari_skimage_regionprops` package, for testing of
       `napari_workflows_wrapper` task (\#499).
-* Require `fsspec` version to be `<=2023.6` (\#509).
+* Dependencies:
+    * Require `fsspec` version to be `<=2023.6` (\#509).
 
 # 0.10.1
 
