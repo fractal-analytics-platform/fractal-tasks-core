@@ -2,6 +2,7 @@
 
 # Unreleased
 
+* Fix plate-selection bug in copy-ome-zarr task (\#513).
 * **(major)** Rename `illumination_correction` parameter from `overwrite` to
   `overwrite_input` (\#499).
 * Introduce new `overwrite` argument for most tasks: `create_ome_zarr`,
