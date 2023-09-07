@@ -459,3 +459,52 @@ def test_illumination_correction(
     validate_schema(path=str(plate_zarr), type="plate")
 
     check_file_number(zarr_path=image_zarr)
+
+
+def test_copy_ome_zarr_twice(
+    tmp_path: Path,
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
+):
+    """
+    See
+    https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/510
+    """
+
+    # Init and load zarr array from zenodo
+    zarr_path = tmp_path / "data"
+    zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
+    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
+    shutil.copytree(zenodo_zarr_3D, str(zarr_path / Path(zenodo_zarr_3D).name))
+    metadata = metadata_3D.copy()
+
+    # Run first time
+    _original_metadata = metadata.copy()
+    metadata_update = copy_ome_zarr(
+        input_paths=[str(zarr_path)],
+        output_path=str(zarr_path),
+        metadata=_original_metadata,
+        project_to_2D=True,
+        suffix="mip",
+    )
+    metadata.update(metadata_update)
+    debug(metadata)
+    assert len(metadata["copy_ome_zarr"]["sources"].keys()) == 1
+    assert "plate_mip_mip" not in metadata["copy_ome_zarr"]["sources"].keys()
+
+    # Run second time, with overwrite=True
+    metadata_update = copy_ome_zarr(
+        input_paths=[str(zarr_path)],
+        output_path=str(zarr_path),
+        metadata=_original_metadata,
+        project_to_2D=True,
+        suffix="mip",
+        overwrite=True,
+    )
+    debug(metadata_update)
+    metadata.update(metadata_update)
+    assert (
+        "plate_mip_mip"
+        not in metadata_update["copy_ome_zarr"]["sources"].keys()
+    )
+    assert len(metadata_update["copy_ome_zarr"]["sources"].keys()) == 1

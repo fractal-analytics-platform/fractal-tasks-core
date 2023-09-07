@@ -106,7 +106,11 @@ def copy_ome_zarr(
 
     # List all plates
     in_path = Path(input_paths[0])
-    list_plates = [p.as_posix() for p in Path(in_path).glob("*.zarr")]
+    list_plates = [
+        p.as_posix()
+        for p in Path(in_path).glob("*.zarr")
+        if p.name in metadata["plate"]
+    ]
     logger.info(f"{list_plates=}")
 
     meta_update: dict[str, Any] = {"copy_ome_zarr": {}}

@@ -261,7 +261,7 @@ def create_ome_zarr_multiplex(
     }
 
     zarrurls: dict[str, list[str]] = {"well": [], "image": []}
-    zarrurls["plate"] = [plate]
+    zarrurls["plate"] = [f"{plate}.zarr"]
 
     ################################################################
     logging.info(f"{acquisitions=}")
