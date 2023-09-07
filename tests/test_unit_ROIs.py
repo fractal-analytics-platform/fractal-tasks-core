@@ -5,10 +5,18 @@ import dask.array as da
 import numpy as np
 import pandas as pd
 import pytest
+import zarr
+from anndata._io.specs import write_elem
 from devtools import debug
 
 from fractal_tasks_core.lib_regions_of_interest import (
+    are_ROI_table_columns_valid,
+)
+from fractal_tasks_core.lib_regions_of_interest import (
     array_to_bounding_box_table,
+)
+from fractal_tasks_core.lib_regions_of_interest import (
+    convert_indices_to_regions,
 )
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
@@ -16,11 +24,17 @@ from fractal_tasks_core.lib_regions_of_interest import (
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROIs_from_3D_to_2D,
 )
+from fractal_tasks_core.lib_regions_of_interest import is_ROI_table_valid
+from fractal_tasks_core.lib_regions_of_interest import (
+    is_standard_roi_table,
+)
 from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
+from fractal_tasks_core.lib_regions_of_interest import (
+    reset_origin,
+)
 from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
-
 
 PIXEL_SIZE_X = 0.1625
 PIXEL_SIZE_Y = 0.1625
@@ -349,3 +363,94 @@ def test_load_region_fail():
             region=(slice(0, 1), slice(0, 1), slice(0, 1)),
         )
     debug(e.value)
+
+
+EXPECTED_COLUMNS = [
+    "x_micrometer",
+    "y_micrometer",
+    "z_micrometer",
+    "len_x_micrometer",
+    "len_y_micrometer",
+    "len_z_micrometer",
+]
+
+
+def test_is_ROI_table_valid(tmp_path):
+
+    # Write valid table to a zarr group
+    columns = EXPECTED_COLUMNS.copy()
+    adata = ad.AnnData(np.ones((1, len(columns))))
+    adata.var_names = columns
+    group = zarr.group(str(tmp_path / "group.zarr"))
+    table_name = "table1"
+    write_elem(group, table_name, adata)
+    table_path = str(tmp_path / "group.zarr" / table_name)
+
+    # Case 1: use_masks=False
+    is_valid = is_ROI_table_valid(table_path=table_path, use_masks=False)
+    assert is_valid is None
+
+    # Case 2: use_masks=True, invalid attrs
+    is_valid = is_ROI_table_valid(table_path=table_path, use_masks=True)
+    assert not is_valid
+
+    # Case 3: use_masks=True, valid attrs
+    group[table_name].attrs["type"] = "ngff:region_table"
+    group[table_name].attrs["instance_key"] = "label"
+    group[table_name].attrs["region"] = {"path": "/tmp/"}
+    is_valid = is_ROI_table_valid(table_path=table_path, use_masks=True)
+    assert is_valid
+
+
+def test_are_ROI_table_columns_valid():
+    # Success
+    columns = EXPECTED_COLUMNS.copy()
+    adata = ad.AnnData(np.ones((1, len(columns))))
+    adata.var_names = columns
+    debug(adata)
+    are_ROI_table_columns_valid(table=adata)
+    # Failure
+    columns = EXPECTED_COLUMNS.copy()
+    columns[0] = "something_else"
+    adata = ad.AnnData(np.ones((1, len(columns))))
+    adata.var_names = columns
+    debug(adata)
+    with pytest.raises(ValueError):
+        are_ROI_table_columns_valid(table=adata)
+
+
+index_regions = [
+    (
+        [0, 1, 0, 540, 640, 1280],
+        (slice(0, 1, None), slice(0, 540, None), slice(640, 1280, None)),
+    ),
+    (
+        [0, 20, 100, 540, 900, 2000],
+        (slice(0, 20, None), slice(100, 540, None), slice(900, 2000, None)),
+    ),
+]
+
+
+@pytest.mark.parametrize("index,expected_results", index_regions)
+def test_indices_to_region_conversion(index, expected_results):
+    assert convert_indices_to_regions(index) == expected_results
+
+
+def test_reset_origin():
+    # Prepare ROI
+    columns = EXPECTED_COLUMNS.copy()
+    old_adata = ad.AnnData(np.ones((1, len(columns))))
+    old_adata.var_names = columns
+    debug(old_adata.X)
+    # Reset origin
+    new_adata = reset_origin(old_adata)
+    debug(new_adata.X)
+    assert abs(new_adata[:, "x_micrometer"].X[0, 0]) < 1e-10
+    assert abs(new_adata[:, "y_micrometer"].X[0, 0]) < 1e-10
+    assert abs(new_adata[:, "z_micrometer"].X[0, 0]) < 1e-10
+
+
+def test_is_standard_roi_table():
+    assert is_standard_roi_table("xxx_well_ROI_table_xxx")
+    assert is_standard_roi_table("xxx_FOV_ROI_table_xxx")
+    assert not is_standard_roi_table("something_else")

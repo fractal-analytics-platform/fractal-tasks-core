@@ -14,6 +14,7 @@ Functions to handle `.zattrs` files and their contents.
 """
 import json
 import logging
+from pathlib import Path
 from typing import Any
 
 
@@ -140,3 +141,88 @@ def rescale_datasets(
         new_datasets.append(new_ds)
 
     return new_datasets
+
+
+def get_acquisition_paths(zattrs: dict) -> dict[int, str]:
+    """
+    Create mapping from acquisition indices to corresponding paths.
+
+    Runs on the well .zattrs content and loads the relative paths in the well.
+
+    Args:
+        zattrs:
+            Attributes of a well zarr group.
+
+    Returns:
+        Dictionary with `(acquisition index: image path)` key/value pairs.
+    """
+    acquisition_dict = {}
+    for image in zattrs["well"]["images"]:
+        if "acquisition" not in image:
+            raise ValueError(
+                "Cannot get acquisition paths for Zarr files without "
+                "'acquisition' metadata at the well level"
+            )
+        if image["acquisition"] in acquisition_dict:
+            raise NotImplementedError(
+                "This task is not implemented for wells with multiple images "
+                "of the same acquisition"
+            )
+        acquisition_dict[image["acquisition"]] = image["path"]
+    return acquisition_dict
+
+
+def get_table_path_dict(input_path: Path, component: str) -> dict[str, str]:
+    """
+    Compile dictionary of (table name, table path) key/value pairs.
+
+    Args:
+        input_path:
+            Path to the parent folder of a plate zarr group (e.g.
+            `/some/path/`).
+        component:
+            Path (relative to `input_path`) to an image zarr group (e.g.
+            `plate.zarr/B/03/0`).
+
+    Returns:
+        Dictionary with table names as keys and table paths as values.
+    """
+
+    try:
+        with open(f"{input_path / component}/tables/.zattrs", "r") as f_zattrs:
+            table_list = json.load(f_zattrs)["tables"]
+    except FileNotFoundError:
+        table_list = []
+
+    table_path_dict = {}
+    for table in table_list:
+        table_path_dict[table] = f"{input_path / component}/tables/{table}"
+
+    return table_path_dict
+
+
+def get_axes_names(attrs: dict) -> list:
+    """
+    Get the axes names of a .zattrs dictionary
+
+    .zattrs dicts usually contain their axes in the multiscales metadata.
+    This function returns a list of the axes names in the order they appeared
+    in the metadata.
+
+    Args:
+        attrs: The .zattrs group of an OME-Zarr image as a dict
+
+    Returns:
+        List of access names
+    """
+    try:
+        axes = attrs["multiscales"][0]["axes"]
+    except (KeyError, TypeError) as e:
+        raise ValueError(
+            f"{attrs=} does not contain the necessary information to get "
+            f"axes, raising an exception {e=}"
+        )
+    names = []
+    for ax in axes:
+        names.append(ax["name"])
+    return names
