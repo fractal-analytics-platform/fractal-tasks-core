@@ -1,6 +1,6 @@
 # Run tasks within the Fractal platform
 
-Thanks to the [package manifest](../manifest/) and to their structure, the
+Thanks to the [package manifest](manifest.md) and to their structure, the
 tasks in `fractal_tasks_core.tasks` can be run within the [Fractal
 platform](https://fractal-analytics-platform.github.io); this consists in a
 [backend server](https://fractal-analytics-platform.github.io/fractal-server)

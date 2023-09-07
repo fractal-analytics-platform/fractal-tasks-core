@@ -342,19 +342,8 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
             is valid for masked loading.
     """
 
-    # Hard constraint: table columns must include some expected ones
     table = ad.read_zarr(table_path)
-    columns = [
-        "x_micrometer",
-        "y_micrometer",
-        "z_micrometer",
-        "len_x_micrometer",
-        "len_y_micrometer",
-        "len_z_micrometer",
-    ]
-    for column in columns:
-        if column not in table.var_names:
-            raise ValueError(f"Column {column} is not present in ROI table")
+    are_ROI_table_columns_valid(table=table)
     if not use_masks:
         return None
 
@@ -370,6 +359,31 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
         return True
     else:
         return False
+
+
+def are_ROI_table_columns_valid(*, table: ad.AnnData) -> None:
+    """
+    Verify some validity assumptions on a ROI table.
+
+    This function reflects our current working assumptions (e.g. the presence
+    of some specific columns); this may change in future versions.
+
+    Args:
+        table: AnnData table to be checked
+    """
+
+    # Hard constraint: table columns must include some expected ones
+    columns = [
+        "x_micrometer",
+        "y_micrometer",
+        "z_micrometer",
+        "len_x_micrometer",
+        "len_y_micrometer",
+        "len_z_micrometer",
+    ]
+    for column in columns:
+        if column not in table.var_names:
+            raise ValueError(f"Column {column} is not present in ROI table")
 
 
 def load_region(
@@ -415,3 +429,63 @@ def load_region(
         return img.compute()
     else:
         return img
+
+
+def convert_indices_to_regions(
+    index: list[int],
+) -> tuple[slice, slice, slice]:
+    """
+    Converts index tuples to region tuple
+
+    Args:
+        index: Tuple containing 6 entries of (z_start, z_end, y_start,
+            y_end, x_start, x_end).
+
+    Returns:
+        region: tuple of three slices (ZYX)
+    """
+    return (
+        slice(index[0], index[1]),
+        slice(index[2], index[3]),
+        slice(index[4], index[5]),
+    )
+
+
+def reset_origin(
+    ROI_table: ad.AnnData,
+    x_pos="x_micrometer",
+    y_pos="y_micrometer",
+    z_pos="z_micrometer",
+):
+
+    origin_x = min(ROI_table[:, x_pos].X[:, 0])
+    origin_y = min(ROI_table[:, y_pos].X[:, 0])
+    origin_z = min(ROI_table[:, z_pos].X[:, 0])
+    for FOV in ROI_table.obs_names:
+        ROI_table[FOV, x_pos] = ROI_table[FOV, x_pos].X[0, 0] - origin_x
+        ROI_table[FOV, y_pos] = ROI_table[FOV, y_pos].X[0, 0] - origin_y
+        ROI_table[FOV, z_pos] = ROI_table[FOV, z_pos].X[0, 0] - origin_z
+
+    return ROI_table
+
+
+def is_standard_roi_table(table: str) -> bool:
+    """
+    True if the name of the table contains one of the standard Fractal tables
+
+    If a table name is well_ROI_table, FOV_ROI_table or contains either of the
+    two (e.g. registered_FOV_ROI_table), this function returns True.
+
+    Args:
+        table: table name
+
+    Returns:
+        bool of whether it's a standard ROI table
+
+    """
+    if "well_ROI_table" in table:
+        return True
+    elif "FOV_ROI_table" in table:
+        return True
+    else:
+        return False
