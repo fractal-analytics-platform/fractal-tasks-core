@@ -24,7 +24,7 @@
 | fractal\_tasks\_core/tasks/apply\_registration\_to\_image.py        |      108 |       14 |       40 |        9 |     80% |47->46, 109, 155-156, 158->182, 188->187, 192-204, 206->224, 231, 330-343, 368-370 |
 | fractal\_tasks\_core/tasks/calculate\_registration\_image\_based.py |       89 |        5 |       20 |        5 |     91% |44->43, 159, 179, 222, 347-349 |
 | fractal\_tasks\_core/tasks/cellpose\_segmentation.py                |      217 |       26 |       74 |       15 |     85% |102-143, 147->146, 259, 267-270, 301-307, 315-316, 371, 379->395, 387, 402, 407, 414, 486, 510->514, 591->609, 603, 689-691 |
-| fractal\_tasks\_core/tasks/copy\_ome\_zarr.py                       |       71 |        4 |       32 |        7 |     89% |39->38, 102, 105, 167->155, 171->181, 193->198, 212-214 |
+| fractal\_tasks\_core/tasks/copy\_ome\_zarr.py                       |       71 |        4 |       32 |        7 |     89% |39->38, 102, 105, 171->159, 175->185, 197->202, 216-218 |
 | fractal\_tasks\_core/tasks/create\_ome\_zarr.py                     |      162 |       25 |       72 |       11 |     83% |46->45, 118, 120, 173, 180-190, 198-199, 212-215, 269, 300, 316-317, 320, 464-466 |
 | fractal\_tasks\_core/tasks/create\_ome\_zarr\_multiplex.py          |      189 |       19 |       80 |       14 |     88% |48->47, 123, 130, 134, 143, 161, 192, 213-216, 243, 294, 300, 317, 330-331, 337, 509-511 |
 | fractal\_tasks\_core/tasks/illumination\_correction.py              |       99 |       14 |       34 |        9 |     81% |61, 82-86, 95->94, 155, 180-183, 222, 237, 250-251, 306-308 |
