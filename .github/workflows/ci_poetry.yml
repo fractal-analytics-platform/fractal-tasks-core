@@ -54,7 +54,7 @@ jobs:
   tests_tasks:
     name: "Tasks, Python ${{ matrix.python-version }}"
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     strategy:
       matrix:
