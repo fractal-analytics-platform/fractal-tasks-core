@@ -1,6 +1,6 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# Unreleased
+# 0.11.0
 
 * Tasks:
     * **(major)** Introduce new tasks for registration of multiplexing cycles: `calculate_registration_image_based`, `apply_registration_to_ROI_tables`, `apply_registration_to_image` (\#487).
