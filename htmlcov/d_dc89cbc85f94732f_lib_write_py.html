@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="d_dc89cbc85f94732f_lib_zattrs_utils_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.3.1">coverage.py v7.3.1</a>,
-            created at 2023-09-07 06:49 +0000
+            created at 2023-09-12 11:32 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -198,7 +198,7 @@
     <p class="pln"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t">        <span class="com"># Re-raise error with custom message and type</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t">        <span class="nam">error_msg</span> <span class="op">=</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t">            <span class="str">f"Cannot create zarr group at {path=} with `{overwrite=}` "</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t">            <span class="str">"(original error: `zarr.errors.ContainsGroupError`). "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t">            <span class="str">"(original error: `zarr.errors.ContainsGroupError`).\n"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t">            <span class="str">"Hint: try setting `overwrite=True`."</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t">        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t">        <span class="nam">logger</span><span class="op">.</span><span class="nam">error</span><span class="op">(</span><span class="nam">error_msg</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -259,7 +259,7 @@
     <p class="run"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t">        <span class="key">if</span> <span class="key">not</span> <span class="nam">overwrite</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t176" href="#t176">176</a></span><span class="t">            <span class="nam">error_msg</span> <span class="op">=</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t">                <span class="str">f"Sub-group '{key}' of group {group.store.path} "</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t">                <span class="str">f"already exists, but `{overwrite=}`. "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t">                <span class="str">f"already exists, but `{overwrite=}`.\n"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t179" href="#t179">179</a></span><span class="t">                <span class="str">"Hint: try setting `overwrite=True`."</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t">            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t">            <span class="nam">logger</span><span class="op">.</span><span class="nam">error</span><span class="op">(</span><span class="nam">error_msg</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -329,7 +329,7 @@
     <p class="run"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t">        <span class="key">if</span> <span class="nam">table_name</span> <span class="key">in</span> <span class="nam">set</span><span class="op">(</span><span class="nam">tables_group</span><span class="op">.</span><span class="nam">group_keys</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t">            <span class="nam">error_msg</span> <span class="op">=</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t">                <span class="str">f"Sub-group '{table_name}' of group {image_group.store.path} "</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t">                <span class="str">f"already exists, but `{overwrite=}`. "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t">                <span class="str">f"already exists, but `{overwrite=}`.\n"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t">                <span class="str">"Hint: try setting `overwrite=True`."</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t">            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t">            <span class="nam">logger</span><span class="op">.</span><span class="nam">error</span><span class="op">(</span><span class="nam">error_msg</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -337,7 +337,7 @@
     <p class="run"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t">        <span class="key">if</span> <span class="nam">table_name</span> <span class="key">in</span> <span class="nam">current_tables</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t">            <span class="nam">error_msg</span> <span class="op">=</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t">                <span class="str">f"Item '{table_name}' already exists in `tables` attribute of "</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t">                <span class="str">f"group {image_group.store.path}, but `{overwrite=}`. "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t">                <span class="str">f"group {image_group.store.path}, but `{overwrite=}`.\n"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t257" href="#t257">257</a></span><span class="t">                <span class="str">"Hint: try setting `overwrite=True`."</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t258" href="#t258">258</a></span><span class="t">            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t259" href="#t259">259</a></span><span class="t">            <span class="nam">logger</span><span class="op">.</span><span class="nam">error</span><span class="op">(</span><span class="nam">error_msg</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -442,7 +442,7 @@
     <p class="run"><span class="n"><a id="t358" href="#t358">358</a></span><span class="t">        <span class="key">if</span> <span class="nam">label_name</span> <span class="key">in</span> <span class="nam">set</span><span class="op">(</span><span class="nam">labels_group</span><span class="op">.</span><span class="nam">group_keys</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t359" href="#t359">359</a></span><span class="t">            <span class="nam">error_msg</span> <span class="op">=</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t360" href="#t360">360</a></span><span class="t">                <span class="str">f"Sub-group '{label_name}' of group {image_group.store.path} "</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t361" href="#t361">361</a></span><span class="t">                <span class="str">f"already exists, but `{overwrite=}`. "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t361" href="#t361">361</a></span><span class="t">                <span class="str">f"already exists, but `{overwrite=}`.\n"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t362" href="#t362">362</a></span><span class="t">                <span class="str">"Hint: try setting `overwrite=True`."</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t363" href="#t363">363</a></span><span class="t">            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t364" href="#t364">364</a></span><span class="t">            <span class="nam">logger</span><span class="op">.</span><span class="nam">error</span><span class="op">(</span><span class="nam">error_msg</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -450,7 +450,7 @@
     <p class="run"><span class="n"><a id="t366" href="#t366">366</a></span><span class="t">        <span class="key">if</span> <span class="nam">label_name</span> <span class="key">in</span> <span class="nam">current_labels</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t367" href="#t367">367</a></span><span class="t">            <span class="nam">error_msg</span> <span class="op">=</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t368" href="#t368">368</a></span><span class="t">                <span class="str">f"Item '{label_name}' already exists in `labels` attribute of "</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t369" href="#t369">369</a></span><span class="t">                <span class="str">f"group {image_group.store.path}, but `{overwrite=}`. "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t369" href="#t369">369</a></span><span class="t">                <span class="str">f"group {image_group.store.path}, but `{overwrite=}`.\n"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t370" href="#t370">370</a></span><span class="t">                <span class="str">"Hint: try setting `overwrite=True`."</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t371" href="#t371">371</a></span><span class="t">            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t372" href="#t372">372</a></span><span class="t">            <span class="nam">logger</span><span class="op">.</span><span class="nam">error</span><span class="op">(</span><span class="nam">error_msg</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -479,7 +479,7 @@
             <a id="nextFileLink" class="nav" href="d_dc89cbc85f94732f_lib_zattrs_utils_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.3.1">coverage.py v7.3.1</a>,
-            created at 2023-09-07 06:49 +0000
+            created at 2023-09-12 11:32 +0000
         </p>
     </div>
 </footer>
