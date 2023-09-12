@@ -186,7 +186,7 @@ def yokogawa_to_ome_zarr(
     except ContainsArrayError as e:
         error_msg = (
             f"Cannot create a zarr group at '{zarrurl}/0', "
-            f"with {overwrite=} (original error: {str(e)}). "
+            f"with {overwrite=} (original error: {str(e)}).\n"
             "Hint: try setting overwrite=True."
         )
         logger.error(error_msg)

@@ -114,7 +114,7 @@ def open_zarr_group_with_overwrite(
         # Re-raise error with custom message and type
         error_msg = (
             f"Cannot create zarr group at {path=} with `{overwrite=}` "
-            "(original error: `zarr.errors.ContainsGroupError`). "
+            "(original error: `zarr.errors.ContainsGroupError`).\n"
             "Hint: try setting `overwrite=True`."
         )
         logger.error(error_msg)
@@ -175,7 +175,7 @@ def _write_elem_with_overwrite(
         if not overwrite:
             error_msg = (
                 f"Sub-group '{key}' of group {group.store.path} "
-                f"already exists, but `{overwrite=}`. "
+                f"already exists, but `{overwrite=}`.\n"
                 "Hint: try setting `overwrite=True`."
             )
             logger.error(error_msg)
@@ -245,7 +245,7 @@ def write_table(
         if table_name in set(tables_group.group_keys()):
             error_msg = (
                 f"Sub-group '{table_name}' of group {image_group.store.path} "
-                f"already exists, but `{overwrite=}`. "
+                f"already exists, but `{overwrite=}`.\n"
                 "Hint: try setting `overwrite=True`."
             )
             logger.error(error_msg)
@@ -253,7 +253,7 @@ def write_table(
         if table_name in current_tables:
             error_msg = (
                 f"Item '{table_name}' already exists in `tables` attribute of "
-                f"group {image_group.store.path}, but `{overwrite=}`. "
+                f"group {image_group.store.path}, but `{overwrite=}`.\n"
                 "Hint: try setting `overwrite=True`."
             )
             logger.error(error_msg)
@@ -358,7 +358,7 @@ def prepare_label_group(
         if label_name in set(labels_group.group_keys()):
             error_msg = (
                 f"Sub-group '{label_name}' of group {image_group.store.path} "
-                f"already exists, but `{overwrite=}`. "
+                f"already exists, but `{overwrite=}`.\n"
                 "Hint: try setting `overwrite=True`."
             )
             logger.error(error_msg)
@@ -366,7 +366,7 @@ def prepare_label_group(
         if label_name in current_labels:
             error_msg = (
                 f"Item '{label_name}' already exists in `labels` attribute of "
-                f"group {image_group.store.path}, but `{overwrite=}`. "
+                f"group {image_group.store.path}, but `{overwrite=}`.\n"
                 "Hint: try setting `overwrite=True`."
             )
             logger.error(error_msg)

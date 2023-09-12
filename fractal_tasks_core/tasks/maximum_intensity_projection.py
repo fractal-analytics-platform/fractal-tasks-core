@@ -140,8 +140,8 @@ def maximum_intensity_projection(
         )
     except ContainsArrayError as e:
         error_msg = (
-            f"Cannot create a zarr group at '{zarrurl_new}/0', "
-            f"with {overwrite=} (original error: {str(e)}). "
+            f"Cannot write array to zarr group at '{zarrurl_new}/0', "
+            f"with {overwrite=} (original error: {str(e)}).\n"
             "Hint: try setting overwrite=True."
         )
         logger.error(error_msg)
