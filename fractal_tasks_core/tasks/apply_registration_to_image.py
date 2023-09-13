@@ -15,6 +15,7 @@ import json
 import logging
 import os
 import shutil
+import time
 from pathlib import Path
 from typing import Any
 from typing import Callable
@@ -105,6 +106,7 @@ def apply_registration_to_image(
             `overwrite_input=True`.
 
     """
+    logger.info(component)
     if not overwrite_input:
         raise NotImplementedError(
             "This task is only implemented for the overwrite_input version"
@@ -175,19 +177,19 @@ def apply_registration_to_image(
             )
 
     ####################
-    # Copy tabels
+    # Copy tables
     # 1. Copy all standard ROI tables from cycle 0.
     # 2. Copy all tables that aren't standard ROI tables from the given cycle
     ####################
-    tabel_dict_reference = get_table_path_dict(input_path, reference_component)
-    tabel_dict_component = get_table_path_dict(input_path, component)
+    table_dict_reference = get_table_path_dict(input_path, reference_component)
+    table_dict_component = get_table_path_dict(input_path, component)
 
     table_dict = {}
     # Define which table should get copied:
-    for table in tabel_dict_reference:
+    for table in table_dict_reference:
         if is_standard_roi_table(table):
-            table_dict[table] = tabel_dict_reference[table]
-    for table in tabel_dict_component:
+            table_dict[table] = table_dict_reference[table]
+    for table in table_dict_component:
         if not is_standard_roi_table(table):
             if reference_component != component:
                 logger.warning(
@@ -201,7 +203,7 @@ def apply_registration_to_image(
                     "not applied and it will not match with the registered "
                     "image anymore"
                 )
-            table_dict[table] = tabel_dict_component[table]
+            table_dict[table] = table_dict_component[table]
 
     if table_dict:
         logger.info(f"Processing the tables: {table_dict}")
@@ -209,10 +211,17 @@ def apply_registration_to_image(
         new_tables_group.attrs["tables"] = list(table_dict.keys())
 
         for table in table_dict.keys():
-            logger.info(f"Copying table {table}")
+            logger.info(f"Copying table: {table}")
+            # Write the Zarr table
             curr_table = ad.read_zarr(table_dict[table])
             write_elem(new_tables_group, table, curr_table)
-            old_table_group = zarr.open_group(table_dict[table], mode="r")
+            # Get the relevant metadata of the Zarr table & add it
+            # See issue #516 for the need for this workaround
+            try:
+                old_table_group = zarr.open_group(table_dict[table], mode="r")
+            except zarr.errors.GroupNotFoundError:
+                time.sleep(5)
+                old_table_group = zarr.open_group(table_dict[table], mode="r")
             new_table_group = zarr.open_group(
                 f"{input_path / new_component}/tables/{table}"
             )
@@ -225,8 +234,12 @@ def apply_registration_to_image(
         logger.info(
             "Replace original zarr image with the newly created Zarr image"
         )
-        shutil.rmtree(f"{input_path / component}")
+        # Potential for race conditions: Every cycle reads the
+        # reference cycle, but the reference cycle also gets modified
+        # See issue #516 for the details
+        os.rename(f"{input_path / component}", f"{input_path / component}_tmp")
         os.rename(f"{input_path / new_component}", f"{input_path / component}")
+        shutil.rmtree(f"{input_path / component}_tmp")
     else:
         raise NotImplementedError
         # The thing that would be missing in this branch is that Fractal
