@@ -466,10 +466,14 @@ def convert_indices_to_regions(
 
 def reset_origin(
     ROI_table: ad.AnnData,
-    x_pos="x_micrometer",
-    y_pos="y_micrometer",
-    z_pos="z_micrometer",
+    x_pos: str = "x_micrometer",
+    y_pos: str = "y_micrometer",
+    z_pos: str = "z_micrometer",
 ):
+
+    """
+    FIXME: is this in-place??
+    """
 
     origin_x = min(ROI_table[:, x_pos].X[:, 0])
     origin_y = min(ROI_table[:, y_pos].X[:, 0])
