@@ -276,7 +276,7 @@ def test_empty_ROI_table():
     assert indices == []
 
 
-def test_bounding_boxes_of_empty_label():
+def test_array_to_bounding_box_table_empty():
     """
     When trying to compute bounding boxes for a label array which has no labels
     (that is, it only has zeros), the output dataframe has zero rows (but it
@@ -287,6 +287,42 @@ def test_bounding_boxes_of_empty_label():
     debug(df)
     assert df.shape[0] == 0
     assert "label" in df.columns
+
+
+def test_array_to_bounding_box_table():
+    """
+    Test the new origin_zyx argument of array_to_bounding_box_table, ref
+    https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/460.
+    """
+    IMG_SIZE_X = 100
+    IMG_SIZE_Y = 80
+    PIXEL_SIZES = [0.4, 0.7, 1.2]
+    masks1 = np.zeros((2, IMG_SIZE_Y, IMG_SIZE_X))
+    masks1[:, 0:10, 0:12] = 1
+    masks2 = np.zeros((2, IMG_SIZE_Y, IMG_SIZE_X))
+    masks2[:, 0:10, 0:12] = 1
+    masks2[:, 10:30, 10:50] = 2
+    df1 = array_to_bounding_box_table(
+        masks1,
+        pxl_sizes_zyx=PIXEL_SIZES,
+    )
+    print(df1)
+    print()
+    assert df1.iloc[0].x_micrometer == 0.0
+    assert df1.iloc[0].z_micrometer == 0.0
+    df2 = array_to_bounding_box_table(
+        masks2,
+        pxl_sizes_zyx=PIXEL_SIZES,
+        origin_zyx=(0, IMG_SIZE_Y, IMG_SIZE_X),
+    )
+    print(df2)
+    print()
+    assert df2.iloc[0].x_micrometer == IMG_SIZE_X * PIXEL_SIZES[-1]
+    assert df2.iloc[0].y_micrometer == IMG_SIZE_Y * PIXEL_SIZES[-2]
+    assert df2.iloc[0].len_y_micrometer == 10 * PIXEL_SIZES[-2]
+    assert df2.iloc[0].len_x_micrometer == 12 * PIXEL_SIZES[-1]
+    assert df2.iloc[1].len_y_micrometer == 20 * PIXEL_SIZES[-2]
+    assert df2.iloc[1].len_x_micrometer == 40 * PIXEL_SIZES[-1]
 
 
 # input shapes, regions, expected_output_shape

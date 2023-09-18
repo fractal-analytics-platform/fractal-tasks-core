@@ -290,7 +290,9 @@ def convert_ROI_table_to_indices(
 
 
 def array_to_bounding_box_table(
-    mask_array: np.ndarray, pxl_sizes_zyx: list[float]
+    mask_array: np.ndarray,
+    pxl_sizes_zyx: list[float],
+    origin_zyx: tuple[int, int, int] = (0, 0, 0),
 ) -> pd.DataFrame:
 
     """
@@ -299,20 +301,34 @@ def array_to_bounding_box_table(
     Args:
         mask_array: TBD
         pxl_sizes_zyx: TBD
+        origin_zyx: If set, shift origin by this amount of pixels.
     """
+
+    pxl_sizes_zyx_array = np.array(pxl_sizes_zyx)
+    z_origin, y_origin, x_origin = origin_zyx[:]
 
     labels = np.unique(mask_array)
     labels = labels[labels > 0]
     elem_list = []
     for label in labels:
-        label_match = np.where(mask_array == label)
-        # FIXME: multiplication of np.ndarray with list
-        zmin, ymin, xmin = np.min(label_match, axis=1) * pxl_sizes_zyx
-        zmax, ymax, xmax = (np.max(label_match, axis=1) + 1) * pxl_sizes_zyx
 
+        # Compute bounding box
+        label_match = np.where(mask_array == label)
+        zmin, ymin, xmin = np.min(label_match, axis=1) * pxl_sizes_zyx_array
+        zmax, ymax, xmax = (
+            np.max(label_match, axis=1) + 1
+        ) * pxl_sizes_zyx_array
+
+        # Compute bounding-box edges
         length_x = xmax - xmin
         length_y = ymax - ymin
         length_z = zmax - zmin
+
+        # Shift origin
+        zmin += z_origin * pxl_sizes_zyx[0]
+        ymin += y_origin * pxl_sizes_zyx[1]
+        xmin += x_origin * pxl_sizes_zyx[2]
+
         elem_list.append((xmin, ymin, zmin, length_x, length_y, length_z))
 
     df_columns = [
