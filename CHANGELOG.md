@@ -9,6 +9,7 @@ This release includes work on ROI tables.
     * Remove `reset_origin` argument from `convert_ROI_table_to_indices` function.
 * Fix bug in creation of bounding-box ROIs when `cellpose_segmentation` loops of FOVs (\#524).
 * Update `metadata` parameter of `prepare_FOV_ROI_table` and `prepare_well_ROI_table` functions (\#524).
+* Fix `reset_origin` so that it returns an updated copy of its input (\#524).
 
 # 0.11.0
 
