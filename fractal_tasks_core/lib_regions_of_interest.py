@@ -37,16 +37,17 @@ def _reset_origin_in_dataframe(
 
 
 def prepare_FOV_ROI_table(
-    df: pd.DataFrame, metadata: list[str] = ["time"]
+    df: pd.DataFrame, metadata: tuple[str, ...] = ("time",)
 ) -> ad.AnnData:
     """
-    TBD
-
-    FIXME add docstring
+    Prepare an AnnData table for fields-of-view ROIs.
 
     Args:
-        df: TBD
-        metadata: TBD
+        df:
+            Input dataframe, possibly prepared through
+            `parse_yokogawa_metadata`.
+        metadata:
+            Columns of `df` to be stored (if present) into AnnData table `obs`.
     """
 
     # Make a local copy of the dataframe, to avoid SettingWithCopyWarning
@@ -109,16 +110,17 @@ def prepare_FOV_ROI_table(
 
 
 def prepare_well_ROI_table(
-    df: pd.DataFrame, metadata: list[str] = ["time"]
+    df: pd.DataFrame, metadata: tuple[str, ...] = ("time",)
 ) -> ad.AnnData:
     """
-    TBD
-
-    FIXME add docstring
+    Prepare an AnnData table with a single well ROI.
 
     Args:
-        df: TBD
-        metadata: TBD
+        df:
+            Input dataframe, possibly prepared through
+            `parse_yokogawa_metadata`.
+        metadata:
+            Columns of `df` to be stored (if present) into AnnData table `obs`.
     """
 
     # Make a local copy of the dataframe, to avoid SettingWithCopyWarning
@@ -235,17 +237,16 @@ def convert_ROI_table_to_indices(
     ],
 ) -> list[list[int]]:
     """
-    TBD
-
-    FIXME: add docstring
+    Convert an ROIs in an AnnData table into integer array indices.
 
     Args:
-        ROI: TBD
-        full_res_pxl_sizes_zyx: TBD
-        level: TBD
-        coarsening_xy: TBD
-        cols_xyz_pos: TBD
-        cols_xyz_len: TBD
+        ROI: AnnData table with list of ROIs.
+        full_res_pxl_sizes_zyx:
+            Physical-unit pixel ZYX sizes at the full-resolution pyramid level.
+        level: Pyramid level.
+        coarsening_xy: Linear coarsening factor in the YX plane.
+        cols_xyz_pos: Column names for XYZ ROI positions.
+        cols_xyz_len: Column names for XYZ ROI edges.
     """
     # Handle empty ROI table
     if len(ROI) == 0:
