@@ -91,10 +91,12 @@ def patched_segment_ROI(
     nz, ny, nx = mask.shape
     if do_3D:
         mask[:, 0 : ny // 4, 0 : nx // 4] = 1  # noqa
-        mask[:, ny // 4 : ny // 2, 0:nx] = 2  # noqa
+        mask[:, ny // 4 : ny // 2, 0 : int(nx * 0.9)] = 2  # noqa
     else:
         mask[:, 0 : ny // 4, 0 : nx // 4] = 1  # noqa
-        mask[:, ny // 4 : ny // 2, 0:nx] = 2  # noqa
+        mask[:, 0 : ny // 2, 0 : nx // 4] = 1  # noqa
+        mask[:, 0 : ny // 4, 0 : nx // 2] = 1  # noqa
+        mask[:, int(ny * 3 / 4) : ny, int(nx * 3 / 4) : nx] = 2  # noqa
 
     logger.info(f"[{well_id}][patched_segment_ROI] END")
 
@@ -828,7 +830,7 @@ def test_workflow_secondary_labeling(
             channel=Channel(wavelength_id="A01_C01"),
             level=0,
             relabeling=True,
-            input_ROI_table="well_ROI_table",
+            input_ROI_table="FOV_ROI_table",
             output_label_name="organoids",
             output_ROI_table="organoid_ROI_table",
         )
@@ -840,11 +842,12 @@ def test_workflow_secondary_labeling(
     organoid_ROI_table_zarr_group = zarr.open(organoid_ROI_table_path)
     debug(organoid_ROI_table_zarr_group.attrs.asdict())
     debug(organoid_ROI_table)
-    NUM_LABELS = 2
-    assert organoid_ROI_table.obs.shape == (NUM_LABELS, 1)
-    assert organoid_ROI_table.shape == (NUM_LABELS, 6)
+    debug(organoid_ROI_table.X)
+    NUM_LABELS_PER_FOV = 2
+    assert organoid_ROI_table.obs.shape == (NUM_LABELS_PER_FOV * 2, 1)
+    assert organoid_ROI_table.shape == (NUM_LABELS_PER_FOV * 2, 6)
     assert len(organoid_ROI_table) > 0
-    assert np.max(organoid_ROI_table.X) == float(832)
+    assert np.max(organoid_ROI_table.X) == float(728)
 
     debug(zarr_path / metadata["image"][0])
 
@@ -862,5 +865,4 @@ def test_workflow_secondary_labeling(
             use_masks=True,
             output_label_name="nuclei",
         )
-
     # FIXME: what could we assert here?
