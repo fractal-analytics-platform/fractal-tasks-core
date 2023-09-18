@@ -600,7 +600,9 @@ def cellpose_segmentation(
 
         if output_ROI_table:
             bbox_df = array_to_bounding_box_table(
-                new_label_img, actual_res_pxl_sizes_zyx
+                new_label_img,
+                actual_res_pxl_sizes_zyx,
+                origin_zyx=(s_z, s_y, s_x),
             )
 
             bbox_dataframe_list.append(bbox_df)
