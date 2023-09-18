@@ -282,14 +282,13 @@ def array_to_bounding_box_table(
     pxl_sizes_zyx: list[float],
     origin_zyx: tuple[int, int, int] = (0, 0, 0),
 ) -> pd.DataFrame:
-
     """
-    TBD
+    Construct bounding-box ROI table for a mask array.
 
     Args:
-        mask_array: TBD
-        pxl_sizes_zyx: TBD
-        origin_zyx: If set, shift origin by this amount of pixels.
+        mask_array: Original array to construct bounding boxes.
+        pxl_sizes_zyx: Physical-unit pixel ZYX sizes.
+        origin_zyx: Shift ROI origin by this amount of ZYX pixels.
     """
 
     pxl_sizes_zyx_array = np.array(pxl_sizes_zyx)
