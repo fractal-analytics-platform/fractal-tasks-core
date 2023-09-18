@@ -27,22 +27,6 @@ import zarr
 logger = logging.getLogger(__name__)
 
 
-def _reset_origin_in_dataframe(
-    df: pd.DataFrame, columns: list[str]
-) -> pd.DataFrame:
-    """
-    Reset origin for columns `columns` of dataframe `df`, and return a copy.
-
-    Args:
-        df: Original DataFrame.
-        columns: Columns to be shifted.
-    """
-    new_df = df.copy()
-    for column in columns:
-        new_df[column] -= new_df[column].min()
-    return new_df
-
-
 def prepare_FOV_ROI_table(
     df: pd.DataFrame, metadata: tuple[str, ...] = ("time",)
 ) -> ad.AnnData:
@@ -90,14 +74,12 @@ def prepare_FOV_ROI_table(
     # when creating AnnData object
     df_roi = df.loc[:, positional_columns].astype(np.float32)
 
-    # Reset origin of the FOV ROI table, so that it matches with the well
-    # origin
-    df_roi = _reset_origin_in_dataframe(
-        df_roi, columns=["x_micrometer", "y_micrometer", "z_micrometer"]
-    )
-
     # Create an AnnData object directly from the DataFrame
     adata = ad.AnnData(X=df_roi)
+
+    # Reset origin of the FOV ROI table, so that it matches with the well
+    # origin
+    adata = reset_origin(adata)
 
     # Save any metadata that is specified to the obs df
     for col in metadata:
@@ -170,13 +152,11 @@ def prepare_well_ROI_table(
     # when creating AnnData object
     df_roi = df.iloc[0:1, :].loc[:, positional_columns].astype(np.float32)
 
-    # Reset origin of the single-entry well ROI table
-    df_roi = _reset_origin_in_dataframe(
-        df_roi, columns=["x_micrometer", "y_micrometer", "z_micrometer"]
-    )
-
     # Create an AnnData object directly from the DataFrame
     adata = ad.AnnData(X=df_roi)
+
+    # Reset origin of the single-entry well ROI table
+    adata = reset_origin(adata)
 
     # Save any metadata that is specified to the obs df
     for col in metadata:

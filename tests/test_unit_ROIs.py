@@ -10,9 +10,6 @@ from anndata._io.specs import write_elem
 from devtools import debug
 
 from fractal_tasks_core.lib_regions_of_interest import (
-    _reset_origin_in_dataframe,
-)
-from fractal_tasks_core.lib_regions_of_interest import (
     are_ROI_table_columns_valid,
 )
 from fractal_tasks_core.lib_regions_of_interest import (
@@ -497,11 +494,3 @@ def test_is_standard_roi_table():
     assert is_standard_roi_table("xxx_well_ROI_table_xxx")
     assert is_standard_roi_table("xxx_FOV_ROI_table_xxx")
     assert not is_standard_roi_table("something_else")
-
-
-def test_reset_origin_in_dataframe():
-    data = {"x": [3, 4, 5], "x_original": [3, 4, 5]}
-    df = pd.DataFrame(data)
-    new_df = _reset_origin_in_dataframe(df, columns=["x"])
-    assert (new_df["x"] == [0, 1, 2]).all()
-    assert (new_df["x_original"] == df["x_original"]).all()
