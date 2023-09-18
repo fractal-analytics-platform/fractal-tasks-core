@@ -445,10 +445,16 @@ def test_reset_origin():
     debug(old_adata.X)
     # Reset origin
     new_adata = reset_origin(old_adata)
+    debug(old_adata.X)
     debug(new_adata.X)
+    # Check that new_adata was shifted
     assert abs(new_adata[:, "x_micrometer"].X[0, 0]) < 1e-10
     assert abs(new_adata[:, "y_micrometer"].X[0, 0]) < 1e-10
     assert abs(new_adata[:, "z_micrometer"].X[0, 0]) < 1e-10
+    # Check that old_adata was not modified
+    assert abs(old_adata[:, "x_micrometer"].X[0, 0] - 1.0) < 1e-10
+    assert abs(old_adata[:, "y_micrometer"].X[0, 0] - 1.0) < 1e-10
+    assert abs(old_adata[:, "z_micrometer"].X[0, 0] - 1.0) < 1e-10
 
 
 def test_is_standard_roi_table():
