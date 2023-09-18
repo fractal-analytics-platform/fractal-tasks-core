@@ -42,6 +42,8 @@ def prepare_FOV_ROI_table(
     """
     TBD
 
+    FIXME add docstring
+
     Args:
         df: TBD
         metadata: TBD
@@ -80,6 +82,12 @@ def prepare_FOV_ROI_table(
     # when creating AnnData object
     df_roi = df.loc[:, positional_columns].astype(np.float32)
 
+    # Reset origin of the FOV ROI table, so that it matches with the well
+    # origin
+    df_roi = _reset_origin_in_dataframe(
+        df_roi, columns=["x_micrometer", "y_micrometer", "z_micrometer"]
+    )
+
     # Create an AnnData object directly from the DataFrame
     adata = ad.AnnData(X=df_roi)
 
@@ -105,6 +113,8 @@ def prepare_well_ROI_table(
 ) -> ad.AnnData:
     """
     TBD
+
+    FIXME add docstring
 
     Args:
         df: TBD
@@ -150,6 +160,11 @@ def prepare_well_ROI_table(
     # >> UserWarning: X converted to numpy array with dtype float64
     # when creating AnnData object
     df_roi = df.iloc[0:1, :].loc[:, positional_columns].astype(np.float32)
+
+    # Reset origin of the single-entry well ROI table
+    df_roi = _reset_origin_in_dataframe(
+        df_roi, columns=["x_micrometer", "y_micrometer", "z_micrometer"]
+    )
 
     # Create an AnnData object directly from the DataFrame
     adata = ad.AnnData(X=df_roi)
@@ -218,7 +233,7 @@ def convert_ROI_table_to_indices(
         "len_y_micrometer",
         "len_z_micrometer",
     ],
-    reset_origin: bool = True,
+    reset_origin: bool = True,  # FIXME remove this? or make it always true?
 ) -> list[list[int]]:
     """
     TBD
