@@ -101,8 +101,8 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
             shutil.move(str(rootfolder / zarrname), str(folder))
 
             # Update well/FOV ROI tables, by shifting their origin to 0
-            # (https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/339)
-            # FIXME: remove this fix, by uploading new zarrs to zenodo
+            # TODO: remove this fix, by uploading new zarrs to zenodo (ref
+            # issue 526)
             image_group_path = folder / "B/03/0"
             group_image = zarr.open_group(str(image_group_path))
             for table_name in ["FOV_ROI_table", "well_ROI_table"]:
