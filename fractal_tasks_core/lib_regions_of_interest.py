@@ -476,6 +476,12 @@ def reset_origin(
 ):
     """
     Return a copy of a ROI table, with shifted-to-zero origin for some columns.
+
+    Args:
+        ROI_table: Original ROI table.
+        x_pos: Name of the column with X position of ROIs.
+        y_pos: Name of the column with Y position of ROIs.
+        z_pos: Name of the column with Z position of ROIs.
     """
     new_table = ROI_table.copy()
 
