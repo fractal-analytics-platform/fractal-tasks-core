@@ -27,6 +27,15 @@ import zarr
 logger = logging.getLogger(__name__)
 
 
+def _reset_origin_in_dataframe(
+    df: pd.DataFrame, columns: list[str]
+) -> pd.DataFrame:
+    new_df = df.copy()
+    for column in columns:
+        new_df[column] -= new_df[column].min()
+    return new_df
+
+
 def prepare_FOV_ROI_table(
     df: pd.DataFrame, metadata: list[str] = ["time"]
 ) -> ad.AnnData:
