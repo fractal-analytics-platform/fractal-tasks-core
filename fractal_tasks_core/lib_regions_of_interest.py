@@ -470,20 +470,21 @@ def reset_origin(
     y_pos: str = "y_micrometer",
     z_pos: str = "z_micrometer",
 ):
-
     """
-    FIXME: is this in-place??
+    Return a copy of a ROI table, with shifted-to-zero origin for some columns.
     """
+    new_table = ROI_table.copy()
 
-    origin_x = min(ROI_table[:, x_pos].X[:, 0])
-    origin_y = min(ROI_table[:, y_pos].X[:, 0])
-    origin_z = min(ROI_table[:, z_pos].X[:, 0])
-    for FOV in ROI_table.obs_names:
-        ROI_table[FOV, x_pos] = ROI_table[FOV, x_pos].X[0, 0] - origin_x
-        ROI_table[FOV, y_pos] = ROI_table[FOV, y_pos].X[0, 0] - origin_y
-        ROI_table[FOV, z_pos] = ROI_table[FOV, z_pos].X[0, 0] - origin_z
+    origin_x = min(new_table[:, x_pos].X[:, 0])
+    origin_y = min(new_table[:, y_pos].X[:, 0])
+    origin_z = min(new_table[:, z_pos].X[:, 0])
 
-    return ROI_table
+    for FOV in new_table.obs_names:
+        new_table[FOV, x_pos] = new_table[FOV, x_pos].X[0, 0] - origin_x
+        new_table[FOV, y_pos] = new_table[FOV, y_pos].X[0, 0] - origin_y
+        new_table[FOV, z_pos] = new_table[FOV, z_pos].X[0, 0] - origin_z
+
+    return new_table
 
 
 def is_standard_roi_table(table: str) -> bool:
