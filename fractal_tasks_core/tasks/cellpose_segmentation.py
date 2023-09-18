@@ -348,20 +348,12 @@ def cellpose_segmentation(
     )
     logger.info(f"{actual_res_pxl_sizes_zyx=}")
 
-    # Heuristic to determine reset_origin   # FIXME, see issue #339
-    if input_ROI_table in ["FOV_ROI_table", "well_ROI_table"]:
-        reset_origin = True
-    else:
-        reset_origin = False
-    logger.info(f"{reset_origin=}")
-
     # Create list of indices for 3D ROIs spanning the entire Z direction
     list_indices = convert_ROI_table_to_indices(
         ROI_table,
         level=level,
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
-        reset_origin=reset_origin,
     )
 
     # If we are not planning to use masked loading, fail for overlapping ROIs

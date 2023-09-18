@@ -233,10 +233,11 @@ def convert_ROI_table_to_indices(
         "len_y_micrometer",
         "len_z_micrometer",
     ],
-    reset_origin: bool = True,  # FIXME remove this? or make it always true?
 ) -> list[list[int]]:
     """
     TBD
+
+    FIXME: add docstring
 
     Args:
         ROI: TBD
@@ -245,7 +246,6 @@ def convert_ROI_table_to_indices(
         coarsening_xy: TBD
         cols_xyz_pos: TBD
         cols_xyz_len: TBD
-        reset_origin: TBD
     """
     # Handle empty ROI table
     if len(ROI) == 0:
@@ -260,24 +260,13 @@ def convert_ROI_table_to_indices(
     x_pos, y_pos, z_pos = cols_xyz_pos[:]
     x_len, y_len, z_len = cols_xyz_len[:]
 
-    # FIXME: see discussion on ROI-table origin at
-    # https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/339
-    if reset_origin:
-        origin_x = min(ROI[:, x_pos].X[:, 0])
-        origin_y = min(ROI[:, y_pos].X[:, 0])
-        origin_z = min(ROI[:, z_pos].X[:, 0])
-    else:
-        origin_x = 0.0
-        origin_y = 0.0
-        origin_z = 0.0
-
     list_indices = []
     for FOV in ROI.obs_names:
 
         # Extract data from anndata table
-        x_micrometer = ROI[FOV, x_pos].X[0, 0] - origin_x
-        y_micrometer = ROI[FOV, y_pos].X[0, 0] - origin_y
-        z_micrometer = ROI[FOV, z_pos].X[0, 0] - origin_z
+        x_micrometer = ROI[FOV, x_pos].X[0, 0]
+        y_micrometer = ROI[FOV, y_pos].X[0, 0]
+        z_micrometer = ROI[FOV, z_pos].X[0, 0]
         len_x_micrometer = ROI[FOV, x_len].X[0, 0]
         len_y_micrometer = ROI[FOV, y_len].X[0, 0]
         len_z_micrometer = ROI[FOV, z_len].X[0, 0]
