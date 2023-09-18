@@ -30,6 +30,13 @@ logger = logging.getLogger(__name__)
 def _reset_origin_in_dataframe(
     df: pd.DataFrame, columns: list[str]
 ) -> pd.DataFrame:
+    """
+    Reset origin for columns `columns` of dataframe `df`, and return a copy.
+
+    Args:
+        df: Original DataFrame.
+        columns: Columns to be shifted.
+    """
     new_df = df.copy()
     for column in columns:
         new_df[column] -= new_df[column].min()
