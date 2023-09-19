@@ -1,10 +1,12 @@
 import logging
 from enum import Enum
+from typing import Literal
 from typing import Optional
 from typing import Union
 
 from pydantic import BaseModel
 from pydantic import Field
+from pydantic import validator
 
 
 class Version(Enum):
@@ -30,34 +32,13 @@ class Omero(BaseModel):
     channels: list[Channel]
 
 
-class Type(Enum):
-    channel = "channel"
-    time = "time"
-    space = "space"
-
-
 class Axe(BaseModel):
     name: str
-    type: Type
-
-
-class Axe1(BaseModel):
-    name: str
-    type: Optional[str] = None
-
-
-class Axes(BaseModel):
-    __root__: list[Union[Axe, Axe1]] = Field(
-        ..., max_items=5, min_items=2, unique_items=True
-    )
-
-
-class Type1(Enum):
-    scale = "scale"
+    type: Optional[str] = None  # or maybe Literal["channel", "time", "space"]
 
 
 class CoordinateTransformation(BaseModel):
-    type: Type1
+    type: Literal["scale"]
     scale: list[float] = Field(..., min_items=2)
 
 
@@ -70,25 +51,31 @@ class CoordinateTransformation1(BaseModel):
     translation: list[float] = Field(..., min_items=2)
 
 
-class CoordinateTransformations(BaseModel):
-    __root__: list[
+class Dataset(BaseModel):
+    path: str
+    coordinateTransformations: list[
         Union[CoordinateTransformation, CoordinateTransformation1]
     ] = Field(  # noqa
         ..., min_items=1
     )
 
 
-class Dataset(BaseModel):
-    path: str
-    coordinateTransformations: CoordinateTransformations
-
-
 class Multiscale(BaseModel):
     name: Optional[str] = None
     datasets: list[Dataset] = Field(..., min_items=1)
     version: Optional[Version] = None
-    axes: Axes
-    coordinateTransformations: Optional[CoordinateTransformations] = None
+    axes: list[Axe] = Field(..., max_items=5, min_items=2, unique_items=True)
+    coordinateTransformations: Optional[
+        list[Union[CoordinateTransformation, CoordinateTransformation1]]
+    ] = None
+
+    @validator("coordinateTransformations", always=True)
+    def _no_global_coordinateTransformations(cls, v):
+        if v.coordinateTransformations is not None:
+            raise NotImplementedError(
+                "Global coordinateTransformations at the multiscales "
+                "level are not currently supported."
+            )
 
 
 class NgffImage(BaseModel):
@@ -100,15 +87,6 @@ class NgffImage(BaseModel):
     )
     omero: Optional[Omero] = None
 
-    def _no_global_coordinateTransformations(
-        self,
-    ):  # FIXME make this a validator # noqa
-        if self.multiscale.coordinateTransformations is not None:
-            raise NotImplementedError(
-                "Global coordinateTransformations at the multiscales "
-                "level are not currently supported."
-            )
-
     @property
     def multiscale(self) -> Multiscale:
         if len(self.multiscales) > 1:
@@ -119,7 +97,7 @@ class NgffImage(BaseModel):
         return self.multiscales[0]
 
     @property
-    def axes(self) -> Axes:
+    def axes(self) -> list[Axe]:
         return self.multiscale.axes
 
     @property
@@ -133,6 +111,9 @@ class NgffImage(BaseModel):
     @property
     def pixel_sizes_zyx(self) -> list[tuple[float, float, float]]:
         # Construct pixel_sizes_zyx
+        from devtools import debug
+
+        debug(self.multiscale.axes)
         axes = [ax.name for ax in self.multiscale.axes]
         x_index = axes.index("x")
         y_index = axes.index("y")
