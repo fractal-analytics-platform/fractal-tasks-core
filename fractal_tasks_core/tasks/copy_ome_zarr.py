@@ -23,11 +23,11 @@ from anndata._io.specs import write_elem
 from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
+from fractal_tasks_core.lib_image import load_NgffImage_from_zarr
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROIs_from_3D_to_2D,
 )
 from fractal_tasks_core.lib_write import open_zarr_group_with_overwrite
-from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 logger = logging.getLogger(__name__)
 
@@ -173,12 +173,9 @@ def copy_ome_zarr(
                     new_tables_group = new_image_group.create_group("tables/")
                     new_tables_group.attrs["tables"] = ROI_table_names
                     if project_to_2D:
-                        path_FOV_zattrs = (
-                            f"{zarrurl_old}/{well_path}/{image_path}/.zattrs"
-                        )
-                        pxl_sizes_zyx = extract_zyx_pixel_sizes(
-                            path_FOV_zattrs, level=0
-                        )
+                        path_image = f"{zarrurl_old}/{well_path}/{image_path}"
+                        ngff_image = load_NgffImage_from_zarr(path_image)
+                        pxl_sizes_zyx = ngff_image.get_pixel_sizes_zyx(level=0)
                         pxl_size_z = pxl_sizes_zyx[0]
 
                     # Copy the tables in ROI_table_names
@@ -193,7 +190,7 @@ def copy_ome_zarr(
                             f"{zarrurl_old}/{well_path}/{image_path}/"
                             f"tables/{ROI_table_name}"
                         )
-                        # Convert 3D FOVs to 2D
+                        # Convert 3D ROIs to 2D
                         if project_to_2D:
                             new_ROI_table = convert_ROIs_from_3D_to_2D(
                                 ROI_table, pxl_size_z
