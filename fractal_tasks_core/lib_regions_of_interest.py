@@ -301,7 +301,9 @@ def array_to_bounding_box_table(
         corresponds to a unique value of `mask_array`. ROI properties are
         expressed in physical units (with columns defined as elsewhere this
         module - see e.g. `prepare_well_ROI_table`), and positions are
-        optionally shifted (if `origin_zyx` is set).
+        optionally shifted (if `origin_zyx` is set). An additional column
+        `label` keeps track of the `mask_array` value corresponding to each
+        ROI.
     """
 
     pxl_sizes_zyx_array = np.array(pxl_sizes_zyx)
