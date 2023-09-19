@@ -234,6 +234,12 @@ def convert_ROI_table_to_indices(
         coarsening_xy: Linear coarsening factor in the YX plane.
         cols_xyz_pos: Column names for XYZ ROI positions.
         cols_xyz_len: Column names for XYZ ROI edges.
+
+    Returns:
+        Nested list of indices. The main list has one item per ROI. Each ROI
+        item is a list of six integers as in `[start_z, end_z, start_y, end_y,
+        start_x, end_x]`. The array-index interval for a given ROI is
+        `start_x:end_x` along X, and so on for Y and Z.
     """
     # Handle empty ROI table
     if len(ROI) == 0:
@@ -289,6 +295,13 @@ def array_to_bounding_box_table(
         mask_array: Original array to construct bounding boxes.
         pxl_sizes_zyx: Physical-unit pixel ZYX sizes.
         origin_zyx: Shift ROI origin by this amount of ZYX pixels.
+
+    Returns:
+        DataFrame with each line representing the bounding-box ROI that
+        corresponds to a unique value of `mask_array`. ROI properties are
+        expressed in physical units (with columns defined as elsewhere this
+        module - see e.g. `prepare_well_ROI_table`), and positions are
+        optionally shifted (if `origin_zyx` is set).
     """
 
     pxl_sizes_zyx_array = np.array(pxl_sizes_zyx)
@@ -481,6 +494,10 @@ def reset_origin(
         x_pos: Name of the column with X position of ROIs.
         y_pos: Name of the column with Y position of ROIs.
         z_pos: Name of the column with Z position of ROIs.
+
+    Returns:
+        A copy of the `ROI_table` AnnData table, where values of `x_pos`,
+        `y_pos` and `z_pos` columns have been shifted by their minimum values.
     """
     new_table = ROI_table.copy()
 
