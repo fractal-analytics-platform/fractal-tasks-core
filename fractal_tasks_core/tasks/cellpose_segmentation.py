@@ -35,6 +35,7 @@ import fractal_tasks_core
 from fractal_tasks_core.lib_channels import ChannelNotFoundError
 from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
 from fractal_tasks_core.lib_channels import OmeroChannel
+from fractal_tasks_core.lib_image import load_NgffImage_from_zarr
 from fractal_tasks_core.lib_input_models import Channel
 from fractal_tasks_core.lib_masked_loading import masked_loading_wrapper
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
@@ -50,7 +51,6 @@ from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
 from fractal_tasks_core.lib_ROI_overlaps import get_overlapping_pairs_3D
 from fractal_tasks_core.lib_write import prepare_label_group
 from fractal_tasks_core.lib_write import write_table
-from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
 
 logger = logging.getLogger(__name__)
@@ -269,9 +269,10 @@ def cellpose_segmentation(
         if not os.path.exists(pretrained_model):
             raise ValueError(f"{pretrained_model=} does not exist.")
 
-    # Read useful parameters from metadata
-    num_levels = metadata["num_levels"]
-    coarsening_xy = metadata["coarsening_xy"]
+    # Read some parameters from metadata
+    ngff_image = load_NgffImage_from_zarr(zarrurl)
+    num_levels = ngff_image.num_levels
+    coarsening_xy = ngff_image.coarsening_xy
 
     plate, well = component.split(".zarr/")
 
@@ -339,13 +340,9 @@ def cellpose_segmentation(
     logger.info(f"{use_masks=}")
 
     # Read pixel sizes from zattrs file
-    full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
-        f"{zarrurl}/.zattrs", level=0
-    )
+    full_res_pxl_sizes_zyx = ngff_image.get_pixel_sizes_zyx(level=0)
     logger.info(f"{full_res_pxl_sizes_zyx=}")
-    actual_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
-        f"{zarrurl}/.zattrs", level=level
-    )
+    actual_res_pxl_sizes_zyx = ngff_image.get_pixel_sizes_zyx(level=level)
     logger.info(f"{actual_res_pxl_sizes_zyx=}")
 
     # Heuristic to determine reset_origin   # FIXME, see issue #339
@@ -378,9 +375,7 @@ def cellpose_segmentation(
     if do_3D:
         if anisotropy is None:
             # Read pixel sizes from zattrs file
-            pxl_zyx = extract_zyx_pixel_sizes(
-                f"{zarrurl}/.zattrs", level=level
-            )
+            pxl_zyx = ngff_image.get_pixel_sizes_zyx(level=level)
             pixel_size_z, pixel_size_y, pixel_size_x = pxl_zyx[:]
             logger.info(f"{pxl_zyx=}")
             if not np.allclose(pixel_size_x, pixel_size_y):
@@ -608,7 +603,7 @@ def cellpose_segmentation(
 
         if output_ROI_table:
             bbox_df = array_to_bounding_box_table(
-                new_label_img, actual_res_pxl_sizes_zyx
+                new_label_img, list(actual_res_pxl_sizes_zyx)  # FIXME
             )
 
             bbox_dataframe_list.append(bbox_df)
