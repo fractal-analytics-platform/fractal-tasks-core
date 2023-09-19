@@ -485,7 +485,7 @@ def reset_origin(
     x_pos: str = "x_micrometer",
     y_pos: str = "y_micrometer",
     z_pos: str = "z_micrometer",
-):
+) -> ad.AnnData:
     """
     Return a copy of a ROI table, with shifted-to-zero origin for some columns.
 
