@@ -29,7 +29,6 @@ from pydantic.decorator import validate_arguments
 from fractal_tasks_core.lib_regions_of_interest import (
     are_ROI_table_columns_valid,
 )
-from fractal_tasks_core.lib_regions_of_interest import reset_origin
 from fractal_tasks_core.lib_zattrs_utils import get_acquisition_paths
 
 logger = logging.getLogger(__name__)
@@ -126,15 +125,6 @@ def apply_registration_to_ROI_tables(
                 "this task."
             )
         roi_tables[acq] = curr_ROI_table
-
-    # Reset all the origins
-    # Related to
-    # https://github.com/fractal-analytics-platform/fractal-tasks-core/pull/487
-    # May not be necessary long-term if we move to 0, 0, 0 origins or specific
-    # coordinate systems with defined origins
-    logger.info(f"Reset ROI origins for new {new_roi_table} table")
-    for acq, acq_roi_table in roi_tables.items():
-        roi_tables[acq] = reset_origin(acq_roi_table)
 
     # Check that all acquisitions have the same ROIs
     rois = roi_tables[reference_cycle].obs.index
