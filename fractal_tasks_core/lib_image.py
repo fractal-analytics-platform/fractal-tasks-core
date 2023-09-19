@@ -97,10 +97,6 @@ class NgffImage(BaseModel):
         return self.multiscales[0]
 
     @property
-    def axes(self) -> list[Axe]:
-        return self.multiscale.axes
-
-    @property
     def datasets(self) -> list[Dataset]:
         return self.multiscale.datasets
 
@@ -110,10 +106,6 @@ class NgffImage(BaseModel):
 
     @property
     def pixel_sizes_zyx(self) -> list[tuple[float, float, float]]:
-        # Construct pixel_sizes_zyx
-        from devtools import debug
-
-        debug(self.multiscale.axes)
         axes = [ax.name for ax in self.multiscale.axes]
         x_index = axes.index("x")
         y_index = axes.index("y")
