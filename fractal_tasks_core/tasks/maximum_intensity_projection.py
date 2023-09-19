@@ -22,12 +22,12 @@ import dask.array as da
 from pydantic.decorator import validate_arguments
 from zarr.errors import ContainsArrayError
 
+from fractal_tasks_core.lib_image import load_NgffImage_from_zarr
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
 from fractal_tasks_core.lib_write import OverwriteNotAllowedError
-from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 logger = logging.getLogger(__name__)
 
@@ -79,22 +79,21 @@ def maximum_intensity_projection(
     if len(input_paths) > 1:
         raise NotImplementedError
 
-    # Read some parameters from metadata
-    num_levels = metadata["num_levels"]
-    coarsening_xy = metadata["coarsening_xy"]
     plate, well = component.split(".zarr/")
-
     zarrurl_old = metadata["copy_ome_zarr"]["sources"][plate] + "/" + well
     clean_output_path = Path(output_path).resolve()
     zarrurl_new = (clean_output_path / component).as_posix()
     logger.info(f"{zarrurl_old=}")
     logger.info(f"{zarrurl_new=}")
 
+    # Read some parameters from metadata
+    ngff_image = load_NgffImage_from_zarr(zarrurl_old)
+    num_levels = ngff_image.num_levels
+    coarsening_xy = ngff_image.coarsening_xy
+
     # This whole block finds (chunk_size_y,chunk_size_x)
     FOV_ROI_table = ad.read_zarr(f"{zarrurl_old}/tables/FOV_ROI_table")
-    full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
-        f"{zarrurl_old}/.zattrs", level=0
-    )
+    full_res_pxl_sizes_zyx = ngff_image.get_pixel_sizes_zyx(level=0)
     # Create list of indices for 3D FOVs spanning the entire Z direction
     list_indices = convert_ROI_table_to_indices(
         FOV_ROI_table,
