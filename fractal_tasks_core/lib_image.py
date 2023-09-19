@@ -71,7 +71,7 @@ class Multiscale(BaseModel):
 
     @validator("coordinateTransformations", always=True)
     def _no_global_coordinateTransformations(cls, v):
-        if v.coordinateTransformations is not None:
+        if v is not None:
             raise NotImplementedError(
                 "Global coordinateTransformations at the multiscales "
                 "level are not currently supported."
@@ -139,7 +139,9 @@ class NgffImage(BaseModel):
             pass
         return pixel_sizes_zyx
 
-    def get_pixel_sizes_zyx(self, *, level: int) -> tuple[float, float, float]:
+    def get_pixel_sizes_zyx(
+        self, *, level: int = 0
+    ) -> tuple[float, float, float]:
         return self.pixel_sizes_zyx[level]
 
     @property
