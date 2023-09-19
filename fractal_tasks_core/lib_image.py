@@ -4,6 +4,7 @@ from typing import Literal
 from typing import Optional
 from typing import Union
 
+import zarr
 from pydantic import BaseModel
 from pydantic import Field
 from pydantic import validator
@@ -163,3 +164,18 @@ class NgffImage(BaseModel):
                     )
 
         return current_ratio
+
+
+def load_NgffImage_from_zarr(zarr_path: str) -> NgffImage:
+    """
+    Load the attributes of a zarr group and cast them to `NgffImage`.
+
+    Args:
+        zarr_path: Path to the zarr group.
+
+    Returns:
+        A new `NgffImage` object.
+    """
+    zarr_group = zarr.open_group(zarr_path, mode="r")
+    zarr_attrs = zarr_group.attrs.asdict()
+    return NgffImage(**zarr_attrs)

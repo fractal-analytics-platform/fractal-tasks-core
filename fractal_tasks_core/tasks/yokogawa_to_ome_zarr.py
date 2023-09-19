@@ -27,7 +27,7 @@ from zarr.errors import ContainsArrayError
 from fractal_tasks_core.lib_channels import get_omero_channel_list
 from fractal_tasks_core.lib_channels import OmeroChannel
 from fractal_tasks_core.lib_glob import glob_with_multiple_patterns
-from fractal_tasks_core.lib_image import NgffImage
+from fractal_tasks_core.lib_image import load_NgffImage_from_zarr
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_read_fractal_metadata import (
@@ -110,7 +110,7 @@ def yokogawa_to_ome_zarr(
         raise NotImplementedError
     zarrurl = Path(input_paths[0]).as_posix() + f"/{component}"
 
-    ngff_image = NgffImage(**zarr.open_group(zarrurl).attrs.asdict())
+    ngff_image = load_NgffImage_from_zarr(zarrurl)
     num_levels = ngff_image.num_levels
     coarsening_xy = ngff_image.coarsening_xy
 
