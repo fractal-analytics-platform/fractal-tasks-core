@@ -237,9 +237,9 @@ def convert_ROI_table_to_indices(
 
     Returns:
         Nested list of indices. The main list has one item per ROI. Each ROI
-        item is a list of six integers as in `[start_z, end_z, start_y, end_y,
-        start_x, end_x]`. The array-index interval for a given ROI is
-        `start_x:end_x` along X, and so on for Y and Z.
+            item is a list of six integers as in `[start_z, end_z, start_y,
+            end_y, start_x, end_x]`. The array-index interval for a given ROI
+            is `start_x:end_x` along X, and so on for Y and Z.
     """
     # Handle empty ROI table
     if len(ROI) == 0:
@@ -298,12 +298,12 @@ def array_to_bounding_box_table(
 
     Returns:
         DataFrame with each line representing the bounding-box ROI that
-        corresponds to a unique value of `mask_array`. ROI properties are
-        expressed in physical units (with columns defined as elsewhere this
-        module - see e.g. `prepare_well_ROI_table`), and positions are
-        optionally shifted (if `origin_zyx` is set). An additional column
-        `label` keeps track of the `mask_array` value corresponding to each
-        ROI.
+            corresponds to a unique value of `mask_array`. ROI properties are
+            expressed in physical units (with columns defined as elsewhere this
+            module - see e.g. `prepare_well_ROI_table`), and positions are
+            optionally shifted (if `origin_zyx` is set). An additional column
+            `label` keeps track of the `mask_array` value corresponding to each
+            ROI.
     """
 
     pxl_sizes_zyx_array = np.array(pxl_sizes_zyx)
@@ -499,7 +499,8 @@ def reset_origin(
 
     Returns:
         A copy of the `ROI_table` AnnData table, where values of `x_pos`,
-        `y_pos` and `z_pos` columns have been shifted by their minimum values.
+            `y_pos` and `z_pos` columns have been shifted by their minimum
+            values.
     """
     new_table = ROI_table.copy()
 
