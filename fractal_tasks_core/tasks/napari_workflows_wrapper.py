@@ -31,6 +31,7 @@ import fractal_tasks_core
 from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
 from fractal_tasks_core.lib_input_models import NapariWorkflowsInput
 from fractal_tasks_core.lib_input_models import NapariWorkflowsOutput
+from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
@@ -194,32 +195,25 @@ def napari_workflows_wrapper(
             "We currently only support a single input path"
         )
     in_path = Path(input_paths[0]).as_posix()
-    num_levels = metadata["num_levels"]
-    coarsening_xy = metadata["coarsening_xy"]
     label_dtype = np.uint32
 
-    # Load zattrs file and multiscales
+    # Load zattrs file and multiscales  # FIXME: remove?
     zattrs_file = f"{in_path}/{component}/.zattrs"
     with open(zattrs_file, "r") as jsonfile:
         zattrs = json.load(jsonfile)
-    multiscales = zattrs["multiscales"]
-    if len(multiscales) > 1:
-        raise NotImplementedError(
-            f"Found {len(multiscales)} multiscales, "
-            "but only one is currently supported."
-        )
-    if "coordinateTransformations" in multiscales[0].keys():
-        raise NotImplementedError(
-            "global coordinateTransformations at the multiscales "
-            "level are not currently supported"
-        )
+    multiscales = zattrs["multiscales"]  # FIXME use ngff_image_meta?
 
-    # Read ROI table
+    # Read mROI table
     zarrurl = f"{in_path}/{component}"
     ROI_table = ad.read_zarr(f"{in_path}/{component}/tables/{input_ROI_table}")
 
+    # Load image metadata
+    ngff_image_meta = load_NgffImageMeta(zarrurl)
+    num_levels = ngff_image_meta.num_levels
+    coarsening_xy = ngff_image_meta.coarsening_xy
+
     # Read pixel sizes from zattrs file
-    full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(zattrs_file, level=0)
+    full_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
 
     # Create list of indices for 3D FOVs spanning the entire Z direction
     list_indices = convert_ROI_table_to_indices(
