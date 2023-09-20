@@ -1,5 +1,17 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# Unreleased
+
+This release includes work on ROI tables.
+
+* Set `FOV_ROI_table` and `well_ROI_table` ZYX origin to zero (\#524):
+    * Remove heuristics to determine whether to reset origin, in `cellpose_segmentation` task;
+    * Remove obsolete `reset_origin` argument from `convert_ROI_table_to_indices` function.
+    * Remove redundant `reset_origin` call from `apply_registration_to_ROI_tables` task.
+* Fix bug in creation of bounding-box ROIs when `cellpose_segmentation` loops of FOVs (\#524).
+* Update type of `metadata` parameter of `prepare_FOV_ROI_table` and `prepare_well_ROI_table` functions (\#524).
+* Fix `reset_origin` so that it returns an updated copy of its input (\#524).
+
 # 0.11.0
 
 * Tasks:

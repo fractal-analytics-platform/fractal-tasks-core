@@ -77,6 +77,14 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
     if rootfolder.exists():
         print(f"{str(rootfolder)} already exists, skip")
     else:
+
+        import zarr
+        import anndata as ad
+        import logging
+
+        from fractal_tasks_core.lib_regions_of_interest import reset_origin
+        from fractal_tasks_core.lib_write import write_table
+
         rootfolder.mkdir()
         tmp_path = tmpdir_factory.mktemp("zenodo_zarr")
         zarrnames = [
@@ -91,6 +99,23 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
                 str(tmp_path / zipname), extract_dir=rootfolder, format="zip"
             )
             shutil.move(str(rootfolder / zarrname), str(folder))
+
+            # Update well/FOV ROI tables, by shifting their origin to 0
+            # TODO: remove this fix, by uploading new zarrs to zenodo (ref
+            # issue 526)
+            image_group_path = folder / "B/03/0"
+            group_image = zarr.open_group(str(image_group_path))
+            for table_name in ["FOV_ROI_table", "well_ROI_table"]:
+                table_path = str(image_group_path / "tables" / table_name)
+                old_table = ad.read_zarr(table_path)
+                new_table = reset_origin(old_table)
+                write_table(
+                    group_image,
+                    table_name,
+                    new_table,
+                    overwrite=True,
+                    logger=logging.getLogger(),
+                )
 
     folders = [str(f) for f in folders]
 

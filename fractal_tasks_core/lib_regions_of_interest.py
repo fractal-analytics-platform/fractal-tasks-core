@@ -28,14 +28,17 @@ logger = logging.getLogger(__name__)
 
 
 def prepare_FOV_ROI_table(
-    df: pd.DataFrame, metadata: list[str] = ["time"]
+    df: pd.DataFrame, metadata: tuple[str, ...] = ("time",)
 ) -> ad.AnnData:
     """
-    TBD
+    Prepare an AnnData table for fields-of-view ROIs.
 
     Args:
-        df: TBD
-        metadata: TBD
+        df:
+            Input dataframe, possibly prepared through
+            `parse_yokogawa_metadata`.
+        metadata:
+            Columns of `df` to be stored (if present) into AnnData table `obs`.
     """
 
     # Make a local copy of the dataframe, to avoid SettingWithCopyWarning
@@ -74,6 +77,10 @@ def prepare_FOV_ROI_table(
     # Create an AnnData object directly from the DataFrame
     adata = ad.AnnData(X=df_roi)
 
+    # Reset origin of the FOV ROI table, so that it matches with the well
+    # origin
+    adata = reset_origin(adata)
+
     # Save any metadata that is specified to the obs df
     for col in metadata:
         if col in df:
@@ -92,14 +99,17 @@ def prepare_FOV_ROI_table(
 
 
 def prepare_well_ROI_table(
-    df: pd.DataFrame, metadata: list[str] = ["time"]
+    df: pd.DataFrame, metadata: tuple[str, ...] = ("time",)
 ) -> ad.AnnData:
     """
-    TBD
+    Prepare an AnnData table with a single well ROI.
 
     Args:
-        df: TBD
-        metadata: TBD
+        df:
+            Input dataframe, possibly prepared through
+            `parse_yokogawa_metadata`.
+        metadata:
+            Columns of `df` to be stored (if present) into AnnData table `obs`.
     """
 
     # Make a local copy of the dataframe, to avoid SettingWithCopyWarning
@@ -144,6 +154,9 @@ def prepare_well_ROI_table(
 
     # Create an AnnData object directly from the DataFrame
     adata = ad.AnnData(X=df_roi)
+
+    # Reset origin of the single-entry well ROI table
+    adata = reset_origin(adata)
 
     # Save any metadata that is specified to the obs df
     for col in metadata:
@@ -209,19 +222,24 @@ def convert_ROI_table_to_indices(
         "len_y_micrometer",
         "len_z_micrometer",
     ],
-    reset_origin: bool = True,
 ) -> list[list[int]]:
     """
-    TBD
+    Convert a ROI AnnData table into integer array indices.
 
     Args:
-        ROI: TBD
-        full_res_pxl_sizes_zyx: TBD
-        level: TBD
-        coarsening_xy: TBD
-        cols_xyz_pos: TBD
-        cols_xyz_len: TBD
-        reset_origin: TBD
+        ROI: AnnData table with list of ROIs.
+        full_res_pxl_sizes_zyx:
+            Physical-unit pixel ZYX sizes at the full-resolution pyramid level.
+        level: Pyramid level.
+        coarsening_xy: Linear coarsening factor in the YX plane.
+        cols_xyz_pos: Column names for XYZ ROI positions.
+        cols_xyz_len: Column names for XYZ ROI edges.
+
+    Returns:
+        Nested list of indices. The main list has one item per ROI. Each ROI
+            item is a list of six integers as in `[start_z, end_z, start_y,
+            end_y, start_x, end_x]`. The array-index interval for a given ROI
+            is `start_x:end_x` along X, and so on for Y and Z.
     """
     # Handle empty ROI table
     if len(ROI) == 0:
@@ -236,24 +254,13 @@ def convert_ROI_table_to_indices(
     x_pos, y_pos, z_pos = cols_xyz_pos[:]
     x_len, y_len, z_len = cols_xyz_len[:]
 
-    # FIXME: see discussion on ROI-table origin at
-    # https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/339
-    if reset_origin:
-        origin_x = min(ROI[:, x_pos].X[:, 0])
-        origin_y = min(ROI[:, y_pos].X[:, 0])
-        origin_z = min(ROI[:, z_pos].X[:, 0])
-    else:
-        origin_x = 0.0
-        origin_y = 0.0
-        origin_z = 0.0
-
     list_indices = []
     for FOV in ROI.obs_names:
 
         # Extract data from anndata table
-        x_micrometer = ROI[FOV, x_pos].X[0, 0] - origin_x
-        y_micrometer = ROI[FOV, y_pos].X[0, 0] - origin_y
-        z_micrometer = ROI[FOV, z_pos].X[0, 0] - origin_z
+        x_micrometer = ROI[FOV, x_pos].X[0, 0]
+        y_micrometer = ROI[FOV, y_pos].X[0, 0]
+        z_micrometer = ROI[FOV, z_pos].X[0, 0]
         len_x_micrometer = ROI[FOV, x_len].X[0, 0]
         len_y_micrometer = ROI[FOV, y_len].X[0, 0]
         len_z_micrometer = ROI[FOV, z_len].X[0, 0]
@@ -277,29 +284,53 @@ def convert_ROI_table_to_indices(
 
 
 def array_to_bounding_box_table(
-    mask_array: np.ndarray, pxl_sizes_zyx: list[float]
+    mask_array: np.ndarray,
+    pxl_sizes_zyx: list[float],
+    origin_zyx: tuple[int, int, int] = (0, 0, 0),
 ) -> pd.DataFrame:
-
     """
-    TBD
+    Construct bounding-box ROI table for a mask array.
 
     Args:
-        mask_array: TBD
-        pxl_sizes_zyx: TBD
+        mask_array: Original array to construct bounding boxes.
+        pxl_sizes_zyx: Physical-unit pixel ZYX sizes.
+        origin_zyx: Shift ROI origin by this amount of ZYX pixels.
+
+    Returns:
+        DataFrame with each line representing the bounding-box ROI that
+            corresponds to a unique value of `mask_array`. ROI properties are
+            expressed in physical units (with columns defined as elsewhere this
+            module - see e.g. `prepare_well_ROI_table`), and positions are
+            optionally shifted (if `origin_zyx` is set). An additional column
+            `label` keeps track of the `mask_array` value corresponding to each
+            ROI.
     """
+
+    pxl_sizes_zyx_array = np.array(pxl_sizes_zyx)
+    z_origin, y_origin, x_origin = origin_zyx[:]
 
     labels = np.unique(mask_array)
     labels = labels[labels > 0]
     elem_list = []
     for label in labels:
-        label_match = np.where(mask_array == label)
-        # FIXME: multiplication of np.ndarray with list
-        zmin, ymin, xmin = np.min(label_match, axis=1) * pxl_sizes_zyx
-        zmax, ymax, xmax = (np.max(label_match, axis=1) + 1) * pxl_sizes_zyx
 
+        # Compute bounding box
+        label_match = np.where(mask_array == label)
+        zmin, ymin, xmin = np.min(label_match, axis=1) * pxl_sizes_zyx_array
+        zmax, ymax, xmax = (
+            np.max(label_match, axis=1) + 1
+        ) * pxl_sizes_zyx_array
+
+        # Compute bounding-box edges
         length_x = xmax - xmin
         length_y = ymax - ymin
         length_z = zmax - zmin
+
+        # Shift origin
+        zmin += z_origin * pxl_sizes_zyx[0]
+        ymin += y_origin * pxl_sizes_zyx[1]
+        xmin += x_origin * pxl_sizes_zyx[2]
+
         elem_list.append((xmin, ymin, zmin, length_x, length_y, length_z))
 
     df_columns = [
@@ -453,20 +484,36 @@ def convert_indices_to_regions(
 
 def reset_origin(
     ROI_table: ad.AnnData,
-    x_pos="x_micrometer",
-    y_pos="y_micrometer",
-    z_pos="z_micrometer",
-):
+    x_pos: str = "x_micrometer",
+    y_pos: str = "y_micrometer",
+    z_pos: str = "z_micrometer",
+) -> ad.AnnData:
+    """
+    Return a copy of a ROI table, with shifted-to-zero origin for some columns.
 
-    origin_x = min(ROI_table[:, x_pos].X[:, 0])
-    origin_y = min(ROI_table[:, y_pos].X[:, 0])
-    origin_z = min(ROI_table[:, z_pos].X[:, 0])
-    for FOV in ROI_table.obs_names:
-        ROI_table[FOV, x_pos] = ROI_table[FOV, x_pos].X[0, 0] - origin_x
-        ROI_table[FOV, y_pos] = ROI_table[FOV, y_pos].X[0, 0] - origin_y
-        ROI_table[FOV, z_pos] = ROI_table[FOV, z_pos].X[0, 0] - origin_z
+    Args:
+        ROI_table: Original ROI table.
+        x_pos: Name of the column with X position of ROIs.
+        y_pos: Name of the column with Y position of ROIs.
+        z_pos: Name of the column with Z position of ROIs.
 
-    return ROI_table
+    Returns:
+        A copy of the `ROI_table` AnnData table, where values of `x_pos`,
+            `y_pos` and `z_pos` columns have been shifted by their minimum
+            values.
+    """
+    new_table = ROI_table.copy()
+
+    origin_x = min(new_table[:, x_pos].X[:, 0])
+    origin_y = min(new_table[:, y_pos].X[:, 0])
+    origin_z = min(new_table[:, z_pos].X[:, 0])
+
+    for FOV in new_table.obs_names:
+        new_table[FOV, x_pos] = new_table[FOV, x_pos].X[0, 0] - origin_x
+        new_table[FOV, y_pos] = new_table[FOV, y_pos].X[0, 0] - origin_y
+        new_table[FOV, z_pos] = new_table[FOV, z_pos].X[0, 0] - origin_z
+
+    return new_table
 
 
 def is_standard_roi_table(table: str) -> bool:

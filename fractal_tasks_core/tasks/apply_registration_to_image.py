@@ -296,14 +296,12 @@ def write_registered_zarr(
         level=0,
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=pxl_sizes_zyx,
-        reset_origin=False,
     )
     list_indices_ref = convert_ROI_table_to_indices(
         ROI_table_ref,
         level=0,
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=pxl_sizes_zyx,
-        reset_origin=False,
     )
 
     old_image_group = zarr.open_group(f"{input_path / component}", mode="r")
