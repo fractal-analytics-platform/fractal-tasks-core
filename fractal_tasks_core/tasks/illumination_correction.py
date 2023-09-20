@@ -29,11 +29,11 @@ from skimage.io import imread
 
 from fractal_tasks_core.lib_channels import get_omero_channel_list
 from fractal_tasks_core.lib_channels import OmeroChannel
+from fractal_tasks_core.lib_image import load_NgffImage_from_zarr
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
-from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 logger = logging.getLogger(__name__)
 
@@ -166,10 +166,6 @@ def illumination_correction(
         )
         raise NotImplementedError(msg)
 
-    # Read some parameters from metadata
-    num_levels = metadata["num_levels"]
-    coarsening_xy = metadata["coarsening_xy"]
-
     # Defione old/new zarrurls
     plate, well = component.split(".zarr/")
     in_path = Path(input_paths[0])
@@ -181,6 +177,11 @@ def illumination_correction(
         if new_well != well:
             raise ValueError(f"{well=}, {new_well=}")
         zarrurl_new = (Path(output_path) / new_component).as_posix()
+
+    # Read some parameters from metadata
+    ngff_image = load_NgffImage_from_zarr(zarrurl_old)
+    num_levels = ngff_image.num_levels
+    coarsening_xy = ngff_image.coarsening_xy
 
     t_start = time.perf_counter()
     logger.info("Start illumination_correction")
@@ -198,9 +199,7 @@ def illumination_correction(
     FOV_ROI_table = ad.read_zarr(f"{zarrurl_old}/tables/FOV_ROI_table")
 
     # Read pixel sizes from zattrs file
-    full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
-        f"{zarrurl_old}/.zattrs", level=0
-    )
+    full_res_pxl_sizes_zyx = ngff_image.get_pixel_sizes_zyx(level=0)
 
     # Create list of indices for 3D FOVs spanning the entire Z direction
     list_indices = convert_ROI_table_to_indices(
