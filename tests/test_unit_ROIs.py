@@ -31,9 +31,7 @@ from fractal_tasks_core.lib_regions_of_interest import (
 from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
-from fractal_tasks_core.lib_regions_of_interest import (
-    reset_origin,
-)
+from fractal_tasks_core.lib_regions_of_interest import reset_origin
 from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
 
 PIXEL_SIZE_X = 0.1625
@@ -275,7 +273,7 @@ def test_empty_ROI_table():
     assert indices == []
 
 
-def test_bounding_boxes_of_empty_label():
+def test_array_to_bounding_box_table_empty():
     """
     When trying to compute bounding boxes for a label array which has no labels
     (that is, it only has zeros), the output dataframe has zero rows (but it
@@ -286,6 +284,42 @@ def test_bounding_boxes_of_empty_label():
     debug(df)
     assert df.shape[0] == 0
     assert "label" in df.columns
+
+
+def test_array_to_bounding_box_table():
+    """
+    Test the new origin_zyx argument of array_to_bounding_box_table, ref
+    https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/460.
+    """
+    IMG_SIZE_X = 100
+    IMG_SIZE_Y = 80
+    PIXEL_SIZES = [0.4, 0.7, 1.2]
+    masks1 = np.zeros((2, IMG_SIZE_Y, IMG_SIZE_X))
+    masks1[:, 0:10, 0:12] = 1
+    masks2 = np.zeros((2, IMG_SIZE_Y, IMG_SIZE_X))
+    masks2[:, 0:10, 0:12] = 1
+    masks2[:, 10:30, 10:50] = 2
+    df1 = array_to_bounding_box_table(
+        masks1,
+        pxl_sizes_zyx=PIXEL_SIZES,
+    )
+    print(df1)
+    print()
+    assert df1.iloc[0].x_micrometer == 0.0
+    assert df1.iloc[0].z_micrometer == 0.0
+    df2 = array_to_bounding_box_table(
+        masks2,
+        pxl_sizes_zyx=PIXEL_SIZES,
+        origin_zyx=(0, IMG_SIZE_Y, IMG_SIZE_X),
+    )
+    print(df2)
+    print()
+    assert df2.iloc[0].x_micrometer == IMG_SIZE_X * PIXEL_SIZES[-1]
+    assert df2.iloc[0].y_micrometer == IMG_SIZE_Y * PIXEL_SIZES[-2]
+    assert df2.iloc[0].len_y_micrometer == 10 * PIXEL_SIZES[-2]
+    assert df2.iloc[0].len_x_micrometer == 12 * PIXEL_SIZES[-1]
+    assert df2.iloc[1].len_y_micrometer == 20 * PIXEL_SIZES[-2]
+    assert df2.iloc[1].len_x_micrometer == 40 * PIXEL_SIZES[-1]
 
 
 # input shapes, regions, expected_output_shape
@@ -444,10 +478,16 @@ def test_reset_origin():
     debug(old_adata.X)
     # Reset origin
     new_adata = reset_origin(old_adata)
+    debug(old_adata.X)
     debug(new_adata.X)
+    # Check that new_adata was shifted
     assert abs(new_adata[:, "x_micrometer"].X[0, 0]) < 1e-10
     assert abs(new_adata[:, "y_micrometer"].X[0, 0]) < 1e-10
     assert abs(new_adata[:, "z_micrometer"].X[0, 0]) < 1e-10
+    # Check that old_adata was not modified
+    assert abs(old_adata[:, "x_micrometer"].X[0, 0] - 1.0) < 1e-10
+    assert abs(old_adata[:, "y_micrometer"].X[0, 0] - 1.0) < 1e-10
+    assert abs(old_adata[:, "z_micrometer"].X[0, 0] - 1.0) < 1e-10
 
 
 def test_is_standard_roi_table():

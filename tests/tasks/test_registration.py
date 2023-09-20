@@ -331,7 +331,6 @@ def test_multiplexing_registration(
             level=0,
             coarsening_xy=2,
             full_res_pxl_sizes_zyx=pxl_sizes_zyx,
-            reset_origin=True,
         )
         region = convert_indices_to_regions(list_indices[0])
         data_array = da.from_zarr(f"{zarr_path_mip / component / str(0)}")[0]
@@ -349,7 +348,6 @@ def test_multiplexing_registration(
             level=0,
             coarsening_xy=2,
             full_res_pxl_sizes_zyx=pxl_sizes_zyx,
-            reset_origin=False,  # no reset of origin!
         )
         region = convert_indices_to_regions(list_indices[0])
         data_array = da.from_zarr(f"{zarr_path_mip / component / str(0)}")[0]
