@@ -224,7 +224,7 @@ def convert_ROI_table_to_indices(
     ],
 ) -> list[list[int]]:
     """
-    Convert the an ROI AnnData table into integer array indices.
+    Convert a ROI AnnData table into integer array indices.
 
     Args:
         ROI: AnnData table with list of ROIs.
