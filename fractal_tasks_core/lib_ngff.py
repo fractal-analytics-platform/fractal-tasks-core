@@ -18,6 +18,10 @@ class Version(Enum):
 
 
 class Window(BaseModel):
+    """
+    FIXME: specify that here we deviate from specs
+    """
+
     end: Optional[float] = None
     max: float
     min: float
