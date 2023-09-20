@@ -178,4 +178,6 @@ def load_NgffImage_from_zarr(zarr_path: str) -> NgffImage:
     """
     zarr_group = zarr.open_group(zarr_path, mode="r")
     zarr_attrs = zarr_group.attrs.asdict()
+    # FIXME: add a try/except block. If it fails, the error should be made
+    # informative.
     return NgffImage(**zarr_attrs)
