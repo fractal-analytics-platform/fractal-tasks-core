@@ -35,9 +35,9 @@ import fractal_tasks_core
 from fractal_tasks_core.lib_channels import ChannelNotFoundError
 from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
 from fractal_tasks_core.lib_channels import OmeroChannel
-from fractal_tasks_core.lib_image import load_NgffImage_from_zarr
 from fractal_tasks_core.lib_input_models import Channel
 from fractal_tasks_core.lib_masked_loading import masked_loading_wrapper
+from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     array_to_bounding_box_table,
@@ -270,9 +270,9 @@ def cellpose_segmentation(
             raise ValueError(f"{pretrained_model=} does not exist.")
 
     # Read some parameters from metadata
-    ngff_image = load_NgffImage_from_zarr(zarrurl)
-    num_levels = ngff_image.num_levels
-    coarsening_xy = ngff_image.coarsening_xy
+    ngff_image_meta = load_NgffImageMeta(zarrurl)
+    num_levels = ngff_image_meta.num_levels
+    coarsening_xy = ngff_image_meta.coarsening_xy
 
     plate, well = component.split(".zarr/")
 
@@ -340,9 +340,9 @@ def cellpose_segmentation(
     logger.info(f"{use_masks=}")
 
     # Read pixel sizes from zattrs file
-    full_res_pxl_sizes_zyx = ngff_image.get_pixel_sizes_zyx(level=0)
+    full_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
     logger.info(f"{full_res_pxl_sizes_zyx=}")
-    actual_res_pxl_sizes_zyx = ngff_image.get_pixel_sizes_zyx(level=level)
+    actual_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=level)
     logger.info(f"{actual_res_pxl_sizes_zyx=}")
 
     # Create list of indices for 3D ROIs spanning the entire Z direction
@@ -367,7 +367,7 @@ def cellpose_segmentation(
     if do_3D:
         if anisotropy is None:
             # Read pixel sizes from zattrs file
-            pxl_zyx = ngff_image.get_pixel_sizes_zyx(level=level)
+            pxl_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=level)
             pixel_size_z, pixel_size_y, pixel_size_x = pxl_zyx[:]
             logger.info(f"{pxl_zyx=}")
             if not np.allclose(pixel_size_x, pixel_size_y):

@@ -1,3 +1,6 @@
+"""
+Pydantic models related to OME-NGFF 0.4 specs.
+"""
 import logging
 from enum import Enum
 from typing import Literal
@@ -79,7 +82,7 @@ class Multiscale(BaseModel):
             )
 
 
-class NgffImage(BaseModel):
+class NgffImageMeta(BaseModel):
     multiscales: list[Multiscale] = Field(
         ...,
         description="The multiscale datasets for this image",
@@ -166,7 +169,7 @@ class NgffImage(BaseModel):
         return current_ratio
 
 
-def load_NgffImage_from_zarr(zarr_path: str) -> NgffImage:
+def load_NgffImageMeta(zarr_path: str) -> NgffImageMeta:
     """
     Load the attributes of a zarr group and cast them to `NgffImage`.
 
@@ -180,4 +183,4 @@ def load_NgffImage_from_zarr(zarr_path: str) -> NgffImage:
     zarr_attrs = zarr_group.attrs.asdict()
     # FIXME: add a try/except block. If it fails, the error should be made
     # informative.
-    return NgffImage(**zarr_attrs)
+    return NgffImageMeta(**zarr_attrs)

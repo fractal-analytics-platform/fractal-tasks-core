@@ -23,7 +23,7 @@ from anndata._io.specs import write_elem
 from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
-from fractal_tasks_core.lib_image import load_NgffImage_from_zarr
+from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROIs_from_3D_to_2D,
 )
@@ -174,8 +174,10 @@ def copy_ome_zarr(
                     new_tables_group.attrs["tables"] = ROI_table_names
                     if project_to_2D:
                         path_image = f"{zarrurl_old}/{well_path}/{image_path}"
-                        ngff_image = load_NgffImage_from_zarr(path_image)
-                        pxl_sizes_zyx = ngff_image.get_pixel_sizes_zyx(level=0)
+                        ngff_image_meta = load_NgffImageMeta(path_image)
+                        pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(
+                            level=0
+                        )
                         pxl_size_z = pxl_sizes_zyx[0]
 
                     # Copy the tables in ROI_table_names

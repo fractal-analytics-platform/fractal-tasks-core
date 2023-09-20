@@ -22,7 +22,7 @@ import dask.array as da
 from pydantic.decorator import validate_arguments
 from zarr.errors import ContainsArrayError
 
-from fractal_tasks_core.lib_image import load_NgffImage_from_zarr
+from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
@@ -87,7 +87,7 @@ def maximum_intensity_projection(
     logger.info(f"{zarrurl_new=}")
 
     # Read some parameters from metadata
-    ngff_image = load_NgffImage_from_zarr(zarrurl_old)
+    ngff_image = load_NgffImageMeta(zarrurl_old)
     num_levels = ngff_image.num_levels
     coarsening_xy = ngff_image.coarsening_xy
 
