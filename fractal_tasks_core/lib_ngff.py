@@ -18,17 +18,17 @@ class Version(Enum):
 
 
 class Window(BaseModel):
-    end: float
+    end: Optional[float] = None
     max: float
     min: float
-    start: float
+    start: Optional[float] = None
 
 
 class Channel(BaseModel):
-    window: Optional[Window] = None  # FIXME: custom
+    window: Window
     label: Optional[str] = None
     family: Optional[str] = None
-    color: Optional[str] = None  # FIXME: custom
+    color: str
     active: Optional[bool] = None
 
 
