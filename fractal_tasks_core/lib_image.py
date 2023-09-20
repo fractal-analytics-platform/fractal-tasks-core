@@ -22,10 +22,10 @@ class Window(BaseModel):
 
 
 class Channel(BaseModel):
-    window: Window
+    window: Optional[Window] = None  # FIXME: custom
     label: Optional[str] = None
     family: Optional[str] = None
-    color: str
+    color: Optional[str] = None  # FIXME: custom
     active: Optional[bool] = None
 
 
