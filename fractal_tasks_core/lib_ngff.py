@@ -187,4 +187,11 @@ def load_NgffImageMeta(zarr_path: str) -> NgffImageMeta:
     zarr_attrs = zarr_group.attrs.asdict()
     # FIXME: add a try/except block. If it fails, the error should be made
     # informative.
-    return NgffImageMeta(**zarr_attrs)
+    try:
+        return NgffImageMeta(**zarr_attrs)
+    except Exception as e:
+        from devtools import debug  # FIXME remove
+
+        debug(zarr_attrs)
+        debug(e)
+        raise e
