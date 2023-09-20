@@ -14,16 +14,16 @@
 | fractal\_tasks\_core/lib\_parse\_filename\_metadata.py              |       33 |        1 |       12 |        1 |     96% |       104 |
 | fractal\_tasks\_core/lib\_pyramid\_creation.py                      |       28 |        0 |       10 |        0 |    100% |           |
 | fractal\_tasks\_core/lib\_read\_fractal\_metadata.py                |       35 |        0 |       14 |        0 |    100% |           |
-| fractal\_tasks\_core/lib\_regions\_of\_interest.py                  |      155 |        1 |       48 |        1 |     99% |       154 |
+| fractal\_tasks\_core/lib\_regions\_of\_interest.py                  |      156 |        1 |       46 |        1 |     99% |       167 |
 | fractal\_tasks\_core/lib\_upscale\_array.py                         |       74 |        7 |       48 |        6 |     88% |63, 91, 96->100, 113, 128, 192-197 |
 | fractal\_tasks\_core/lib\_write.py                                  |       97 |        0 |       42 |        2 |     99% |83->87, 171->174 |
 | fractal\_tasks\_core/lib\_zattrs\_utils.py                          |       79 |        2 |       40 |        2 |     97% |72->71, 89, 139 |
 | fractal\_tasks\_core/tasks/\_\_init\_\_.py                          |        0 |        0 |        0 |        0 |    100% |           |
 | fractal\_tasks\_core/tasks/\_utils.py                               |       29 |        5 |        8 |        1 |     78% |33-35, 68-71 |
-| fractal\_tasks\_core/tasks/apply\_registration\_to\_ROI\_tables.py  |       90 |        5 |       32 |        6 |     91% |39->38, 83->85, 123, 143, 258, 299-301 |
-| fractal\_tasks\_core/tasks/apply\_registration\_to\_image.py        |      115 |       17 |       40 |        9 |     79% |48->47, 111, 157-158, 160->184, 190->189, 194-206, 208->233, 222-224, 244, 343-356, 381-383 |
+| fractal\_tasks\_core/tasks/apply\_registration\_to\_ROI\_tables.py  |       86 |        5 |       30 |        6 |     91% |38->37, 82->84, 122, 133, 248, 289-291 |
+| fractal\_tasks\_core/tasks/apply\_registration\_to\_image.py        |      115 |       17 |       40 |        9 |     79% |48->47, 111, 157-158, 160->184, 190->189, 194-206, 208->233, 222-224, 244, 341-354, 379-381 |
 | fractal\_tasks\_core/tasks/calculate\_registration\_image\_based.py |       89 |        5 |       20 |        5 |     91% |44->43, 159, 179, 222, 347-349 |
-| fractal\_tasks\_core/tasks/cellpose\_segmentation.py                |      217 |       26 |       74 |       15 |     85% |102-143, 147->146, 259, 267-270, 301-307, 315-316, 371, 379->395, 387, 402, 407, 414, 486, 510->514, 591->609, 603, 689-691 |
+| fractal\_tasks\_core/tasks/cellpose\_segmentation.py                |      213 |       26 |       72 |       15 |     84% |102-143, 147->146, 259, 267-270, 301-307, 315-316, 363, 371->387, 379, 394, 399, 406, 478, 502->506, 583->601, 595, 683-685 |
 | fractal\_tasks\_core/tasks/copy\_ome\_zarr.py                       |       71 |        4 |       32 |        7 |     89% |39->38, 102, 105, 171->159, 175->185, 197->202, 216-218 |
 | fractal\_tasks\_core/tasks/create\_ome\_zarr.py                     |      162 |       25 |       72 |       11 |     83% |46->45, 118, 120, 173, 180-190, 198-199, 212-215, 269, 300, 316-317, 320, 464-466 |
 | fractal\_tasks\_core/tasks/create\_ome\_zarr\_multiplex.py          |      189 |       19 |       80 |       14 |     88% |48->47, 123, 130, 134, 143, 161, 192, 213-216, 243, 294, 300, 317, 330-331, 337, 509-511 |
@@ -31,7 +31,7 @@
 | fractal\_tasks\_core/tasks/maximum\_intensity\_projection.py        |       58 |        5 |       16 |        5 |     86% |36->35, 80, 114, 133, 165-167 |
 | fractal\_tasks\_core/tasks/napari\_workflows\_wrapper.py            |      248 |       22 |      122 |       17 |     89% |61->60, 154-156, 193, 207, 212, 310, 317, 323-328, 333, 364, 369, 409-413, 436, 537->524, 576-581, 588->590, 668-670 |
 | fractal\_tasks\_core/tasks/yokogawa\_to\_ome\_zarr.py               |       87 |        5 |       22 |        5 |     91% |61->60, 110, 157, 208, 258-260 |
-|                                                           **TOTAL** | **2455** |  **185** |  **972** |  **143** | **90%** |           |
+|                                                           **TOTAL** | **2448** |  **185** |  **966** |  **143** | **90%** |           |
 
 
 ## Setup coverage badge
