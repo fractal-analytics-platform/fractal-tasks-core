@@ -62,6 +62,7 @@ zattrs = {
                         {
                             "type": "scale",
                             "scale": [
+                                1.0,
                                 pxl_z,
                                 pxl_y * cxy**level,
                                 pxl_x * cxy**level,
