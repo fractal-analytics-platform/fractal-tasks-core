@@ -199,30 +199,3 @@ def get_table_path_dict(input_path: Path, component: str) -> dict[str, str]:
         table_path_dict[table] = f"{input_path / component}/tables/{table}"
 
     return table_path_dict
-
-
-def get_axes_names(attrs: dict) -> list:
-    """
-    Get the axes names of a .zattrs dictionary
-
-    .zattrs dicts usually contain their axes in the multiscales metadata.
-    This function returns a list of the axes names in the order they appeared
-    in the metadata.
-
-    Args:
-        attrs: The .zattrs group of an OME-Zarr image as a dict
-
-    Returns:
-        List of access names
-    """
-    try:
-        axes = attrs["multiscales"][0]["axes"]
-    except (KeyError, TypeError) as e:
-        raise ValueError(
-            f"{attrs=} does not contain the necessary information to get "
-            f"axes, raising an exception {e=}"
-        )
-    names = []
-    for ax in axes:
-        names.append(ax["name"])
-    return names

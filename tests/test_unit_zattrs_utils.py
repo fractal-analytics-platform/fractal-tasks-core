@@ -8,7 +8,6 @@ from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import (
     get_acquisition_paths,
 )
-from fractal_tasks_core.lib_zattrs_utils import get_axes_names
 from fractal_tasks_core.lib_zattrs_utils import (
     get_table_path_dict,
 )
@@ -205,33 +204,3 @@ def test_get_table_path_dict(tmp_path):
     assert table_path_dict.pop("table2") == str(
         input_path / component / "tables/table2"
     )
-
-
-def test_get_axes_names():
-    attrs = {
-        "multiscales": [
-            {
-                "axes": [
-                    {"name": "c", "type": "channel"},
-                    {"name": "z", "type": "space", "unit": "micrometer"},
-                    {"name": "y", "type": "space", "unit": "micrometer"},
-                    {"name": "x", "type": "space", "unit": "micrometer"},
-                ]
-            }
-        ]
-    }
-    target_axes = ["c", "z", "y", "x"]
-    axes = get_axes_names(attrs)
-
-    assert target_axes == axes
-
-
-def test_get_axes_names_errors():
-    attrs_list = [
-        {},
-        {"multiscales": "Test"},
-        {"multiscales": [{"Test": "test1"}]},
-    ]
-    for attrs in attrs_list:
-        with pytest.raises(ValueError):
-            get_axes_names(attrs)
