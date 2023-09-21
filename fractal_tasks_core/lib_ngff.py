@@ -278,7 +278,7 @@ class ImageLabel(BaseModel):
     )
 
 
-class NgffLabelImageMeta(BaseModel):
+class NgffLabelImageMeta(NgffImageMeta):
     image_label: Optional[ImageLabel] = Field(None, alias="image-label")
 
 
