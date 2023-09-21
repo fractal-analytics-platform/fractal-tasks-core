@@ -268,15 +268,13 @@ def load_NgffImageMeta(zarr_path: str) -> NgffImageMeta:
     """
     zarr_group = zarr.open_group(zarr_path, mode="r")
     zarr_attrs = zarr_group.attrs.asdict()
-    # FIXME: add a try/except block. If it fails, the error should be made
-    # informative.
     try:
         return NgffImageMeta(**zarr_attrs)
     except Exception as e:
-        from devtools import debug  # FIXME remove
-
-        debug(zarr_attrs)
-        debug(e)
+        logging.error(
+            f"Contents of {zarr_path} cannot be cast to NgffImageMeta.\n"
+            f"Original error:\n{str(e)}"
+        )
         raise e
 
 
@@ -292,13 +290,11 @@ def load_NgffWellMeta(zarr_path: str) -> NgffWellMeta:
     """
     zarr_group = zarr.open_group(zarr_path, mode="r")
     zarr_attrs = zarr_group.attrs.asdict()
-    # FIXME: add a try/except block. If it fails, the error should be made
-    # informative.
     try:
         return NgffWellMeta(**zarr_attrs)
     except Exception as e:
-        from devtools import debug  # FIXME remove
-
-        debug(zarr_attrs)
-        debug(e)
+        logging.error(
+            f"Contents of {zarr_path} cannot be cast to NgffWellMeta.\n"
+            f"Original error:\n{str(e)}"
+        )
         raise e
