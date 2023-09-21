@@ -2,7 +2,6 @@
 Pydantic models related to OME-NGFF 0.4 specs.
 """
 import logging
-from enum import Enum
 from typing import Literal
 from typing import Optional
 from typing import Union
@@ -13,22 +12,27 @@ from pydantic import Field
 from pydantic import validator
 
 
-class Version(Enum):
-    field_0_4 = "0.4"
-
-
 class Window(BaseModel):
     """
-    FIXME: specify that here we deviate from specs
+    `Window` metadata of a NGFF `Channel`.
+
+    See https://ngff.openmicroscopy.org/0.4/#omero-md. Note that we deviate by
+    NGFF specs by making `start` and `end` optional.
     """
 
-    end: Optional[float] = None
     max: float
     min: float
     start: Optional[float] = None
+    end: Optional[float] = None
 
 
 class Channel(BaseModel):
+    """
+    `Channel` NGFF metadata
+
+    See https://ngff.openmicroscopy.org/0.4/#omero-md.
+    """
+
     window: Window
     label: Optional[str] = None
     family: Optional[str] = None
@@ -37,76 +41,127 @@ class Channel(BaseModel):
 
 
 class Omero(BaseModel):
+    """
+    `Omero` transitional metadata.
+
+    See https://ngff.openmicroscopy.org/0.4/#omero-md.
+    """
+
     channels: list[Channel]
 
 
-class Axe(BaseModel):
+class Axis(BaseModel):
+    """
+    A single item in the NGFF `axes` list.
+
+    See https://ngff.openmicroscopy.org/0.4/#axes-md.
+    """
+
     name: str
     type: Optional[str] = None  # or maybe Literal["channel", "time", "space"]
 
 
-class CoordinateTransformation(BaseModel):
+class ScaleCoordinateTransformation(BaseModel):
+    """
+    A `scale` NGFF coordinate transformation
+
+    See https://ngff.openmicroscopy.org/0.4/#trafo-md
+    """
+
     type: Literal["scale"]
     scale: list[float] = Field(..., min_items=2)
 
 
-class Type2(Enum):
-    translation = "translation"
+class TranslationCoordinateTransformation(BaseModel):
+    """
+    A `translation` NGFF coordinate transformation
 
+    See https://ngff.openmicroscopy.org/0.4/#trafo-md
+    """
 
-class CoordinateTransformation1(BaseModel):
-    type: Type2
+    type: Literal["translation"]
     translation: list[float] = Field(..., min_items=2)
 
 
 class Dataset(BaseModel):
+    """
+    Model for a dataset in a NGFF multiscale.
+
+    See https://ngff.openmicroscopy.org/0.4/#multiscale-md
+    """
+
     path: str
-    coordinateTransformations: list[
-        Union[CoordinateTransformation, CoordinateTransformation1]
+    CoordinateTransformations: list[
+        Union[
+            ScaleCoordinateTransformation, TranslationCoordinateTransformation
+        ]
     ] = Field(  # noqa
         ..., min_items=1
     )
 
     @property
-    def scale_transformation(self):
+    def scale_transformation(self) -> ScaleCoordinateTransformation:
+        """
+        Extract the unique scale transformation, or fail otherwise.
+        """
         _transformations = [
-            t for t in self.coordinateTransformations if t.type == "scale"
+            t for t in self.CoordinateTransformations if t.type == "scale"
         ]
         if len(_transformations) == 0:
             raise ValueError(
                 "Missing scale transformation in dataset.\n"
-                "Current coordinateTransformations:\n"
-                f"{self.coordinateTransformations}"
+                "Current CoordinateTransformations:\n"
+                f"{self.CoordinateTransformations}"
             )
         elif len(_transformations) > 1:
             raise ValueError(
                 "More than one scale transformation in dataset.\n"
-                "Current coordinateTransformations:\n"
-                f"{self.coordinateTransformations}"
+                "Current CoordinateTransformations:\n"
+                f"{self.CoordinateTransformations}"
             )
         else:
             return _transformations[0]
 
 
 class Multiscale(BaseModel):
+    """
+    NGFF multiscale metadata.
+
+    See https://ngff.openmicroscopy.org/0.4/#multiscale-md.
+    """
+
     name: Optional[str] = None
     datasets: list[Dataset] = Field(..., min_items=1)
-    version: Optional[Version] = None
-    axes: list[Axe] = Field(..., max_items=5, min_items=2, unique_items=True)
-    coordinateTransformations: Optional[
-        list[Union[CoordinateTransformation, CoordinateTransformation1]]
+    version: Optional[str] = None
+    axes: list[Axis] = Field(..., max_items=5, min_items=2, unique_items=True)
+    CoordinateTransformations: Optional[
+        list[
+            Union[
+                ScaleCoordinateTransformation,
+                TranslationCoordinateTransformation,
+            ]
+        ]
     ] = None
 
-    @validator("coordinateTransformations", always=True)
-    def _no_global_coordinateTransformations(cls, v):
+    @validator("CoordinateTransformations", always=True)
+    def _no_global_CoordinateTransformations(cls, v):
+        """
+        Fail if Multiscale has a (global) CoordinateTransformations attribute.
+        """
         if v is not None:
             raise NotImplementedError(
-                "Global coordinateTransformations at the multiscales "
+                "Global CoordinateTransformations at the multiscales "
                 "level are not currently supported."
             )
 
 
 class NgffImageMeta(BaseModel):
+    """
+    Main model for NGFF image.
+
+    See https://ngff.openmicroscopy.org/0.4/#image-layout.
+    """
+
     multiscales: list[Multiscale] = Field(
         ...,
         description="The multiscale datasets for this image",
@@ -117,6 +172,9 @@ class NgffImageMeta(BaseModel):
 
     @property
     def multiscale(self) -> Multiscale:
+        """
+        Return the single multiscale of the current image, fail otherwise.
+        """
         if len(self.multiscales) > 1:
             raise NotImplementedError(
                 "Only images with one multiscale are supported "
@@ -138,6 +196,9 @@ class NgffImageMeta(BaseModel):
 
     @property
     def pixel_sizes_zyx(self) -> list[tuple[float, float, float]]:
+        """
+        Pixel sizes extracted from scale transformations of datasets.
+        """
         x_index = self.axes.index("x")
         y_index = self.axes.index("y")
         try:
@@ -174,6 +235,12 @@ class NgffImageMeta(BaseModel):
 
     @property
     def coarsening_xy(self) -> int:
+        """
+        Linear coarsening factor in the YX plane.
+
+        We only support coarsening factors that are homogeneous - both in the
+        X/Y directions and across pyramid levels.
+        """
         current_ratio = None
         for ind in range(1, self.num_levels):
             ratio_x = round(
@@ -203,8 +270,15 @@ class NgffImageMeta(BaseModel):
 
 class Image(BaseModel):
     """
-    FIXME: restore spec for `path` (currently changed from
-    `constr(regex=r'^[A-Za-z0-9]+$')` to `str`) via validator
+    Model for the `images` attribute a `Well` object.
+
+    See https://ngff.openmicroscopy.org/0.4/#well-md.
+
+    Note 1: this differs from `NgffImageMeta`.
+
+    Note 2: we slightly deviate from NGFF specs, in that we allow `path` to be
+    an arbitrary string. TODO: restore some check like
+    `constr(regex=r'^[A-Za-z0-9]+$')`, through a Pydantic validator.
     """
 
     acquisition: Optional[int] = Field(
@@ -216,18 +290,30 @@ class Image(BaseModel):
 
 
 class Well(BaseModel):
+    """
+    Model for the `well` attribute of a `NgffWellMeta` object.
+
+    See https://ngff.openmicroscopy.org/0.4/#well-md.
+    """
+
     images: list[Image] = Field(
         ...,
         description="The images included in this well",
         min_items=1,
         unique_items=True,
     )
-    version: Optional[Version] = Field(
+    version: Optional[str] = Field(
         None, description="The version of the specification"
     )
 
 
 class NgffWellMeta(BaseModel):
+    """
+    Main model for a NGFF well.
+
+    See https://ngff.openmicroscopy.org/0.4/#well-md.
+    """
+
     well: Optional[Well] = None
 
     def get_acquisition_paths(self) -> dict[int, str]:
