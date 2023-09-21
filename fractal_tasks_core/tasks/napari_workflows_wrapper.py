@@ -32,7 +32,6 @@ from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
 from fractal_tasks_core.lib_input_models import NapariWorkflowsInput
 from fractal_tasks_core.lib_input_models import NapariWorkflowsOutput
 from fractal_tasks_core.lib_ngff import load_NgffImageMeta
-from fractal_tasks_core.lib_ngff import load_NgffLabelImageMeta
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
@@ -377,7 +376,7 @@ def napari_workflows_wrapper(
             reference_array = list(input_label_arrays.values())[0]
             # Re-load pixel size, matching to the correct level
             input_label_name = label_inputs[0][1].label_name
-            ngff_label_image_meta = load_NgffLabelImageMeta(
+            ngff_label_image_meta = load_NgffImageMeta(
                 f"{in_path}/{component}/labels/{input_label_name}"
             )
             full_res_pxl_sizes_zyx = ngff_label_image_meta.get_pixel_sizes_zyx(
