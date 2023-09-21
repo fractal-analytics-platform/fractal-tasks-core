@@ -91,7 +91,7 @@ class Dataset(BaseModel):
     """
 
     path: str
-    CoordinateTransformations: list[
+    coordinateTransformations: list[
         Union[
             ScaleCoordinateTransformation, TranslationCoordinateTransformation
         ]
@@ -105,19 +105,19 @@ class Dataset(BaseModel):
         Extract the unique scale transformation, or fail otherwise.
         """
         _transformations = [
-            t for t in self.CoordinateTransformations if t.type == "scale"
+            t for t in self.coordinateTransformations if t.type == "scale"
         ]
         if len(_transformations) == 0:
             raise ValueError(
                 "Missing scale transformation in dataset.\n"
-                "Current CoordinateTransformations:\n"
-                f"{self.CoordinateTransformations}"
+                "Current coordinateTransformations:\n"
+                f"{self.coordinateTransformations}"
             )
         elif len(_transformations) > 1:
             raise ValueError(
                 "More than one scale transformation in dataset.\n"
-                "Current CoordinateTransformations:\n"
-                f"{self.CoordinateTransformations}"
+                "Current coordinateTransformations:\n"
+                f"{self.coordinateTransformations}"
             )
         else:
             return _transformations[0]
@@ -134,7 +134,7 @@ class Multiscale(BaseModel):
     datasets: list[Dataset] = Field(..., min_items=1)
     version: Optional[str] = None
     axes: list[Axis] = Field(..., max_items=5, min_items=2, unique_items=True)
-    CoordinateTransformations: Optional[
+    coordinateTransformations: Optional[
         list[
             Union[
                 ScaleCoordinateTransformation,
@@ -143,14 +143,14 @@ class Multiscale(BaseModel):
         ]
     ] = None
 
-    @validator("CoordinateTransformations", always=True)
-    def _no_global_CoordinateTransformations(cls, v):
+    @validator("coordinateTransformations", always=True)
+    def _no_global_coordinateTransformations(cls, v):
         """
-        Fail if Multiscale has a (global) CoordinateTransformations attribute.
+        Fail if Multiscale has a (global) coordinateTransformations attribute.
         """
         if v is not None:
             raise NotImplementedError(
-                "Global CoordinateTransformations at the multiscales "
+                "Global coordinateTransformations at the multiscales "
                 "level are not currently supported."
             )
 
