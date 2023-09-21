@@ -18,6 +18,8 @@ from fractal_tasks_core.lib_zattrs_utils import rescale_datasets  # noqa
 def test_extract_zyx_pixel_sizes(tmp_path):
     """
     Test multiple invalid/valid calls to extract_zyx_pixel_sizes
+
+    FIXME: transform into unit testing of ngff classes/methods
     """
 
     zattrs_path = tmp_path / ".zattrs"
@@ -152,6 +154,8 @@ def test_rescale_datasets(tmp_path):
 
 
 def test_get_acquisition_paths():
+
+    # FIXME: transform into unit testing of ngff classes/methods
 
     # Successful call
     image_1 = dict(path="path1", acquisition=1)
