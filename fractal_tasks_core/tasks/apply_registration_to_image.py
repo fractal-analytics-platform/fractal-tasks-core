@@ -28,6 +28,7 @@ import zarr
 from anndata._io.specs import write_elem
 from pydantic.decorator import validate_arguments
 
+from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_indices_to_regions,
@@ -37,7 +38,6 @@ from fractal_tasks_core.lib_regions_of_interest import (
 )
 from fractal_tasks_core.lib_regions_of_interest import is_standard_roi_table
 from fractal_tasks_core.lib_regions_of_interest import load_region
-from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import get_axes_names
 from fractal_tasks_core.lib_zattrs_utils import get_table_path_dict
 
@@ -116,8 +116,7 @@ def apply_registration_to_image(
         f"{component=}, {registered_roi_table=} and {reference_cycle=}. "
         f"Using {overwrite_input=}"
     )
-    coarsening_xy = metadata["coarsening_xy"]
-    num_levels = metadata["num_levels"]
+
     input_path = Path(input_paths[0])
     new_component = "/".join(
         component.split("/")[:-1] + [component.split("/")[-1] + "_registered"]
@@ -132,6 +131,10 @@ def apply_registration_to_image(
     ROI_table_cycle = ad.read_zarr(
         f"{input_path / component}/tables/{registered_roi_table}"
     )
+
+    ngff_image_meta = load_NgffImageMeta(str(input_path / component))
+    coarsening_xy = ngff_image_meta.coarsening_xy
+    num_levels = ngff_image_meta.num_levels
 
     ####################
     # Process images
@@ -285,10 +288,9 @@ def write_registered_zarr(
             of `build_pyramid`).
 
     """
-    # Read pixel sizes from zattrs file
-    pxl_sizes_zyx = extract_zyx_pixel_sizes(
-        f"{str(input_path / component)}/.zattrs", level=0
-    )
+    # Read pixel sizes from Zarr attributes
+    ngff_image_meta = load_NgffImageMeta(str(input_path / component))
+    pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
 
     # Create list of indices for 3D ROIs
     list_indices = convert_ROI_table_to_indices(
