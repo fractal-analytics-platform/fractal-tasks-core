@@ -38,7 +38,6 @@ from fractal_tasks_core.lib_regions_of_interest import (
 )
 from fractal_tasks_core.lib_regions_of_interest import is_standard_roi_table
 from fractal_tasks_core.lib_regions_of_interest import load_region
-from fractal_tasks_core.lib_zattrs_utils import get_axes_names
 from fractal_tasks_core.lib_zattrs_utils import get_table_path_dict
 
 logger = logging.getLogger(__name__)
@@ -307,6 +306,7 @@ def write_registered_zarr(
     )
 
     old_image_group = zarr.open_group(f"{input_path / component}", mode="r")
+    old_ngff_image_meta = load_NgffImageMeta(str(input_path / component))
     new_image_group = zarr.group(f"{input_path / new_component}")
     new_image_group.attrs.put(old_image_group.attrs.asdict())
 
@@ -324,7 +324,7 @@ def write_registered_zarr(
         reference_region = convert_indices_to_regions(list_indices_ref[i])
         region = convert_indices_to_regions(roi_indices)
 
-        axes_list = get_axes_names(old_image_group.attrs.asdict())
+        axes_list = old_ngff_image_meta.axes
 
         if axes_list == ["c", "z", "y", "x"]:
             num_channels = data_array.shape[0]
