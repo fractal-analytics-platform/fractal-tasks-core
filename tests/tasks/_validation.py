@@ -12,10 +12,10 @@ from devtools import debug
 from jsonschema import validate
 
 from fractal_tasks_core import __OME_NGFF_VERSION__
+from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
-from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 
 def validate_schema(*, path: str, type: str):
@@ -98,10 +98,10 @@ def validate_labels_and_measurements(
     list_label_values = list(np.unique(labels))
 
     # Create list of FOV-ROI indices
-    zattrs_file = str(image_zarr / ".zattrs")
     FOV_table_path = str(image_zarr / "tables/FOV_ROI_table")
     ROI_table = ad.read_zarr(FOV_table_path)
-    full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(zattrs_file, level=0)
+    ngff_image_meta = load_NgffImageMeta(str(image_zarr))
+    full_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
     list_indices = convert_ROI_table_to_indices(
         ROI_table,
         level=0,

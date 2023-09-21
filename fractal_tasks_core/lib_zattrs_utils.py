@@ -10,7 +10,7 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Functions to handle `.zattrs` files and their contents.
+Helper functions for operations on OME-NGFF metadata.
 """
 import json
 import logging
@@ -19,77 +19,6 @@ from typing import Any
 
 
 logger = logging.getLogger(__name__)
-
-
-def extract_zyx_pixel_sizes(zattrs_path: str, level: int = 0) -> list[float]:
-    """
-    Load multiscales/datasets from `.zattrs` file and read the pixel sizes for
-    a given resoluion level.
-
-    Args:
-        zattrs_path: Path to `.zattrs` file.
-        level: Resolution level for which the pixe sizes are required.
-
-    Returns:
-        ZYX pixel sizes.
-    """
-
-    with open(zattrs_path, "r") as jsonfile:
-        zattrs = json.load(jsonfile)
-
-    try:
-
-        # Identify multiscales
-        multiscales = zattrs["multiscales"]
-
-        # Check that there is a single multiscale
-        if len(multiscales) > 1:
-            raise ValueError(
-                f"ERROR: There are {len(multiscales)} multiscales"
-            )
-
-        # Check that Z axis is present, raise a warning otherwise
-        axes = [ax["name"] for ax in multiscales[0]["axes"]]
-        if "z" not in axes:
-            logger.warning(
-                f"Z axis is not present in {axes=}. This case may work "
-                "by accident, but it is not fully supported."
-            )
-
-        # Check that there are no datasets-global transformations
-        if "coordinateTransformations" in multiscales[0].keys():
-            raise NotImplementedError(
-                "Global coordinateTransformations at the multiscales "
-                "level are not currently supported"
-            )
-
-        # Identify all datasets (AKA pyramid levels)
-        datasets = multiscales[0]["datasets"]
-
-        # Select highest-resolution dataset
-        transformations = datasets[level]["coordinateTransformations"]
-        for t in transformations:
-            if t["type"] == "scale":
-                # FIXME: Using [-3:] indices is a hack to deal with the fact
-                # that the coordinationTransformation can contain additional
-                # entries (e.g. scaling for the channels)
-                # https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/420
-                pixel_sizes = t["scale"][-3:]
-                if min(pixel_sizes) < 1e-9:
-                    raise ValueError(
-                        f"pixel_sizes in {zattrs_path} are {pixel_sizes}"
-                    )
-                return pixel_sizes
-
-        raise ValueError(
-            f"No scale transformation found for level {level} in {zattrs_path}"
-        )
-
-    except KeyError as e:
-        raise KeyError(
-            f"extract_zyx_pixel_sizes_from_zattrs failed, for {zattrs_path}\n",
-            e,
-        )
 
 
 def rescale_datasets(

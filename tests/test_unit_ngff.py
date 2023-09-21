@@ -5,12 +5,6 @@ import numpy as np
 import pytest
 from devtools import debug
 
-"""
-from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
-from fractal_tasks_core.lib_zattrs_utils import (
-    get_acquisition_paths,
-)
-"""
 from fractal_tasks_core.lib_ngff import Dataset
 from fractal_tasks_core.lib_ngff import Multiscale
 from fractal_tasks_core.lib_ngff import NgffImageMeta
