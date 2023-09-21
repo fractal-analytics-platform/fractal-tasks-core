@@ -151,7 +151,7 @@ class NgffImageMeta(BaseModel):
             )
         pixel_sizes_zyx = []
         for level in range(self.num_levels):
-            scale = self.datasets[level].scale_transformation
+            scale = self.datasets[level].scale_transformation.scale
             pixel_size_x = scale[x_index]
             pixel_size_y = scale[y_index]
             if z_index is not None:
