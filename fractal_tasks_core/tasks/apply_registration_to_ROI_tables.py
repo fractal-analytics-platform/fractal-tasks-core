@@ -13,7 +13,6 @@
 Applies the multiplexing translation to all ROI tables
 """
 import copy
-import json
 import logging
 from typing import Any
 from typing import Optional
@@ -26,10 +25,10 @@ import zarr
 from anndata._io.specs import write_elem
 from pydantic.decorator import validate_arguments
 
+from fractal_tasks_core.lib_ngff import load_NgffWellMeta
 from fractal_tasks_core.lib_regions_of_interest import (
     are_ROI_table_columns_valid,
 )
-from fractal_tasks_core.lib_zattrs_utils import get_acquisition_paths
 
 logger = logging.getLogger(__name__)
 
@@ -88,10 +87,8 @@ def apply_registration_to_ROI_tables(
     )
 
     well_zarr = f"{input_paths[0]}/{component}"
-    with open(f"{well_zarr}/.zattrs", "r") as jsonfile:
-        zattrs = json.load(jsonfile)
-
-    acquisition_dict = get_acquisition_paths(zattrs)
+    ngff_well_meta = load_NgffWellMeta(well_zarr)
+    acquisition_dict = ngff_well_meta.get_acquisition_paths()
     logger.info(
         "Calculating common registration for the following cycles: "
         f"{acquisition_dict}"
