@@ -345,7 +345,7 @@ def load_NgffLabelImageMeta(zarr_path: str) -> NgffLabelImageMeta:
     # FIXME: add a try/except block. If it fails, the error should be made
     # informative.
     try:
-        return NgffWellMeta(**zarr_attrs)
+        return NgffLabelImageMeta(**zarr_attrs)
     except Exception as e:
         from devtools import debug  # FIXME remove
 
