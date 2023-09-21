@@ -3,12 +3,23 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+import zarr
 from devtools import debug
 
 from fractal_tasks_core.lib_ngff import Dataset
+from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_ngff import Multiscale
 from fractal_tasks_core.lib_ngff import NgffImageMeta
 from fractal_tasks_core.lib_ngff import NgffWellMeta
+
+
+def test_load_NgffWellMeta(tmp_path):
+    path = str(tmp_path / "error.zarr")
+    group = zarr.open_group(path)
+    group.attrs.put({"something": "else"})
+    with pytest.raises(ValueError) as e:
+        load_NgffImageMeta(path)
+    debug(e.value)
 
 
 def _load_and_validate(path, Model):
