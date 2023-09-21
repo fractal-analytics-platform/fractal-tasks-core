@@ -143,35 +143,6 @@ def rescale_datasets(
     return new_datasets
 
 
-def get_acquisition_paths(zattrs: dict) -> dict[int, str]:
-    """
-    Create mapping from acquisition indices to corresponding paths.
-
-    Runs on the well .zattrs content and loads the relative paths in the well.
-
-    Args:
-        zattrs:
-            Attributes of a well zarr group.
-
-    Returns:
-        Dictionary with `(acquisition index: image path)` key/value pairs.
-    """
-    acquisition_dict = {}
-    for image in zattrs["well"]["images"]:
-        if "acquisition" not in image:
-            raise ValueError(
-                "Cannot get acquisition paths for Zarr files without "
-                "'acquisition' metadata at the well level"
-            )
-        if image["acquisition"] in acquisition_dict:
-            raise NotImplementedError(
-                "This task is not implemented for wells with multiple images "
-                "of the same acquisition"
-            )
-        acquisition_dict[image["acquisition"]] = image["path"]
-    return acquisition_dict
-
-
 def get_table_path_dict(input_path: Path, component: str) -> dict[str, str]:
     """
     Compile dictionary of (table name, table path) key/value pairs.
