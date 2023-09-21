@@ -32,6 +32,7 @@ from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
 from fractal_tasks_core.lib_input_models import NapariWorkflowsInput
 from fractal_tasks_core.lib_input_models import NapariWorkflowsOutput
 from fractal_tasks_core.lib_ngff import load_NgffImageMeta
+from fractal_tasks_core.lib_ngff import load_NgffLabelImageMeta
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
@@ -40,7 +41,6 @@ from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_upscale_array import upscale_array
 from fractal_tasks_core.lib_write import prepare_label_group
 from fractal_tasks_core.lib_write import write_table
-from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
 
 
@@ -377,12 +377,11 @@ def napari_workflows_wrapper(
             reference_array = list(input_label_arrays.values())[0]
             # Re-load pixel size, matching to the correct level
             input_label_name = label_inputs[0][1].label_name
-            zattrs_file = (
-                f"{in_path}/{component}/labels/{input_label_name}/.zattrs"
+            ngff_label_image_meta = load_NgffLabelImageMeta(
+                f"{in_path}/{component}/labels/{input_label_name}"
             )
-            # Read pixel sizes from zattrs file
-            full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
-                zattrs_file, level=0
+            full_res_pxl_sizes_zyx = ngff_label_image_meta.get_pixel_sizes_zyx(
+                level=0
             )
             # Create list of indices for 3D FOVs spanning the whole Z direction
             list_indices = convert_ROI_table_to_indices(
