@@ -160,7 +160,7 @@ class NgffImageMeta(BaseModel):
             if ratio_x != ratio_y:
                 raise NotImplementedError(
                     "Inhomogeneous coarsening in X/Y directions "
-                    "is not supported."
+                    "is not supported.\n"
                     f"ZYX pixel sizes:\n {self.pixel_sizes_zyx}"
                 )
             if current_ratio is None:
