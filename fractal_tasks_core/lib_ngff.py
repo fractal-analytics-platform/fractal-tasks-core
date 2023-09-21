@@ -195,3 +195,15 @@ def load_NgffImageMeta(zarr_path: str) -> NgffImageMeta:
         debug(zarr_attrs)
         debug(e)
         raise e
+
+
+class NgffWellMeta(BaseModel):
+    images: list[NgffImageMeta] = Field(
+        ...,
+        description="The fields of view for this well",
+        min_items=1,
+        unique_items=True,
+    )
+    version: Optional[Version] = Field(
+        None, description="The version of the specification"
+    )
