@@ -11,8 +11,11 @@ from fractal_tasks_core.lib_zattrs_utils import (
     get_acquisition_paths,
 )
 """
+from fractal_tasks_core.lib_ngff import Dataset
 from fractal_tasks_core.lib_ngff import Multiscale
 from fractal_tasks_core.lib_ngff import NgffImageMeta
+
+# from fractal_tasks_core.lib_ngff import NgffWellMeta
 
 
 def _load_and_validate(path, Model):
@@ -24,6 +27,26 @@ def _load_and_validate(path, Model):
 @pytest.fixture
 def ngffdata_path(testdata_path: Path) -> Path:
     return testdata_path / "ngff_examples"
+
+
+def test_Dataset(ngffdata_path):
+    _load_and_validate(ngffdata_path / "dataset.json", Dataset)
+
+    # Fail due to missing scale transformation
+    dataset = _load_and_validate(
+        ngffdata_path / "dataset_error_1.json", Dataset
+    )
+    with pytest.raises(ValueError) as e:
+        dataset.scale_transformation
+    assert "Missing scale transformation" in str(e.value)
+
+    # Fail due to multiple scale transformations
+    dataset = _load_and_validate(
+        ngffdata_path / "dataset_error_2.json", Dataset
+    )
+    with pytest.raises(ValueError) as e:
+        dataset.scale_transformation
+    assert "More than one scale transformation" in str(e.value)
 
 
 def test_Multiscale(ngffdata_path):
@@ -91,32 +114,7 @@ def test_ImageNgffMeta_inhomogeneous_coarsening(ngffdata_path):
     assert "Inhomogeneous coarsening across levels" in str(e.value)
 
 
-'''
-
-def test_extract_zyx_pixel_sizes(tmp_path):
-    """
-    Test multiple invalid/valid calls to extract_zyx_pixel_sizes
-
-    FIXME: transform into unit testing of ngff classes/methods
-    """
-
-    zattrs_path = tmp_path / ".zattrs"
-
-    def _call_extract_zyx_pixel_sizes(_metadata):
-        """
-        Auxiliary function, to make the test more compact
-        """
-        with zattrs_path.open("w") as f:
-            json.dump(metadata, f)
-        return extract_zyx_pixel_sizes(zattrs_path=str(zattrs_path))
-
-    # Case 1: fail for multiple multiscales
-    metadata = dict(multiscales=[1, 2])
-    with pytest.raises(ValueError) as e:
-        _call_extract_zyx_pixel_sizes(metadata)
-    debug(e.value)
-    assert "There are 2 multiscales" in str(e.value)
-
+"""
     # Case 2: fail for global coordinateTransformations
     metadata = dict(multiscales=[dict(axes=[], coordinateTransformations=[])])
     with pytest.raises(NotImplementedError) as e:
@@ -218,4 +216,4 @@ def test_get_acquisition_paths():
     zattrs = dict(well=dict(images=[image_1, image_2]))
     with pytest.raises(NotImplementedError):
         get_acquisition_paths(zattrs)
-'''
+"""

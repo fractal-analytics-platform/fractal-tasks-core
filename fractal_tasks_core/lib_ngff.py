@@ -67,6 +67,26 @@ class Dataset(BaseModel):
         ..., min_items=1
     )
 
+    @property
+    def scale_transformation(self):
+        _transformations = [
+            t for t in self.coordinateTransformations if t.type == "scale"
+        ]
+        if len(_transformations) == 0:
+            raise ValueError(
+                "Missing scale transformation in dataset.\n"
+                "Current coordinateTransformations:\n"
+                f"{self.coordinateTransformations}"
+            )
+        elif len(_transformations) > 1:
+            raise ValueError(
+                "More than one scale transformation in dataset.\n"
+                "Current coordinateTransformations:\n"
+                f"{self.coordinateTransformations}"
+            )
+        else:
+            return _transformations[0]
+
 
 class Multiscale(BaseModel):
     name: Optional[str] = None
@@ -131,7 +151,7 @@ class NgffImageMeta(BaseModel):
             )
         pixel_sizes_zyx = []
         for level in range(self.num_levels):
-            scale = self.datasets[level].coordinateTransformations[0].scale
+            scale = self.datasets[level].scale_transformation
             pixel_size_x = scale[x_index]
             pixel_size_y = scale[y_index]
             if z_index is not None:
