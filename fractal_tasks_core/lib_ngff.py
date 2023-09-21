@@ -149,7 +149,7 @@ class NgffImageMeta(BaseModel):
                 "size is set to 1. This may work, by accident, but it is "
                 "not fully supported."
             )
-        pixel_sizes_zyx = []
+        _pixel_sizes_zyx = []
         for level in range(self.num_levels):
             scale = self.datasets[level].scale_transformation.scale
             pixel_size_x = scale[x_index]
@@ -158,9 +158,14 @@ class NgffImageMeta(BaseModel):
                 pixel_size_z = scale[z_index]
             else:
                 pixel_size_z = 1.0
-            pixel_sizes_zyx.append((pixel_size_z, pixel_size_y, pixel_size_x))
-            pass
-        return pixel_sizes_zyx
+            _pixel_sizes_zyx.append((pixel_size_z, pixel_size_y, pixel_size_x))
+            if min(_pixel_sizes_zyx[-1]) < 1e-9:
+                raise ValueError(
+                    f"Pixel sizes at level {level} are too small: "
+                    f"{_pixel_sizes_zyx[-1]}"
+                )
+
+        return _pixel_sizes_zyx
 
     def get_pixel_sizes_zyx(
         self, *, level: int = 0
