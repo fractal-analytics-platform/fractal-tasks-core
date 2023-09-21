@@ -175,7 +175,7 @@ class NgffImageMeta(BaseModel):
 
 def load_NgffImageMeta(zarr_path: str) -> NgffImageMeta:
     """
-    Load the attributes of a zarr group and cast them to `NgffImage`.
+    Load the attributes of a zarr group and cast them to `NgffImageMeta`.
 
     Args:
         zarr_path: Path to the zarr group.
@@ -246,3 +246,27 @@ class NgffWellMeta(BaseModel):
                 )
             acquisition_dict[image.acquisition] = image.path
         return acquisition_dict
+
+
+def load_NgffWellMeta(zarr_path: str) -> NgffWellMeta:
+    """
+    Load the attributes of a zarr group and cast them to `NgffWellMeta`.
+
+    Args:
+        zarr_path: Path to the zarr group.
+
+    Returns:
+        A new `NgffImage` object.
+    """
+    zarr_group = zarr.open_group(zarr_path, mode="r")
+    zarr_attrs = zarr_group.attrs.asdict()
+    # FIXME: add a try/except block. If it fails, the error should be made
+    # informative.
+    try:
+        return NgffWellMeta(**zarr_attrs)
+    except Exception as e:
+        from devtools import debug  # FIXME remove
+
+        debug(zarr_attrs)
+        debug(e)
+        raise e
