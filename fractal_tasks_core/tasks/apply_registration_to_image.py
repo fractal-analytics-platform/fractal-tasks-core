@@ -85,13 +85,8 @@ def apply_registration_to_image(
         component: Path to the OME-Zarr image in the OME-Zarr plate that is
             processed. Example: `"some_plate.zarr/B/03/0"`.
             (standard argument for Fractal tasks, managed by Fractal server).
-        metadata: Dictionary containing metadata about the OME-Zarr. This task
-            requires the following elements to be present in the metadata.
-            `coarsening_xy (int)`: coarsening factor in XY of the downsampling
-            when building the pyramid. (standard argument for Fractal tasks,
-            managed by Fractal server).
-            `num_levels (int)`: number of pyramid levels in the image; this
-            determines how many pyramid levels are built for the segmentation.
+        metadata: This parameter is not used by this task.
+            (standard argument for Fractal tasks, managed by Fractal server).
         registered_roi_table: Name of the ROI table which has been registered
             and will be applied to mask and shift the images.
             Examples: `registered_FOV_ROI_table` => loop over the field of

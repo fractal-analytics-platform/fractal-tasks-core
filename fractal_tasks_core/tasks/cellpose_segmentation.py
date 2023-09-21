@@ -187,13 +187,8 @@ def cellpose_segmentation(
         component: Path to the OME-Zarr image in the OME-Zarr plate that is
             processed. Example: `"some_plate.zarr/B/03/0"`.
             (standard argument for Fractal tasks, managed by Fractal server).
-        metadata: dictionary containing metadata about the OME-Zarr. This task
-            requires the following elements to be present in the metadata.
-            `num_levels (int)`: number of pyramid levels in the image; this
-            determines how many pyramid levels are built for the segmentation.
-            `coarsening_xy (int)`: coarsening factor in XY of the downsampling
-            when building the pyramid. (standard argument for Fractal tasks,
-            managed by Fractal server).
+        metadata: This parameter is not used by this task.
+            (standard argument for Fractal tasks, managed by Fractal server).
         level: Pyramid level of the image to be segmented. Choose `0` to
             process at full resolution.
         channel: Primary channel for segmentation; requires either

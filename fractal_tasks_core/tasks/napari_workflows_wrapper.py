@@ -109,12 +109,7 @@ def napari_workflows_wrapper(
             processed.
             Example: `"some_plate.zarr/B/03/0"`.
             (standard argument for Fractal tasks, managed by Fractal server).
-        metadata: Dictionary containing metadata about the OME-Zarr. This task
-            requires the following elements to be present in the metadata.
-            `num_levels (int)`: number of pyramid levels in the image (this
-            determines how many pyramid levels are built for the segmentation);
-            `coarsening_xy (int)`: coarsening factor in XY of the downsampling
-            when building the pyramid.
+        metadata: This parameter is not used by this task.
             (standard argument for Fractal tasks, managed by Fractal server).
         workflow_file: Absolute path to napari-workflows YAML file
         input_specs: A dictionary of `NapariWorkflowsInput` values.

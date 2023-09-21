@@ -83,7 +83,7 @@ def create_ome_zarr(
             Example: "/some/path/" => puts the new OME-Zarr file in the
             "/some/path/".
             (standard argument for Fractal tasks, managed by Fractal server).
-        metadata: This parameter is not used by this task
+        metadata: This parameter is not used by this task.
             (standard argument for Fractal tasks, managed by Fractal server).
         allowed_channels: A list of `OmeroChannel` s, where each channel must
             include the `wavelength_id` attribute and where the
