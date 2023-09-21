@@ -197,13 +197,52 @@ def load_NgffImageMeta(zarr_path: str) -> NgffImageMeta:
         raise e
 
 
+class ImageInWell(BaseModel):
+    """
+    FIXME: describe spec modification for `path` (from
+    `constr(regex=r'^[A-Za-z0-9]+$')` to `str`)
+    """
+
+    acquisition: Optional[int] = Field(
+        None, description="A unique identifier within the context of the plate"
+    )
+    path: str = Field(
+        ..., description="The path for this field of view subgroup"
+    )
+
+
 class NgffWellMeta(BaseModel):
-    images: list[NgffImageMeta] = Field(
+    images: list[ImageInWell] = Field(
         ...,
-        description="The fields of view for this well",
+        description="The images included in this well",
         min_items=1,
         unique_items=True,
     )
     version: Optional[Version] = Field(
         None, description="The version of the specification"
     )
+
+    def get_acquisition_paths(self) -> dict[int, str]:
+        """
+        Create mapping from acquisition indices to corresponding paths.
+
+        Runs on the well zarr attributes and loads the relative paths in the
+        well.
+
+        Returns:
+            Dictionary with `(acquisition index: image path)` key/value pairs.
+        """
+        acquisition_dict = {}
+        for image in self.images:
+            if image.acquisition is None:
+                raise ValueError(
+                    "Cannot get acquisition paths for Zarr files without "
+                    "'acquisition' metadata at the well level"
+                )
+            if image.acquisition in acquisition_dict:
+                raise NotImplementedError(
+                    "This task is not implemented for wells with multiple "
+                    "images of the same acquisition"
+                )
+            acquisition_dict[image.acquisition] = image.path
+        return acquisition_dict
