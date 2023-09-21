@@ -173,34 +173,10 @@ class NgffImageMeta(BaseModel):
         return current_ratio
 
 
-def load_NgffImageMeta(zarr_path: str) -> NgffImageMeta:
-    """
-    Load the attributes of a zarr group and cast them to `NgffImageMeta`.
-
-    Args:
-        zarr_path: Path to the zarr group.
-
-    Returns:
-        A new `NgffImage` object.
-    """
-    zarr_group = zarr.open_group(zarr_path, mode="r")
-    zarr_attrs = zarr_group.attrs.asdict()
-    # FIXME: add a try/except block. If it fails, the error should be made
-    # informative.
-    try:
-        return NgffImageMeta(**zarr_attrs)
-    except Exception as e:
-        from devtools import debug  # FIXME remove
-
-        debug(zarr_attrs)
-        debug(e)
-        raise e
-
-
 class Image(BaseModel):
     """
-    FIXME: describe spec modification for `path` (from
-    `constr(regex=r'^[A-Za-z0-9]+$')` to `str`)
+    FIXME: restore spec for `path` (currently changed from
+    `constr(regex=r'^[A-Za-z0-9]+$')` to `str`) via validator
     """
 
     acquisition: Optional[int] = Field(
@@ -252,6 +228,84 @@ class NgffWellMeta(BaseModel):
         return acquisition_dict
 
 
+class Color(BaseModel):
+    """
+    FIXME: Restore 0-255 limit on rbgas via validator
+    """
+
+    label_value: float = Field(
+        ..., alias="label-value", description="The value of the label"
+    )
+    rgba: Optional[list[int]] = Field(
+        None,
+        description=(
+            "The RGBA color stored as an array of four "
+            "integers between 0 and 255"
+        ),
+        max_items=4,
+        min_items=4,
+    )
+
+
+class Property(BaseModel):
+    label_value: int = Field(
+        ..., alias="label-value", description="The pixel value for this label"
+    )
+
+
+class Source(BaseModel):
+    image: Optional[str] = None
+
+
+class ImageLabel(BaseModel):
+    colors: Optional[list[Color]] = Field(
+        None,
+        description="The colors for this label image",
+        min_items=1,
+        unique_items=True,
+    )
+    properties: Optional[list[Property]] = Field(
+        None,
+        description="The properties for this label image",
+        min_items=1,
+        unique_items=True,
+    )
+    source: Optional[Source] = Field(
+        None, description="The source of this label image"
+    )
+    version: Optional[Version] = Field(
+        None, description="The version of the specification"
+    )
+
+
+class NgffLabelImageMeta(BaseModel):
+    image_label: Optional[ImageLabel] = Field(None, alias="image-label")
+
+
+def load_NgffImageMeta(zarr_path: str) -> NgffImageMeta:
+    """
+    Load the attributes of a zarr group and cast them to `NgffImageMeta`.
+
+    Args:
+        zarr_path: Path to the zarr group.
+
+    Returns:
+        A new `NgffImageMeta` object.
+    """
+    zarr_group = zarr.open_group(zarr_path, mode="r")
+    zarr_attrs = zarr_group.attrs.asdict()
+    # FIXME: add a try/except block. If it fails, the error should be made
+    # informative.
+    try:
+        return NgffImageMeta(**zarr_attrs)
+    except Exception as e:
+        from devtools import debug  # FIXME remove
+
+        debug(zarr_attrs)
+        debug(e)
+        raise e
+
+
 def load_NgffWellMeta(zarr_path: str) -> NgffWellMeta:
     """
     Load the attributes of a zarr group and cast them to `NgffWellMeta`.
@@ -260,7 +314,31 @@ def load_NgffWellMeta(zarr_path: str) -> NgffWellMeta:
         zarr_path: Path to the zarr group.
 
     Returns:
-        A new `NgffImage` object.
+        A new `NgffWellMeta` object.
+    """
+    zarr_group = zarr.open_group(zarr_path, mode="r")
+    zarr_attrs = zarr_group.attrs.asdict()
+    # FIXME: add a try/except block. If it fails, the error should be made
+    # informative.
+    try:
+        return NgffWellMeta(**zarr_attrs)
+    except Exception as e:
+        from devtools import debug  # FIXME remove
+
+        debug(zarr_attrs)
+        debug(e)
+        raise e
+
+
+def load_NgffLabelImageMeta(zarr_path: str) -> NgffLabelImageMeta:
+    """
+    Load the attributes of a zarr group and cast them to `NgffLabelImageMeta`.
+
+    Args:
+        zarr_path: Path to the zarr group.
+
+    Returns:
+        A new `NgffLabelImageMeta` object.
     """
     zarr_group = zarr.open_group(zarr_path, mode="r")
     zarr_attrs = zarr_group.attrs.asdict()
