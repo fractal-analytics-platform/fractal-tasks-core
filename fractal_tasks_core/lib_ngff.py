@@ -197,7 +197,7 @@ def load_NgffImageMeta(zarr_path: str) -> NgffImageMeta:
         raise e
 
 
-class ImageInWell(BaseModel):
+class Image(BaseModel):
     """
     FIXME: describe spec modification for `path` (from
     `constr(regex=r'^[A-Za-z0-9]+$')` to `str`)
@@ -212,7 +212,7 @@ class ImageInWell(BaseModel):
 
 
 class Well(BaseModel):
-    images: list[ImageInWell] = Field(
+    images: list[Image] = Field(
         ...,
         description="The images included in this well",
         min_items=1,
