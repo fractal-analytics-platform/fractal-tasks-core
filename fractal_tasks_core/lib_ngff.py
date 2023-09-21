@@ -113,18 +113,21 @@ class NgffImageMeta(BaseModel):
         return len(self.datasets)
 
     @property
+    def axes(self) -> list[str]:
+        return [ax.name for ax in self.multiscale.axes]
+
+    @property
     def pixel_sizes_zyx(self) -> list[tuple[float, float, float]]:
-        axes = [ax.name for ax in self.multiscale.axes]
-        x_index = axes.index("x")
-        y_index = axes.index("y")
+        x_index = self.axes.index("x")
+        y_index = self.axes.index("y")
         try:
-            z_index = axes.index("z")
+            z_index = self.axes.index("z")
         except ValueError:
             z_index = None
             logging.warning(
-                f"Z axis is not present ({axes=}), and Z pixel size is set"
-                " to 1. This may work, by accident, but it is not fully"
-                " supported."
+                f"Z axis is not present (axes: {self.axes}), and Z pixel "
+                "size is set to 1. This may work, by accident, but it is "
+                "not fully supported."
             )
         pixel_sizes_zyx = []
         for level in range(self.num_levels):
