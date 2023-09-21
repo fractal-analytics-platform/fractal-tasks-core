@@ -28,6 +28,7 @@ from skimage.registration import phase_cross_correlation
 
 from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
 from fractal_tasks_core.lib_channels import OmeroChannel
+from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_indices_to_regions,
 )
@@ -35,7 +36,6 @@ from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
 from fractal_tasks_core.lib_regions_of_interest import load_region
-from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 logger = logging.getLogger(__name__)
 
@@ -121,8 +121,9 @@ def calculate_registration_image_based(
 
     zarr_img_ref_cycle = zarr_img_cycle_x.parent / str(reference_cycle)
 
-    # Read some parameters from metadata
-    coarsening_xy = metadata["coarsening_xy"]
+    # Read some parameters from Zarr metadata
+    ngff_image_meta = load_NgffImageMeta(str(zarr_img_ref_cycle))
+    coarsening_xy = ngff_image_meta.coarsening_xy
 
     # Get channel_index via wavelength_id.
     # Intially only allow registration of the same wavelength
@@ -167,12 +168,11 @@ def calculate_registration_image_based(
     # If we relax this, downstream assumptions on matching based on order
     # in the list will break.
 
-    # Read pixel sizes from zattrs file for full_res
-    pxl_sizes_zyx = extract_zyx_pixel_sizes(
-        f"{zarr_img_ref_cycle}/.zattrs", level=0
-    )
-    pxl_sizes_zyx_cycle_x = extract_zyx_pixel_sizes(
-        f"{zarr_img_cycle_x}/.zattrs", level=0
+    # Read pixel sizes from zarr attributes
+    ngff_image_meta_cycle_x = load_NgffImageMeta(str(zarr_img_cycle_x))
+    pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
+    pxl_sizes_zyx_cycle_x = ngff_image_meta_cycle_x.get_pixel_sizes_zyx(
+        level=0
     )
 
     if pxl_sizes_zyx != pxl_sizes_zyx_cycle_x:
@@ -247,7 +247,7 @@ def calculate_registration_image_based(
             shifts,
             level=level,
             coarsening_xy=coarsening_xy,
-            full_res_pxl_sizes_zyx=pxl_sizes_zyx,
+            full_res_pxl_sizes_zyx=list(pxl_sizes_zyx),  # FIXME
         )
 
     # Write physical shifts to disk (as part of the ROI table)
