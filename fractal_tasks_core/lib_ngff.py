@@ -211,7 +211,7 @@ class ImageInWell(BaseModel):
     )
 
 
-class NgffWellMeta(BaseModel):
+class Well(BaseModel):
     images: list[ImageInWell] = Field(
         ...,
         description="The images included in this well",
@@ -221,6 +221,10 @@ class NgffWellMeta(BaseModel):
     version: Optional[Version] = Field(
         None, description="The version of the specification"
     )
+
+
+class NgffWellMeta(BaseModel):
+    well: Optional[Well] = None
 
     def get_acquisition_paths(self) -> dict[int, str]:
         """
@@ -233,7 +237,7 @@ class NgffWellMeta(BaseModel):
             Dictionary with `(acquisition index: image path)` key/value pairs.
         """
         acquisition_dict = {}
-        for image in self.images:
+        for image in self.well.images:
             if image.acquisition is None:
                 raise ValueError(
                     "Cannot get acquisition paths for Zarr files without "
