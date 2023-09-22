@@ -244,7 +244,7 @@ def calculate_registration_image_based(
             shifts,
             level=level,
             coarsening_xy=coarsening_xy,
-            full_res_pxl_sizes_zyx=list(pxl_sizes_zyx),  # FIXME
+            full_res_pxl_sizes_zyx=pxl_sizes_zyx,
         )
 
     # Write physical shifts to disk (as part of the ROI table)

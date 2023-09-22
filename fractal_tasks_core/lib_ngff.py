@@ -209,7 +209,7 @@ class NgffImageMeta(BaseModel):
         return [ax.name for ax in self.multiscale.axes]
 
     @property
-    def pixel_sizes_zyx(self) -> list[tuple[float, float, float]]:
+    def pixel_sizes_zyx(self) -> list[list[float]]:
         """
         Pixel sizes extracted from scale transformations of datasets.
 
@@ -237,7 +237,7 @@ class NgffImageMeta(BaseModel):
                 pixel_size_z = scale[z_index]
             else:
                 pixel_size_z = 1.0
-            _pixel_sizes_zyx.append((pixel_size_z, pixel_size_y, pixel_size_x))
+            _pixel_sizes_zyx.append([pixel_size_z, pixel_size_y, pixel_size_x])
             if min(_pixel_sizes_zyx[-1]) < 1e-9:
                 raise ValueError(
                     f"Pixel sizes at level {level} are too small: "
@@ -246,9 +246,7 @@ class NgffImageMeta(BaseModel):
 
         return _pixel_sizes_zyx
 
-    def get_pixel_sizes_zyx(
-        self, *, level: int = 0
-    ) -> tuple[float, float, float]:
+    def get_pixel_sizes_zyx(self, *, level: int = 0) -> list[float]:
         return self.pixel_sizes_zyx[level]
 
     @property

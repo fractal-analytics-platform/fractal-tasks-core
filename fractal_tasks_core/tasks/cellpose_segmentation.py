@@ -572,7 +572,7 @@ def cellpose_segmentation(
         if output_ROI_table:
             bbox_df = array_to_bounding_box_table(
                 new_label_img,
-                list(actual_res_pxl_sizes_zyx),  # FIXME
+                actual_res_pxl_sizes_zyx,
                 origin_zyx=(s_z, s_y, s_x),
             )
 
