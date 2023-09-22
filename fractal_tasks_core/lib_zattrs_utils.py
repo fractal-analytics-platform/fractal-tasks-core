@@ -12,10 +12,11 @@
 """
 Helper functions for operations on OME-NGFF metadata.
 """
-import json
 import logging
 from pathlib import Path
 from typing import Any
+
+import zarr
 
 
 logger = logging.getLogger(__name__)
@@ -76,6 +77,7 @@ def get_table_path_dict(input_path: Path, component: str) -> dict[str, str]:
     """
     Compile dictionary of (table name, table path) key/value pairs.
 
+
     Args:
         input_path:
             Path to the parent folder of a plate zarr group (e.g.
@@ -85,13 +87,15 @@ def get_table_path_dict(input_path: Path, component: str) -> dict[str, str]:
             `plate.zarr/B/03/0`).
 
     Returns:
-        Dictionary with table names as keys and table paths as values.
+        Dictionary with table names as keys and table paths as values. If
+            `tables` Zarr group is missing, or if it does not have a `tables`
+            key, then return an empty dictionary.
     """
 
     try:
-        with open(f"{input_path / component}/tables/.zattrs", "r") as f_zattrs:
-            table_list = json.load(f_zattrs)["tables"]
-    except FileNotFoundError:
+        tables_group = zarr.open_group(f"{input_path / component}/tables", "r")
+        table_list = tables_group.attrs["tables"]
+    except (zarr.errors.GroupNotFoundError, KeyError):
         table_list = []
 
     table_path_dict = {}
