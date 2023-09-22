@@ -2,7 +2,10 @@
 
 # Unreleased
 
-This release includes work on ROI tables.
+This release includes work on Pydantic models for NGFF specs and on ROI tables.
+
+* Introduce Pydantic models for NGFF metadata in `lib_ngff.py` (\#528)
+* Transform several `lib_zattrs_utils.py` functions (`get_axes_names`, `extract_zyx_pixel_sizes` and `get_acquisition_paths`) into `lib_ngff.py` methods (\#528).
 
 * Set `FOV_ROI_table` and `well_ROI_table` ZYX origin to zero (\#524):
     * Remove heuristics to determine whether to reset origin, in `cellpose_segmentation` task;
