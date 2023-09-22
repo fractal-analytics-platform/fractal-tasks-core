@@ -11,7 +11,6 @@
 """
 Calculates translation for 2D image-based registration
 """
-import json
 import logging
 import os
 import shutil
@@ -149,9 +148,9 @@ def apply_registration_to_image(
     # Process labels
     ####################
     try:
-        with open(f"{input_path / component}/labels/.zattrs", "r") as f_zattrs:
-            label_list = json.load(f_zattrs)["labels"]
-    except FileNotFoundError:
+        labels_group = zarr.open_group(f"{input_path / component}/labels", "r")
+        label_list = labels_group.attrs["labels"]
+    except (zarr.errors.GroupNotFoundError, KeyError):
         label_list = []
 
     if label_list:
