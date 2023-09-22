@@ -235,6 +235,10 @@ def convert_ROI_table_to_indices(
         cols_xyz_pos: Column names for XYZ ROI positions.
         cols_xyz_len: Column names for XYZ ROI edges.
 
+    Raises:
+        ValueError:
+            If any of the array indices is negative.
+
     Returns:
         Nested list of indices. The main list has one item per ROI. Each ROI
             item is a list of six integers as in `[start_z, end_z, start_y,
@@ -255,15 +259,15 @@ def convert_ROI_table_to_indices(
     x_len, y_len, z_len = cols_xyz_len[:]
 
     list_indices = []
-    for FOV in ROI.obs_names:
+    for ROI_name in ROI.obs_names:
 
         # Extract data from anndata table
-        x_micrometer = ROI[FOV, x_pos].X[0, 0]
-        y_micrometer = ROI[FOV, y_pos].X[0, 0]
-        z_micrometer = ROI[FOV, z_pos].X[0, 0]
-        len_x_micrometer = ROI[FOV, x_len].X[0, 0]
-        len_y_micrometer = ROI[FOV, y_len].X[0, 0]
-        len_z_micrometer = ROI[FOV, z_len].X[0, 0]
+        x_micrometer = ROI[ROI_name, x_pos].X[0, 0]
+        y_micrometer = ROI[ROI_name, y_pos].X[0, 0]
+        z_micrometer = ROI[ROI_name, z_pos].X[0, 0]
+        len_x_micrometer = ROI[ROI_name, x_len].X[0, 0]
+        len_y_micrometer = ROI[ROI_name, y_len].X[0, 0]
+        len_z_micrometer = ROI[ROI_name, z_len].X[0, 0]
 
         # Identify indices along the three dimensions
         start_x = x_micrometer / pxl_size_x
@@ -276,6 +280,19 @@ def convert_ROI_table_to_indices(
 
         # Round indices to lower integer
         indices = list(map(round, indices))
+
+        # Fail for negative indices
+        if min(indices) < 0:
+            raise ValueError(
+                f"ROI {ROI_name} converted into negative array indices.\n"
+                f"ZYX position: {z_micrometer}, {y_micrometer}, "
+                f"{x_micrometer}\n"
+                f"ZYX pixel sizes: {pxl_size_z}, {pxl_size_y}, "
+                f"{pxl_size_x} ({level=})\n"
+                "Hint: As of fractal-tasks-core v0.12, FOV/well ROI "
+                "tables with non-zero origins (e.g. the ones created with "
+                "v0.11) are not supported."
+            )
 
         # Append ROI indices to to list
         list_indices.append(indices[:])

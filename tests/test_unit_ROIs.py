@@ -273,6 +273,24 @@ def test_empty_ROI_table():
     assert indices == []
 
 
+def test_negative_indices():
+    """
+    Fail as expected when some index is negative.
+    """
+    # Write valid table to a zarr group
+    columns = EXPECTED_COLUMNS.copy()
+    ROI_table = ad.AnnData(np.array([[0.5, -0.8, 0.5, 10, 10, 10]]))
+    ROI_table.var_names = columns
+    debug(ROI_table.to_df())
+    with pytest.raises(ValueError) as e:
+        convert_ROI_table_to_indices(
+            ROI_table,
+            full_res_pxl_sizes_zyx=[1.0, 1.0, 1.0],
+        )
+    print(e.value)
+    assert "negative array indices" in str(e.value)
+
+
 def test_array_to_bounding_box_table_empty():
     """
     When trying to compute bounding boxes for a label array which has no labels
