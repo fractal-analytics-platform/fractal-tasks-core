@@ -28,6 +28,7 @@ from skimage.registration import phase_cross_correlation
 
 from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
 from fractal_tasks_core.lib_channels import OmeroChannel
+from fractal_tasks_core.lib_regions_of_interest import check_valid_ROI_indices
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_indices_to_regions,
 )
@@ -187,6 +188,7 @@ def calculate_registration_image_based(
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=pxl_sizes_zyx,
     )
+    check_valid_ROI_indices(list_indices_ref, roi_table)
 
     list_indices_cycle_x = convert_ROI_table_to_indices(
         ROI_table_x,
@@ -194,6 +196,7 @@ def calculate_registration_image_based(
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=pxl_sizes_zyx,
     )
+    check_valid_ROI_indices(list_indices_cycle_x, roi_table)
 
     num_ROIs = len(list_indices_ref)
     compute = True

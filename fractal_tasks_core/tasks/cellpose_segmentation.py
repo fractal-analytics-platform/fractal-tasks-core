@@ -41,6 +41,7 @@ from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     array_to_bounding_box_table,
 )
+from fractal_tasks_core.lib_regions_of_interest import check_valid_ROI_indices
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
@@ -355,6 +356,7 @@ def cellpose_segmentation(
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
     )
+    check_valid_ROI_indices(list_indices, input_ROI_table)
 
     # If we are not planning to use masked loading, fail for overlapping ROIs
     if not use_masks:

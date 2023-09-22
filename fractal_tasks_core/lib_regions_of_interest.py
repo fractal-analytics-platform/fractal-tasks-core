@@ -300,6 +300,46 @@ def convert_ROI_table_to_indices(
     return list_indices
 
 
+def check_valid_ROI_indices(
+    list_indices: list[list[int]],
+    ROI_table_name: str,
+) -> None:
+    """
+    Check that list of indices has zero origin, for given table names.
+
+    This helper function is meant to provide informative error messages when
+    ROI tables created with fractal-tasks-core up to v0.11 are used in v0.12.
+    This function will be deprecated and removed as soon as the v0.11/v0.12
+    transition advances.
+
+    Note that only `FOV_ROI_table` and `well_ROI_table` have to fulfill this
+    constraint, while ROI tables obtained through segmentation may have
+    arbitrary (non-negative) indices.
+
+    Args:
+        list_indices:
+            Output of `convert_ROI_table_to_indices`; each item is like
+            `[start_z, end_z, start_y, end_y, start_x, end_x]`.
+        ROI_table_name: Name of the ROI table.
+
+    Raises:
+        ValueError:
+            If there is no list item like `[0, 0, 0, ...]`, and the table name
+                is `FOV_ROI_table` or `well_ROI_table`.
+    """
+    if ROI_table_name in ["FOV_ROI_table", "well_ROI_table"]:
+        ROI_positions = [(item[0], item[2], item[4]) for item in list_indices]
+        if (0, 0, 0) not in ROI_positions:
+            raise ValueError(
+                f"ROI indices for table `{ROI_table_name}` (generated "
+                "through `convert_ROI_table_to_indices`) do not start at "
+                "[0,0,0].\n"
+                "Hint: As of fractal-tasks-core v0.12, FOV/well ROI "
+                "tables with non-zero origins (e.g. the ones created with "
+                "v0.11) are not supported."
+            )
+
+
 def array_to_bounding_box_table(
     mask_array: np.ndarray,
     pxl_sizes_zyx: list[float],
