@@ -307,6 +307,9 @@ def check_valid_ROI_indices(
     """
     Check that list of indices has zero origin, for given table names.
 
+    See
+    https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/530.
+
     This helper function is meant to provide informative error messages when
     ROI tables created with fractal-tasks-core up to v0.11 are used in v0.12.
     This function will be deprecated and removed as soon as the v0.11/v0.12
