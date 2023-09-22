@@ -324,8 +324,8 @@ def check_valid_ROI_indices(
 
     Raises:
         ValueError:
-            If there is no list item like `[0, 0, 0, ...]`, and the table name
-                is `FOV_ROI_table` or `well_ROI_table`.
+            If there is no list item with `start_x=start_y=start_z=0`, and the
+                table name is `FOV_ROI_table` or `well_ROI_table`.
     """
     if ROI_table_name in ["FOV_ROI_table", "well_ROI_table"]:
         ROI_positions = [(item[0], item[2], item[4]) for item in list_indices]
