@@ -13,7 +13,6 @@
 """
 Image segmentation via Cellpose library.
 """
-import json
 import logging
 import os
 import time
@@ -334,7 +333,7 @@ def cellpose_segmentation(
         use_masks = False
     logger.info(f"{use_masks=}")
 
-    # Read pixel sizes from zattrs file
+    # Read pixel sizes from Zarr attributes
     full_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
     logger.info(f"{full_res_pxl_sizes_zyx=}")
     actual_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=level)
@@ -361,7 +360,7 @@ def cellpose_segmentation(
     do_3D = data_zyx.shape[0] > 1 and len(data_zyx.shape) == 3
     if do_3D:
         if anisotropy is None:
-            # Read pixel sizes from zattrs file
+            # Read pixel sizes from Zarr attributes
             pxl_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=level)
             pixel_size_z, pixel_size_y, pixel_size_x = pxl_zyx[:]
             logger.info(f"{pxl_zyx=}")
@@ -373,33 +372,15 @@ def cellpose_segmentation(
                 )
             anisotropy = pixel_size_z / pixel_size_x
 
-    # Load zattrs file
-    zattrs_file = f"{zarrurl}/.zattrs"
-    with open(zattrs_file, "r") as jsonfile:
-        zattrs = json.load(jsonfile)
-
-    # Preliminary checks on multiscales
-    multiscales = zattrs["multiscales"]
-    if len(multiscales) > 1:
-        raise NotImplementedError(
-            f"Found {len(multiscales)} multiscales, "
-            "but only one is currently supported."
-        )
-    if "coordinateTransformations" in multiscales[0].keys():
-        raise NotImplementedError(
-            "global coordinateTransformations at the multiscales "
-            "level are not currently supported"
-        )
-
     # Rescale datasets (only relevant for level>0)
-    if not multiscales[0]["axes"][0]["name"] == "c":
+    if ngff_image_meta.axes_names[0] != "c":
         raise ValueError(
             "Cannot set `remove_channel_axis=True` for multiscale "
-            f'metadata with axes={multiscales[0]["axes"]}. '
+            f"metadata with axes={ngff_image_meta.axes_names}. "
             'First axis should have name "c".'
         )
     new_datasets = rescale_datasets(
-        datasets=multiscales[0]["datasets"],
+        datasets=[ds.dict() for ds in ngff_image_meta.datasets],
         coarsening_xy=coarsening_xy,
         reference_level=level,
         remove_channel_axis=True,
@@ -415,9 +396,9 @@ def cellpose_segmentation(
                 "name": output_label_name,
                 "version": __OME_NGFF_VERSION__,
                 "axes": [
-                    ax
-                    for ax in multiscales[0]["axes"]
-                    if ax["type"] != "channel"
+                    ax.dict()
+                    for ax in ngff_image_meta.multiscale.axes
+                    if ax.type != "channel"
                 ],
                 "datasets": new_datasets,
             }
