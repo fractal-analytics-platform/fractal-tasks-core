@@ -12,7 +12,6 @@
 """
 Wrapper of napari-workflows.
 """
-import json
 import logging
 from pathlib import Path
 from typing import Any
@@ -190,12 +189,6 @@ def napari_workflows_wrapper(
         )
     in_path = Path(input_paths[0]).as_posix()
     label_dtype = np.uint32
-
-    # Load zattrs file and multiscales  # FIXME: remove?
-    zattrs_file = f"{in_path}/{component}/.zattrs"
-    with open(zattrs_file, "r") as jsonfile:
-        zattrs = json.load(jsonfile)
-    multiscales = zattrs["multiscales"]  # FIXME use ngff_image_meta?
 
     # Read mROI table
     zarrurl = f"{in_path}/{component}"
@@ -419,14 +412,16 @@ def napari_workflows_wrapper(
         for (name, out_params) in label_outputs:
 
             # (1a) Rescale OME-NGFF datasets (relevant for level>0)
-            if not multiscales[0]["axes"][0]["name"] == "c":
+            if not ngff_image_meta.multiscale.axes[0].name == "c":
                 raise ValueError(
                     "Cannot set `remove_channel_axis=True` for multiscale "
-                    f'metadata with axes={multiscales[0]["axes"]}. '
+                    f"metadata with axes={ngff_image_meta.multiscale.axes}. "
                     'First axis should have name "c".'
                 )
             new_datasets = rescale_datasets(
-                datasets=multiscales[0]["datasets"],
+                datasets=[
+                    ds.dict() for ds in ngff_image_meta.multiscale.datasets
+                ],
                 coarsening_xy=coarsening_xy,
                 reference_level=level,
                 remove_channel_axis=True,
@@ -444,9 +439,9 @@ def napari_workflows_wrapper(
                         "name": label_name,
                         "version": __OME_NGFF_VERSION__,
                         "axes": [
-                            ax
-                            for ax in multiscales[0]["axes"]
-                            if ax["type"] != "channel"
+                            ax.dict()
+                            for ax in ngff_image_meta.multiscale.axes
+                            if ax.type != "channel"
                         ],
                         "datasets": new_datasets,
                     }
