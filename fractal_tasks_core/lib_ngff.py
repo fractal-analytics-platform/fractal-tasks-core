@@ -14,10 +14,10 @@ from pydantic import validator
 
 class Window(BaseModel):
     """
-    `Window` metadata of a NGFF `Channel`.
+    Model for `Channel.window`.
 
-    See https://ngff.openmicroscopy.org/0.4/#omero-md. Note that we deviate by
-    NGFF specs by making `start` and `end` optional.
+    Note that we deviate by NGFF specs by making `start` and `end` optional.
+    See https://ngff.openmicroscopy.org/0.4/#omero-md.
     """
 
     max: float
@@ -28,7 +28,7 @@ class Window(BaseModel):
 
 class Channel(BaseModel):
     """
-    `Channel` NGFF metadata
+    Model for an element of `Omero.channels`.
 
     See https://ngff.openmicroscopy.org/0.4/#omero-md.
     """
@@ -42,7 +42,7 @@ class Channel(BaseModel):
 
 class Omero(BaseModel):
     """
-    `Omero` transitional metadata.
+    Model for `NgffImageMeta.omero`.
 
     See https://ngff.openmicroscopy.org/0.4/#omero-md.
     """
@@ -52,19 +52,22 @@ class Omero(BaseModel):
 
 class Axis(BaseModel):
     """
-    A single item in the NGFF `axes` list.
+    Model for an element of `Multiscale.axes`.
 
     See https://ngff.openmicroscopy.org/0.4/#axes-md.
     """
 
     name: str
-    type: Optional[str] = None  # or maybe Literal["channel", "time", "space"]
+    type: Optional[str] = None
 
 
 class ScaleCoordinateTransformation(BaseModel):
     """
-    A `scale` NGFF coordinate transformation
+    Model for a scale transformation.
 
+    This corresponds to scale-type elements of
+    `Dataset.coordinateTransformations` or
+    `Multiscale.coordinateTransformations`.
     See https://ngff.openmicroscopy.org/0.4/#trafo-md
     """
 
@@ -74,8 +77,11 @@ class ScaleCoordinateTransformation(BaseModel):
 
 class TranslationCoordinateTransformation(BaseModel):
     """
-    A `translation` NGFF coordinate transformation
+    Model for a translation transformation.
 
+    This corresponds to translation-type elements of
+    `Dataset.coordinateTransformations` or
+    `Multiscale.coordinateTransformations`.
     See https://ngff.openmicroscopy.org/0.4/#trafo-md
     """
 
@@ -85,7 +91,7 @@ class TranslationCoordinateTransformation(BaseModel):
 
 class Dataset(BaseModel):
     """
-    Model for a dataset in a NGFF multiscale.
+    Model for an element of `Multiscale.datasets`.
 
     See https://ngff.openmicroscopy.org/0.4/#multiscale-md
     """
@@ -95,9 +101,7 @@ class Dataset(BaseModel):
         Union[
             ScaleCoordinateTransformation, TranslationCoordinateTransformation
         ]
-    ] = Field(  # noqa
-        ..., min_items=1
-    )
+    ] = Field(..., min_items=1)
 
     @property
     def scale_transformation(self) -> ScaleCoordinateTransformation:
@@ -125,7 +129,7 @@ class Dataset(BaseModel):
 
 class Multiscale(BaseModel):
     """
-    NGFF multiscale metadata.
+    Model for an elemeng of `NgffImageMeta.multiscales`.
 
     See https://ngff.openmicroscopy.org/0.4/#multiscale-md.
     """
@@ -157,7 +161,7 @@ class Multiscale(BaseModel):
 
 class NgffImageMeta(BaseModel):
     """
-    Main model for NGFF image.
+    Model for the metadata of a NGFF image.
 
     See https://ngff.openmicroscopy.org/0.4/#image-layout.
     """
@@ -173,7 +177,11 @@ class NgffImageMeta(BaseModel):
     @property
     def multiscale(self) -> Multiscale:
         """
-        Return the single multiscale of the current image, fail otherwise.
+        The single element of `self.multiscales`.
+
+        Raises:
+            NotImplementedError:
+                If there are no multiscales or more than one.
         """
         if len(self.multiscales) > 1:
             raise NotImplementedError(
@@ -184,6 +192,9 @@ class NgffImageMeta(BaseModel):
 
     @property
     def datasets(self) -> list[Dataset]:
+        """
+        The `datasets` attribute of `self.multiscale`.
+        """
         return self.multiscale.datasets
 
     @property
@@ -192,12 +203,19 @@ class NgffImageMeta(BaseModel):
 
     @property
     def axes(self) -> list[str]:
+        """
+        List of axes names.
+        """
         return [ax.name for ax in self.multiscale.axes]
 
     @property
     def pixel_sizes_zyx(self) -> list[tuple[float, float, float]]:
         """
         Pixel sizes extracted from scale transformations of datasets.
+
+        Raises:
+            ValueError:
+                If pixel sizes are below a given threshold (1e-9).
         """
         x_index = self.axes.index("x")
         y_index = self.axes.index("y")
@@ -238,8 +256,12 @@ class NgffImageMeta(BaseModel):
         """
         Linear coarsening factor in the YX plane.
 
-        We only support coarsening factors that are homogeneous - both in the
-        X/Y directions and across pyramid levels.
+        We only support coarsening factors that are homogeneous (both in the
+        X/Y directions and across pyramid levels).
+
+        Raises:
+            NotImplementedError:
+                If coarsening ratios are not homogeneous.
         """
         current_ratio = None
         for ind in range(1, self.num_levels):
@@ -270,15 +292,14 @@ class NgffImageMeta(BaseModel):
 
 class Image(BaseModel):
     """
-    Model for the `images` attribute a `Well` object.
+    Model for an element of `Well.images`.
 
     See https://ngff.openmicroscopy.org/0.4/#well-md.
 
-    Note 1: this differs from `NgffImageMeta`.
-
-    Note 2: we slightly deviate from NGFF specs, in that we allow `path` to be
-    an arbitrary string. TODO: restore some check like
-    `constr(regex=r'^[A-Za-z0-9]+$')`, through a Pydantic validator.
+    NOTE: we deviate from NGFF specs, since we allow `path` to be an arbitrary
+    string.
+    TODO: include a check like `constr(regex=r'^[A-Za-z0-9]+$')`, through a
+    Pydantic validator.
     """
 
     acquisition: Optional[int] = Field(
@@ -291,7 +312,7 @@ class Image(BaseModel):
 
 class Well(BaseModel):
     """
-    Model for the `well` attribute of a `NgffWellMeta` object.
+    Model for `NgffWellMeta.well`.
 
     See https://ngff.openmicroscopy.org/0.4/#well-md.
     """
@@ -309,7 +330,7 @@ class Well(BaseModel):
 
 class NgffWellMeta(BaseModel):
     """
-    Main model for a NGFF well.
+    Model for the metadata of a NGFF well.
 
     See https://ngff.openmicroscopy.org/0.4/#well-md.
     """
@@ -325,6 +346,13 @@ class NgffWellMeta(BaseModel):
 
         Returns:
             Dictionary with `(acquisition index: image path)` key/value pairs.
+
+        Raises:
+            ValueError:
+                If an element of `self.well.images` has no `acquisition`
+                    attribute.
+            NotImplementedError:
+                If acquisitions are not unique.
         """
         acquisition_dict = {}
         for image in self.well.images:
