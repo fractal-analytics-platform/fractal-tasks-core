@@ -78,7 +78,7 @@ def test_NgffImageMeta(ngffdata_path):
     assert ngff_image_meta.multiscale
     assert len(ngff_image_meta.datasets) == 5
     assert len(ngff_image_meta.datasets) == ngff_image_meta.num_levels
-    assert ngff_image_meta.axes == ["c", "z", "y", "x"]
+    assert ngff_image_meta.axes_names == ["c", "z", "y", "x"]
     assert np.allclose(
         ngff_image_meta.get_pixel_sizes_zyx(), [1.0, 0.1625, 0.1625]
     )
@@ -97,7 +97,7 @@ def test_NgffImageMeta(ngffdata_path):
     assert ngff_image_meta.multiscale
     assert len(ngff_image_meta.datasets) == 5
     assert len(ngff_image_meta.datasets) == ngff_image_meta.num_levels
-    assert ngff_image_meta.axes == ["z", "y", "x"]
+    assert ngff_image_meta.axes_names == ["z", "y", "x"]
     assert np.allclose(
         ngff_image_meta.get_pixel_sizes_zyx(), [1.0, 0.1625, 0.1625]
     )

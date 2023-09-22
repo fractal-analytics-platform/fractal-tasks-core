@@ -318,7 +318,7 @@ def write_registered_zarr(
         reference_region = convert_indices_to_regions(list_indices_ref[i])
         region = convert_indices_to_regions(roi_indices)
 
-        axes_list = old_ngff_image_meta.axes
+        axes_list = old_ngff_image_meta.axes_names
 
         if axes_list == ["c", "z", "y", "x"]:
             num_channels = data_array.shape[0]

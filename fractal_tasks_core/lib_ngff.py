@@ -202,7 +202,7 @@ class NgffImageMeta(BaseModel):
         return len(self.datasets)
 
     @property
-    def axes(self) -> list[str]:
+    def axes_names(self) -> list[str]:
         """
         List of axes names.
         """
@@ -217,15 +217,15 @@ class NgffImageMeta(BaseModel):
             ValueError:
                 If pixel sizes are below a given threshold (1e-9).
         """
-        x_index = self.axes.index("x")
-        y_index = self.axes.index("y")
+        x_index = self.axes_names.index("x")
+        y_index = self.axes_names.index("y")
         try:
-            z_index = self.axes.index("z")
+            z_index = self.axes_names.index("z")
         except ValueError:
             z_index = None
             logging.warning(
-                f"Z axis is not present (axes: {self.axes}), and Z pixel "
-                "size is set to 1. This may work, by accident, but it is "
+                f"Z axis is not present (axes: {self.axes_names}), and Z pixel"
+                " size is set to 1. This may work, by accident, but it is "
                 "not fully supported."
             )
         _pixel_sizes_zyx = []
