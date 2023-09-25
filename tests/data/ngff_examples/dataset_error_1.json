@@ -1,0 +1,9 @@
+{
+    "path": 0,
+    "coordinateTransformations": [
+        {
+            "type": "translation",
+            "translation": [1, 2, 3]
+        }
+    ]
+}

@@ -25,7 +25,7 @@
           "metadata": {
             "title": "Metadata",
             "type": "object",
-            "description": "This parameter is not used by this task (standard argument for Fractal tasks, managed by Fractal server)."
+            "description": "This parameter is not used by this task. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "allowed_channels": {
             "title": "Allowed Channels",
@@ -331,7 +331,7 @@
           "metadata": {
             "title": "Metadata",
             "type": "object",
-            "description": "Dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata. `num_levels (int)`: number of pyramid levels in the image (this determines how many pyramid levels are built for the segmentation); `coarsening_xy (int)`: coarsening factor in XY of the downsampling when building the pyramid `plate`: List of plates (e.g. `[\"MyPlate.zarr\"]`); `well`: List of wells in the OME-Zarr plate (e.g. `[\"MyPlate.zarr/B/03\", \"MyPlate.zarr/B/05\"]`); `image: List of images in the OME-Zarr plate (e.g. `[\"MyPlate.zarr/B/03/0\", \"MyPlate.zarr/B/05/0\"]`). (standard argument for Fractal tasks, managed by Fractal server)."
+            "description": "Dictionary containing metadata about the OME-Zarr. This task requires the key `copy_ome_zarr` to be present in the metadata (as defined in `copy_ome_zarr` task). (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "overwrite": {
             "title": "Overwrite",
@@ -386,7 +386,7 @@
           "metadata": {
             "title": "Metadata",
             "type": "object",
-            "description": "dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata. `num_levels (int)`: number of pyramid levels in the image; this determines how many pyramid levels are built for the segmentation. `coarsening_xy (int)`: coarsening factor in XY of the downsampling when building the pyramid. (standard argument for Fractal tasks, managed by Fractal server)."
+            "description": "This parameter is not used by this task. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "level": {
             "title": "Level",
@@ -564,7 +564,7 @@
           "metadata": {
             "title": "Metadata",
             "type": "object",
-            "description": "Dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata. `num_levels (int)`: number of pyramid levels in the image (this determines how many pyramid levels are built for the segmentation), `coarsening_xy (int)`: coarsening factor in XY of the downsampling when building the pyramid. (standard argument for Fractal tasks, managed by Fractal server)."
+            "description": "This parameter is not used by this task. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "illumination_profiles_folder": {
             "title": "Illumination Profiles Folder",
@@ -645,7 +645,7 @@
           "metadata": {
             "title": "Metadata",
             "type": "object",
-            "description": "Dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata. `num_levels (int)`: number of pyramid levels in the image (this determines how many pyramid levels are built for the segmentation); `coarsening_xy (int)`: coarsening factor in XY of the downsampling when building the pyramid. (standard argument for Fractal tasks, managed by Fractal server)."
+            "description": "This parameter is not used by this task. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "workflow_file": {
             "title": "Workflow File",
@@ -1014,7 +1014,7 @@
           "metadata": {
             "title": "Metadata",
             "type": "object",
-            "description": "Dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata. `coarsening_xy (int)`: coarsening factor in XY of the downsampling when building the pyramid. (standard argument for Fractal tasks, managed by Fractal server)."
+            "description": "This parameter is not used by this task. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "wavelength_id": {
             "title": "Wavelength Id",
@@ -1087,7 +1087,7 @@
           "metadata": {
             "title": "Metadata",
             "type": "object",
-            "description": "Dictionary containing metadata about the OME-Zarr. This task does not use the metadata."
+            "description": "This parameter is not used by this task. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "roi_table": {
             "title": "Roi Table",
@@ -1153,7 +1153,7 @@
           "metadata": {
             "title": "Metadata",
             "type": "object",
-            "description": "Dictionary containing metadata about the OME-Zarr. This task requires the following elements to be present in the metadata. `coarsening_xy (int)`: coarsening factor in XY of the downsampling when building the pyramid. (standard argument for Fractal tasks, managed by Fractal server). `num_levels (int)`: number of pyramid levels in the image; this determines how many pyramid levels are built for the segmentation."
+            "description": "This parameter is not used by this task. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "registered_roi_table": {
             "title": "Registered Roi Table",

@@ -62,6 +62,7 @@ zattrs = {
                         {
                             "type": "scale",
                             "scale": [
+                                1.0,
                                 pxl_z,
                                 pxl_y * cxy**level,
                                 pxl_x * cxy**level,
@@ -79,10 +80,14 @@ zattrs = {
             {
                 "wavelength_id": "A01_C01",
                 "label": "some-label-1",
+                "window": {"min": "0", "max": "10", "start": "0", "end": "10"},
+                "color": "00FFFF",
             },
             {
                 "wavelength_id": "A01_C02",
                 "label": "some-label-2",
+                "window": {"min": "0", "max": "10", "start": "0", "end": "10"},
+                "color": "00FFFF",
             },
         ]
     },

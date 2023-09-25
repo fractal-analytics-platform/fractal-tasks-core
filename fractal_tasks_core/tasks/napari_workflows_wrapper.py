@@ -12,7 +12,6 @@
 """
 Wrapper of napari-workflows.
 """
-import json
 import logging
 from pathlib import Path
 from typing import Any
@@ -31,6 +30,7 @@ import fractal_tasks_core
 from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
 from fractal_tasks_core.lib_input_models import NapariWorkflowsInput
 from fractal_tasks_core.lib_input_models import NapariWorkflowsOutput
+from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
@@ -39,7 +39,6 @@ from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_upscale_array import upscale_array
 from fractal_tasks_core.lib_write import prepare_label_group
 from fractal_tasks_core.lib_write import write_table
-from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
 
 
@@ -109,12 +108,7 @@ def napari_workflows_wrapper(
             processed.
             Example: `"some_plate.zarr/B/03/0"`.
             (standard argument for Fractal tasks, managed by Fractal server).
-        metadata: Dictionary containing metadata about the OME-Zarr. This task
-            requires the following elements to be present in the metadata.
-            `num_levels (int)`: number of pyramid levels in the image (this
-            determines how many pyramid levels are built for the segmentation);
-            `coarsening_xy (int)`: coarsening factor in XY of the downsampling
-            when building the pyramid.
+        metadata: This parameter is not used by this task.
             (standard argument for Fractal tasks, managed by Fractal server).
         workflow_file: Absolute path to napari-workflows YAML file
         input_specs: A dictionary of `NapariWorkflowsInput` values.
@@ -194,32 +188,19 @@ def napari_workflows_wrapper(
             "We currently only support a single input path"
         )
     in_path = Path(input_paths[0]).as_posix()
-    num_levels = metadata["num_levels"]
-    coarsening_xy = metadata["coarsening_xy"]
     label_dtype = np.uint32
 
-    # Load zattrs file and multiscales
-    zattrs_file = f"{in_path}/{component}/.zattrs"
-    with open(zattrs_file, "r") as jsonfile:
-        zattrs = json.load(jsonfile)
-    multiscales = zattrs["multiscales"]
-    if len(multiscales) > 1:
-        raise NotImplementedError(
-            f"Found {len(multiscales)} multiscales, "
-            "but only one is currently supported."
-        )
-    if "coordinateTransformations" in multiscales[0].keys():
-        raise NotImplementedError(
-            "global coordinateTransformations at the multiscales "
-            "level are not currently supported"
-        )
-
-    # Read ROI table
+    # Read mROI table
     zarrurl = f"{in_path}/{component}"
     ROI_table = ad.read_zarr(f"{in_path}/{component}/tables/{input_ROI_table}")
 
+    # Load image metadata
+    ngff_image_meta = load_NgffImageMeta(zarrurl)
+    num_levels = ngff_image_meta.num_levels
+    coarsening_xy = ngff_image_meta.coarsening_xy
+
     # Read pixel sizes from zattrs file
-    full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(zattrs_file, level=0)
+    full_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
 
     # Create list of indices for 3D FOVs spanning the entire Z direction
     list_indices = convert_ROI_table_to_indices(
@@ -383,12 +364,11 @@ def napari_workflows_wrapper(
             reference_array = list(input_label_arrays.values())[0]
             # Re-load pixel size, matching to the correct level
             input_label_name = label_inputs[0][1].label_name
-            zattrs_file = (
-                f"{in_path}/{component}/labels/{input_label_name}/.zattrs"
+            ngff_label_image_meta = load_NgffImageMeta(
+                f"{in_path}/{component}/labels/{input_label_name}"
             )
-            # Read pixel sizes from zattrs file
-            full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
-                zattrs_file, level=0
+            full_res_pxl_sizes_zyx = ngff_label_image_meta.get_pixel_sizes_zyx(
+                level=0
             )
             # Create list of indices for 3D FOVs spanning the whole Z direction
             list_indices = convert_ROI_table_to_indices(
@@ -432,14 +412,16 @@ def napari_workflows_wrapper(
         for (name, out_params) in label_outputs:
 
             # (1a) Rescale OME-NGFF datasets (relevant for level>0)
-            if not multiscales[0]["axes"][0]["name"] == "c":
+            if not ngff_image_meta.multiscale.axes[0].name == "c":
                 raise ValueError(
                     "Cannot set `remove_channel_axis=True` for multiscale "
-                    f'metadata with axes={multiscales[0]["axes"]}. '
+                    f"metadata with axes={ngff_image_meta.multiscale.axes}. "
                     'First axis should have name "c".'
                 )
             new_datasets = rescale_datasets(
-                datasets=multiscales[0]["datasets"],
+                datasets=[
+                    ds.dict() for ds in ngff_image_meta.multiscale.datasets
+                ],
                 coarsening_xy=coarsening_xy,
                 reference_level=level,
                 remove_channel_axis=True,
@@ -457,9 +439,9 @@ def napari_workflows_wrapper(
                         "name": label_name,
                         "version": __OME_NGFF_VERSION__,
                         "axes": [
-                            ax
-                            for ax in multiscales[0]["axes"]
-                            if ax["type"] != "channel"
+                            ax.dict()
+                            for ax in ngff_image_meta.multiscale.axes
+                            if ax.type != "channel"
                         ],
                         "datasets": new_datasets,
                     }

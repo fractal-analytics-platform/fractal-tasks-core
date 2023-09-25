@@ -14,6 +14,7 @@ from PIL import Image
 from pytest import MonkeyPatch
 
 from fractal_tasks_core.lib_input_models import Channel
+from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_indices_to_regions,
 )
@@ -21,7 +22,6 @@ from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
 from fractal_tasks_core.lib_regions_of_interest import load_region
-from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.tasks.apply_registration_to_image import (
     apply_registration_to_image,
 )
@@ -318,9 +318,8 @@ def test_multiplexing_registration(
     # b) none when loading the registered ROI
     for component in metadata["image"]:
         # Read pixel sizes from zattrs file
-        pxl_sizes_zyx = extract_zyx_pixel_sizes(
-            f"{str(zarr_path_mip / component)}/.zattrs", level=0
-        )
+        ngff_image_meta = load_NgffImageMeta(str(zarr_path_mip / component))
+        pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
 
         original_table = ad.read_zarr(
             f"{zarr_path_mip / component}/tables/{roi_table}"
