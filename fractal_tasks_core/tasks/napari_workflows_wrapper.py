@@ -32,6 +32,7 @@ from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
 from fractal_tasks_core.lib_input_models import NapariWorkflowsInput
 from fractal_tasks_core.lib_input_models import NapariWorkflowsOutput
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
+from fractal_tasks_core.lib_regions_of_interest import check_valid_ROI_indices
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
@@ -228,6 +229,7 @@ def napari_workflows_wrapper(
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
     )
+    check_valid_ROI_indices(list_indices, input_ROI_table)
     num_ROIs = len(list_indices)
     logger.info(
         f"Completed reading ROI table {input_ROI_table},"
@@ -397,6 +399,7 @@ def napari_workflows_wrapper(
                 coarsening_xy=coarsening_xy,
                 full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
             )
+            check_valid_ROI_indices(list_indices, input_ROI_table)
             num_ROIs = len(list_indices)
             logger.info(
                 f"Re-create ROI indices from ROI table {input_ROI_table}, "
