@@ -9,7 +9,6 @@ This release includes work on Pydantic models for NGFF specs and on ROI tables.
     * Extract `num_levels` and `coarsening_xy` parameters from NGFF objects, rather than from `metadata` task input (\#528).
     * Transform several `lib_zattrs_utils.py` functions (`get_axes_names`, `extract_zyx_pixel_sizes` and `get_acquisition_paths`) into `lib_ngff.py` methods (\#528).
     * Load Zarr attributes from groups, rather than from `.zattrs` files (\#528).
-
 * Regions of interest:
     * Set `FOV_ROI_table` and `well_ROI_table` ZYX origin to zero (\#524).
     * Remove heuristics to determine whether to reset origin, in `cellpose_segmentation` task (\#524).
@@ -20,6 +19,8 @@ This release includes work on Pydantic models for NGFF specs and on ROI tables.
     * Fix bug in creation of bounding-box ROIs when `cellpose_segmentation` loops of FOVs (\#524).
     * Update type of `metadata` parameter of `prepare_FOV_ROI_table` and `prepare_well_ROI_table` functions (\#524).
     * Fix `reset_origin` so that it returns an updated copy of its input (\#524).
+* Dependencies:
+    * Relax `fsspec<=2023.6` constraint into `fsspec!=2023.9.0` (\#539).
 
 # 0.11.0
 
