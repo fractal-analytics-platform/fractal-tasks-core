@@ -367,8 +367,9 @@ class NgffWellMeta(BaseModel):
                 )
             if image.acquisition in acquisition_dict:
                 raise NotImplementedError(
-                    "This task is not implemented for wells with multiple "
-                    "images of the same acquisition"
+                    "The `NgffWellMeta.get_acquisition_paths` method (in "
+                    "fractal-tasks-core) does not support wells with "
+                    "multiple images of the same acquisition."
                 )
             acquisition_dict[image.acquisition] = image.path
         return acquisition_dict
