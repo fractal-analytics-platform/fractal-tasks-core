@@ -290,7 +290,7 @@ class NgffImageMeta(BaseModel):
         return current_ratio
 
 
-class Image(BaseModel):
+class ImageInWell(BaseModel):
     """
     Model for an element of `Well.images`.
 
@@ -321,7 +321,7 @@ class Well(BaseModel):
     See https://ngff.openmicroscopy.org/0.4/#well-md.
     """
 
-    images: list[Image] = Field(
+    images: list[ImageInWell] = Field(
         ...,
         description="The images included in this well",
         min_items=1,
