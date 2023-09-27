@@ -273,7 +273,7 @@ def cellpose_segmentation(
     logger.info(f"NGFF image has {num_levels=}")
     logger.info(f"NGFF image has {coarsening_xy=}")
     logger.info(
-        f"NGFF image has full-res pixel sizes " f"{full_res_pxl_sizes_zyx}"
+        f"NGFF image has full-res pixel sizes {full_res_pxl_sizes_zyx}"
     )
     logger.info(
         f"NGFF image has level-{level} pixel sizes "
