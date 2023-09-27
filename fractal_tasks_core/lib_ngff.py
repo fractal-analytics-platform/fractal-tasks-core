@@ -294,12 +294,16 @@ class Image(BaseModel):
     """
     Model for an element of `Well.images`.
 
-    See https://ngff.openmicroscopy.org/0.4/#well-md.
+    **Note 1:** The NGFF image is defined in a different model
+    (`NgffImageMeta`), while the `Image` model only refere to an item of
+    `Well.images`.
 
-    NOTE: we deviate from NGFF specs, since we allow `path` to be an arbitrary
-    string.
+    **Note 2:** We deviate from NGFF specs, since we allow `path` to be an
+    arbitrary string.
     TODO: include a check like `constr(regex=r'^[A-Za-z0-9]+$')`, through a
     Pydantic validator.
+
+    See https://ngff.openmicroscopy.org/0.4/#well-md.
     """
 
     acquisition: Optional[int] = Field(
