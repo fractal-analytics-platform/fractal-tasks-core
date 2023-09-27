@@ -92,10 +92,10 @@ push = true
 
 [tool.bumpver.file_patterns]
 "pyproject.toml" = [
-    'version = "{version}"',
+    'version = "{version}"$',
 ]
 "fractal_tasks_core/__init__.py" = [
-    '__VERSION__ = "{version}"'
+    '__VERSION__ = "{version}"$'
 ]
 
 
