@@ -180,7 +180,7 @@ def illumination_correction(
     logger.info(f"  {zarrurl_old=}")
     logger.info(f"  {zarrurl_new=}")
 
-    # Read some parameters from metadata
+    # Read attributes from NGFF metadata
     ngff_image_meta = load_NgffImageMeta(zarrurl_old)
     num_levels = ngff_image_meta.num_levels
     coarsening_xy = ngff_image_meta.coarsening_xy

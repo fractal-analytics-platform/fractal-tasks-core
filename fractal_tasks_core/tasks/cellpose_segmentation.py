@@ -264,7 +264,7 @@ def cellpose_segmentation(
         if not os.path.exists(pretrained_model):
             raise ValueError(f"{pretrained_model=} does not exist.")
 
-    # Read some parameters from metadata
+    # Read attributes from NGFF metadata
     ngff_image_meta = load_NgffImageMeta(zarrurl)
     num_levels = ngff_image_meta.num_levels
     coarsening_xy = ngff_image_meta.coarsening_xy
