@@ -1,6 +1,6 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# Unreleased
+# 0.12.0
 
 This release includes work on Pydantic models for NGFF specs and on ROI tables.
 
