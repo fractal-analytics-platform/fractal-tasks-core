@@ -191,7 +191,7 @@ def napari_workflows_wrapper(
     in_path = Path(input_paths[0]).as_posix()
     label_dtype = np.uint32
 
-    # Read mROI table
+    # Read ROI table
     zarrurl = f"{in_path}/{component}"
     ROI_table = ad.read_zarr(f"{in_path}/{component}/tables/{input_ROI_table}")
 
