@@ -10,10 +10,10 @@ import pytest
 from pytest import LogCaptureFixture
 from pytest import MonkeyPatch
 
+from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
-from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.tasks.illumination_correction import correct
 from fractal_tasks_core.tasks.illumination_correction import (
     illumination_correction,
@@ -88,7 +88,8 @@ def test_illumination_correction(
     num_levels = metadata["num_levels"]
 
     # Read FOV ROIs and create corresponding indices
-    pixels = extract_zyx_pixel_sizes(zarrurl + ".zattrs", level=0)
+    ngff_image_meta = load_NgffImageMeta(zarrurl)
+    pixels = ngff_image_meta.get_pixel_sizes_zyx(level=0)
     ROIs = ad.read_zarr(zarrurl + "tables/FOV_ROI_table/")
     list_indices = convert_ROI_table_to_indices(
         ROIs, level=0, full_res_pxl_sizes_zyx=pixels

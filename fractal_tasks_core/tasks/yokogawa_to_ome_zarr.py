@@ -27,6 +27,7 @@ from zarr.errors import ContainsArrayError
 from fractal_tasks_core.lib_channels import get_omero_channel_list
 from fractal_tasks_core.lib_channels import OmeroChannel
 from fractal_tasks_core.lib_glob import glob_with_multiple_patterns
+from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_read_fractal_metadata import (
@@ -37,7 +38,6 @@ from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
 from fractal_tasks_core.lib_write import OverwriteNotAllowedError
-from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 
 logger = logging.getLogger(__name__)
@@ -111,11 +111,20 @@ def yokogawa_to_ome_zarr(
         raise NotImplementedError
     zarrurl = Path(input_paths[0]).as_posix() + f"/{component}"
 
+    # Read attributes from NGFF metadata
+    ngff_image_meta = load_NgffImageMeta(zarrurl)
+    num_levels = ngff_image_meta.num_levels
+    coarsening_xy = ngff_image_meta.coarsening_xy
+    full_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
+    logger.info(f"NGFF image has {num_levels=}")
+    logger.info(f"NGFF image has {coarsening_xy=}")
+    logger.info(
+        f"NGFF image has full-res pixel sizes {full_res_pxl_sizes_zyx}"
+    )
+
     parameters = get_parameters_from_metadata(
         keys=[
             "original_paths",
-            "num_levels",
-            "coarsening_xy",
             "image_extension",
             "image_glob_patterns",
         ],
@@ -126,8 +135,6 @@ def yokogawa_to_ome_zarr(
         image_zarr_path=(Path(output_path) / component),
     )
     original_path_list = parameters["original_paths"]
-    num_levels = parameters["num_levels"]
-    coarsening_xy = parameters["coarsening_xy"]
     image_extension = parameters["image_extension"]
     image_glob_patterns = parameters["image_glob_patterns"]
 
@@ -144,16 +151,17 @@ def yokogawa_to_ome_zarr(
     well_column = component_split[2]
     well_ID = well_row + well_column
 
-    # Read useful information from ROI table and .zattrs
+    # Read useful information from ROI table
     adata = read_zarr(f"{zarrurl}/tables/FOV_ROI_table")
-    pxl_size = extract_zyx_pixel_sizes(f"{zarrurl}/.zattrs")
     fov_indices = convert_ROI_table_to_indices(
-        adata, full_res_pxl_sizes_zyx=pxl_size
+        adata,
+        full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
     )
     check_valid_ROI_indices(fov_indices, "FOV_ROI_table")
     adata_well = read_zarr(f"{zarrurl}/tables/well_ROI_table")
     well_indices = convert_ROI_table_to_indices(
-        adata_well, full_res_pxl_sizes_zyx=pxl_size
+        adata_well,
+        full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
     )
     check_valid_ROI_indices(well_indices, "well_ROI_table")
     if len(well_indices) > 1:

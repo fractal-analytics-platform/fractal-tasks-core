@@ -11,7 +11,6 @@
 """
 Calculates translation for 2D image-based registration
 """
-import json
 import logging
 import os
 import shutil
@@ -28,6 +27,7 @@ import zarr
 from anndata._io.specs import write_elem
 from pydantic.decorator import validate_arguments
 
+from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_indices_to_regions,
@@ -37,8 +37,6 @@ from fractal_tasks_core.lib_regions_of_interest import (
 )
 from fractal_tasks_core.lib_regions_of_interest import is_standard_roi_table
 from fractal_tasks_core.lib_regions_of_interest import load_region
-from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
-from fractal_tasks_core.lib_zattrs_utils import get_axes_names
 from fractal_tasks_core.lib_zattrs_utils import get_table_path_dict
 
 logger = logging.getLogger(__name__)
@@ -86,13 +84,8 @@ def apply_registration_to_image(
         component: Path to the OME-Zarr image in the OME-Zarr plate that is
             processed. Example: `"some_plate.zarr/B/03/0"`.
             (standard argument for Fractal tasks, managed by Fractal server).
-        metadata: Dictionary containing metadata about the OME-Zarr. This task
-            requires the following elements to be present in the metadata.
-            `coarsening_xy (int)`: coarsening factor in XY of the downsampling
-            when building the pyramid. (standard argument for Fractal tasks,
-            managed by Fractal server).
-            `num_levels (int)`: number of pyramid levels in the image; this
-            determines how many pyramid levels are built for the segmentation.
+        metadata: This parameter is not used by this task.
+            (standard argument for Fractal tasks, managed by Fractal server).
         registered_roi_table: Name of the ROI table which has been registered
             and will be applied to mask and shift the images.
             Examples: `registered_FOV_ROI_table` => loop over the field of
@@ -116,8 +109,7 @@ def apply_registration_to_image(
         f"{component=}, {registered_roi_table=} and {reference_cycle=}. "
         f"Using {overwrite_input=}"
     )
-    coarsening_xy = metadata["coarsening_xy"]
-    num_levels = metadata["num_levels"]
+
     input_path = Path(input_paths[0])
     new_component = "/".join(
         component.split("/")[:-1] + [component.split("/")[-1] + "_registered"]
@@ -132,6 +124,10 @@ def apply_registration_to_image(
     ROI_table_cycle = ad.read_zarr(
         f"{input_path / component}/tables/{registered_roi_table}"
     )
+
+    ngff_image_meta = load_NgffImageMeta(str(input_path / component))
+    coarsening_xy = ngff_image_meta.coarsening_xy
+    num_levels = ngff_image_meta.num_levels
 
     ####################
     # Process images
@@ -152,9 +148,9 @@ def apply_registration_to_image(
     # Process labels
     ####################
     try:
-        with open(f"{input_path / component}/labels/.zattrs", "r") as f_zattrs:
-            label_list = json.load(f_zattrs)["labels"]
-    except FileNotFoundError:
+        labels_group = zarr.open_group(f"{input_path / component}/labels", "r")
+        label_list = labels_group.attrs["labels"]
+    except (zarr.errors.GroupNotFoundError, KeyError):
         label_list = []
 
     if label_list:
@@ -285,10 +281,9 @@ def write_registered_zarr(
             of `build_pyramid`).
 
     """
-    # Read pixel sizes from zattrs file
-    pxl_sizes_zyx = extract_zyx_pixel_sizes(
-        f"{str(input_path / component)}/.zattrs", level=0
-    )
+    # Read pixel sizes from Zarr attributes
+    ngff_image_meta = load_NgffImageMeta(str(input_path / component))
+    pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
 
     # Create list of indices for 3D ROIs
     list_indices = convert_ROI_table_to_indices(
@@ -305,6 +300,7 @@ def write_registered_zarr(
     )
 
     old_image_group = zarr.open_group(f"{input_path / component}", mode="r")
+    old_ngff_image_meta = load_NgffImageMeta(str(input_path / component))
     new_image_group = zarr.group(f"{input_path / new_component}")
     new_image_group.attrs.put(old_image_group.attrs.asdict())
 
@@ -322,7 +318,7 @@ def write_registered_zarr(
         reference_region = convert_indices_to_regions(list_indices_ref[i])
         region = convert_indices_to_regions(roi_indices)
 
-        axes_list = get_axes_names(old_image_group.attrs.asdict())
+        axes_list = old_ngff_image_meta.axes_names
 
         if axes_list == ["c", "z", "y", "x"]:
             num_channels = data_array.shape[0]

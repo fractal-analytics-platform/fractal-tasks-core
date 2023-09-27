@@ -29,12 +29,12 @@ from skimage.io import imread
 
 from fractal_tasks_core.lib_channels import get_omero_channel_list
 from fractal_tasks_core.lib_channels import OmeroChannel
+from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import check_valid_ROI_indices
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
-from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 
 logger = logging.getLogger(__name__)
 
@@ -125,12 +125,7 @@ def illumination_correction(
         component: Path to the OME-Zarr image in the OME-Zarr plate that is
             processed. Example: `"some_plate.zarr/B/03/0"`.
             (standard argument for Fractal tasks, managed by Fractal server).
-        metadata: Dictionary containing metadata about the OME-Zarr. This task
-            requires the following elements to be present in the metadata.
-            `num_levels (int)`: number of pyramid levels in the image (this
-            determines how many pyramid levels are built for the segmentation),
-            `coarsening_xy (int)`: coarsening factor in XY of the downsampling
-            when building the pyramid.
+        metadata: This parameter is not used by this task.
             (standard argument for Fractal tasks, managed by Fractal server).
         illumination_profiles_folder: Path of folder of illumination profiles.
         dict_corr: Dictionary where keys match the `wavelength_id` attributes
@@ -167,10 +162,6 @@ def illumination_correction(
         )
         raise NotImplementedError(msg)
 
-    # Read some parameters from metadata
-    num_levels = metadata["num_levels"]
-    coarsening_xy = metadata["coarsening_xy"]
-
     # Defione old/new zarrurls
     plate, well = component.split(".zarr/")
     in_path = Path(input_paths[0])
@@ -189,6 +180,17 @@ def illumination_correction(
     logger.info(f"  {zarrurl_old=}")
     logger.info(f"  {zarrurl_new=}")
 
+    # Read attributes from NGFF metadata
+    ngff_image_meta = load_NgffImageMeta(zarrurl_old)
+    num_levels = ngff_image_meta.num_levels
+    coarsening_xy = ngff_image_meta.coarsening_xy
+    full_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
+    logger.info(f"NGFF image has {num_levels=}")
+    logger.info(f"NGFF image has {coarsening_xy=}")
+    logger.info(
+        f"NGFF image has full-res pixel sizes {full_res_pxl_sizes_zyx}"
+    )
+
     # Read channels from .zattrs
     channels: list[OmeroChannel] = get_omero_channel_list(
         image_zarr_path=zarrurl_old
@@ -197,11 +199,6 @@ def illumination_correction(
 
     # Read FOV ROIs
     FOV_ROI_table = ad.read_zarr(f"{zarrurl_old}/tables/FOV_ROI_table")
-
-    # Read pixel sizes from zattrs file
-    full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
-        f"{zarrurl_old}/.zattrs", level=0
-    )
 
     # Create list of indices for 3D FOVs spanning the entire Z direction
     list_indices = convert_ROI_table_to_indices(

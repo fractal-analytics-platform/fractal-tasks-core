@@ -1,0 +1,15 @@
+{
+    "well": {
+        "images": [
+            {
+                "path": "nine",
+                "acquisition": 9
+            },
+            {
+                "path": "seven",
+                "acquisition": 7
+            }
+        ],
+        "version": "0.4"
+    }
+}

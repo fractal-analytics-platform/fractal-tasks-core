@@ -13,7 +13,6 @@
 """
 Image segmentation via Cellpose library.
 """
-import json
 import logging
 import os
 import time
@@ -37,6 +36,7 @@ from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
 from fractal_tasks_core.lib_channels import OmeroChannel
 from fractal_tasks_core.lib_input_models import Channel
 from fractal_tasks_core.lib_masked_loading import masked_loading_wrapper
+from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_regions_of_interest import (
     array_to_bounding_box_table,
@@ -51,7 +51,6 @@ from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
 from fractal_tasks_core.lib_ROI_overlaps import get_overlapping_pairs_3D
 from fractal_tasks_core.lib_write import prepare_label_group
 from fractal_tasks_core.lib_write import write_table
-from fractal_tasks_core.lib_zattrs_utils import extract_zyx_pixel_sizes
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
 
 logger = logging.getLogger(__name__)
@@ -188,13 +187,8 @@ def cellpose_segmentation(
         component: Path to the OME-Zarr image in the OME-Zarr plate that is
             processed. Example: `"some_plate.zarr/B/03/0"`.
             (standard argument for Fractal tasks, managed by Fractal server).
-        metadata: dictionary containing metadata about the OME-Zarr. This task
-            requires the following elements to be present in the metadata.
-            `num_levels (int)`: number of pyramid levels in the image; this
-            determines how many pyramid levels are built for the segmentation.
-            `coarsening_xy (int)`: coarsening factor in XY of the downsampling
-            when building the pyramid. (standard argument for Fractal tasks,
-            managed by Fractal server).
+        metadata: This parameter is not used by this task.
+            (standard argument for Fractal tasks, managed by Fractal server).
         level: Pyramid level of the image to be segmented. Choose `0` to
             process at full resolution.
         channel: Primary channel for segmentation; requires either
@@ -270,9 +264,21 @@ def cellpose_segmentation(
         if not os.path.exists(pretrained_model):
             raise ValueError(f"{pretrained_model=} does not exist.")
 
-    # Read useful parameters from metadata
-    num_levels = metadata["num_levels"]
-    coarsening_xy = metadata["coarsening_xy"]
+    # Read attributes from NGFF metadata
+    ngff_image_meta = load_NgffImageMeta(zarrurl)
+    num_levels = ngff_image_meta.num_levels
+    coarsening_xy = ngff_image_meta.coarsening_xy
+    full_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
+    actual_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=level)
+    logger.info(f"NGFF image has {num_levels=}")
+    logger.info(f"NGFF image has {coarsening_xy=}")
+    logger.info(
+        f"NGFF image has full-res pixel sizes {full_res_pxl_sizes_zyx}"
+    )
+    logger.info(
+        f"NGFF image has level-{level} pixel sizes "
+        f"{actual_res_pxl_sizes_zyx}"
+    )
 
     plate, well = component.split(".zarr/")
 
@@ -339,16 +345,6 @@ def cellpose_segmentation(
         use_masks = False
     logger.info(f"{use_masks=}")
 
-    # Read pixel sizes from zattrs file
-    full_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
-        f"{zarrurl}/.zattrs", level=0
-    )
-    logger.info(f"{full_res_pxl_sizes_zyx=}")
-    actual_res_pxl_sizes_zyx = extract_zyx_pixel_sizes(
-        f"{zarrurl}/.zattrs", level=level
-    )
-    logger.info(f"{actual_res_pxl_sizes_zyx=}")
-
     # Create list of indices for 3D ROIs spanning the entire Z direction
     list_indices = convert_ROI_table_to_indices(
         ROI_table,
@@ -371,47 +367,21 @@ def cellpose_segmentation(
     do_3D = data_zyx.shape[0] > 1 and len(data_zyx.shape) == 3
     if do_3D:
         if anisotropy is None:
-            # Read pixel sizes from zattrs file
-            pxl_zyx = extract_zyx_pixel_sizes(
-                f"{zarrurl}/.zattrs", level=level
+            # Compute anisotropy as pixel_size_z/pixel_size_x
+            anisotropy = (
+                actual_res_pxl_sizes_zyx[0] / actual_res_pxl_sizes_zyx[2]
             )
-            pixel_size_z, pixel_size_y, pixel_size_x = pxl_zyx[:]
-            logger.info(f"{pxl_zyx=}")
-            if not np.allclose(pixel_size_x, pixel_size_y):
-                raise ValueError(
-                    "ERROR: XY anisotropy detected"
-                    f"pixel_size_x={pixel_size_x}"
-                    f"pixel_size_y={pixel_size_y}"
-                )
-            anisotropy = pixel_size_z / pixel_size_x
-
-    # Load zattrs file
-    zattrs_file = f"{zarrurl}/.zattrs"
-    with open(zattrs_file, "r") as jsonfile:
-        zattrs = json.load(jsonfile)
-
-    # Preliminary checks on multiscales
-    multiscales = zattrs["multiscales"]
-    if len(multiscales) > 1:
-        raise NotImplementedError(
-            f"Found {len(multiscales)} multiscales, "
-            "but only one is currently supported."
-        )
-    if "coordinateTransformations" in multiscales[0].keys():
-        raise NotImplementedError(
-            "global coordinateTransformations at the multiscales "
-            "level are not currently supported"
-        )
+        logger.info(f"Anisotropy: {anisotropy}")
 
     # Rescale datasets (only relevant for level>0)
-    if not multiscales[0]["axes"][0]["name"] == "c":
+    if ngff_image_meta.axes_names[0] != "c":
         raise ValueError(
             "Cannot set `remove_channel_axis=True` for multiscale "
-            f'metadata with axes={multiscales[0]["axes"]}. '
+            f"metadata with axes={ngff_image_meta.axes_names}. "
             'First axis should have name "c".'
         )
     new_datasets = rescale_datasets(
-        datasets=multiscales[0]["datasets"],
+        datasets=[ds.dict() for ds in ngff_image_meta.datasets],
         coarsening_xy=coarsening_xy,
         reference_level=level,
         remove_channel_axis=True,
@@ -427,9 +397,9 @@ def cellpose_segmentation(
                 "name": output_label_name,
                 "version": __OME_NGFF_VERSION__,
                 "axes": [
-                    ax
-                    for ax in multiscales[0]["axes"]
-                    if ax["type"] != "channel"
+                    ax.dict()
+                    for ax in ngff_image_meta.multiscale.axes
+                    if ax.type != "channel"
                 ],
                 "datasets": new_datasets,
             }
