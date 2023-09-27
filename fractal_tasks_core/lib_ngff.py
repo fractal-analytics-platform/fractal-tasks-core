@@ -130,7 +130,7 @@ class Dataset(BaseModel):
 
 class Multiscale(BaseModel):
     """
-    Model for an elemeng of `NgffImageMeta.multiscales`.
+    Model for an element of `NgffImageMeta.multiscales`.
 
     See https://ngff.openmicroscopy.org/0.4/#multiscale-md.
     """
