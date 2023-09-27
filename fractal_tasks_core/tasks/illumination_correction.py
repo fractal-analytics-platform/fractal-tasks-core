@@ -185,7 +185,7 @@ def illumination_correction(
     logger.info(f"  {zarrurl_old=}")
     logger.info(f"  {zarrurl_new=}")
 
-    # Read channels from .zattrs # FIXME replace with NgffImageMeta?
+    # Read channels from .zattrs
     channels: list[OmeroChannel] = get_omero_channel_list(
         image_zarr_path=zarrurl_old
     )
