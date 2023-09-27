@@ -174,16 +174,22 @@ def illumination_correction(
             raise ValueError(f"{well=}, {new_well=}")
         zarrurl_new = (Path(output_path) / new_component).as_posix()
 
-    # Read some parameters from metadata
-    ngff_image_meta = load_NgffImageMeta(zarrurl_old)
-    num_levels = ngff_image_meta.num_levels
-    coarsening_xy = ngff_image_meta.coarsening_xy
-
     t_start = time.perf_counter()
     logger.info("Start illumination_correction")
     logger.info(f"  {overwrite_input=}")
     logger.info(f"  {zarrurl_old=}")
     logger.info(f"  {zarrurl_new=}")
+
+    # Read some parameters from metadata
+    ngff_image_meta = load_NgffImageMeta(zarrurl_old)
+    num_levels = ngff_image_meta.num_levels
+    coarsening_xy = ngff_image_meta.coarsening_xy
+    full_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
+    logger.info(f"NGFF image has {num_levels=}")
+    logger.info(f"NGFF image has {coarsening_xy=}")
+    logger.info(
+        f"NGFF image has full-res pixel sizes {full_res_pxl_sizes_zyx}"
+    )
 
     # Read channels from .zattrs
     channels: list[OmeroChannel] = get_omero_channel_list(
@@ -193,9 +199,6 @@ def illumination_correction(
 
     # Read FOV ROIs
     FOV_ROI_table = ad.read_zarr(f"{zarrurl_old}/tables/FOV_ROI_table")
-
-    # Read pixel sizes from zattrs file
-    full_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
 
     # Create list of indices for 3D FOVs spanning the entire Z direction
     list_indices = convert_ROI_table_to_indices(
