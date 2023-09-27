@@ -59,6 +59,7 @@ class Axis(BaseModel):
 
     name: str
     type: Optional[str] = None
+    unit: Optional[str] = None
 
 
 class ScaleCoordinateTransformation(BaseModel):
