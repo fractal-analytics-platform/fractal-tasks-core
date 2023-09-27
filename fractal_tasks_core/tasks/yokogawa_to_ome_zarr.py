@@ -111,9 +111,16 @@ def yokogawa_to_ome_zarr(
         raise NotImplementedError
     zarrurl = Path(input_paths[0]).as_posix() + f"/{component}"
 
+    # Read attributes from NGFF metadata
     ngff_image_meta = load_NgffImageMeta(zarrurl)
     num_levels = ngff_image_meta.num_levels
     coarsening_xy = ngff_image_meta.coarsening_xy
+    full_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
+    logger.info(f"NGFF image has {num_levels=}")
+    logger.info(f"NGFF image has {coarsening_xy=}")
+    logger.info(
+        f"NGFF image has full-res pixel sizes {full_res_pxl_sizes_zyx}"
+    )
 
     parameters = get_parameters_from_metadata(
         keys=[
@@ -144,16 +151,17 @@ def yokogawa_to_ome_zarr(
     well_column = component_split[2]
     well_ID = well_row + well_column
 
-    # Read useful information from ROI table and .zattrs
+    # Read useful information from ROI table
     adata = read_zarr(f"{zarrurl}/tables/FOV_ROI_table")
-    pxl_size = ngff_image_meta.get_pixel_sizes_zyx(level=0)
     fov_indices = convert_ROI_table_to_indices(
-        adata, full_res_pxl_sizes_zyx=pxl_size
+        adata,
+        full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
     )
     check_valid_ROI_indices(fov_indices, "FOV_ROI_table")
     adata_well = read_zarr(f"{zarrurl}/tables/well_ROI_table")
     well_indices = convert_ROI_table_to_indices(
-        adata_well, full_res_pxl_sizes_zyx=pxl_size
+        adata_well,
+        full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
     )
     check_valid_ROI_indices(well_indices, "well_ROI_table")
     if len(well_indices) > 1:
