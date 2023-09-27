@@ -156,7 +156,8 @@ class Multiscale(BaseModel):
         if v is not None:
             raise NotImplementedError(
                 "Global coordinateTransformations at the multiscales "
-                "level are not currently supported."
+                "level are not currently supported in the fractal-tasks-core "
+                "model for the NGFF multiscale."
             )
 
 
