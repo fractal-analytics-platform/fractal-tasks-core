@@ -268,6 +268,17 @@ def cellpose_segmentation(
     ngff_image_meta = load_NgffImageMeta(zarrurl)
     num_levels = ngff_image_meta.num_levels
     coarsening_xy = ngff_image_meta.coarsening_xy
+    full_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
+    actual_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=level)
+    logger.info(f"NGFF image has {num_levels=}")
+    logger.info(f"NGFF image has {coarsening_xy=}")
+    logger.info(
+        f"NGFF image has full-res pixel sizes " f"{full_res_pxl_sizes_zyx}"
+    )
+    logger.info(
+        f"NGFF image has level-{level} pixel sizes "
+        f"{actual_res_pxl_sizes_zyx}"
+    )
 
     plate, well = component.split(".zarr/")
 
@@ -334,12 +345,6 @@ def cellpose_segmentation(
         use_masks = False
     logger.info(f"{use_masks=}")
 
-    # Read pixel sizes from Zarr attributes
-    full_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
-    logger.info(f"{full_res_pxl_sizes_zyx=}")
-    actual_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=level)
-    logger.info(f"{actual_res_pxl_sizes_zyx=}")
-
     # Create list of indices for 3D ROIs spanning the entire Z direction
     list_indices = convert_ROI_table_to_indices(
         ROI_table,
@@ -362,17 +367,11 @@ def cellpose_segmentation(
     do_3D = data_zyx.shape[0] > 1 and len(data_zyx.shape) == 3
     if do_3D:
         if anisotropy is None:
-            # Read pixel sizes from Zarr attributes
-            pxl_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=level)
-            pixel_size_z, pixel_size_y, pixel_size_x = pxl_zyx[:]
-            logger.info(f"{pxl_zyx=}")
-            if not np.allclose(pixel_size_x, pixel_size_y):
-                raise ValueError(
-                    "ERROR: XY anisotropy detected"
-                    f"pixel_size_x={pixel_size_x}"
-                    f"pixel_size_y={pixel_size_y}"
-                )
-            anisotropy = pixel_size_z / pixel_size_x
+            # Compute anisotropy as pixel_size_z/pixel_size_x
+            anisotropy = (
+                actual_res_pxl_sizes_zyx[0] / actual_res_pxl_sizes_zyx[2]
+            )
+        logger.info(f"Anisotropy: {anisotropy}")
 
     # Rescale datasets (only relevant for level>0)
     if ngff_image_meta.axes_names[0] != "c":
