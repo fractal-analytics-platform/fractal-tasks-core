@@ -11,13 +11,12 @@ import fractal_tasks_core
 def test_valid_manifest(tmp_path):
     """
     NOTE: to avoid adding a fractal-server dependency, we simply download the
-    relevant file. In the future we may have a fractal-common package, and that
-    one could be easily added as a `dev` dependency.
+    relevant file.
     """
 
     url = (
         "https://raw.githubusercontent.com/fractal-analytics-platform/"
-        "fractal-common/main/schemas/manifest.py"
+        "fractal-server/main/fractal_server/app/schemas/manifest.py"
     )
     r = requests.get(url)
     debug(tmp_path)

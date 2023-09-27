@@ -235,6 +235,10 @@ def convert_ROI_table_to_indices(
         cols_xyz_pos: Column names for XYZ ROI positions.
         cols_xyz_len: Column names for XYZ ROI edges.
 
+    Raises:
+        ValueError:
+            If any of the array indices is negative.
+
     Returns:
         Nested list of indices. The main list has one item per ROI. Each ROI
             item is a list of six integers as in `[start_z, end_z, start_y,
@@ -255,15 +259,15 @@ def convert_ROI_table_to_indices(
     x_len, y_len, z_len = cols_xyz_len[:]
 
     list_indices = []
-    for FOV in ROI.obs_names:
+    for ROI_name in ROI.obs_names:
 
         # Extract data from anndata table
-        x_micrometer = ROI[FOV, x_pos].X[0, 0]
-        y_micrometer = ROI[FOV, y_pos].X[0, 0]
-        z_micrometer = ROI[FOV, z_pos].X[0, 0]
-        len_x_micrometer = ROI[FOV, x_len].X[0, 0]
-        len_y_micrometer = ROI[FOV, y_len].X[0, 0]
-        len_z_micrometer = ROI[FOV, z_len].X[0, 0]
+        x_micrometer = ROI[ROI_name, x_pos].X[0, 0]
+        y_micrometer = ROI[ROI_name, y_pos].X[0, 0]
+        z_micrometer = ROI[ROI_name, z_pos].X[0, 0]
+        len_x_micrometer = ROI[ROI_name, x_len].X[0, 0]
+        len_y_micrometer = ROI[ROI_name, y_len].X[0, 0]
+        len_z_micrometer = ROI[ROI_name, z_len].X[0, 0]
 
         # Identify indices along the three dimensions
         start_x = x_micrometer / pxl_size_x
@@ -277,10 +281,66 @@ def convert_ROI_table_to_indices(
         # Round indices to lower integer
         indices = list(map(round, indices))
 
+        # Fail for negative indices
+        if min(indices) < 0:
+            raise ValueError(
+                f"ROI {ROI_name} converted into negative array indices.\n"
+                f"ZYX position: {z_micrometer}, {y_micrometer}, "
+                f"{x_micrometer}\n"
+                f"ZYX pixel sizes: {pxl_size_z}, {pxl_size_y}, "
+                f"{pxl_size_x} ({level=})\n"
+                "Hint: As of fractal-tasks-core v0.12, FOV/well ROI "
+                "tables with non-zero origins (e.g. the ones created with "
+                "v0.11) are not supported."
+            )
+
         # Append ROI indices to to list
         list_indices.append(indices[:])
 
     return list_indices
+
+
+def check_valid_ROI_indices(
+    list_indices: list[list[int]],
+    ROI_table_name: str,
+) -> None:
+    """
+    Check that list of indices has zero origin, for given table names.
+
+    See
+    https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/530.
+
+    This helper function is meant to provide informative error messages when
+    ROI tables created with fractal-tasks-core up to v0.11 are used in v0.12.
+    This function will be deprecated and removed as soon as the v0.11/v0.12
+    transition advances.
+
+    Note that only `FOV_ROI_table` and `well_ROI_table` have to fulfill this
+    constraint, while ROI tables obtained through segmentation may have
+    arbitrary (non-negative) indices.
+
+    Args:
+        list_indices:
+            Output of `convert_ROI_table_to_indices`; each item is like
+            `[start_z, end_z, start_y, end_y, start_x, end_x]`.
+        ROI_table_name: Name of the ROI table.
+
+    Raises:
+        ValueError:
+            If there is no list item with `start_x=start_y=start_z=0`, and the
+                table name is `FOV_ROI_table` or `well_ROI_table`.
+    """
+    if ROI_table_name in ["FOV_ROI_table", "well_ROI_table"]:
+        ROI_positions = [(item[0], item[2], item[4]) for item in list_indices]
+        if (0, 0, 0) not in ROI_positions:
+            raise ValueError(
+                f"ROI indices for table `{ROI_table_name}` (generated "
+                "through `convert_ROI_table_to_indices`) do not start at "
+                "[0,0,0].\n"
+                "Hint: As of fractal-tasks-core v0.12, FOV/well ROI "
+                "tables with non-zero origins (e.g. the ones created with "
+                "v0.11) are not supported."
+            )
 
 
 def array_to_bounding_box_table(

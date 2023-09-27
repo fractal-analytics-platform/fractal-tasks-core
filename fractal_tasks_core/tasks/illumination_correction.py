@@ -31,6 +31,7 @@ from fractal_tasks_core.lib_channels import get_omero_channel_list
 from fractal_tasks_core.lib_channels import OmeroChannel
 from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
+from fractal_tasks_core.lib_regions_of_interest import check_valid_ROI_indices
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
@@ -203,6 +204,7 @@ def illumination_correction(
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
     )
+    check_valid_ROI_indices(list_indices, "FOV_ROI_table")
 
     # Extract image size from FOV-ROI indices. Note: this works at level=0,
     # where FOVs should all be of the exact same size (in pixels)

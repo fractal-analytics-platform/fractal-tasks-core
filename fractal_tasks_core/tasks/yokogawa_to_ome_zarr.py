@@ -33,6 +33,7 @@ from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_read_fractal_metadata import (
     get_parameters_from_metadata,
 )
+from fractal_tasks_core.lib_regions_of_interest import check_valid_ROI_indices
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
@@ -149,10 +150,12 @@ def yokogawa_to_ome_zarr(
     fov_indices = convert_ROI_table_to_indices(
         adata, full_res_pxl_sizes_zyx=pxl_size
     )
+    check_valid_ROI_indices(fov_indices, "FOV_ROI_table")
     adata_well = read_zarr(f"{zarrurl}/tables/well_ROI_table")
     well_indices = convert_ROI_table_to_indices(
         adata_well, full_res_pxl_sizes_zyx=pxl_size
     )
+    check_valid_ROI_indices(well_indices, "well_ROI_table")
     if len(well_indices) > 1:
         raise ValueError(f"Something wrong with {well_indices=}")
 

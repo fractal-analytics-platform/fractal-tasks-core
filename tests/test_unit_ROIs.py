@@ -15,6 +15,7 @@ from fractal_tasks_core.lib_regions_of_interest import (
 from fractal_tasks_core.lib_regions_of_interest import (
     array_to_bounding_box_table,
 )
+from fractal_tasks_core.lib_regions_of_interest import check_valid_ROI_indices
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_indices_to_regions,
 )
@@ -271,6 +272,50 @@ def test_empty_ROI_table():
         full_res_pxl_sizes_zyx=[1.0, 1.0, 1.0],
     )
     assert indices == []
+
+
+def test_negative_indices():
+    """
+    Fail as expected when some index is negative.
+    """
+    # Write valid table to a zarr group
+    columns = EXPECTED_COLUMNS.copy()
+    ROI_table = ad.AnnData(np.array([[0.5, -0.8, 0.5, 10, 10, 10]]))
+    ROI_table.var_names = columns
+    debug(ROI_table.to_df())
+    with pytest.raises(ValueError) as e:
+        convert_ROI_table_to_indices(
+            ROI_table,
+            full_res_pxl_sizes_zyx=[1.0, 1.0, 1.0],
+        )
+    print(e.value)
+    assert "negative array indices" in str(e.value)
+
+
+def test_check_valid_ROI_indices():
+    """
+    Ref
+    https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/530.
+    """
+    # Indices starting at (0, 0, 0)
+    list_indices = [
+        [1, 2, 0, 1, 0, 1],
+        [0, 1, 0, 1, 0, 1],
+    ]
+    check_valid_ROI_indices(list_indices, "FOV_ROI_table")
+    check_valid_ROI_indices(list_indices, "something")
+
+    list_indices = [
+        [2, 3, 0, 1, 0, 1],
+        [1, 2, 0, 1, 0, 1],
+        [0, 1, 1, 2, 0, 1],
+        [0, 1, 0, 1, 1, 2],
+    ]
+    check_valid_ROI_indices(list_indices, "something")
+    with pytest.raises(ValueError) as e:
+        check_valid_ROI_indices(list_indices, "FOV_ROI_table")
+    print(str(e.value))
+    assert "" in str(e.value)
 
 
 def test_array_to_bounding_box_table_empty():
