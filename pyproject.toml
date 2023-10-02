@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "fractal-tasks-core"
 version = "0.12.0"
-description = ""
+description = "Core bioimage-analysis library and tasks of the Fractal analytics platform"
 authors = [
     "Joel Lüthi  <joel.luethi@fmi.ch>",
     "Tommaso Comparin <tommaso.comparin@exact-lab.it>",
