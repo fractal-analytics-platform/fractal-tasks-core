@@ -69,13 +69,5 @@ to test updating the version bump.
 ```console
 poetry run bumpver update --[tag-num|patch|minor] --tag-commit --commit
 ```
-to actually bump the version and commit the changes locally.
-8. Test the build with:
-```console
-poetry build
-```
-9. Finally, publish the updated package to PyPI with::
-```console
-poetry publish --dry-run
-```
-replacing `--dry-run` with `--username YOUR_USERNAME --password YOUR_PASSWORD` when you made sure that everything looks good.
+to actually bump the version. This will trigger a dedicated GitHub
+action to build the new package and publish it to PyPI.
