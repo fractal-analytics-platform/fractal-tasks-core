@@ -20,7 +20,7 @@ jobs:
           python-version: "3.10"
 
       - name: Install poetry
-        run: pipx install poetry==1.5
+        run: python -m pipx install poetry==1.5
 
       - name: Build package
         run: poetry build
