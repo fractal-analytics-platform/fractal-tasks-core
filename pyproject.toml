@@ -12,7 +12,8 @@ readme = "README.md"
 packages = [{include = "fractal_tasks_core"}]
 license = "BSD-3-Clause"
 homepage = "https://github.com/fractal-analytics-platform/fractal-tasks-core"
-documentation = "https://fractal-tasks-core.readthedocs.io"
+repository = "https://github.com/fractal-analytics-platform/fractal-tasks-core"
+documentation = "https://fractal-analytics-platform.github.io/fractal-tasks-core"
 
 [tool.poetry.dependencies]
 
