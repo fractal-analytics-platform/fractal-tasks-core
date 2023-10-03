@@ -1,7 +1,8 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# Unreleased
+# 0.12.1
 
+* Make `Channel.window` attribute optional in `lib_ngff.py` (\#548).
 * Automate procedure for publishing package to PyPI (\#545).
 
 # 0.12.0
