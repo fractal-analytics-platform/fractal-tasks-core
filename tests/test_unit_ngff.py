@@ -118,10 +118,13 @@ def test_NgffImageMeta(ngffdata_path):
     debug(e.value)
     assert "are too small" in str(e.value)
 
-    # Load image with omero channels but without channels' windows
+    # Load an image where not all omero channels have a window attribute
     ngff_image_meta = _load_and_validate(
         ngffdata_path / "image_no_omero_channel_window.json", NgffImageMeta
     )
+    debug(ngff_image_meta.omero)
+    assert ngff_image_meta.omero.channels[0].window is None
+    assert ngff_image_meta.omero.channels[1].window is not None
 
 
 def test_ImageNgffMeta_missing_Z(ngffdata_path, caplog):
