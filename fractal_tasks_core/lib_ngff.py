@@ -33,7 +33,7 @@ class Channel(BaseModel):
     See https://ngff.openmicroscopy.org/0.4/#omero-md.
     """
 
-    window: Window
+    window: Optional[Window] = None
     label: Optional[str] = None
     family: Optional[str] = None
     color: str
