@@ -1,5 +1,9 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# Unreleased
+
+* Do not install `docs` dependencies in GitHub CI (\#551).
+
 # 0.12.1
 
 * Make `Channel.window` attribute optional in `lib_ngff.py` (\#548).
