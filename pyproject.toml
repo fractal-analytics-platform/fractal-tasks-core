@@ -15,6 +15,11 @@ homepage = "https://github.com/fractal-analytics-platform/fractal-tasks-core"
 repository = "https://github.com/fractal-analytics-platform/fractal-tasks-core"
 documentation = "https://fractal-analytics-platform.github.io/fractal-tasks-core"
 
+
+[tool.poetry.urls]
+"Changelog" = "https://github.com/fractal-analytics-platform/fractal-tasks-core/blob/main/CHANGELOG.md"
+
+
 [tool.poetry.dependencies]
 
 # Required dependencies
