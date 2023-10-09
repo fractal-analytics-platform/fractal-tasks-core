@@ -539,3 +539,40 @@ def test_is_standard_roi_table():
     assert is_standard_roi_table("xxx_well_ROI_table_xxx")
     assert is_standard_roi_table("xxx_FOV_ROI_table_xxx")
     assert not is_standard_roi_table("something_else")
+
+
+def test_search_first_ROI(testdata_path: Path):
+    """
+    See
+    https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/554
+    """
+    big_df = pd.read_csv(
+        str(
+            testdata_path
+            / "site_metadata_ZebrafishMultiplexing_cycle0_new_rois.csv"
+        )
+    )
+    well_ids = big_df.well_id.unique()
+    for well_id in well_ids:
+        debug(well_id)
+        # Select a specific well from big_df
+        df = big_df.loc[big_df["well_id"] == well_id, :].copy()
+        full_res_pxl_sizes_zyx = [
+            df["pixel_size_z"][0],
+            df["pixel_size_y"][0],
+            df["pixel_size_x"][0],
+        ]
+        # Construct and validate FOV ROIs
+        FOV_ROI_table = prepare_FOV_ROI_table(df)
+        list_indices = convert_ROI_table_to_indices(
+            FOV_ROI_table,
+            full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
+        )
+        check_valid_ROI_indices(list_indices, "FOV_ROI_table")
+        # Construct and validate well ROI
+        well_ROI_table = prepare_FOV_ROI_table(df)
+        list_indices = convert_ROI_table_to_indices(
+            well_ROI_table,
+            full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
+        )
+        check_valid_ROI_indices(list_indices, "well_ROI_table")
