@@ -552,16 +552,17 @@ def test_search_first_ROI(testdata_path: Path):
             / "site_metadata_ZebrafishMultiplexing_cycle0_new_rois.csv"
         )
     )
+    full_res_pxl_sizes_zyx = [
+        big_df["pixel_size_z"][0],
+        big_df["pixel_size_y"][0],
+        big_df["pixel_size_x"][0],
+    ]
+
     well_ids = big_df.well_id.unique()
     for well_id in well_ids:
         debug(well_id)
         # Select a specific well from big_df
         df = big_df.loc[big_df["well_id"] == well_id, :].copy()
-        full_res_pxl_sizes_zyx = [
-            df["pixel_size_z"][0],
-            df["pixel_size_y"][0],
-            df["pixel_size_x"][0],
-        ]
         # Construct and validate FOV ROIs
         FOV_ROI_table = prepare_FOV_ROI_table(df)
         list_indices = convert_ROI_table_to_indices(
