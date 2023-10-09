@@ -15,7 +15,7 @@
 | fractal\_tasks\_core/lib\_parse\_filename\_metadata.py              |       33 |        1 |       12 |        1 |     96% |       104 |
 | fractal\_tasks\_core/lib\_pyramid\_creation.py                      |       28 |        0 |       10 |        0 |    100% |           |
 | fractal\_tasks\_core/lib\_read\_fractal\_metadata.py                |       35 |        0 |       14 |        0 |    100% |           |
-| fractal\_tasks\_core/lib\_regions\_of\_interest.py                  |      163 |        1 |       54 |        1 |     99% |       167 |
+| fractal\_tasks\_core/lib\_regions\_of\_interest.py                  |      168 |        1 |       60 |        1 |     99% |       167 |
 | fractal\_tasks\_core/lib\_upscale\_array.py                         |       74 |        7 |       48 |        6 |     88% |63, 91, 96->100, 113, 128, 192-197 |
 | fractal\_tasks\_core/lib\_write.py                                  |       97 |        0 |       42 |        2 |     99% |83->87, 171->174 |
 | fractal\_tasks\_core/lib\_zattrs\_utils.py                          |       38 |        1 |       14 |        1 |     96% |        69 |
@@ -32,7 +32,7 @@
 | fractal\_tasks\_core/tasks/maximum\_intensity\_projection.py        |       61 |        5 |       16 |        5 |     87% |37->36, 72, 106, 125, 157-159 |
 | fractal\_tasks\_core/tasks/napari\_workflows\_wrapper.py            |      243 |       20 |      118 |       15 |     90% |61->60, 149-151, 188, 293, 300, 306-311, 316, 347, 352, 392-396, 419, 522->509, 561-566, 573->575, 653-655 |
 | fractal\_tasks\_core/tasks/yokogawa\_to\_ome\_zarr.py               |       94 |        5 |       22 |        5 |     91% |62->61, 111, 168, 219, 269-271 |
-|                                                           **TOTAL** | **2560** |  **182** |  **982** |  **145** | **90%** |           |
+|                                                           **TOTAL** | **2565** |  **182** |  **988** |  **145** | **90%** |           |
 
 
 ## Setup coverage badge
