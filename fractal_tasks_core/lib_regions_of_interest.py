@@ -305,10 +305,9 @@ def check_valid_ROI_indices(
     ROI_table_name: str,
 ) -> None:
     """
-    Check that list of indices has zero origin, for given table names.
+    Check that list of indices has zero origin on each axis.
 
-    See
-    https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/530.
+    See fractal-tasks-core issues #530 and #554.
 
     This helper function is meant to provide informative error messages when
     ROI tables created with fractal-tasks-core up to v0.11 are used in v0.12.
@@ -327,16 +326,27 @@ def check_valid_ROI_indices(
 
     Raises:
         ValueError:
-            If there is no list item with `start_x=start_y=start_z=0`, and the
-                table name is `FOV_ROI_table` or `well_ROI_table`.
+            If the table name is `FOV_ROI_table` or `well_ROI_table` and the
+                minimum value of `start_x`, `start_y` and `start_z` are not all
+                zero.
     """
-    if ROI_table_name in ["FOV_ROI_table", "well_ROI_table"]:
-        ROI_positions = [(item[0], item[2], item[4]) for item in list_indices]
-        if (0, 0, 0) not in ROI_positions:
+    if ROI_table_name not in ["FOV_ROI_table", "well_ROI_table"]:
+        # This validation function only applies to the FOV/well ROI tables
+        # generated with fractal-tasks-core
+        return
+
+    # Find minimum index along ZYX
+    min_start_z = min(item[0] for item in list_indices)
+    min_start_y = min(item[2] for item in list_indices)
+    min_start_x = min(item[4] for item in list_indices)
+
+    # Check that minimum indices are all zero
+    for (ind, min_index) in enumerate((min_start_z, min_start_y, min_start_x)):
+        if min_index != 0:
+            axis = ["Z", "Y", "X"][ind]
             raise ValueError(
-                f"ROI indices for table `{ROI_table_name}` (generated "
-                "through `convert_ROI_table_to_indices`) do not start at "
-                "[0,0,0].\n"
+                f"{axis} component of ROI indices for table `{ROI_table_name}`"
+                f" do not start with 0, but with {min_index}.\n"
                 "Hint: As of fractal-tasks-core v0.12, FOV/well ROI "
                 "tables with non-zero origins (e.g. the ones created with "
                 "v0.11) are not supported."

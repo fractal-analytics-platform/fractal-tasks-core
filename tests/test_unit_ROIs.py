@@ -305,6 +305,7 @@ def test_check_valid_ROI_indices():
     check_valid_ROI_indices(list_indices, "FOV_ROI_table")
     check_valid_ROI_indices(list_indices, "something")
 
+    # Indices that independently start at 0 on each axis
     list_indices = [
         [2, 3, 0, 1, 0, 1],
         [1, 2, 0, 1, 0, 1],
@@ -312,10 +313,20 @@ def test_check_valid_ROI_indices():
         [0, 1, 0, 1, 1, 2],
     ]
     check_valid_ROI_indices(list_indices, "something")
+    check_valid_ROI_indices(list_indices, "FOV_ROI_table")
+
+    # X indices do not start at 0
+    list_indices = [
+        [2, 3, 0, 1, 1, 2],
+        [1, 2, 0, 1, 2, 3],
+        [0, 1, 1, 2, 3, 5],
+        [0, 1, 0, 1, 1, 2],
+    ]
+    check_valid_ROI_indices(list_indices, "something")
     with pytest.raises(ValueError) as e:
         check_valid_ROI_indices(list_indices, "FOV_ROI_table")
     print(str(e.value))
-    assert "" in str(e.value)
+    assert "do not start with 0" in str(e.value)
 
 
 def test_array_to_bounding_box_table_empty():
@@ -539,3 +550,41 @@ def test_is_standard_roi_table():
     assert is_standard_roi_table("xxx_well_ROI_table_xxx")
     assert is_standard_roi_table("xxx_FOV_ROI_table_xxx")
     assert not is_standard_roi_table("something_else")
+
+
+def test_search_first_ROI(testdata_path: Path):
+    """
+    See
+    https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/554
+    """
+    big_df = pd.read_csv(
+        str(
+            testdata_path
+            / "site_metadata_ZebrafishMultiplexing_cycle0_new_rois.csv"
+        )
+    )
+    full_res_pxl_sizes_zyx = [
+        big_df["pixel_size_z"][0],
+        big_df["pixel_size_y"][0],
+        big_df["pixel_size_x"][0],
+    ]
+
+    well_ids = big_df.well_id.unique()
+    for well_id in well_ids:
+        debug(well_id)
+        # Select a specific well from big_df
+        df = big_df.loc[big_df["well_id"] == well_id, :].copy()
+        # Construct and validate FOV ROIs
+        FOV_ROI_table = prepare_FOV_ROI_table(df)
+        list_indices = convert_ROI_table_to_indices(
+            FOV_ROI_table,
+            full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
+        )
+        check_valid_ROI_indices(list_indices, "FOV_ROI_table")
+        # Construct and validate well ROI
+        well_ROI_table = prepare_FOV_ROI_table(df)
+        list_indices = convert_ROI_table_to_indices(
+            well_ROI_table,
+            full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
+        )
+        check_valid_ROI_indices(list_indices, "well_ROI_table")
