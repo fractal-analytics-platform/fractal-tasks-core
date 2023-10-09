@@ -1184,6 +1184,54 @@
       },
       "docs_info": "Apply registration to images by using a registered ROI table\n\nThis task consists of 4 parts:\n\n1. Mask all regions in images that are not available in the\nregistered ROI table and store each cycle aligned to the\nreference_cycle (by looping over ROIs).\n2. Do the same for all label images.\n3. Copy all tables from the non-aligned image to the aligned image\n(currently only works well if the only tables are well & FOV ROI tables\n(registered and original). Not implemented for measurement tables and\nother ROI tables).\n4. Clean up: Delete the old, non-aligned image and rename the new,\naligned image to take over its place.\n\nParallelization level: image",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core/reference/fractal_tasks_core/tasks/apply_registration_to_image/#fractal_tasks_core.tasks.apply_registration_to_image.apply_registration_to_image"
+    },
+    {
+      "name": "Import OME-Zarr",
+      "executable": "tasks/import_ome_zarr.py",
+      "input_type": "zarr",
+      "output_type": "zarr",
+      "meta": {
+        "cpus_per_task": 1,
+        "mem": 4000
+      },
+      "args_schema": {
+        "title": "ImportOmeZarr",
+        "type": "object",
+        "properties": {
+          "input_paths": {
+            "title": "Input Paths",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "TBD (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "output_path": {
+            "title": "Output Path",
+            "type": "string",
+            "description": "TBD (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "metadata": {
+            "title": "Metadata",
+            "type": "object",
+            "description": "TBD (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "overwrite": {
+            "title": "Overwrite",
+            "default": false,
+            "type": "boolean",
+            "description": "TBD"
+          }
+        },
+        "required": [
+          "input_paths",
+          "output_path",
+          "metadata"
+        ],
+        "additionalProperties": false
+      },
+      "docs_info": "Import an OME-Zarr",
+      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core/reference/fractal_tasks_core/tasks/import_ome_zarr/#fractal_tasks_core.tasks.import_ome_zarr.import_ome_zarr"
     }
   ]
 }
