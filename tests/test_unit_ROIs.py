@@ -305,6 +305,7 @@ def test_check_valid_ROI_indices():
     check_valid_ROI_indices(list_indices, "FOV_ROI_table")
     check_valid_ROI_indices(list_indices, "something")
 
+    # Indices that independently start at 0 on each axis
     list_indices = [
         [2, 3, 0, 1, 0, 1],
         [1, 2, 0, 1, 0, 1],
@@ -312,10 +313,20 @@ def test_check_valid_ROI_indices():
         [0, 1, 0, 1, 1, 2],
     ]
     check_valid_ROI_indices(list_indices, "something")
+    check_valid_ROI_indices(list_indices, "FOV_ROI_table")
+
+    # X indices do not start at 0
+    list_indices = [
+        [2, 3, 0, 1, 1, 2],
+        [1, 2, 0, 1, 2, 3],
+        [0, 1, 1, 2, 3, 5],
+        [0, 1, 0, 1, 1, 2],
+    ]
+    check_valid_ROI_indices(list_indices, "something")
     with pytest.raises(ValueError) as e:
         check_valid_ROI_indices(list_indices, "FOV_ROI_table")
     print(str(e.value))
-    assert "" in str(e.value)
+    assert "do not start with 0" in str(e.value)
 
 
 def test_array_to_bounding_box_table_empty():
