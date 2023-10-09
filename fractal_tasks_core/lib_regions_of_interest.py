@@ -331,18 +331,17 @@ def check_valid_ROI_indices(
                 zero.
     """
     if ROI_table_name not in ["FOV_ROI_table", "well_ROI_table"]:
+        # This validation function only applies to the FOV/well ROI tables
+        # generated with fractal-tasks-core
         return
 
-    list_start_z = []
-    list_start_y = []
-    list_start_x = []
-    for item in list_indices:
-        list_start_z.append(item[0])
-        list_start_y.append(item[2])
-        list_start_x.append(item[4])
-    for (ind, min_index) in enumerate(
-        (min(list_start_z), min(list_start_y), min(list_start_x))
-    ):
+    # Find minimum index along ZYX
+    min_start_z = min(item[0] for item in list_indices)
+    min_start_y = min(item[2] for item in list_indices)
+    min_start_x = min(item[4] for item in list_indices)
+
+    # Check that minimum indices are all zero
+    for (ind, min_index) in enumerate((min_start_z, min_start_y, min_start_x)):
         if min_index != 0:
             axis = ["Z", "Y", "X"][ind]
             raise ValueError(
