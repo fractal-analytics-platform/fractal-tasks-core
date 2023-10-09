@@ -1,7 +1,8 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# Unreleased
+# 0.12.2
 
+* Relax `check_valid_ROI_indices` to support search-first scenario (\#555).
 * Do not install `docs` dependencies in GitHub CI (\#551).
 
 # 0.12.1
