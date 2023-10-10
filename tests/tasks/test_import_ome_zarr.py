@@ -20,7 +20,7 @@ def test_import_ome_zarr(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
         input_paths=[zarr_path],
         output_path="null",
         metadata={},
-        grid_ROI_shape=(1, 2),
+        grid_ROI_shape=(3, 3),
     )
     metadata = metadiff.copy()
     print(zarr_path)
@@ -46,5 +46,4 @@ def test_import_ome_zarr(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
             output_path=str(tmp_path),
             metadata=metadata,
             component=component,
-            ROI_table_name="grid_ROI_table",
         )
