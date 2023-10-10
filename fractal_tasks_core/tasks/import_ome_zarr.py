@@ -115,8 +115,9 @@ def import_ome_zarr(
                 f"{zarr_path_name}/{well_subpath}/{image_subpath}"
             )
 
+            # open_group docs: "`r+` means read/write (must exist)"
             image_group = zarr.open_group(
-                zarr_path, path=f"{well_subpath}/{image_subpath}", mode="r"
+                zarr_path, path=f"{well_subpath}/{image_subpath}", mode="r+"
             )
             debug(image_group.attrs.asdict())
             image_meta = NgffImageMeta(**image_group.attrs.asdict())
