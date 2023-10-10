@@ -338,6 +338,12 @@
             "default": false,
             "type": "boolean",
             "description": "If `True`, overwrite the task output."
+          },
+          "ROI_table_name": {
+            "title": "Roi Table Name",
+            "default": "FOV_ROI_table",
+            "type": "string",
+            "description": ""
           }
         },
         "required": [
@@ -1216,11 +1222,43 @@
             "type": "object",
             "description": "TBD (standard argument for Fractal tasks, managed by Fractal server)."
           },
-          "overwrite": {
-            "title": "Overwrite",
-            "default": false,
+          "scope": {
+            "title": "Scope",
+            "default": "plate",
+            "enum": [
+              "plate",
+              "well",
+              "image"
+            ],
+            "type": "string",
+            "description": "TBD (FIXME: rename it)"
+          },
+          "add_image_ROI_table": {
+            "title": "Add Image Roi Table",
+            "default": true,
             "type": "boolean",
-            "description": "TBD"
+            "description": ""
+          },
+          "add_grid_ROI_table": {
+            "title": "Add Grid Roi Table",
+            "default": true,
+            "type": "boolean",
+            "description": ""
+          },
+          "grid_ROI_shape": {
+            "title": "Grid Roi Shape",
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "description": ""
           }
         },
         "required": [
