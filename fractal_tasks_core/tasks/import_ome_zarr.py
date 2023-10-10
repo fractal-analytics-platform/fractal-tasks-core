@@ -12,9 +12,11 @@
 Task to import an OME-Zarr.
 """
 import logging
+import math
 from pathlib import Path
 from typing import Any
 from typing import Literal
+from typing import Optional
 from typing import Sequence
 
 import anndata as ad
@@ -30,8 +32,14 @@ from fractal_tasks_core.lib_write import write_table
 logger = logging.getLogger(__name__)
 
 
-def _get_well_ROI_table(array_shape):
-    # FIXME: make this more flexible, and move it to some ROI module
+def _get_image_ROI_table(
+    array_shape: tuple[int, int, int],
+    pixels_ZYX: list[float],
+):
+    """
+    FIXME docstring
+    FIXME: make this more flexible, and move it to some ROI module
+    """
     shape_z, shape_y, shape_x = array_shape[-3:]
     ROI_table = ad.AnnData(
         X=np.array(
@@ -40,9 +48,9 @@ def _get_well_ROI_table(array_shape):
                     0.0,
                     0.0,
                     0.0,
-                    shape_x,
-                    shape_y,
-                    shape_z,
+                    shape_x * pixels_ZYX[2],
+                    shape_y * pixels_ZYX[1],
+                    shape_z * pixels_ZYX[0],
                     0.0,
                     0.0,
                 ],
@@ -50,7 +58,69 @@ def _get_well_ROI_table(array_shape):
             dtype=np.float32,
         )
     )
+    debug(ROI_table.X)
     ROI_table.obs_names = ["image_1"]
+    ROI_table.var_names = [
+        "x_micrometer",
+        "y_micrometer",
+        "z_micrometer",
+        "len_x_micrometer",
+        "len_y_micrometer",
+        "len_z_micrometer",
+        "x_micrometer_original",
+        "y_micrometer_original",
+    ]
+    return ROI_table
+
+
+def _get_grid_ROI_table(
+    array_shape: tuple[int, int, int],
+    pixels_ZYX: list[float],
+    grid_ROI_shape: Optional[tuple[int, int]] = None,
+):
+    """
+    FIXME docstring
+    FIXME: make this more flexible, and move it to some ROI module
+    """
+    shape_z, shape_y, shape_x = array_shape[-3:]
+    if grid_ROI_shape is None:
+        grid_ROI_shape = (2, 2)
+    grid_size_y, grid_size_x = grid_ROI_shape[:]
+    X = []
+    obs_names = []
+    counter = 0
+    start_z = 0
+    len_z = shape_z
+
+    # Find minimal len_y that covers [0,shape_y] with grid_size_y intervals
+    debug(shape_y, shape_x)
+    debug(grid_size_y, grid_size_x)
+    len_y = math.ceil(shape_y / grid_size_y)
+    len_x = math.ceil(shape_x / grid_size_x)
+    debug(len_y, len_x)
+    for ind_y in range(grid_size_y):
+        start_y = ind_y * len_y
+        tmp_len_y = min(shape_y, start_y + len_y) - start_y
+        for ind_x in range(grid_size_x):
+            start_x = ind_x * len_x
+            tmp_len_x = min(shape_x, start_x + len_x) - start_x
+            X.append(
+                [
+                    start_x * pixels_ZYX[2],
+                    start_y * pixels_ZYX[1],
+                    start_z * pixels_ZYX[0],
+                    tmp_len_x * pixels_ZYX[2],
+                    tmp_len_y * pixels_ZYX[1],
+                    len_z * pixels_ZYX[0],
+                    start_x * pixels_ZYX[2],
+                    start_y * pixels_ZYX[1],
+                ]
+            )
+            debug(X[-1])
+            counter += 1
+            obs_names.append(f"ROI_{counter}")
+    ROI_table = ad.AnnData(X=np.array(X, dtype=np.float32))
+    ROI_table.obs_names = obs_names
     ROI_table.var_names = [
         "x_micrometer",
         "y_micrometer",
@@ -71,6 +141,9 @@ def import_ome_zarr(
     output_path: str,
     metadata: dict[str, Any],
     scope: Literal["plate", "well", "image"] = "plate",
+    add_image_ROI_table: bool = True,
+    add_grid_ROI_table: bool = True,
+    grid_ROI_shape: Optional[tuple[int, int]] = None,
 ) -> dict[str, Any]:
     """
     Import an OME-Zarr
@@ -85,6 +158,9 @@ def import_ome_zarr(
         metadata: TBD
             (standard argument for Fractal tasks, managed by Fractal server).
         scope: TBD (FIXME: rename it)
+        add_image_ROI_table:
+        add_grid_ROI_table:
+        grid_ROI_shape:
     """
 
     # Preliminary checks
@@ -119,8 +195,9 @@ def import_ome_zarr(
             image_group = zarr.open_group(
                 zarr_path, path=f"{well_subpath}/{image_subpath}", mode="r+"
             )
-            debug(image_group.attrs.asdict())
+            # debug(image_group.attrs.asdict())
             image_meta = NgffImageMeta(**image_group.attrs.asdict())
+            pixels_ZYX = image_meta.get_pixel_sizes_zyx(level=0)
 
             if ind_image == 0:
                 dataset_subpath = image_meta.datasets[0].path
@@ -130,13 +207,23 @@ def import_ome_zarr(
                         f"{image_subpath}/{dataset_subpath}"
                     )
                 )
-                table = _get_well_ROI_table(array.shape)
-                debug(array.shape)
-                debug(table)
+                image_ROI_table = _get_image_ROI_table(array.shape, pixels_ZYX)
+                grid_ROI_table = _get_grid_ROI_table(
+                    array.shape,
+                    pixels_ZYX,
+                    grid_ROI_shape,
+                )
                 write_table(
                     image_group,
-                    "well_ROI_table",
-                    table,
+                    "image_ROI_table",
+                    image_ROI_table,
+                    overwrite=True,  # FIXME: what should we add here?
+                    logger=logger,
+                )
+                write_table(
+                    image_group,
+                    "grid_ROI_table",
+                    grid_ROI_table,
                     overwrite=True,  # FIXME: what should we add here?
                     logger=logger,
                 )
