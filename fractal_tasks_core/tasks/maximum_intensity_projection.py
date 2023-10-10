@@ -113,6 +113,7 @@ def maximum_intensity_projection(
         overwrite=overwrite,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
+        chunksize=accumulated_array.chunksize,
     )
 
     return {}
