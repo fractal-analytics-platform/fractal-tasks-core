@@ -23,7 +23,6 @@ import anndata as ad
 import dask.array as da
 import numpy as np
 import zarr
-from devtools import debug
 from pydantic.decorator import validate_arguments
 
 from fractal_tasks_core.lib_ngff import NgffImageMeta
@@ -92,11 +91,8 @@ def _get_grid_ROI_table(
     len_z = shape_z
 
     # Find minimal len_y that covers [0,shape_y] with grid_size_y intervals
-    debug(shape_y, shape_x)
-    debug(grid_size_y, grid_size_x)
     len_y = math.ceil(shape_y / grid_size_y)
     len_x = math.ceil(shape_x / grid_size_x)
-    debug(len_y, len_x)
     for ind_y in range(grid_size_y):
         start_y = ind_y * len_y
         tmp_len_y = min(shape_y, start_y + len_y) - start_y
@@ -134,39 +130,52 @@ def _get_grid_ROI_table(
 
 def _process_image(
     image_path: str,
+    add_image_ROI_table: bool,
+    add_grid_ROI_table: bool,
     grid_ROI_shape: Optional[tuple[int, ...]] = None,
-):
+) -> None:
     """
     FIXME add docstring
     """
 
-    # open_group docs: "`r+` means read/write (must exist)"
+    # Note from zar docs: `r+` means read/write (must exist)
     image_group = zarr.open_group(image_path, mode="r+")
     image_meta = NgffImageMeta(**image_group.attrs.asdict())
+
+    if not (add_image_ROI_table or add_grid_ROI_table):
+        return
+
     pixels_ZYX = image_meta.get_pixel_sizes_zyx(level=0)
 
+    # Read zarr array
     dataset_subpath = image_meta.datasets[0].path
     array = da.from_zarr(f"{image_path}/{dataset_subpath}")
-    image_ROI_table = _get_image_ROI_table(array.shape, pixels_ZYX)
-    grid_ROI_table = _get_grid_ROI_table(
-        array.shape,
-        pixels_ZYX,
-        grid_ROI_shape,
-    )
-    write_table(
-        image_group,
-        "image_ROI_table",
-        image_ROI_table,
-        overwrite=False,  # FIXME: what should we add here?
-        logger=logger,
-    )
-    write_table(
-        image_group,
-        "grid_ROI_table",
-        grid_ROI_table,
-        overwrite=False,  # FIXME: what should we add here?
-        logger=logger,
-    )
+
+    # Prepare image_ROI_table and write it into the zarr group
+    if add_image_ROI_table:
+        image_ROI_table = _get_image_ROI_table(array.shape, pixels_ZYX)
+        write_table(
+            image_group,
+            "image_ROI_table",
+            image_ROI_table,
+            overwrite=False,
+            logger=logger,
+        )
+
+    # Prepare grid_ROI_table and write it into the zarr group
+    if add_grid_ROI_table:
+        grid_ROI_table = _get_grid_ROI_table(
+            array.shape,
+            pixels_ZYX,
+            grid_ROI_shape,
+        )
+        write_table(
+            image_group,
+            "grid_ROI_table",
+            grid_ROI_table,
+            overwrite=False,
+            logger=logger,
+        )
 
 
 @validate_arguments
@@ -229,7 +238,12 @@ def import_ome_zarr(
                     f"{zarr_path_name}/{well_subpath}/{image_subpath}"
                 )
                 image_path = f"{zarr_path}/{well_subpath}/{image_subpath}"
-                _process_image(image_path)
+                _process_image(
+                    image_path,
+                    add_image_ROI_table,
+                    add_grid_ROI_table,
+                    grid_ROI_shape,
+                )
     elif scope == "image":
         pre_zarr, post_zarr = zarr_path.split(".zarr/")
         pre_zarr = pre_zarr.split("/")[-1]
@@ -239,7 +253,12 @@ def import_ome_zarr(
             "Setting metadata for a single OME-Zarr image is not fully "
             f"supported. Now using {component=}."
         )
-        _process_image(zarr_path)
+        _process_image(
+            zarr_path,
+            add_image_ROI_table,
+            add_grid_ROI_table,
+            grid_ROI_shape,
+        )
 
     clean_zarrurls = {k: v for k, v in zarrurls.items() if v}
 
