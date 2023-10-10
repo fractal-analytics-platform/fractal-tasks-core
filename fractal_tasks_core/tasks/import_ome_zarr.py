@@ -143,7 +143,7 @@ def import_ome_zarr(
     scope: Literal["plate", "well", "image"] = "plate",
     add_image_ROI_table: bool = True,
     add_grid_ROI_table: bool = True,
-    grid_ROI_shape: Optional[tuple[int, int]] = None,
+    grid_ROI_shape: Optional[tuple[int, ...]] = None,
 ) -> dict[str, Any]:
     """
     Import an OME-Zarr

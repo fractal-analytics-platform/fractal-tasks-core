@@ -1248,16 +1248,9 @@
           "grid_ROI_shape": {
             "title": "Grid Roi Shape",
             "type": "array",
-            "minItems": 2,
-            "maxItems": 2,
-            "items": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "integer"
-              }
-            ],
+            "items": {
+              "type": "integer"
+            },
             "description": ""
           }
         },
