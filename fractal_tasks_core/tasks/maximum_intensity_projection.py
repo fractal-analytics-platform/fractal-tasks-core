@@ -41,6 +41,7 @@ def maximum_intensity_projection(
     component: str,
     metadata: dict[str, Any],
     overwrite: bool = False,
+    ROI_table_name: str = "FOV_ROI_table",
 ) -> dict[str, Any]:
     """
     Perform maximum-intensity projection along Z axis.
@@ -65,6 +66,7 @@ def maximum_intensity_projection(
             metadata (as defined in `copy_ome_zarr` task).
             (standard argument for Fractal tasks, managed by Fractal server).
         overwrite: If `True`, overwrite the task output.
+        ROI_table_name:
     """
 
     # Preliminary checks
@@ -84,16 +86,16 @@ def maximum_intensity_projection(
     coarsening_xy = ngff_image.coarsening_xy
 
     # This whole block finds (chunk_size_y,chunk_size_x)
-    FOV_ROI_table = ad.read_zarr(f"{zarrurl_old}/tables/FOV_ROI_table")
+    ROI_table = ad.read_zarr(f"{zarrurl_old}/tables/{ROI_table_name}")
     full_res_pxl_sizes_zyx = ngff_image.get_pixel_sizes_zyx(level=0)
     # Create list of indices for 3D FOVs spanning the entire Z direction
     list_indices = convert_ROI_table_to_indices(
-        FOV_ROI_table,
+        ROI_table,
         level=0,
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
     )
-    check_valid_ROI_indices(list_indices, "FOV_ROI_table")
+    check_valid_ROI_indices(list_indices, ROI_table_name)
     # Extract image size from FOV-ROI indices. Note: this works at level=0,
     # where FOVs should all be of the exact same size (in pixels)
     ref_img_size = None
@@ -122,7 +124,9 @@ def maximum_intensity_projection(
 
     # Write to disk (triggering execution)
     if accumulated_array.chunksize != chunksize:
-        raise ValueError("ERROR\n{accumulated_array.chunksize=}\n{chunksize=}")
+        raise ValueError(
+            f"ERROR\n{accumulated_array.chunksize=}\n{chunksize=}"
+        )
     try:
         accumulated_array.to_zarr(
             f"{zarrurl_new}/0",
