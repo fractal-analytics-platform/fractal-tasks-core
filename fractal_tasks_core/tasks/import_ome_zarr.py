@@ -195,34 +195,33 @@ def import_ome_zarr(
             image_meta = NgffImageMeta(**image_group.attrs.asdict())
             pixels_ZYX = image_meta.get_pixel_sizes_zyx(level=0)
 
-            if ind_image == 0:
-                dataset_subpath = image_meta.datasets[0].path
-                array = da.from_zarr(
-                    (
-                        f"{zarr_path}/{well_subpath}/"
-                        f"{image_subpath}/{dataset_subpath}"
-                    )
+            dataset_subpath = image_meta.datasets[0].path
+            array = da.from_zarr(
+                (
+                    f"{zarr_path}/{well_subpath}/"
+                    f"{image_subpath}/{dataset_subpath}"
                 )
-                image_ROI_table = _get_image_ROI_table(array.shape, pixels_ZYX)
-                grid_ROI_table = _get_grid_ROI_table(
-                    array.shape,
-                    pixels_ZYX,
-                    grid_ROI_shape,
-                )
-                write_table(
-                    image_group,
-                    "image_ROI_table",
-                    image_ROI_table,
-                    overwrite=True,  # FIXME: what should we add here?
-                    logger=logger,
-                )
-                write_table(
-                    image_group,
-                    "grid_ROI_table",
-                    grid_ROI_table,
-                    overwrite=True,  # FIXME: what should we add here?
-                    logger=logger,
-                )
+            )
+            image_ROI_table = _get_image_ROI_table(array.shape, pixels_ZYX)
+            grid_ROI_table = _get_grid_ROI_table(
+                array.shape,
+                pixels_ZYX,
+                grid_ROI_shape,
+            )
+            write_table(
+                image_group,
+                "image_ROI_table",
+                image_ROI_table,
+                overwrite=True,  # FIXME: what should we add here?
+                logger=logger,
+            )
+            write_table(
+                image_group,
+                "grid_ROI_table",
+                grid_ROI_table,
+                overwrite=True,  # FIXME: what should we add here?
+                logger=logger,
+            )
 
     clean_zarrurls = {k: v for k, v in zarrurls.items() if v}
 
