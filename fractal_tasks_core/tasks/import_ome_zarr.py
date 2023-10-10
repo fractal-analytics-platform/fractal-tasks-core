@@ -153,8 +153,6 @@ def import_ome_zarr(
             (standard argument for Fractal tasks, managed by Fractal server).
         output_path: TBD
             (standard argument for Fractal tasks, managed by Fractal server).
-        component: TBD
-            (standard argument for Fractal tasks, managed by Fractal server).
         metadata: TBD
             (standard argument for Fractal tasks, managed by Fractal server).
         scope: TBD (FIXME: rename it)
