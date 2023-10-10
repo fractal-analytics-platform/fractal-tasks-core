@@ -58,7 +58,6 @@ def _get_image_ROI_table(
             dtype=np.float32,
         )
     )
-    debug(ROI_table.X)
     ROI_table.obs_names = ["image_1"]
     ROI_table.var_names = [
         "x_micrometer",
@@ -76,7 +75,7 @@ def _get_image_ROI_table(
 def _get_grid_ROI_table(
     array_shape: tuple[int, int, int],
     pixels_ZYX: list[float],
-    grid_ROI_shape: Optional[tuple[int, int]] = None,
+    grid_ROI_shape: Optional[tuple[int, ...]] = None,
 ):
     """
     FIXME docstring
@@ -116,7 +115,6 @@ def _get_grid_ROI_table(
                     start_y * pixels_ZYX[1],
                 ]
             )
-            debug(X[-1])
             counter += 1
             obs_names.append(f"ROI_{counter}")
     ROI_table = ad.AnnData(X=np.array(X, dtype=np.float32))
