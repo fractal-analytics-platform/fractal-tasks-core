@@ -12,6 +12,7 @@
 """
 Construct and write pyramid of lower-resolution levels.
 """
+import logging
 import pathlib
 from typing import Callable
 from typing import Optional
@@ -20,6 +21,8 @@ from typing import Union
 
 import dask.array as da
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 
 def build_pyramid(
@@ -50,9 +53,11 @@ def build_pyramid(
     # Clean up zarrurl
     zarrurl = str(pathlib.Path(zarrurl))  # FIXME
     zarrurl_highres = f"{zarrurl}/0"
+    logger.info(f"[build_pyramid] High-resolution path: {zarrurl_highres}")
 
     # Lazily load highest-resolution data
     data_highres = da.from_zarr(zarrurl_highres)
+    logger.info(f"[build_pyramid] High-resolution data: {str(data_highres)}")
 
     # Check the number of axes and identify YX dimensions
     ndims = len(data_highres.shape)
@@ -88,6 +93,10 @@ def build_pyramid(
             newlevel_rechunked = newlevel
         else:
             newlevel_rechunked = newlevel.rechunk(chunksize)
+        logger.info(
+            f"[build_pyramid] Level {ind_level} data: "
+            f"{str(newlevel_rechunked)}"
+        )
 
         # Write zarr and store output (useful to construct next level)
         previous_level = newlevel_rechunked.to_zarr(
