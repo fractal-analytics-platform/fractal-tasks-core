@@ -1,3 +1,4 @@
+import zarr
 from devtools import debug
 
 from .._zenodo_ome_zarrs import prepare_3D_zarr
@@ -10,12 +11,14 @@ from fractal_tasks_core.tasks.maximum_intensity_projection import (
 
 def test_import_ome_zarr(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
 
-    # Create a zarr
+    # Prepare an on-disk OME-Zarr at the plate level
     prepare_3D_zarr(
         tmp_path, zenodo_zarr, zenodo_zarr_metadata, remove_tables=True
     )
-
     zarr_path = str(tmp_path / "plate.zarr")
+    print(zarr_path)
+
+    # Run import_ome_zarr
     metadiff = import_ome_zarr(
         input_paths=[zarr_path],
         output_path="null",
@@ -23,11 +26,23 @@ def test_import_ome_zarr(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
         grid_ROI_shape=(3, 3),
     )
     metadata = metadiff.copy()
-    print(zarr_path)
 
-    # ls /tmp/pytest-of-tommaso/pytest-10/test_import_ome_zarr0/plate.zarr/B/03/0/tables/ FOV_ROI_table  grid_ROI_table  image_ROI_table  well_ROI_table  # noqa
+    # Check metadata
+    EXPECTED_METADATA = dict(
+        plate=["plate.zarr"],
+        well=["plate.zarr/B/03"],
+        image=["plate.zarr/B/03/0"],
+    )
+    assert metadata == EXPECTED_METADATA
 
-    # Replicate
+    # Check that table were copied
+    g = zarr.open_group(f"{zarr_path}/B/03/0/tables", mode="r")
+    debug(g.attrs.asdict())
+    assert g.attrs["tables"] == ["image_ROI_table", "grid_ROI_table"]
+    zarr.open_group(f"{zarr_path}/B/03/0/tables/image_ROI_table", mode="r")
+    zarr.open_group(f"{zarr_path}/B/03/0/tables/grid_ROI_table", mode="r")
+
+    # Run copy_ome_zarr and maximum_intensity_projection
     metadata_update = copy_ome_zarr(
         input_paths=[str(tmp_path)],
         output_path=str(tmp_path),
@@ -38,8 +53,6 @@ def test_import_ome_zarr(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
     )
     metadata.update(metadata_update)
     debug(metadata)
-
-    # MIP
     for component in metadata["image"]:
         maximum_intensity_projection(
             input_paths=[str(tmp_path)],
