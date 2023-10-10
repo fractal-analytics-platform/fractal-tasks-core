@@ -338,12 +338,6 @@
             "default": false,
             "type": "boolean",
             "description": "If `True`, overwrite the task output."
-          },
-          "ROI_table_name": {
-            "title": "Roi Table Name",
-            "default": "FOV_ROI_table",
-            "type": "string",
-            "description": ""
           }
         },
         "required": [
