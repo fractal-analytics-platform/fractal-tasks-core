@@ -9,7 +9,7 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Task to import an OME-Zarr.
+Task to import an existing OME-Zarr.
 """
 import logging
 import math
@@ -138,7 +138,7 @@ def import_ome_zarr(
     input_paths: Sequence[str],
     output_path: str,
     metadata: dict[str, Any],
-    scope: Literal["plate", "well", "image"] = "plate",
+    scope: Literal["plate", "image"] = "plate",
     add_image_ROI_table: bool = True,
     add_grid_ROI_table: bool = True,
     grid_ROI_shape: Optional[tuple[int, ...]] = None,

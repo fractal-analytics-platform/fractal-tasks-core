@@ -1221,7 +1221,6 @@
             "default": "plate",
             "enum": [
               "plate",
-              "well",
               "image"
             ],
             "type": "string",
