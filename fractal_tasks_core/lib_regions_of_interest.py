@@ -13,6 +13,7 @@
 Functions to handle regions of interests (via pandas and AnnData).
 """
 import logging
+import math
 from typing import Optional
 from typing import Sequence
 from typing import Union
@@ -606,3 +607,100 @@ def is_standard_roi_table(table: str) -> bool:
         return True
     else:
         return False
+
+
+def get_single_image_ROI(
+    array_shape: tuple[int, int, int],
+    pixels_ZYX: list[float],
+) -> ad.AnnData:
+    """
+    FIXME docstring
+    FIXME: make this more flexible, and move it to some ROI module
+    """
+    shape_z, shape_y, shape_x = array_shape[-3:]
+    ROI_table = ad.AnnData(
+        X=np.array(
+            [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    shape_x * pixels_ZYX[2],
+                    shape_y * pixels_ZYX[1],
+                    shape_z * pixels_ZYX[0],
+                    0.0,
+                    0.0,
+                ],
+            ],
+            dtype=np.float32,
+        )
+    )
+    ROI_table.obs_names = ["image_1"]
+    ROI_table.var_names = [
+        "x_micrometer",
+        "y_micrometer",
+        "z_micrometer",
+        "len_x_micrometer",
+        "len_y_micrometer",
+        "len_z_micrometer",
+        "x_micrometer_original",
+        "y_micrometer_original",
+    ]
+    return ROI_table
+
+
+def get_image_grid_ROIs(
+    array_shape: tuple[int, int, int],
+    pixels_ZYX: list[float],
+    grid_ROI_shape: Optional[tuple[int, ...]] = None,
+) -> ad.AnnData:
+    """
+    FIXME docstring
+    FIXME: make this more flexible, and move it to some ROI module
+    """
+    shape_z, shape_y, shape_x = array_shape[-3:]
+    if grid_ROI_shape is None:
+        grid_ROI_shape = (2, 2)
+    grid_size_y, grid_size_x = grid_ROI_shape[:]
+    X = []
+    obs_names = []
+    counter = 0
+    start_z = 0
+    len_z = shape_z
+
+    # Find minimal len_y that covers [0,shape_y] with grid_size_y intervals
+    len_y = math.ceil(shape_y / grid_size_y)
+    len_x = math.ceil(shape_x / grid_size_x)
+    for ind_y in range(grid_size_y):
+        start_y = ind_y * len_y
+        tmp_len_y = min(shape_y, start_y + len_y) - start_y
+        for ind_x in range(grid_size_x):
+            start_x = ind_x * len_x
+            tmp_len_x = min(shape_x, start_x + len_x) - start_x
+            X.append(
+                [
+                    start_x * pixels_ZYX[2],
+                    start_y * pixels_ZYX[1],
+                    start_z * pixels_ZYX[0],
+                    tmp_len_x * pixels_ZYX[2],
+                    tmp_len_y * pixels_ZYX[1],
+                    len_z * pixels_ZYX[0],
+                    start_x * pixels_ZYX[2],
+                    start_y * pixels_ZYX[1],
+                ]
+            )
+            counter += 1
+            obs_names.append(f"ROI_{counter}")
+    ROI_table = ad.AnnData(X=np.array(X, dtype=np.float32))
+    ROI_table.obs_names = obs_names
+    ROI_table.var_names = [
+        "x_micrometer",
+        "y_micrometer",
+        "z_micrometer",
+        "len_x_micrometer",
+        "len_y_micrometer",
+        "len_z_micrometer",
+        "x_micrometer_original",
+        "y_micrometer_original",
+    ]
+    return ROI_table
