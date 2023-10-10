@@ -1204,17 +1204,17 @@
             "items": {
               "type": "string"
             },
-            "description": "TBD (standard argument for Fractal tasks, managed by Fractal server)."
+            "description": "A length-one list with the path to an OME-Zarr group, e.g. `[\"/somewhere/plate.zarr\"]`. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "output_path": {
             "title": "Output Path",
             "type": "string",
-            "description": "TBD (standard argument for Fractal tasks, managed by Fractal server)."
+            "description": "Not used in this task. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "metadata": {
             "title": "Metadata",
             "type": "object",
-            "description": "TBD (standard argument for Fractal tasks, managed by Fractal server)."
+            "description": "Not used in this task. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "scope": {
             "title": "Scope",
@@ -1224,19 +1224,19 @@
               "image"
             ],
             "type": "string",
-            "description": "TBD (FIXME: rename it)"
+            "description": "The kind of OME-Zarr group to import (currently supporting `plate`, and experimentally supporting `image`)."
           },
           "add_image_ROI_table": {
             "title": "Add Image Roi Table",
             "default": true,
             "type": "boolean",
-            "description": ""
+            "description": "Whether to add a `image_ROI_table` table, with a single ROI covering each image."
           },
           "add_grid_ROI_table": {
             "title": "Add Grid Roi Table",
             "default": true,
             "type": "boolean",
-            "description": ""
+            "description": "Whether to add a `grid_ROI_table` table, with each image split into a rectangular grid of ROIs."
           },
           "grid_ROI_shape": {
             "title": "Grid Roi Shape",
@@ -1244,7 +1244,7 @@
             "items": {
               "type": "integer"
             },
-            "description": ""
+            "description": "YX shape of the ROIs grid in `grid_ROI_shape`, e.g. `(2, 2)`."
           }
         },
         "required": [

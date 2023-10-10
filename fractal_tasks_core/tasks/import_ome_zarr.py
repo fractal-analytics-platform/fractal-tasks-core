@@ -132,6 +132,43 @@ def _get_grid_ROI_table(
     return ROI_table
 
 
+def _process_image(
+    image_path: str,
+    grid_ROI_shape: Optional[tuple[int, ...]] = None,
+):
+    """
+    FIXME add docstring
+    """
+
+    # open_group docs: "`r+` means read/write (must exist)"
+    image_group = zarr.open_group(image_path, mode="r+")
+    image_meta = NgffImageMeta(**image_group.attrs.asdict())
+    pixels_ZYX = image_meta.get_pixel_sizes_zyx(level=0)
+
+    dataset_subpath = image_meta.datasets[0].path
+    array = da.from_zarr(f"{image_path}/{dataset_subpath}")
+    image_ROI_table = _get_image_ROI_table(array.shape, pixels_ZYX)
+    grid_ROI_table = _get_grid_ROI_table(
+        array.shape,
+        pixels_ZYX,
+        grid_ROI_shape,
+    )
+    write_table(
+        image_group,
+        "image_ROI_table",
+        image_ROI_table,
+        overwrite=False,  # FIXME: what should we add here?
+        logger=logger,
+    )
+    write_table(
+        image_group,
+        "grid_ROI_table",
+        grid_ROI_table,
+        overwrite=False,  # FIXME: what should we add here?
+        logger=logger,
+    )
+
+
 @validate_arguments
 def import_ome_zarr(
     *,
@@ -147,16 +184,21 @@ def import_ome_zarr(
     Import an OME-Zarr
 
     Args:
-        input_paths: TBD
+        input_paths: A length-one list with the path to an OME-Zarr group, e.g.
+            `["/somewhere/plate.zarr"]`.
             (standard argument for Fractal tasks, managed by Fractal server).
-        output_path: TBD
+        output_path: Not used in this task.
             (standard argument for Fractal tasks, managed by Fractal server).
-        metadata: TBD
+        metadata: Not used in this task.
             (standard argument for Fractal tasks, managed by Fractal server).
-        scope: TBD (FIXME: rename it)
-        add_image_ROI_table:
-        add_grid_ROI_table:
-        grid_ROI_shape:
+        scope: The kind of OME-Zarr group to import (currently supporting
+            `plate`, and experimentally supporting `image`).
+        add_image_ROI_table: Whether to add a `image_ROI_table` table, with a
+            single ROI covering each image.
+        add_grid_ROI_table: Whether to add a `grid_ROI_table` table, with each
+            image split into a rectangular grid of ROIs.
+        grid_ROI_shape: YX shape of the ROIs grid in `grid_ROI_shape`, e.g.
+            `(2, 2)`.
     """
 
     # Preliminary checks
@@ -169,59 +211,35 @@ def import_ome_zarr(
     zarr_path_name = Path(zarr_path).name
 
     zarrurls: dict = dict(plate=[], well=[], image=[])
-    if scope != "plate":
-        raise NotImplementedError
 
-    plate_group = zarr.open_group(zarr_path, mode="r")
-    zarrurls["plate"].append(Path(zarr_path).name)
-    well_list = plate_group.attrs["plate"]["wells"]
-    for well in well_list:
-        well_subpath = well["path"]
-
-        well_group = zarr.open_group(zarr_path, path=well_subpath, mode="r")
-        zarrurls["well"].append(f"{zarr_path_name}/{well_subpath}")
-        image_list = well_group.attrs["well"]["images"]
-        for ind_image, image in enumerate(image_list):
-            image_subpath = image["path"]
-            zarrurls["image"].append(
-                f"{zarr_path_name}/{well_subpath}/{image_subpath}"
+    if scope == "plate":
+        plate_group = zarr.open_group(zarr_path, mode="r")
+        zarrurls["plate"].append(Path(zarr_path).name)
+        well_list = plate_group.attrs["plate"]["wells"]
+        for well in well_list:
+            well_subpath = well["path"]
+            well_group = zarr.open_group(
+                zarr_path, path=well_subpath, mode="r"
             )
-
-            # open_group docs: "`r+` means read/write (must exist)"
-            image_group = zarr.open_group(
-                zarr_path, path=f"{well_subpath}/{image_subpath}", mode="r+"
-            )
-            # debug(image_group.attrs.asdict())
-            image_meta = NgffImageMeta(**image_group.attrs.asdict())
-            pixels_ZYX = image_meta.get_pixel_sizes_zyx(level=0)
-
-            dataset_subpath = image_meta.datasets[0].path
-            array = da.from_zarr(
-                (
-                    f"{zarr_path}/{well_subpath}/"
-                    f"{image_subpath}/{dataset_subpath}"
+            zarrurls["well"].append(f"{zarr_path_name}/{well_subpath}")
+            image_list = well_group.attrs["well"]["images"]
+            for ind_image, image in enumerate(image_list):
+                image_subpath = image["path"]
+                zarrurls["image"].append(
+                    f"{zarr_path_name}/{well_subpath}/{image_subpath}"
                 )
-            )
-            image_ROI_table = _get_image_ROI_table(array.shape, pixels_ZYX)
-            grid_ROI_table = _get_grid_ROI_table(
-                array.shape,
-                pixels_ZYX,
-                grid_ROI_shape,
-            )
-            write_table(
-                image_group,
-                "image_ROI_table",
-                image_ROI_table,
-                overwrite=True,  # FIXME: what should we add here?
-                logger=logger,
-            )
-            write_table(
-                image_group,
-                "grid_ROI_table",
-                grid_ROI_table,
-                overwrite=True,  # FIXME: what should we add here?
-                logger=logger,
-            )
+                image_path = f"{zarr_path}/{well_subpath}/{image_subpath}"
+                _process_image(image_path)
+    elif scope == "image":
+        pre_zarr, post_zarr = zarr_path.split(".zarr/")
+        pre_zarr = pre_zarr.split("/")[-1]
+        component = f"{pre_zarr}.zarr/{post_zarr}"
+        zarrurls["image"].append(component)
+        logger.warning(
+            "Setting metadata for a single OME-Zarr image is not fully "
+            f"supported. Now using {component=}."
+        )
+        _process_image(zarr_path)
 
     clean_zarrurls = {k: v for k, v in zarrurls.items() if v}
 
