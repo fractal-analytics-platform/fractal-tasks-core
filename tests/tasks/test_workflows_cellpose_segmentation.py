@@ -103,6 +103,19 @@ def patched_segment_ROI(
     return mask.astype(label_dtype)
 
 
+def patched_segment_ROI_no_labels(
+    x, do_3D=True, label_dtype=None, well_id=None, **kwargs
+):
+    import logging
+
+    logger = logging.getLogger("cellpose_segmentation.py")
+    logger.info(f"[{well_id}][patched_segment_ROI_no_labels] START")
+    assert x.ndim == 4
+    mask = np.zeros_like(x[0, :, :, :])
+    logger.info(f"[{well_id}][patched_segment_ROI_no_labels] END")
+    return mask.astype(label_dtype)
+
+
 def patched_segment_ROI_overlapping_organoids(
     x, label_dtype=None, well_id=None, **kwargs
 ):
@@ -866,3 +879,76 @@ def test_workflow_secondary_labeling(
             output_label_name="nuclei",
         )
     # FIXME: what could we assert here?
+
+
+def test_workflow_secondary_labeling_no_labels(
+    tmp_path: Path,
+    testdata_path: Path,
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
+    monkeypatch: MonkeyPatch,
+):
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
+        patched_cellpose_core_use_gpu,
+    )
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
+        patched_segment_ROI_no_labels,
+    )
+
+    # Load pre-made 2D zarr array
+    zarr_path = tmp_path / "tmp_out_mip/"
+    metadata = prepare_2D_zarr(
+        str(zarr_path),
+        zenodo_zarr,
+        zenodo_zarr_metadata,
+        remove_labels=True,
+        make_CYX=False,
+    )
+
+    # Primary segmentation (organoid)
+    for component in metadata["image"]:
+        cellpose_segmentation(
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
+            metadata=metadata,
+            component=component,
+            channel=Channel(wavelength_id="A01_C01"),
+            level=0,
+            relabeling=True,
+            input_ROI_table="FOV_ROI_table",
+            output_label_name="organoids",
+            output_ROI_table="organoid_ROI_table",
+        )
+
+    organoid_ROI_table_path = str(
+        zarr_path / metadata["image"][0] / "tables/organoid_ROI_table"
+    )
+    organoid_ROI_table = ad.read_zarr(organoid_ROI_table_path)
+    organoid_ROI_table_zarr_group = zarr.open(organoid_ROI_table_path)
+    debug(organoid_ROI_table_zarr_group.attrs.asdict())
+    debug(organoid_ROI_table)
+    debug(organoid_ROI_table.X)
+    debug(organoid_ROI_table.shape)
+    assert len(organoid_ROI_table) == 0
+
+    debug(zarr_path / metadata["image"][0])
+
+    # Secondary segmentation (nuclei)
+    for component in metadata["image"]:
+        cellpose_segmentation(
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
+            metadata=metadata,
+            component=component,
+            channel=Channel(wavelength_id="A01_C01"),
+            level=0,
+            relabeling=True,
+            input_ROI_table="organoid_ROI_table",
+            output_ROI_table="nuclei_ROI_table",
+            use_masks=True,
+            output_label_name="nuclei",
+        )
