@@ -614,8 +614,16 @@ def get_single_image_ROI(
     pixels_ZYX: list[float],
 ) -> ad.AnnData:
     """
-    FIXME docstring
-    FIXME: make this more flexible, and move it to some ROI module
+    Produce a table with a single ROI that covers the whole array
+
+    FIXME: make this flexible with respect to the presence/absence of Z.
+
+    Args:
+        array_shape: ZYX shape of the image array.
+        pixels_ZYX: ZYX pixel sizes in micrometers.
+
+    Returns:
+        An `AnnData` table with a single ROI.
     """
     shape_z, shape_y, shape_x = array_shape[-3:]
     ROI_table = ad.AnnData(
@@ -652,15 +660,29 @@ def get_single_image_ROI(
 def get_image_grid_ROIs(
     array_shape: tuple[int, int, int],
     pixels_ZYX: list[float],
-    grid_ROI_shape: Optional[tuple[int, ...]] = None,
+    grid_ROI_shape: tuple[int, ...] = (2, 2),
 ) -> ad.AnnData:
     """
-    FIXME docstring
-    FIXME: make this more flexible, and move it to some ROI module
+    Produce a table with ROIS placed on a rectangular grid.
+
+    The main goal of this ROI grid is to allow processing of smaller subset of
+    the whole array.
+
+    In a specific case (that is, if the image array was obtained by stitching
+    together a set of FOVs placed on a regular grid), the ROIs correspond to
+    the original FOVs.
+
+    FIXME: make this flexible with respect to the presence/absence of Z.
+
+    Args:
+        array_shape: ZYX shape of the image array.
+        pixels_ZYX: ZYX pixel sizes in micrometers.
+        grid_ROI_shape:
+
+    Returns:
+        An `AnnData` table with a single ROI.
     """
     shape_z, shape_y, shape_x = array_shape[-3:]
-    if grid_ROI_shape is None:
-        grid_ROI_shape = (2, 2)
     grid_size_y, grid_size_x = grid_ROI_shape[:]
     X = []
     obs_names = []

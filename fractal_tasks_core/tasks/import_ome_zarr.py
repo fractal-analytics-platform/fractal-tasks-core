@@ -155,6 +155,8 @@ def import_ome_zarr(
             "Setting metadata for a single OME-Zarr image is not fully "
             f"supported. Now using {component=}."
         )
+        # FIXME: this will change if we split input_paths into input_paths and
+        # zarr_name
         _process_image(
             zarr_path,
             add_image_ROI_table,
