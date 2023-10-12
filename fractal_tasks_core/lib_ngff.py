@@ -419,7 +419,7 @@ def load_NgffWellMeta(zarr_path: str) -> NgffWellMeta:
         raise e
 
 
-def detect_ome_ngff_group(
+def detect_ome_ngff_type(
     group: zarr.Group,
     logger_name: Optional[str] = None,
 ) -> Literal["plate", "well", "image"]:

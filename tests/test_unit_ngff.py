@@ -7,7 +7,7 @@ import zarr
 from devtools import debug
 
 from fractal_tasks_core.lib_ngff import Dataset
-from fractal_tasks_core.lib_ngff import detect_ome_ngff_group
+from fractal_tasks_core.lib_ngff import detect_ome_ngff_type
 from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_ngff import Multiscale
 from fractal_tasks_core.lib_ngff import NgffImageMeta
@@ -180,7 +180,7 @@ def test_NgffWellMeta_get_acquisition_paths(ngffdata_path):
     assert ngff_well_meta.get_acquisition_paths() == {9: "nine", 7: "seven"}
 
 
-def test_detect_ome_ngff_group(tmp_path):
+def test_detect_ome_ngff_type(tmp_path):
 
     g_plate = zarr.open(tmp_path / "plate.zarr")
     g_plate.attrs.update(plate={})
@@ -191,8 +191,8 @@ def test_detect_ome_ngff_group(tmp_path):
     g_wrong = zarr.open(tmp_path / "wrong.zarr")
     g_wrong.attrs.update(something="else")
 
-    assert detect_ome_ngff_group(g_plate) == "plate"
-    assert detect_ome_ngff_group(g_well) == "well"
-    assert detect_ome_ngff_group(g_image) == "image"
+    assert detect_ome_ngff_type(g_plate) == "plate"
+    assert detect_ome_ngff_type(g_well) == "well"
+    assert detect_ome_ngff_type(g_image) == "image"
     with pytest.raises(ValueError):
-        detect_ome_ngff_group(g_wrong)
+        detect_ome_ngff_type(g_wrong)

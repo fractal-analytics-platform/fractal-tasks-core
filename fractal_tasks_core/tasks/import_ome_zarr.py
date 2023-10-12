@@ -21,7 +21,7 @@ import dask.array as da
 import zarr
 from pydantic.decorator import validate_arguments
 
-from fractal_tasks_core.lib_ngff import detect_ome_ngff_group
+from fractal_tasks_core.lib_ngff import detect_ome_ngff_type
 from fractal_tasks_core.lib_ngff import NgffImageMeta
 from fractal_tasks_core.lib_regions_of_interest import get_image_grid_ROIs
 from fractal_tasks_core.lib_regions_of_interest import get_single_image_ROI
@@ -124,9 +124,9 @@ def import_ome_zarr(
     zarrurls: dict = dict(plate=[], well=[], image=[])
 
     root_group = zarr.open_group(zarr_path, mode="r")
-    scope = detect_ome_ngff_group(root_group)
+    ngff_type = detect_ome_ngff_type(root_group)
 
-    if scope == "plate":
+    if ngff_type == "plate":
         plate_group = zarr.open_group(zarr_path, mode="r")
         zarrurls["plate"].append(zarr_name)
         well_list = plate_group.attrs["plate"]["wells"]
@@ -149,7 +149,7 @@ def import_ome_zarr(
                     add_grid_ROI_table,
                     grid_ROI_shape,
                 )
-    elif scope == "image":
+    elif ngff_type == "image":
         zarrurls["image"].append(zarr_name)
         logger.warning("XXX")
         # FIXME: this will change if we split input_paths into input_paths and
