@@ -9,6 +9,14 @@ from fractal_tasks_core.tasks.maximum_intensity_projection import (
 )  # noqa
 
 
+def _check_ROI_tables(_image_path):
+    g = zarr.open_group(f"{_image_path}/tables", mode="r")
+    debug(g.attrs.asdict())
+    assert g.attrs["tables"] == ["image_ROI_table", "grid_ROI_table"]
+    zarr.open_group(f"{_image_path}/tables/image_ROI_table", mode="r")
+    zarr.open_group(f"{_image_path}/tables/grid_ROI_table", mode="r")
+
+
 def test_import_ome_zarr_plate(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
 
     # Prepare an on-disk OME-Zarr at the plate level
@@ -36,18 +44,8 @@ def test_import_ome_zarr_plate(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
     )
     assert metadata == EXPECTED_METADATA
 
-    # Check that table were copied
-    g = zarr.open_group(f"{root_path}/{zarr_name}/B/03/0/tables", mode="r")
-    debug(g.attrs.asdict())
-    assert g.attrs["tables"] == ["image_ROI_table", "grid_ROI_table"]
-    zarr.open_group(
-        f"{root_path}/{zarr_name}/B/03/0/tables/image_ROI_table",
-        mode="r",
-    )
-    zarr.open_group(
-        f"{root_path}/{zarr_name}/B/03/0/tables/grid_ROI_table",
-        mode="r",
-    )
+    # Check that table were created
+    _check_ROI_tables(f"{root_path}/{zarr_name}/B/03/0")
 
     # Run copy_ome_zarr and maximum_intensity_projection
     metadata_update = copy_ome_zarr(
@@ -67,6 +65,36 @@ def test_import_ome_zarr_plate(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
             metadata=metadata,
             component=component,
         )
+
+
+def test_import_ome_zarr_well(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
+
+    # Prepare an on-disk OME-Zarr at the plate level
+    root_path = tmp_path
+    prepare_3D_zarr(
+        root_path, zenodo_zarr, zenodo_zarr_metadata, remove_tables=True
+    )
+    zarr_name = "plate.zarr/B/03"
+
+    # Run import_ome_zarr
+    metadiff = import_ome_zarr(
+        input_paths=[str(root_path)],
+        zarr_name=zarr_name,
+        output_path="null",
+        metadata={},
+        grid_ROI_shape=(3, 3),
+    )
+    metadata = metadiff.copy()
+
+    # Check metadata
+    EXPECTED_METADATA = dict(
+        well=["plate.zarr/B/03"],
+        image=["plate.zarr/B/03/0"],
+    )
+    assert metadata == EXPECTED_METADATA
+
+    # Check that table were created
+    _check_ROI_tables(f"{root_path}/{zarr_name}/0")
 
 
 def test_import_ome_zarr_image(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
@@ -94,15 +122,5 @@ def test_import_ome_zarr_image(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
     )
     assert metadata == EXPECTED_METADATA
 
-    # Check that tables were created
-    g = zarr.open_group(f"{root_path}/{zarr_name}/tables", mode="r")
-    debug(g.attrs.asdict())
-    assert g.attrs["tables"] == ["image_ROI_table", "grid_ROI_table"]
-    zarr.open_group(
-        f"{root_path}/{zarr_name}/tables/image_ROI_table",
-        mode="r",
-    )
-    zarr.open_group(
-        f"{root_path}/{zarr_name}/tables/grid_ROI_table",
-        mode="r",
-    )
+    # Check that table were created
+    _check_ROI_tables(f"{root_path}/{zarr_name}")
