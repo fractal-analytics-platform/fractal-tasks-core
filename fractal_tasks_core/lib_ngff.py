@@ -429,16 +429,19 @@ def detect_ome_ngff_type(
     Args:
         group: Zarr group
         logger_name: Logger name
+
+    Returns:
+        The detected OME-NGFF type.
     """
     logger = logging.getLogger(logger_name)
 
     attrs = group.attrs.asdict()
     if "plate" in attrs.keys():
-        group_kind = "plate"
+        ngff_type = "plate"
     elif "well" in attrs.keys():
-        group_kind = "well"
+        ngff_type = "well"
     elif "multiscales" in attrs.keys():
-        group_kind = "image"
+        ngff_type = "image"
     else:
         error_msg = (
             "Zarr group at cannot be identified as one "
@@ -446,5 +449,5 @@ def detect_ome_ngff_type(
         )
         logger.error(error_msg)
         raise ValueError(error_msg)
-    logger.info(f"Zarr group identified as OME-NGFF {group_kind}.")
-    return group_kind
+    logger.info(f"Zarr group identified as OME-NGFF {ngff_type}.")
+    return ngff_type

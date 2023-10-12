@@ -14,7 +14,6 @@ Task to import an existing OME-Zarr.
 import logging
 from pathlib import Path
 from typing import Any
-from typing import Optional
 from typing import Sequence
 
 import dask.array as da
@@ -30,14 +29,23 @@ from fractal_tasks_core.lib_write import write_table
 logger = logging.getLogger(__name__)
 
 
-def _process_image(
+def _add_ROI_tables(
     image_path: str,
     add_image_ROI_table: bool,
     add_grid_ROI_table: bool,
-    grid_ROI_shape: Optional[tuple[int, ...]] = None,
+    grid_YX_shape: tuple[int, int],
 ) -> None:
     """
-    FIXME add docstring
+    Generate ROI table for an OME-NGFF image
+
+    Args:
+        image_path: Absolute path to the image Zarr group.
+        add_image_ROI_table: Whether to add a `image_ROI_table` table
+            (argument propagated from `import_ome_zarr`).
+        add_grid_ROI_table: Whether to add a `grid_ROI_table` table (argument
+            propagated from `import_ome_zarr`).
+        grid_YX_shape: YX shape of the ROI grid (argument propagated from
+            `import_ome_zarr`).
     """
 
     # Note from zar docs: `r+` means read/write (must exist)
@@ -69,7 +77,7 @@ def _process_image(
         grid_ROI_table = get_image_grid_ROIs(
             array.shape,
             pixels_ZYX,
-            grid_ROI_shape,
+            grid_YX_shape,
         )
         write_table(
             image_group,
@@ -89,10 +97,16 @@ def import_ome_zarr(
     zarr_name: str,
     add_image_ROI_table: bool = True,
     add_grid_ROI_table: bool = True,
-    grid_ROI_shape: Optional[tuple[int, ...]] = None,
+    grid_YX_shape: tuple[int, int] = (2, 2),
 ) -> dict[str, Any]:
     """
-    Import an OME-Zarr
+    Import an OME-Zarr into Fractal.
+
+    The current version of this task:
+
+    1. Creates the appropriate components-related metadata, needed for
+       processing an existing OME-Zarr through Fractal.
+    2. Optionally adds new ROI tables to the existing OME-Zarr.
 
     Args:
         input_paths: A length-one list with the parent folder of the OME-Zarr
@@ -104,13 +118,13 @@ def import_ome_zarr(
         metadata: Not used in this task.
             (standard argument for Fractal tasks, managed by Fractal server).
         zarr_name: The OME-Zarr name, without its parent folder; e.g.
-            `zarr_name="array.zarr", if the OME-Zarr path is
+            `zarr_name="array.zarr"`, if the OME-Zarr path is
             `/somewhere/array.zarr`.
-        add_image_ROI_table: Whether to add a `image_ROI_table` table, with a
-            single ROI covering each image.
-        add_grid_ROI_table: Whether to add a `grid_ROI_table` table, with each
-            image split into a rectangular grid of ROIs.
-        grid_ROI_shape: YX shape of the ROIs grid in `grid_ROI_shape`, e.g.
+        add_image_ROI_table: Whether to add a `image_ROI_table` table to each
+            image, with a single ROI covering the whole image.
+        add_grid_ROI_table: Whether to add a `grid_ROI_table` table to each
+            image, with the image split into a rectangular grid of ROIs.
+        grid_YX_shape: YX shape of the ROI grid in `grid_ROI_shape`, e.g.
             `(2, 2)`.
     """
 
@@ -138,31 +152,31 @@ def import_ome_zarr(
                 zarrurls["image"].append(
                     f"{zarr_name}/{well_path}/{image_path}"
                 )
-                _process_image(
+                _add_ROI_tables(
                     f"{zarr_path}/{well_path}/{image_path}",
                     add_image_ROI_table,
                     add_grid_ROI_table,
-                    grid_ROI_shape,
+                    grid_YX_shape,
                 )
     elif ngff_type == "well":
         zarrurls["well"].append(zarr_name)
         for image in root_group.attrs["well"]["images"]:
             image_path = image["path"]
             zarrurls["image"].append(f"{zarr_name}/{image_path}")
-            _process_image(
+            _add_ROI_tables(
                 f"{zarr_path}/{image_path}",
                 add_image_ROI_table,
                 add_grid_ROI_table,
-                grid_ROI_shape,
+                grid_YX_shape,
             )
     elif ngff_type == "image":
         zarrurls["image"].append(zarr_name)
         logger.warning("XXX")
-        _process_image(
+        _add_ROI_tables(
             zarr_path,
             add_image_ROI_table,
             add_grid_ROI_table,
-            grid_ROI_shape,
+            grid_YX_shape,
         )
 
     # Remove zarrurls keys pointing to empty lists

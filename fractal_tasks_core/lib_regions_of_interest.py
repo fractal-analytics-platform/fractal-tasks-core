@@ -660,7 +660,7 @@ def get_single_image_ROI(
 def get_image_grid_ROIs(
     array_shape: tuple[int, int, int],
     pixels_ZYX: list[float],
-    grid_ROI_shape: tuple[int, ...] = (2, 2),
+    grid_YX_shape: tuple[int, int],
 ) -> ad.AnnData:
     """
     Produce a table with ROIS placed on a rectangular grid.
@@ -677,13 +677,13 @@ def get_image_grid_ROIs(
     Args:
         array_shape: ZYX shape of the image array.
         pixels_ZYX: ZYX pixel sizes in micrometers.
-        grid_ROI_shape:
+        grid_YX_shape:
 
     Returns:
         An `AnnData` table with a single ROI.
     """
     shape_z, shape_y, shape_x = array_shape[-3:]
-    grid_size_y, grid_size_x = grid_ROI_shape[:]
+    grid_size_y, grid_size_x = grid_YX_shape[:]
     X = []
     obs_names = []
     counter = 0
