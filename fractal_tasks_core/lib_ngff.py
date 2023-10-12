@@ -431,7 +431,7 @@ def detect_ome_ngff_type(group: zarr.Group) -> str:
         logger_name: Logger name
 
     Returns:
-        The detected OME-NGFF type (one of `plate`, `well` and `image`).
+        The detected OME-NGFF type (`plate`, `well` or `image`).
     """
     attrs = group.attrs.asdict()
     if "plate" in attrs.keys():
