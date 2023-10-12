@@ -129,8 +129,8 @@ def import_ome_zarr(
             image, with a single ROI covering the whole image.
         add_grid_ROI_table: Whether to add a `grid_ROI_table` table to each
             image, with the image split into a rectangular grid of ROIs.
-        grid_y_shape: Y shape of the ROI grid in `grid_ROI_shape`.
-        grid_x_shape: X shape of the ROI grid in `grid_ROI_shape`.
+        grid_y_shape: Y shape of the ROI grid in `grid_ROI_table`.
+        grid_x_shape: X shape of the ROI grid in `grid_ROI_table`.
     """
 
     # Preliminary checks

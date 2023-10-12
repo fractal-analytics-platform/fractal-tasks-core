@@ -1237,13 +1237,13 @@
             "title": "Grid Y Shape",
             "default": 2,
             "type": "integer",
-            "description": "Y shape of the ROI grid in `grid_ROI_shape`."
+            "description": "Y shape of the ROI grid in `grid_ROI_table`."
           },
           "grid_x_shape": {
             "title": "Grid X Shape",
             "default": 2,
             "type": "integer",
-            "description": "X shape of the ROI grid in `grid_ROI_shape`."
+            "description": "X shape of the ROI grid in `grid_ROI_table`."
           }
         },
         "required": [
