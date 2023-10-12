@@ -32,7 +32,8 @@ def test_import_ome_zarr_plate(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
         zarr_name=zarr_name,
         output_path="null",
         metadata={},
-        grid_YX_shape=(3, 3),
+        grid_y_shape=3,
+        grid_x_shape=3,
     )
     metadata = metadiff.copy()
 
@@ -82,7 +83,8 @@ def test_import_ome_zarr_well(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
         zarr_name=zarr_name,
         output_path="null",
         metadata={},
-        grid_YX_shape=(3, 3),
+        grid_y_shape=3,
+        grid_x_shape=3,
     )
     metadata = metadiff.copy()
 
@@ -112,7 +114,8 @@ def test_import_ome_zarr_image(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
         zarr_name=zarr_name,
         output_path="null",
         metadata={},
-        grid_YX_shape=(3, 3),
+        grid_y_shape=3,
+        grid_x_shape=3,
     )
     metadata = metadiff.copy()
 
