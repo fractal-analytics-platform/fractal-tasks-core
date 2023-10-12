@@ -424,7 +424,7 @@ def detect_ome_ngff_group(
     logger_name: Optional[str] = None,
 ) -> Literal["plate", "well", "image"]:
     """
-    Given a Zarr group, find whether it's an OME-NGFF plate, well or image.
+    Given a Zarr group, find whether it is an OME-NGFF plate, well or image.
 
     Args:
         group: Zarr group
@@ -434,11 +434,11 @@ def detect_ome_ngff_group(
 
     attrs = group.attrs.asdict()
     if "plate" in attrs.keys():
-        scope = "plate"
+        group_kind = "plate"
     elif "well" in attrs.keys():
-        scope = "well"
+        group_kind = "well"
     elif "multiscales" in attrs.keys():
-        scope = "image"
+        group_kind = "image"
     else:
         error_msg = (
             "Zarr group at cannot be identified as one "
@@ -446,5 +446,5 @@ def detect_ome_ngff_group(
         )
         logger.error(error_msg)
         raise ValueError(error_msg)
-    logger.info(f"Zarr group identified as OME-NGFF {scope}.")
-    return scope
+    logger.info(f"Zarr group identified as OME-NGFF {group_kind}.")
+    return group_kind
