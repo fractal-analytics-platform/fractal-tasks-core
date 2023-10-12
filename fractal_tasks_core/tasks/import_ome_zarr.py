@@ -124,8 +124,6 @@ def import_ome_zarr(
     zarr_path = str(Path(input_paths[0]) / zarr_name)
     logger.info(f"{zarr_path=}")
 
-    zarr_path_name = Path(zarr_path).name
-
     zarrurls: dict = dict(plate=[], well=[], image=[])
 
     if scope == "plate":
@@ -137,12 +135,12 @@ def import_ome_zarr(
             well_group = zarr.open_group(
                 zarr_path, path=well_subpath, mode="r"
             )
-            zarrurls["well"].append(f"{zarr_path_name}/{well_subpath}")
+            zarrurls["well"].append(f"{zarr_name}/{well_subpath}")
             image_list = well_group.attrs["well"]["images"]
             for ind_image, image in enumerate(image_list):
                 image_subpath = image["path"]
                 zarrurls["image"].append(
-                    f"{zarr_path_name}/{well_subpath}/{image_subpath}"
+                    f"{zarr_name}/{well_subpath}/{image_subpath}"
                 )
                 image_path = f"{zarr_path}/{well_subpath}/{image_subpath}"
                 _process_image(
