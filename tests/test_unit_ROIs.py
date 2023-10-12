@@ -624,7 +624,7 @@ def test_get_image_grid_ROIs():
     ROI = get_image_grid_ROIs(
         array_shape,
         pixels_ZYX,
-        grid_ROI_shape=(grid_shape_Y, grid_shape_X),
+        grid_YX_shape=(grid_shape_Y, grid_shape_X),
     )
     debug(ROI.X)
     assert ROI.shape[0] == grid_shape_Y * grid_shape_X  # number of ROIS
@@ -652,7 +652,7 @@ def test_get_image_grid_ROIs():
     ROI = get_image_grid_ROIs(
         array_shape,
         pixels_ZYX,
-        grid_ROI_shape=(grid_shape_Y, grid_shape_X),
+        grid_YX_shape=(grid_shape_Y, grid_shape_X),
     )
     debug(ROI.X)
     assert ROI.shape[0] == grid_shape_Y * grid_shape_X  # number of ROIS

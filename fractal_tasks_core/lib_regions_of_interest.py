@@ -616,7 +616,7 @@ def get_single_image_ROI(
     """
     Produce a table with a single ROI that covers the whole array
 
-    FIXME: make this flexible with respect to the presence/absence of Z.
+    TODO: make this flexible with respect to the presence/absence of Z.
 
     Args:
         array_shape: ZYX shape of the image array.
@@ -672,7 +672,7 @@ def get_image_grid_ROIs(
     together a set of FOVs placed on a regular grid), the ROIs correspond to
     the original FOVs.
 
-    FIXME: make this flexible with respect to the presence/absence of Z.
+    TODO: make this flexible with respect to the presence/absence of Z.
 
     Args:
         array_shape: ZYX shape of the image array.
