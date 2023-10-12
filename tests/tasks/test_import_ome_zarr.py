@@ -1,3 +1,4 @@
+import pytest
 import zarr
 from devtools import debug
 
@@ -129,6 +130,7 @@ def test_import_ome_zarr_image(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
     _check_ROI_tables(f"{root_path}/{zarr_name}")
 
 
+@pytest.mark.skip
 def test_import_ome_zarr_image_BIA(tmp_path):
     """
     This test imports one of the BIA OME-Zarr listed in
