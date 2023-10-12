@@ -428,7 +428,6 @@ def detect_ome_ngff_type(group: zarr.Group) -> str:
 
     Args:
         group: Zarr group
-        logger_name: Logger name
 
     Returns:
         The detected OME-NGFF type (`plate`, `well` or `image`).
