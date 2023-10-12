@@ -12,6 +12,9 @@ from pydantic import Field
 from pydantic import validator
 
 
+logger = logging.getLogger(__name__)
+
+
 class Window(BaseModel):
     """
     Model for `Channel.window`.
@@ -419,10 +422,7 @@ def load_NgffWellMeta(zarr_path: str) -> NgffWellMeta:
         raise e
 
 
-def detect_ome_ngff_type(
-    group: zarr.Group,
-    logger_name: Optional[str] = None,
-) -> Literal["plate", "well", "image"]:
+def detect_ome_ngff_type(group: zarr.Group) -> str:
     """
     Given a Zarr group, find whether it is an OME-NGFF plate, well or image.
 
@@ -431,10 +431,8 @@ def detect_ome_ngff_type(
         logger_name: Logger name
 
     Returns:
-        The detected OME-NGFF type.
+        The detected OME-NGFF type (one of `plate`, `well` and `image`).
     """
-    logger = logging.getLogger(logger_name)
-
     attrs = group.attrs.asdict()
     if "plate" in attrs.keys():
         ngff_type = "plate"
