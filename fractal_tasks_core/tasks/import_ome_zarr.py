@@ -44,8 +44,7 @@ def _add_ROI_tables(
             (argument propagated from `import_ome_zarr`).
         add_grid_ROI_table: Whether to add a `grid_ROI_table` table (argument
             propagated from `import_ome_zarr`).
-        grid_YX_shape: YX shape of the ROI grid (argument propagated from
-            `import_ome_zarr`).
+        grid_YX_shape: YX shape of the ROI grid.
     """
 
     # Note from zar docs: `r+` means read/write (must exist)
