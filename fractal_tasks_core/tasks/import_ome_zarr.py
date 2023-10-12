@@ -29,14 +29,19 @@ from fractal_tasks_core.lib_write import write_table
 logger = logging.getLogger(__name__)
 
 
-def _add_ROI_tables(
+def _process_single_image(
     image_path: str,
     add_image_ROI_table: bool,
     add_grid_ROI_table: bool,
     grid_YX_shape: tuple[int, int],
 ) -> None:
     """
-    Generate ROI table for an OME-NGFF image
+    Validate OME-NGFF metadata and optionally generate ROI tables.
+
+    This task:
+
+    1. Validates OME-NGFF image metadata, via `NgffImageMeta`;
+    2. Optionally generates and writes two ROI tables.
 
     Args:
         image_path: Absolute path to the image Zarr group.
@@ -47,7 +52,7 @@ def _add_ROI_tables(
         grid_YX_shape: YX shape of the ROI grid.
     """
 
-    # Note from zar docs: `r+` means read/write (must exist)
+    # Note from zarr docs: `r+` means read/write (must exist)
     image_group = zarr.open_group(image_path, mode="r+")
     image_meta = NgffImageMeta(**image_group.attrs.asdict())
 
@@ -153,7 +158,7 @@ def import_ome_zarr(
                 zarrurls["image"].append(
                     f"{zarr_name}/{well_path}/{image_path}"
                 )
-                _add_ROI_tables(
+                _process_single_image(
                     f"{zarr_path}/{well_path}/{image_path}",
                     add_image_ROI_table,
                     add_grid_ROI_table,
@@ -169,7 +174,7 @@ def import_ome_zarr(
         for image in root_group.attrs["well"]["images"]:
             image_path = image["path"]
             zarrurls["image"].append(f"{zarr_name}/{image_path}")
-            _add_ROI_tables(
+            _process_single_image(
                 f"{zarr_path}/{image_path}",
                 add_image_ROI_table,
                 add_grid_ROI_table,
@@ -182,7 +187,7 @@ def import_ome_zarr(
             "e.g. the current one ({ngff_type=}) cannot be "
             "processed via the `maximum_intensity_projection` task."
         )
-        _add_ROI_tables(
+        _process_single_image(
             zarr_path,
             add_image_ROI_table,
             add_grid_ROI_table,
