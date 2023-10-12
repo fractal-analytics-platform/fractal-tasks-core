@@ -127,9 +127,8 @@ def import_ome_zarr(
     ngff_type = detect_ome_ngff_type(root_group)
 
     if ngff_type == "plate":
-        plate_group = zarr.open_group(zarr_path, mode="r")
         zarrurls["plate"].append(zarr_name)
-        well_list = plate_group.attrs["plate"]["wells"]
+        well_list = root_group.attrs["plate"]["wells"]
         for well in well_list:
             well_subpath = well["path"]
             well_group = zarr.open_group(
@@ -137,7 +136,7 @@ def import_ome_zarr(
             )
             zarrurls["well"].append(f"{zarr_name}/{well_subpath}")
             image_list = well_group.attrs["well"]["images"]
-            for ind_image, image in enumerate(image_list):
+            for image in image_list:
                 image_subpath = image["path"]
                 zarrurls["image"].append(
                     f"{zarr_name}/{well_subpath}/{image_subpath}"
@@ -149,11 +148,22 @@ def import_ome_zarr(
                     add_grid_ROI_table,
                     grid_ROI_shape,
                 )
+    elif ngff_type == "well":
+        zarrurls["well"].append(zarr_name)
+        image_list = root_group.attrs["well"]["images"]
+        for image in image_list:
+            image_subpath = image["path"]
+            zarrurls["image"].append(f"{zarr_name}/{image_subpath}")
+            image_path = f"{zarr_path}/{image_subpath}"
+            _process_image(
+                image_path,
+                add_image_ROI_table,
+                add_grid_ROI_table,
+                grid_ROI_shape,
+            )
     elif ngff_type == "image":
         zarrurls["image"].append(zarr_name)
         logger.warning("XXX")
-        # FIXME: this will change if we split input_paths into input_paths and
-        # zarr_name
         _process_image(
             zarr_path,
             add_image_ROI_table,
