@@ -1,5 +1,13 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# Unreleased
+
+* Make `maximum_intensity_projection` task not depend on ROI tables (\#557).
+* New task and helper functions:
+    * Introduce `import_ome_zarr` task (\#557).
+    * Introduce `get_single_image_ROI` and `get_image_grid_ROIs` (\#557)
+    * Introduce `detect_ome_ngff_type` (\#557).
+
 # 0.12.2
 
 * Relax `check_valid_ROI_indices` to support search-first scenario (\#555).
