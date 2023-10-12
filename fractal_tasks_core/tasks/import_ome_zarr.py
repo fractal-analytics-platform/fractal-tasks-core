@@ -128,35 +128,29 @@ def import_ome_zarr(
 
     if ngff_type == "plate":
         zarrurls["plate"].append(zarr_name)
-        well_list = root_group.attrs["plate"]["wells"]
-        for well in well_list:
-            well_subpath = well["path"]
-            well_group = zarr.open_group(
-                zarr_path, path=well_subpath, mode="r"
-            )
-            zarrurls["well"].append(f"{zarr_name}/{well_subpath}")
-            image_list = well_group.attrs["well"]["images"]
-            for image in image_list:
-                image_subpath = image["path"]
+        for well in root_group.attrs["plate"]["wells"]:
+            well_path = well["path"]
+            zarrurls["well"].append(f"{zarr_name}/{well_path}")
+
+            well_group = zarr.open_group(zarr_path, path=well_path, mode="r")
+            for image in well_group.attrs["well"]["images"]:
+                image_path = image["path"]
                 zarrurls["image"].append(
-                    f"{zarr_name}/{well_subpath}/{image_subpath}"
+                    f"{zarr_name}/{well_path}/{image_path}"
                 )
-                image_path = f"{zarr_path}/{well_subpath}/{image_subpath}"
                 _process_image(
-                    image_path,
+                    f"{zarr_path}/{well_path}/{image_path}",
                     add_image_ROI_table,
                     add_grid_ROI_table,
                     grid_ROI_shape,
                 )
     elif ngff_type == "well":
         zarrurls["well"].append(zarr_name)
-        image_list = root_group.attrs["well"]["images"]
-        for image in image_list:
-            image_subpath = image["path"]
-            zarrurls["image"].append(f"{zarr_name}/{image_subpath}")
-            image_path = f"{zarr_path}/{image_subpath}"
+        for image in root_group.attrs["well"]["images"]:
+            image_path = image["path"]
+            zarrurls["image"].append(f"{zarr_name}/{image_path}")
             _process_image(
-                image_path,
+                f"{zarr_path}/{image_path}",
                 add_image_ROI_table,
                 add_grid_ROI_table,
                 grid_ROI_shape,
@@ -171,7 +165,10 @@ def import_ome_zarr(
             grid_ROI_shape,
         )
 
-    clean_zarrurls = {k: v for k, v in zarrurls.items() if v}
+    # Remove zarrurls keys pointing to empty lists
+    clean_zarrurls = {
+        key: value for key, value in zarrurls.items() if len(value) > 0
+    }
 
     return clean_zarrurls
 
