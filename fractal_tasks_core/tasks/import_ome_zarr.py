@@ -162,6 +162,11 @@ def import_ome_zarr(
                 )
     elif ngff_type == "well":
         zarrurls["well"].append(zarr_name)
+        logger.warning(
+            "Only OME-Zarr for plates are fully supported in Fractal; "
+            "e.g. the current one ({ngff_type=}) cannot be "
+            "processed via the `maximum_intensity_projection` task."
+        )
         for image in root_group.attrs["well"]["images"]:
             image_path = image["path"]
             zarrurls["image"].append(f"{zarr_name}/{image_path}")
@@ -173,7 +178,11 @@ def import_ome_zarr(
             )
     elif ngff_type == "image":
         zarrurls["image"].append(zarr_name)
-        logger.warning("XXX")
+        logger.warning(
+            "Only OME-Zarr for plates are fully supported in Fractal; "
+            "e.g. the current one ({ngff_type=}) cannot be "
+            "processed via the `maximum_intensity_projection` task."
+        )
         _add_ROI_tables(
             zarr_path,
             add_image_ROI_table,
