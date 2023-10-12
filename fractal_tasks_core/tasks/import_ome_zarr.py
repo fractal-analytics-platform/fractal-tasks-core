@@ -14,7 +14,6 @@ Task to import an existing OME-Zarr.
 import logging
 from pathlib import Path
 from typing import Any
-from typing import Literal
 from typing import Optional
 from typing import Sequence
 
@@ -22,6 +21,7 @@ import dask.array as da
 import zarr
 from pydantic.decorator import validate_arguments
 
+from fractal_tasks_core.lib_ngff import detect_ome_ngff_group
 from fractal_tasks_core.lib_ngff import NgffImageMeta
 from fractal_tasks_core.lib_regions_of_interest import get_image_grid_ROIs
 from fractal_tasks_core.lib_regions_of_interest import get_single_image_ROI
@@ -87,7 +87,6 @@ def import_ome_zarr(
     output_path: str,
     metadata: dict[str, Any],
     zarr_name: str,
-    scope: Literal["plate", "image"] = "plate",
     add_image_ROI_table: bool = True,
     add_grid_ROI_table: bool = True,
     grid_ROI_shape: Optional[tuple[int, ...]] = None,
@@ -107,8 +106,6 @@ def import_ome_zarr(
         zarr_name: The OME-Zarr name, without its parent folder; e.g.
             `zarr_name="array.zarr", if the OME-Zarr path is
             `/somewhere/array.zarr`.
-        scope: The kind of OME-Zarr group to import (currently supporting
-            `plate`, and experimentally supporting `image`).
         add_image_ROI_table: Whether to add a `image_ROI_table` table, with a
             single ROI covering each image.
         add_grid_ROI_table: Whether to add a `grid_ROI_table` table, with each
@@ -122,9 +119,12 @@ def import_ome_zarr(
         raise NotImplementedError
 
     zarr_path = str(Path(input_paths[0]) / zarr_name)
-    logger.info(f"{zarr_path=}")
+    logger.info(f"Zarr path: {zarr_path}")
 
     zarrurls: dict = dict(plate=[], well=[], image=[])
+
+    root_group = zarr.open_group(zarr_path, mode="r")
+    scope = detect_ome_ngff_group(root_group)
 
     if scope == "plate":
         plate_group = zarr.open_group(zarr_path, mode="r")

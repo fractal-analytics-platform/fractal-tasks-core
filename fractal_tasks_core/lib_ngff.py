@@ -417,3 +417,34 @@ def load_NgffWellMeta(zarr_path: str) -> NgffWellMeta:
             f"Original error:\n{str(e)}"
         )
         raise e
+
+
+def detect_ome_ngff_group(
+    group: zarr.Group,
+    logger_name: Optional[str] = None,
+) -> Literal["plate", "well", "image"]:
+    """
+    Given a Zarr group, find whether it's an OME-NGFF plate, well or image.
+
+    Args:
+        group: Zarr group
+        logger_name: Logger name
+    """
+    logger = logging.getLogger(logger_name)
+
+    attrs = group.attrs.asdict()
+    if "plate" in attrs.keys():
+        scope = "plate"
+    elif "well" in attrs.keys():
+        scope = "well"
+    elif "multiscales" in attrs.keys():
+        scope = "image"
+    else:
+        error_msg = (
+            "Zarr group at cannot be identified as one "
+            "of OME-NGFF plate/well/image groups."
+        )
+        logger.error(error_msg)
+        raise ValueError(error_msg)
+    logger.info(f"Zarr group identified as OME-NGFF {scope}.")
+    return scope

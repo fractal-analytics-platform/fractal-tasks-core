@@ -85,7 +85,6 @@ def test_import_ome_zarr_image(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
         output_path="null",
         metadata={},
         grid_ROI_shape=(3, 3),
-        scope="image",
     )
     metadata = metadiff.copy()
 

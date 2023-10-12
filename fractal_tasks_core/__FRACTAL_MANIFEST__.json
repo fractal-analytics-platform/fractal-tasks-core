@@ -1221,16 +1221,6 @@
             "type": "string",
             "description": "The OME-Zarr name, without its parent folder; e.g. `zarr_name=\"array.zarr\", if the OME-Zarr path is `/somewhere/array.zarr`."
           },
-          "scope": {
-            "title": "Scope",
-            "default": "plate",
-            "enum": [
-              "plate",
-              "image"
-            ],
-            "type": "string",
-            "description": "The kind of OME-Zarr group to import (currently supporting `plate`, and experimentally supporting `image`)."
-          },
           "add_image_ROI_table": {
             "title": "Add Image Roi Table",
             "default": true,
