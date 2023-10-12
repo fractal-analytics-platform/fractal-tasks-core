@@ -86,6 +86,7 @@ def import_ome_zarr(
     input_paths: Sequence[str],
     output_path: str,
     metadata: dict[str, Any],
+    zarr_name: str,
     scope: Literal["plate", "image"] = "plate",
     add_image_ROI_table: bool = True,
     add_grid_ROI_table: bool = True,
@@ -95,13 +96,17 @@ def import_ome_zarr(
     Import an OME-Zarr
 
     Args:
-        input_paths: A length-one list with the path to an OME-Zarr group, e.g.
-            `["/somewhere/plate.zarr"]`.
+        input_paths: A length-one list with the parent folder of the OME-Zarr
+            to be imported; e.g. `input_paths=["/somewhere"]`, if the OME-Zarr
+            path is `/somewhere/array.zarr`.
             (standard argument for Fractal tasks, managed by Fractal server).
         output_path: Not used in this task.
             (standard argument for Fractal tasks, managed by Fractal server).
         metadata: Not used in this task.
             (standard argument for Fractal tasks, managed by Fractal server).
+        zarr_name: The OME-Zarr name, without its parent folder; e.g.
+            `zarr_name="array.zarr", if the OME-Zarr path is
+            `/somewhere/array.zarr`.
         scope: The kind of OME-Zarr group to import (currently supporting
             `plate`, and experimentally supporting `image`).
         add_image_ROI_table: Whether to add a `image_ROI_table` table, with a
@@ -116,7 +121,7 @@ def import_ome_zarr(
     if len(input_paths) > 1:
         raise NotImplementedError
 
-    zarr_path = input_paths[0]
+    zarr_path = str(Path(input_paths[0]) / zarr_name)
     logger.info(f"{zarr_path=}")
 
     zarr_path_name = Path(zarr_path).name
@@ -125,7 +130,7 @@ def import_ome_zarr(
 
     if scope == "plate":
         plate_group = zarr.open_group(zarr_path, mode="r")
-        zarrurls["plate"].append(Path(zarr_path).name)
+        zarrurls["plate"].append(zarr_name)
         well_list = plate_group.attrs["plate"]["wells"]
         for well in well_list:
             well_subpath = well["path"]
@@ -147,14 +152,8 @@ def import_ome_zarr(
                     grid_ROI_shape,
                 )
     elif scope == "image":
-        pre_zarr, post_zarr = zarr_path.split(".zarr/")
-        pre_zarr = pre_zarr.split("/")[-1]
-        component = f"{pre_zarr}.zarr/{post_zarr}"
-        zarrurls["image"].append(component)
-        logger.warning(
-            "Setting metadata for a single OME-Zarr image is not fully "
-            f"supported. Now using {component=}."
-        )
+        zarrurls["image"].append(zarr_name)
+        logger.warning("XXX")
         # FIXME: this will change if we split input_paths into input_paths and
         # zarr_name
         _process_image(

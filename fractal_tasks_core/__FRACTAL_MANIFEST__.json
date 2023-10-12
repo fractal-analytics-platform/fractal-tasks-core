@@ -1204,7 +1204,7 @@
             "items": {
               "type": "string"
             },
-            "description": "A length-one list with the path to an OME-Zarr group, e.g. `[\"/somewhere/plate.zarr\"]`. (standard argument for Fractal tasks, managed by Fractal server)."
+            "description": "A length-one list with the parent folder of the OME-Zarr to be imported; e.g. `input_paths=[\"/somewhere\"]`, if the OME-Zarr path is `/somewhere/array.zarr`. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "output_path": {
             "title": "Output Path",
@@ -1215,6 +1215,11 @@
             "title": "Metadata",
             "type": "object",
             "description": "Not used in this task. (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "zarr_name": {
+            "title": "Zarr Name",
+            "type": "string",
+            "description": "The OME-Zarr name, without its parent folder; e.g. `zarr_name=\"array.zarr\", if the OME-Zarr path is `/somewhere/array.zarr`."
           },
           "scope": {
             "title": "Scope",
@@ -1250,7 +1255,8 @@
         "required": [
           "input_paths",
           "output_path",
-          "metadata"
+          "metadata",
+          "zarr_name"
         ],
         "additionalProperties": false
       },
