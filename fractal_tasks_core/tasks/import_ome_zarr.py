@@ -97,7 +97,8 @@ def import_ome_zarr(
     zarr_name: str,
     add_image_ROI_table: bool = True,
     add_grid_ROI_table: bool = True,
-    grid_YX_shape: tuple[int, int] = (2, 2),
+    grid_y_shape: int = 2,
+    grid_x_shape: int = 2,
 ) -> dict[str, Any]:
     """
     Import an OME-Zarr into Fractal.
@@ -124,8 +125,8 @@ def import_ome_zarr(
             image, with a single ROI covering the whole image.
         add_grid_ROI_table: Whether to add a `grid_ROI_table` table to each
             image, with the image split into a rectangular grid of ROIs.
-        grid_YX_shape: YX shape of the ROI grid in `grid_ROI_shape`, e.g.
-            `(2, 2)`.
+        grid_y_shape: Y shape of the ROI grid in `grid_ROI_shape`.
+        grid_x_shape: X shape of the ROI grid in `grid_ROI_shape`.
     """
 
     # Preliminary checks
@@ -139,6 +140,7 @@ def import_ome_zarr(
 
     root_group = zarr.open_group(zarr_path, mode="r")
     ngff_type = detect_ome_ngff_type(root_group)
+    grid_YX_shape = (grid_y_shape, grid_x_shape)
 
     if ngff_type == "plate":
         zarrurls["plate"].append(zarr_name)

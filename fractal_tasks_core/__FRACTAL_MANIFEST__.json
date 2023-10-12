@@ -1233,24 +1233,17 @@
             "type": "boolean",
             "description": "Whether to add a `grid_ROI_table` table to each image, with the image split into a rectangular grid of ROIs."
           },
-          "grid_YX_shape": {
-            "title": "Grid Yx Shape",
-            "default": [
-              2,
-              2
-            ],
-            "type": "array",
-            "minItems": 2,
-            "maxItems": 2,
-            "items": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "integer"
-              }
-            ],
-            "description": "YX shape of the ROI grid in `grid_ROI_shape`, e.g. `(2, 2)`."
+          "grid_y_shape": {
+            "title": "Grid Y Shape",
+            "default": 2,
+            "type": "integer",
+            "description": "Y shape of the ROI grid in `grid_ROI_shape`."
+          },
+          "grid_x_shape": {
+            "title": "Grid X Shape",
+            "default": 2,
+            "type": "integer",
+            "description": "X shape of the ROI grid in `grid_ROI_shape`."
           }
         },
         "required": [
