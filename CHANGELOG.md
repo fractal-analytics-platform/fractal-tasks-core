@@ -1,5 +1,9 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# Unreleased
+
+* Make Cellpose task work when `input_ROI_table` is empty (\#566).
+
 # 0.12.2
 
 * Relax `check_valid_ROI_indices` to support search-first scenario (\#555).
