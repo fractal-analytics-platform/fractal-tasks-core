@@ -114,7 +114,7 @@ def _preprocess_input(
     masking_label_path = str(
         Path(ROI_table_path).parent / label_relative_path / "0"
     )
-    logger.critical(f"{masking_label_path=}")
+    logger.info(f"{masking_label_path=}")
     masking_label_array = da.from_zarr(masking_label_path)
     logger.info(
         f"[_preprocess_input] {masking_label_path=}, "
