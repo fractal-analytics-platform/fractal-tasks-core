@@ -25,6 +25,7 @@ from fractal_tasks_core.lib_regions_of_interest import (
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROIs_from_3D_to_2D,
 )
+from fractal_tasks_core.lib_regions_of_interest import empty_bounding_box_table
 from fractal_tasks_core.lib_regions_of_interest import is_ROI_table_valid
 from fractal_tasks_core.lib_regions_of_interest import (
     is_standard_roi_table,
@@ -334,12 +335,17 @@ def test_array_to_bounding_box_table_empty():
     When trying to compute bounding boxes for a label array which has no labels
     (that is, it only has zeros), the output dataframe has zero rows (but it
     still has the `label` column, as expected).
+
+    Also test `empty_bounding_box_table`.
     """
     mask_array = np.zeros((10, 100, 100))
     df = array_to_bounding_box_table(mask_array, pxl_sizes_zyx=[1.0, 1.0, 1.0])
     debug(df)
     assert df.shape[0] == 0
     assert "label" in df.columns
+
+    df_empty = empty_bounding_box_table()
+    pd.testing.assert_frame_equal(df, df_empty)
 
 
 def test_array_to_bounding_box_table():
