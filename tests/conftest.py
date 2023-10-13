@@ -37,7 +37,7 @@ def zenodo_images(testdata_path):
     js = json.loads(r.text)
     files = js["files"]
     for f in files:
-        fname = f["key"]
+        fname = f["filename"]
         link = f"https://zenodo.org/record/{recordID}/files/{fname}"
         print(link)
         link = unquote(link)
