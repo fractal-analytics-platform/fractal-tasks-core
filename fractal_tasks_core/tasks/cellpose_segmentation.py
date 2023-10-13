@@ -45,6 +45,7 @@ from fractal_tasks_core.lib_regions_of_interest import check_valid_ROI_indices
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
+from fractal_tasks_core.lib_regions_of_interest import empty_bounding_box_table
 from fractal_tasks_core.lib_regions_of_interest import is_ROI_table_valid
 from fractal_tasks_core.lib_regions_of_interest import load_region
 from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
@@ -558,9 +559,7 @@ def cellpose_segmentation(
             num_labels_tot += num_labels_roi
 
             # Write some logs
-            logger.info(
-                f"ROI {indices}, " f"{num_labels_roi=}, " f"{num_labels_tot=}"
-            )
+            logger.info(f"ROI {indices}, {num_labels_roi=}, {num_labels_tot=}")
 
             # Check that total number of labels is under control
             if num_labels_tot > np.iinfo(label_dtype).max:
@@ -615,6 +614,10 @@ def cellpose_segmentation(
     logger.info("End building pyramids")
 
     if output_ROI_table:
+        # Handle the case where `bbox_dataframe_list` is empty (typically
+        # because list_indices is also empty)
+        if len(bbox_dataframe_list) == 0:
+            bbox_dataframe_list = [empty_bounding_box_table()]
         # Concatenate all ROI dataframes
         df_well = pd.concat(bbox_dataframe_list, axis=0, ignore_index=True)
         df_well.index = df_well.index.astype(str)
