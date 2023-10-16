@@ -81,6 +81,11 @@ def maximum_intensity_projection(
     # Load 0-th level
     data_czyx = da.from_zarr(zarrurl_old + "/0")
     num_channels = data_czyx.shape[0]
+    chunksize_y = data_czyx.chunksize[-2]
+    chunksize_x = data_czyx.chunksize[-1]
+    logger.info(f"{num_channels=}")
+    logger.info(f"{chunksize_y=}")
+    logger.info(f"{chunksize_x=}")
     # Loop over channels
     accumulate_chl = []
     for ind_ch in range(num_channels):
@@ -113,7 +118,7 @@ def maximum_intensity_projection(
         overwrite=overwrite,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        chunksize=accumulated_array.chunksize,
+        chunksize=(1, 1, chunksize_y, chunksize_x),
     )
 
     return {}
