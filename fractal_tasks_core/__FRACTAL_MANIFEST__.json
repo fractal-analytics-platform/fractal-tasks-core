@@ -1244,6 +1244,12 @@
             "default": 2,
             "type": "integer",
             "description": "X shape of the ROI grid in `grid_ROI_table`."
+          },
+          "overwrite": {
+            "title": "Overwrite",
+            "default": false,
+            "type": "boolean",
+            "description": "Whether new ROI tables (added when `add_image_ROI_table` and/or `add_grid_ROI_table` are `True`) can overwite existing ones."
           }
         },
         "required": [

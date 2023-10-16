@@ -35,6 +35,7 @@ def _process_single_image(
     add_image_ROI_table: bool,
     add_grid_ROI_table: bool,
     grid_YX_shape: Optional[tuple[int, int]] = None,
+    overwrite: bool = False,
 ) -> None:
     """
     Validate OME-NGFF metadata and optionally generate ROI tables.
@@ -80,7 +81,7 @@ def _process_single_image(
             image_group,
             "image_ROI_table",
             image_ROI_table,
-            overwrite=False,
+            overwrite=overwrite,
             logger=logger,
         )
 
@@ -95,7 +96,7 @@ def _process_single_image(
             image_group,
             "grid_ROI_table",
             grid_ROI_table,
-            overwrite=False,
+            overwrite=overwrite,
             logger=logger,
         )
 
@@ -111,6 +112,7 @@ def import_ome_zarr(
     add_grid_ROI_table: bool = True,
     grid_y_shape: int = 2,
     grid_x_shape: int = 2,
+    overwrite: bool = False,
 ) -> dict[str, Any]:
     """
     Import an OME-Zarr into Fractal.
@@ -139,6 +141,8 @@ def import_ome_zarr(
             image, with the image split into a rectangular grid of ROIs.
         grid_y_shape: Y shape of the ROI grid in `grid_ROI_table`.
         grid_x_shape: X shape of the ROI grid in `grid_ROI_table`.
+        overwrite: Whether new ROI tables (added when `add_image_ROI_table`
+            and/or `add_grid_ROI_table` are `True`) can overwite existing ones.
     """
 
     # Preliminary checks
@@ -171,6 +175,7 @@ def import_ome_zarr(
                     add_image_ROI_table,
                     add_grid_ROI_table,
                     grid_YX_shape,
+                    overwrite=overwrite,
                 )
     elif ngff_type == "well":
         zarrurls["well"].append(zarr_name)
@@ -187,6 +192,7 @@ def import_ome_zarr(
                 add_image_ROI_table,
                 add_grid_ROI_table,
                 grid_YX_shape,
+                overwrite=overwrite,
             )
     elif ngff_type == "image":
         zarrurls["image"].append(zarr_name)
@@ -200,6 +206,7 @@ def import_ome_zarr(
             add_image_ROI_table,
             add_grid_ROI_table,
             grid_YX_shape,
+            overwrite=overwrite,
         )
 
     # Remove zarrurls keys pointing to empty lists
