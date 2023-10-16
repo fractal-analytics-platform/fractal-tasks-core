@@ -52,7 +52,7 @@ def _process_single_image(
         add_grid_ROI_table: Whether to add a `grid_ROI_table` table (argument
             propagated from `import_ome_zarr`).
         grid_YX_shape: YX shape of the ROI grid (it must be not `None`, if
-          `add_grid_ROI_table=True`.
+            `add_grid_ROI_table=True`.
     """
 
     # Note from zarr docs: `r+` means read/write (must exist)
