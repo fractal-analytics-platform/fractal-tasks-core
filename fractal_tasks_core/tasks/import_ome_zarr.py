@@ -14,6 +14,7 @@ Task to import an existing OME-Zarr.
 import logging
 from pathlib import Path
 from typing import Any
+from typing import Optional
 from typing import Sequence
 
 import dask.array as da
@@ -33,7 +34,7 @@ def _process_single_image(
     image_path: str,
     add_image_ROI_table: bool,
     add_grid_ROI_table: bool,
-    grid_YX_shape: tuple[int, int],
+    grid_YX_shape: Optional[tuple[int, int]] = None,
 ) -> None:
     """
     Validate OME-NGFF metadata and optionally generate ROI tables.
@@ -49,15 +50,22 @@ def _process_single_image(
             (argument propagated from `import_ome_zarr`).
         add_grid_ROI_table: Whether to add a `grid_ROI_table` table (argument
             propagated from `import_ome_zarr`).
-        grid_YX_shape: YX shape of the ROI grid.
+        grid_YX_shape: YX shape of the ROI grid (it must be not `None`, if
+          `add_grid_ROI_table=True`.
     """
 
     # Note from zarr docs: `r+` means read/write (must exist)
     image_group = zarr.open_group(image_path, mode="r+")
     image_meta = NgffImageMeta(**image_group.attrs.asdict())
 
+    # Preliminary checks
     if not (add_image_ROI_table or add_grid_ROI_table):
         return
+    if add_grid_ROI_table and (grid_YX_shape is None):
+        raise ValueError(
+            f"_process_single_image called with {add_grid_ROI_table=}, "
+            f"but {grid_YX_shape=}."
+        )
 
     pixels_ZYX = image_meta.get_pixel_sizes_zyx(level=0)
 
