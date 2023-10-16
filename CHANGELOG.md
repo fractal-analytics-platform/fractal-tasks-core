@@ -1,5 +1,9 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# Unreleased
+
+* Restrict `Pillow` version to `<10.1` (\#571).
+
 # 0.12.2
 
 * Relax `check_valid_ROI_indices` to support search-first scenario (\#555).
