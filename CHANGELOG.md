@@ -3,6 +3,10 @@
 # Unreleased
 
 * Make Cellpose task work when `input_ROI_table` is empty (\#566).
+* Dependencies:
+  * Restrict `Pillow` version to `<10.1` (\#571).
+* Testing:
+    * Align with new Zenodo API (\#568).
 
 # 0.12.2
 
