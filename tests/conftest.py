@@ -1,6 +1,7 @@
 import json
 import os
 import shutil
+import time
 from pathlib import Path
 from urllib.parse import unquote
 
@@ -15,10 +16,17 @@ def testdata_path() -> Path:
     return TEST_DIR / "data/"
 
 
-@pytest.fixture(scope="session")
-def zenodo_images(testdata_path):
-    # Based on
-    # https://github.com/dvolgyes/zenodo_get/blob/master/zenodo_get/zget.py
+@pytest.fixture(scope="function")
+def zenodo_images(testdata_path, capsys):
+    """
+    Inspired by
+    https://github.com/dvolgyes/zenodo_get/blob/master/zenodo_get/zget.py
+
+    See https://docs.pytest.org/en/7.4.x/how-to/capture-stdout-stderr.html for
+    the use of capsys
+    """
+
+    t_start = time.perf_counter()
 
     url = "10.5281/zenodo.7059515"
     folder = str(testdata_path / (url.replace(".", "_").replace("/", "_")))
@@ -37,7 +45,7 @@ def zenodo_images(testdata_path):
     js = json.loads(r.text)
     files = js["files"]
     for f in files:
-        fname = f["key"]
+        fname = f["filename"]
         link = f"https://zenodo.org/record/{recordID}/files/{fname}"
         print(link)
         link = unquote(link)
@@ -48,10 +56,14 @@ def zenodo_images(testdata_path):
     with open(f"{folder}/invalid_path.png", "w") as f:
         f.write("This file has an invalid filename, which cannot be parsed.")
 
+    t_end = time.perf_counter()
+    with capsys.disabled():
+        print(f"\n    Time spent in zenodo_images: {t_end-t_start:.2f} s")
+
     return folder
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def zenodo_images_multiplex(testdata_path, zenodo_images):
     folder = str(testdata_path / "fake_multiplex")
     cycle_folder_1 = str(Path(folder) / "cycle1")
@@ -66,8 +78,13 @@ def zenodo_images_multiplex(testdata_path, zenodo_images):
     return cycle_folders
 
 
-@pytest.fixture(scope="session")
-def zenodo_zarr(testdata_path, tmpdir_factory):
+@pytest.fixture(scope="function")
+def zenodo_zarr(testdata_path, tmpdir_factory, capsys):
+    """
+    See https://docs.pytest.org/en/7.4.x/how-to/capture-stdout-stderr.html for
+    the use of capsys
+    """
+    t_start = time.perf_counter()
 
     doi = "10.5281/zenodo.8091756"
     rootfolder = testdata_path / (doi.replace(".", "_").replace("/", "_"))
@@ -76,6 +93,8 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
 
     if rootfolder.exists():
         print(f"{str(rootfolder)} already exists, skip")
+        folders = [str(f) for f in folders]
+        return folders
     else:
 
         import zarr
@@ -119,10 +138,14 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
 
     folders = [str(f) for f in folders]
 
+    t_end = time.perf_counter()
+    with capsys.disabled():
+        print(f"\n    Time spent in zenodo_zarr: {t_end-t_start:.2f} s")
+
     return folders
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def zenodo_zarr_metadata(testdata_path):
     metadata_3D = {
         "plate": ["plate.zarr"],

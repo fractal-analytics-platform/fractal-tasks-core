@@ -89,7 +89,7 @@ def _shift_image(
     new_img.save(img_path, mode="png")
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def zenodo_images_multiplex_shifted(
     zenodo_images_multiplex: list[str],
     testdata_path: Path,

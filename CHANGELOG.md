@@ -2,7 +2,10 @@
 
 # Unreleased
 
-* Restrict `Pillow` version to `<10.1` (\#571).
+* Dependencies:
+  * Restrict `Pillow` version to `<10.1` (\#571).
+* Testing:
+    * Align with new Zenodo API (\#568).
 
 # 0.12.2
 
