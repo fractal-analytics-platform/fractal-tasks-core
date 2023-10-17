@@ -354,6 +354,34 @@ def check_valid_ROI_indices(
             )
 
 
+def empty_bounding_box_table() -> pd.DataFrame:
+    """
+    Construct an empty bounding-box ROI table of given shape.
+
+    This function mirrors the functionality of `array_to_bounding_box_table`,
+    for the specific case where the array includes no label. The advantages of
+    this function are that:
+
+    1. It does not require computing a whole array of zeros;
+    2. We avoid hardcoding column names in the task functions.
+
+    Returns:
+        DataFrame with no rows, and with columns corresponding to the output of
+            `array_to_bounding_box_table`.
+    """
+
+    df_columns = [
+        "x_micrometer",
+        "y_micrometer",
+        "z_micrometer",
+        "len_x_micrometer",
+        "len_y_micrometer",
+        "len_z_micrometer",
+    ]
+    df = pd.DataFrame(columns=[x for x in df_columns] + ["label"])
+    return df
+
+
 def array_to_bounding_box_table(
     mask_array: np.ndarray,
     pxl_sizes_zyx: list[float],
