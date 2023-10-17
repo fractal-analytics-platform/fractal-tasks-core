@@ -1,6 +1,8 @@
 import json
+import logging
 import os
 import shutil
+import time
 from pathlib import Path
 from urllib.parse import unquote
 
@@ -19,6 +21,8 @@ def testdata_path() -> Path:
 def zenodo_images(testdata_path):
     # Based on
     # https://github.com/dvolgyes/zenodo_get/blob/master/zenodo_get/zget.py
+
+    t_start = time.perf_counter()
 
     url = "10.5281/zenodo.7059515"
     folder = str(testdata_path / (url.replace(".", "_").replace("/", "_")))
@@ -48,6 +52,9 @@ def zenodo_images(testdata_path):
     with open(f"{folder}/invalid_path.png", "w") as f:
         f.write("This file has an invalid filename, which cannot be parsed.")
 
+    t_end = time.perf_counter()
+    logging.warning(f"Time spent in zenodo_images: {t_end-t_start:.2f} s")
+
     return folder
 
 
@@ -68,6 +75,8 @@ def zenodo_images_multiplex(testdata_path, zenodo_images):
 
 @pytest.fixture(scope="session")
 def zenodo_zarr(testdata_path, tmpdir_factory):
+
+    t_start = time.perf_counter()
 
     doi = "10.5281/zenodo.8091756"
     rootfolder = testdata_path / (doi.replace(".", "_").replace("/", "_"))
@@ -118,6 +127,9 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
                 )
 
     folders = [str(f) for f in folders]
+
+    t_end = time.perf_counter()
+    logging.warning(f"Time spent in zenodo_zarr: {t_end-t_start:.2f} s")
 
     return folders
 
