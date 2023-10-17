@@ -569,6 +569,8 @@ def test_workflow_bounding_box(
     assert len(bbox_ROIs) > 0
     assert np.max(bbox_ROIs.X) == float(416)
 
+    # Add test for fractal-tasks-core issue #560 (some Zarr attributes missing
+    # in the ROI-table group)
     table_group = zarr.open_group(bbox_ROIs_table_path)
     debug(table_group.attrs.asdict())
     assert "encoding-type" in table_group.attrs.asdict().keys()
