@@ -888,6 +888,16 @@ def test_workflow_secondary_labeling_no_labels(
     zenodo_zarr_metadata: list[dict[str, Any]],
     monkeypatch: MonkeyPatch,
 ):
+    """
+    Run a first Cellpose segmentation that produces no labels, and therefore
+    writes an empty ROI table into `organoid_ROI_table`. Then run another
+    Cellpose segmentation with `input_ROI_table="organoid_ROI_table"`, which
+    loops over an empty list of ROIs and then produces an empty list of
+    bounding-box DataFrames.
+
+    This test is to check that running with an empty input ROI table does not
+    raise any error (see issue #561 in fractal-tasks-core).
+    """
 
     monkeypatch.setattr(
         "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
