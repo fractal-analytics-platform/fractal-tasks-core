@@ -17,17 +17,12 @@ from pathlib import Path
 from typing import Any
 from typing import Sequence
 
-import anndata as ad
 import dask.array as da
 from pydantic.decorator import validate_arguments
 from zarr.errors import ContainsArrayError
 
 from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
-from fractal_tasks_core.lib_regions_of_interest import check_valid_ROI_indices
-from fractal_tasks_core.lib_regions_of_interest import (
-    convert_ROI_table_to_indices,
-)
 from fractal_tasks_core.lib_write import OverwriteNotAllowedError
 
 logger = logging.getLogger(__name__)
@@ -83,35 +78,14 @@ def maximum_intensity_projection(
     num_levels = ngff_image.num_levels
     coarsening_xy = ngff_image.coarsening_xy
 
-    # This whole block finds (chunk_size_y,chunk_size_x)
-    FOV_ROI_table = ad.read_zarr(f"{zarrurl_old}/tables/FOV_ROI_table")
-    full_res_pxl_sizes_zyx = ngff_image.get_pixel_sizes_zyx(level=0)
-    # Create list of indices for 3D FOVs spanning the entire Z direction
-    list_indices = convert_ROI_table_to_indices(
-        FOV_ROI_table,
-        level=0,
-        coarsening_xy=coarsening_xy,
-        full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
-    )
-    check_valid_ROI_indices(list_indices, "FOV_ROI_table")
-    # Extract image size from FOV-ROI indices. Note: this works at level=0,
-    # where FOVs should all be of the exact same size (in pixels)
-    ref_img_size = None
-    for indices in list_indices:
-        img_size = (indices[3] - indices[2], indices[5] - indices[4])
-        if ref_img_size is None:
-            ref_img_size = img_size
-        else:
-            if img_size != ref_img_size:
-                raise ValueError(
-                    "ERROR: inconsistent image sizes in list_indices"
-                )
-    chunk_size_y, chunk_size_x = img_size[:]
-    chunksize = (1, 1, chunk_size_y, chunk_size_x)
-
     # Load 0-th level
     data_czyx = da.from_zarr(zarrurl_old + "/0")
     num_channels = data_czyx.shape[0]
+    chunksize_y = data_czyx.chunksize[-2]
+    chunksize_x = data_czyx.chunksize[-1]
+    logger.info(f"{num_channels=}")
+    logger.info(f"{chunksize_y=}")
+    logger.info(f"{chunksize_x=}")
     # Loop over channels
     accumulate_chl = []
     for ind_ch in range(num_channels):
@@ -121,8 +95,6 @@ def maximum_intensity_projection(
     accumulated_array = da.stack(accumulate_chl, axis=0)
 
     # Write to disk (triggering execution)
-    if accumulated_array.chunksize != chunksize:
-        raise ValueError("ERROR\n{accumulated_array.chunksize=}\n{chunksize=}")
     try:
         accumulated_array.to_zarr(
             f"{zarrurl_new}/0",
@@ -146,7 +118,7 @@ def maximum_intensity_projection(
         overwrite=overwrite,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        chunksize=chunksize,
+        chunksize=(1, 1, chunksize_y, chunksize_x),
     )
 
     return {}
