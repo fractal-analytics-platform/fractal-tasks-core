@@ -557,9 +557,10 @@ def test_workflow_bounding_box(
                 overwrite=False,
             )
 
-    bbox_ROIs = ad.read_zarr(
-        str(zarr_path / metadata["image"][0] / "tables/bbox_table/")
+    bbox_ROIs_table_path = str(
+        zarr_path / metadata["image"][0] / "tables/bbox_table/"
     )
+    bbox_ROIs = ad.read_zarr(bbox_ROIs_table_path)
     debug(bbox_ROIs)
     debug(bbox_ROIs.X)
     debug(bbox_ROIs.obs)
@@ -567,6 +568,13 @@ def test_workflow_bounding_box(
     assert bbox_ROIs.shape == (NUM_LABELS, 6)
     assert len(bbox_ROIs) > 0
     assert np.max(bbox_ROIs.X) == float(416)
+
+    # Add test for fractal-tasks-core issue #560 (some Zarr attributes missing
+    # in the ROI-table group)
+    table_group = zarr.open_group(bbox_ROIs_table_path)
+    debug(table_group.attrs.asdict())
+    assert "encoding-type" in table_group.attrs.asdict().keys()
+    assert "encoding-version" in table_group.attrs.asdict().keys()
 
 
 def test_workflow_bounding_box_with_overlap(
