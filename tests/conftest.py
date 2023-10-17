@@ -16,7 +16,7 @@ def testdata_path() -> Path:
     return TEST_DIR / "data/"
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="session")
 def zenodo_images(testdata_path, capsys):
     """
     Inspired by
