@@ -288,8 +288,8 @@ def write_table(
                     "proposed table specs. "
                     f"Original error: KeyError: {str(e)}"
                 )
-        # Overwrite table_group attributes with table_attrs key/value pairs
-        table_group.attrs.put(table_attrs)
+        # Update table_group attributes with table_attrs key/value pairs
+        table_group.attrs.update(**table_attrs)
 
     return table_group
 
