@@ -2,12 +2,16 @@
 
 # Unreleased
 
-* Make `maximum_intensity_projection` task not depend on ROI tables (\#557).
-* New task and helper functions:
-    * Introduce `import_ome_zarr` task (\#557).
-    * Introduce `get_single_image_ROI` and `get_image_grid_ROIs` (\#557)
-    * Introduce `detect_ome_ngff_type` (\#557).
-* Restrict `Pillow` version to `<10.1` (\#571).
+* Tasks:
+    * Make `maximum_intensity_projection` task not depend on ROI tables (\#557).
+    * New task and helper functions:
+        * Introduce `import_ome_zarr` task (\#557).
+        * Introduce `get_single_image_ROI` and `get_image_grid_ROIs` (\#557)
+        * Introduce `detect_ome_ngff_type` (\#557).
+* Dependencies:
+  * Restrict `Pillow` version to `<10.1` (\#571).
+* Testing:
+    * Align with new Zenodo API (\#568).
 
 # 0.12.2
 
