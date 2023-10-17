@@ -93,7 +93,8 @@ def zenodo_zarr(testdata_path, tmpdir_factory, capsys):
 
     if rootfolder.exists():
         print(f"{str(rootfolder)} already exists, skip")
-        return
+        folders = [str(f) for f in folders]
+        return folders
     else:
 
         import zarr
