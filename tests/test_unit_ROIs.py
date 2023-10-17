@@ -26,6 +26,8 @@ from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROIs_from_3D_to_2D,
 )
 from fractal_tasks_core.lib_regions_of_interest import empty_bounding_box_table
+from fractal_tasks_core.lib_regions_of_interest import get_image_grid_ROIs
+from fractal_tasks_core.lib_regions_of_interest import get_single_image_ROI
 from fractal_tasks_core.lib_regions_of_interest import is_ROI_table_valid
 from fractal_tasks_core.lib_regions_of_interest import (
     is_standard_roi_table,
@@ -35,6 +37,7 @@ from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import reset_origin
 from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
+
 
 PIXEL_SIZE_X = 0.1625
 PIXEL_SIZE_Y = 0.1625
@@ -594,3 +597,85 @@ def test_search_first_ROI(testdata_path: Path):
             full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
         )
         check_valid_ROI_indices(list_indices, "well_ROI_table")
+
+
+def test_get_single_image_ROI():
+    array_shape = (2, 3, 4)
+    pixels_ZYX = (1.0, 0.5, 0.2)
+    ROI = get_single_image_ROI(array_shape, pixels_ZYX)
+    debug(ROI)
+    debug(ROI.X)
+    assert ROI.shape[0] == 1
+    EXPECTED_DATA = np.array(
+        (
+            0,
+            0,
+            0,
+            array_shape[2] * pixels_ZYX[2],
+            array_shape[1] * pixels_ZYX[1],
+            array_shape[0] * pixels_ZYX[0],
+            0.0,
+            0.0,
+        )
+    )
+    assert np.allclose(EXPECTED_DATA, ROI.X)
+
+
+def test_get_image_grid_ROIs():
+    # CASE 1: all ROIs have the same size
+    array_shape = (3, 4, 2)
+    pixels_ZYX = (1.0, 0.5, 0.2)
+    grid_shape_Y = 4
+    grid_shape_X = 2
+    ROI = get_image_grid_ROIs(
+        array_shape,
+        pixels_ZYX,
+        grid_YX_shape=(grid_shape_Y, grid_shape_X),
+    )
+    debug(ROI.X)
+    assert ROI.shape[0] == grid_shape_Y * grid_shape_X  # number of ROIS
+    EXPECTED_DATA = np.array(
+        (
+            0,
+            0,
+            0,
+            array_shape[2] * pixels_ZYX[2] / grid_shape_X,
+            array_shape[1] * pixels_ZYX[1] / grid_shape_Y,
+            array_shape[0] * pixels_ZYX[0],
+            0.0,
+            0.0,
+        )
+    )
+    assert np.allclose(EXPECTED_DATA, ROI.X[0])
+    assert np.allclose(pixels_ZYX[2], ROI.X[:, 3])  # X pixel size
+    assert np.allclose(pixels_ZYX[1], ROI.X[:, 4])  # Y pixel size
+
+    # CASE 2: non-commensurable division
+    array_shape = (3, 10, 10)
+    pixels_ZYX = (1.0, 0.5, 0.2)
+    grid_shape_Y = 1
+    grid_shape_X = 3
+    ROI = get_image_grid_ROIs(
+        array_shape,
+        pixels_ZYX,
+        grid_YX_shape=(grid_shape_Y, grid_shape_X),
+    )
+    debug(ROI.X)
+    assert ROI.shape[0] == grid_shape_Y * grid_shape_X  # number of ROIS
+
+    # Check that sum of len_x is equal to total X size
+    assert np.allclose(ROI.X[:, 3].sum(), array_shape[2] * pixels_ZYX[2])
+    # Check that last ROI ends at total X size
+    assert np.allclose(
+        ROI.X[-1, 3] + ROI.X[-1, 0], array_shape[2] * pixels_ZYX[2]
+    )
+
+    # Check data
+    EXPECTED_DATA = np.array(
+        [
+            [0.0, 0.0, 0.0, 0.8, 5.0, 3.0, 0.0, 0.0],
+            [0.8, 0.0, 0.0, 0.8, 5.0, 3.0, 0.8, 0.0],
+            [1.6, 0.0, 0.0, 0.4, 5.0, 3.0, 1.6, 0.0],
+        ]
+    )
+    assert np.allclose(EXPECTED_DATA, ROI.X)

@@ -24,12 +24,17 @@ def prepare_3D_zarr(
     zarr_path: str,
     zenodo_zarr: list[str],
     zenodo_zarr_metadata: list[dict[str, Any]],
+    remove_tables: bool = False,
 ):
     zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
     metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
     shutil.copytree(
         zenodo_zarr_3D, str(Path(zarr_path) / Path(zenodo_zarr_3D).name)
     )
+    if remove_tables:
+        shutil.rmtree(
+            str(Path(zarr_path) / Path(zenodo_zarr_3D).name / "B/03/0/tables")
+        )
     metadata = metadata_3D.copy()
     return metadata
 

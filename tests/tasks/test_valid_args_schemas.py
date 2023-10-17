@@ -129,7 +129,8 @@ def test_args_schemas_are_up_to_date():
 )
 def test_args_schema_comply_with_jsonschema_specs(jsonschema_validator):
     """
-    FIXME: it is not clear whether this test is actually useful
+    This test is actually useful, see
+    https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/564.
     """
     for ind_task, task in enumerate(TASK_LIST):
         schema = TASK_LIST[ind_task]["args_schema"]
