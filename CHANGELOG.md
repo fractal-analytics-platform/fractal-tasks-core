@@ -11,7 +11,8 @@
     * Make Cellpose task work when `input_ROI_table` is empty (\#566).
     * Fix bug of missing attributes in ROI-table Zarr group (\#573).
 * Dependencies:
-  * Restrict `Pillow` version to `<10.1` (\#571).
+    * Restrict `Pillow` version to `<10.1` (\#571).
+    * Support AnnData `0.10` (\#574).
 * Testing:
     * Align with new Zenodo API (\#568).
 
