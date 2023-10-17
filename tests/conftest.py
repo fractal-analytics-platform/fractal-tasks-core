@@ -16,7 +16,7 @@ def testdata_path() -> Path:
     return TEST_DIR / "data/"
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def zenodo_images(testdata_path, capsys):
     """
     Inspired by
@@ -63,7 +63,7 @@ def zenodo_images(testdata_path, capsys):
     return folder
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def zenodo_images_multiplex(testdata_path, zenodo_images):
     folder = str(testdata_path / "fake_multiplex")
     cycle_folder_1 = str(Path(folder) / "cycle1")
@@ -78,7 +78,7 @@ def zenodo_images_multiplex(testdata_path, zenodo_images):
     return cycle_folders
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def zenodo_zarr(testdata_path, tmpdir_factory, capsys):
     """
     See https://docs.pytest.org/en/7.4.x/how-to/capture-stdout-stderr.html for
@@ -93,6 +93,7 @@ def zenodo_zarr(testdata_path, tmpdir_factory, capsys):
 
     if rootfolder.exists():
         print(f"{str(rootfolder)} already exists, skip")
+        return
     else:
 
         import zarr
@@ -143,7 +144,7 @@ def zenodo_zarr(testdata_path, tmpdir_factory, capsys):
     return folders
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def zenodo_zarr_metadata(testdata_path):
     metadata_3D = {
         "plate": ["plate.zarr"],
