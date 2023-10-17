@@ -58,7 +58,7 @@ def zenodo_images(testdata_path, capsys):
 
     t_end = time.perf_counter()
     with capsys.disabled():
-        print(f"\nTime spent in zenodo_images: {t_end-t_start:.2f} s")
+        print(f"\n    Time spent in zenodo_images: {t_end-t_start:.2f} s")
 
     return folder
 
@@ -139,7 +139,7 @@ def zenodo_zarr(testdata_path, tmpdir_factory, capsys):
 
     t_end = time.perf_counter()
     with capsys.disabled():
-        print(f"\nTime spent in zenodo_zarr: {t_end-t_start:.2f} s")
+        print(f"\n    Time spent in zenodo_zarr: {t_end-t_start:.2f} s")
 
     return folders
 
