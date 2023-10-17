@@ -10,7 +10,8 @@
     * Make `maximum_intensity_projection` task not depend on ROI tables (\#557).
     * Make Cellpose task work when `input_ROI_table` is empty (\#566).
 * Dependencies:
-  * Restrict `Pillow` version to `<10.1` (\#571).
+    * Restrict `Pillow` version to `<10.1` (\#571).
+    * Support AnnData `0.10` (\#574).
 * Testing:
     * Align with new Zenodo API (\#568).
 
