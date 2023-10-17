@@ -1,5 +1,10 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# Unreleased
+
+* Testing:
+    * Align with new Zenodo API (\#568).
+
 # 0.12.2
 
 * Relax `check_valid_ROI_indices` to support search-first scenario (\#555).
