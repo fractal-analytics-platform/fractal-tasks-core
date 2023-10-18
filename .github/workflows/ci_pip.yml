@@ -12,7 +12,7 @@ jobs:
   tests_core:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-22.04, macos-latest]
         python-version: ["3.9", "3.10", "3.11"]
     name: "Core, Python ${{ matrix.python-version }}, ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
