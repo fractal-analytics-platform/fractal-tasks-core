@@ -15,6 +15,7 @@
     * Support AnnData `0.10` (\#574).
 * Testing:
     * Align with new Zenodo API (\#568).
+    * Use ubuntu-22 for GitHub CI (\#576).
 
 # 0.12.2
 
