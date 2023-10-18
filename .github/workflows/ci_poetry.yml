@@ -10,7 +10,7 @@ jobs:
 
   tests_core:
     name: "Core, Python ${{ matrix.python-version }}"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 10
 
     strategy:
@@ -53,7 +53,7 @@ jobs:
 
   tests_tasks:
     name: "Tasks, Python ${{ matrix.python-version }}"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
 
     strategy:
@@ -99,7 +99,7 @@ jobs:
 
   coverage:
     name: Coverage
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: [tests_core, tests_tasks]
     steps:
       - uses: actions/checkout@v4
