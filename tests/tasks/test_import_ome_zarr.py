@@ -1,8 +1,15 @@
-import pytest
+# import pytest
 import zarr
 from devtools import debug
 
+import fractal_tasks_core.tasks  # noqa
 from .._zenodo_ome_zarrs import prepare_3D_zarr
+from .test_workflows_cellpose_segmentation import (
+    cellpose_segmentation,
+)  # FIXME import
+from .test_workflows_cellpose_segmentation import patched_cellpose_core_use_gpu
+from .test_workflows_cellpose_segmentation import patched_segment_ROI
+from fractal_tasks_core.lib_input_models import Channel
 from fractal_tasks_core.tasks.copy_ome_zarr import copy_ome_zarr
 from fractal_tasks_core.tasks.import_ome_zarr import import_ome_zarr
 from fractal_tasks_core.tasks.maximum_intensity_projection import (
@@ -130,8 +137,8 @@ def test_import_ome_zarr_image(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
     _check_ROI_tables(f"{root_path}/{zarr_name}")
 
 
-@pytest.mark.skip
-def test_import_ome_zarr_image_BIA(tmp_path):
+# @pytest.mark.skip
+def test_import_ome_zarr_image_BIA(tmp_path, monkeypatch):
     """
     This test imports one of the BIA OME-Zarr listed in
     https://www.ebi.ac.uk/biostudies/bioimages/studies/S-BIAD843.
@@ -193,3 +200,29 @@ def test_import_ome_zarr_image_BIA(tmp_path):
         image_ROI_table[:, "len_x_micrometer"].X[0, 0],
         EXPECTED_X_LENGTH,
     )
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
+        patched_cellpose_core_use_gpu,
+    )
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
+        patched_segment_ROI,
+    )
+
+    # Per-FOV labeling
+    for component in metadata["image"]:
+        cellpose_segmentation(
+            input_paths=[str(root_path)],
+            output_path=str(root_path),
+            metadata=metadata,
+            component=component,
+            channel=Channel(label="Channel 0"),
+            level=1,
+            relabeling=True,
+            diameter_level0=80.0,
+            augment=True,
+            net_avg=True,
+            min_size=30,
+        )
