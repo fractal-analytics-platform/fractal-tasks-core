@@ -12,6 +12,8 @@
 Helper functions to address channels via OME-NGFF/OMERO metadata.
 """
 import logging
+from copy import deepcopy
+from typing import Any
 from typing import Optional
 from typing import Union
 
@@ -339,3 +341,81 @@ def define_omero_channels(
     ]
 
     return new_channels_dictionaries
+
+
+def _get_new_unique_value(
+    value: str,
+    existing_values: list[str],
+) -> str:
+    """
+    Produce a string value that is not present in a given list
+
+    Append `_1`, `_2`, ... to a given string, if needed, until finding a value
+    which is not already present in `existing_values`.
+
+    Args:
+        value: The first guess for the new value
+        existing_values: The list of existing values
+
+    Returns:
+        A string value which is not present in `existing_values`
+    """
+    counter = 1
+    new_value = value
+    while new_value in existing_values:
+        new_value = f"{value}-{counter}"
+        counter += 1
+    return new_value
+
+
+def update_omero_channels(
+    old_channels: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """
+    Make an existing list of Omero channels Fractal-compatible
+
+    The output channels all have `label` and `wavelength_id` keys, with the
+    `wavelength_id` values being unique across the channel list.
+
+    See https://ngff.openmicroscopy.org/0.4/index.html#omero-md for the
+    definition of NGFF Omero metadata.
+
+    Args:
+        old_channels: Existing list of Omero-channel dictionaries
+
+    Returns:
+        New list of Fractal-compatible Omero-channel dictionaries
+    """
+    new_channels = deepcopy(old_channels)
+    existing_wavelength_ids = []
+
+    # Step 1: handle channels that already have a "label" attribute
+    for ind, old_channel in enumerate(old_channels):
+        if "label" not in old_channel.keys():
+            continue
+        label = old_channel["label"]
+        wavelength_id = _get_new_unique_value(
+            label,
+            existing_wavelength_ids,
+        )
+        existing_wavelength_ids.append(wavelength_id)
+        new_channel = old_channel.copy()
+        new_channel["wavelength_id"] = wavelength_id
+        new_channels[ind] = new_channel
+
+    # Step 2: handle channels that do not have a "label" attribute
+    for ind, old_channel in enumerate(old_channels):
+        if "label" in old_channel.keys():
+            continue
+        label = str(ind + 1)
+        wavelength_id = _get_new_unique_value(
+            label,
+            existing_wavelength_ids,
+        )
+        existing_wavelength_ids.append(wavelength_id)
+        new_channel = old_channel.copy()
+        new_channel["label"] = label
+        new_channel["wavelength_id"] = wavelength_id
+        new_channels[ind] = new_channel
+
+    return new_channels
