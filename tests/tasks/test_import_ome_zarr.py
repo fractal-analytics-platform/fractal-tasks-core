@@ -151,7 +151,44 @@ def test_import_ome_zarr_image(
         assert (
             g.attrs["omero"]["channels"][0]["wavelength_id"]
             == EXPECTED_WAVELENGTH_ID
-        )  # noqa
+        )
+
+
+def test_import_ome_zarr_image_wrong_channels(
+    tmp_path, zenodo_zarr, zenodo_zarr_metadata
+):
+
+    # Prepare an on-disk OME-Zarr at the plate level
+    root_path = tmp_path
+    prepare_3D_zarr(
+        root_path,
+        zenodo_zarr,
+        zenodo_zarr_metadata,
+        remove_tables=True,
+        remove_omero=True,
+    )
+    zarr_name = "plate.zarr/B/03/0"
+
+    # Modify NGFF omero metadata, adding two channels (even if the Zarr array
+    # has only one)
+    g = zarr.open_group(str(root_path / zarr_name), mode="r+")
+    new_omero = dict(
+        channels=[
+            dict(color="asd"),
+            dict(color="asd"),
+        ]
+    )
+    g.attrs.update(omero=new_omero)
+
+    with pytest.raises(ValueError) as e:
+        import_ome_zarr(
+            input_paths=[str(root_path)],
+            zarr_name=zarr_name,
+            output_path="null",
+            metadata={},
+        )
+    debug(e.value)
+    assert "Channels-number mismatch" in str(e.value)
 
 
 @pytest.mark.skip
