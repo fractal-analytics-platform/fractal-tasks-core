@@ -390,6 +390,14 @@ def update_omero_channels(
     existing_wavelength_ids: list[str] = []
     handled_channels = []
 
+    default_colors = ["00FFFF", "FF00FF", "FFFF00"]
+
+    def _get_next_color() -> str:
+        try:
+            return default_colors.pop(0)
+        except IndexError:
+            return "808080"
+
     # Channels that with "wavelength_id"
     for ind, old_channel in enumerate(old_channels):
         if "wavelength_id" in old_channel.keys():
@@ -401,6 +409,8 @@ def update_omero_channels(
             except KeyError:
                 label = str(ind + 1)
             new_channel["label"] = label
+            if "color" not in old_channel:
+                new_channel["color"] = _get_next_color()
             new_channels[ind] = new_channel
 
     # Channels with "label" but without "wavelength_id"
@@ -418,6 +428,8 @@ def update_omero_channels(
         existing_wavelength_ids.append(wavelength_id)
         new_channel = old_channel.copy()
         new_channel["wavelength_id"] = wavelength_id
+        if "color" not in old_channel:
+            new_channel["color"] = _get_next_color()
         new_channels[ind] = new_channel
 
     # Channels without "label" and without "wavelength_id"
@@ -435,16 +447,24 @@ def update_omero_channels(
         new_channel = old_channel.copy()
         new_channel["label"] = label
         new_channel["wavelength_id"] = wavelength_id
+        if "color" not in old_channel:
+            new_channel["color"] = _get_next_color()
         new_channels[ind] = new_channel
 
     # Step 4: log all label/wavelength_id additions
     for ind, old_channel in enumerate(old_channels):
         label = old_channel.get("label")
+        color = old_channel.get("color")
         wavelength_id = old_channel.get("wavelength_id")
-        old_attributes = f"Old attributes: {label=}, {wavelength_id=}"
+        old_attributes = (
+            f"Old attributes: {label=}, {wavelength_id=}, {color=}"
+        )
         label = new_channels[ind]["label"]
         wavelength_id = new_channels[ind]["wavelength_id"]
-        new_attributes = f"New attributes: {label=}, {wavelength_id=}"
+        color = new_channels[ind]["color"]
+        new_attributes = (
+            f"New attributes: {label=}, {wavelength_id=}, {color=}"
+        )
         logging.info(
             "Omero channel update:\n"
             f"    {old_attributes}\n"

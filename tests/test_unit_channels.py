@@ -203,6 +203,8 @@ def test_color_validator():
     "old_channels",
     [
         [{}, {}, {}],
+        [{}, {}, {}, {}],
+        [{}, {}, {}, {}, {}],
         [{"label": "A"}, {"label": "B"}, {"label": "C"}],
         [{"label": "A"}, {}, {"label": "C"}],
         [{"label": "A"}, {"label": "A"}, {"label": "A"}],
@@ -214,6 +216,7 @@ def test_color_validator():
             {},
             {"label": "1", "wavelength_id": "3"},
         ],
+        [{"color": "FFFFFF"}, {}, {}, {}, {}, {}],
     ],
 )
 def test_update_omero_channels(old_channels):
@@ -229,3 +232,16 @@ def test_update_omero_channels(old_channels):
     check_unique_wavelength_ids(
         [OmeroChannel(**channel) for channel in new_channels]
     )
+
+    # Check that colors are as expected
+    old_colors = [channel.get("color") for channel in old_channels]
+    new_colors = [channel["color"] for channel in new_channels]
+    if set(old_colors) == {None}:
+        full_colors_list = ["00FFFF", "FF00FF", "FFFF00"] + ["808080"] * 20
+        EXPECTED_COLORS = full_colors_list[: len(new_colors)]
+        debug(EXPECTED_COLORS)
+        debug(new_channels)
+        # Note: we compare sets, because the list order of `new_colors` depends
+        # on other factors (namely whether each channel has the `wavelength_id`
+        # and/or `label` attributes)
+        assert set(EXPECTED_COLORS) == set(new_colors)
