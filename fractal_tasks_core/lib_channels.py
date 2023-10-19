@@ -394,11 +394,14 @@ def update_omero_channels(
         if "label" not in old_channel.keys():
             continue
         label = old_channel["label"]
-        wavelength_id = _get_new_unique_value(
-            label,
-            existing_wavelength_ids,
-        )
-        existing_wavelength_ids.append(wavelength_id)
+        try:
+            wavelength_id = old_channel["wavelength_id"]
+        except KeyError:
+            wavelength_id = _get_new_unique_value(
+                label,
+                existing_wavelength_ids,
+            )
+            existing_wavelength_ids.append(wavelength_id)
         new_channel = old_channel.copy()
         new_channel["wavelength_id"] = wavelength_id
         new_channels[ind] = new_channel
@@ -408,10 +411,13 @@ def update_omero_channels(
         if "label" in old_channel.keys():
             continue
         label = str(ind + 1)
-        wavelength_id = _get_new_unique_value(
-            label,
-            existing_wavelength_ids,
-        )
+        try:
+            wavelength_id = old_channel["wavelength_id"]
+        except KeyError:
+            wavelength_id = _get_new_unique_value(
+                label,
+                existing_wavelength_ids,
+            )
         existing_wavelength_ids.append(wavelength_id)
         new_channel = old_channel.copy()
         new_channel["label"] = label
