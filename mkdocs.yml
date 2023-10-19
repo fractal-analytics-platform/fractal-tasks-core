@@ -51,6 +51,7 @@ nav:
   - Run tasks in Python scripts: tasks_in_scripts.md
   - Write a custom task: custom_task.md
   - Task manifest: manifest.md
+  - ROI tables: roi_tables.md
   - Code reference: reference/fractal_tasks_core/
   - Development: development.md
   - Changelog: changelog.md
