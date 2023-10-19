@@ -199,6 +199,14 @@ def test_import_ome_zarr_image_BIA(tmp_path, monkeypatch):
         EXPECTED_X_LENGTH,
     )
 
+    g = zarr.open(f"{root_path}/{zarr_name}", mode="r")
+    omero_channels = g.attrs["omero"]["channels"]
+    debug(omero_channels)
+    assert len(omero_channels) == 1
+    omero_channel = omero_channels[0]
+    assert omero_channel["label"] == "Channel 0"
+    assert omero_channel["wavelength_id"] == "Channel 0"
+
     # Part 2: run Cellpose on the imported OME-Zarr.
 
     from fractal_tasks_core.cellpose_segmentation import cellpose_segmentation
