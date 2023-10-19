@@ -117,6 +117,8 @@ def _process_single_image(
                 f"Existing axes ({image_meta.axes_names}) do not "
                 'include "c".'
             )
+        logger.info(f"Existing axes: {image_meta.axes_names}")
+        logger.info(f"Channel-axis index: {channel_axis_index}")
         num_channels_zarr = array.shape[channel_axis_index]
         logger.info(
             f"{num_channels_zarr} channel(s) found in Zarr array "
