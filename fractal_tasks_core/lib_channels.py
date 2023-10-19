@@ -451,7 +451,7 @@ def update_omero_channels(
             new_channel["color"] = _get_next_color()
         new_channels[ind] = new_channel
 
-    # Step 4: log all label/wavelength_id additions
+    # Log old/new values of label, wavelength_id and color
     for ind, old_channel in enumerate(old_channels):
         label = old_channel.get("label")
         color = old_channel.get("color")
