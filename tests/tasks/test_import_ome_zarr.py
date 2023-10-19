@@ -142,7 +142,9 @@ def test_import_ome_zarr_image(
     g = zarr.open_group(str(root_path / zarr_name), mode="r")
     debug(g.attrs["omero"]["channels"])
     if reset_omero:
-        EXPECTED_CHANNELS = [dict(label="1", wavelength_id="1")]
+        EXPECTED_CHANNELS = [
+            dict(label="1", wavelength_id="1", color="00FFFF")
+        ]
         assert g.attrs["omero"]["channels"] == EXPECTED_CHANNELS
     else:
         EXPECTED_LABEL = "DAPI"
