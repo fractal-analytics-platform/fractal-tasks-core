@@ -157,7 +157,6 @@ def test_import_ome_zarr_image(
 def test_import_ome_zarr_image_wrong_channels(
     tmp_path, zenodo_zarr, zenodo_zarr_metadata
 ):
-
     # Prepare an on-disk OME-Zarr at the plate level
     root_path = tmp_path
     prepare_3D_zarr(
@@ -168,7 +167,6 @@ def test_import_ome_zarr_image_wrong_channels(
         remove_omero=True,
     )
     zarr_name = "plate.zarr/B/03/0"
-
     # Modify NGFF omero metadata, adding two channels (even if the Zarr array
     # has only one)
     g = zarr.open_group(str(root_path / zarr_name), mode="r+")
@@ -179,7 +177,7 @@ def test_import_ome_zarr_image_wrong_channels(
         ]
     )
     g.attrs.update(omero=new_omero)
-
+    # Run import_ome_zarr and catch the error
     with pytest.raises(ValueError) as e:
         import_ome_zarr(
             input_paths=[str(root_path)],
