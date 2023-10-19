@@ -23,6 +23,8 @@ from anndata.experimental import write_elem
 from zarr.errors import ContainsGroupError
 from zarr.errors import GroupNotFoundError
 
+from fractal_tasks_core import __ROI_TABLE_VERSION__
+
 
 class OverwriteNotAllowedError(RuntimeError):
     pass
@@ -290,6 +292,9 @@ def write_table(
                 )
         # Update table_group attributes with table_attrs key/value pairs
         table_group.attrs.update(**table_attrs)
+
+    # Always add information about the fractal-roi-table version
+    table_group.attrs.update(fractal_roi_table_version=__ROI_TABLE_VERSION__)
 
     return table_group
 
