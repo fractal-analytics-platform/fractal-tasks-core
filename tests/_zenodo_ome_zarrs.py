@@ -12,11 +12,13 @@ Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
 import json
+import logging
 import shutil
 from pathlib import Path
 from typing import Any
 
 import dask.array as da
+import zarr
 from devtools import debug
 
 
@@ -25,6 +27,7 @@ def prepare_3D_zarr(
     zenodo_zarr: list[str],
     zenodo_zarr_metadata: list[dict[str, Any]],
     remove_tables: bool = False,
+    remove_omero: bool = False,
 ):
     zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
     metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
@@ -35,6 +38,16 @@ def prepare_3D_zarr(
         shutil.rmtree(
             str(Path(zarr_path) / Path(zenodo_zarr_3D).name / "B/03/0/tables")
         )
+        logging.warning("Removing ROI tables attributes from zenodo zarr")
+    if remove_omero:
+        image_group = zarr.open_group(
+            str(Path(zarr_path) / Path(zenodo_zarr_3D).name / "B/03/0"),
+            mode="r+",
+        )
+        image_attrs = image_group.attrs.asdict()
+        image_attrs.pop("omero")
+        image_group.attrs.put(image_attrs)
+        logging.warning("Removing omero attributes from zenodo zarr")
     metadata = metadata_3D.copy()
     return metadata
 
