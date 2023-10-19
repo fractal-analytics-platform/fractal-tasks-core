@@ -387,7 +387,7 @@ def update_omero_channels(
         New list of Fractal-compatible Omero-channel dictionaries
     """
     new_channels = deepcopy(old_channels)
-    existing_wavelength_ids = []
+    existing_wavelength_ids: list[str] = []
 
     # Step 1: handle channels that already have a "label" attribute
     for ind, old_channel in enumerate(old_channels):
@@ -417,5 +417,22 @@ def update_omero_channels(
         new_channel["label"] = label
         new_channel["wavelength_id"] = wavelength_id
         new_channels[ind] = new_channel
+
+    # Step 3: log all label/wavelength_id additions
+    for ind, old_channel in enumerate(old_channels):
+        try:
+            label = old_channel["label"]
+            wavelength_id = new_channels[ind]["wavelength_id"]
+            logging.info(
+                f"Omero channel has {label=}; "
+                f"new attributes: {wavelength_id=}."
+            )
+        except KeyError:
+            label = new_channels[ind]["label"]
+            wavelength_id = new_channels[ind]["wavelength_id"]
+            logging.info(
+                "Omero channel has no label; "
+                f"new attributes: {label=}, {wavelength_id=}."
+            )
 
     return new_channels
