@@ -388,57 +388,67 @@ def update_omero_channels(
     """
     new_channels = deepcopy(old_channels)
     existing_wavelength_ids: list[str] = []
+    handled_channels = []
 
-    # Step 1: handle channels that already have a "label" attribute
+    # Channels that with "wavelength_id"
     for ind, old_channel in enumerate(old_channels):
+        if "wavelength_id" in old_channel.keys():
+            handled_channels.append(ind)
+            existing_wavelength_ids.append(old_channel["wavelength_id"])
+            new_channel = old_channel.copy()
+            try:
+                label = old_channel["label"]
+            except KeyError:
+                label = str(ind + 1)
+            new_channel["label"] = label
+            new_channels[ind] = new_channel
+
+    # Channels with "label" but without "wavelength_id"
+    for ind, old_channel in enumerate(old_channels):
+        if ind in handled_channels:
+            continue
         if "label" not in old_channel.keys():
             continue
+        handled_channels.append(ind)
         label = old_channel["label"]
-        try:
-            wavelength_id = old_channel["wavelength_id"]
-        except KeyError:
-            wavelength_id = _get_new_unique_value(
-                label,
-                existing_wavelength_ids,
-            )
-            existing_wavelength_ids.append(wavelength_id)
+        wavelength_id = _get_new_unique_value(
+            label,
+            existing_wavelength_ids,
+        )
+        existing_wavelength_ids.append(wavelength_id)
         new_channel = old_channel.copy()
         new_channel["wavelength_id"] = wavelength_id
         new_channels[ind] = new_channel
 
-    # Step 2: handle channels that do not have a "label" attribute
+    # Channels without "label" and without "wavelength_id"
+    # NOTE: these channels must be treated last, as they have lower priority
+    # w.r.t. existing "wavelength_id" or "label" values
     for ind, old_channel in enumerate(old_channels):
-        if "label" in old_channel.keys():
+        if ind in handled_channels:
             continue
         label = str(ind + 1)
-        try:
-            wavelength_id = old_channel["wavelength_id"]
-        except KeyError:
-            wavelength_id = _get_new_unique_value(
-                label,
-                existing_wavelength_ids,
-            )
+        wavelength_id = _get_new_unique_value(
+            label,
+            existing_wavelength_ids,
+        )
         existing_wavelength_ids.append(wavelength_id)
         new_channel = old_channel.copy()
         new_channel["label"] = label
         new_channel["wavelength_id"] = wavelength_id
         new_channels[ind] = new_channel
 
-    # Step 3: log all label/wavelength_id additions
+    # Step 4: log all label/wavelength_id additions
     for ind, old_channel in enumerate(old_channels):
-        try:
-            label = old_channel["label"]
-            wavelength_id = new_channels[ind]["wavelength_id"]
-            logging.info(
-                f"Omero channel has {label=}; "
-                f"new attributes: {wavelength_id=}."
-            )
-        except KeyError:
-            label = new_channels[ind]["label"]
-            wavelength_id = new_channels[ind]["wavelength_id"]
-            logging.info(
-                "Omero channel has no label; "
-                f"new attributes: {label=}, {wavelength_id=}."
-            )
+        label = old_channel.get("label")
+        wavelength_id = old_channel.get("wavelength_id")
+        old_attributes = f"Old attributes: {label=}, {wavelength_id=}"
+        label = new_channels[ind]["label"]
+        wavelength_id = new_channels[ind]["wavelength_id"]
+        new_attributes = f"New attributes: {label=}, {wavelength_id=}"
+        logging.info(
+            "Omero channel update:\n"
+            f"    {old_attributes}\n"
+            f"    {new_attributes}"
+        )
 
     return new_channels
