@@ -1,6 +1,6 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# Unreleased
+# 0.13.0
 
 * Tasks:
     * New task and helper functions:
