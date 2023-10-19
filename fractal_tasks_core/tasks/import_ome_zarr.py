@@ -46,7 +46,8 @@ def _process_single_image(
     This task:
 
     1. Validates OME-NGFF image metadata, via `NgffImageMeta`;
-    2. Optionally generates and writes two ROI tables.
+    2. Optionally generates and writes two ROI tables;
+    3. Optionally update OME-NGFF omero metadata.
 
     Args:
         image_path: Absolute path to the image Zarr group.
@@ -107,12 +108,34 @@ def _process_single_image(
 
     # Update Omero-channels metadata
     if update_omero_metadata:
-        if image_meta.omero is None or image_meta.omero.channels == []:
-            # TODO: create omero-channels list from scratch
-            raise NotImplementedError
-        old_channels = [c.dict() for c in image_meta.omero.channels]
+
+        # Extract number of channels from zarr array
+        try:
+            channel_axis_index = image_meta.axes_names.index("c")
+        except ValueError:
+            raise NotImplementedError(
+                f"Existing axes ({image_meta.axes_names}) do not "
+                'include "c".'
+            )
+        num_channels_zarr = array.shape[channel_axis_index]
+        print(num_channels_zarr)
+
+        old_omero = image_group.attrs.get("omero", {})
+        old_channels = old_omero.get("channels", [])
+        if old_channels != []:
+            # Case 1: omero/channels exist
+            if len(old_channels) != num_channels_zarr:
+                error_msg = (
+                    "Channels-number mismatch: Number of channels in the "
+                    f"zarr array ({num_channels_zarr}) differ from number "
+                    "of channels listed in NGFF omero metadata "
+                    f"({len(old_channels)})."
+                )
+                raise ValueError(error_msg)
+        else:
+            # Case 2: omero or omero/channels do not exist
+            old_channels = [{} for ind in range(num_channels_zarr)]
         new_channels = update_omero_channels(old_channels)
-        old_omero = image_group.attrs["omero"]
         new_omero = old_omero.copy()
         new_omero["channels"] = new_channels
         image_group.attrs.update(omero=new_omero)
