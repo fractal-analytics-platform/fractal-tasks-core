@@ -374,8 +374,8 @@ def update_omero_channels(
     """
     Make an existing list of Omero channels Fractal-compatible
 
-    The output channels all have `label` and `wavelength_id` keys, with the
-    `wavelength_id` values being unique across the channel list.
+    The output channels all have keys `label`, `wavelength_id` and `color`;
+    the `wavelength_id` values are unique across the channel list.
 
     See https://ngff.openmicroscopy.org/0.4/index.html#omero-md for the
     definition of NGFF Omero metadata.
