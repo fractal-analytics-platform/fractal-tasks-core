@@ -108,7 +108,6 @@ def _process_single_image(
 
     # Update Omero-channels metadata
     if update_omero_metadata:
-
         # Extract number of channels from zarr array
         try:
             channel_axis_index = image_meta.axes_names.index("c")
