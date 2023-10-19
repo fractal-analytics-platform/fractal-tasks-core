@@ -208,6 +208,12 @@ def test_color_validator():
         [{"label": "A"}, {"label": "A"}, {"label": "A"}],
         [{"label": "1"}, {"label": "1"}, {"label": "1"}],
         [{}, {"label": "1"}, {}, {"label": "1"}],
+        [
+            {"wavelength_id": "1"},
+            {"label": "1"},
+            {},
+            {"label": "1", "wavelength_id": "3"},
+        ],
     ],
 )
 def test_update_omero_channels(old_channels):
