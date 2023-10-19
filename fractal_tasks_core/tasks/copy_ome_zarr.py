@@ -19,7 +19,6 @@ from typing import Sequence
 
 import anndata as ad
 import zarr
-from anndata._io.specs import write_elem
 from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
@@ -28,6 +27,7 @@ from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROIs_from_3D_to_2D,
 )
 from fractal_tasks_core.lib_write import open_zarr_group_with_overwrite
+from fractal_tasks_core.lib_write import write_table
 
 logger = logging.getLogger(__name__)
 
@@ -170,8 +170,6 @@ def copy_ome_zarr(
                 # Extract pixel sizes, if needed
                 if ROI_table_names:
 
-                    new_tables_group = new_image_group.create_group("tables/")
-                    new_tables_group.attrs["tables"] = ROI_table_names
                     if project_to_2D:
                         path_image = f"{zarrurl_old}/{well_path}/{image_path}"
                         ngff_image_meta = load_NgffImageMeta(path_image)
@@ -188,18 +186,18 @@ def copy_ome_zarr(
                             f"{zarrurl_old=}, convert it to 2D, and "
                             "write it back to the new zarr file."
                         )
-                        ROI_table = ad.read_zarr(
+                        new_ROI_table = ad.read_zarr(
                             f"{zarrurl_old}/{well_path}/{image_path}/"
                             f"tables/{ROI_table_name}"
                         )
                         # Convert 3D ROIs to 2D
                         if project_to_2D:
                             new_ROI_table = convert_ROIs_from_3D_to_2D(
-                                ROI_table, pxl_size_z
+                                new_ROI_table, pxl_size_z
                             )
                         # Write new table
-                        write_elem(
-                            new_tables_group, ROI_table_name, new_ROI_table
+                        write_table(
+                            new_image_group, ROI_table_name, new_ROI_table
                         )
 
     for key in ["plate", "well", "image"]:
