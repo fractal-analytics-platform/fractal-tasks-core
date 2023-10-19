@@ -132,7 +132,7 @@ def _process_single_image(
             if len(old_channels) != num_channels_zarr:
                 error_msg = (
                     "Channels-number mismatch: Number of channels in the "
-                    f"zarr array ({num_channels_zarr}) differ from number "
+                    f"zarr array ({num_channels_zarr}) differs from number "
                     "of channels listed in NGFF omero metadata "
                     f"({len(old_channels)})."
                 )
