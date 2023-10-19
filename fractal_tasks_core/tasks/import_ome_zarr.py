@@ -118,11 +118,16 @@ def _process_single_image(
                 'include "c".'
             )
         num_channels_zarr = array.shape[channel_axis_index]
-        print(num_channels_zarr)
-
+        logger.info(
+            f"{num_channels_zarr} channel(s) found in Zarr array "
+            f"at {image_path}/{dataset_subpath}"
+        )
         old_omero = image_group.attrs.get("omero", {})
         old_channels = old_omero.get("channels", [])
-        if old_channels != []:
+        if len(old_channels) > 0:
+            logger.info(
+                f"{len(old_channels)} channel(s) found in NGFF omero metadata"
+            )
             # Case 1: omero/channels exist
             if len(old_channels) != num_channels_zarr:
                 error_msg = (
@@ -131,6 +136,7 @@ def _process_single_image(
                     "of channels listed in NGFF omero metadata "
                     f"({len(old_channels)})."
                 )
+                logging.error(error_msg)
                 raise ValueError(error_msg)
         else:
             # Case 2: omero or omero/channels do not exist
@@ -225,7 +231,7 @@ def import_ome_zarr(
         zarrurls["well"].append(zarr_name)
         logger.warning(
             "Only OME-Zarr for plates are fully supported in Fractal; "
-            "e.g. the current one ({ngff_type=}) cannot be "
+            f"e.g. the current one ({ngff_type=}) cannot be "
             "processed via the `maximum_intensity_projection` task."
         )
         for image in root_group.attrs["well"]["images"]:
@@ -243,7 +249,7 @@ def import_ome_zarr(
         zarrurls["image"].append(zarr_name)
         logger.warning(
             "Only OME-Zarr for plates are fully supported in Fractal; "
-            "e.g. the current one ({ngff_type=}) cannot be "
+            f"e.g. the current one ({ngff_type=}) cannot be "
             "processed via the `maximum_intensity_projection` task."
         )
         _process_single_image(
