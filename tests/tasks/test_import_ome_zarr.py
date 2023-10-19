@@ -1,14 +1,9 @@
-# import pytest
+import pytest
 import zarr
 from devtools import debug
 
 import fractal_tasks_core.tasks  # noqa
 from .._zenodo_ome_zarrs import prepare_3D_zarr
-from .test_workflows_cellpose_segmentation import (
-    cellpose_segmentation,
-)  # FIXME import
-from .test_workflows_cellpose_segmentation import patched_cellpose_core_use_gpu
-from .test_workflows_cellpose_segmentation import patched_segment_ROI
 from fractal_tasks_core.lib_input_models import Channel
 from fractal_tasks_core.tasks.copy_ome_zarr import copy_ome_zarr
 from fractal_tasks_core.tasks.import_ome_zarr import import_ome_zarr
@@ -137,7 +132,7 @@ def test_import_ome_zarr_image(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
     _check_ROI_tables(f"{root_path}/{zarr_name}")
 
 
-# @pytest.mark.skip
+@pytest.mark.skip
 def test_import_ome_zarr_image_BIA(tmp_path, monkeypatch):
     """
     This test imports one of the BIA OME-Zarr listed in
@@ -145,6 +140,9 @@ def test_import_ome_zarr_image_BIA(tmp_path, monkeypatch):
 
     It is currently marked as "skip", to avoid incurring into download-rate
     limits.
+
+    Also note that any further processing of the imported Zarr this will fail
+    because we don't support time data, see fractal-tasks-core issue #169.
     """
 
     from ftplib import FTP
@@ -199,6 +197,14 @@ def test_import_ome_zarr_image_BIA(tmp_path, monkeypatch):
     assert np.allclose(
         image_ROI_table[:, "len_x_micrometer"].X[0, 0],
         EXPECTED_X_LENGTH,
+    )
+
+    # Part 2: run Cellpose on the imported OME-Zarr.
+
+    from fractal_tasks_core.cellpose_segmentation import cellpose_segmentation
+    from .test_workflows_cellpose_segmentation import (
+        patched_cellpose_core_use_gpu,
+        patched_segment_ROI,
     )
 
     monkeypatch.setattr(
