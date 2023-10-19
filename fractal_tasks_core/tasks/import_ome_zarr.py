@@ -123,13 +123,13 @@ def _process_single_image(
             f"{num_channels_zarr} channel(s) found in Zarr array "
             f"at {image_path}/{dataset_subpath}"
         )
+        # Update or create omero channels metadata
         old_omero = image_group.attrs.get("omero", {})
         old_channels = old_omero.get("channels", [])
         if len(old_channels) > 0:
             logger.info(
                 f"{len(old_channels)} channel(s) found in NGFF omero metadata"
             )
-            # Case 1: omero/channels exist
             if len(old_channels) != num_channels_zarr:
                 error_msg = (
                     "Channels-number mismatch: Number of channels in the "
@@ -140,7 +140,6 @@ def _process_single_image(
                 logging.error(error_msg)
                 raise ValueError(error_msg)
         else:
-            # Case 2: omero or omero/channels do not exist
             old_channels = [{} for ind in range(num_channels_zarr)]
         new_channels = update_omero_channels(old_channels)
         new_omero = old_omero.copy()
