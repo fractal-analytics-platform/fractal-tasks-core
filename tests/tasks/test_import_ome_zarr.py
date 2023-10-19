@@ -107,7 +107,11 @@ def test_import_ome_zarr_image(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
     # Prepare an on-disk OME-Zarr at the plate level
     root_path = tmp_path
     prepare_3D_zarr(
-        root_path, zenodo_zarr, zenodo_zarr_metadata, remove_tables=True
+        root_path,
+        zenodo_zarr,
+        zenodo_zarr_metadata,
+        remove_tables=True,
+        remove_omero=True,
     )
     zarr_name = "plate.zarr/B/03/0"
 
@@ -130,6 +134,12 @@ def test_import_ome_zarr_image(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
 
     # Check that table were created
     _check_ROI_tables(f"{root_path}/{zarr_name}")
+
+    # Check that omero attributes were filled correctly
+    g = zarr.open_group(str(root_path / zarr_name), mode="r")
+    debug(g.attrs["omero"]["channels"])
+    EXPECTED_CHANNELS = [dict(label="1", wavelength_id="1")]
+    assert g.attrs["omero"]["channels"] == EXPECTED_CHANNELS
 
 
 @pytest.mark.skip
