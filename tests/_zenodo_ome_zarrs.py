@@ -38,7 +38,7 @@ def prepare_3D_zarr(
         shutil.rmtree(
             str(Path(zarr_path) / Path(zenodo_zarr_3D).name / "B/03/0/tables")
         )
-        logging.warning("Removing ROI tables attributes from zenodo zarr")
+        logging.warning("Removing ROI tables attributes 3D Zenodo zarr")
     if remove_omero:
         image_group = zarr.open_group(
             str(Path(zarr_path) / Path(zenodo_zarr_3D).name / "B/03/0"),
@@ -47,7 +47,7 @@ def prepare_3D_zarr(
         image_attrs = image_group.attrs.asdict()
         image_attrs.pop("omero")
         image_group.attrs.put(image_attrs)
-        logging.warning("Removing omero attributes from zenodo zarr")
+        logging.warning("Removing omero attributes from 3D Zenodo zarr")
     metadata = metadata_3D.copy()
     return metadata
 
