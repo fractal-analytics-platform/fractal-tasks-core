@@ -216,10 +216,11 @@ def test_import_ome_zarr_image_BIA(tmp_path, monkeypatch):
         cellpose_segmentation(
             input_paths=[str(root_path)],
             output_path=str(root_path),
+            input_ROI_table="grid_ROI_table",
             metadata=metadata,
             component=component,
-            channel=Channel(label="Channel 0"),
-            level=1,
+            channel=Channel(wavelength_id="Channel 0"),
+            level=0,
             relabeling=True,
             diameter_level0=80.0,
             augment=True,
