@@ -102,7 +102,10 @@ def test_import_ome_zarr_well(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
     _check_ROI_tables(f"{root_path}/{zarr_name}/0")
 
 
-def test_import_ome_zarr_image(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
+@pytest.mark.parametrize("reset_omero", [True, False])
+def test_import_ome_zarr_image(
+    tmp_path, zenodo_zarr, zenodo_zarr_metadata, reset_omero
+):
 
     # Prepare an on-disk OME-Zarr at the plate level
     root_path = tmp_path
@@ -111,7 +114,7 @@ def test_import_ome_zarr_image(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
         zenodo_zarr,
         zenodo_zarr_metadata,
         remove_tables=True,
-        remove_omero=True,
+        remove_omero=reset_omero,
     )
     zarr_name = "plate.zarr/B/03/0"
 
@@ -138,8 +141,17 @@ def test_import_ome_zarr_image(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
     # Check that omero attributes were filled correctly
     g = zarr.open_group(str(root_path / zarr_name), mode="r")
     debug(g.attrs["omero"]["channels"])
-    EXPECTED_CHANNELS = [dict(label="1", wavelength_id="1")]
-    assert g.attrs["omero"]["channels"] == EXPECTED_CHANNELS
+    if reset_omero:
+        EXPECTED_CHANNELS = [dict(label="1", wavelength_id="1")]
+        assert g.attrs["omero"]["channels"] == EXPECTED_CHANNELS
+    else:
+        EXPECTED_LABEL = "DAPI"
+        EXPECTED_WAVELENGTH_ID = "A01_C01"
+        assert g.attrs["omero"]["channels"][0]["label"] == EXPECTED_LABEL
+        assert (
+            g.attrs["omero"]["channels"][0]["wavelength_id"]
+            == EXPECTED_WAVELENGTH_ID
+        )  # noqa
 
 
 @pytest.mark.skip
