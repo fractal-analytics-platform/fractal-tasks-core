@@ -21,7 +21,7 @@ for RECORD_ID in $LIST_RECORD_ID; do
             echo "FILEPATH: $FILEPATH"
             echo "FILENAME: $FILENAME"
             echo
-            wget $FILE --output-document=${OUTPUT_FOLDER}/${FILENAME}
+            wget --no-verbose $FILE --output-document=${OUTPUT_FOLDER}/${FILENAME}
             echo
         done
     fi
