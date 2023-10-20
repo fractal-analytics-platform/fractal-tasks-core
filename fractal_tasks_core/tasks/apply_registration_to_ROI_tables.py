@@ -152,6 +152,7 @@ def apply_registration_to_ROI_tables(
         logger.info(
             f"Write the registered ROI table {new_roi_table} for {acq=}"
         )
+        # Save the shifted ROI table as a new table
         image_group = zarr.group(f"{well_zarr}/{acq}")
         write_table(
             image_group,
