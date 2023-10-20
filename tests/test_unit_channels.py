@@ -11,6 +11,7 @@ from fractal_tasks_core.lib_channels import check_well_channel_labels
 from fractal_tasks_core.lib_channels import define_omero_channels
 from fractal_tasks_core.lib_channels import get_channel_from_list
 from fractal_tasks_core.lib_channels import OmeroChannel
+from fractal_tasks_core.lib_channels import update_omero_channels
 
 
 def test_check_unique_wavelength_ids():
@@ -196,3 +197,51 @@ def test_color_validator():
     for c in invalid_colors:
         with pytest.raises(ValueError):
             OmeroChannel(wavelength_id="A01_C01", color=c)
+
+
+@pytest.mark.parametrize(
+    "old_channels",
+    [
+        [{}, {}, {}],
+        [{}, {}, {}, {}],
+        [{}, {}, {}, {}, {}],
+        [{"label": "A"}, {"label": "B"}, {"label": "C"}],
+        [{"label": "A"}, {}, {"label": "C"}],
+        [{"label": "A"}, {"label": "A"}, {"label": "A"}],
+        [{"label": "1"}, {"label": "1"}, {"label": "1"}],
+        [{}, {"label": "1"}, {}, {"label": "1"}],
+        [
+            {"wavelength_id": "1"},
+            {"label": "1"},
+            {},
+            {"label": "1", "wavelength_id": "3"},
+        ],
+        [{"color": "FFFFFF"}, {}, {}, {}, {}, {}],
+    ],
+)
+def test_update_omero_channels(old_channels):
+
+    # Update partial metadata
+    print()
+    print(f"OLD: {old_channels}")
+    new_channels = update_omero_channels(old_channels)
+    print(f"NEW: {new_channels}")
+
+    # Validate new channels as `OmeroChannel` objects, and check that they
+    # have unique `wavelength_id` values
+    check_unique_wavelength_ids(
+        [OmeroChannel(**channel) for channel in new_channels]
+    )
+
+    # Check that colors are as expected
+    old_colors = [channel.get("color") for channel in old_channels]
+    new_colors = [channel["color"] for channel in new_channels]
+    if set(old_colors) == {None}:
+        full_colors_list = ["00FFFF", "FF00FF", "FFFF00"] + ["808080"] * 20
+        EXPECTED_COLORS = full_colors_list[: len(new_colors)]
+        debug(EXPECTED_COLORS)
+        debug(new_channels)
+        # Note: we compare sets, because the list order of `new_colors` depends
+        # on other factors (namely whether each channel has the `wavelength_id`
+        # and/or `label` attributes)
+        assert set(EXPECTED_COLORS) == set(new_colors)

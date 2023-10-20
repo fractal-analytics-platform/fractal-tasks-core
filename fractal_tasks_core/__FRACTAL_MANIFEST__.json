@@ -1245,6 +1245,12 @@
             "type": "integer",
             "description": "X shape of the ROI grid in `grid_ROI_table`."
           },
+          "update_omero_metadata": {
+            "title": "Update Omero Metadata",
+            "default": true,
+            "type": "boolean",
+            "description": "Whether to update Omero-channels metadata, to make them Fractal-compatible."
+          },
           "overwrite": {
             "title": "Overwrite",
             "default": false,
