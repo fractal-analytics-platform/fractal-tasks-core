@@ -45,7 +45,6 @@ def zenodo_images(testdata_path):
         for f in files:
             file_url = f["links"]["download"]
             file_name = file_url.split("/")[-2]
-            raise ValueError("We are downloading data from zenodo_images")
             wget.download(file_url, out=f"{folder}/{file_name}", bar=False)
 
     # Add an image with invalid name, that should be skipped during parsing
@@ -98,7 +97,6 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
             zipname = f"{zarrname}.zip"
             url = f"https://zenodo.org/record/8091756/files/{zipname}"
             debug(url)
-            raise ValueError("We are downloading data from zenodo_zarr")
             wget.download(url, out=str(tmp_path / zipname), bar=None)
             time.sleep(0.5)
             shutil.unpack_archive(
