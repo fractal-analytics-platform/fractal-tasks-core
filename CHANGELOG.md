@@ -1,5 +1,10 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# Unreleased
+
+* Testing:
+    * Cache Zenodo data, within GitHub actions (\#585).
+
 # 0.13.0
 
 * Tasks:

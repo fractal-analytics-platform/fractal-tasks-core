@@ -5,6 +5,6 @@ logging.basicConfig(
 )
 
 
-__VERSION__ = "0.12.2"
+__VERSION__ = "0.13.0"
 __OME_NGFF_VERSION__ = "0.4"
 __ROI_TABLE_VERSION__ = "1"
