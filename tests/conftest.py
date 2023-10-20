@@ -22,7 +22,7 @@ def testdata_path() -> Path:
     return TEST_DIR / "data/"
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="session")
 def zenodo_images(testdata_path):
     """
     Inspired by
@@ -59,7 +59,7 @@ def zenodo_images(testdata_path):
     return folder
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="session")
 def zenodo_images_multiplex(testdata_path, zenodo_images):
     folder = str(testdata_path / "fake_multiplex")
     cycle_folder_1 = str(Path(folder) / "cycle1")
@@ -107,6 +107,7 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
 
         # Rename and update OME-Zarr
         for zarrname, folder in zip(zarrnames, folders):
+            shutil.rmtree(str(folder))
             shutil.copytree(str(rootfolder / zarrname), str(folder))
 
             # Update well/FOV ROI tables, by shifting their origin to 0
