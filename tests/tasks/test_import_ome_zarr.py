@@ -2,7 +2,9 @@ import pytest
 import zarr
 from devtools import debug
 
+import fractal_tasks_core.tasks  # noqa
 from .._zenodo_ome_zarrs import prepare_3D_zarr
+from fractal_tasks_core.lib_input_models import Channel
 from fractal_tasks_core.tasks.copy_ome_zarr import copy_ome_zarr
 from fractal_tasks_core.tasks.import_ome_zarr import import_ome_zarr
 from fractal_tasks_core.tasks.maximum_intensity_projection import (
@@ -100,12 +102,19 @@ def test_import_ome_zarr_well(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
     _check_ROI_tables(f"{root_path}/{zarr_name}/0")
 
 
-def test_import_ome_zarr_image(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
+@pytest.mark.parametrize("reset_omero", [True, False])
+def test_import_ome_zarr_image(
+    tmp_path, zenodo_zarr, zenodo_zarr_metadata, reset_omero
+):
 
     # Prepare an on-disk OME-Zarr at the plate level
     root_path = tmp_path
     prepare_3D_zarr(
-        root_path, zenodo_zarr, zenodo_zarr_metadata, remove_tables=True
+        root_path,
+        zenodo_zarr,
+        zenodo_zarr_metadata,
+        remove_tables=True,
+        remove_omero=reset_omero,
     )
     zarr_name = "plate.zarr/B/03/0"
 
@@ -129,15 +138,70 @@ def test_import_ome_zarr_image(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
     # Check that table were created
     _check_ROI_tables(f"{root_path}/{zarr_name}")
 
+    # Check that omero attributes were filled correctly
+    g = zarr.open_group(str(root_path / zarr_name), mode="r")
+    debug(g.attrs["omero"]["channels"])
+    if reset_omero:
+        EXPECTED_CHANNELS = [
+            dict(label="1", wavelength_id="1", color="00FFFF")
+        ]
+        assert g.attrs["omero"]["channels"] == EXPECTED_CHANNELS
+    else:
+        EXPECTED_LABEL = "DAPI"
+        EXPECTED_WAVELENGTH_ID = "A01_C01"
+        assert g.attrs["omero"]["channels"][0]["label"] == EXPECTED_LABEL
+        assert (
+            g.attrs["omero"]["channels"][0]["wavelength_id"]
+            == EXPECTED_WAVELENGTH_ID
+        )
+
+
+def test_import_ome_zarr_image_wrong_channels(
+    tmp_path, zenodo_zarr, zenodo_zarr_metadata
+):
+    # Prepare an on-disk OME-Zarr at the plate level
+    root_path = tmp_path
+    prepare_3D_zarr(
+        root_path,
+        zenodo_zarr,
+        zenodo_zarr_metadata,
+        remove_tables=True,
+        remove_omero=True,
+    )
+    zarr_name = "plate.zarr/B/03/0"
+    # Modify NGFF omero metadata, adding two channels (even if the Zarr array
+    # has only one)
+    g = zarr.open_group(str(root_path / zarr_name), mode="r+")
+    new_omero = dict(
+        channels=[
+            dict(color="asd"),
+            dict(color="asd"),
+        ]
+    )
+    g.attrs.update(omero=new_omero)
+    # Run import_ome_zarr and catch the error
+    with pytest.raises(ValueError) as e:
+        import_ome_zarr(
+            input_paths=[str(root_path)],
+            zarr_name=zarr_name,
+            output_path="null",
+            metadata={},
+        )
+    debug(e.value)
+    assert "Channels-number mismatch" in str(e.value)
+
 
 @pytest.mark.skip
-def test_import_ome_zarr_image_BIA(tmp_path):
+def test_import_ome_zarr_image_BIA(tmp_path, monkeypatch):
     """
     This test imports one of the BIA OME-Zarr listed in
     https://www.ebi.ac.uk/biostudies/bioimages/studies/S-BIAD843.
 
     It is currently marked as "skip", to avoid incurring into download-rate
     limits.
+
+    Also note that any further processing of the imported Zarr this will fail
+    because we don't support time data, see fractal-tasks-core issue #169.
     """
 
     from ftplib import FTP
@@ -193,3 +257,46 @@ def test_import_ome_zarr_image_BIA(tmp_path):
         image_ROI_table[:, "len_x_micrometer"].X[0, 0],
         EXPECTED_X_LENGTH,
     )
+
+    g = zarr.open(f"{root_path}/{zarr_name}", mode="r")
+    omero_channels = g.attrs["omero"]["channels"]
+    debug(omero_channels)
+    assert len(omero_channels) == 1
+    omero_channel = omero_channels[0]
+    assert omero_channel["label"] == "Channel 0"
+    assert omero_channel["wavelength_id"] == "Channel 0"
+
+    # Part 2: run Cellpose on the imported OME-Zarr.
+
+    from fractal_tasks_core.cellpose_segmentation import cellpose_segmentation
+    from .test_workflows_cellpose_segmentation import (
+        patched_cellpose_core_use_gpu,
+        patched_segment_ROI,
+    )
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
+        patched_cellpose_core_use_gpu,
+    )
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
+        patched_segment_ROI,
+    )
+
+    # Per-FOV labeling
+    for component in metadata["image"]:
+        cellpose_segmentation(
+            input_paths=[str(root_path)],
+            output_path=str(root_path),
+            input_ROI_table="grid_ROI_table",
+            metadata=metadata,
+            component=component,
+            channel=Channel(wavelength_id="Channel 0"),
+            level=0,
+            relabeling=True,
+            diameter_level0=80.0,
+            augment=True,
+            net_avg=True,
+            min_size=30,
+        )

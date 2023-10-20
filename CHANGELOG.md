@@ -1,13 +1,14 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# Unreleased
+# 0.13.0
 
 * Tasks:
     * New task and helper functions:
-        * Introduce `import_ome_zarr` task (\#557).
+        * Introduce `import_ome_zarr` task (\#557, \#579).
         * Introduce `get_single_image_ROI` and `get_image_grid_ROIs` (\#557).
         * Introduce `detect_ome_ngff_type` (\#557).
-    * Make `maximum_intensity_projection` task not depend on ROI tables (\#557).
+        * Introduce `update_omero_channels` (\#579).
+    * Make `maximum_intensity_projection` independent from ROI tables (\#557).
     * Make Cellpose task work when `input_ROI_table` is empty (\#566).
     * Fix bug of missing attributes in ROI-table Zarr group (\#573).
 * Dependencies:

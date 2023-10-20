@@ -12,6 +12,8 @@
 Helper functions to address channels via OME-NGFF/OMERO metadata.
 """
 import logging
+from copy import deepcopy
+from typing import Any
 from typing import Optional
 from typing import Union
 
@@ -339,3 +341,135 @@ def define_omero_channels(
     ]
 
     return new_channels_dictionaries
+
+
+def _get_new_unique_value(
+    value: str,
+    existing_values: list[str],
+) -> str:
+    """
+    Produce a string value that is not present in a given list
+
+    Append `_1`, `_2`, ... to a given string, if needed, until finding a value
+    which is not already present in `existing_values`.
+
+    Args:
+        value: The first guess for the new value
+        existing_values: The list of existing values
+
+    Returns:
+        A string value which is not present in `existing_values`
+    """
+    counter = 1
+    new_value = value
+    while new_value in existing_values:
+        new_value = f"{value}-{counter}"
+        counter += 1
+    return new_value
+
+
+def update_omero_channels(
+    old_channels: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """
+    Make an existing list of Omero channels Fractal-compatible
+
+    The output channels all have keys `label`, `wavelength_id` and `color`;
+    the `wavelength_id` values are unique across the channel list.
+
+    See https://ngff.openmicroscopy.org/0.4/index.html#omero-md for the
+    definition of NGFF Omero metadata.
+
+    Args:
+        old_channels: Existing list of Omero-channel dictionaries
+
+    Returns:
+        New list of Fractal-compatible Omero-channel dictionaries
+    """
+    new_channels = deepcopy(old_channels)
+    existing_wavelength_ids: list[str] = []
+    handled_channels = []
+
+    default_colors = ["00FFFF", "FF00FF", "FFFF00"]
+
+    def _get_next_color() -> str:
+        try:
+            return default_colors.pop(0)
+        except IndexError:
+            return "808080"
+
+    # Channels that contain the key "wavelength_id"
+    for ind, old_channel in enumerate(old_channels):
+        if "wavelength_id" in old_channel.keys():
+            handled_channels.append(ind)
+            existing_wavelength_ids.append(old_channel["wavelength_id"])
+            new_channel = old_channel.copy()
+            try:
+                label = old_channel["label"]
+            except KeyError:
+                label = str(ind + 1)
+            new_channel["label"] = label
+            if "color" not in old_channel:
+                new_channel["color"] = _get_next_color()
+            new_channels[ind] = new_channel
+
+    # Channels that contain the key "label" but do not contain the key
+    # "wavelength_id"
+    for ind, old_channel in enumerate(old_channels):
+        if ind in handled_channels:
+            continue
+        if "label" not in old_channel.keys():
+            continue
+        handled_channels.append(ind)
+        label = old_channel["label"]
+        wavelength_id = _get_new_unique_value(
+            label,
+            existing_wavelength_ids,
+        )
+        existing_wavelength_ids.append(wavelength_id)
+        new_channel = old_channel.copy()
+        new_channel["wavelength_id"] = wavelength_id
+        if "color" not in old_channel:
+            new_channel["color"] = _get_next_color()
+        new_channels[ind] = new_channel
+
+    # Channels that do not contain the key "label" nor the key "wavelength_id"
+    # NOTE: these channels must be treated last, as they have lower priority
+    # w.r.t. existing "wavelength_id" or "label" values
+    for ind, old_channel in enumerate(old_channels):
+        if ind in handled_channels:
+            continue
+        label = str(ind + 1)
+        wavelength_id = _get_new_unique_value(
+            label,
+            existing_wavelength_ids,
+        )
+        existing_wavelength_ids.append(wavelength_id)
+        new_channel = old_channel.copy()
+        new_channel["label"] = label
+        new_channel["wavelength_id"] = wavelength_id
+        if "color" not in old_channel:
+            new_channel["color"] = _get_next_color()
+        new_channels[ind] = new_channel
+
+    # Log old/new values of label, wavelength_id and color
+    for ind, old_channel in enumerate(old_channels):
+        label = old_channel.get("label")
+        color = old_channel.get("color")
+        wavelength_id = old_channel.get("wavelength_id")
+        old_attributes = (
+            f"Old attributes: {label=}, {wavelength_id=}, {color=}"
+        )
+        label = new_channels[ind]["label"]
+        wavelength_id = new_channels[ind]["wavelength_id"]
+        color = new_channels[ind]["color"]
+        new_attributes = (
+            f"New attributes: {label=}, {wavelength_id=}, {color=}"
+        )
+        logging.info(
+            "Omero channel update:\n"
+            f"    {old_attributes}\n"
+            f"    {new_attributes}"
+        )
+
+    return new_channels
