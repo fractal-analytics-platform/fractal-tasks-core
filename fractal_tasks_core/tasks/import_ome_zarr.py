@@ -21,6 +21,7 @@ import dask.array as da
 import zarr
 from pydantic.decorator import validate_arguments
 
+from fractal_tasks_core.lib_channels import update_omero_channels
 from fractal_tasks_core.lib_ngff import detect_ome_ngff_type
 from fractal_tasks_core.lib_ngff import NgffImageMeta
 from fractal_tasks_core.lib_regions_of_interest import get_image_grid_ROIs
@@ -34,6 +35,8 @@ def _process_single_image(
     image_path: str,
     add_image_ROI_table: bool,
     add_grid_ROI_table: bool,
+    update_omero_metadata: bool,
+    *,
     grid_YX_shape: Optional[tuple[int, int]] = None,
     overwrite: bool = False,
 ) -> None:
@@ -43,7 +46,8 @@ def _process_single_image(
     This task:
 
     1. Validates OME-NGFF image metadata, via `NgffImageMeta`;
-    2. Optionally generates and writes two ROI tables.
+    2. Optionally generates and writes two ROI tables;
+    3. Optionally update OME-NGFF omero metadata.
 
     Args:
         image_path: Absolute path to the image Zarr group.
@@ -51,6 +55,8 @@ def _process_single_image(
             (argument propagated from `import_ome_zarr`).
         add_grid_ROI_table: Whether to add a `grid_ROI_table` table (argument
             propagated from `import_ome_zarr`).
+        update_omero_metadata: Whether to update Omero-channels metadata
+            (argument propagated from `import_ome_zarr`).
         grid_YX_shape: YX shape of the ROI grid (it must be not `None`, if
             `add_grid_ROI_table=True`.
     """
@@ -100,6 +106,51 @@ def _process_single_image(
             logger=logger,
         )
 
+    # Update Omero-channels metadata
+    if update_omero_metadata:
+        # Extract number of channels from zarr array
+        try:
+            channel_axis_index = image_meta.axes_names.index("c")
+        except ValueError:
+            logger.error(f"Existing axes: {image_meta.axes_names}")
+            msg = (
+                "OME-Zarrs with no channel axis are not currently "
+                "supported in fractal-tasks-core. Upcoming flexibility "
+                "improvements are tracked in https://github.com/"
+                "fractal-analytics-platform/fractal-tasks-core/issues/150."
+            )
+            logger.error(msg)
+            raise NotImplementedError(msg)
+        logger.info(f"Existing axes: {image_meta.axes_names}")
+        logger.info(f"Channel-axis index: {channel_axis_index}")
+        num_channels_zarr = array.shape[channel_axis_index]
+        logger.info(
+            f"{num_channels_zarr} channel(s) found in Zarr array "
+            f"at {image_path}/{dataset_subpath}"
+        )
+        # Update or create omero channels metadata
+        old_omero = image_group.attrs.get("omero", {})
+        old_channels = old_omero.get("channels", [])
+        if len(old_channels) > 0:
+            logger.info(
+                f"{len(old_channels)} channel(s) found in NGFF omero metadata"
+            )
+            if len(old_channels) != num_channels_zarr:
+                error_msg = (
+                    "Channels-number mismatch: Number of channels in the "
+                    f"zarr array ({num_channels_zarr}) differs from number "
+                    "of channels listed in NGFF omero metadata "
+                    f"({len(old_channels)})."
+                )
+                logging.error(error_msg)
+                raise ValueError(error_msg)
+        else:
+            old_channels = [{} for ind in range(num_channels_zarr)]
+        new_channels = update_omero_channels(old_channels)
+        new_omero = old_omero.copy()
+        new_omero["channels"] = new_channels
+        image_group.attrs.update(omero=new_omero)
+
 
 @validate_arguments
 def import_ome_zarr(
@@ -112,6 +163,7 @@ def import_ome_zarr(
     add_grid_ROI_table: bool = True,
     grid_y_shape: int = 2,
     grid_x_shape: int = 2,
+    update_omero_metadata: bool = True,
     overwrite: bool = False,
 ) -> dict[str, Any]:
     """
@@ -141,6 +193,8 @@ def import_ome_zarr(
             image, with the image split into a rectangular grid of ROIs.
         grid_y_shape: Y shape of the ROI grid in `grid_ROI_table`.
         grid_x_shape: X shape of the ROI grid in `grid_ROI_table`.
+        update_omero_metadata: Whether to update Omero-channels metadata, to
+            make them Fractal-compatible.
         overwrite: Whether new ROI tables (added when `add_image_ROI_table`
             and/or `add_grid_ROI_table` are `True`) can overwite existing ones.
     """
@@ -174,14 +228,15 @@ def import_ome_zarr(
                     f"{zarr_path}/{well_path}/{image_path}",
                     add_image_ROI_table,
                     add_grid_ROI_table,
-                    grid_YX_shape,
+                    update_omero_metadata,
+                    grid_YX_shape=grid_YX_shape,
                     overwrite=overwrite,
                 )
     elif ngff_type == "well":
         zarrurls["well"].append(zarr_name)
         logger.warning(
             "Only OME-Zarr for plates are fully supported in Fractal; "
-            "e.g. the current one ({ngff_type=}) cannot be "
+            f"e.g. the current one ({ngff_type=}) cannot be "
             "processed via the `maximum_intensity_projection` task."
         )
         for image in root_group.attrs["well"]["images"]:
@@ -191,21 +246,23 @@ def import_ome_zarr(
                 f"{zarr_path}/{image_path}",
                 add_image_ROI_table,
                 add_grid_ROI_table,
-                grid_YX_shape,
+                update_omero_metadata,
+                grid_YX_shape=grid_YX_shape,
                 overwrite=overwrite,
             )
     elif ngff_type == "image":
         zarrurls["image"].append(zarr_name)
         logger.warning(
             "Only OME-Zarr for plates are fully supported in Fractal; "
-            "e.g. the current one ({ngff_type=}) cannot be "
+            f"e.g. the current one ({ngff_type=}) cannot be "
             "processed via the `maximum_intensity_projection` task."
         )
         _process_single_image(
             zarr_path,
             add_image_ROI_table,
             add_grid_ROI_table,
-            grid_YX_shape,
+            update_omero_metadata,
+            grid_YX_shape=grid_YX_shape,
             overwrite=overwrite,
         )
 
