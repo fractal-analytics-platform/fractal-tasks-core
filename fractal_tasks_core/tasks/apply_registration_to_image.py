@@ -24,7 +24,6 @@ import anndata as ad
 import dask.array as da
 import numpy as np
 import zarr
-from anndata._io.specs import write_elem
 from pydantic.decorator import validate_arguments
 
 from fractal_tasks_core.lib_ngff import load_NgffImageMeta
@@ -37,6 +36,7 @@ from fractal_tasks_core.lib_regions_of_interest import (
 )
 from fractal_tasks_core.lib_regions_of_interest import is_standard_roi_table
 from fractal_tasks_core.lib_regions_of_interest import load_region
+from fractal_tasks_core.lib_write import write_table
 from fractal_tasks_core.lib_zattrs_utils import get_table_path_dict
 
 logger = logging.getLogger(__name__)
@@ -203,14 +203,10 @@ def apply_registration_to_image(
 
     if table_dict:
         logger.info(f"Processing the tables: {table_dict}")
-        new_tables_group = zarr.group(f"{input_path / new_component}/tables")
-        new_tables_group.attrs["tables"] = list(table_dict.keys())
+        new_image_group = zarr.group(f"{input_path / new_component}")
 
         for table in table_dict.keys():
             logger.info(f"Copying table: {table}")
-            # Write the Zarr table
-            curr_table = ad.read_zarr(table_dict[table])
-            write_elem(new_tables_group, table, curr_table)
             # Get the relevant metadata of the Zarr table & add it
             # See issue #516 for the need for this workaround
             try:
@@ -218,10 +214,14 @@ def apply_registration_to_image(
             except zarr.errors.GroupNotFoundError:
                 time.sleep(5)
                 old_table_group = zarr.open_group(table_dict[table], mode="r")
-            new_table_group = zarr.open_group(
-                f"{input_path / new_component}/tables/{table}"
+            # Write the Zarr table
+            curr_table = ad.read_zarr(table_dict[table])
+            write_table(
+                new_image_group,
+                table,
+                curr_table,
+                table_attrs=old_table_group.attrs.asdict(),
             )
-            new_table_group.attrs.put(old_table_group.attrs.asdict())
 
     ####################
     # Clean up Zarr file
