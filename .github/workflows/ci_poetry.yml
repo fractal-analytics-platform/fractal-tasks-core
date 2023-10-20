@@ -43,7 +43,7 @@ jobs:
         run: poetry install --with dev --without docs --no-interaction
 
       - name: Download Zenodo data
-        uses: ./.github/workflows/download_zenodo_data.yml
+        run: bash tests/data/download_zenodo_data.sh
 
       - name: Test core library with pytest
         run: poetry run coverage run -m pytest tests --ignore tests/tasks
