@@ -112,10 +112,15 @@ def _process_single_image(
         try:
             channel_axis_index = image_meta.axes_names.index("c")
         except ValueError:
-            raise NotImplementedError(
-                f"Existing axes ({image_meta.axes_names}) do not "
-                'include "c".'
+            logger.error(f"Existing axes: {image_meta.axes_names}")
+            msg = (
+                "OME-Zarrs with no channel axis are not currently "
+                "supported in fractal-tasks-core. Upcoming flexibility "
+                "improvements are tracked in https://github.com/"
+                "fractal-analytics-platform/fractal-tasks-core/issues/150."
             )
+            logger.error(msg)
+            raise NotImplementedError(msg)
         logger.info(f"Existing axes: {image_meta.axes_names}")
         logger.info(f"Channel-axis index: {channel_axis_index}")
         num_channels_zarr = array.shape[channel_axis_index]

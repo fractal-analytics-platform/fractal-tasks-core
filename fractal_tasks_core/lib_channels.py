@@ -398,7 +398,7 @@ def update_omero_channels(
         except IndexError:
             return "808080"
 
-    # Channels that with "wavelength_id"
+    # Channels that contain the key "wavelength_id"
     for ind, old_channel in enumerate(old_channels):
         if "wavelength_id" in old_channel.keys():
             handled_channels.append(ind)
@@ -413,7 +413,8 @@ def update_omero_channels(
                 new_channel["color"] = _get_next_color()
             new_channels[ind] = new_channel
 
-    # Channels with "label" but without "wavelength_id"
+    # Channels that contain the key "label" but do not contain the key
+    # "wavelength_id"
     for ind, old_channel in enumerate(old_channels):
         if ind in handled_channels:
             continue
@@ -432,7 +433,7 @@ def update_omero_channels(
             new_channel["color"] = _get_next_color()
         new_channels[ind] = new_channel
 
-    # Channels without "label" and without "wavelength_id"
+    # Channels that do not contain the key "label" nor the key "wavelength_id"
     # NOTE: these channels must be treated last, as they have lower priority
     # w.r.t. existing "wavelength_id" or "label" values
     for ind, old_channel in enumerate(old_channels):
