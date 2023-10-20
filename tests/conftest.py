@@ -82,6 +82,10 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
     rootfolder = testdata_path / (doi.replace(".", "_").replace("/", "_"))
     platenames = ["plate.zarr", "plate_mip.zarr"]
     folders = [rootfolder / plate for plate in platenames]
+    zarrnames = [
+        "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
+        "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr",
+    ]
 
     # Download dataset
     if rootfolder.exists():
@@ -89,10 +93,6 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
     else:
         rootfolder.mkdir()
         tmp_path = tmpdir_factory.mktemp("zenodo_zarr")
-        zarrnames = [
-            "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
-            "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr",
-        ]
         for zarrname in zarrnames:
             zipname = f"{zarrname}.zip"
             url = f"https://zenodo.org/record/8091756/files/{zipname}"
@@ -105,27 +105,29 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
                 format="zip",
             )
 
-        # Rename and update OME-Zarr
-        for zarrname, folder in zip(zarrnames, folders):
+    # Based on the Zenodo OME-Zarrs, create the appropriate OME-Zarrs to be
+    # used in tests
+    for zarrname, folder in zip(zarrnames, folders):
+        if os.path.isdir(str(folder)):
             shutil.rmtree(str(folder))
-            shutil.copytree(str(rootfolder / zarrname), str(folder))
+        shutil.copytree(str(rootfolder / zarrname), str(folder))
 
-            # Update well/FOV ROI tables, by shifting their origin to 0
-            # TODO: remove this fix, by uploading new zarrs to zenodo (ref
-            # issue 526)
-            image_group_path = folder / "B/03/0"
-            group_image = zarr.open_group(str(image_group_path))
-            for table_name in ["FOV_ROI_table", "well_ROI_table"]:
-                table_path = str(image_group_path / "tables" / table_name)
-                old_table = ad.read_zarr(table_path)
-                new_table = reset_origin(old_table)
-                write_table(
-                    group_image,
-                    table_name,
-                    new_table,
-                    overwrite=True,
-                    logger=logging.getLogger(),
-                )
+        # Update well/FOV ROI tables, by shifting their origin to 0
+        # TODO: remove this fix, by uploading new zarrs to zenodo (ref
+        # issue 526)
+        image_group_path = folder / "B/03/0"
+        group_image = zarr.open_group(str(image_group_path))
+        for table_name in ["FOV_ROI_table", "well_ROI_table"]:
+            table_path = str(image_group_path / "tables" / table_name)
+            old_table = ad.read_zarr(table_path)
+            new_table = reset_origin(old_table)
+            write_table(
+                group_image,
+                table_name,
+                new_table,
+                overwrite=True,
+                logger=logging.getLogger(),
+            )
 
     folders = [str(f) for f in folders]
 
