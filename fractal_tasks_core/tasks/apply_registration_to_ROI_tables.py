@@ -22,13 +22,13 @@ import anndata as ad
 import numpy as np
 import pandas as pd
 import zarr
-from anndata._io.specs import write_elem
 from pydantic.decorator import validate_arguments
 
 from fractal_tasks_core.lib_ngff import load_NgffWellMeta
 from fractal_tasks_core.lib_regions_of_interest import (
     are_ROI_table_columns_valid,
 )
+from fractal_tasks_core.lib_write import write_table
 
 logger = logging.getLogger(__name__)
 
@@ -152,15 +152,14 @@ def apply_registration_to_ROI_tables(
         logger.info(
             f"Write the registered ROI table {new_roi_table} for {acq=}"
         )
-        # TODO rewrite this block through `write_table` (ref PR #499)
-        # Save the shifted ROI tables as a new tables per acquisition
-        group_tables = zarr.group(f"{well_zarr}/{acq}/tables/")
-        write_elem(group_tables, new_roi_table, shifted_rois[acq])
-        # Update list of available tables & its metadata
-        current_tables = group_tables.attrs.asdict().get("tables") or []
-        new_tables = current_tables + [new_roi_table]
-        group_tables.attrs["tables"] = new_tables
-        group_tables[roi_table].attrs["type"] = "ngff:region_table"
+        # Save the shifted ROI table as a new table
+        image_group = zarr.group(f"{well_zarr}/{acq}")
+        write_table(
+            image_group,
+            new_roi_table,
+            shifted_rois[acq],
+            table_attrs=dict(type="ngff:region_table"),
+        )
 
     # TODO: Optionally apply registration to other tables as well?
     # e.g. to well_ROI_table based on FOV_ROI_table

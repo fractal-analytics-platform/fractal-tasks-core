@@ -2,6 +2,7 @@
 
 # Unreleased
 
+* Always use `write_table` in tasks, rather than AnnData `write_elem` (\#581).
 * Testing:
     * Cache Zenodo data, within GitHub actions (\#585).
 
