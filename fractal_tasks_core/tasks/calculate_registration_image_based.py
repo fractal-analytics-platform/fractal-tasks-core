@@ -22,7 +22,6 @@ import dask.array as da
 import numpy as np
 import pandas as pd
 import zarr
-from anndata._io.specs import write_elem
 from pydantic.decorator import validate_arguments
 from skimage.registration import phase_cross_correlation
 
@@ -37,6 +36,7 @@ from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
 from fractal_tasks_core.lib_regions_of_interest import load_region
+from fractal_tasks_core.lib_write import write_table
 
 logger = logging.getLogger(__name__)
 
@@ -252,10 +252,15 @@ def calculate_registration_image_based(
 
     # Write physical shifts to disk (as part of the ROI table)
     logger.info(f"Updating the {roi_table=} with translation columns")
+    image_group = zarr.group(zarr_img_cycle_x)
     new_ROI_table = get_ROI_table_with_translation(ROI_table_x, new_shifts)
-    group_tables = zarr.group(f"{zarr_img_cycle_x}/tables/")
-    write_elem(group_tables, roi_table, new_ROI_table)
-    group_tables[roi_table].attrs["type"] = "ngff:region_table"
+    write_table(
+        image_group,
+        roi_table,
+        new_ROI_table,
+        overwrite=True,
+        table_attrs=dict(type="ngff:region_table"),
+    )
 
     return {}
 
