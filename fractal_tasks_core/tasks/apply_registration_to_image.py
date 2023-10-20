@@ -207,9 +207,6 @@ def apply_registration_to_image(
 
         for table in table_dict.keys():
             logger.info(f"Copying table: {table}")
-            # Write the Zarr table
-            curr_table = ad.read_zarr(table_dict[table])
-            write_table(new_image_group, table, curr_table)
             # Get the relevant metadata of the Zarr table & add it
             # See issue #516 for the need for this workaround
             try:
@@ -217,10 +214,14 @@ def apply_registration_to_image(
             except zarr.errors.GroupNotFoundError:
                 time.sleep(5)
                 old_table_group = zarr.open_group(table_dict[table], mode="r")
-            new_table_group = zarr.open_group(
-                f"{input_path / new_component}/tables/{table}"
+            # Write the Zarr table
+            curr_table = ad.read_zarr(table_dict[table])
+            write_table(
+                new_image_group,
+                table,
+                curr_table,
+                table_attrs=old_table_group.attrs.asdict(),
             )
-            new_table_group.attrs.put(old_table_group.attrs.asdict())
 
     ####################
     # Clean up Zarr file
