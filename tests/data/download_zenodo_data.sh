@@ -1,6 +1,7 @@
 #!/bin/bash
 
 LIST_RECORD_ID="7059515 8091756"
+LIST_RECORD_ID="7059515 8091756"
 
 for RECORD_ID in $LIST_RECORD_ID; do
     echo "****************************"

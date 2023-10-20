@@ -1,13 +1,19 @@
 import json
+import logging
 import os
 import shutil
 import time
 from pathlib import Path
-from urllib.parse import unquote
 
+import anndata as ad
 import pytest
 import requests  # type: ignore
 import wget
+import zarr
+from devtools import debug
+
+from fractal_tasks_core.lib_regions_of_interest import reset_origin
+from fractal_tasks_core.lib_write import write_table
 
 
 @pytest.fixture(scope="session")
@@ -17,48 +23,38 @@ def testdata_path() -> Path:
 
 
 @pytest.fixture(scope="function")
-def zenodo_images(testdata_path, capsys):
+def zenodo_images(testdata_path):
     """
     Inspired by
     https://github.com/dvolgyes/zenodo_get/blob/master/zenodo_get/zget.py
-
-    See https://docs.pytest.org/en/7.4.x/how-to/capture-stdout-stderr.html for
-    the use of capsys
     """
-
     t_start = time.perf_counter()
 
-    url = "10.5281/zenodo.7059515"
-    folder = str(testdata_path / (url.replace(".", "_").replace("/", "_")))
+    # Download images and metadata files
+    recordID = "7059515"
+    url = "10_5281_zenodo_7059515"
+    folder = str(testdata_path / f"10_5281_zenodo_{recordID}")
     if os.path.isdir(folder):
-        print(f"{folder} already exists, skip")
-        return folder
-    os.makedirs(folder)
-    url = "https://doi.org/" + url
-    print(f"I will download {url} files to {folder}")
-
-    r = requests.get(url)
-    recordID = r.url.split("/")[-1]
-    url = "https://zenodo.org/api/records/"
-    r = requests.get(url + recordID)
-
-    js = json.loads(r.text)
-    files = js["files"]
-    for f in files:
-        fname = f["filename"]
-        link = f"https://zenodo.org/record/{recordID}/files/{fname}"
-        print(link)
-        link = unquote(link)
-        wget.download(link, out=folder)
-        print()
+        print(f"{folder} already exists, skip download")
+    else:
+        os.makedirs(folder)
+        url = f"https://zenodo.org/api/records/{recordID}"
+        r = requests.get(url)
+        js = json.loads(r.text)
+        files = js["files"]
+        for f in files:
+            file_url = f["links"]["download"]
+            file_name = file_url.split("/")[-2]
+            wget.download(file_url, out=f"{folder}/{file_name}", bar=False)
 
     # Add an image with invalid name, that should be skipped during parsing
     with open(f"{folder}/invalid_path.png", "w") as f:
         f.write("This file has an invalid filename, which cannot be parsed.")
 
     t_end = time.perf_counter()
-    with capsys.disabled():
-        print(f"\n    Time spent in zenodo_images: {t_end-t_start:.2f} s")
+    logging.warning(
+        f"\n    Time spent in zenodo_images: {t_end-t_start:.2f} s"
+    )
 
     return folder
 
@@ -78,12 +74,8 @@ def zenodo_images_multiplex(testdata_path, zenodo_images):
     return cycle_folders
 
 
-@pytest.fixture(scope="function")
-def zenodo_zarr(testdata_path, tmpdir_factory, capsys):
-    """
-    See https://docs.pytest.org/en/7.4.x/how-to/capture-stdout-stderr.html for
-    the use of capsys
-    """
+@pytest.fixture(scope="session")
+def zenodo_zarr(testdata_path, tmpdir_factory):
     t_start = time.perf_counter()
 
     doi = "10.5281/zenodo.8091756"
@@ -91,33 +83,30 @@ def zenodo_zarr(testdata_path, tmpdir_factory, capsys):
     platenames = ["plate.zarr", "plate_mip.zarr"]
     folders = [rootfolder / plate for plate in platenames]
 
+    # Download dataset
     if rootfolder.exists():
-        print(f"{str(rootfolder)} already exists, skip")
-        folders = [str(f) for f in folders]
-        return folders
+        print(f"{str(rootfolder)} already exists, skip download part")
     else:
-
-        import zarr
-        import anndata as ad
-        import logging
-
-        from fractal_tasks_core.lib_regions_of_interest import reset_origin
-        from fractal_tasks_core.lib_write import write_table
-
         rootfolder.mkdir()
         tmp_path = tmpdir_factory.mktemp("zenodo_zarr")
         zarrnames = [
             "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
             "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr",
         ]
-        for zarrname, folder in zip(zarrnames, folders):
+        for zarrname in zarrnames:
             zipname = f"{zarrname}.zip"
             url = f"https://zenodo.org/record/8091756/files/{zipname}"
+            debug(url)
             wget.download(url, out=str(tmp_path / zipname), bar=None)
             shutil.unpack_archive(
-                str(tmp_path / zipname), extract_dir=rootfolder, format="zip"
+                str(tmp_path / zipname),
+                extract_dir=rootfolder,
+                format="zip",
             )
-            shutil.move(str(rootfolder / zarrname), str(folder))
+
+        # Rename and update OME-Zarr
+        for zarrname, folder in zip(zarrnames, folders):
+            shutil.copytree(str(rootfolder / zarrname), str(folder))
 
             # Update well/FOV ROI tables, by shifting their origin to 0
             # TODO: remove this fix, by uploading new zarrs to zenodo (ref
@@ -139,9 +128,7 @@ def zenodo_zarr(testdata_path, tmpdir_factory, capsys):
     folders = [str(f) for f in folders]
 
     t_end = time.perf_counter()
-    with capsys.disabled():
-        print(f"\n    Time spent in zenodo_zarr: {t_end-t_start:.2f} s")
-
+    logging.warning(f"\n    Time spent in zenodo_zarr: {t_end-t_start:.2f} s")
     return folders
 
 
