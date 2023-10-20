@@ -98,6 +98,7 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
             url = f"https://zenodo.org/record/8091756/files/{zipname}"
             debug(url)
             wget.download(url, out=str(tmp_path / zipname), bar=None)
+            time.sleep(0.5)
             shutil.unpack_archive(
                 str(tmp_path / zipname),
                 extract_dir=rootfolder,
