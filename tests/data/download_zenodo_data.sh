@@ -14,6 +14,7 @@ for RECORD_ID in $LIST_RECORD_ID; do
         mkdir $OUTPUT_FOLDER
         FILES=`curl https://zenodo.org/api/records/$RECORD_ID | jq -r ".files[].links.download"`
         echo "curl exit code: $?"
+        echo
         for FILE in $FILES; do
             FILEPATH=${FILE%"/content"}
             FILENAME=`basename $FILEPATH`
@@ -24,6 +25,11 @@ for RECORD_ID in $LIST_RECORD_ID; do
             wget --no-verbose $FILE --output-document=${OUTPUT_FOLDER}/${FILENAME}
             echo
         done
+
+        if [ $RECORD_ID == "8091756" ]; then
+            unzip tests/data/10_5281_zenodo_8091756/20200812-CardiomyocyteDifferentiation14-Cycle1.zarr.zip -d tests/data/10_5281_zenodo_8091756
+            unzip tests/data/10_5281_zenodo_8091756/20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr.zip -d tests/data/10_5281_zenodo_8091756
+        fi
     fi
 
     echo "END RECORD_ID=$RECORD_ID"
