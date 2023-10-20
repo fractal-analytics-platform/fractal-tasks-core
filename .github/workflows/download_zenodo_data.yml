@@ -1,0 +1,12 @@
+name: Download Zenodo data
+on: [workflow_call]
+jobs:
+  zenodo:
+    name: "Download Zenodo data"
+    runs-on: ubuntu-22
+    timeout-minutes: 5
+    steps:
+      - name: Install jq
+        uses: dcarbone/install-jq-action@v2.0.2
+      - name: Test core library with pytest
+        run: bash tests/data/download_zenodo_data.sh
