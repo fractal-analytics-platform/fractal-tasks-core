@@ -2,18 +2,20 @@
 
 ## Scope
 
-ROIs = rectangles
+In `fractal-tasks-core`, regions of interest (ROIs) are three-dimensional
+regions of space delimited by orthogonal planes. ROI tables are stored as
+AnnData tables, within OME-NGFF Zarr images.
 
-We need to store tables as part of NGFF groups for multiple reasons:
+We have several use cases for tables:
+
+1. We keep track of the positions of the Field of Views (FOVs) within a well, after stitching the corresponding FOV images into a single whole-well array.
+2. We keep track of the original state before some transformations are applied - e.g. shifting FOVs to avoid overlaps, or shifting a multiplexing cycle during registration.
+3. Several tasks in `fractal-tasks-core` take an existing ROI table as an input and then loop over the ROIs defined in the table. Such tasks have more flexibility, as they can process e.g. a whole well, a set of FOVs, or a set of custom regions of the array.
+4. We store ROIs associated to segmented objects, for instance the bounding boxes of organoids/nuclei.
+5. We store measurements associated to segmented objects, e.g. as computed via `regionprops` from `scikit-image` (as wrapped in [napari-skimage-regionprops](https://github.com/haesleinhuepf/napari-skimage-regionprops)).
 
 
-1. Our image-to-OME-Zarr converters stitch all the field of views (FOV) of a given well together in a single NGFF image, and we keep a trace of the original FOV positions in a ROI table.
-2. Several tasks in `fractal-tasks-core` take a ROI table as an input, an loop over the ROIs defined in the table rows. This offers some flexibility to the tasks, as they can process a well, a set of FOVs, or a set of custom regions of the array.
-3. We store ROIs associated to segmeneted objects, for instance the bounding boxes of organoid/nuclear
-4. We store measurements associated to segmented objects (e.g. as computed via `regionprops` from `scikit-image`, as wrapped in [napari-skimage-regionprops](https://github.com/haesleinhuepf/napari-skimage-regionprops)).
-
-
-## Specifications
+## Table specifications
 
 The current section describes the first version (V1) of `fractal-tasks-core`
 tables, which is based on [a proposed update to NGFF
@@ -111,23 +113,41 @@ Here is an example of `image.zarr/tables/table1/.zattrs`
 }
 ```
 
-### AnnData tables
+### AnnData table format
 
-Data of a table are stored into a Zarr group as AnnData objects.
+Data of a table are stored into a Zarr group as AnnData ("Annotated Data")
+objects; the `anndata` Python library provides the definition of this format
+and the relevant tools.
 
-Quoting from the [AnnData documentation](https://anndata.readthedocs.io/en/latest/tutorials/notebooks/getting-started.html):
+Quoting from `anndata` documentation:
 
 > AnnData is specifically designed for matrix-like data. By this we mean that
-> we have $n$ observations, each of which can be represented as d-dimensional
+> we have $n$ observations, each of which can be represented as $d$-dimensional
 > vectors, where each dimension corresponds to a variable or feature. Both the
-> rows and columns of this nxd matrix are special in the sense that they are
-> indexed.
+> rows and columns of this $n \times d$ matrix are special in the sense that
+> they are indexed.
 >
 > (https://anndata.readthedocs.io/en/latest/tutorials/notebooks/getting-started.html)
 
-### Columns
+The same link also constitutes a get-started page for AnnData.
 
-## On-disk input/output
+Note that AnnData tables are easily transformed from/into `pandas.DataFrame`
+objects - see e.g. the [`AnnData.to_df`
+method](https://anndata.readthedocs.io/en/latest/generated/anndata.AnnData.to_df.html#anndata.AnnData.to_df).
+
+### Table columns
+
+## Default tables
+
+When parsing Yokogawa images into OME-Zarr ( via the
+[`create_ome_zarr`](../reference/fractal_tasks_core/tasks/create_ome_zarr/#fractal_tasks_core.tasks.create_ome_zarr.create_ome_zarr)
+or
+[`create_ome_zarr_multiplex`](../reference/fractal_tasks_core/tasks/create_ome_zarr_multiplex/#fractal_tasks_core.tasks.create_ome_zarr_multiplex.create_ome_zarr_multiplex)
+tasks)
+
+FIXME
+
+## Handling tables
 
 The `anndata` library offers a set of functions for input/output of AnnData
 tables, including functions specifically targeting the Zarr format.
@@ -173,26 +193,21 @@ print(table.X)
 The `anndata.experimental.write_elem` function provides the required
 functionality to write an AnnData object to a Zarr group. In
 `fractal-tasks-core`, the `write_table` helper function wraps the `anndata`
-function and includes additional functionalities.
-
-
-tra Therefore we use
- perform s
-
-https://github.com/ome/ngff/pull/64
-
-in progress
+function and includes additional functionalities -- see [its
+documentation](../reference/fractal_tasks_core/lib_write/#fractal_tasks_core.lib_write.write_table).
 
 
 ```python
-    ROI_table = ad.read_zarr(ROI_table_path)
-    attrs = zarr.group(ROI_table_path).attrs
-    if not attrs["type"] == "ngff:region_table":
-        raise ValueError("Wrong attributes for {ROI_table_path}:\n{attrs}")
-    label_relative_path = attrs["region"]["path"]
-    column_name = attrs["instance_key"]
-
+def write_table(
+    image_group: zarr.hierarchy.Group,
+    table_name: str,
+    table: ad.AnnData,
+    overwrite: bool = False,
+    table_attrs: Optional[dict[str, Any]] = None,
+    logger: Optional[logging.Logger] = None,
+)
 ```
+
 
 ## Future updates
 
