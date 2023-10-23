@@ -292,16 +292,21 @@ $ cat /tmp/image.zarr/tables/MyTable/.zattrs    # View single-table attributes
 }
 ```
 
-## Future updates (WIP)
+## Future perspectives
 
-These specifications may evolve (especially based on the future NGFF updates), eventually leading to breaking changes in V2.
-Development of `fractal-tasks-core` will mantain backwards-compatibility with V1 for a reasonable amount of time.
+These specifications may evolve (especially based on the future NGFF updates),
+eventually leading to breaking changes in V2. Development of
+`fractal-tasks-core` will aim at mantaining backwards-compatibility with V1 for
+a reasonable amount of time.
 
-Some aspects that most likely will require a review are:
+An in-progress list of aspects that may be reviewed:
 
-1. We aim at removing the use of hard-coded units from the column names (e.g. `x_micrometer`), in favor of a more general definition of units.
-2. We may re-assess whether AnnData tables are the right tool for our scopes, or whether simpler dataframes (e.g. from `pandas`) are sufficient. Not clear whether this is easily doable with zarr though.
-parquet in zarr?
-
-https://github.com/zarr-developers/community/issues/31
-https://github.com/zarr-developers/numcodecs/issues/452
+1. We aim at removing the use of hard-coded units from the column names (e.g.
+   `x_micrometer`), in favor of a more general definition of units. This will
+   also fix the current misleading names for the Z position/length columns
+   (`z_micrometer` and `len_z_micrometer`, even though corresponding data are
+   in arbitrary units).
+2. We may re-evaluate whether AnnData tables are the most appropriate tool. For
+   the record, Zarr does not natively support storage of dataframes (see e.g.
+   https://github.com/zarr-developers/numcodecs/issues/452), which is one
+   aspect in favor of sticking with the `anndata` library.
