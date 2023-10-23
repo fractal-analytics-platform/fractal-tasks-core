@@ -195,20 +195,78 @@ functionality to write an AnnData object to a Zarr group. In
 function and includes additional functionalities -- see [its
 documentation](../reference/fractal_tasks_core/lib_write/#fractal_tasks_core.lib_write.write_table).
 
+With respect to the wrapped `anndata` function, the main additional features of `write_table` are
 
+* The boolean parameter `overwrite` (defaulting to `False`), that determines the behavior in case of an already-existing table at the given path.
+* The `table_attrs` parameter, as a shorthand for updating the Zarr attributes of the table group after its creation.
+
+Here is an example of how to use `write_table`:
 ```python
-def write_table(
-    image_group: zarr.hierarchy.Group,
-    table_name: str,
-    table: ad.AnnData,
-    overwrite: bool = False,
-    table_attrs: Optional[dict[str, Any]] = None,
-    logger: Optional[logging.Logger] = None,
+import numpy as np
+import zarr
+import anndata as ad
+from fractal_tasks_core.lib_write import write_table
+
+table = ad.AnnData(X=np.ones((10, 10)))  # Generate a dummy AnnData object
+image_group = zarr.open_group("/tmp/image.zarr")
+table_name = "MyTable"
+table_attrs = {
+    "type": "ngff:region_table",
+    "region": {"path": "../labels/MyLabel"},
+    "instance_key": "label",
+}
+
+write_table(
+    image_group,
+    table_name,
+    table,
+    overwrite=True,
+    table_attrs=table_attrs,
 )
 ```
+After running this Python code snippet, the on-disk output  is as follows:
+```console
+$ tree /tmp/image.zarr/tables/                  # View folder structure
+/tmp/image.zarr/tables/
+└── MyTable
+    ├── layers
+    ├── obs
+    │   └── _index
+    │       └── 0
+    ├── obsm
+    ├── obsp
+    ├── uns
+    ├── var
+    │   └── _index
+    │       └── 0
+    ├── varm
+    ├── varp
+    └── X
+        └── 0.0
 
+12 directories, 3 files
 
-## Future updates
+$ cat /tmp/image.zarr/tables/.zattrs            # View tables atributes
+{
+    "tables": [
+        "MyTable"
+    ]
+}
+
+$ cat /tmp/image.zarr/tables/MyTable/.zattrs    # View single-table attributes
+{
+    "encoding-type": "anndata",
+    "encoding-version": "0.1.0",
+    "fractal_roi_table_version": "1",
+    "instance_key": "label",
+    "region": {
+        "path": "../labels/MyLabel"
+    },
+    "type": "ngff:region_table"
+}
+```
+
+## Future updates (WIP)
 
 These specifications may evolve (especially based on the future NGFF updates), eventually leading to breaking changes in V2.
 Development of `fractal-tasks-core` will mantain backwards-compatibility with V1 for a reasonable amount of time.
