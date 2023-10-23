@@ -113,7 +113,7 @@ Here is an example of `image.zarr/tables/table1/.zattrs`
 ### AnnData table format
 
 Data of a table are stored into a Zarr group as AnnData ("Annotated Data")
-objects; the [`anndata` Python library](anndata.readthedocs.io) provides the
+objects; the [`anndata` Python library](https://anndata.readthedocs.io) provides the
 definition of this format and the relevant tools.
 
 Quoting from `anndata` documentation:
