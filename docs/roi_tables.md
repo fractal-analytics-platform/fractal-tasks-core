@@ -12,7 +12,7 @@ We have several use cases for tables:
 2. We keep track of the original state before some transformations are applied - e.g. shifting FOVs to avoid overlaps, or shifting a multiplexing cycle during registration.
 3. Several tasks in `fractal-tasks-core` take an existing ROI table as an input and then loop over the ROIs defined in the table. Such tasks have more flexibility, as they can process e.g. a whole well, a set of FOVs, or a set of custom regions of the array.
 4. We store ROIs associated to segmented objects, for instance the bounding boxes of organoids/nuclei.
-5. We store measurements associated to segmented objects, e.g. as computed via `regionprops` from `scikit-image` (as wrapped in [napari-skimage-regionprops](https://github.com/haesleinhuepf/napari-skimage-regionprops)).
+5. We store measurements associated to segmented objects (e.g. as computed via `regionprops` from `scikit-image`, as wrapped in [napari-skimage-regionprops](https://github.com/haesleinhuepf/napari-skimage-regionprops)). Note: we store these tables with the the same AnnData format as described in this page, but they are not *ROI* tables and therefore they are not based on the current specifications (notably with respect to the [required columns](#table-contents)).
 
 
 ## Table specifications
@@ -156,18 +156,34 @@ ROI tables may also include other optional columns:
 >    for `z_micrometer` and `len_z_micrometer` columns, where a single unit
 >    corresponds to the distance between two subsequent Z planes.
 
+## Default tables
 
-## Default tables (WIP)
-
-When parsing Yokogawa images into OME-Zarr (via the
+OME-Zarrs created via `fractal-tasks-core` (e.g. by parsing Yokogawa images via
+the
 [`create_ome_zarr`](../reference/fractal_tasks_core/tasks/create_ome_zarr/#fractal_tasks_core.tasks.create_ome_zarr.create_ome_zarr)
 or
 [`create_ome_zarr_multiplex`](../reference/fractal_tasks_core/tasks/create_ome_zarr_multiplex/#fractal_tasks_core.tasks.create_ome_zarr_multiplex.create_ome_zarr_multiplex)
-tasks), we always create some default ROI tables.
+tasks) always include two specific ROI tables:
 
-When importing a Zarr with the import-ome-zarr task...
+* The table named `FOV_ROI_table`, which lists all original FOVs;
+* The table named `well_ROI_table`, which covers the NGFF corresponding to the whole well (formed by all the original FOVs stiched together)
 
-FIXME
+Each one of these two tables includes ROIs that are only defined in the XY
+plane, and span the whole set of Z planes. Note that this differs, e.g., from
+the case of bounding-box ROIs based on three-dimensional segmented objects,
+which may have a non-trivial Z size.
+
+When working with an externally-generated OME-Zarr, one may use the
+[`import_ome_zarr`
+task](../reference/fractal_tasks_core/tasks/import_ome_zarr/#fractal_tasks_core.tasks.import_ome_zarr.import_ome_zarr)
+to make it compatible with `fractal-tasks-core`. This task optionally adds two
+ROI tables to the NGFF images:
+
+* The table named `image_ROI_table`, which simply covers the whole image.
+* A table named `grid_ROI_table`, which splits the whole-image ROI into a YX
+  rectangular grid of smaller ROIs. This may correspond to original FOVs, or it
+  may simply be useful for applying downstream processing to smaller arrays and
+  avoid large memory requirements.
 
 ## Examples
 
