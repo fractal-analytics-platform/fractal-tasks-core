@@ -6,7 +6,7 @@ from typing import Literal
 from typing import Optional
 from typing import Union
 
-import zarr
+import zarr.hierarchy
 from pydantic import BaseModel
 from pydantic import Field
 from pydantic import validator
@@ -422,7 +422,7 @@ def load_NgffWellMeta(zarr_path: str) -> NgffWellMeta:
         raise e
 
 
-def detect_ome_ngff_type(group: zarr.Group) -> str:
+def detect_ome_ngff_type(group: zarr.hierarchy.Group) -> str:
     """
     Given a Zarr group, find whether it is an OME-NGFF plate, well or image.
 
