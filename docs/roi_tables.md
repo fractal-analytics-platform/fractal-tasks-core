@@ -40,12 +40,10 @@ image.zarr        # Zarr group for a NGFF image
 |   ├── label_B   # Zarr subgroup for a given label
 |   └── ...
 |
-├── tables        # Zarr subgroup with a list of tables associated to this image
-|   ├── table_1   # Zarr subgroup for a given table
-|   ├── table_2   # Zarr subgroup for a given table
-|   └── ...
-|
-
+└── tables        # Zarr subgroup with a list of tables associated to this image
+    ├── table_1   # Zarr subgroup for a given table
+    ├── table_2   # Zarr subgroup for a given table
+    └── ...
 ```
 
 ### Zarr attributes
@@ -132,17 +130,20 @@ method](https://anndata.readthedocs.io/en/latest/generated/anndata.AnnData.to_df
 
 ### Table contents
 
-The `.var` attribute of an AnnData object indexes the columns of the table. A
-`fractal-tasks-core` ROI table must include the following six columns:
+The [`var` attribute of AnnData
+objects](https://anndata.readthedocs.io/en/latest/generated/anndata.AnnData.var.html#anndata.AnnData.var)
+indexes the columns of the table. A `fractal-tasks-core` ROI table must include
+the following six columns:
 
-* `x_micrometer`, `y_micrometer`, `z_micrometer`: the lower bounds of the XYZ intervals defining the ROI, in micrometers;
-* `len_x_micrometer`, `len_y_micrometer`, `len_z_micrometer`: the XYZ edge lenghts, in micrometers.
+* `x_micrometer`, `y_micrometer`: the lower bounds of the XY intervals defining the ROI, in micrometers;
+* `z_micrometer`: the lower bound of the Z interval defining the ROI, in arbitrary units or in micrometers;
+* `len_x_micrometer`, `len_y_micrometer`: the XY edge lenghts, in micrometers;
+* `len_z_micrometer`: the Z edge lenght in arbitrary units (corresponding to the number of Z planes) or in micrometers.
 
 ROI tables may also include other optional columns:
 
 * `x_micrometer_original` and `y_micrometer_original`, which are a copy of `x_micrometer` and `y_micrometer` taken before applying some transformation;
 * `label`, which is used within measurement tables as a reference to the labels corresponding to a row of measurements (see [description of `instance_key` above](#single-table-segmented-objects)).
-
 
 > Notes:
 >
@@ -151,6 +152,9 @@ ROI tables may also include other optional columns:
 >    the lowest Z plane.
 > 2. ROIs are defined in **physical coordinates**, and they do not store
 >    information on the number or size of pixels.
+> 3. The current version of `fractal-tasks-core` only uses **arbitrary units**
+>    for `z_micrometer` and `len_z_micrometer` columns, where a single unit
+>    corresponds to the distance between two subsequent Z planes.
 
 
 ## Default tables (WIP)
@@ -165,7 +169,7 @@ When importing a Zarr with the import-ome-zarr task...
 
 FIXME
 
-## Handling tables
+## Examples
 
 The `anndata` library offers a set of functions for input/output of AnnData
 tables, including functions specifically targeting the Zarr format.
@@ -205,6 +209,9 @@ print(table.X)
 # [[    0.      0.      0.    416.    351.      2.  -1448.3 -1517.7]
 #  [  416.      0.      0.    416.    351.      2.  -1032.3 -1517.7]]
 ```
+
+The first row corresponds YX region first FOV
+
 
 ### Writing a table
 
