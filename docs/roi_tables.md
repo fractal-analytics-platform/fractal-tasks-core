@@ -130,9 +130,28 @@ Note that AnnData tables are easily transformed from/into `pandas.DataFrame`
 objects - see e.g. the [`AnnData.to_df`
 method](https://anndata.readthedocs.io/en/latest/generated/anndata.AnnData.to_df.html#anndata.AnnData.to_df).
 
-### Table columns (WIP)
+### Table contents
 
-TODO: list here all required/optional columns and their meaning.
+The `.var` attribute of an AnnData object indexes the columns of the table. A
+`fractal-tasks-core` ROI table must include the following six columns:
+
+* `x_micrometer`, `y_micrometer`, `z_micrometer`: the lower bounds of the XYZ intervals defining the ROI, in micrometers;
+* `len_x_micrometer`, `len_y_micrometer`, `len_z_micrometer`: the XYZ edge lenghts, in micrometers.
+
+ROI tables may also include other optional columns:
+
+* `x_micrometer_original` and `y_micrometer_original`, which are a copy of `x_micrometer` and `y_micrometer` taken before applying some transformation;
+* `label`, which is used within measurement tables as a reference to the labels corresponding to a row of measurements (see [description of `instance_key` above](#single-table-segmented-objects)).
+
+
+> Notes:
+>
+> 1. The **axes origin** for the ROI positions (e.g. for `x_micrometer`) is set
+>    to coincide with the top-left corner of a well (for the YX axes) and with
+>    the lowest Z plane.
+> 2. ROIs are defined in **physical coordinates**, and they do not store
+>    information on the number or size of pixels.
+
 
 ## Default tables (WIP)
 
