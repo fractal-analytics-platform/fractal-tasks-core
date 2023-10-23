@@ -166,7 +166,7 @@ or
 tasks) always include two specific ROI tables:
 
 * The table named `FOV_ROI_table`, which lists all original FOVs;
-* The table named `well_ROI_table`, which covers the NGFF corresponding to the whole well (formed by all the original FOVs stiched together)
+* The table named `well_ROI_table`, which covers the NGFF image corresponding to the whole well (formed by all the original FOVs stiched together)
 
 Each one of these two tables includes ROIs that are only defined in the XY
 plane, and span the whole set of Z planes. Note that this differs, e.g., from
@@ -195,8 +195,9 @@ tables, including functions specifically targeting the Zarr format.
 To read an AnnData table from a Zarr group, one may use the [`read_zarr`
 function](https://anndata.readthedocs.io/en/latest/generated/anndata.read_zarr.html).
 In the following example a NGFF image was created by sticthing together two
-field of views, and the `FOV_ROI_table` has information on the position of the
-two original FOVs (named `FOV_1` and `FOV_2`):
+field of views, where each one is made of a stack of five Z planes.
+The `FOV_ROI_table` has information on the XY position and size of the two
+original FOVs (named `FOV_1` and `FOV_2`):
 ```python
 import anndata as ad
 
@@ -222,11 +223,15 @@ print(table.var_names)
 #       dtype='object')
 
 print(table.X)
-# [[    0.      0.      0.    416.    351.      2.  -1448.3 -1517.7]
-#  [  416.      0.      0.    416.    351.      2.  -1032.3 -1517.7]]
+# [[    0.      0.      0.    416.    351.      5.  -1448.3 -1517.7]
+#  [  416.      0.      0.    416.    351.      5.  -1032.3 -1517.7]]
 ```
 
-The first row corresponds YX region first FOV
+In this case, the second FOV (labeled `FOV_2`) is defined as the three-dimensional region such that
+
+* X is between 416 and 832 micrometers;
+* Y is between 0 and 351 micrometers;
+* Z is between 0 and 5 - which means that all the five available Z planes are included.
 
 
 ### Writing a table
