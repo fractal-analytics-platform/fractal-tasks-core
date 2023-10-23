@@ -20,10 +20,10 @@ We have several use cases for tables:
 The current section describes the first version (V1) of `fractal-tasks-core`
 tables, which is based on [a proposed update to NGFF
 specs](https://github.com/ome/ngff/pull/64); this update is currently on hold,
-and `fractal-tasks-core` will evolve as soon as the official specs will adopt a
-new definition.
-As in the original NGFF proposed update, the current specifications are
-specifically based on AnnData tables -- see [section below](#anndata-tables).
+and `fractal-tasks-core` will evolve as soon as the NGFF specs will adopt a
+definition of tables.
+As in the original proposed NGFF update, the current specifications are
+specifically based on AnnData tables.
 
 ### Zarr structure
 
@@ -59,14 +59,11 @@ tables.
 Here is an example of `image.zarr/tables/.zattrs`:
 ```json
 {
-    "tables": [
-        "table_1",
-        "table_2",
-    ]
+    "tables": ["table_1", "table_2"]
 }
 ```
 
-#### Single table (standard)
+#### Single table (default)
 
 For each table, the Zarr attributes must include the key
 `fractal_roi_table_version`, pointing to the string version of this
@@ -76,8 +73,8 @@ Here is an example of `image.zarr/tables/table1/.zattrs`
 ```json
 {
     "fractal_roi_table_version": "1",
-    "encoding-type": "anndata",      # Automatically added by AnnData
-    "encoding-version": "0.1.0",     # Automatically added by AnnData
+    "encoding-type": "anndata",      # Automatically added by anndata
+    "encoding-version": "0.1.0",     # Automatically added by anndata
 }
 ```
 
@@ -108,16 +105,16 @@ Here is an example of `image.zarr/tables/table1/.zattrs`
         "path": "../labels/label_DAPI",
     },
     "instance_key": "label",
-    "encoding-type": "anndata",      # Automatically added by AnnData
-    "encoding-version": "0.1.0",     # Automatically added by AnnData
+    "encoding-type": "anndata",      # Automatically added by anndata
+    "encoding-version": "0.1.0",     # Automatically added by anndata
 }
 ```
 
 ### AnnData table format
 
 Data of a table are stored into a Zarr group as AnnData ("Annotated Data")
-objects; the `anndata` Python library provides the definition of this format
-and the relevant tools.
+objects; the [`anndata` Python library](anndata.readthedocs.io) provides the
+definition of this format and the relevant tools.
 
 Quoting from `anndata` documentation:
 
@@ -129,21 +126,23 @@ Quoting from `anndata` documentation:
 >
 > (https://anndata.readthedocs.io/en/latest/tutorials/notebooks/getting-started.html)
 
-The same link also constitutes a get-started page for AnnData.
-
 Note that AnnData tables are easily transformed from/into `pandas.DataFrame`
 objects - see e.g. the [`AnnData.to_df`
 method](https://anndata.readthedocs.io/en/latest/generated/anndata.AnnData.to_df.html#anndata.AnnData.to_df).
 
-### Table columns
+### Table columns (WIP)
 
-## Default tables
+TODO: list here all required/optional columns and their meaning.
 
-When parsing Yokogawa images into OME-Zarr ( via the
+## Default tables (WIP)
+
+When parsing Yokogawa images into OME-Zarr (via the
 [`create_ome_zarr`](../reference/fractal_tasks_core/tasks/create_ome_zarr/#fractal_tasks_core.tasks.create_ome_zarr.create_ome_zarr)
 or
 [`create_ome_zarr_multiplex`](../reference/fractal_tasks_core/tasks/create_ome_zarr_multiplex/#fractal_tasks_core.tasks.create_ome_zarr_multiplex.create_ome_zarr_multiplex)
-tasks)
+tasks), we always create some default ROI tables.
+
+When importing a Zarr with the import-ome-zarr task...
 
 FIXME
 
