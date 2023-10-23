@@ -79,6 +79,13 @@ plugins:
       default_handler: python
       handlers:
         python:
+          import:
+            - url: https://docs.python.org/objects.inv
+            - url: https://numpy.org/doc/stable/objects.inv
+            - url: https://zarr.readthedocs.io/en/stable/objects.inv
+            - url: https://anndata.readthedocs.io/en/latest/objects.inv
+            - url: https://docs.dask.org/en/stable/objects.inv
+            # - url: https://docs.pydantic.dev/latest/objects.inv # This points to V2
           options:
             show_signature_annotations: false
             docstring_section_style: "spacy"
