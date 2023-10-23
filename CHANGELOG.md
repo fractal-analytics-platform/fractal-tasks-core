@@ -5,6 +5,10 @@
 * Always use `write_table` in tasks, rather than AnnData `write_elem` (\#581).
 * Testing:
     * Cache Zenodo data, within GitHub actions (\#585).
+* Documentation:
+    * Define V1 of ROI-table specs (\#582).
+    * Add mathjax support (\#582).
+    * Add cross-reference inventories to external APIs (\#582).
 
 # 0.13.0
 
