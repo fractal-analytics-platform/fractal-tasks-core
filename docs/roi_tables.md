@@ -1,6 +1,11 @@
 # ROI tables
 
+## Scope
+
+ROIs = rectangles
+
 We need to store tables as part of NGFF groups for multiple reasons:
+
 
 1. Our image-to-OME-Zarr converters stitch all the field of views (FOV) of a given well together in a single NGFF image, and we keep a trace of the original FOV positions in a ROI table.
 2. Several tasks in `fractal-tasks-core` take a ROI table as an input, an loop over the ROIs defined in the table rows. This offers some flexibility to the tasks, as they can process a well, a set of FOVs, or a set of custom regions of the array.
@@ -45,9 +50,10 @@ image.zarr        # Zarr group for a NGFF image
 
 #### Tables container
 
-The Zarr attributes of the `tables` group must include the key `"tables"`,
+The Zarr attributes of the `tables` group must include the key `tables`,
 pointing to the list of all tables; this simplifies the discovery of image
 tables.
+
 Here is an example of `image.zarr/tables/.zattrs`:
 ```json
 {
@@ -61,8 +67,8 @@ Here is an example of `image.zarr/tables/.zattrs`:
 #### Single table (standard)
 
 For each table, the Zarr attributes must include the key
-`"fractal_roi_table_version"`, pointing to the version of this specification
-(e.g. `"1"`).
+`fractal_roi_table_version`, pointing to the string version of this
+specification (e.g. `1`).
 
 Here is an example of `image.zarr/tables/table1/.zattrs`
 ```json
@@ -74,30 +80,32 @@ Here is an example of `image.zarr/tables/table1/.zattrs`
 ```
 
 This is the kind of tables that are used in `fractal-tasks-core` to store ROIs
-like the whole well or the list of field of views.
+like a whole well, or the list of field of views.
 
-#### Single table (advanced)
+#### Single table (segmented objects)
 
-When table rows correspond to segmented objects.
+When each table row corresponds to (the bounding box of) a segmented object,
+`fractal-tasks-core` follows more closely the [proposed NGFF update mentioned
+above](https://github.com/ome/ngff/pull/64), with the following additional
+requirements on the Zarr group of a given table:
 
-Moreover, they must include the key-value pairs proposed in https://github.com/ome/ngff/pull/64, that is:
-
-> * Attributes MUST contain `"type"`, which is set to `"ngff:region_table"`.
-> * Attributes MUST contain `"region"`, which is the path to the data the table is annotating.
-> * `"region"` MUST be a single path (single region) or an array of paths (multiple regions).
-> * `"region"` paths MUST be objects with a key "path" and the path value MUST be a string.
-> * Attributes MUST contain `"region_key"` if `"region"` is an array. `"region_key"` is the key in `obs` denoting which region a given row corresponds to.
-
+* Attributes must contain a `type` key, with value `ngff:region_table`.
+* Attributes must contain a `region` key; the corresponding value must be an
+  object with a `path` key and a string value (i.e. the path to the data the
+  table is annotating).
+* Attributes may include a key `instance_key`, which is the key in `obs` that
+  denotes which instance in `region` the row corresponds to. If `instance_key`
+  is not provided, the values from the `_index` Zarr attribute of `obs` is used.
 
 Here is an example of `image.zarr/tables/table1/.zattrs`
 ```json
 {
     "fractal_roi_table_version": "1",
     "type": "ngff:region_table",
-    "instance_key": "label",
     "region": {
         "path": "../labels/label_DAPI",
     },
+    "instance_key": "label",
     "encoding-type": "anndata",      # Automatically added by AnnData
     "encoding-version": "0.1.0",     # Automatically added by AnnData
 }
@@ -105,17 +113,67 @@ Here is an example of `image.zarr/tables/table1/.zattrs`
 
 ### AnnData tables
 
-On-disk (zarr), see https://anndata.readthedocs.io/en/latest/fileformat-prose.html
+Data of a table are stored into a Zarr group as AnnData objects.
 
-## Example
+Quoting from the [AnnData documentation](https://anndata.readthedocs.io/en/latest/tutorials/notebooks/getting-started.html):
 
-the
+> AnnData is specifically designed for matrix-like data. By this we mean that
+> we have $n$ observations, each of which can be represented as d-dimensional
+> vectors, where each dimension corresponds to a variable or feature. Both the
+> rows and columns of this nxd matrix are special in the sense that they are
+> indexed.
+>
+> (https://anndata.readthedocs.io/en/latest/tutorials/notebooks/getting-started.html)
 
-which may act for instance on FOVs or on pre-computed
+### Columns
 
-makes the
+## On-disk input/output
 
-tbaleiterate
+The `anndata` library offers a set of functions for input/output of AnnData
+tables, including functions specifically targeting the Zarr format.
+
+### Reading a table
+
+To read an AnnData table from a Zarr group, one may use the [`read_zarr`
+function](https://anndata.readthedocs.io/en/latest/generated/anndata.read_zarr.html).
+In the following example a NGFF image was created by sticthing together two
+field of views, and the `FOV_ROI_table` has information on the position of the
+two original FOVs (named `FOV_1` and `FOV_2`):
+```python
+import anndata as ad
+
+table = ad.read_zarr("/somewhere/image.zarr/tables/FOV_ROI_table")
+
+print(table)
+# AnnData object with n_obs × n_vars = 2 × 8
+
+print(table.obs_names)
+# Index(['FOV_1', 'FOV_2'], dtype='object', name='FieldIndex')
+
+print(table.var_names)
+# Index([
+#        'x_micrometer',
+#        'y_micrometer',
+#        'z_micrometer',
+#        'len_x_micrometer',
+#        'len_y_micrometer',
+#        'len_z_micrometer',
+#        'x_micrometer_original',
+#        'y_micrometer_original'
+#       ],
+#       dtype='object')
+
+print(table.X)
+# [[    0.      0.      0.    416.    351.      2.  -1448.3 -1517.7]
+#  [  416.      0.      0.    416.    351.      2.  -1032.3 -1517.7]]
+```
+
+### Writing a table
+
+The `anndata.experimental.write_elem` function provides the required
+functionality to write an AnnData object to a Zarr group. In
+`fractal-tasks-core`, the `write_table` helper function wraps the `anndata`
+function and includes additional functionalities.
 
 
 tra Therefore we use
