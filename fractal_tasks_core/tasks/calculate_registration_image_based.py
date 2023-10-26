@@ -327,24 +327,10 @@ def get_ROI_table_with_translation(
             f"different length ({len(new_roi_table)=}) "
             f"from the original ROI table ({len(ROI_table)=})"
         )
-    positional_columns = [
-        "x_micrometer",
-        "y_micrometer",
-        "z_micrometer",
-        "len_x_micrometer",
-        "len_y_micrometer",
-        "len_z_micrometer",
-        "x_micrometer_original",
-        "y_micrometer_original",
-        "translation_z",
-        "translation_y",
-        "translation_x",
-    ]
-    adata = ad.AnnData(
-        X=new_roi_table.loc[:, positional_columns].astype(np.float32)
-    )
+
+    adata = ad.AnnData(X=new_roi_table.astype(np.float32))
     adata.obs_names = new_roi_table.index
-    adata.var_names = list(map(str, positional_columns))
+    adata.var_names = list(map(str, new_roi_table.columns))
     return adata
 
 
