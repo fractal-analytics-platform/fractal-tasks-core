@@ -1,33 +1,64 @@
-# ROI tables
+# Fractal tables
 
-## Scope
+Within `fractal-tasks-core` we make use of tables stored as `AnnData` objects
+within OME-Zarr image groups. This page describes the specifications for
+different kinds of tables:
 
-In `fractal-tasks-core`, regions of interest (ROIs) are three-dimensional
-regions of space delimited by orthogonal planes. ROI tables are stored as
-AnnData tables, within OME-NGFF Zarr images.
+* A core [table specification](#core-tables), common to all cases;
+* Two levels of specifications for tables that describe regions of interest (ROIs):
+    * [Basic ROI tables](#basic-roi-tables); (FIXME: better naming?)
+    * [Advanced ROI tables](#advanced-roi-tables); (FIXME: better naming?)
+* A [feature-table specification](#feature-tables). (FIXME: specify this is in progress)
 
-We have several use cases for tables:
+These different specifications correspond to different use cases in `fractal-tasks-core`:
 
-1. We keep track of the positions of the Field of Views (FOVs) within a well, after stitching the corresponding FOV images into a single whole-well array.
-2. We keep track of the original state before some transformations are applied - e.g. shifting FOVs to avoid overlaps, or shifting a multiplexing cycle during registration.
-3. Several tasks in `fractal-tasks-core` take an existing ROI table as an input and then loop over the ROIs defined in the table. Such tasks have more flexibility, as they can process e.g. a whole well, a set of FOVs, or a set of custom regions of the array.
-4. We store ROIs associated to segmented objects, for instance the bounding boxes of organoids/nuclei.
-5. We store measurements associated to segmented objects (e.g. as computed via `regionprops` from `scikit-image`, as wrapped in [napari-skimage-regionprops](https://github.com/haesleinhuepf/napari-skimage-regionprops)). Note: we store these tables with the the same AnnData format as described in this page, but they are not *ROI* tables and therefore they are not based on the current specifications (notably with respect to the [required columns](#table-contents)).
+* Basic ROI tables:
+    * We keep track of the positions of the Field of Views (FOVs) within a well, after stitching the corresponding FOV images into a single whole-well array.
+    * We keep track of the original state before some transformations are applied - e.g. shifting FOVs to avoid overlaps, or shifting a multiplexing cycle during registration.
+    * Several tasks in `fractal-tasks-core` take an existing ROI table as an input and then loop over the ROIs defined in the table. Such tasks have more flexibility, as they can process e.g. a whole well, a set of FOVs, or a set of custom regions of the array.
+* Advanced ROI tables:
+    * We store ROIs associated to segmented objects, for instance the bounding boxes of organoids/nuclei.
+* Feature tables:
+    * We store measurements associated to segmented objects (e.g. as computed via `regionprops` from `scikit-image`, as wrapped in [napari-skimage-regionprops](https://github.com/haesleinhuepf/napari-skimage-regionprops)).
 
+> **Note**: The specifications below are largely based on [a proposed update to
+> NGFF specs](https://github.com/ome/ngff/pull/64). This update is currently on
+> hold, and `fractal-tasks-core` will evolve as soon as the NGFF specs will
+> adopt a definition of tables - see also the [Outlook](#outlook) section.
 
-## Table specifications
+## Specifications
 
-The current section describes the first version (V1) of `fractal-tasks-core`
-tables, which is based on [a proposed update to NGFF
-specs](https://github.com/ome/ngff/pull/64); this update is currently on hold,
-and `fractal-tasks-core` will evolve as soon as the NGFF specs will adopt a
-definition of tables.
-As in the original proposed NGFF update, the current specifications are
-specifically based on AnnData tables.
+### Core tables
 
-### Zarr structure
+The core-table specification consists in the definition of the required Zarr
+structure and attributes, and of the `AnnData` table format.
 
-The structure of Zarr groups is based on the [`image` specification in NGFF 0.4](https://ngff.openmicroscopy.org/0.4/index.html#image-layout), with an additional `tables` group and the corresponding subgroups (similar to `labels`):
+#### `AnnData` table format
+
+Data of a table are stored into a Zarr group as `AnnData` ("Annotated Data")
+objects; the [`anndata` Python library](https://anndata.readthedocs.io) provides the
+definition of this format and the relevant tools.
+
+Quoting from `anndata` documentation:
+
+> `AnnData` is specifically designed for matrix-like data. By this we mean that
+> we have $n$ observations, each of which can be represented as $d$-dimensional
+> vectors, where each dimension corresponds to a variable or feature. Both the
+> rows and columns of this $n \times d$ matrix are special in the sense that
+> they are indexed.
+>
+> (https://anndata.readthedocs.io/en/latest/tutorials/notebooks/getting-started.html)
+
+Note that `AnnData` tables are easily transformed from/into `pandas.DataFrame`
+objects - see e.g. the [`AnnData.to_df`
+method](https://anndata.readthedocs.io/en/latest/generated/anndata.AnnData.to_df.html#anndata.AnnData.to_df).
+
+#### Zarr structure
+
+The structure of Zarr groups is based on the [`image` specification in NGFF
+0.4](https://ngff.openmicroscopy.org/0.4/index.html#image-layout), with an
+additional `tables` group and the corresponding subgroups (similar to
+`labels`):
 ```
 image.zarr        # Zarr group for a NGFF image
 |
@@ -46,9 +77,7 @@ image.zarr        # Zarr group for a NGFF image
     └── ...
 ```
 
-### Zarr attributes
-
-#### Tables container
+#### Zarr attributes
 
 The Zarr attributes of the `tables` group must include the key `tables`,
 pointing to the list of all tables; this simplifies the discovery of image
@@ -61,7 +90,31 @@ Here is an example of `image.zarr/tables/.zattrs`:
 }
 ```
 
-#### Single table (default)
+The Zarr attributes of each specific-table group have no required properties,
+but writing an `AnnData` object to that group typically sets some default
+attributes. For anndata 0.11, for instance, the attributes in
+`image.zarr/tables/table1/.zattrs` would be
+```json
+{
+    "encoding-type": "anndata",   # Automatically added by anndata
+    "encoding-version": "0.1.0",  # Automatically added by anndata
+}
+```
+
+### ROI tables
+
+The current section describes the first version (V1) of `fractal-tasks-core`
+tables, which is based on [a proposed update to NGFF
+specs](https://github.com/ome/ngff/pull/64); this update is currently on hold,
+and `fractal-tasks-core` will evolve as soon as the NGFF specs will adopt a
+definition of tables.
+As in the original proposed NGFF update, the current specifications are
+specifically based on `AnnData` tables.
+
+In Fractal, regions of interest (ROIs) are three-dimensional
+regions of space delimited by orthogonal planes. ROI tables are stored as
+
+#### Basic ROI tables
 
 For each table, the Zarr attributes must include the key
 `fractal_roi_table_version`, pointing to the string version of this
@@ -79,7 +132,44 @@ Here is an example of `image.zarr/tables/table1/.zattrs`
 This is the kind of tables that are used in `fractal-tasks-core` to store ROIs
 like a whole well, or the list of field of views.
 
-#### Single table (segmented objects)
+##### Required columns
+
+The [`var` attribute of AnnData
+objects](https://anndata.readthedocs.io/en/latest/generated/anndata.AnnData.var.html#anndata.AnnData.var)
+indexes the columns of the table. A `fractal-tasks-core` ROI table must include
+the following six columns:
+
+* `x_micrometer`, `y_micrometer`: the lower bounds of the XY intervals defining the ROI, in micrometers;
+* `z_micrometer`: the lower bound of the Z interval defining the ROI, in arbitrary units or in micrometers;
+* `len_x_micrometer`, `len_y_micrometer`: the XY edge lenghts, in micrometers;
+* `len_z_micrometer`: the Z edge lenght in arbitrary units (corresponding to the number of Z planes) or in micrometers.
+
+> Notes:
+>
+> 1. The **axes origin** for the ROI positions (e.g. for `x_micrometer`) is set
+>    to coincide with the top-left corner of a well (for the YX axes) and with
+>    the lowest Z plane.
+> 2. ROIs are defined in **physical coordinates**, and they do not store
+>    information on the number or size of pixels.
+> 3. The current version of `fractal-tasks-core` only uses **arbitrary units**
+>    for `z_micrometer` and `len_z_micrometer` columns, where a single unit
+>    corresponds to the distance between two subsequent Z planes.
+
+##### Other columns
+
+ROI tables may also include abitrary columns. Here are the ones that are
+typically used in `fractal-tasks-core`:
+
+* `x_micrometer_original` and `y_micrometer_original`, which are a copy of `x_micrometer` and `y_micrometer` taken before applying some transformation;
+* `label`, which is used within measurement tables as a reference to the labels corresponding to a row of measurements (see [description of `instance_key` below](#single-table-segmented-objects)).
+* FIXME: add `translation_x/y/z` columns
+
+
+
+
+
+
+#### Advanced ROI tables (FIXME: rename?)
 
 When each table row corresponds to (the bounding box of) a segmented object,
 `fractal-tasks-core` follows more closely the [proposed NGFF update mentioned
@@ -108,55 +198,13 @@ Here is an example of `image.zarr/tables/table1/.zattrs`
 }
 ```
 
-### AnnData table format
+### Feature tables
 
-Data of a table are stored into a Zarr group as AnnData ("Annotated Data")
-objects; the [`anndata` Python library](https://anndata.readthedocs.io) provides the
-definition of this format and the relevant tools.
+FIXME: to do
 
-Quoting from `anndata` documentation:
+## Examples
 
-> AnnData is specifically designed for matrix-like data. By this we mean that
-> we have $n$ observations, each of which can be represented as $d$-dimensional
-> vectors, where each dimension corresponds to a variable or feature. Both the
-> rows and columns of this $n \times d$ matrix are special in the sense that
-> they are indexed.
->
-> (https://anndata.readthedocs.io/en/latest/tutorials/notebooks/getting-started.html)
-
-Note that AnnData tables are easily transformed from/into `pandas.DataFrame`
-objects - see e.g. the [`AnnData.to_df`
-method](https://anndata.readthedocs.io/en/latest/generated/anndata.AnnData.to_df.html#anndata.AnnData.to_df).
-
-### Table contents
-
-The [`var` attribute of AnnData
-objects](https://anndata.readthedocs.io/en/latest/generated/anndata.AnnData.var.html#anndata.AnnData.var)
-indexes the columns of the table. A `fractal-tasks-core` ROI table must include
-the following six columns:
-
-* `x_micrometer`, `y_micrometer`: the lower bounds of the XY intervals defining the ROI, in micrometers;
-* `z_micrometer`: the lower bound of the Z interval defining the ROI, in arbitrary units or in micrometers;
-* `len_x_micrometer`, `len_y_micrometer`: the XY edge lenghts, in micrometers;
-* `len_z_micrometer`: the Z edge lenght in arbitrary units (corresponding to the number of Z planes) or in micrometers.
-
-ROI tables may also include other optional columns:
-
-* `x_micrometer_original` and `y_micrometer_original`, which are a copy of `x_micrometer` and `y_micrometer` taken before applying some transformation;
-* `label`, which is used within measurement tables as a reference to the labels corresponding to a row of measurements (see [description of `instance_key` above](#single-table-segmented-objects)).
-
-> Notes:
->
-> 1. The **axes origin** for the ROI positions (e.g. for `x_micrometer`) is set
->    to coincide with the top-left corner of a well (for the YX axes) and with
->    the lowest Z plane.
-> 2. ROIs are defined in **physical coordinates**, and they do not store
->    information on the number or size of pixels.
-> 3. The current version of `fractal-tasks-core` only uses **arbitrary units**
->    for `z_micrometer` and `len_z_micrometer` columns, where a single unit
->    corresponds to the distance between two subsequent Z planes.
-
-## Default tables
+### Default ROI tables
 
 OME-Zarrs created via `fractal-tasks-core` (e.g. by parsing Yokogawa images via
 the
@@ -185,14 +233,15 @@ ROI tables to the NGFF images:
   may simply be useful for applying downstream processing to smaller arrays and
   avoid large memory requirements.
 
-## Examples
+
+### Reading/writing tables
 
 The `anndata` library offers a set of functions for input/output of AnnData
 tables, including functions specifically targeting the Zarr format.
 
-### Reading a table
+#### Reading a table
 
-To read an AnnData table from a Zarr group, one may use the [`read_zarr`
+To read an `AnnData` table from a Zarr group, one may use the [`read_zarr`
 function](https://anndata.readthedocs.io/en/latest/generated/anndata.read_zarr.html).
 In the following example a NGFF image was created by sticthing together two
 field of views, where each one is made of a stack of five Z planes.
@@ -204,7 +253,7 @@ import anndata as ad
 table = ad.read_zarr("/somewhere/image.zarr/tables/FOV_ROI_table")
 
 print(table)
-# AnnData object with n_obs × n_vars = 2 × 8
+# `AnnData` object with n_obs × n_vars = 2 × 8
 
 print(table.obs_names)
 # Index(['FOV_1', 'FOV_2'], dtype='object', name='FieldIndex')
@@ -233,11 +282,10 @@ In this case, the second FOV (labeled `FOV_2`) is defined as the three-dimension
 * Y is between 0 and 351 micrometers;
 * Z is between 0 and 5 - which means that all the five available Z planes are included.
 
-
-### Writing a table
+#### Writing a table
 
 The `anndata.experimental.write_elem` function provides the required
-functionality to write an AnnData object to a Zarr group. In
+functionality to write an `AnnData` object to a Zarr group. In
 `fractal-tasks-core`, the `write_table` helper function wraps the `anndata`
 function and includes additional functionalities -- see [its
 documentation](../reference/fractal_tasks_core/lib_write/#fractal_tasks_core.lib_write.write_table).
@@ -254,7 +302,7 @@ import zarr
 import anndata as ad
 from fractal_tasks_core.lib_write import write_table
 
-table = ad.AnnData(X=np.ones((10, 10)))  # Generate a dummy AnnData object
+table = ad.AnnData(X=np.ones((10, 10)))  # Generate a dummy `AnnData` object
 image_group = zarr.open_group("/tmp/image.zarr")
 table_name = "MyTable"
 table_attrs = {
@@ -313,7 +361,9 @@ $ cat /tmp/image.zarr/tables/MyTable/.zattrs    # View single-table attributes
 }
 ```
 
-## Future perspectives
+
+## Outlook
+
 
 These specifications may evolve (especially based on the future NGFF updates),
 eventually leading to breaking changes in V2. Development of
@@ -327,7 +377,9 @@ An in-progress list of aspects that may be reviewed:
    also fix the current misleading names for the Z position/length columns
    (`z_micrometer` and `len_z_micrometer`, even though corresponding data are
    in arbitrary units).
-2. We may re-evaluate whether AnnData tables are the most appropriate tool. For
+2. We may re-evaluate whether `AnnData` tables are the most appropriate tool. For
    the record, Zarr does not natively support storage of dataframes (see e.g.
    https://github.com/zarr-developers/numcodecs/issues/452), which is one
    aspect in favor of sticking with the `anndata` library.
+
+---
