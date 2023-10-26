@@ -3,7 +3,7 @@
 # Unreleased
 
 * Always use `write_table` in tasks, rather than AnnData `write_elem` (\#581).
-* Remove assumptions on columns in ROI frames from Calculate registration (image-based) (\#590).
+* Remove assumptions on ROI-table columns from `get_ROI_table_with_translation` helper function of `calculate_registration_image_based` task (\#591).
 * Testing:
     * Cache Zenodo data, within GitHub actions (\#585).
 
