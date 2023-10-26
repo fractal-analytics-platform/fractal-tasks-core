@@ -58,60 +58,105 @@ def test_calculate_physical_shifts(shifts):
     assert np.allclose(shifts_physical, expected_shifts_physical)
 
 
-@pytest.mark.parametrize("fail", [False, True])
-def test_get_ROI_table_with_translation(fail: bool):
-    new_shifts = {
-        "FOV_1": [
-            0,
-            7.8,
-            32.5,
-        ],
-        "FOV_2": [
-            0,
-            7.8,
-            32.5,
-        ],
-    }
-    if fail:
-        new_shifts.pop("FOV_2")
-    ROI_table = ad.AnnData(
-        X=np.array(
+ROI_table_FOV = ad.AnnData(
+    X=np.array(
+        [
             [
-                [
-                    -1.4483e03,
-                    -1.5177e03,
-                    0.0000e00,
-                    4.1600e02,
-                    3.5100e02,
-                    1.0000e00,
-                    -1.4483e03,
-                    -1.5177e03,
-                ],
-                [
-                    -1.0323e03,
-                    -1.5177e03,
-                    0.0000e00,
-                    4.1600e02,
-                    3.5100e02,
-                    1.0000e00,
-                    -1.0323e03,
-                    -1.5177e03,
-                ],
+                -1.4483e03,
+                -1.5177e03,
+                0.0000e00,
+                4.1600e02,
+                3.5100e02,
+                1.0000e00,
+                -1.4483e03,
+                -1.5177e03,
             ],
-            dtype=np.float32,
-        )
+            [
+                -1.0323e03,
+                -1.5177e03,
+                0.0000e00,
+                4.1600e02,
+                3.5100e02,
+                1.0000e00,
+                -1.0323e03,
+                -1.5177e03,
+            ],
+        ],
+        dtype=np.float32,
     )
-    ROI_table.obs_names = ["FOV_1", "FOV_2"]
-    ROI_table.var_names = [
-        "x_micrometer",
-        "y_micrometer",
-        "z_micrometer",
-        "len_x_micrometer",
-        "len_y_micrometer",
-        "len_z_micrometer",
-        "x_micrometer_original",
-        "y_micrometer_original",
-    ]
+)
+ROI_table_FOV.obs_names = ["FOV_1", "FOV_2"]
+ROI_table_FOV.var_names = [
+    "x_micrometer",
+    "y_micrometer",
+    "z_micrometer",
+    "len_x_micrometer",
+    "len_y_micrometer",
+    "len_z_micrometer",
+    "x_micrometer_original",
+    "y_micrometer_original",
+]
+new_shifts_FOV = {
+    "FOV_1": [
+        0,
+        7.8,
+        32.5,
+    ],
+    "FOV_2": [
+        0,
+        7.8,
+        32.5,
+    ],
+}
+
+
+ROI_table_well = ad.AnnData(
+    X=np.array(
+        [
+            [
+                -1.4483e03,
+                -1.5177e03,
+                0.0000e00,
+                4.1600e02,
+                3.5100e02,
+                1.0000e00,
+            ],
+        ],
+        dtype=np.float32,
+    )
+)
+ROI_table_well.obs_names = ["well_1"]
+ROI_table_well.var_names = [
+    "x_micrometer",
+    "y_micrometer",
+    "z_micrometer",
+    "len_x_micrometer",
+    "len_y_micrometer",
+    "len_z_micrometer",
+]
+new_shifts_well = {
+    "well_1": [
+        0,
+        7.8,
+        32.5,
+    ],
+}
+
+
+@pytest.mark.parametrize(
+    "fail,ROI_table,new_shifts",
+    [
+        (False, ROI_table_FOV, new_shifts_FOV),
+        (True, ROI_table_FOV, new_shifts_FOV),
+        (False, ROI_table_well, new_shifts_well),
+    ],
+)
+def test_get_ROI_table_with_translation(
+    fail: bool, ROI_table: ad.AnnData, new_shifts: dict
+):
+    if fail:
+        new_shifts.pop(list(new_shifts.keys())[0])
+
     if fail:
         with pytest.raises(ValueError) as e:
             get_ROI_table_with_translation(ROI_table, new_shifts)
