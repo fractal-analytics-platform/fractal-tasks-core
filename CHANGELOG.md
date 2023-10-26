@@ -1,6 +1,6 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# Unreleased
+# 0.13.1
 
 * Always use `write_table` in tasks, rather than AnnData `write_elem` (\#581).
 * Remove assumptions on ROI-table columns from `get_ROI_table_with_translation` helper function of `calculate_registration_image_based` task (\#591).
