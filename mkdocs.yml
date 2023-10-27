@@ -4,22 +4,23 @@ repo_url: https://github.com/fractal-analytics-platform/fractal-tasks-core
 repo_name: fractal-tasks-core
 
 markdown_extensions:
-- admonition
-- pymdownx.details
-- pymdownx.emoji
-- pymdownx.magiclink
-- pymdownx.snippets:
-    check_paths: true
-    base_path:
-      - fractal_tasks_core/__FRACTAL_MANIFEST__.json
-- pymdownx.superfences
-- pymdownx.tabbed:
-    alternate_style: true
-- pymdownx.tasklist
-- toc:
-    permalink: true
-- pymdownx.arithmatex:
-    generic: true
+  - admonition
+  - pymdownx.details
+  - pymdownx.emoji
+  - pymdownx.magiclink
+  - pymdownx.snippets:
+      check_paths: true
+      base_path:
+        - fractal_tasks_core/__FRACTAL_MANIFEST__.json
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - footnotes
 
 extra_javascript:
   - javascripts/mathjax.js

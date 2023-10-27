@@ -1,20 +1,20 @@
-# Fractal tables
+# Tables
 
-Within `fractal-tasks-core` we make use of tables stored as `AnnData` objects
-within OME-Zarr image groups. This page describes the specifications for
-different kinds of tables:
+Within `fractal-tasks-core`, we make use of tables which are `AnnData` objects
+stored within OME-Zarr image groups. This page defines the different kinds of
+tables we use, and it includes:
 
-* A core [table specification](#core-tables), common to all cases;
-* Two levels of specifications for tables that describe regions of interest (ROIs):
+* A core [table specification](#core-tables), valid for all tables;
+* Two levels of specifications for tables that define regions of interest (ROIs):
     * [Basic ROI tables](#basic-roi-tables); (FIXME: better naming?)
-    * [Advanced ROI tables](#advanced-roi-tables); (FIXME: better naming?)
-* A [feature-table specification](#feature-tables). (FIXME: specify this is in progress)
+    * [Advanced ROI tables](#advanced-roi-tables), to be used e.g. for masked loading; (FIXME: better naming?)
+* A [feature-table specification](#feature-tables), to store measurements. (FIXME: specify this is in progress)
 
 These different specifications correspond to different use cases in `fractal-tasks-core`:
 
 * Basic ROI tables:
-    * We keep track of the positions of the Field of Views (FOVs) within a well, after stitching the corresponding FOV images into a single whole-well array.
-    * We keep track of the original state before some transformations are applied - e.g. shifting FOVs to avoid overlaps, or shifting a multiplexing cycle during registration.
+    * We store the sizes/positions of the original Field of Views (FOVs) within the NGFF image representing a well[^1].
+    * We store the unprocessed ROI details before applying some transformation - e.g. shifting FOVs to avoid overlaps, or shifting a multiplexing cycle during registration.
     * Several tasks in `fractal-tasks-core` take an existing ROI table as an input and then loop over the ROIs defined in the table. Such tasks have more flexibility, as they can process e.g. a whole well, a set of FOVs, or a set of custom regions of the array.
 * Advanced ROI tables:
     * We store ROIs associated to segmented objects, for instance the bounding boxes of organoids/nuclei.
@@ -202,6 +202,8 @@ Here is an example of `image.zarr/tables/table1/.zattrs`
 
 FIXME: to do
 
+https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/593
+
 ## Examples
 
 ### Default ROI tables
@@ -366,20 +368,43 @@ $ cat /tmp/image.zarr/tables/MyTable/.zattrs    # View single-table attributes
 
 
 These specifications may evolve (especially based on the future NGFF updates),
-eventually leading to breaking changes in V2. Development of
+eventually leading to breaking changes in future versions.
 `fractal-tasks-core` will aim at mantaining backwards-compatibility with V1 for
 a reasonable amount of time.
 
-An in-progress list of aspects that may be reviewed:
+Here is an in-progress list of aspects that may be reviewed:
 
 1. We aim at removing the use of hard-coded units from the column names (e.g.
    `x_micrometer`), in favor of a more general definition of units. This will
    also fix the current misleading names for the Z position/length columns
    (`z_micrometer` and `len_z_micrometer`, even though corresponding data are
    in arbitrary units).
-2. We may re-evaluate whether `AnnData` tables are the most appropriate tool. For
+2. The `z_micrometer` and `len_z_micrometer` columns are currently required in
+   all ROI tables, even when the ROIs actually define a two-dimensional XY
+   region; in that case, we set `z_micrometer=0` and `len_z_micrometer` is such
+   that the whole Z size is covered. In a future version, we may introduce more
+   flexibility and also accept ROI tables which only include X and Y axes, and
+   adapt the relevant tools so that they automatically expand these ROIs into
+   three-dimensions when appropriate.
+3. We may re-evaluate whether `AnnData` tables are the most appropriate tool. For
    the record, Zarr does not natively support storage of dataframes (see e.g.
    https://github.com/zarr-developers/numcodecs/issues/452), which is one
    aspect in favor of sticking with the `anndata` library.
 
----
+
+
+FIXME: remove "arbitrary units", after verifying that this is how the code works
+FIXME: only mention "well" when talking about tiled
+
+FIXME: rather use word "tiled"
+
+FIXME: mention https://github.com/ome/ngff/pull/137 (Generalize well organization in high-content screening: field of view => image)
+
+[^1]:
+Within `fractal-tasks-core`, NGFF images represent whole wells; this is still
+compliant with the NGFF specifications, as of an [approved clarification in the
+specs](https://github.com/ome/ngff/pull/137). This explains the reason for
+storing original the regions corresponding to the original FOVs in a specific
+ROI table, since one NGFF image includes a collection of FOVs. Note that this
+approach does not rely on the assumption that the FOVs constitute a regular
+tiling of the well, but it also covers the case of irregularly placed FOVs.
