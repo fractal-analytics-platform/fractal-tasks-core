@@ -12,7 +12,7 @@
 * Testing:
     * Cache Zenodo data, within GitHub actions (\#585).
 * Documentation:
-    * Define V1 of ROI-table specs (\#582).
+    * Define V1 of table specs (\#582).
     * Add mathjax support (\#582).
     * Add cross-reference inventories to external APIs (\#582).
 
