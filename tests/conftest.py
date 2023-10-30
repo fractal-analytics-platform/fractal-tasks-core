@@ -43,7 +43,7 @@ def zenodo_images(testdata_path):
         js = json.loads(r.text)
         files = js["files"]
         for f in files:
-            file_url = f["links"]["download"]
+            file_url = f["links"]["self"]
             file_name = file_url.split("/")[-2]
             wget.download(file_url, out=f"{folder}/{file_name}", bar=False)
 
