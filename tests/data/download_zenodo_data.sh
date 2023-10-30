@@ -13,7 +13,7 @@ for RECORD_ID in $LIST_RECORD_ID; do
         echo "OUTPUT_FOLDER already exists. Exit."
     else
         mkdir $OUTPUT_FOLDER
-        FILES=`curl https://zenodo.org/api/records/$RECORD_ID | jq -r ".files[].links.download"`
+        FILES=`curl https://zenodo.org/api/records/$RECORD_ID | jq -r ".files[].links.self"`
         echo "curl exit code: $?"
         echo
         for FILE in $FILES; do
