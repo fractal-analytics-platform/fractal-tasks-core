@@ -183,6 +183,10 @@ def convert_ROIs_from_3D_to_2D(
     """
     TBD
 
+    Note that this function is only relevant when the ROIs in adata span the
+    whole extent of the Z axis.
+    TODO: check this explicitly.
+
     Args:
         adata: TBD
         pixel_size_z: TBD
