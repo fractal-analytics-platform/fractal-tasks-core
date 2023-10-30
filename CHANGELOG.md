@@ -2,6 +2,7 @@
 
 # Unreleased
 
+* Remove `has_args_schema` obsolete property from manifest (\#XXX).
 * Testing:
     * Align with new Zenodo API (\#601).
 
