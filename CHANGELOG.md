@@ -1,5 +1,10 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# Unreleased
+
+* Testing:
+    * Align with new Zenodo API (\#601).
+
 # 0.13.1
 
 * Always use `write_table` in tasks, rather than AnnData `write_elem` (\#581).
