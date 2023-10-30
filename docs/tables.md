@@ -108,8 +108,8 @@ one](#core-tables). Moreover, the table-group Zarr attributes must include the
 {
     "fractal_table_version": "1",
     "type": "roi_table",
-    "encoding-type": "anndata",      # Automatically added by anndata
-    "encoding-version": "0.1.0",     # Automatically added by anndata
+    "encoding-type": "anndata",
+    "encoding-version": "0.1.0",
 }
 ```
 
@@ -188,8 +188,8 @@ Here is an example of valid Zarr attributes
     "type": "masking_roi_table",
     "region": { "path": "../labels/label_DAPI" },
     "instance_key": "label",
-    "encoding-type": "anndata",      # Automatically added by anndata
-    "encoding-version": "0.1.0",     # Automatically added by anndata
+    "encoding-type": "anndata",
+    "encoding-version": "0.1.0",
 }
 ```
 
@@ -233,14 +233,15 @@ Here is an example of valid Zarr attributes
     "type": "feature_table",
     "region": { "path": "../labels/label_DAPI" },
     "instance_key": "label",
-    "encoding-type": "anndata",      # Automatically added by anndata
-    "encoding-version": "0.1.0",     # Automatically added by anndata
+    "encoding-type": "anndata",
+    "encoding-version": "0.1.0",
 }
 ```
 
 **Table columns**
 
-There is no specific constraint on which columns a feature table should have.
+A feature table must include the table which is defined in its `instance_key`
+attribute, e.g. the `label` one in the example above.
 
 ## Examples
 
