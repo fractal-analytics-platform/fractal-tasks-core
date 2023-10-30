@@ -7,4 +7,4 @@ logging.basicConfig(
 
 __VERSION__ = "0.13.1"
 __OME_NGFF_VERSION__ = "0.4"
-__ROI_TABLE_VERSION__ = "1"
+__FRACTAL_TABLE_VERSION__ = "1"
