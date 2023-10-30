@@ -135,7 +135,7 @@ of a given `AnnData` object indexes the columns of the table. A
 
 ROI tables may also include other columns, beyond the required ones. Here are
 the ones that are typically used in `fractal-tasks-core` (see also the [Use
-cases](#use-cases) section):
+cases](#roi-tables-use-cases) section):
 
 * `x_micrometer_original` and `y_micrometer_original`, which are a copy of
   `x_micrometer` and `y_micrometer` taken before applying some transformation;
@@ -144,7 +144,6 @@ cases](#use-cases) section):
 * `label`, which is used to link a ROI to a label (either for
   [masking ROI tables](#masking-roi-tables) or for
   [feature tables](#feature-tables)).
-
 
 ### Masking ROI tables
 
@@ -245,12 +244,9 @@ attribute, e.g. the `label` one in the example above.
 
 ## Examples
 
-### Use cases
+### Use cases for ROI tables
 
-The different table specifications above correspond to different use cases in
-`fractal-tasks-core`.
-
-#### ROI tables
+#### OME-Zarr creation
 
 OME-Zarrs created via `fractal-tasks-core` (e.g. by parsing Yokogawa images via
 the
@@ -259,13 +255,15 @@ or
 [`create_ome_zarr_multiplex`](../reference/fractal_tasks_core/tasks/create_ome_zarr_multiplex/#fractal_tasks_core.tasks.create_ome_zarr_multiplex.create_ome_zarr_multiplex)
 tasks) always include two specific ROI tables:
 
-* The table named `well_ROI_table`, which covers the NGFF image corresponding to the whole well[^1].
-* The table named `FOV_ROI_table`, which lists all original FOVs;
+* The table named `well_ROI_table`, which covers the NGFF image corresponding to the whole well[^1];
+* The table named `FOV_ROI_table`, which lists all original FOVs.
 
 Each one of these two tables includes ROIs that are only defined in the XY
-plane, and span the whole set of Z planes. Note that this differs, e.g., from
-the case of bounding-box ROIs based on three-dimensional segmented objects,
-which may have a non-trivial Z size.
+plane, and span the whole image size along the Z axis. Note that this differs,
+e.g., from ROIs which are the bounding boxes of three-dimensional segmented
+objects, and which may cover only a part of the image Z size.
+
+#### OME-Zarr import
 
 When working with an externally-generated OME-Zarr, one may use the
 [`import_ome_zarr`
@@ -273,26 +271,27 @@ task](../reference/fractal_tasks_core/tasks/import_ome_zarr/#fractal_tasks_core.
 to make it compatible with `fractal-tasks-core`. This task optionally adds two
 ROI tables to the NGFF images:
 
-* The table named `image_ROI_table`, which simply covers the whole image.
+* The table named `image_ROI_table`, which covers the whole image;
 * A table named `grid_ROI_table`, which splits the whole-image ROI into a YX
-  rectangular grid of smaller ROIs. This may correspond to original FOVs, or it
-  may simply be useful for applying downstream processing to smaller arrays and
-  avoid large memory requirements.
+  rectangular grid of smaller ROIs. This may correspond to original FOVs (in
+  case the image is a tiled well[^1]), or it may simply be useful for applying
+  downstream processing to smaller arrays and avoid large memory requirements.
+
+#### OME-Zarr processing
 
 ROI tables are also used and updated during image processing, e.g as in:
 
-* FOV ROI tables may undergo transformations during processing, e.g. FOV ROIs
-  may be shifted to avoid overlaps; in this case, we use the optional columns
-  `x_micrometer_original` and `y_micrometer_original` to store the values
+* The FOV ROI table may undergo transformations during processing, e.g. FOV
+  ROIs may be shifted to avoid overlaps; in this case, we use the optional
+  columns `x_micrometer_original` and `y_micrometer_original` to store the values
   before the transformation.
-* FOV ROI tables are also used to store information on the registration of
+* The FOV ROI table is also used to store information on the registration of
   multiplexing cycles, via the `translation_x`, `translation_y` and
   `translation_z` optional columns.
 * Several tasks in `fractal-tasks-core` take an existing ROI table as an input
   and then loop over the ROIs defined in the table. This makes the task more
   flexible, as it can be used to process e.g. a whole well, a set of FOVs, or a
   set of custom regions of the array.
-
 
 ### Reading/writing tables
 
@@ -421,9 +420,7 @@ $ cat /tmp/image.zarr/tables/MyTable/.zattrs    # View single-table attributes
 }
 ```
 
-
 ## Outlook
-
 
 These specifications may evolve (especially based on the future NGFF updates),
 eventually leading to breaking changes in future versions.
@@ -445,7 +442,6 @@ Here is an in-progress list of aspects that may be reviewed:
   the record, Zarr does not natively support storage of dataframes (see e.g.
   https://github.com/zarr-developers/numcodecs/issues/452), which is one
   aspect in favor of sticking with the `anndata` library.
-
 
 [^1]:
 Within `fractal-tasks-core`, NGFF images represent whole wells; this still
