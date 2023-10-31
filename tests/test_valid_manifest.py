@@ -13,7 +13,7 @@ def test_valid_manifest(tmp_path):
     NOTE: to avoid adding a fractal-server dependency, we simply download the
     relevant file.
     """
-    # Download Pydantic model for ManifestV1
+    # Download JSON Schema for ManifestV1
     url = (
         "https://raw.githubusercontent.com/fractal-analytics-platform/"
         "fractal-server/main/"
