@@ -1,9 +1,9 @@
 import json
-import sys
 from pathlib import Path
 
 import requests
 from devtools import debug
+from jsonschema import validate
 
 import fractal_tasks_core
 
@@ -13,21 +13,21 @@ def test_valid_manifest(tmp_path):
     NOTE: to avoid adding a fractal-server dependency, we simply download the
     relevant file.
     """
-
+    # Download JSON Schema for ManifestV1
     url = (
         "https://raw.githubusercontent.com/fractal-analytics-platform/"
-        "fractal-server/main/fractal_server/app/schemas/manifest.py"
+        "fractal-server/main/"
+        "fractal_server/app/schemas/json_schemas/manifest.json"
     )
     r = requests.get(url)
-    debug(tmp_path)
-    with (tmp_path / "fractal_manifest.py").open("wb") as fout:
-        fout.write(r.content)
-
-    sys.path.append(str(tmp_path))
-    from fractal_manifest import ManifestV1
+    with (tmp_path / "manifest_schema.json").open("wb") as f:
+        f.write(r.content)
+    with (tmp_path / "manifest_schema.json").open("r") as f:
+        manifest_schema = json.load(f)
 
     module_dir = Path(fractal_tasks_core.__file__).parent
     with (module_dir / "__FRACTAL_MANIFEST__.json").open("r") as fin:
         manifest_dict = json.load(fin)
-    manifest = ManifestV1(**manifest_dict)
-    debug(manifest)
+
+    debug(manifest_dict)
+    validate(instance=manifest_dict, schema=manifest_schema)
