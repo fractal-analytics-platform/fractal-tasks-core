@@ -41,8 +41,8 @@ def build_pyramid(
     This function works for 2D, 3D or 4D arrays.
 
     Args:
-        zarrurl: Path of the zarr group, which must already include level 0
-            (e.g. `"some/path/plate.zarr/B/03/0"`).
+        zarrurl: Path of the image zarr group, not including the
+            multiscale-level path (e.g. `"some/path/plate.zarr/B/03/0"`).
         overwrite: Whether to overwrite existing pyramid levels.
         num_levels: Total number of pyramid levels (including 0).
         coarsening_xy: Linear coarsening factor between subsequent levels.
@@ -52,6 +52,8 @@ def build_pyramid(
 
     # Clean up zarrurl
     zarrurl = str(pathlib.Path(zarrurl))  # FIXME
+
+    # Select full-resolution multiscale level
     zarrurl_highres = f"{zarrurl}/0"
     logger.info(f"[build_pyramid] High-resolution path: {zarrurl_highres}")
 
