@@ -4,7 +4,7 @@
 
 | Name                                                                |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
 |-------------------------------------------------------------------- | -------: | -------: | -------: | -------: | ------: | --------: |
-| fractal\_tasks\_core/\_\_init\_\_.py                                |        4 |        0 |        0 |        0 |    100% |           |
+| fractal\_tasks\_core/\_\_init\_\_.py                                |        5 |        0 |        0 |        0 |    100% |           |
 | fractal\_tasks\_core/lib\_ROI\_overlaps.py                          |      159 |        5 |       62 |        6 |     95% |139, 199, 240, 322, 333, 490->497 |
 | fractal\_tasks\_core/lib\_channels.py                               |      176 |        1 |       92 |        3 |     99% |28, 85->84, 432->434 |
 | fractal\_tasks\_core/lib\_glob.py                                   |       20 |        0 |        8 |        0 |    100% |           |
@@ -17,7 +17,7 @@
 | fractal\_tasks\_core/lib\_read\_fractal\_metadata.py                |       35 |        0 |       14 |        0 |    100% |           |
 | fractal\_tasks\_core/lib\_regions\_of\_interest.py                  |      202 |        1 |       66 |        1 |     99% |       168 |
 | fractal\_tasks\_core/lib\_upscale\_array.py                         |       74 |        7 |       48 |        6 |     88% |63, 91, 96->100, 113, 128, 192-197 |
-| fractal\_tasks\_core/lib\_write.py                                  |       97 |        0 |       42 |        2 |     99% |83->87, 171->174 |
+| fractal\_tasks\_core/lib\_write.py                                  |       99 |        0 |       42 |        2 |     99% |85->89, 173->176 |
 | fractal\_tasks\_core/lib\_zattrs\_utils.py                          |       38 |        1 |       14 |        1 |     96% |        69 |
 | fractal\_tasks\_core/tasks/\_\_init\_\_.py                          |        0 |        0 |        0 |        0 |    100% |           |
 | fractal\_tasks\_core/tasks/\_utils.py                               |       29 |        5 |        8 |        1 |     78% |33-35, 68-71 |
@@ -33,7 +33,7 @@
 | fractal\_tasks\_core/tasks/maximum\_intensity\_projection.py        |       48 |        3 |        8 |        3 |     89% |32->31, 67, 129-131 |
 | fractal\_tasks\_core/tasks/napari\_workflows\_wrapper.py            |      243 |       20 |      118 |       15 |     90% |61->60, 149-151, 188, 293, 300, 306-311, 316, 347, 352, 392-396, 419, 522->509, 561-566, 573->575, 653-655 |
 | fractal\_tasks\_core/tasks/yokogawa\_to\_ome\_zarr.py               |       94 |        5 |       22 |        5 |     91% |62->61, 111, 168, 219, 269-271 |
-|                                                           **TOTAL** | **2759** |  **190** | **1054** |  **153** | **90%** |           |
+|                                                           **TOTAL** | **2762** |  **190** | **1054** |  **153** | **90%** |           |
 
 
 ## Setup coverage badge
