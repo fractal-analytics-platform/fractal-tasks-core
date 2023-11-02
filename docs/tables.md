@@ -258,10 +258,10 @@ tasks) always include two specific ROI tables:
 * The table named `well_ROI_table`, which covers the NGFF image corresponding to the whole well[^1];
 * The table named `FOV_ROI_table`, which lists all original fields of view (FOVs).
 
-Each one of these two tables includes ROIs that are only defined in the XY
-plane, and span the whole image size along the Z axis. Note that this differs,
-e.g., from ROIs which are the bounding boxes of three-dimensional segmented
-objects, and which may cover only a part of the image Z size.
+Each one of these two tables includes ROIs that span the whole image size along
+the Z axis. Note that this differs, e.g., from ROIs which are the bounding
+boxes of three-dimensional segmented objects, and which may cover only a part
+of the image Z size.
 
 #### OME-Zarr import
 
@@ -276,6 +276,10 @@ ROI tables to the NGFF images:
   rectangular grid of smaller ROIs. This may correspond to original FOVs (in
   case the image is a tiled well[^1]), or it may simply be useful for applying
   downstream processing to smaller arrays and avoid large memory requirements.
+
+As for the case of `well_ROI_table` and `FOV_ROI_table` described
+[above](#ome-zarr-creation), also these two tables include ROIs spanning the
+whole image extension along the Z axis.
 
 #### OME-Zarr processing
 
