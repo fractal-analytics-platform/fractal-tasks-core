@@ -16,7 +16,7 @@ tables we use, and it includes:
 > [593](https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/593)).
 <div></div>
 > **Note**: The specifications below are largely inspired by [a proposed update
-> to NGFF specs](https://github.com/ome/ngff/pull/64). This update is currently
+> to OME-NGFF specs](https://github.com/ome/ngff/pull/64). This update is currently
 > on hold, and `fractal-tasks-core` will evolve as soon as an official NGFF
 > table specs is adopted - see also the [Outlook](#outlook) section.
 
@@ -71,8 +71,8 @@ image.zarr        # Zarr group for a NGFF image
 ```
 
 The Zarr attributes of the `tables` group must include the key `tables`,
-pointing to the list of all tables (this simplifies the discovery of image
-tables), as in
+pointing to the list of all tables (this simplifies discovery of tables
+associated to the current NGFF image), as in
 ```json title="image.zarr/tables/.zattrs"
 {
     "tables": ["table_1", "table_2"]
@@ -97,7 +97,7 @@ attributes. Here is an example of the resulting Zarr attributes:
 In `fractal-tasks-core`, a ROI table defines regions of space which are
 three-dimensional (see also the [Outlook section](#outlook) about
 dimensionality flexibility) and box-shaped.
-Examples use cases are described [here](#roi-tables_1).
+Typical use cases are described [here](#use-cases-for-roi-tables).
 
 **Zarr attributes**
 
@@ -123,7 +123,7 @@ of a given `AnnData` object indexes the columns of the table. A
 * `x_micrometer`, `y_micrometer`, `z_micrometer`:
   the lower bounds of the XYZ intervals defining the ROI, in micrometers;
 * `len_x_micrometer`, `len_y_micrometer`, `len_z_micrometer`:
-  the XYZ edge lenghts, in micrometers.
+  the XYZ edge lengths, in micrometers.
 
 > Notes:
 >
@@ -195,8 +195,8 @@ Here is an example of valid Zarr attributes
 **Table columns**
 
 On top of the required ROI-table colums, a masking ROI table must include the
-table which is defined in its `instance_key` attribute, e.g. the `label` one in
-the example above.
+column which is defined in its `instance_key` attribute (e.g. the `label`
+column, for the example above).
 
 ### Feature tables
 
@@ -205,8 +205,8 @@ the example above.
 The typical use case for feature tables is to store measurements related to
 segmented objects, while mantaining a link to the original instances (e.g.
 labels). Note that the current specification is aligned to the one of [masking
-ROI tables](#masking-roi-tables), since they share the same kind of use case,
-but the two may diverge in the future.
+ROI tables](#masking-roi-tables), since they both need to relate a table to a
+label image, but the two may diverge in the future.
 
 As part of the current `fractal-tasks-core` tasks, measurements can be
 performed e.g. via `regionprops` from `scikit-image`, as wrapped in
@@ -239,8 +239,8 @@ Here is an example of valid Zarr attributes
 
 **Table columns**
 
-A feature table must include the table which is defined in its `instance_key`
-attribute, e.g. the `label` one in the example above.
+A feature table must include the column which is defined in its `instance_key`
+attribute (e.g. the `label` column, for the example above).
 
 ## Examples
 
@@ -256,7 +256,7 @@ or
 tasks) always include two specific ROI tables:
 
 * The table named `well_ROI_table`, which covers the NGFF image corresponding to the whole well[^1];
-* The table named `FOV_ROI_table`, which lists all original FOVs.
+* The table named `FOV_ROI_table`, which lists all original fields of view (FOVs).
 
 Each one of these two tables includes ROIs that are only defined in the XY
 plane, and span the whole image size along the Z axis. Note that this differs,
@@ -302,8 +302,9 @@ tables, including functions specifically targeting the Zarr format.
 
 To read an `AnnData` table from a Zarr group, one may use the [`read_zarr`
 function](https://anndata.readthedocs.io/en/latest/generated/anndata.read_zarr.html).
-In the following example a NGFF image was created by sticthing together two
-field of views, where each one is made of a stack of five Z planes.
+In the following example a NGFF image was created by stitching together two
+field of views, where each one is made of a stack of five Z planes with 1 um
+spacing between the planes.
 The `FOV_ROI_table` has information on the XY position and size of the two
 original FOVs (named `FOV_1` and `FOV_2`):
 ```python
@@ -333,6 +334,15 @@ print(table.var_names)
 print(table.X)
 # [[    0.      0.      0.    416.    351.      5.  -1448.3 -1517.7]
 #  [  416.      0.      0.    416.    351.      5.  -1032.3 -1517.7]]
+
+df = table.to_df()  # Convert to pandas DataFrame
+print(df)
+#             x_micrometer  y_micrometer  z_micrometer  ...  len_z_micrometer  x_micrometer_original  y_micrometer_original
+# FieldIndex                                            ...
+# FOV_1                0.0           0.0           0.0  ...               2.0           -1448.300049           -1517.699951
+# FOV_2              416.0           0.0           0.0  ...               2.0           -1032.300049           -1517.699951
+#
+# [2 rows x 8 columns]
 ```
 
 In this case, the second FOV (labeled `FOV_2`) is defined as the three-dimensional region such that
@@ -434,14 +444,17 @@ Here is an in-progress list of aspects that may be reviewed:
 * The `z_micrometer` and `len_z_micrometer` columns are currently required in
   all ROI tables, even when the ROIs actually define a two-dimensional XY
   region; in that case, we set `z_micrometer=0` and `len_z_micrometer` is such
-  that the whole Z size is covered. In a future version, we may introduce more
-  flexibility and also accept ROI tables which only include X and Y axes, and
-  adapt the relevant tools so that they automatically expand these ROIs into
-  three-dimensions when appropriate.
-* We may re-evaluate whether `AnnData` tables are the most appropriate tool. For
-  the record, Zarr does not natively support storage of dataframes (see e.g.
-  https://github.com/zarr-developers/numcodecs/issues/452), which is one
-  aspect in favor of sticking with the `anndata` library.
+  that the whole Z size is covered (that is, `len_z_micrometer` is the product
+  of the spacing between Z planes and the number of planes). In a future
+  version, we may introduce more flexibility and also accept ROI tables which
+  only include X and Y axes, and adapt the relevant tools so that they
+  automatically expand these ROIs into three-dimensions when appropriate.
+* Concerning the use of `AnnData` tables or other formats for tabular data, our
+  plan is to follow whatever serialised table specification becomes part of the
+  NGFF standard. For the record, Zarr does not natively support storage of
+  dataframes (see e.g.
+  https://github.com/zarr-developers/numcodecs/issues/452), which is one aspect
+  in favor of sticking with the `anndata` library.
 
 [^1]:
 Within `fractal-tasks-core`, NGFF images represent whole wells; this still
