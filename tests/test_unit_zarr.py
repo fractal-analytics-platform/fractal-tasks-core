@@ -4,6 +4,7 @@ import pytest
 import zarr
 from devtools import debug
 
+from fractal_tasks_core import __FRACTAL_TABLE_VERSION__
 from fractal_tasks_core.lib_write import _write_elem_with_overwrite
 from fractal_tasks_core.lib_write import open_zarr_group_with_overwrite
 from fractal_tasks_core.lib_write import OverwriteNotAllowedError
@@ -127,6 +128,10 @@ def test_write_table(tmp_path):
     assert image_group["tables"].attrs.asdict() == dict(tables=["table_a"])
     for key in ["region", "instance_key", "type"]:
         assert key not in table_a_group.attrs.keys()
+    assert (
+        table_a_group.attrs["fractal_table_version"]
+        == __FRACTAL_TABLE_VERSION__
+    )
 
     # Run write_table again, with overwrite=True
     table_a_group = write_table(

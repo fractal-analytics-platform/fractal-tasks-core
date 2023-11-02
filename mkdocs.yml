@@ -4,20 +4,28 @@ repo_url: https://github.com/fractal-analytics-platform/fractal-tasks-core
 repo_name: fractal-tasks-core
 
 markdown_extensions:
-- admonition
-- pymdownx.details
-- pymdownx.emoji
-- pymdownx.magiclink
-- pymdownx.snippets:
-    check_paths: true
-    base_path:
-      - fractal_tasks_core/__FRACTAL_MANIFEST__.json
-- pymdownx.superfences
-- pymdownx.tabbed:
-    alternate_style: true
-- pymdownx.tasklist
-- toc:
-    permalink: true
+  - admonition
+  - pymdownx.details
+  - pymdownx.emoji
+  - pymdownx.magiclink
+  - pymdownx.snippets:
+      check_paths: true
+      base_path:
+        - fractal_tasks_core/__FRACTAL_MANIFEST__.json
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - footnotes
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 theme:
   name: "material"
@@ -51,6 +59,7 @@ nav:
   - Run tasks in Python scripts: tasks_in_scripts.md
   - Write a custom task: custom_task.md
   - Task manifest: manifest.md
+  - Tables: tables.md
   - Code reference: reference/fractal_tasks_core/
   - Development: development.md
   - Changelog: changelog.md
@@ -71,6 +80,13 @@ plugins:
       default_handler: python
       handlers:
         python:
+          import:
+            - url: https://docs.python.org/objects.inv
+            - url: https://numpy.org/doc/stable/objects.inv
+            - url: https://zarr.readthedocs.io/en/stable/objects.inv
+            - url: https://anndata.readthedocs.io/en/latest/objects.inv
+            - url: https://docs.dask.org/en/stable/objects.inv
+            # - url: https://docs.pydantic.dev/latest/objects.inv # This points to V2
           options:
             show_signature_annotations: false
             docstring_section_style: "spacy"

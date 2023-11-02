@@ -13,6 +13,10 @@
 * Remove assumptions on ROI-table columns from `get_ROI_table_with_translation` helper function of `calculate_registration_image_based` task (\#591).
 * Testing:
     * Cache Zenodo data, within GitHub actions (\#585).
+* Documentation:
+    * Define V1 of table specs (\#582).
+    * Add mathjax support (\#582).
+    * Add cross-reference inventories to external APIs (\#582).
 
 # 0.13.0
 

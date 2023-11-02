@@ -18,10 +18,12 @@ from typing import Optional
 from typing import Union
 
 import anndata as ad
-import zarr
+import zarr.hierarchy
 from anndata.experimental import write_elem
 from zarr.errors import ContainsGroupError
 from zarr.errors import GroupNotFoundError
+
+from fractal_tasks_core import __FRACTAL_TABLE_VERSION__
 
 
 class OverwriteNotAllowedError(RuntimeError):
@@ -34,7 +36,7 @@ def open_zarr_group_with_overwrite(
     overwrite: bool,
     logger: Optional[logging.Logger] = None,
     **open_group_kwargs: Any,
-) -> zarr.Group:
+) -> zarr.hierarchy.Group:
     """
     Wrap `zarr.open_group` and add `overwrite` argument.
 
@@ -122,7 +124,7 @@ def open_zarr_group_with_overwrite(
 
 
 def _write_elem_with_overwrite(
-    group: zarr.Group,
+    group: zarr.hierarchy.Group,
     key: str,
     elem: Any,
     *,
@@ -184,7 +186,7 @@ def _write_elem_with_overwrite(
 
 
 def write_table(
-    image_group: zarr.Group,
+    image_group: zarr.hierarchy.Group,
     table_name: str,
     table: ad.AnnData,
     overwrite: bool = False,
@@ -291,11 +293,14 @@ def write_table(
         # Update table_group attributes with table_attrs key/value pairs
         table_group.attrs.update(**table_attrs)
 
+    # Always add information about the fractal-roi-table version
+    table_group.attrs.update(fractal_table_version=__FRACTAL_TABLE_VERSION__)
+
     return table_group
 
 
 def prepare_label_group(
-    image_group: zarr.Group,
+    image_group: zarr.hierarchy.Group,
     label_name: str,
     overwrite: bool = False,
     label_attrs: Optional[dict[str, Any]] = None,
