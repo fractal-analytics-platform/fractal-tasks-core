@@ -4,12 +4,17 @@
 
 We use [poetry](https://python-poetry.org/docs) v1.5 to manage the development environment and the dependencies. A simple way to install it is `pipx install poetry==1.5`, or you can look at the installation section [here](https://python-poetry.org/docs#installation).
 
-Running:
-
+Running any of
 ```console
-poetry install [--with dev] [--with docs]
-```
+# Install the core library only
+poetry install
 
+# Install the core library and the tasks
+poetry install -E fractal-tasks
+
+# Install the core library and the development/documentation dependencies
+poetry install --with dev --with docs
+```
 will take care of installing all the dependencies in a separate environment, optionally installing also the dependencies for developement and to build the documentation.
 
 ## Testing
