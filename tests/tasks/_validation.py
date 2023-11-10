@@ -1,12 +1,12 @@
 import glob
 import json
 import logging
-import urllib
 from pathlib import Path
 
 import anndata as ad
 import dask.array as da
 import numpy as np
+import pooch
 import zarr
 from devtools import debug
 from jsonschema import validate
@@ -19,13 +19,17 @@ from fractal_tasks_core.lib_regions_of_interest import (
 
 
 def validate_schema(*, path: str, type: str):
-    url: str = (
-        "https://raw.githubusercontent.com/ome/ngff/main/"
-        f"{__OME_NGFF_VERSION__}/schemas/{type}.schema"
+
+    file_path = pooch.retrieve(
+        url=(
+            "https://raw.githubusercontent.com/ome/ngff/main/"
+            f"{__OME_NGFF_VERSION__}/schemas/{type}.schema"
+        ),
+        known_hash=None,
     )
-    debug(url)
-    with urllib.request.urlopen(url) as fin:
-        schema: dict = json.load(fin)
+    debug(file_path)
+    with open(file_path) as fin:
+        schema = json.load(fin)
     debug(path)
     debug(type)
     with open(f"{path}/.zattrs", "r") as fin:
