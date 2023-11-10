@@ -6,11 +6,11 @@ import time
 from pathlib import Path
 
 import anndata as ad
+import pooch
 import pytest
 import requests  # type: ignore
 import wget
 import zarr
-from devtools import debug
 
 from fractal_tasks_core.lib_regions_of_interest import reset_origin
 from fractal_tasks_core.lib_write import write_table
@@ -75,42 +75,48 @@ def zenodo_images_multiplex(testdata_path, zenodo_images):
 
 
 @pytest.fixture(scope="session")
-def zenodo_zarr(testdata_path, tmpdir_factory):
-    t_start = time.perf_counter()
+def zenodo_zarr(testdata_path):
+    """
+    This takes care of two steps:
 
-    doi = "10.5281/zenodo.8091756"
-    rootfolder = testdata_path / (doi.replace(".", "_").replace("/", "_"))
+    1. Download, via pooch
+    2. Store a copy in tests/data
+    3. Modify the copy in tests/data, to add whatever is not in Zenodo
+    """
+
+    DOI = "10.5281/zenodo.8091756"
+    DOI_slug = DOI.replace("/", "_").replace(".", "_")
     platenames = ["plate.zarr", "plate_mip.zarr"]
+    rootfolder = testdata_path / DOI_slug
     folders = [rootfolder / plate for plate in platenames]
-    zarrnames = [
-        "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
-        "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr",
-    ]
 
-    # Download dataset
-    if rootfolder.exists():
-        print(f"{str(rootfolder)} already exists, skip download part")
-    else:
-        rootfolder.mkdir()
-        tmp_path = tmpdir_factory.mktemp("zenodo_zarr")
-        for zarrname in zarrnames:
-            zipname = f"{zarrname}.zip"
-            url = f"https://zenodo.org/record/8091756/files/{zipname}"
-            debug(url)
-            wget.download(url, out=str(tmp_path / zipname), bar=None)
-            time.sleep(0.5)
-            shutil.unpack_archive(
-                str(tmp_path / zipname),
-                extract_dir=rootfolder,
-                format="zip",
-            )
+    for ind, (file_name, known_hash) in enumerate(
+        [
+            (
+                "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
+                "38b7894530f28fd6f55edf5272aaea104c11f36e28825446d23aff280f3a4290",  # noqa
+            ),
+            (
+                "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr",
+                "7efddc0bd20b186c28ca8373b1f7af2d1723d0663fe9438969dc79da02539175",  # noqa
+            ),
+        ]
+    ):
+        file_paths = pooch.retrieve(
+            url=f"doi:{DOI}/{file_name}.zip",
+            fname=f"{file_name}.zip",
+            known_hash=known_hash,
+            processor=pooch.Unzip(extract_dir=f"{DOI_slug}/{file_name}"),
+        )
+        zarr_full_path = file_paths[0].split(file_name)[0] + file_name
+        print(zarr_full_path)
+        folder = folders[ind]
 
-    # Based on the Zenodo OME-Zarrs, create the appropriate OME-Zarrs to be
-    # used in tests
-    for zarrname, folder in zip(zarrnames, folders):
+        # Based on the Zenodo OME-Zarrs, create the appropriate OME-Zarrs to be
+        # used in tests
         if os.path.isdir(str(folder)):
             shutil.rmtree(str(folder))
-        shutil.copytree(str(rootfolder / zarrname), str(folder))
+        shutil.copytree(zarr_full_path, folder)
 
         # Update well/FOV ROI tables, by shifting their origin to 0
         # TODO: remove this fix, by uploading new zarrs to zenodo (ref
@@ -131,8 +137,6 @@ def zenodo_zarr(testdata_path, tmpdir_factory):
 
     folders = [str(f) for f in folders]
 
-    t_end = time.perf_counter()
-    logging.warning(f"\n    Time spent in zenodo_zarr: {t_end-t_start:.2f} s")
     return folders
 
 
