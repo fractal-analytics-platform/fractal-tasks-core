@@ -7,19 +7,18 @@ import anndata as ad
 import pooch
 import pytest
 import zarr
+from devtools import debug
 
 from ..conftest import *  # noqa
 from fractal_tasks_core.lib_regions_of_interest import reset_origin
 from fractal_tasks_core.lib_write import write_table
 
-# Import fixture testdata_path from ../conftest.py
-
 
 @pytest.fixture(scope="session")
 def zenodo_images(testdata_path: Path) -> str:
     """
-    1. Download images/metadata from Zenodo;
-    2. Copy images/metadata into a tests/data subfolder;
+    1. Download image/metadata files from Zenodo;
+    2. Copy image/metadata files into a tests/data subfolder;
     3. Add a spurious file.
     """
 
@@ -49,19 +48,14 @@ def zenodo_images(testdata_path: Path) -> str:
         ("MeasurementDetail.mrf", "md5:5fce4ca3e5ebc5f5be0b4945598e1ffb"),
     ]
 
-    from devtools import debug
-
+    # Download files one by one, and copy them into rootfolder
+    debug(rootfolder)
     for ind, (file_name, known_hash) in enumerate(list_filenames_hashes):
-
         debug(file_name)
-
-        # 1) Download files one by one, and copy them into rootfolder
         file_path = pooch.retrieve(
             url=f"doi:{DOI}/{file_name}",
             known_hash=known_hash,
         )
-        debug(file_path)
-        debug(file_path, rootfolder / file_name)
         shutil.copy(file_path, rootfolder / file_name)
 
     # Add an image with invalid name, that should be skipped during parsing
