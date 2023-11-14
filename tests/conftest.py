@@ -1,15 +1,11 @@
-import json
 import logging
 import os
 import shutil
-import time
 from pathlib import Path
 
 import anndata as ad
 import pooch
 import pytest
-import requests  # type: ignore
-import wget
 import zarr
 
 from fractal_tasks_core.lib_regions_of_interest import reset_origin
@@ -23,44 +19,63 @@ def testdata_path() -> Path:
 
 
 @pytest.fixture(scope="session")
-def zenodo_images(testdata_path):
+def zenodo_images(testdata_path: Path) -> str:
     """
-    Inspired by
-    https://github.com/dvolgyes/zenodo_get/blob/master/zenodo_get/zget.py
+    1. Download images/metadata from Zenodo;
+    2. Copy images/metadata into a tests/data subfolder;
+    3. Add a spurious file.
     """
-    t_start = time.perf_counter()
 
-    # Download images and metadata files
-    recordID = "7059515"
-    url = "10_5281_zenodo_7059515"
-    folder = str(testdata_path / f"10_5281_zenodo_{recordID}")
-    if os.path.isdir(folder):
-        print(f"{folder} already exists, skip download")
-    else:
-        os.makedirs(folder)
-        url = f"https://zenodo.org/api/records/{recordID}"
-        r = requests.get(url)
-        js = json.loads(r.text)
-        files = js["files"]
-        for f in files:
-            file_url = f["links"]["self"]
-            file_name = file_url.split("/")[-2]
-            wget.download(file_url, out=f"{folder}/{file_name}", bar=False)
+    DOI = "10.5281/zenodo.8287221"
+    DOI_slug = DOI.replace("/", "_").replace(".", "_")
+    rootfolder = testdata_path / DOI_slug
+    rootfolder.mkdir(exist_ok=True)
+
+    list_filenames_hashes = [
+        (
+            "20200812-CardiomyocyteDifferentiation14-Cycle1_B03_T0001F001L01A01Z01C01.png",  # noqa
+            "md5:41c5d3612f166d30d694a6c9902a5839",
+        ),
+        (
+            "20200812-CardiomyocyteDifferentiation14-Cycle1_B03_T0001F001L01A01Z02C01.png",  # noqa
+            "md5:3aa92682cf731989cf4d3e0015f59ce0",
+        ),
+        (
+            "20200812-CardiomyocyteDifferentiation14-Cycle1_B03_T0001F002L01A01Z01C01.png",  # noqa
+            "md5:a3b0be2af486e08d1f009831d8656b80",
+        ),
+        (
+            "20200812-CardiomyocyteDifferentiation14-Cycle1_B03_T0001F002L01A01Z02C01.png",  # noqa
+            "md5:f1e0d50a1654ffd079504a036ff4a9e3",
+        ),
+        ("MeasurementData.mlf", "md5:08898b37193727874b45c65a11754db9"),
+        ("MeasurementDetail.mrf", "md5:5fce4ca3e5ebc5f5be0b4945598e1ffb"),
+    ]
+
+    from devtools import debug
+
+    for ind, (file_name, known_hash) in enumerate(list_filenames_hashes):
+
+        debug(file_name)
+
+        # 1) Download files one by one, and copy them into rootfolder
+        file_path = pooch.retrieve(
+            url=f"doi:{DOI}/{file_name}",
+            known_hash=known_hash,
+        )
+        debug(file_path)
+        debug(file_path, rootfolder / file_name)
+        shutil.copy(file_path, rootfolder / file_name)
 
     # Add an image with invalid name, that should be skipped during parsing
-    with open(f"{folder}/invalid_path.png", "w") as f:
+    with (rootfolder / "invalid_path.png").open("w") as f:
         f.write("This file has an invalid filename, which cannot be parsed.")
 
-    t_end = time.perf_counter()
-    logging.warning(
-        f"\n    Time spent in zenodo_images: {t_end-t_start:.2f} s"
-    )
-
-    return folder
+    return rootfolder.as_posix()
 
 
 @pytest.fixture(scope="session")
-def zenodo_images_multiplex(testdata_path, zenodo_images):
+def zenodo_images_multiplex(testdata_path: Path, zenodo_images: Path):
     folder = str(testdata_path / "fake_multiplex")
     cycle_folder_1 = str(Path(folder) / "cycle1")
     cycle_folder_2 = str(Path(folder) / "cycle2")
@@ -75,7 +90,7 @@ def zenodo_images_multiplex(testdata_path, zenodo_images):
 
 
 @pytest.fixture(scope="session")
-def zenodo_zarr(testdata_path):
+def zenodo_zarr(testdata_path: Path):
     """
     This takes care of multiple steps:
 
@@ -103,7 +118,6 @@ def zenodo_zarr(testdata_path):
             ),
         ]
     ):
-
         # 1) Download/unzip a single Zarr from Zenodo
         file_paths = pooch.retrieve(
             url=f"doi:{DOI}/{file_name}.zip",
@@ -145,7 +159,7 @@ def zenodo_zarr(testdata_path):
 
 
 @pytest.fixture(scope="function")
-def zenodo_zarr_metadata(testdata_path):
+def zenodo_zarr_metadata(testdata_path: Path):
     metadata_3D = {
         "plate": ["plate.zarr"],
         "well": ["plate.zarr/B/03"],
