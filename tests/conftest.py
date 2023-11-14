@@ -77,10 +77,10 @@ def zenodo_images_multiplex(testdata_path, zenodo_images):
 @pytest.fixture(scope="session")
 def zenodo_zarr(testdata_path):
     """
-    This takes care of two steps:
+    This takes care of multiple steps:
 
-    1. Download two Zarr containers (3D and MIP) from Zenodo, via pooch
-    2. Unzip the two Zarr containers and copy them into tests/data
+    1. Download/unzip two Zarr containers (3D and MIP) from Zenodo, via pooch
+    2. Copy the two Zarr containers into tests/data
     3. Modify the Zarrs in tests/data, to add whatever is not in Zenodo
     """
 
@@ -118,7 +118,7 @@ def zenodo_zarr(testdata_path):
         # 2) Copy the downloaded Zarr into tests/data
         if os.path.isdir(str(folder)):
             shutil.rmtree(str(folder))
-        shutil.copytree(zarr_full_path, folder)
+        shutil.copytree(Path(zarr_full_path) / file_name, folder)
 
         # 3) Modify the Zarr in tests/data to fit with expectations within
         # fractal-tasks-core.
