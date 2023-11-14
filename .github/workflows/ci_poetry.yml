@@ -42,13 +42,6 @@ jobs:
       - name: Install dependencies (without extras)
         run: poetry install --with dev --without docs --no-interaction
 
-      - name: Cache Pooch folder
-        id: cache-pooch-folder
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pooch
-          key: pooch-cache
-
       - name: Test core library with pytest
         run: poetry run coverage run -m pytest tests --ignore tests/tasks
 
