@@ -96,7 +96,7 @@ jobs:
           key: pooch-cache
 
       - name: Test tasks with pytest
-        run: poetry run coverage run -m pytest tests/tasks
+        run: poetry run coverage run -m pytest tests/tasks -s --log-cli-level info
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v3
