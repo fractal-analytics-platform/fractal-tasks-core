@@ -42,19 +42,8 @@ jobs:
       - name: Install dependencies (without extras)
         run: poetry install --with dev --without docs --no-interaction
 
-      - name: Cache Zenodo data
-        id: cache-zenodo-data
-        uses: actions/cache@v3
-        with:
-          path: tests/data/
-          key: zenodo-data
-
-      - name: Download Zenodo data
-        if: steps.cache-zenodo-data.outputs.cache-hit != 'true'
-        run: bash tests/data/download_zenodo_data.sh
-
       - name: Test core library with pytest
-        run: poetry run coverage run -m pytest tests --ignore tests/tasks
+        run: poetry run coverage run -m pytest tests --ignore tests/tasks -s --log-cli-level info
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v3
@@ -99,19 +88,15 @@ jobs:
       - name: Check manifest task metadata
         run: poetry run python fractal_tasks_core/dev/check_manifest.py
 
-      - name: Cache Zenodo data
-        id: cache-zenodo-data
+      - name: Cache Pooch folder
+        id: cache-pooch-folder
         uses: actions/cache@v3
         with:
-          path: tests/data/
-          key: zenodo-data
-
-      - name: Download Zenodo data
-        if: steps.cache-zenodo-data.outputs.cache-hit != 'true'
-        run: bash tests/data/download_zenodo_data.sh
+          path: ~/.cache/pooch
+          key: pooch-cache
 
       - name: Test tasks with pytest
-        run: poetry run coverage run -m pytest tests/tasks
+        run: poetry run coverage run -m pytest tests/tasks -s --log-cli-level info
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v3

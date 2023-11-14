@@ -1,11 +1,14 @@
 import json
 from pathlib import Path
+from typing import Any
 
 import jsonschema
+import pooch
 import pytest
 import zarr
 from devtools import debug
 
+from fractal_tasks_core import __OME_NGFF_VERSION__
 from fractal_tasks_core.lib_channels import check_unique_wavelength_ids
 from fractal_tasks_core.lib_channels import check_well_channel_labels
 from fractal_tasks_core.lib_channels import define_omero_channels
@@ -124,20 +127,24 @@ def test_get_channel_from_list(testdata_path: Path):
 
 @pytest.fixture(scope="session")
 def omero_channel_schema():
-    import urllib.request
-    from fractal_tasks_core import __OME_NGFF_VERSION__
-
-    url = (
-        "https://raw.githubusercontent.com/ome/ngff/main/"
-        f"{__OME_NGFF_VERSION__}/schemas/image.schema"
+    file_path = pooch.retrieve(
+        url=(
+            "https://raw.githubusercontent.com/ome/ngff/main/"
+            f"{__OME_NGFF_VERSION__}/schemas/image.schema"
+        ),
+        known_hash=None,
     )
-    debug(url)
-    with urllib.request.urlopen(url) as fin:
+    debug(file_path)
+    with open(file_path) as fin:
         full_schema = json.load(fin)
+
     yield full_schema["properties"]["omero"]["properties"]["channels"]["items"]
 
 
-def test_define_omero_channels(testdata_path: Path, omero_channel_schema):
+def test_define_omero_channels(
+    testdata_path: Path,
+    omero_channel_schema: dict[str, Any],
+):
     """
     GIVEN a list of our custom `OmeroChannel` objects
     WHEN calling `define_omero_channels`
