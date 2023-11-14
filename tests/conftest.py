@@ -79,11 +79,12 @@ def zenodo_zarr(testdata_path):
     """
     This takes care of two steps:
 
-    1. Download, via pooch
-    2. Store a copy in tests/data
-    3. Modify the copy in tests/data, to add whatever is not in Zenodo
+    1. Download two Zarr containers (3D and MIP) from Zenodo, via pooch
+    2. Unzip the two Zarr containers and copy them into tests/data
+    3. Modify the Zarrs in tests/data, to add whatever is not in Zenodo
     """
 
+    # 1 Download Zarrs from Zenodo
     DOI = "10.5281/zenodo.8091756"
     DOI_slug = DOI.replace("/", "_").replace(".", "_")
     platenames = ["plate.zarr", "plate_mip.zarr"]
@@ -102,6 +103,8 @@ def zenodo_zarr(testdata_path):
             ),
         ]
     ):
+
+        # 1) Download/unzip a single Zarr from Zenodo
         file_paths = pooch.retrieve(
             url=f"doi:{DOI}/{file_name}.zip",
             fname=f"{file_name}.zip",
@@ -112,15 +115,17 @@ def zenodo_zarr(testdata_path):
         print(zarr_full_path)
         folder = folders[ind]
 
-        # Based on the Zenodo OME-Zarrs, create the appropriate OME-Zarrs to be
-        # used in tests
+        # 2) Copy the downloaded Zarr into tests/data
         if os.path.isdir(str(folder)):
             shutil.rmtree(str(folder))
         shutil.copytree(zarr_full_path, folder)
 
-        # Update well/FOV ROI tables, by shifting their origin to 0
-        # TODO: remove this fix, by uploading new zarrs to zenodo (ref
-        # issue 526)
+        # 3) Modify the Zarr in tests/data to fit with expectations within
+        # fractal-tasks-core.
+        #
+        # Note: this currently consists in udating well/FOV ROI tables, by
+        # shifting their origin to 0.
+        # TODO: remove this fix, by uploading new zarrs to zenodo (ref 526).
         image_group_path = folder / "B/03/0"
         group_image = zarr.open_group(str(image_group_path))
         for table_name in ["FOV_ROI_table", "well_ROI_table"]:
@@ -136,7 +141,6 @@ def zenodo_zarr(testdata_path):
             )
 
     folders = [str(f) for f in folders]
-
     return folders
 
 
