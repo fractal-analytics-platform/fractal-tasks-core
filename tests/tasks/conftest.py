@@ -27,35 +27,29 @@ def zenodo_images(testdata_path: Path) -> str:
     rootfolder = testdata_path / DOI_slug
     rootfolder.mkdir(exist_ok=True)
 
-    list_filenames_hashes = [
-        (
-            "20200812-CardiomyocyteDifferentiation14-Cycle1_B03_T0001F001L01A01Z01C01.png",  # noqa
-            "md5:41c5d3612f166d30d694a6c9902a5839",
-        ),
-        (
-            "20200812-CardiomyocyteDifferentiation14-Cycle1_B03_T0001F001L01A01Z02C01.png",  # noqa
-            "md5:3aa92682cf731989cf4d3e0015f59ce0",
-        ),
-        (
-            "20200812-CardiomyocyteDifferentiation14-Cycle1_B03_T0001F002L01A01Z01C01.png",  # noqa
-            "md5:a3b0be2af486e08d1f009831d8656b80",
-        ),
-        (
-            "20200812-CardiomyocyteDifferentiation14-Cycle1_B03_T0001F002L01A01Z02C01.png",  # noqa
-            "md5:f1e0d50a1654ffd079504a036ff4a9e3",
-        ),
-        ("MeasurementData.mlf", "md5:08898b37193727874b45c65a11754db9"),
-        ("MeasurementDetail.mrf", "md5:5fce4ca3e5ebc5f5be0b4945598e1ffb"),
-    ]
+    registry = {
+        "20200812-CardiomyocyteDifferentiation14-Cycle1_B03_T0001F001L01A01Z01C01.png": "md5:41c5d3612f166d30d694a6c9902a5839",  # noqa
+        "20200812-CardiomyocyteDifferentiation14-Cycle1_B03_T0001F001L01A01Z02C01.png": "md5:3aa92682cf731989cf4d3e0015f59ce0",  # noqa
+        "20200812-CardiomyocyteDifferentiation14-Cycle1_B03_T0001F002L01A01Z01C01.png": "md5:a3b0be2af486e08d1f009831d8656b80",  # noqa
+        "20200812-CardiomyocyteDifferentiation14-Cycle1_B03_T0001F002L01A01Z02C01.png": "md5:f1e0d50a1654ffd079504a036ff4a9e3",  # noqa
+        "MeasurementData.mlf": "md5:08898b37193727874b45c65a11754db9",
+        "MeasurementDetail.mrf": "md5:5fce4ca3e5ebc5f5be0b4945598e1ffb",
+    }
+    base_url = f"doi:{DOI}/"
+    POOCH = pooch.Pooch(
+        pooch.os_cache("pooch") / DOI_slug,
+        base_url,
+        registry=registry,
+        retry_if_failed=4,
+        allow_updates=False,
+    )
 
     # Download files one by one, and copy them into rootfolder
     debug(rootfolder)
-    for ind, (file_name, known_hash) in enumerate(list_filenames_hashes):
+
+    for file_name in registry.keys():
         debug(file_name)
-        file_path = pooch.retrieve(
-            url=f"doi:{DOI}/{file_name}",
-            known_hash=known_hash,
-        )
+        file_path = POOCH.fetch(file_name)
         shutil.copy(file_path, rootfolder / file_name)
 
     # Add an image with invalid name, that should be skipped during parsing
@@ -81,7 +75,7 @@ def zenodo_images_multiplex(testdata_path: Path, zenodo_images: Path):
 
 
 @pytest.fixture(scope="session")
-def zenodo_zarr(testdata_path: Path):
+def zenodo_zarr(testdata_path: Path) -> list[str]:
     """
     This takes care of multiple steps:
 
@@ -97,24 +91,29 @@ def zenodo_zarr(testdata_path: Path):
     rootfolder = testdata_path / DOI_slug
     folders = [rootfolder / plate for plate in platenames]
 
-    for ind, (file_name, known_hash) in enumerate(
+    registry = {
+        "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr.zip": "38b7894530f28fd6f55edf5272aaea104c11f36e28825446d23aff280f3a4290",  # noqa
+        "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr.zip": "7efddc0bd20b186c28ca8373b1f7af2d1723d0663fe9438969dc79da02539175",  # noqa
+    }
+    base_url = f"doi:{DOI}/"
+
+    POOCH = pooch.Pooch(
+        pooch.os_cache("pooch") / DOI_slug,
+        base_url,
+        registry=registry,
+        retry_if_failed=4,
+        allow_updates=False,
+    )
+
+    for ind, file_name in enumerate(
         [
-            (
-                "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
-                "38b7894530f28fd6f55edf5272aaea104c11f36e28825446d23aff280f3a4290",  # noqa
-            ),
-            (
-                "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr",
-                "7efddc0bd20b186c28ca8373b1f7af2d1723d0663fe9438969dc79da02539175",  # noqa
-            ),
+            "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
+            "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr",
         ]
     ):
         # 1) Download/unzip a single Zarr from Zenodo
-        file_paths = pooch.retrieve(
-            url=f"doi:{DOI}/{file_name}.zip",
-            fname=f"{file_name}.zip",
-            known_hash=known_hash,
-            processor=pooch.Unzip(extract_dir=f"{DOI_slug}/{file_name}"),
+        file_paths = POOCH.fetch(
+            f"{file_name}.zip", processor=pooch.Unzip(extract_dir=file_name)
         )
         zarr_full_path = file_paths[0].split(file_name)[0] + file_name
         print(zarr_full_path)
@@ -145,8 +144,7 @@ def zenodo_zarr(testdata_path: Path):
                 logger=logging.getLogger(),
             )
 
-    folders = [str(f) for f in folders]
-    return folders
+    return [str(f) for f in folders]
 
 
 @pytest.fixture(scope="function")
