@@ -5683,16 +5683,6 @@ optional = ["python-socks", "wsaccel"]
 test = ["websockets"]
 
 [[package]]
-name = "wget"
-version = "3.2"
-description = "pure python download utility"
-optional = false
-python-versions = "*"
-files = [
-    {file = "wget-3.2.zip", hash = "sha256:35e630eca2aa50ce998b9b1a127bb26b30dfee573702782aa982f875e3f16061"},
-]
-
-[[package]]
 name = "wheel"
 version = "0.41.1"
 description = "A built-package format for Python"
@@ -5857,4 +5847,4 @@ fractal-tasks = ["Pillow", "cellpose", "imageio-ffmpeg", "napari-segment-blobs-a
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "9e76141a2befae7bbe4aad8f83b8368bb61783f5e5f79cc11a4a88ac5af5e8c0"
+content-hash = "6edcf502acdb856fb502c5772dbeab644710f1d63d1491b658378bcc23215858"
