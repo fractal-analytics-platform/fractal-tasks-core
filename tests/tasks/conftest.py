@@ -35,12 +35,12 @@ def zenodo_images(testdata_path: Path) -> str:
         "MeasurementData.mlf": "md5:08898b37193727874b45c65a11754db9",
         "MeasurementDetail.mrf": "md5:5fce4ca3e5ebc5f5be0b4945598e1ffb",
     }
-    base_url = f"doi:{DOI}/"
-    POOCH = pooch.Pooch(
+    base_url = f"doi:{DOI}"
+    POOCH = pooch.create(
         pooch.os_cache("pooch") / DOI_slug,
         base_url,
         registry=registry,
-        retry_if_failed=4,
+        retry_if_failed=10,
         allow_updates=False,
     )
 
@@ -95,13 +95,12 @@ def zenodo_zarr(testdata_path: Path) -> list[str]:
         "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr.zip": "38b7894530f28fd6f55edf5272aaea104c11f36e28825446d23aff280f3a4290",  # noqa
         "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr.zip": "7efddc0bd20b186c28ca8373b1f7af2d1723d0663fe9438969dc79da02539175",  # noqa
     }
-    base_url = f"doi:{DOI}/"
-
-    POOCH = pooch.Pooch(
+    base_url = f"doi:{DOI}"
+    POOCH = pooch.create(
         pooch.os_cache("pooch") / DOI_slug,
         base_url,
         registry=registry,
-        retry_if_failed=4,
+        retry_if_failed=10,
         allow_updates=False,
     )
 
