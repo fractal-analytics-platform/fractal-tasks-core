@@ -275,26 +275,37 @@ def write_table(
         new_tables = current_tables + [table_name]
         tables_group.attrs["tables"] = new_tables
 
-    # Optionally update attributes of the new-table zarr group
-    if table_attrs is not None:
-        if table_attrs.get("type") == "ngff:region_table":
-            # Verify whether we comply with a proposed change to the OME-NGFF
-            # table specs (https://github.com/ome/ngff/pull/64)
-            try:
-                table_attrs["instance_key"]
-                table_attrs["region"]["path"]
-            except KeyError as e:
-                logger.warning(
-                    f"The table_attrs parameter of write_elem has "
-                    "type='ngff:region_table' but does not comply with the "
-                    "proposed table specs. "
-                    f"Original error: KeyError: {str(e)}"
-                )
-        # Update table_group attributes with table_attrs key/value pairs
-        table_group.attrs.update(**table_attrs)
-
     # Always add information about the fractal-roi-table version
-    table_group.attrs.update(fractal_table_version=__FRACTAL_TABLE_VERSION__)
+    if table_attrs is None or table_attrs.get("fractal_table_version") is None:
+        table_attrs = dict(fractal_table_version=__FRACTAL_TABLE_VERSION__)
+
+    # Raise warning for non-compliance with table specs
+    table_type = table_attrs.get("type", None)
+    if table_type is None:
+        pass
+    elif table_type == "masking_roi_table":
+        try:
+            table_attrs["region"]["path"]
+            table_attrs["instance_key"]
+        except KeyError as e:
+            logger.warning(
+                f"Current `masking_roi_table` does not comply with Fractal "
+                f"table specs V1. Original error: KeyError: {str(e)}"
+            )
+    elif table_type == "feature_table":
+        try:
+            table_attrs["region"]["path"]
+            table_attrs["instance_key"]
+        except KeyError as e:
+            logger.warning(
+                f"Current `masking_roi_table` does not comply with Fractal "
+                f"table specs V1. Original error: KeyError: {str(e)}"
+            )
+    else:
+        logger.warning("")  # FIXME: unknown table_type
+
+    # Update table_group attributes with table_attrs key/value pairs
+    table_group.attrs.update(**table_attrs)
 
     return table_group
 
