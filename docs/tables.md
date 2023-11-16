@@ -20,7 +20,10 @@ tables we use, and it includes:
 > on hold, and `fractal-tasks-core` will evolve as soon as an official NGFF
 > table specs is adopted - see also the [Outlook](#outlook) section.
 
-## Specifications
+## Specifications (V1)
+
+In this section we describe verion 1 of the Fractal table specification, which
+is currently the only one.
 
 ### Core tables
 
