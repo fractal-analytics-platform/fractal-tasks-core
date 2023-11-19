@@ -3,6 +3,7 @@
 # Unreleased
 
 * Remove `has_args_schema` obsolete property from manifest (\#603).
+* Fix table selection in calculate registration image-based (\#615).
 * Testing:
     * Align with new Zenodo API (\#601).
     * Update `test_valid_manifest` (\#606).
