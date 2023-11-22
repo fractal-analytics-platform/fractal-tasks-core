@@ -638,7 +638,7 @@ def cellpose_segmentation(
             f"{in_path}/{component}/tables/{output_ROI_table}"
         )
         table_attrs = {
-            "type": "ngff:region_table",
+            "type": "masking_roi_table",
             "region": {"path": f"../labels/{output_label_name}"},
             "instance_key": "label",
         }
