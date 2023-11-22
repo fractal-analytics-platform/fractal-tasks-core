@@ -276,8 +276,10 @@ def write_table(
         tables_group.attrs["tables"] = new_tables
 
     # Always add information about the fractal-roi-table version
-    if table_attrs is None or table_attrs.get("fractal_table_version") is None:
+    if table_attrs is None:
         table_attrs = dict(fractal_table_version=__FRACTAL_TABLE_VERSION__)
+    elif table_attrs.get("fractal_table_version", None) is None:
+        table_attrs["fractal_table_version"] = __FRACTAL_TABLE_VERSION__
 
     # Raise warning for non-compliance with table specs
     table_type = table_attrs.get("type", None)
@@ -302,7 +304,7 @@ def write_table(
                 f"table specs V1. Original error: KeyError: {str(e)}"
             )
     else:
-        logger.warning("")  # FIXME: unknown table_type
+        logger.warning(f"Unknown table type `{table_type}`.")
 
     # Update table_group attributes with table_attrs key/value pairs
     table_group.attrs.update(**table_attrs)
