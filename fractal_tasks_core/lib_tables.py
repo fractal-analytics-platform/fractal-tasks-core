@@ -23,13 +23,15 @@ from .lib_write import OverwriteNotAllowedError
 from fractal_tasks_core import __FRACTAL_TABLE_VERSION__
 
 
+logger = logging.getLogger(__name__)
+
+
 def write_table(
     image_group: zarr.hierarchy.Group,
     table_name: str,
     table: ad.AnnData,
     overwrite: bool = False,
     table_attrs: Optional[dict[str, Any]] = None,
-    logger_name: Optional[str] = None,
 ) -> zarr.group:
     """
     Handle multiple options for writing an AnnData table to a zarr group.
@@ -61,15 +63,10 @@ def write_table(
         table_attrs:
             If set, overwrite table_group attributes with table_attrs key/value
             pairs.
-        logger_name:
-            The logger name.
 
     Returns:
         Zarr group of the new table.
     """
-
-    # Set logger
-    logger = logging.getLogger(logger_name)
 
     # Create tables group (if needed) and extract current_tables
     if "tables" not in set(image_group.group_keys()):

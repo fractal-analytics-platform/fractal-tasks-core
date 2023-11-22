@@ -630,7 +630,6 @@ def napari_workflows_wrapper(
             table_name,
             measurement_table,
             overwrite=overwrite,
-            logger_name=__name__,
         )
 
     # Output handling: "label" type (for each output, build and write to disk
