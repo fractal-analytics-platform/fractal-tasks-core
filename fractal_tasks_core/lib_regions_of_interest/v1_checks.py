@@ -10,7 +10,7 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Functions to handle regions of interests (via pandas and AnnData).
+FIXME
 """
 import logging
 import warnings
