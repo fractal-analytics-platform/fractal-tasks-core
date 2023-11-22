@@ -265,7 +265,6 @@ def convert_ROI_table_to_indices(
 
     list_indices = []
     for ROI_name in ROI.obs_names:
-
         # Extract data from anndata table
         x_micrometer = ROI[ROI_name, x_pos].X[0, 0]
         y_micrometer = ROI[ROI_name, y_pos].X[0, 0]
@@ -346,7 +345,7 @@ def check_valid_ROI_indices(
     min_start_x = min(item[4] for item in list_indices)
 
     # Check that minimum indices are all zero
-    for (ind, min_index) in enumerate((min_start_z, min_start_y, min_start_x)):
+    for ind, min_index in enumerate((min_start_z, min_start_y, min_start_x)):
         if min_index != 0:
             axis = ["Z", "Y", "X"][ind]
             raise ValueError(
@@ -416,7 +415,6 @@ def array_to_bounding_box_table(
     labels = labels[labels > 0]
     elem_list = []
     for label in labels:
-
         # Compute bounding box
         label_match = np.where(mask_array == label)
         zmin, ymin, xmin = np.min(label_match, axis=1) * pxl_sizes_zyx_array
@@ -668,8 +666,6 @@ def get_single_image_ROI(
                     shape_x * pixels_ZYX[2],
                     shape_y * pixels_ZYX[1],
                     shape_z * pixels_ZYX[0],
-                    0.0,
-                    0.0,
                 ],
             ],
             dtype=np.float32,
@@ -683,8 +679,6 @@ def get_single_image_ROI(
         "len_x_micrometer",
         "len_y_micrometer",
         "len_z_micrometer",
-        "x_micrometer_original",
-        "y_micrometer_original",
     ]
     return ROI_table
 
@@ -739,8 +733,6 @@ def get_image_grid_ROIs(
                     tmp_len_x * pixels_ZYX[2],
                     tmp_len_y * pixels_ZYX[1],
                     len_z * pixels_ZYX[0],
-                    start_x * pixels_ZYX[2],
-                    start_y * pixels_ZYX[1],
                 ]
             )
             counter += 1
@@ -754,7 +746,5 @@ def get_image_grid_ROIs(
         "len_x_micrometer",
         "len_y_micrometer",
         "len_z_micrometer",
-        "x_micrometer_original",
-        "y_micrometer_original",
     ]
     return ROI_table

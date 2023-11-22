@@ -614,8 +614,6 @@ def test_get_single_image_ROI():
             array_shape[2] * pixels_ZYX[2],
             array_shape[1] * pixels_ZYX[1],
             array_shape[0] * pixels_ZYX[0],
-            0.0,
-            0.0,
         )
     )
     assert np.allclose(EXPECTED_DATA, ROI.X)
@@ -642,8 +640,6 @@ def test_get_image_grid_ROIs():
             array_shape[2] * pixels_ZYX[2] / grid_shape_X,
             array_shape[1] * pixels_ZYX[1] / grid_shape_Y,
             array_shape[0] * pixels_ZYX[0],
-            0.0,
-            0.0,
         )
     )
     assert np.allclose(EXPECTED_DATA, ROI.X[0])
@@ -673,9 +669,9 @@ def test_get_image_grid_ROIs():
     # Check data
     EXPECTED_DATA = np.array(
         [
-            [0.0, 0.0, 0.0, 0.8, 5.0, 3.0, 0.0, 0.0],
-            [0.8, 0.0, 0.0, 0.8, 5.0, 3.0, 0.8, 0.0],
-            [1.6, 0.0, 0.0, 0.4, 5.0, 3.0, 1.6, 0.0],
+            [0.0, 0.0, 0.0, 0.8, 5.0, 3.0],
+            [0.8, 0.0, 0.0, 0.8, 5.0, 3.0],
+            [1.6, 0.0, 0.0, 0.4, 5.0, 3.0],
         ]
     )
     assert np.allclose(EXPECTED_DATA, ROI.X)
