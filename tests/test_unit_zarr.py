@@ -1,3 +1,6 @@
+from typing import Any
+from typing import Optional
+
 import anndata as ad
 import numpy as np
 import pytest
@@ -152,6 +155,7 @@ def test_write_table(tmp_path):
     assert image_group["tables"].attrs.asdict() == dict(
         tables=["table_a", "table_b"]
     )
+    debug(table_b_group.attrs.asdict())
     assert table_b_group.attrs[KEY] == VALUE
 
     # Verify the overwrite=False failure if sub-group already exists
@@ -178,13 +182,20 @@ def test_write_table_warnings(tmp_path, caplog):
     zarr_path = str(tmp_path / "my_image.zarr")
     img_group = zarr.open(zarr_path, mode="w")
 
-    def _check_warnings(_ATTRS, expect_warning=True):
+    def _check_warnings(
+        _ATTRS: dict[str, Any],
+        expect_warning: bool = True,
+        warning_message_contains: Optional[str] = None,
+    ):
         caplog.clear()
         write_table(
             img_group, "table", table, table_attrs=_ATTRS, overwrite=True
         )
         debug(caplog.text)
-        WARNING_MSG = "does not comply with the proposed table specs"
+        if warning_message_contains is None:
+            WARNING_MSG = "does not comply with "
+        else:
+            WARNING_MSG = warning_message_contains
         if expect_warning:
             assert WARNING_MSG in caplog.text
         else:
@@ -192,7 +203,7 @@ def test_write_table_warnings(tmp_path, caplog):
 
     # Run without warnings
     ATTRS = dict(
-        type="ngff:region_table",
+        type="masking_roi_table",
         region=dict(path="../labels/something"),
         instance_key="label",
     )
@@ -200,14 +211,14 @@ def test_write_table_warnings(tmp_path, caplog):
 
     # Run with warnings, case 1
     ATTRS = dict(
-        type="ngff:region_table",
+        type="masking_roi_table",
         region=dict(path="../labels/something"),
     )
     _check_warnings(ATTRS)
 
     # Run with warnings, case 2
     ATTRS = dict(
-        type="ngff:region_table",
+        type="masking_roi_table",
         instance_key="label",
         region=dict(key="value"),
     )
@@ -215,10 +226,17 @@ def test_write_table_warnings(tmp_path, caplog):
 
     # Run with warnings, case 3
     ATTRS = dict(
-        type="ngff:region_table",
+        type="masking_roi_table",
         instance_key="label",
     )
     _check_warnings(ATTRS)
+
+    # Run with warnings, case 4
+    ATTRS = dict(
+        type="INVALID_TABLE_TYPE",
+        instance_key="label",
+    )
+    _check_warnings(ATTRS, warning_message_contains="Unknown table type")
 
 
 def test_prepare_label_group(tmp_path):
