@@ -35,7 +35,7 @@ def test_write_table(tmp_path):
     assert (
         table_a_group.attrs["fractal_table_version"]
         == __FRACTAL_TABLE_VERSION__
-    )
+    )  # noqa
 
     # Run write_table again, with overwrite=True
     table_a_group = write_table(
@@ -110,27 +110,27 @@ def test_write_table_warnings(tmp_path, caplog):
     )
     _check_warnings(ATTRS, expect_warning=False)
 
-    # Run with warnings, case 1
-    ATTRS = dict(
-        type="masking_roi_table",
-        region=dict(path="../labels/something"),
-    )
-    _check_warnings(ATTRS)
-
-    # Run with warnings, case 2
-    ATTRS = dict(
-        type="masking_roi_table",
-        instance_key="label",
-        region=dict(key="value"),
-    )
-    _check_warnings(ATTRS)
-
-    # Run with warnings, case 3
-    ATTRS = dict(
-        type="masking_roi_table",
-        instance_key="label",
-    )
-    _check_warnings(ATTRS)
+    # Run with warnings for masking_roi_table or feature_table
+    for table_type in ["masking_roi_table", "feature_table"]:
+        _check_warnings(
+            dict(
+                type=table_type,
+                region=dict(path="../labels/something"),
+            )
+        )
+        _check_warnings(
+            dict(
+                type=table_type,
+                instance_key="label",
+                region=dict(key="value"),
+            )
+        )
+        _check_warnings(
+            dict(
+                type=table_type,
+                instance_key="label",
+            )
+        )
 
     # Run with warnings, case 4
     ATTRS = dict(
