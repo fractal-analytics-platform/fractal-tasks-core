@@ -382,7 +382,7 @@ table = ad.AnnData(X=np.ones((10, 10)))  # Generate a dummy `AnnData` object
 image_group = zarr.open_group("/tmp/image.zarr")
 table_name = "MyTable"
 table_attrs = {
-    "type": "ngff:region_table",
+    "type": "feature_table",
     "region": {"path": "../labels/MyLabel"},
     "instance_key": "label",
 }
@@ -433,7 +433,7 @@ $ cat /tmp/image.zarr/tables/MyTable/.zattrs    # View single-table attributes
     "region": {
         "path": "../labels/MyLabel"
     },
-    "type": "ngff:region_table"
+    "type": "feature_table"
 }
 ```
 
