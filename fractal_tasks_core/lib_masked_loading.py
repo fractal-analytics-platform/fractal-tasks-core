@@ -52,6 +52,8 @@ def _preprocess_input(
     **NOTE 1**: This function relies on a change to OME-NGFF table specs
     (https://github.com/ome/ngff/pull/64) which is still in-progress.
 
+    FIXME
+
     **NOTE 2**: The pre/post-processing functions and the
     masked_loading_wrapper are currently meant to work as part of the
     cellpose_segmentation task, with the plan of then making them more
@@ -97,8 +99,12 @@ def _preprocess_input(
     attrs = zarr.group(ROI_table_path).attrs
     logger.info(f"[_preprocess_input] {ROI_table_path=}")
     logger.info(f"[_preprocess_input] {attrs.asdict()=}")
-    if not attrs["type"] == "ngff:region_table":
-        raise ValueError("Wrong attributes for {ROI_table_path}:\n{attrs}")
+    if attrs["type"] not in ["ngff:region_table", "masking_roi_table"]:
+        raise ValueError(
+            f"Wrong attributes for {ROI_table_path}:\n{attrs.asdict()}"
+        )
+    if attrs["type"] == "ngff:region_table":
+        logger.warning("FIXME")
     label_relative_path = attrs["region"]["path"]
     column_name = attrs["instance_key"]
 
