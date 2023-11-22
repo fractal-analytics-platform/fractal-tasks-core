@@ -428,14 +428,12 @@ def create_ome_zarr(
                 "FOV_ROI_table",
                 FOV_ROIs_table,
                 overwrite=overwrite,
-                logger_name=__name__,
             )
             write_table(
                 group_image,
                 "well_ROI_table",
                 well_ROIs_table,
                 overwrite=overwrite,
-                logger_name=__name__,
             )
 
     # Check that the different images in each well have unique channel labels.

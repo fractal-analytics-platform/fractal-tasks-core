@@ -103,7 +103,6 @@ def _process_single_image(
             "grid_ROI_table",
             grid_ROI_table,
             overwrite=overwrite,
-            logger_name=__name__,
         )
 
     # Update Omero-channels metadata

@@ -648,7 +648,6 @@ def cellpose_segmentation(
             bbox_table,
             overwrite=overwrite,
             table_attrs=table_attrs,
-            logger_name=__name__,
         )
 
     return {}
