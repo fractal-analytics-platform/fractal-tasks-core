@@ -61,8 +61,8 @@ def write_table(
         table_attrs:
             If set, overwrite table_group attributes with table_attrs key/value
             pairs.
-        logger:
-            The logger to use (if unset, use `logging.getLogger(None)`).
+        logger_name:
+            The logger name.
 
     Returns:
         Zarr group of the new table.
