@@ -119,6 +119,8 @@ def _write_table_v1(
     table_type = table_attrs.get("type", None)
     if table_type is None:
         pass
+    elif table_type == "roi_table":
+        pass
     elif table_type == "masking_roi_table":
         try:
             table_attrs["region"]["path"]
