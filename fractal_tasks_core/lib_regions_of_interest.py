@@ -14,6 +14,8 @@ Functions to handle regions of interests (via pandas and AnnData).
 """
 import logging
 import math
+import warnings
+from typing import Literal
 from typing import Optional
 from typing import Sequence
 from typing import Union
@@ -23,6 +25,9 @@ import dask.array as da
 import numpy as np
 import pandas as pd
 import zarr
+from pydantic import BaseModel
+from pydantic import validator
+from pydantic.error_wrappers import ValidationError
 
 
 logger = logging.getLogger(__name__)
@@ -452,12 +457,36 @@ def array_to_bounding_box_table(
     return df
 
 
+class _MaskingROITableRegion(BaseModel):
+    path: str
+
+
+class _MaskingROITableAttrs(BaseModel):
+    type: Literal["ngff:region_table", "masking_roi_table"]
+    region: _MaskingROITableRegion
+    instance_key: str
+
+    @validator("type", always=True)
+    def warning_for_old_table_type(cls, v):
+        if v == "ngff:region_table":
+            warning_msg = (
+                "Table type `ngff:region_table` is currently accepted for "
+                "masked loading, but will be deprecated in the future. Please "
+                "switch to type `masking_roi_table`."
+            )
+
+            warnings.warn(warning_msg, FutureWarning)
+        return v
+
+
 def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
     """
     Verify some validity assumptions on a ROI table.
 
     This function reflects our current working assumptions (e.g. the presence
     of some specific columns); this may change in future versions.
+
+    FIXME: fix docstring
 
     If `use_masks=True`, we verify that the table is suitable to be used as
     part of our masked-loading functions (see `lib_masked_loading.py`); if
@@ -479,18 +508,22 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
     if not use_masks:
         return None
 
-    # Soft constraint: the table can be used for masked loading (if not, return
-    # False)
-    attrs = zarr.group(table_path).attrs
-    logger.info(f"ROI table at {table_path} has attrs: {attrs.asdict()}")
-    valid = set(("type", "region", "instance_key")).issubset(attrs.keys())
-    if valid:
-        valid = valid and attrs["type"] == "ngff:region_table"
-        valid = valid and "path" in attrs["region"].keys()
-    if valid:
+    # Check whether the table can be used for masked loading
+    attrs = zarr.group(table_path).attrs.asdict()
+    logger.info(f"ROI table at {table_path} has attrs: {attrs}")
+    try:
+        _MaskingROITableAttrs(**attrs)
+        logging.info("ROI table can be used for masked loading")
         return True
-    else:
+    except ValidationError:
+        logging.info("ROI table cannot be used for masked loading")
         return False
+
+    if "path" not in attrs["region"].keys():
+        logger.info("FIXME")
+        return False
+
+    return True
 
 
 def are_ROI_table_columns_valid(*, table: ad.AnnData) -> None:
