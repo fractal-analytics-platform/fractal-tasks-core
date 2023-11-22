@@ -11,7 +11,7 @@ from devtools import debug
 
 from ..conftest import *  # noqa
 from fractal_tasks_core.lib_regions_of_interest import reset_origin
-from fractal_tasks_core.lib_write import write_table
+from fractal_tasks_core.lib_tables import write_table
 
 
 @pytest.fixture(scope="session")

@@ -376,7 +376,7 @@ Here is an example of how to use `write_table`:
 import numpy as np
 import zarr
 import anndata as ad
-from fractal_tasks_core.lib_write import write_table
+from fractal_tasks_core.lib_tables import write_table
 
 table = ad.AnnData(X=np.ones((10, 10)))  # Generate a dummy `AnnData` object
 image_group = zarr.open_group("/tmp/image.zarr")
