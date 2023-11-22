@@ -1,4 +1,3 @@
-import logging
 import os
 import shutil
 from pathlib import Path
@@ -140,7 +139,6 @@ def zenodo_zarr(testdata_path: Path) -> list[str]:
                 table_name,
                 new_table,
                 overwrite=True,
-                logger=logging.getLogger(),
             )
 
     return [str(f) for f in folders]

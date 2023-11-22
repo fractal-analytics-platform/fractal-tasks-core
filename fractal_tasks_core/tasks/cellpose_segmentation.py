@@ -647,8 +647,8 @@ def cellpose_segmentation(
             output_ROI_table,
             bbox_table,
             overwrite=overwrite,
-            logger=logger,
             table_attrs=table_attrs,
+            logger_name=__name__,
         )
 
     return {}

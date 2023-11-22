@@ -88,7 +88,7 @@ def _process_single_image(
             "image_ROI_table",
             image_ROI_table,
             overwrite=overwrite,
-            logger=logger,
+            logger_name=__name__,
         )
 
     # Prepare grid_ROI_table and write it into the zarr group
@@ -103,7 +103,7 @@ def _process_single_image(
             "grid_ROI_table",
             grid_ROI_table,
             overwrite=overwrite,
-            logger=logger,
+            logger_name=__name__,
         )
 
     # Update Omero-channels metadata

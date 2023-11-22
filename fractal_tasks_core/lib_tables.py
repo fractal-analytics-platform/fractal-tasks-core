@@ -29,7 +29,7 @@ def write_table(
     table: ad.AnnData,
     overwrite: bool = False,
     table_attrs: Optional[dict[str, Any]] = None,
-    logger: Optional[logging.Logger] = None,
+    logger_name: Optional[str] = None,
 ) -> zarr.group:
     """
     Handle multiple options for writing an AnnData table to a zarr group.
@@ -69,8 +69,7 @@ def write_table(
     """
 
     # Set logger
-    if logger is None:
-        logger = logging.getLogger(None)
+    logger = logging.getLogger(logger_name)
 
     # Create tables group (if needed) and extract current_tables
     if "tables" not in set(image_group.group_keys()):
