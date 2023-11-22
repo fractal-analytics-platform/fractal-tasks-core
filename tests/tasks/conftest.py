@@ -139,6 +139,7 @@ def zenodo_zarr(testdata_path: Path) -> list[str]:
                 table_name,
                 new_table,
                 overwrite=True,
+                table_attrs=dict(type="roi_table"),
             )
 
     return [str(f) for f in folders]
