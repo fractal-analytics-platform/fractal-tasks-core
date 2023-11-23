@@ -46,10 +46,12 @@ from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
 from fractal_tasks_core.lib_regions_of_interest import empty_bounding_box_table
+from fractal_tasks_core.lib_regions_of_interest import (
+    find_overlaps_in_ROI_indices,
+)
+from fractal_tasks_core.lib_regions_of_interest import get_overlapping_pairs_3D
 from fractal_tasks_core.lib_regions_of_interest import is_ROI_table_valid
 from fractal_tasks_core.lib_regions_of_interest import load_region
-from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
-from fractal_tasks_core.lib_ROI_overlaps import get_overlapping_pairs_3D
 from fractal_tasks_core.lib_tables import write_table
 from fractal_tasks_core.lib_write import prepare_label_group
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
