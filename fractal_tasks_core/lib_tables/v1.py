@@ -32,9 +32,9 @@ class MaskingROITableAttrs(BaseModel):
     def warning_for_old_table_type(cls, v):
         if v == "ngff:region_table":
             warning_msg = (
-                "Table type `ngff:region_table` is currently accepted for "
-                "masked loading, but will be deprecated in the future. Please "
-                "switch to type `masking_roi_table`."
+                "Table type `ngff:region_table` is currently accepted instead "
+                "of `masking_roi_table`, but it will be deprecated in the "
+                "future. Please switch to `type='masking_roi_table'`."
             )
 
             warnings.warn(warning_msg, FutureWarning)
