@@ -98,11 +98,16 @@ def apply_registration_to_ROI_tables(
 
     # Collect all the ROI tables
     roi_tables = {}
+    roi_tables_attrs = {}
     for acq in acquisition_dict.keys():
         acq_path = acquisition_dict[acq]
         curr_ROI_table = ad.read_zarr(
             f"{well_zarr}/{acq_path}/tables/{roi_table}"
         )
+        curr_ROI_table_group = zarr.open_group(
+            f"{well_zarr}/{acq_path}/tables/{roi_table}", mode="r"
+        )
+        curr_ROI_table_attrs = curr_ROI_table_group.attrs.asdict()
 
         # For reference_cycle acquisition, handle the fact that it doesn't
         # have the shifts
@@ -122,6 +127,7 @@ def apply_registration_to_ROI_tables(
                 "this task."
             )
         roi_tables[acq] = curr_ROI_table
+        roi_tables_attrs[acq] = curr_ROI_table_attrs
 
     # Check that all acquisitions have the same ROIs
     rois = roi_tables[reference_cycle].obs.index
@@ -158,7 +164,7 @@ def apply_registration_to_ROI_tables(
             image_group,
             new_roi_table,
             shifted_rois[acq],
-            table_attrs=dict(type="ngff:region_table"),
+            table_attrs=roi_tables_attrs[acq],
         )
 
     # TODO: Optionally apply registration to other tables as well?
