@@ -10,7 +10,7 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Functions to identify and remove overlaps between regions of interest.
+Functions to identify and remove ROI overlaps, based on V1 table specs.
 """
 import logging
 from typing import Callable

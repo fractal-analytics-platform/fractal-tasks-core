@@ -10,18 +10,16 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-FIXME
+Functions to check content of ROI tables.
 """
 import logging
-import warnings
-from typing import Literal
 from typing import Optional
 
 import anndata as ad
 import zarr
-from pydantic import BaseModel
-from pydantic import validator
 from pydantic.error_wrappers import ValidationError
+
+from ..lib_tables.v1 import MaskingROITableAttrs
 
 
 logger = logging.getLogger(__name__)
@@ -80,28 +78,6 @@ def check_valid_ROI_indices(
             )
 
 
-class _MaskingROITableRegion(BaseModel):
-    path: str
-
-
-class _MaskingROITableAttrs(BaseModel):
-    type: Literal["ngff:region_table", "masking_roi_table"]
-    region: _MaskingROITableRegion
-    instance_key: str
-
-    @validator("type", always=True)
-    def warning_for_old_table_type(cls, v):
-        if v == "ngff:region_table":
-            warning_msg = (
-                "Table type `ngff:region_table` is currently accepted for "
-                "masked loading, but will be deprecated in the future. Please "
-                "switch to type `masking_roi_table`."
-            )
-
-            warnings.warn(warning_msg, FutureWarning)
-        return v
-
-
 def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
     """
     Verify some validity assumptions on a ROI table.
@@ -135,18 +111,12 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
     attrs = zarr.group(table_path).attrs.asdict()
     logger.info(f"ROI table at {table_path} has attrs: {attrs}")
     try:
-        _MaskingROITableAttrs(**attrs)
+        MaskingROITableAttrs(**attrs)
         logging.info("ROI table can be used for masked loading")
         return True
     except ValidationError:
         logging.info("ROI table cannot be used for masked loading")
         return False
-
-    if "path" not in attrs["region"].keys():
-        logger.info("FIXME")
-        return False
-
-    return True
 
 
 def are_ROI_table_columns_valid(*, table: ad.AnnData) -> None:
