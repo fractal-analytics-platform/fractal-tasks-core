@@ -85,12 +85,9 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
     This function reflects our current working assumptions (e.g. the presence
     of some specific columns); this may change in future versions.
 
-    FIXME: fix docstring
-
-    If `use_masks=True`, we verify that the table is suitable to be used as
-    part of our masked-loading functions (see `lib_masked_loading.py`); if
-    these checks fail, `use_masks` should be set to `False` upstream in the
-    parent function.
+    If `use_masks=True`, we verify that the table is a valid
+    `masking_roi_table` as of table specifications V1; if this check fails,
+    `use_masks` should be set to `False` upstream in the parent function.
 
     Args:
         table_path: Path of the AnnData ROI table to be checked.
