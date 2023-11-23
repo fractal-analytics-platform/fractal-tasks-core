@@ -138,3 +138,20 @@ def test_write_table_warnings(tmp_path, caplog):
         instance_key="label",
     )
     _check_warnings(ATTRS, warning_message_contains="Unknown table type")
+
+
+def test_write_table_V2_not_implemented(tmp_path):
+
+    zarr_path = str(tmp_path / "my_image.zarr")
+    img_group = zarr.open(zarr_path, mode="w")
+    table = ad.AnnData(np.ones((2, 2)))
+
+    with pytest.raises(NotImplementedError) as e:
+        write_table(
+            img_group,
+            "table",
+            table,
+            table_attrs={"fractal_table_version": "2"},
+        )
+    debug(e.value)
+    assert "not supported" in str(e.value)

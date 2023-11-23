@@ -82,5 +82,5 @@ def write_table(
         )
     else:
         raise NotImplementedError(
-            f"fractal_table_version {version} is not supported"
+            f"fractal_table_version='{version}' is not supported"
         )
