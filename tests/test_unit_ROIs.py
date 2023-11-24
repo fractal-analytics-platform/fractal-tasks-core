@@ -496,7 +496,7 @@ def test_is_ROI_table_valid(tmp_path):
     assert not is_valid
 
     # Case 3: use_masks=True, valid attrs
-    group[table_name].attrs["type"] = "ngff:region_table"
+    group[table_name].attrs["type"] = "masking_roi_table"
     group[table_name].attrs["instance_key"] = "label"
     group[table_name].attrs["region"] = {"path": "/tmp/"}
     is_valid = is_ROI_table_valid(table_path=table_path, use_masks=True)
