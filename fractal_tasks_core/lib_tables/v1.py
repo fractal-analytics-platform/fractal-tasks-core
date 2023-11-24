@@ -12,6 +12,7 @@ import anndata as ad
 import zarr.hierarchy
 from pydantic import BaseModel
 from pydantic import validator
+from pydantic.error_wrappers import ValidationError
 
 from ..lib_write import _write_elem_with_overwrite
 from ..lib_write import OverwriteNotAllowedError
@@ -19,13 +20,13 @@ from ..lib_write import OverwriteNotAllowedError
 logger = logging.getLogger(__name__)
 
 
-class _MaskingROITableRegion(BaseModel):
+class _RegionType(BaseModel):
     path: str
 
 
 class MaskingROITableAttrs(BaseModel):
     type: Literal["masking_roi_table", "ngff:region_table"]
-    region: _MaskingROITableRegion
+    region: _RegionType
     instance_key: str
 
     @validator("type", always=True)
@@ -34,6 +35,24 @@ class MaskingROITableAttrs(BaseModel):
             warning_msg = (
                 "Table type `ngff:region_table` is currently accepted instead "
                 "of `masking_roi_table`, but it will be deprecated in the "
+                "future. Please switch to `type='masking_roi_table'`."
+            )
+
+            warnings.warn(warning_msg, FutureWarning)
+        return v
+
+
+class FeatureTableAttrs(BaseModel):
+    type: Literal["feature_table", "ngff:region_table"]
+    region: _RegionType
+    instance_key: str
+
+    @validator("type", always=True)
+    def warning_for_old_table_type(cls, v):
+        if v == "ngff:region_table":
+            warning_msg = (
+                "Table type `ngff:region_table` is currently accepted instead "
+                "of `feature_table`, but it will be deprecated in the "
                 "future. Please switch to `type='masking_roi_table'`."
             )
 
@@ -138,21 +157,19 @@ def _write_table_v1(
         pass
     elif table_type == "masking_roi_table":
         try:
-            table_attrs["region"]["path"]
-            table_attrs["instance_key"]
-        except KeyError as e:
+            MaskingROITableAttrs(**table_attrs)
+        except ValidationError as e:
             logger.warning(
                 f"Current `masking_roi_table` does not comply with Fractal "
-                f"table specs V1. Original error: KeyError: {str(e)}"
+                f"table specs V1. Original error: ValidationError: {str(e)}"
             )
     elif table_type == "feature_table":
         try:
-            table_attrs["region"]["path"]
-            table_attrs["instance_key"]
-        except KeyError as e:
+            FeatureTableAttrs(**table_attrs)
+        except ValidationError as e:
             logger.warning(
-                f"Current `masking_roi_table` does not comply with Fractal "
-                f"table specs V1. Original error: KeyError: {str(e)}"
+                f"Current `feature_table` does not comply with Fractal "
+                f"table specs V1. Original error: ValidationError: {str(e)}"
             )
     else:
         logger.warning(f"Unknown table type `{table_type}`.")
