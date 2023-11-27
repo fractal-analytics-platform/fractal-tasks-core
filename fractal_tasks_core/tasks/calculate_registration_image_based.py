@@ -147,7 +147,7 @@ def calculate_registration_image_based(
 
     # Read ROIs
     ROI_table_ref = ad.read_zarr(f"{zarr_img_ref_cycle}/tables/{roi_table}")
-    ROI_table_x = ad.read_zarr(f"{zarr_img_ref_cycle}/tables/{roi_table}")
+    ROI_table_x = ad.read_zarr(f"{zarr_img_cycle_x}/tables/{roi_table}")
     logger.info(
         f"Found {len(ROI_table_x)} ROIs in {roi_table=} to be processed."
     )
