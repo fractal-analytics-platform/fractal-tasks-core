@@ -9,6 +9,8 @@ from devtools import debug
 
 from fractal_tasks_core import __FRACTAL_TABLE_VERSION__
 from fractal_tasks_core.lib_tables import write_table
+from fractal_tasks_core.lib_tables.v1 import FeatureTableAttrs
+from fractal_tasks_core.lib_tables.v1 import MaskingROITableAttrs
 from fractal_tasks_core.lib_write import OverwriteNotAllowedError
 
 
@@ -155,3 +157,37 @@ def test_write_table_V2_not_implemented(tmp_path):
         )
     debug(e.value)
     assert "not supported" in str(e.value)
+
+
+@pytest.mark.filterwarnings("error::FutureWarning")
+def test_MaskingROITableAttrs():
+    # Valid instance
+    MaskingROITableAttrs(
+        type="masking_roi_table",
+        region={"path": "../labels/something"},
+        instance_key="label",
+    )
+    # FutureWarning (transformed into error, in this test)
+    with pytest.raises(FutureWarning):
+        MaskingROITableAttrs(
+            type="ngff:region_table",
+            region={"path": "../labels/something"},
+            instance_key="label",
+        )
+
+
+@pytest.mark.filterwarnings("error::FutureWarning")
+def test_FeatureTableAttrs():
+    # Valid instance
+    FeatureTableAttrs(
+        type="feature_table",
+        region={"path": "../labels/something"},
+        instance_key="label",
+    )
+    # FutureWarning (transformed into error, in this test)
+    with pytest.raises(FutureWarning):
+        FeatureTableAttrs(
+            type="ngff:region_table",
+            region={"path": "../labels/something"},
+            instance_key="label",
+        )
