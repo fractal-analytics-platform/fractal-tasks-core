@@ -1,8 +1,19 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# Unreleased
+# 0.14.0 (unreleased)
 
-* Remove `has_args_schema` obsolete property from manifest (\#603).
+* Breaking changes in tasks:
+    * Make `NapariWorkflowsOutput.label_name` attribute required, and use it to fill the `region["path"]` table attribute (\#613).
+* Breaking changes in core library:
+    * Changes import of `lib_write.write_table` into `lib_tables.write_table` (\#613).
+    * Drop `logger` argument from `write_table` helper function (\#613).
+    * Change imports from `lib_ROI_overlaps` into imports from `lib_regions_of_interest` (\#613).
+    * Remove `has_args_schema` obsolete property from manifest (\#603).
+* Other internal changes:
+    * Comply with table specs V1, by writing all required Zarr attributes (\#613).
+    * Refactor modules related to tables and ROIs (\#613).
+* Documentation
+    * Clarify table specs V1 (\#613).
 * Testing:
     * Align with new Zenodo API (\#601).
     * Update `test_valid_manifest` (\#606).
