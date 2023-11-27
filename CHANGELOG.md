@@ -1,5 +1,6 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+
 # 0.14.0 (unreleased)
 
 * Breaking changes in tasks:
@@ -12,6 +13,8 @@
 * Other internal changes:
     * Comply with table specs V1, by writing all required Zarr attributes (\#613).
     * Refactor modules related to tables and ROIs (\#613).
+* Bug fixes:
+    * Fix table selection in calculate registration image-based (\#615).
 * Documentation
     * Clarify table specs V1 (\#613).
 * Testing:
