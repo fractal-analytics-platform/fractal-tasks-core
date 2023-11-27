@@ -77,9 +77,9 @@ def _write_table_v1(
        `overwrite` parameter.
     4. Update the `tables` attribute of the image group.
     5. If `table_attrs` is set, include this set of attributes in the
-       new-table zarr group. One intended usage, within fractal-tasks-core, is
-       to comply with a proposed change to the OME-NGFF specs
-       (https://github.com/ome/ngff/pull/64).
+       new-table zarr group, and raise a warning if they do not comply with
+       Fractal table specifications in
+       https://fractal-analytics-platform.github.io/fractal-tasks-core/tables/.
 
     Args:
         image_group:
