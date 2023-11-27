@@ -22,8 +22,8 @@ tables we use, and it includes:
 
 ## Specifications (V1)
 
-In this section we describe verion 1 of the Fractal table specification, which
-is currently the only one.
+In this section we describe version 1 (V1) of the Fractal table specifications;
+for the moment, only V1 exists.
 
 ### Core tables
 
@@ -200,8 +200,8 @@ Here is an example of valid Zarr attributes
 On top of the required ROI-table colums, the masking-ROI-table `AnnData` object
 must have an attribute `obs` with a key matching to the `instance_key` zarr
 attribute. For instance if `instance_key="label"` then `table.obs["label"]`
-must exist, and each one of its items match to one of the labels in the image
-in `"../labels/label_DAPI"`.
+must exist, with its items matching the labels in the image in
+`"../labels/label_DAPI"`.
 
 
 ### Feature tables
@@ -248,8 +248,8 @@ Here is an example of valid Zarr attributes
 
 The feature-table `AnnData` object must have an attribute `obs` with a key
 matching to the `instance_key` zarr attribute. For instance if
-`instance_key="label"` then `table.obs["label"]` must exist, and each one of
-its items match to one of the labels in the image in `"../labels/label_DAPI"`.
+`instance_key="label"` then `table.obs["label"]` must exist, with its items
+matching the labels in the image in `"../labels/label_DAPI"`.
 
 ## Examples
 
