@@ -195,11 +195,14 @@ Here is an example of valid Zarr attributes
 }
 ```
 
-**Table columns**
+**`AnnData` table attributes**
 
-On top of the required ROI-table colums, a masking ROI table must include the
-column which is defined in its `instance_key` attribute (e.g. the `label`
-column, for the example above).
+On top of the required ROI-table colums, the masking-ROI-table `AnnData` object
+must have an attribute `obs` with a key matching to the `instance_key` zarr
+attribute. For instance if `instance_key="label"` then `table.obs["label"]`
+must exist, and each one of its items match to one of the labels in the image
+in `"../labels/label_DAPI"`.
+
 
 ### Feature tables
 
@@ -240,10 +243,13 @@ Here is an example of valid Zarr attributes
 }
 ```
 
-**Table columns**
 
-A feature table must include the column which is defined in its `instance_key`
-attribute (e.g. the `label` column, for the example above).
+**`AnnData` table attributes**
+
+The feature-table `AnnData` object must have an attribute `obs` with a key
+matching to the `instance_key` zarr attribute. For instance if
+`instance_key="label"` then `table.obs["label"]` must exist, and each one of
+its items match to one of the labels in the image in `"../labels/label_DAPI"`.
 
 ## Examples
 
