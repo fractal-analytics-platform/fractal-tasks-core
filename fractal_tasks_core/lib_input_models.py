@@ -92,25 +92,14 @@ class NapariWorkflowsOutput(BaseModel):
 
     Attributes:
         type: Output type (either `label` or `dataframe`).
-        label_name: Label name (for label outputs only).
+        label_name: Label name (for dataframe outputs, this attribute is used
+            to fill the `region["path"]` field).
         table_name: Table name (for dataframe outputs only).
     """
 
     type: Literal["label", "dataframe"]
-    label_name: Optional[str] = None
+    label_name: str
     table_name: Optional[str] = None
-
-    @validator("label_name", always=True)
-    def label_name_only_for_label_type(cls, v, values):
-        """
-        Check that label_name is set only for label outputs.
-        """
-        _type = values.get("type")
-        if (_type == "label" and (not v)) or (_type != "label" and v):
-            raise ValueError(
-                f"Output item has type={_type} but label_name={v}."
-            )
-        return v
 
     @validator("table_name", always=True)
     def table_name_only_for_dataframe_type(cls, v, values):

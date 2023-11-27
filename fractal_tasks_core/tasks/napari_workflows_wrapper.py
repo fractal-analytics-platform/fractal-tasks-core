@@ -624,12 +624,17 @@ def napari_workflows_wrapper(
 
         # Write to zarr group
         image_group = zarr.group(f"{in_path}/{component}")
-        # TODO: should we include any table_attrs? (ref issue #333)
+        table_attrs = dict(
+            type="feature_table",
+            region=dict(path=f"../labels/{out_params.label_name}"),
+            instance_key="label",
+        )
         write_table(
             image_group,
             table_name,
             measurement_table,
             overwrite=overwrite,
+            table_attrs=table_attrs,
         )
 
     # Output handling: "label" type (for each output, build and write to disk

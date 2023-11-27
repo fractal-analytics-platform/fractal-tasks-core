@@ -772,7 +772,7 @@
               "label_name": {
                 "title": "Label Name",
                 "type": "string",
-                "description": "Label name (for label outputs only)."
+                "description": "Label name (for dataframe outputs, this attribute is used to fill the `region[\"path\"]` field)."
               },
               "table_name": {
                 "title": "Table Name",
@@ -781,7 +781,8 @@
               }
             },
             "required": [
-              "type"
+              "type",
+              "label_name"
             ]
           }
         }
