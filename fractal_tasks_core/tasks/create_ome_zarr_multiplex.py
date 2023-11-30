@@ -470,12 +470,14 @@ def create_ome_zarr_multiplex(
                 "FOV_ROI_table",
                 FOV_ROIs_table,
                 overwrite=overwrite,
+                table_attrs={"type": "roi_table"},
             )
             write_table(
                 group_image,
                 "well_ROI_table",
                 well_ROIs_table,
                 overwrite=overwrite,
+                table_attrs={"type": "roi_table"},
             )
 
     # Check that the different images (e.g. different cycles) in the each well

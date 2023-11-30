@@ -88,6 +88,7 @@ def _process_single_image(
             "image_ROI_table",
             image_ROI_table,
             overwrite=overwrite,
+            table_attrs={"type": "roi_table"},
         )
 
     # Prepare grid_ROI_table and write it into the zarr group
@@ -102,6 +103,7 @@ def _process_single_image(
             "grid_ROI_table",
             grid_ROI_table,
             overwrite=overwrite,
+            table_attrs={"type": "roi_table"},
         )
 
     # Update Omero-channels metadata
