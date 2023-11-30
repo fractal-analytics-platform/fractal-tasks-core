@@ -190,6 +190,10 @@ def copy_ome_zarr(
                             f"{zarrurl_old}/{well_path}/{image_path}/"
                             f"tables/{ROI_table_name}"
                         )
+                        old_ROI_table_attrs = zarr.open_group(
+                            f"{zarrurl_old}/{well_path}/{image_path}/"
+                            f"tables/{ROI_table_name}"
+                        ).attrs.asdict()
                         # Convert 3D ROIs to 2D
                         if project_to_2D:
                             new_ROI_table = convert_ROIs_from_3D_to_2D(
@@ -197,7 +201,10 @@ def copy_ome_zarr(
                             )
                         # Write new table
                         write_table(
-                            new_image_group, ROI_table_name, new_ROI_table
+                            new_image_group,
+                            ROI_table_name,
+                            new_ROI_table,
+                            table_attrs=old_ROI_table_attrs,
                         )
 
     for key in ["plate", "well", "image"]:
