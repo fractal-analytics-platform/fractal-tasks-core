@@ -5,6 +5,7 @@
 * Remove `has_args_schema` obsolete property from manifest (\#603).
 * Fix table selection in calculate registration image-based (\#615).
 * Testing:
+    * Use poetry 1.7.1 in GitHub actions (\#620).
     * Align with new Zenodo API (\#601).
     * Update `test_valid_manifest` (\#606).
     * Use [pooch](https://www.fatiando.org/pooch) to download test files (\#610).
