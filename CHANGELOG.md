@@ -4,6 +4,7 @@
 
 * Remove `has_args_schema` obsolete property from manifest (\#603).
 * Fix table selection in calculate registration image-based (\#615).
+* Handle `GroupNotFoundError` in `load_NgffImageMeta` and `load_NgffWellMeta` (\#622).
 * Testing:
     * Use poetry 1.7.1 in GitHub actions (\#620).
     * Align with new Zenodo API (\#601).
