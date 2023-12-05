@@ -55,13 +55,12 @@ theme:
 nav:
   - Home page: index.md
   - Install: install.md
-  - Run tasks in Fractal: tasks_in_fractal.md
-  - Run tasks in Python scripts: tasks_in_scripts.md
+  - Run tasks: run_tasks/
+  - Task list: all_tasks.md
+  - Table specs: tables.md
   - Write a custom task: custom_task.md
-  - Task manifest: manifest.md
-  - Tables: tables.md
-  - Code reference: reference/fractal_tasks_core/
   - Development: development.md
+  - Code reference: reference/fractal_tasks_core/
   - Changelog: changelog.md
 
 watch:

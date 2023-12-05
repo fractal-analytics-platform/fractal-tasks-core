@@ -1,4 +1,4 @@
-# Tables
+# Table specifcations
 
 Within `fractal-tasks-core`, we make use of tables which are `AnnData` objects
 stored within OME-Zarr image groups. This page describes the different kinds of

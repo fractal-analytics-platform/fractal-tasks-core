@@ -6,8 +6,13 @@ used to execute custom tasks. This page lists the Fractal-compatibility
 requirements, for a [single custom task](#single-custom-task) or for a [task
 package](#task-package).
 
-> Note: these specifications evolve frequently, see e.g. discussion at
-> https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/151.
+Note that these specifications evolve frequently, see e.g. discussion at
+https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/151.
+
+> **Note**: While the contents of this page remain valid, the recommended
+> procedure to get up to speed and build a Python package of Fractal-compatible
+> tasks is to use the template available at
+> https://github.com/fractal-analytics-platform/fractal-tasks-template.
 
 A Fractal task is mainly formed by two components:
 
@@ -182,6 +187,7 @@ combine them into a single Python package, using the [standard
 tools](https://packaging.python.org/en/latest/tutorials/packaging-projects) or
 other options (e.g. for `fractal-tasks-core` we use
 [poetry](https://python-poetry.org/)).
+
 
 ### Reasons
 
