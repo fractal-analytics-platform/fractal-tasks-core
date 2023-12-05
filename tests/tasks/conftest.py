@@ -80,7 +80,7 @@ def zenodo_zarr(testdata_path: Path) -> list[str]:
     """
 
     # 1 Download Zarrs from Zenodo
-    DOI = "10.5281/zenodo.8091756"
+    DOI = "10.5281/zenodo.10257149"
     DOI_slug = DOI.replace("/", "_").replace(".", "_")
     platenames = ["plate.zarr", "plate_mip.zarr"]
     rootfolder = testdata_path / DOI_slug
