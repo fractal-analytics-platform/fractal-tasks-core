@@ -1,17 +1,12 @@
-import logging
 import os
 import shutil
 from pathlib import Path
 
-import anndata as ad
 import pooch
 import pytest
-import zarr
 from devtools import debug
 
 from ..conftest import *  # noqa
-from fractal_tasks_core.lib_regions_of_interest import reset_origin
-from fractal_tasks_core.lib_write import write_table
 
 
 @pytest.fixture(scope="session")
@@ -92,8 +87,8 @@ def zenodo_zarr(testdata_path: Path) -> list[str]:
     folders = [rootfolder / plate for plate in platenames]
 
     registry = {
-        "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr.zip": "38b7894530f28fd6f55edf5272aaea104c11f36e28825446d23aff280f3a4290",  # noqa
-        "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr.zip": "7efddc0bd20b186c28ca8373b1f7af2d1723d0663fe9438969dc79da02539175",  # noqa
+        "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr.zip": None,
+        "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr.zip": None,
     }
     base_url = f"doi:{DOI}"
     POOCH = pooch.create(
@@ -122,26 +117,6 @@ def zenodo_zarr(testdata_path: Path) -> list[str]:
         if os.path.isdir(str(folder)):
             shutil.rmtree(str(folder))
         shutil.copytree(Path(zarr_full_path) / file_name, folder)
-
-        # 3) Modify the Zarr in tests/data to fit with expectations within
-        # fractal-tasks-core.
-        #
-        # Note: this currently consists in udating well/FOV ROI tables, by
-        # shifting their origin to 0.
-        # TODO: remove this fix, by uploading new zarrs to zenodo (ref 526).
-        image_group_path = folder / "B/03/0"
-        group_image = zarr.open_group(str(image_group_path))
-        for table_name in ["FOV_ROI_table", "well_ROI_table"]:
-            table_path = str(image_group_path / "tables" / table_name)
-            old_table = ad.read_zarr(table_path)
-            new_table = reset_origin(old_table)
-            write_table(
-                group_image,
-                table_name,
-                new_table,
-                overwrite=True,
-                logger=logging.getLogger(),
-            )
 
     return [str(f) for f in folders]
 
