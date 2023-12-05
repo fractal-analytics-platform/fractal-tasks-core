@@ -10,6 +10,8 @@
     * Align with new Zenodo API (\#601).
     * Update `test_valid_manifest` (\#606).
     * Use [pooch](https://www.fatiando.org/pooch) to download test files (\#610).
+* Documentation:
+    * Add list of tasks (\#625).
 
 # 0.13.1
 
