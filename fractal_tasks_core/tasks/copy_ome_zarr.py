@@ -26,8 +26,8 @@ from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROIs_from_3D_to_2D,
 )
-from fractal_tasks_core.lib_tables import write_table
 from fractal_tasks_core.lib_write import open_zarr_group_with_overwrite
+from fractal_tasks_core.tables import write_table
 
 logger = logging.getLogger(__name__)
 

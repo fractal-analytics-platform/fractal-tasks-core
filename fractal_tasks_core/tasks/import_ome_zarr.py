@@ -26,7 +26,7 @@ from fractal_tasks_core.lib_ngff import detect_ome_ngff_type
 from fractal_tasks_core.lib_ngff import NgffImageMeta
 from fractal_tasks_core.lib_regions_of_interest import get_image_grid_ROIs
 from fractal_tasks_core.lib_regions_of_interest import get_single_image_ROI
-from fractal_tasks_core.lib_tables import write_table
+from fractal_tasks_core.tables import write_table
 
 logger = logging.getLogger(__name__)
 

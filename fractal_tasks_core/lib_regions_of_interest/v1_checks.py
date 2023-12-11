@@ -19,7 +19,7 @@ import anndata as ad
 import zarr
 from pydantic.error_wrappers import ValidationError
 
-from ..lib_tables.v1 import MaskingROITableAttrs
+from ..tables.v1 import MaskingROITableAttrs
 
 
 logger = logging.getLogger(__name__)

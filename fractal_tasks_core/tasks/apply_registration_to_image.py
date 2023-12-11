@@ -36,8 +36,8 @@ from fractal_tasks_core.lib_regions_of_interest import (
 )
 from fractal_tasks_core.lib_regions_of_interest import is_standard_roi_table
 from fractal_tasks_core.lib_regions_of_interest import load_region
-from fractal_tasks_core.lib_tables import write_table
 from fractal_tasks_core.lib_zattrs_utils import get_table_path_dict
+from fractal_tasks_core.tables import write_table
 
 logger = logging.getLogger(__name__)
 

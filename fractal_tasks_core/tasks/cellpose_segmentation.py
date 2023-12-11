@@ -52,9 +52,9 @@ from fractal_tasks_core.lib_regions_of_interest import (
 from fractal_tasks_core.lib_regions_of_interest import get_overlapping_pairs_3D
 from fractal_tasks_core.lib_regions_of_interest import is_ROI_table_valid
 from fractal_tasks_core.lib_regions_of_interest import load_region
-from fractal_tasks_core.lib_tables import write_table
 from fractal_tasks_core.lib_write import prepare_label_group
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
+from fractal_tasks_core.tables import write_table
 
 logger = logging.getLogger(__name__)
 

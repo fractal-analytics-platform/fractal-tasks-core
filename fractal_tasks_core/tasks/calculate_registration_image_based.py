@@ -36,7 +36,7 @@ from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
 from fractal_tasks_core.lib_regions_of_interest import load_region
-from fractal_tasks_core.lib_tables import write_table
+from fractal_tasks_core.tables import write_table
 
 logger = logging.getLogger(__name__)
 

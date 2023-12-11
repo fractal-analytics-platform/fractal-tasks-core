@@ -28,7 +28,7 @@ from fractal_tasks_core.lib_ngff import load_NgffWellMeta
 from fractal_tasks_core.lib_regions_of_interest import (
     are_ROI_table_columns_valid,
 )
-from fractal_tasks_core.lib_tables import write_table
+from fractal_tasks_core.tables import write_table
 
 logger = logging.getLogger(__name__)
 
