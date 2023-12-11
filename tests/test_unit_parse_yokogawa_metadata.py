@@ -19,7 +19,7 @@ import pytest
 from devtools import debug
 from pandas import Timestamp
 
-from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
+from fractal_tasks_core.metadata_parsing import parse_yokogawa_metadata
 from fractal_tasks_core.roi import remove_FOV_overlaps
 from fractal_tasks_core.roi import run_overlap_check
 
