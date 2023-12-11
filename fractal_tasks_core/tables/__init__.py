@@ -35,6 +35,7 @@ def write_table(
     This is the general interface that should allow for a smooth coexistence of
     tables with different `fractal_table_version` values. Currently only V1 is
     defined and implemented. The assumption is that V2 should only change:
+
     1. The lower-level writing function (that is, `_write_table_v2`).
     2. The type of the table (which would also reflect into a more general type
         hint for `table`, in the current funciton);
