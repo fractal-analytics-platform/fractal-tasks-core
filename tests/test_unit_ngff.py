@@ -29,7 +29,7 @@ def test_load_NgffImageMeta_missing_group(tmp_path):
     path = str(tmp_path / "missing.zarr")
     with pytest.raises(ZarrGroupNotFoundError) as e:
         load_NgffImageMeta(path)
-    assert "Zarr group not found" in str(e.value)
+    assert "Could not load attributes for the requested image" in str(e.value)
     assert path in str(e.value)
 
 
@@ -37,7 +37,7 @@ def test_load_NgffWellMeta_missing_group(tmp_path):
     path = str(tmp_path / "missing.zarr")
     with pytest.raises(ZarrGroupNotFoundError) as e:
         load_NgffWellMeta(path)
-    assert "Zarr group not found" in str(e.value)
+    assert "Could not load attributes for the requested well" in str(e.value)
     assert path in str(e.value)
 
 

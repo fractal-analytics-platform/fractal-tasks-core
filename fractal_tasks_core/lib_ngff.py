@@ -401,10 +401,10 @@ def load_NgffImageMeta(zarr_path: str) -> NgffImageMeta:
     """
     try:
         zarr_group = zarr.open_group(zarr_path, mode="r")
-    except GroupNotFoundError as e:
+    except GroupNotFoundError:
         error_msg = (
-            f"\nOriginal error: {str(e)}.\n"
-            f"Zarr group not found at {zarr_path}."
+            "Could not load attributes for the requested image, "
+            f"because no Zarr image was found at {zarr_path}"
         )
         logging.error(error_msg)
         raise ZarrGroupNotFoundError(error_msg)
@@ -431,10 +431,10 @@ def load_NgffWellMeta(zarr_path: str) -> NgffWellMeta:
     """
     try:
         zarr_group = zarr.open_group(zarr_path, mode="r")
-    except GroupNotFoundError as e:
+    except GroupNotFoundError:
         error_msg = (
-            f"\nOriginal error: {str(e)}.\n"
-            f"Zarr group not found at {zarr_path}."
+            "Could not load attributes for the requested well, "
+            f"because no Zarr image was found at {zarr_path}"
         )
         logging.error(error_msg)
         raise ZarrGroupNotFoundError(error_msg)
