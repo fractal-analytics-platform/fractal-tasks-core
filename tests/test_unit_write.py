@@ -1,3 +1,5 @@
+import logging
+
 import anndata as ad
 import numpy as np
 import pytest
@@ -106,45 +108,93 @@ def test_write_elem_with_overwrite(tmp_path):
     assert subgroup.X.shape == (3, 3)  # Verify that it was not overwritten
 
 
-def test_prepare_label_group(tmp_path):
+def test_prepare_label_group(tmp_path, caplog):
     """
     Test some specific behaviors of `prepare_label_group`.
     """
+
+    # Prepare label attributes with name OLD_NAME
+    ATTRS = {
+        "image-label": {
+            "version": "0.4",
+            "source": dict(image="../../"),
+        },
+        "multiscales": [
+            {
+                "name": "OLD_NAME",
+                "version": "0.4",
+                "axes": [
+                    {
+                        "name": "z",
+                        "type": "space",
+                        "unit": "micrometer",
+                    },
+                    {
+                        "name": "y",
+                        "type": "space",
+                        "unit": "micrometer",
+                    },
+                    {
+                        "name": "x",
+                        "type": "space",
+                        "unit": "micrometer",
+                    },
+                ],
+                "datasets": [
+                    {
+                        "path": "0",
+                        "coordinateTransformations": [
+                            {
+                                "type": "scale",
+                                "scale": [
+                                    1.0,
+                                    1.3,
+                                    1.3,
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
+    }
 
     # Create zarr groups for image and labels
     zarr_path = str(tmp_path / "my_image.zarr")
     image_group = zarr.open(zarr_path, mode="w")
 
     # Run prepare_label_group
-    prepare_label_group(image_group, "label_a")
+    label_name = "label_A"
+    caplog.clear()
+    caplog.set_level(logging.WARNING)
+    prepare_label_group(image_group, label_name, label_attrs=ATTRS)
     assert set(image_group.group_keys()) == {"labels"}
-    assert image_group["labels"].attrs.asdict() == dict(labels=["label_a"])
+    assert image_group["labels"].attrs.asdict() == dict(labels=[label_name])
+    # Check that name was overwritten in Zarr attributes
+    label_group = zarr.open(f"{zarr_path}/labels/{label_name}", mode="r")
+    assert label_group.attrs["multiscales"][0]["name"] == label_name
+    assert "Setting multiscale name to" in caplog.text
 
     # Run prepare_label_group again, with overwrite=True
-    prepare_label_group(image_group, "label_a", overwrite=True)
+    prepare_label_group(
+        image_group, label_name, overwrite=True, label_attrs=ATTRS
+    )
     assert set(image_group.group_keys()) == {"labels"}
-    assert image_group["labels"].attrs.asdict() == dict(labels=["label_a"])
-
-    # Run prepare_label_group, with label_attrs parameters
-    KEY = "KEY"
-    VALUE = "VALUE"
-    label_b_group = prepare_label_group(
-        image_group, "label_b", label_attrs=dict(KEY=VALUE)
-    )
-    assert image_group["labels"].attrs.asdict() == dict(
-        labels=["label_a", "label_b"]
-    )
-    assert label_b_group.attrs[KEY] == VALUE
+    assert image_group["labels"].attrs.asdict() == dict(labels=[label_name])
+    label_group = zarr.open(f"{zarr_path}/labels/{label_name}", mode="r")
+    assert label_group.attrs["multiscales"][0]["name"] == label_name
 
     # Verify the overwrite=False failure if sub-group already exists
-    image_group["labels"].create_group("label_c")
+    label_name = "label_B"
+    image_group["labels"].create_group(label_name)
     with pytest.raises(OverwriteNotAllowedError) as e:
-        prepare_label_group(image_group, "label_c")
+        prepare_label_group(image_group, label_name, label_attrs=ATTRS)
     assert str(e.value).startswith("Sub-group ")
 
     # Verify the overwrite=False failure if item already exists in labels
     # attribute
-    image_group["labels"].attrs["labels"] = ["label_a", "label_b", "label_d"]
+    label_name = "label_C"
+    image_group["labels"].attrs["labels"] = ["something", label_name]
     with pytest.raises(OverwriteNotAllowedError) as e:
-        prepare_label_group(image_group, "label_d")
+        prepare_label_group(image_group, label_name, label_attrs=ATTRS)
     assert str(e.value).startswith("Item ")
