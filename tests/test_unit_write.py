@@ -198,3 +198,13 @@ def test_prepare_label_group(tmp_path, caplog):
     with pytest.raises(OverwriteNotAllowedError) as e:
         prepare_label_group(image_group, label_name, label_attrs=ATTRS)
     assert str(e.value).startswith("Item ")
+
+    # Verify failures in case of missing or invalid label-group attributes
+    label_name = "label_D"
+    with pytest.raises(TypeError):
+        prepare_label_group(image_group, label_name)
+    with pytest.raises(ValueError) as e:
+        prepare_label_group(
+            image_group, label_name, label_attrs={"something": "invalid"}
+        )
+    assert "do not comply" in str(e.value)
