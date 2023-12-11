@@ -19,8 +19,11 @@ from typing import Union
 
 import zarr.hierarchy
 from anndata.experimental import write_elem
+from pydantic.error_wrappers import ValidationError
 from zarr.errors import ContainsGroupError
 from zarr.errors import GroupNotFoundError
+
+from .lib_ngff import NgffImageMeta
 
 
 class OverwriteNotAllowedError(RuntimeError):
@@ -213,7 +216,8 @@ def prepare_label_group(
         image_group:
             The group to write to.
         label_name:
-            The name of the new label.
+            The name of the new label; this name also overrides the multiscale
+            name in NGFF-image Zarr attributes, if needed.
         overwrite:
             If `False`, check that the new label does not exist (either in zarr
             attributes or as a zarr sub-group); if `True` propagate parameter
@@ -270,6 +274,26 @@ def prepare_label_group(
 
     # Optionally update attributes of the new-table zarr group
     if label_attrs is not None:
+        # Validate attrs against NGFF specs 0.4
+        try:
+            meta = NgffImageMeta(**label_attrs)
+        except ValidationError as e:
+            error_msg = (
+                "Label attributes do not comply with NGFF image "
+                "specifications, as encoded in fractal-tasks-core.\n"
+                f"Original error:\nValidationError: {str(e)}"
+            )
+            logger.error(error_msg)
+            raise ValueError(error_msg)
+        # Replace multiscale name with label_name, if needed
+        current_multiscale_name = meta.multiscale.name
+        if current_multiscale_name != label_name:
+            logger.warning(
+                f"Setting multiscale name to '{label_name}' (old value: "
+                f"'{current_multiscale_name}') in label-image NGFF "
+                "attributes."
+            )
+            label_attrs["multiscales"][0]["name"] = label_name
         # Overwrite label_group attributes with label_attrs key/value pairs
         label_group.attrs.put(label_attrs)
 
