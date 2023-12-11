@@ -6,10 +6,13 @@
 * Fix table selection in calculate registration image-based (\#615).
 * Handle `GroupNotFoundError` in `load_NgffImageMeta` and `load_NgffWellMeta` (\#622).
 * Testing:
+    * Use more recent Zenodo datasets, created with `fractal-tasks-core>=0.12` (\#623).
     * Use poetry 1.7.1 in GitHub actions (\#620).
     * Align with new Zenodo API (\#601).
     * Update `test_valid_manifest` (\#606).
     * Use [pooch](https://www.fatiando.org/pooch) to download test files (\#610).
+* Dependencies:
+    * Remove Pillow `<10.1.0` constraint (\#626).
 
 # 0.13.1
 
