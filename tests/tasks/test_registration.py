@@ -15,13 +15,13 @@ from pytest import MonkeyPatch
 
 from fractal_tasks_core.lib_input_models import Channel
 from fractal_tasks_core.lib_ngff import load_NgffImageMeta
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.roi import (
     convert_indices_to_regions,
 )
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
-from fractal_tasks_core.lib_regions_of_interest import load_region
+from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tasks.apply_registration_to_image import (
     apply_registration_to_image,
 )

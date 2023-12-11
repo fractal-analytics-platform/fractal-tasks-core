@@ -28,15 +28,15 @@ from pydantic.decorator import validate_arguments
 
 from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.lib_zattrs_utils import get_table_path_dict
+from fractal_tasks_core.roi import (
     convert_indices_to_regions,
 )
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
-from fractal_tasks_core.lib_regions_of_interest import is_standard_roi_table
-from fractal_tasks_core.lib_regions_of_interest import load_region
-from fractal_tasks_core.lib_zattrs_utils import get_table_path_dict
+from fractal_tasks_core.roi import is_standard_roi_table
+from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
 
 logger = logging.getLogger(__name__)

@@ -28,10 +28,10 @@ from fractal_tasks_core.channels import OmeroChannel
 from fractal_tasks_core.lib_glob import glob_with_multiple_patterns
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
-from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
-from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
-from fractal_tasks_core.lib_regions_of_interest import remove_FOV_overlaps
 from fractal_tasks_core.lib_write import open_zarr_group_with_overwrite
+from fractal_tasks_core.roi import prepare_FOV_ROI_table
+from fractal_tasks_core.roi import prepare_well_ROI_table
+from fractal_tasks_core.roi import remove_FOV_overlaps
 from fractal_tasks_core.tables import write_table
 
 

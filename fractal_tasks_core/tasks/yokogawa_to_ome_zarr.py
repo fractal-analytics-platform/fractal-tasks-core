@@ -33,11 +33,11 @@ from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_read_fractal_metadata import (
     get_parameters_from_metadata,
 )
-from fractal_tasks_core.lib_regions_of_interest import check_valid_ROI_indices
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.lib_write import OverwriteNotAllowedError
+from fractal_tasks_core.roi import check_valid_ROI_indices
+from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
-from fractal_tasks_core.lib_write import OverwriteNotAllowedError
 
 
 logger = logging.getLogger(__name__)

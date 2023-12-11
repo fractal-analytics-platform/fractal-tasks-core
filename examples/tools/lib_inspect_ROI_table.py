@@ -2,7 +2,7 @@ from typing import Sequence
 
 import anndata as ad
 
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
 
