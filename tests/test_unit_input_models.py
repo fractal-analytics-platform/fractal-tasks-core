@@ -98,6 +98,13 @@ def test_NapariWorkflowsOutput():
         )
     debug(e.value)
 
+    with pytest.raises(ValueError) as e:
+        NapariWorkflowsOutput(
+            type="dataframe",
+            table_name="something",
+        )
+    debug(e.value)
+
     # Valid
 
     specs = NapariWorkflowsOutput(
@@ -110,6 +117,7 @@ def test_NapariWorkflowsOutput():
 
     specs = NapariWorkflowsOutput(
         type="dataframe",
+        label_name="label_DAPI",
         table_name="table_DAPI",
     )
     debug(specs)

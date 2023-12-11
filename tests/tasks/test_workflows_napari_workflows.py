@@ -92,6 +92,7 @@ def test_napari_workflow(
     output_specs = {
         "regionprops_DAPI": {  # type: ignore # noqa
             "type": "dataframe",
+            "label_name": "label_DAPI",
             "table_name": "regionprops_DAPI",
         },
     }
@@ -233,7 +234,11 @@ input_specs = dict(
     input_label={"type": "label", "label_name": LABEL_NAME},
 )
 output_specs = dict(
-    output_dataframe={"type": "dataframe", "table_name": TABLE_NAME}
+    output_dataframe={
+        "type": "dataframe",
+        "table_name": TABLE_NAME,
+        "label_name": LABEL_NAME,
+    }
 )
 RELABELING_CASE_2: list = [workflow_file_name, input_specs, output_specs]
 # 3. Mixed labeling/measurement workflow.
@@ -243,7 +248,11 @@ input_specs = dict(
 )
 output_specs = dict(
     output_label={"type": "label", "label_name": LABEL_NAME},
-    output_dataframe={"type": "dataframe", "table_name": TABLE_NAME},
+    output_dataframe={
+        "type": "dataframe",
+        "table_name": TABLE_NAME,
+        "label_name": LABEL_NAME,
+    },
 )
 RELABELING_CASE_3: list = [workflow_file_name, input_specs, output_specs]
 # Assemble three cases
@@ -516,6 +525,7 @@ def test_napari_workflow_empty_input_ROI_table(
         "regionprops_DAPI": {  # type: ignore # noqa
             "type": "dataframe",
             "table_name": "regionprops_DAPI",
+            "label_name": "label_DAPI",
         },
     }
     for component in metadata["image"]:
@@ -609,6 +619,7 @@ def test_napari_workflow_CYX(
         "regionprops_DAPI": {  # type: ignore # noqa
             "type": "dataframe",
             "table_name": "regionprops_DAPI",
+            "label_name": "label_DAPI",
         },
     }
     for component in metadata["image"]:
@@ -789,6 +800,7 @@ def test_napari_workflow_mock(
         "regionprops_DAPI": {  # type: ignore # noqa
             "type": "dataframe",
             "table_name": "regionprops_DAPI",
+            "label_name": "label_DAPI",
         },
     }
 

@@ -26,7 +26,7 @@ from fractal_tasks_core.lib_ngff import detect_ome_ngff_type
 from fractal_tasks_core.lib_ngff import NgffImageMeta
 from fractal_tasks_core.lib_regions_of_interest import get_image_grid_ROIs
 from fractal_tasks_core.lib_regions_of_interest import get_single_image_ROI
-from fractal_tasks_core.lib_write import write_table
+from fractal_tasks_core.lib_tables import write_table
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +88,7 @@ def _process_single_image(
             "image_ROI_table",
             image_ROI_table,
             overwrite=overwrite,
-            logger=logger,
+            table_attrs={"type": "roi_table"},
         )
 
     # Prepare grid_ROI_table and write it into the zarr group
@@ -103,7 +103,7 @@ def _process_single_image(
             "grid_ROI_table",
             grid_ROI_table,
             overwrite=overwrite,
-            logger=logger,
+            table_attrs={"type": "roi_table"},
         )
 
     # Update Omero-channels metadata

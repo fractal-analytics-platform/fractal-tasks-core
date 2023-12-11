@@ -32,9 +32,9 @@ from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
 from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
 from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
-from fractal_tasks_core.lib_ROI_overlaps import remove_FOV_overlaps
+from fractal_tasks_core.lib_regions_of_interest import remove_FOV_overlaps
+from fractal_tasks_core.lib_tables import write_table
 from fractal_tasks_core.lib_write import open_zarr_group_with_overwrite
-from fractal_tasks_core.lib_write import write_table
 
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
@@ -470,14 +470,14 @@ def create_ome_zarr_multiplex(
                 "FOV_ROI_table",
                 FOV_ROIs_table,
                 overwrite=overwrite,
-                logger=logger,
+                table_attrs={"type": "roi_table"},
             )
             write_table(
                 group_image,
                 "well_ROI_table",
                 well_ROIs_table,
                 overwrite=overwrite,
-                logger=logger,
+                table_attrs={"type": "roi_table"},
             )
 
     # Check that the different images (e.g. different cycles) in the each well

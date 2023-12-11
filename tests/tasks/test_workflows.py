@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+import zarr
 from devtools import debug
 
 from ._validation import check_file_number
@@ -230,6 +231,14 @@ def test_yokogawa_to_ome_zarr(
 
     check_file_number(zarr_path=image_zarr)
 
+    # Test presence and attributes of FOV/well ROI tables
+    for table_name in ["FOV_ROI_table", "well_ROI_table"]:
+        table_attrs = zarr.open_group(
+            image_zarr / f"tables/{table_name}", mode="r"
+        ).attrs.asdict()
+        assert table_attrs["type"] == "roi_table"
+        assert table_attrs["fractal_table_version"] == "1"
+
 
 def test_MIP(
     tmp_path: Path,
@@ -319,6 +328,14 @@ def test_MIP(
     validate_schema(path=str(image_zarr), type="image")
     validate_schema(path=str(well_zarr), type="well")
     validate_schema(path=str(plate_zarr), type="plate")
+
+    # Test presence and attributes of FOV/well ROI tables
+    for table_name in ["FOV_ROI_table", "well_ROI_table"]:
+        table_attrs = zarr.open_group(
+            image_zarr / f"tables/{table_name}", mode="r"
+        ).attrs.asdict()
+        assert table_attrs["type"] == "roi_table"
+        assert table_attrs["fractal_table_version"] == "1"
 
 
 def test_MIP_subset_of_images(
