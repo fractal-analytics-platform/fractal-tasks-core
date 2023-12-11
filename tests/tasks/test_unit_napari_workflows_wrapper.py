@@ -103,7 +103,11 @@ def test_level_setting_in_non_labeling_worfklow(tmp_path, testdata_path):
             "type": "label",
             "label_name": "label_DAPI",
         },
-        "regionprops_DAPI": {"type": "dataframe", "table_name": "test"},
+        "regionprops_DAPI": {
+            "type": "dataframe",
+            "table_name": "test",
+            "label_name": "label_DAPI",
+        },
     }
 
     with pytest.raises(NotImplementedError):

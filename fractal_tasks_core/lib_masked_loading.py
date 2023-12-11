@@ -21,6 +21,7 @@ import dask.array as da
 import numpy as np
 import zarr
 
+from fractal_tasks_core.lib_tables.v1 import MaskingROITableAttrs
 from fractal_tasks_core.lib_upscale_array import convert_region_to_low_res
 from fractal_tasks_core.lib_upscale_array import upscale_array
 
@@ -49,8 +50,9 @@ def _preprocess_input(
     - Loading the array which will be needed in postprocessing to restore
       background.
 
-    **NOTE 1**: This function relies on a change to OME-NGFF table specs
-    (https://github.com/ome/ngff/pull/64) which is still in-progress.
+    **NOTE 1**: This function relies on V1 of the Fractal table specifications,
+    see
+    https://fractal-analytics-platform.github.io/fractal-tasks-core/tables/.
 
     **NOTE 2**: The pre/post-processing functions and the
     masked_loading_wrapper are currently meant to work as part of the
@@ -97,8 +99,7 @@ def _preprocess_input(
     attrs = zarr.group(ROI_table_path).attrs
     logger.info(f"[_preprocess_input] {ROI_table_path=}")
     logger.info(f"[_preprocess_input] {attrs.asdict()=}")
-    if not attrs["type"] == "ngff:region_table":
-        raise ValueError("Wrong attributes for {ROI_table_path}:\n{attrs}")
+    MaskingROITableAttrs(**attrs.asdict())
     label_relative_path = attrs["region"]["path"]
     column_name = attrs["instance_key"]
 

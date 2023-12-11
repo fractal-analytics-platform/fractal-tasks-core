@@ -37,9 +37,9 @@ from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
 from fractal_tasks_core.lib_regions_of_interest import load_region
+from fractal_tasks_core.lib_tables import write_table
 from fractal_tasks_core.lib_upscale_array import upscale_array
 from fractal_tasks_core.lib_write import prepare_label_group
-from fractal_tasks_core.lib_write import write_table
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
 
 
@@ -624,13 +624,17 @@ def napari_workflows_wrapper(
 
         # Write to zarr group
         image_group = zarr.group(f"{in_path}/{component}")
-        # TODO: should we include any table_attrs? (ref issue #333)
+        table_attrs = dict(
+            type="feature_table",
+            region=dict(path=f"../labels/{out_params.label_name}"),
+            instance_key="label",
+        )
         write_table(
             image_group,
             table_name,
             measurement_table,
             overwrite=overwrite,
-            logger=logger,
+            table_attrs=table_attrs,
         )
 
     # Output handling: "label" type (for each output, build and write to disk

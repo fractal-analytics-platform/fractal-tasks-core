@@ -36,7 +36,7 @@ from fractal_tasks_core.lib_regions_of_interest import (
     convert_ROI_table_to_indices,
 )
 from fractal_tasks_core.lib_regions_of_interest import load_region
-from fractal_tasks_core.lib_write import write_table
+from fractal_tasks_core.lib_tables import write_table
 
 logger = logging.getLogger(__name__)
 
@@ -152,6 +152,28 @@ def calculate_registration_image_based(
         f"Found {len(ROI_table_x)} ROIs in {roi_table=} to be processed."
     )
 
+    # Check that table type of ROI_table_ref is valid. Note that
+    # "ngff:region_table" and None are accepted for backwards compatibility
+    valid_table_types = [
+        "roi_table",
+        "masking_roi_table",
+        "ngff:region_table",
+        None,
+    ]
+    ROI_table_ref_group = zarr.open_group(
+        f"{zarr_img_ref_cycle}/tables/{roi_table}",
+        mode="r",
+    )
+    ref_table_attrs = ROI_table_ref_group.attrs.asdict()
+    ref_table_type = ref_table_attrs.get("type")
+    if ref_table_type not in valid_table_types:
+        raise ValueError(
+            (
+                f"Table '{roi_table}' (with type '{ref_table_type}') is "
+                "not a valid ROI table."
+            )
+        )
+
     # For each cycle, get the relevant info
     # TODO: Add additional checks on ROIs?
     if (ROI_table_ref.obs.index != ROI_table_x.obs.index).all():
@@ -259,7 +281,7 @@ def calculate_registration_image_based(
         roi_table,
         new_ROI_table,
         overwrite=True,
-        table_attrs=dict(type="ngff:region_table"),
+        table_attrs=ref_table_attrs,
     )
 
     return {}
