@@ -4,7 +4,7 @@ from devtools import debug
 
 import fractal_tasks_core.tasks  # noqa
 from .._zenodo_ome_zarrs import prepare_3D_zarr
-from fractal_tasks_core.input_models import Channel
+from fractal_tasks_core.ome_zarr.input_models import Channel
 from fractal_tasks_core.tasks.copy_ome_zarr import copy_ome_zarr
 from fractal_tasks_core.tasks.import_ome_zarr import import_ome_zarr
 from fractal_tasks_core.tasks.maximum_intensity_projection import (

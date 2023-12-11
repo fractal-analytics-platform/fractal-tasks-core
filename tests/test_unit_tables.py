@@ -5,10 +5,10 @@ import zarr
 from devtools import debug
 
 from fractal_tasks_core import __FRACTAL_TABLE_VERSION__
+from fractal_tasks_core.ome_zarr.write import OverwriteNotAllowedError
 from fractal_tasks_core.tables import write_table
 from fractal_tasks_core.tables.v1 import FeatureTableAttrs
 from fractal_tasks_core.tables.v1 import MaskingROITableAttrs
-from fractal_tasks_core.write import OverwriteNotAllowedError
 
 
 TYPE = "some-arbitrary-type"

@@ -9,12 +9,12 @@ import zarr
 from devtools import debug
 
 from fractal_tasks_core import __OME_NGFF_VERSION__
-from fractal_tasks_core.channels import check_unique_wavelength_ids
-from fractal_tasks_core.channels import check_well_channel_labels
-from fractal_tasks_core.channels import define_omero_channels
-from fractal_tasks_core.channels import get_channel_from_list
-from fractal_tasks_core.channels import OmeroChannel
-from fractal_tasks_core.channels import update_omero_channels
+from fractal_tasks_core.ome_zarr.channels import check_unique_wavelength_ids
+from fractal_tasks_core.ome_zarr.channels import check_well_channel_labels
+from fractal_tasks_core.ome_zarr.channels import define_omero_channels
+from fractal_tasks_core.ome_zarr.channels import get_channel_from_list
+from fractal_tasks_core.ome_zarr.channels import OmeroChannel
+from fractal_tasks_core.ome_zarr.channels import update_omero_channels
 
 
 def test_check_unique_wavelength_ids():

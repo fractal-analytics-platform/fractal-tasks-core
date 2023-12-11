@@ -2,7 +2,7 @@ import dask.array as da
 import pytest
 from devtools import debug
 
-from fractal_tasks_core.pyramid_creation import build_pyramid
+from fractal_tasks_core.ome_zarr.pyramid_creation import build_pyramid
 
 
 def test_build_pyramid(tmp_path):

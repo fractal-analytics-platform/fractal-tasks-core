@@ -26,8 +26,9 @@ import numpy as np
 import zarr
 from pydantic.decorator import validate_arguments
 
-from fractal_tasks_core.ngff import load_NgffImageMeta
-from fractal_tasks_core.pyramid_creation import build_pyramid
+from fractal_tasks_core.ome_zarr.ngff import load_NgffImageMeta
+from fractal_tasks_core.ome_zarr.pyramid_creation import build_pyramid
+from fractal_tasks_core.ome_zarr.zattrs_utils import get_table_path_dict
 from fractal_tasks_core.roi import (
     convert_indices_to_regions,
 )
@@ -37,7 +38,6 @@ from fractal_tasks_core.roi import (
 from fractal_tasks_core.roi import is_standard_roi_table
 from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
-from fractal_tasks_core.zattrs_utils import get_table_path_dict
 
 logger = logging.getLogger(__name__)
 
