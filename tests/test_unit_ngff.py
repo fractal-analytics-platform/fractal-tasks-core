@@ -9,9 +9,11 @@ from devtools import debug
 from fractal_tasks_core.lib_ngff import Dataset
 from fractal_tasks_core.lib_ngff import detect_ome_ngff_type
 from fractal_tasks_core.lib_ngff import load_NgffImageMeta
+from fractal_tasks_core.lib_ngff import load_NgffWellMeta
 from fractal_tasks_core.lib_ngff import Multiscale
 from fractal_tasks_core.lib_ngff import NgffImageMeta
 from fractal_tasks_core.lib_ngff import NgffWellMeta
+from fractal_tasks_core.lib_ngff import ZarrGroupNotFoundError
 
 
 def test_load_NgffWellMeta(tmp_path):
@@ -21,6 +23,22 @@ def test_load_NgffWellMeta(tmp_path):
     with pytest.raises(ValueError) as e:
         load_NgffImageMeta(path)
     debug(e.value)
+
+
+def test_load_NgffImageMeta_missing_group(tmp_path):
+    path = str(tmp_path / "missing.zarr")
+    with pytest.raises(ZarrGroupNotFoundError) as e:
+        load_NgffImageMeta(path)
+    assert "Could not load attributes for the requested image" in str(e.value)
+    assert path in str(e.value)
+
+
+def test_load_NgffWellMeta_missing_group(tmp_path):
+    path = str(tmp_path / "missing.zarr")
+    with pytest.raises(ZarrGroupNotFoundError) as e:
+        load_NgffWellMeta(path)
+    assert "Could not load attributes for the requested well" in str(e.value)
+    assert path in str(e.value)
 
 
 def _load_and_validate(path, Model):

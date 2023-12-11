@@ -10,6 +10,17 @@ import zarr.hierarchy
 from pydantic import BaseModel
 from pydantic import Field
 from pydantic import validator
+from zarr.errors import GroupNotFoundError
+
+
+class ZarrGroupNotFoundError(ValueError):
+    """
+    Wrap zarr.errors.GroupNotFoundError
+
+    This is used to provide a user-friendly error message.
+    """
+
+    pass
 
 
 logger = logging.getLogger(__name__)
@@ -388,7 +399,15 @@ def load_NgffImageMeta(zarr_path: str) -> NgffImageMeta:
     Returns:
         A new `NgffImageMeta` object.
     """
-    zarr_group = zarr.open_group(zarr_path, mode="r")
+    try:
+        zarr_group = zarr.open_group(zarr_path, mode="r")
+    except GroupNotFoundError:
+        error_msg = (
+            "Could not load attributes for the requested image, "
+            f"because no Zarr image was found at {zarr_path}"
+        )
+        logging.error(error_msg)
+        raise ZarrGroupNotFoundError(error_msg)
     zarr_attrs = zarr_group.attrs.asdict()
     try:
         return NgffImageMeta(**zarr_attrs)
@@ -410,7 +429,15 @@ def load_NgffWellMeta(zarr_path: str) -> NgffWellMeta:
     Returns:
         A new `NgffWellMeta` object.
     """
-    zarr_group = zarr.open_group(zarr_path, mode="r")
+    try:
+        zarr_group = zarr.open_group(zarr_path, mode="r")
+    except GroupNotFoundError:
+        error_msg = (
+            "Could not load attributes for the requested well, "
+            f"because no Zarr image was found at {zarr_path}"
+        )
+        logging.error(error_msg)
+        raise ZarrGroupNotFoundError(error_msg)
     zarr_attrs = zarr_group.attrs.asdict()
     try:
         return NgffWellMeta(**zarr_attrs)

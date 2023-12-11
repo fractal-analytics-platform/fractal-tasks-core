@@ -21,6 +21,7 @@
     * Comply with table specs V1, by writing all required Zarr attributes (\#613).
     * Refactor modules related to tables and ROIs (\#613).
     * Remove `has_args_schema` obsolete property from manifest (\#603).
+    * Handle `GroupNotFoundError` in `load_NgffImageMeta` and `load_NgffWellMeta` (\#622).
 * Bug fixes:
     * Fix table selection in calculate registration image-based (\#615).
 * Documentation
