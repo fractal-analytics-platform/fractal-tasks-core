@@ -26,6 +26,7 @@ def write_table(
     table_name: str,
     table: ad.AnnData,
     overwrite: bool = False,
+    table_type: Optional[str] = None,
     table_attrs: Optional[dict[str, Any]] = None,
 ) -> zarr.group:
     """
@@ -56,9 +57,12 @@ def write_table(
             cases, propagate parameter to `_write_elem_with_overwrite`, to
             determine the behavior in case of an existing sub-group named as
             `table_name`.
+        table_type: `type` attribute for the table; in case `type` is also
+            present in `table_attrs`, this function argument takes priority.
         table_attrs:
             If set, overwrite table_group attributes with table_attrs key/value
-            pairs.
+            pairs. If `table_type` is not provided, then `table_attrs` must
+            include the `type` key.
 
     Returns:
         Zarr group of the table.
@@ -78,6 +82,7 @@ def write_table(
             table_name,
             table,
             overwrite,
+            table_type,
             table_attrs,
         )
     else:

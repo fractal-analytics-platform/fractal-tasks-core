@@ -65,6 +65,7 @@ def _write_table_v1(
     table_name: str,
     table: ad.AnnData,
     overwrite: bool = False,
+    table_type: Optional[str] = None,
     table_attrs: Optional[dict[str, Any]] = None,
 ) -> zarr.group:
     """
@@ -76,10 +77,10 @@ def _write_table_v1(
     3. Call the `_write_elem_with_overwrite` wrapper with the appropriate
        `overwrite` parameter.
     4. Update the `tables` attribute of the image group.
-    5. If `table_attrs` is set, include this set of attributes in the
-       new-table zarr group, and raise a warning if they do not comply with
-       Fractal table specifications in
-       https://fractal-analytics-platform.github.io/fractal-tasks-core/tables/.
+    5. Validate `table_type` and `table_attrs` according to Fractal table
+       specifications, and raise errors/warnings if needed; then set the
+       appropriate attributes in the new-table Zarr group.
+
 
     Args:
         image_group:
@@ -94,9 +95,12 @@ def _write_table_v1(
             cases, propagate parameter to `_write_elem_with_overwrite`, to
             determine the behavior in case of an existing sub-group named as
             `table_name`.
+        table_type: `type` attribute for the table; in case `type` is also
+            present in `table_attrs`, this function argument takes priority.
         table_attrs:
             If set, overwrite table_group attributes with table_attrs key/value
-            pairs.
+            pairs. If `table_type` is not provided, then `table_attrs` must
+            include the `type` key.
 
     Returns:
         Zarr group of the new table.
@@ -129,31 +133,31 @@ def _write_table_v1(
             logger.error(error_msg)
             raise OverwriteNotAllowedError(error_msg)
 
-    # If it's all OK, proceed and write the table
-    _write_elem_with_overwrite(
-        tables_group,
-        table_name,
-        table,
-        overwrite=overwrite,
-    )
-    table_group = tables_group[table_name]
-
-    # Update the `tables` metadata of the image group, if needed
-    if table_name not in current_tables:
-        new_tables = current_tables + [table_name]
-        tables_group.attrs["tables"] = new_tables
-
-    # Always add information about the fractal-roi-table version
+    # Always include fractal-roi-table version in table attributes
     if table_attrs is None:
         table_attrs = dict(fractal_table_version="1")
     elif table_attrs.get("fractal_table_version", None) is None:
         table_attrs["fractal_table_version"] = "1"
 
-    # Raise warning for non-compliance with table specs
+    # Set type attribute for the table
+    table_type_from_attrs = table_attrs.get("type", None)
+    if table_type is not None:
+        if table_type_from_attrs is not None:
+            logger.warning(
+                f"Setting table type to '{table_type}' (and overriding "
+                f"'{table_type_from_attrs}' attribute)."
+            )
+        table_attrs["type"] = table_type
+    else:
+        if table_type_from_attrs is None:
+            raise ValueError(
+                "Missing attribute `type` for table; this must be provided"
+                " either via `table_type` or within `table_attrs`."
+            )
+
+    # Prepare/validate attributes for the table
     table_type = table_attrs.get("type", None)
-    if table_type is None:
-        pass
-    elif table_type == "roi_table":
+    if table_type == "roi_table":
         pass
     elif table_type == "masking_roi_table":
         try:
@@ -173,6 +177,20 @@ def _write_table_v1(
             )
     else:
         logger.warning(f"Unknown table type `{table_type}`.")
+
+    # If it's all OK, proceed and write the table
+    _write_elem_with_overwrite(
+        tables_group,
+        table_name,
+        table,
+        overwrite=overwrite,
+    )
+    table_group = tables_group[table_name]
+
+    # Update the `tables` metadata of the image group, if needed
+    if table_name not in current_tables:
+        new_tables = current_tables + [table_name]
+        tables_group.attrs["tables"] = new_tables
 
     # Update table_group attributes with table_attrs key/value pairs
     table_group.attrs.update(**table_attrs)
