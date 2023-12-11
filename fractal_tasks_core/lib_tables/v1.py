@@ -53,7 +53,7 @@ class FeatureTableAttrs(BaseModel):
             warning_msg = (
                 "Table type `ngff:region_table` is currently accepted instead "
                 "of `feature_table`, but it will be deprecated in the "
-                "future. Please switch to `type='masking_roi_table'`."
+                "future. Please switch to `type='feature_table'`."
             )
 
             warnings.warn(warning_msg, FutureWarning)
