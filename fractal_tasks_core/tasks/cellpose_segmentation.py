@@ -35,11 +35,11 @@ from fractal_tasks_core.channels import ChannelNotFoundError
 from fractal_tasks_core.channels import get_channel_from_image_zarr
 from fractal_tasks_core.channels import OmeroChannel
 from fractal_tasks_core.input_models import Channel
-from fractal_tasks_core.lib_masked_loading import masked_loading_wrapper
 from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_write import prepare_label_group
 from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
+from fractal_tasks_core.masked_loading import masked_loading_wrapper
 from fractal_tasks_core.roi import (
     array_to_bounding_box_table,
 )
