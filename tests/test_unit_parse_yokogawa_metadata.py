@@ -21,7 +21,7 @@ from pandas import Timestamp
 
 from fractal_tasks_core.roi import remove_FOV_overlaps
 from fractal_tasks_core.roi import run_overlap_check
-from fractal_tasks_core.yokogawa.metadata_parsing import (
+from fractal_tasks_core.yokogawa.metadata import (
     parse_yokogawa_metadata,
 )
 

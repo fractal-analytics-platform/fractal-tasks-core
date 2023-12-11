@@ -32,7 +32,7 @@ from fractal_tasks_core.roi import remove_FOV_overlaps
 from fractal_tasks_core.tables import write_table
 from fractal_tasks_core.yokogawa.filenames import glob_with_multiple_patterns
 from fractal_tasks_core.yokogawa.filenames import parse_filename
-from fractal_tasks_core.yokogawa.metadata_parsing import (
+from fractal_tasks_core.yokogawa.metadata import (
     parse_yokogawa_metadata,
 )
 
