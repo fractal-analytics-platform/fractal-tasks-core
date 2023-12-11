@@ -5,8 +5,8 @@ import numpy as np
 import pytest
 from devtools import debug
 
-from fractal_tasks_core.lib_upscale_array import convert_region_to_low_res
-from fractal_tasks_core.lib_upscale_array import upscale_array
+from fractal_tasks_core.upscale_array import convert_region_to_low_res
+from fractal_tasks_core.upscale_array import upscale_array
 
 
 list_success: list[tuple] = []

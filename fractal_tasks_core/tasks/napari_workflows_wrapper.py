@@ -30,7 +30,6 @@ import fractal_tasks_core
 from fractal_tasks_core.channels import get_channel_from_image_zarr
 from fractal_tasks_core.input_models import NapariWorkflowsInput
 from fractal_tasks_core.input_models import NapariWorkflowsOutput
-from fractal_tasks_core.lib_upscale_array import upscale_array
 from fractal_tasks_core.ngff import load_NgffImageMeta
 from fractal_tasks_core.pyramid_creation import build_pyramid
 from fractal_tasks_core.roi import check_valid_ROI_indices
@@ -39,6 +38,7 @@ from fractal_tasks_core.roi import (
 )
 from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
+from fractal_tasks_core.upscale_array import upscale_array
 from fractal_tasks_core.write import prepare_label_group
 from fractal_tasks_core.zattrs_utils import rescale_datasets
 
