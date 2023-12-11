@@ -33,7 +33,7 @@ from ._validation import check_file_number
 from ._validation import validate_axes_and_coordinateTransformations
 from ._validation import validate_schema
 from .lib_empty_ROI_table import _add_empty_ROI_table
-from fractal_tasks_core.lib_input_models import Channel
+from fractal_tasks_core.input_models import Channel
 from fractal_tasks_core.lib_write import OverwriteNotAllowedError
 from fractal_tasks_core.tasks.cellpose_segmentation import (
     cellpose_segmentation,

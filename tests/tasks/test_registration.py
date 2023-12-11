@@ -13,7 +13,7 @@ from devtools import debug
 from PIL import Image
 from pytest import MonkeyPatch
 
-from fractal_tasks_core.lib_input_models import Channel
+from fractal_tasks_core.input_models import Channel
 from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.roi import (
     convert_indices_to_regions,

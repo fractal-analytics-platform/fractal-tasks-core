@@ -28,8 +28,8 @@ from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
 from fractal_tasks_core.channels import get_channel_from_image_zarr
-from fractal_tasks_core.lib_input_models import NapariWorkflowsInput
-from fractal_tasks_core.lib_input_models import NapariWorkflowsOutput
+from fractal_tasks_core.input_models import NapariWorkflowsInput
+from fractal_tasks_core.input_models import NapariWorkflowsOutput
 from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_pyramid_creation import build_pyramid
 from fractal_tasks_core.lib_upscale_array import upscale_array
