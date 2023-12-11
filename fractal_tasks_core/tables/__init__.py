@@ -9,8 +9,9 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Functions and classes related to table specifications (see
-https://fractal-analytics-platform.github.io/fractal-tasks-core/tables)."""
+Subpackage with functions and classes related to table specifications (see
+https://fractal-analytics-platform.github.io/fractal-tasks-core/tables).
+"""
 from typing import Any
 from typing import Optional
 
