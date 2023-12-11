@@ -6,10 +6,10 @@ import pytest
 import zarr
 from devtools import debug
 
-from fractal_tasks_core.lib_write import _write_elem_with_overwrite
-from fractal_tasks_core.lib_write import open_zarr_group_with_overwrite
-from fractal_tasks_core.lib_write import OverwriteNotAllowedError
-from fractal_tasks_core.lib_write import prepare_label_group
+from fractal_tasks_core.write import _write_elem_with_overwrite
+from fractal_tasks_core.write import open_zarr_group_with_overwrite
+from fractal_tasks_core.write import OverwriteNotAllowedError
+from fractal_tasks_core.write import prepare_label_group
 
 
 def test_open_zarr_group_with_overwrite(tmp_path, caplog):

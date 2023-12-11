@@ -34,7 +34,6 @@ from ._validation import validate_axes_and_coordinateTransformations
 from ._validation import validate_schema
 from .lib_empty_ROI_table import _add_empty_ROI_table
 from fractal_tasks_core.input_models import Channel
-from fractal_tasks_core.lib_write import OverwriteNotAllowedError
 from fractal_tasks_core.tasks.cellpose_segmentation import (
     cellpose_segmentation,
 )
@@ -46,6 +45,7 @@ from fractal_tasks_core.tasks.maximum_intensity_projection import (
     maximum_intensity_projection,
 )  # noqa
 from fractal_tasks_core.tasks.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
+from fractal_tasks_core.write import OverwriteNotAllowedError
 
 
 allowed_channels = [
