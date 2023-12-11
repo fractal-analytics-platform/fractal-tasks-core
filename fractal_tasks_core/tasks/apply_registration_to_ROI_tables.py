@@ -24,7 +24,7 @@ import pandas as pd
 import zarr
 from pydantic.decorator import validate_arguments
 
-from fractal_tasks_core.lib_ngff import load_NgffWellMeta
+from fractal_tasks_core.ngff import load_NgffWellMeta
 from fractal_tasks_core.roi import (
     are_ROI_table_columns_valid,
 )
