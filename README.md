@@ -10,7 +10,7 @@
 | fractal\_tasks\_core/lib\_input\_models.py                            |       43 |        0 |       18 |        4 |     93% |34->33, 67->66, 79->78, 106->105 |
 | fractal\_tasks\_core/lib\_masked\_loading.py                          |       62 |        8 |       14 |        5 |     83% |92, 108, 137-144, 158, 168 |
 | fractal\_tasks\_core/lib\_metadata\_parsing.py                        |       99 |        7 |       30 |        8 |     88% |94, 111, 225, 232, 234, 274, 319->327, 370 |
-| fractal\_tasks\_core/lib\_ngff.py                                     |      152 |        3 |       54 |        8 |     95% |111->110, 155->154, 183->182, 199->198, 206->205, 210->209, 217->216, 258->257, 417-422 |
+| fractal\_tasks\_core/lib\_ngff.py                                     |      165 |        3 |       54 |        8 |     95% |122->121, 166->165, 194->193, 210->209, 217->216, 221->220, 228->227, 269->268, 444-449 |
 | fractal\_tasks\_core/lib\_parse\_filename\_metadata.py                |       33 |        1 |       12 |        1 |     96% |       104 |
 | fractal\_tasks\_core/lib\_pyramid\_creation.py                        |       33 |        0 |       10 |        0 |    100% |           |
 | fractal\_tasks\_core/lib\_read\_fractal\_metadata.py                  |       35 |        0 |       14 |        0 |    100% |           |
@@ -39,7 +39,7 @@
 | fractal\_tasks\_core/tasks/maximum\_intensity\_projection.py          |       48 |        3 |        8 |        3 |     89% |32->31, 67, 129-131 |
 | fractal\_tasks\_core/tasks/napari\_workflows\_wrapper.py              |      244 |       20 |      118 |       15 |     90% |61->60, 149-151, 188, 293, 300, 306-311, 316, 347, 352, 392-396, 419, 522->509, 561-566, 573->575, 657-659 |
 | fractal\_tasks\_core/tasks/yokogawa\_to\_ome\_zarr.py                 |       94 |        5 |       22 |        5 |     91% |62->61, 111, 168, 219, 269-271 |
-|                                                             **TOTAL** | **2867** |  **190** | **1068** |  **154** | **91%** |           |
+|                                                             **TOTAL** | **2880** |  **190** | **1068** |  **154** | **91%** |           |
 
 
 ## Setup coverage badge
