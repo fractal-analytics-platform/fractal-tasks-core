@@ -26,8 +26,7 @@ from fractal_tasks_core import __OME_NGFF_VERSION__
 
 if __OME_NGFF_VERSION__ != "0.4":
     NotImplementedError(
-        f"OME NGFF {__OME_NGFF_VERSION__} is not supported "
-        "in `lib_channels.py`"
+        f"OME NGFF {__OME_NGFF_VERSION__} is not supported " "in `channels.py`"
     )
 
 
