@@ -92,8 +92,9 @@ class NapariWorkflowsOutput(BaseModel):
 
     Attributes:
         type: Output type (either `label` or `dataframe`).
-        label_name: Label name (for dataframe outputs, this attribute is used
-            to fill the `region["path"]` field).
+        label_name: Label name (for label outputs, it is used as the name of
+            the label; for dataframe outputs, it is used to fill the
+            `region["path"]` field).
         table_name: Table name (for dataframe outputs only).
     """
 
