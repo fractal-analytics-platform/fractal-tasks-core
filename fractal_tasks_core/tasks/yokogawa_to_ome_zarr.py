@@ -24,8 +24,8 @@ from dask.array.image import imread
 from pydantic.decorator import validate_arguments
 from zarr.errors import ContainsArrayError
 
-from fractal_tasks_core.lib_channels import get_omero_channel_list
-from fractal_tasks_core.lib_channels import OmeroChannel
+from fractal_tasks_core.channels import get_omero_channel_list
+from fractal_tasks_core.channels import OmeroChannel
 from fractal_tasks_core.lib_glob import glob_with_multiple_patterns
 from fractal_tasks_core.lib_ngff import load_NgffImageMeta
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename

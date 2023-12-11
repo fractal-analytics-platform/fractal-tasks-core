@@ -31,9 +31,9 @@ from cellpose import models
 from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
-from fractal_tasks_core.lib_channels import ChannelNotFoundError
-from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
-from fractal_tasks_core.lib_channels import OmeroChannel
+from fractal_tasks_core.channels import ChannelNotFoundError
+from fractal_tasks_core.channels import get_channel_from_image_zarr
+from fractal_tasks_core.channels import OmeroChannel
 from fractal_tasks_core.lib_input_models import Channel
 from fractal_tasks_core.lib_masked_loading import masked_loading_wrapper
 from fractal_tasks_core.lib_ngff import load_NgffImageMeta

@@ -27,7 +27,7 @@ from napari_workflows._io_yaml_v1 import load_workflow
 from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
-from fractal_tasks_core.lib_channels import get_channel_from_image_zarr
+from fractal_tasks_core.channels import get_channel_from_image_zarr
 from fractal_tasks_core.lib_input_models import NapariWorkflowsInput
 from fractal_tasks_core.lib_input_models import NapariWorkflowsOutput
 from fractal_tasks_core.lib_ngff import load_NgffImageMeta

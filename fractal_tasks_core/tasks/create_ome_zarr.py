@@ -21,10 +21,10 @@ import pandas as pd
 from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
-from fractal_tasks_core.lib_channels import check_unique_wavelength_ids
-from fractal_tasks_core.lib_channels import check_well_channel_labels
-from fractal_tasks_core.lib_channels import define_omero_channels
-from fractal_tasks_core.lib_channels import OmeroChannel
+from fractal_tasks_core.channels import check_unique_wavelength_ids
+from fractal_tasks_core.channels import check_well_channel_labels
+from fractal_tasks_core.channels import define_omero_channels
+from fractal_tasks_core.channels import OmeroChannel
 from fractal_tasks_core.lib_glob import glob_with_multiple_patterns
 from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
 from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
