@@ -14,7 +14,7 @@ Zurich.
 import pytest
 from devtools import debug
 
-from fractal_tasks_core.lib_parse_filename_metadata import parse_filename
+from fractal_tasks_core.parse_filename_metadata import parse_filename
 
 f1 = (
     "20200812-CardiomyocyteDifferentiation14-Cycle1"
