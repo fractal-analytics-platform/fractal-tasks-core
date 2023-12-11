@@ -163,18 +163,24 @@ def _write_table_v1(
         try:
             MaskingROITableAttrs(**table_attrs)
         except ValidationError as e:
-            logger.warning(
-                f"Current `masking_roi_table` does not comply with Fractal "
-                f"table specs V1. Original error: ValidationError: {str(e)}"
+            error_msg = (
+                "Table attributes do not comply with Fractal "
+                "`masking_roi_table` specifications V1.\nOriginal error:\n"
+                f"ValidationError: {str(e)}"
             )
+            logger.error(error_msg)
+            raise ValueError(error_msg)
     elif table_type == "feature_table":
         try:
             FeatureTableAttrs(**table_attrs)
         except ValidationError as e:
-            logger.warning(
-                f"Current `feature_table` does not comply with Fractal "
-                f"table specs V1. Original error: ValidationError: {str(e)}"
+            error_msg = (
+                "Table attributes do not comply with Fractal "
+                "`feature_table` specifications V1.\nOriginal error:\n"
+                f"ValidationError: {str(e)}"
             )
+            logger.error(error_msg)
+            raise ValueError(error_msg)
     else:
         logger.warning(f"Unknown table type `{table_type}`.")
 

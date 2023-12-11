@@ -1,6 +1,3 @@
-from typing import Any
-from typing import Optional
-
 import anndata as ad
 import numpy as np
 import pytest
@@ -94,71 +91,65 @@ def test_write_table(tmp_path):
     assert str(e.value).startswith("Item ")
 
 
-def test_write_table_warnings(tmp_path, caplog):
+def test_write_table_validation_errors(tmp_path, caplog):
     """
-    Test that the appropriate warnings are raised when not complying with the
-    new proposed table specs.
+    Test that the appropriate errors are raised when not complying with the
+    table specs.
     """
 
     table = ad.AnnData(np.ones((2, 2)))
     zarr_path = str(tmp_path / "my_image.zarr")
     img_group = zarr.open(zarr_path, mode="w")
 
-    def _check_warnings(
-        _ATTRS: dict[str, Any],
-        expect_warning: bool = True,
-        warning_message_contains: Optional[str] = None,
-    ):
-        caplog.clear()
-        write_table(
-            img_group, "table", table, table_attrs=_ATTRS, overwrite=True
-        )
-        debug(caplog.text)
-        if warning_message_contains is None:
-            WARNING_MSG = "does not comply with "
-        else:
-            WARNING_MSG = warning_message_contains
-        if expect_warning:
-            assert WARNING_MSG in caplog.text
-        else:
-            assert WARNING_MSG not in caplog.text
+    # Valid custom table
+    ATTRS = dict(
+        type="some_custom_table",
+        something="else",
+    )
+    write_table(img_group, "table", table, overwrite=True, table_attrs=ATTRS)
 
-    # Run without warnings
+    # Valid roi_table
+    ATTRS = dict(
+        type="roi_table",
+        something="else",
+    )
+    write_table(img_group, "table", table, overwrite=True, table_attrs=ATTRS)
+
+    # Valid masking_roi_table
     ATTRS = dict(
         type="masking_roi_table",
         region=dict(path="../labels/something"),
         instance_key="label",
     )
-    _check_warnings(ATTRS, expect_warning=False)
+    write_table(img_group, "table", table, overwrite=True, table_attrs=ATTRS)
 
-    # Run with warnings for masking_roi_table or feature_table
-    for table_type in ["masking_roi_table", "feature_table"]:
-        _check_warnings(
-            dict(
-                type=table_type,
-                region=dict(path="../labels/something"),
-            )
-        )
-        _check_warnings(
-            dict(
-                type=table_type,
-                instance_key="label",
-                region=dict(key="value"),
-            )
-        )
-        _check_warnings(
-            dict(
-                type=table_type,
-                instance_key="label",
-            )
-        )
-
-    # Run with warnings, case 4
+    # Invalid masking_roi_table
     ATTRS = dict(
-        type="INVALID_TABLE_TYPE",
+        type="masking_roi_table",
+        region=dict(path="../labels/something"),
+    )
+    with pytest.raises(ValueError):
+        write_table(
+            img_group, "table", table, overwrite=True, table_attrs=ATTRS
+        )
+
+    # Valid feature_table
+    ATTRS = dict(
+        type="feature_table",
+        region=dict(path="../labels/something"),
         instance_key="label",
     )
-    _check_warnings(ATTRS, warning_message_contains="Unknown table type")
+    write_table(img_group, "table", table, overwrite=True, table_attrs=ATTRS)
+
+    # Invalid feature_table
+    ATTRS = dict(
+        type="feature_table",
+        region=dict(path="../labels/something"),
+    )
+    with pytest.raises(ValueError):
+        write_table(
+            img_group, "table", table, overwrite=True, table_attrs=ATTRS
+        )
 
 
 def test_write_table_V2_not_implemented(tmp_path):
