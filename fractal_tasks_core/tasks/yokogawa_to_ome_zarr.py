@@ -27,7 +27,7 @@ from zarr.errors import ContainsArrayError
 from fractal_tasks_core.ome_zarr.channels import get_omero_channel_list
 from fractal_tasks_core.ome_zarr.channels import OmeroChannel
 from fractal_tasks_core.ome_zarr.ngff import load_NgffImageMeta
-from fractal_tasks_core.ome_zarr.pyramid_creation import build_pyramid
+from fractal_tasks_core.ome_zarr.pyramids import build_pyramid
 from fractal_tasks_core.ome_zarr.read_fractal_metadata import (
     get_parameters_from_metadata,
 )

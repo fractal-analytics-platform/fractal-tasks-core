@@ -37,7 +37,7 @@ from fractal_tasks_core.ome_zarr.channels import OmeroChannel
 from fractal_tasks_core.ome_zarr.input_models import Channel
 from fractal_tasks_core.ome_zarr.masked_loading import masked_loading_wrapper
 from fractal_tasks_core.ome_zarr.ngff import load_NgffImageMeta
-from fractal_tasks_core.ome_zarr.pyramid_creation import build_pyramid
+from fractal_tasks_core.ome_zarr.pyramids import build_pyramid
 from fractal_tasks_core.ome_zarr.write import prepare_label_group
 from fractal_tasks_core.ome_zarr.zattrs_utils import rescale_datasets
 from fractal_tasks_core.roi import (

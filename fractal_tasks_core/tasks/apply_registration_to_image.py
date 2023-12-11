@@ -27,7 +27,7 @@ import zarr
 from pydantic.decorator import validate_arguments
 
 from fractal_tasks_core.ome_zarr.ngff import load_NgffImageMeta
-from fractal_tasks_core.ome_zarr.pyramid_creation import build_pyramid
+from fractal_tasks_core.ome_zarr.pyramids import build_pyramid
 from fractal_tasks_core.ome_zarr.zattrs_utils import get_table_path_dict
 from fractal_tasks_core.roi import (
     convert_indices_to_regions,
