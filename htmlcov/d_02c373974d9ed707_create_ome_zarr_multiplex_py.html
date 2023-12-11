@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="d_02c373974d9ed707_illumination_correction_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.3.2">coverage.py v7.3.2</a>,
-            created at 2023-12-05 11:15 +0000
+            created at 2023-12-11 09:59 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -116,9 +116,9 @@
     <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_parse_filename_metadata</span> <span class="key">import</span> <span class="nam">parse_filename</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_regions_of_interest</span> <span class="key">import</span> <span class="nam">prepare_FOV_ROI_table</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_regions_of_interest</span> <span class="key">import</span> <span class="nam">prepare_well_ROI_table</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_ROI_overlaps</span> <span class="key">import</span> <span class="nam">remove_FOV_overlaps</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_write</span> <span class="key">import</span> <span class="nam">open_zarr_group_with_overwrite</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_write</span> <span class="key">import</span> <span class="nam">write_table</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_regions_of_interest</span> <span class="key">import</span> <span class="nam">remove_FOV_overlaps</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_tables</span> <span class="key">import</span> <span class="nam">write_table</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_write</span> <span class="key">import</span> <span class="nam">open_zarr_group_with_overwrite</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="nam">__OME_NGFF_VERSION__</span> <span class="op">=</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">__OME_NGFF_VERSION__</span>&nbsp;</span><span class="r"></span></p>
@@ -554,14 +554,14 @@
     <p class="pln"><span class="n"><a id="t470" href="#t470">470</a></span><span class="t">                <span class="str">"FOV_ROI_table"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t471" href="#t471">471</a></span><span class="t">                <span class="nam">FOV_ROIs_table</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t472" href="#t472">472</a></span><span class="t">                <span class="nam">overwrite</span><span class="op">=</span><span class="nam">overwrite</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t473" href="#t473">473</a></span><span class="t">                <span class="nam">logger</span><span class="op">=</span><span class="nam">logger</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t473" href="#t473">473</a></span><span class="t">                <span class="nam">table_attrs</span><span class="op">=</span><span class="op">{</span><span class="str">"type"</span><span class="op">:</span> <span class="str">"roi_table"</span><span class="op">}</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t474" href="#t474">474</a></span><span class="t">            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t475" href="#t475">475</a></span><span class="t">            <span class="nam">write_table</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t476" href="#t476">476</a></span><span class="t">                <span class="nam">group_image</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t477" href="#t477">477</a></span><span class="t">                <span class="str">"well_ROI_table"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t478" href="#t478">478</a></span><span class="t">                <span class="nam">well_ROIs_table</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t479" href="#t479">479</a></span><span class="t">                <span class="nam">overwrite</span><span class="op">=</span><span class="nam">overwrite</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t480" href="#t480">480</a></span><span class="t">                <span class="nam">logger</span><span class="op">=</span><span class="nam">logger</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t480" href="#t480">480</a></span><span class="t">                <span class="nam">table_attrs</span><span class="op">=</span><span class="op">{</span><span class="str">"type"</span><span class="op">:</span> <span class="str">"roi_table"</span><span class="op">}</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t481" href="#t481">481</a></span><span class="t">            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t482" href="#t482">482</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t483" href="#t483">483</a></span><span class="t">    <span class="com"># Check that the different images (e.g. different cycles) in the each well</span>&nbsp;</span><span class="r"></span></p>
@@ -605,7 +605,7 @@
             <a id="nextFileLink" class="nav" href="d_02c373974d9ed707_illumination_correction_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.3.2">coverage.py v7.3.2</a>,
-            created at 2023-12-05 11:15 +0000
+            created at 2023-12-11 09:59 +0000
         </p>
     </div>
 </footer>
