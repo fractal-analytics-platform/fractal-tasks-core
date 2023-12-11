@@ -188,8 +188,8 @@ def _write_elem_with_overwrite(
 def prepare_label_group(
     image_group: zarr.hierarchy.Group,
     label_name: str,
+    label_attrs: dict[str, Any],
     overwrite: bool = False,
-    label_attrs: Optional[dict[str, Any]] = None,
     logger: Optional[logging.Logger] = None,
 ) -> zarr.group:
     """
@@ -224,8 +224,7 @@ def prepare_label_group(
             to `create_group` method, making it overwrite any existing
             sub-group with the given name.
         label_attrs:
-            If set, overwrite label_group attributes with label_attrs key/value
-            pairs.
+            Zarr attributes of the label-image group.
         logger:
             The logger to use (if unset, use `logging.getLogger(None)`).
 
@@ -272,29 +271,27 @@ def prepare_label_group(
     # Define new-label group
     label_group = labels_group.create_group(label_name, overwrite=overwrite)
 
-    # Optionally update attributes of the new-table zarr group
-    if label_attrs is not None:
-        # Validate attrs against NGFF specs 0.4
-        try:
-            meta = NgffImageMeta(**label_attrs)
-        except ValidationError as e:
-            error_msg = (
-                "Label attributes do not comply with NGFF image "
-                "specifications, as encoded in fractal-tasks-core.\n"
-                f"Original error:\nValidationError: {str(e)}"
-            )
-            logger.error(error_msg)
-            raise ValueError(error_msg)
-        # Replace multiscale name with label_name, if needed
-        current_multiscale_name = meta.multiscale.name
-        if current_multiscale_name != label_name:
-            logger.warning(
-                f"Setting multiscale name to '{label_name}' (old value: "
-                f"'{current_multiscale_name}') in label-image NGFF "
-                "attributes."
-            )
-            label_attrs["multiscales"][0]["name"] = label_name
-        # Overwrite label_group attributes with label_attrs key/value pairs
-        label_group.attrs.put(label_attrs)
+    # Validate attrs against NGFF specs 0.4
+    try:
+        meta = NgffImageMeta(**label_attrs)
+    except ValidationError as e:
+        error_msg = (
+            "Label attributes do not comply with NGFF image "
+            "specifications, as encoded in fractal-tasks-core.\n"
+            f"Original error:\nValidationError: {str(e)}"
+        )
+        logger.error(error_msg)
+        raise ValueError(error_msg)
+    # Replace multiscale name with label_name, if needed
+    current_multiscale_name = meta.multiscale.name
+    if current_multiscale_name != label_name:
+        logger.warning(
+            f"Setting multiscale name to '{label_name}' (old value: "
+            f"'{current_multiscale_name}') in label-image NGFF "
+            "attributes."
+        )
+        label_attrs["multiscales"][0]["name"] = label_name
+    # Overwrite label_group attributes with label_attrs key/value pairs
+    label_group.attrs.put(label_attrs)
 
     return label_group
