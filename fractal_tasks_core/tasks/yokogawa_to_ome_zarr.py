@@ -36,8 +36,8 @@ from fractal_tasks_core.roi import check_valid_ROI_indices
 from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
-from fractal_tasks_core.yokogawa.glob import glob_with_multiple_patterns
-from fractal_tasks_core.yokogawa.parse_filename_metadata import parse_filename
+from fractal_tasks_core.yokogawa.filenames import glob_with_multiple_patterns
+from fractal_tasks_core.yokogawa.filenames import parse_filename
 
 
 logger = logging.getLogger(__name__)
