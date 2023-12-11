@@ -30,7 +30,7 @@ from fractal_tasks_core.roi import prepare_FOV_ROI_table
 from fractal_tasks_core.roi import prepare_well_ROI_table
 from fractal_tasks_core.roi import remove_FOV_overlaps
 from fractal_tasks_core.tables import write_table
-from fractal_tasks_core.yokogawa.lib_glob import glob_with_multiple_patterns
+from fractal_tasks_core.yokogawa.glob import glob_with_multiple_patterns
 from fractal_tasks_core.yokogawa.metadata_parsing import (
     parse_yokogawa_metadata,
 )
