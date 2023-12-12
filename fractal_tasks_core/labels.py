@@ -1,3 +1,16 @@
+# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
+# University of Zurich
+#
+# Original authors:
+# Tommaso Comparin <tommaso.comparin@exact-lab.it>
+#
+# This file is part of Fractal and was originally developed by eXact lab S.r.l.
+# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
+# Institute for Biomedical Research and Pelkmans Lab from the University of
+# Zurich.
+"""
+Module which currently only hosts `prepare_label_group`.
+"""
 import logging
 from typing import Any
 from typing import Optional
@@ -5,8 +18,8 @@ from typing import Optional
 import zarr.hierarchy
 from pydantic.error_wrappers import ValidationError
 
-from ..ngff import NgffImageMeta
-from ..write import OverwriteNotAllowedError
+from .ngff import NgffImageMeta
+from .write import OverwriteNotAllowedError
 
 
 def prepare_label_group(
