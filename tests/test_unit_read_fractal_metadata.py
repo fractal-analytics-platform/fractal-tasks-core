@@ -2,10 +2,10 @@ import pytest
 import zarr
 from devtools import debug
 
-from fractal_tasks_core.ome_zarr.read_fractal_metadata import (
+from fractal_tasks_core.ome_zarr.zattrs_utils import (
     _find_omengff_acquisition,
 )
-from fractal_tasks_core.ome_zarr.read_fractal_metadata import (
+from fractal_tasks_core.ome_zarr.zattrs_utils import (
     get_parameters_from_metadata,
 )
 
