@@ -19,7 +19,6 @@ from devtools import debug
 
 from ._validation import check_file_number
 from ._validation import validate_schema
-from fractal_tasks_core.ome_zarr.write import OverwriteNotAllowedError
 from fractal_tasks_core.tasks.copy_ome_zarr import (
     copy_ome_zarr,
 )
@@ -30,6 +29,7 @@ from fractal_tasks_core.tasks.maximum_intensity_projection import (
     maximum_intensity_projection,
 )
 from fractal_tasks_core.tasks.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
+from fractal_tasks_core.write import OverwriteNotAllowedError
 
 
 single_cycle_allowed_channels_no_label = [

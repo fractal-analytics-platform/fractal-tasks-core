@@ -32,11 +32,11 @@ from fractal_tasks_core.ome_zarr.channels import check_unique_wavelength_ids
 from fractal_tasks_core.ome_zarr.channels import check_well_channel_labels
 from fractal_tasks_core.ome_zarr.channels import define_omero_channels
 from fractal_tasks_core.ome_zarr.channels import OmeroChannel
-from fractal_tasks_core.ome_zarr.write import _open_zarr_group_with_overwrite
 from fractal_tasks_core.roi import prepare_FOV_ROI_table
 from fractal_tasks_core.roi import prepare_well_ROI_table
 from fractal_tasks_core.roi import remove_FOV_overlaps
 from fractal_tasks_core.tables import write_table
+from fractal_tasks_core.write import open_zarr_group_with_overwrite
 
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
@@ -235,7 +235,7 @@ def create_ome_zarr(
         in_path = dict_plate_paths[plate]
         logger.info(f"Creating {zarrurl}")
         # Call zarr.open_group wrapper, which handles overwrite=True/False
-        group_plate = _open_zarr_group_with_overwrite(
+        group_plate = open_zarr_group_with_overwrite(
             str(Path(output_path) / zarrurl),
             overwrite=overwrite,
         )

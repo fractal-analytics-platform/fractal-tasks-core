@@ -32,7 +32,6 @@ from fractal_tasks_core.ngff import load_NgffImageMeta
 from fractal_tasks_core.ome_zarr.channels import get_omero_channel_list
 from fractal_tasks_core.ome_zarr.channels import OmeroChannel
 from fractal_tasks_core.ome_zarr.pyramids import build_pyramid
-from fractal_tasks_core.ome_zarr.write import OverwriteNotAllowedError
 from fractal_tasks_core.ome_zarr.zattrs_utils import (
     get_parameters_from_metadata,
 )
@@ -40,6 +39,7 @@ from fractal_tasks_core.roi import check_valid_ROI_indices
 from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
+from fractal_tasks_core.write import OverwriteNotAllowedError
 
 
 logger = logging.getLogger(__name__)

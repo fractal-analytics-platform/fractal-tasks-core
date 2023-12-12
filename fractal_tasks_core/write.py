@@ -18,7 +18,6 @@ from typing import Optional
 from typing import Union
 
 import zarr.hierarchy
-from anndata.experimental import write_elem
 from zarr.errors import ContainsGroupError
 from zarr.errors import GroupNotFoundError
 
@@ -27,7 +26,7 @@ class OverwriteNotAllowedError(RuntimeError):
     pass
 
 
-def _open_zarr_group_with_overwrite(
+def open_zarr_group_with_overwrite(
     path: Union[str, MutableMapping],
     *,
     overwrite: bool,
@@ -89,7 +88,7 @@ def _open_zarr_group_with_overwrite(
         new_mode = "w-"
 
     # Write log about current status
-    logger.info(f"Start _open_zarr_group_with_overwrite ({overwrite=}).")
+    logger.info(f"Start open_zarr_group_with_overwrite ({overwrite=}).")
     try:
         # Call `zarr.open_group` with `mode="r"`, which fails for missing group
         current_group = zarr.open_group(path, mode="r")
@@ -103,7 +102,7 @@ def _open_zarr_group_with_overwrite(
         mode = open_group_kwargs.pop("mode")
         logger.warning(
             f"Overriding {mode=} with {new_mode=}, "
-            "in _open_zarr_group_with_overwrite"
+            "in open_zarr_group_with_overwrite"
         )
 
     # Call zarr.open_group
@@ -118,65 +117,3 @@ def _open_zarr_group_with_overwrite(
         )
         logger.error(error_msg)
         raise OverwriteNotAllowedError(error_msg)
-
-
-def _write_elem_with_overwrite(
-    group: zarr.hierarchy.Group,
-    key: str,
-    elem: Any,
-    *,
-    overwrite: bool,
-    logger: Optional[logging.Logger] = None,
-) -> None:
-    """
-    Wrap `anndata.experimental.write_elem`, to include `overwrite` parameter.
-
-    See docs for the original function
-    [here](https://anndata.readthedocs.io/en/stable/generated/anndata.experimental.write_elem.html).
-
-    This function writes `elem` to the sub-group `key` of `group`. The
-    `overwrite`-related expected behavior is:
-
-    * if the sub-group does not exist, create it (independently on
-      `overwrite`);
-    * if the sub-group already exists and `overwrite=True`, overwrite the
-      sub-group;
-    * if the sub-group already exists and `overwrite=False`, fail.
-
-    Note that this version of the wrapper does not include the original
-    `dataset_kwargs` parameter.
-
-    Args:
-        group:
-            The group to write to.
-        key:
-            The key to write to in the group. Note that absolute paths will be
-            written from the root.
-        elem:
-            The element to write. Typically an in-memory object, e.g. an
-            AnnData, pandas dataframe, scipy sparse matrix, etc.
-        overwrite:
-            If `True`, overwrite the `key` sub-group (if present); if `False`
-            and `key` sub-group exists, raise an error.
-        logger:
-            The logger to use (if unset, use `logging.getLogger(None)`)
-
-    Raises:
-        OverwriteNotAllowedError:
-            If `overwrite=False` and the sub-group already exists.
-    """
-
-    # Set logger
-    if logger is None:
-        logger = logging.getLogger(None)
-
-    if key in set(group.group_keys()):
-        if not overwrite:
-            error_msg = (
-                f"Sub-group '{key}' of group {group.store.path} "
-                f"already exists, but `{overwrite=}`.\n"
-                "Hint: try setting `overwrite=True`."
-            )
-            logger.error(error_msg)
-            raise OverwriteNotAllowedError(error_msg)
-    write_elem(group, key, elem)

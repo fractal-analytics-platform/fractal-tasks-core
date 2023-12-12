@@ -56,9 +56,8 @@ def write_table(
         overwrite:
             If `False`, check that the new table does not exist (either as a
             zarr sub-group or as part of the zarr-group attributes). In all
-            cases, propagate parameter to `_write_elem_with_overwrite`, to
-            determine the behavior in case of an existing sub-group named as
-            `table_name`.
+            cases, propagate parameter to low-level functions, to determine the
+            behavior in case of an existing sub-group named as in `table_name`.
         table_type: `type` attribute for the table; in case `type` is also
             present in `table_attrs`, this function argument takes priority.
         table_attrs:

@@ -7,14 +7,14 @@ import zarr
 from devtools import debug
 
 from fractal_tasks_core.ome_zarr.label_group import prepare_label_group
-from fractal_tasks_core.ome_zarr.write import _open_zarr_group_with_overwrite
-from fractal_tasks_core.ome_zarr.write import _write_elem_with_overwrite
-from fractal_tasks_core.ome_zarr.write import OverwriteNotAllowedError
+from fractal_tasks_core.tables.v1 import _write_elem_with_overwrite
+from fractal_tasks_core.write import open_zarr_group_with_overwrite
+from fractal_tasks_core.write import OverwriteNotAllowedError
 
 
 def test_open_zarr_group_with_overwrite(tmp_path, caplog):
     """
-    Test _open_zarr_group_with_overwrite
+    Test open_zarr_group_with_overwrite
 
     See
     https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/485
@@ -25,7 +25,7 @@ def test_open_zarr_group_with_overwrite(tmp_path, caplog):
     path_c = str(tmp_path / "group_c.zarr")
 
     # If `overwrite=False` and the group does not exist, create it
-    group_a = _open_zarr_group_with_overwrite(path_a, overwrite=False)
+    group_a = open_zarr_group_with_overwrite(path_a, overwrite=False)
     group_a.create_group("a1")
     group_a.create_group("a2")
     debug(group_a.info)
@@ -33,7 +33,7 @@ def test_open_zarr_group_with_overwrite(tmp_path, caplog):
     print()
 
     # If `overwrite=True` and the group does not exist, create it
-    group_b = _open_zarr_group_with_overwrite(path_b, overwrite=True)
+    group_b = open_zarr_group_with_overwrite(path_b, overwrite=True)
     group_b.create_group("b1")
     group_b.create_group("b2")
     debug(group_b.info)
@@ -42,7 +42,7 @@ def test_open_zarr_group_with_overwrite(tmp_path, caplog):
 
     # If `overwrite=True` and the group already exists, replace it with a new
     # empty group
-    group_a_new = _open_zarr_group_with_overwrite(path_a, overwrite=True)
+    group_a_new = open_zarr_group_with_overwrite(path_a, overwrite=True)
     debug(group_a_new.info)
     assert set(group_a_new.group_keys()) == set()
     print()
@@ -50,12 +50,12 @@ def test_open_zarr_group_with_overwrite(tmp_path, caplog):
     # If `overwrite=False` and the group already exists, fail with a relevant
     # error
     with pytest.raises(OverwriteNotAllowedError) as e:
-        _open_zarr_group_with_overwrite(path_b, overwrite=False)
+        open_zarr_group_with_overwrite(path_b, overwrite=False)
     print(e.value)
 
     # If `mode` is also included, a warning is raised but there is no error
     caplog.clear()
-    _open_zarr_group_with_overwrite(path_c, overwrite=False, mode="something")
+    open_zarr_group_with_overwrite(path_c, overwrite=False, mode="something")
     debug(caplog.text)
     assert "Overriding mode='something' with new_mode" in caplog.text
 
