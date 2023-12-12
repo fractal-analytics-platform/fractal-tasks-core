@@ -19,11 +19,11 @@ import pytest
 from devtools import debug
 from pandas import Timestamp
 
-from fractal_tasks_core.roi import remove_FOV_overlaps
-from fractal_tasks_core.roi import run_overlap_check
-from fractal_tasks_core.yokogawa.metadata import (
+from fractal_tasks_core.cellvoyager.metadata import (
     parse_yokogawa_metadata,
 )
+from fractal_tasks_core.roi import remove_FOV_overlaps
+from fractal_tasks_core.roi import run_overlap_check
 
 # General variables and paths (relative to the test folder)
 testdir = os.path.dirname(__file__)

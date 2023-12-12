@@ -24,6 +24,10 @@ from dask.array.image import imread
 from pydantic.decorator import validate_arguments
 from zarr.errors import ContainsArrayError
 
+from fractal_tasks_core.cellvoyager.filenames import (
+    glob_with_multiple_patterns,
+)
+from fractal_tasks_core.cellvoyager.filenames import parse_filename
 from fractal_tasks_core.ome_zarr.channels import get_omero_channel_list
 from fractal_tasks_core.ome_zarr.channels import OmeroChannel
 from fractal_tasks_core.ome_zarr.ngff import load_NgffImageMeta
@@ -36,8 +40,6 @@ from fractal_tasks_core.roi import check_valid_ROI_indices
 from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
-from fractal_tasks_core.yokogawa.filenames import glob_with_multiple_patterns
-from fractal_tasks_core.yokogawa.filenames import parse_filename
 
 
 logger = logging.getLogger(__name__)
