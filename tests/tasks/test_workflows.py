@@ -31,7 +31,7 @@ from fractal_tasks_core.tasks.maximum_intensity_projection import (
     maximum_intensity_projection,
 )  # noqa
 from fractal_tasks_core.tasks.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
-from fractal_tasks_core.write import OverwriteNotAllowedError
+from fractal_tasks_core.zarr import OverwriteNotAllowedError
 
 
 allowed_channels = [

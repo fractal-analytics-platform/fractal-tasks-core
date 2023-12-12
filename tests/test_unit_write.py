@@ -8,8 +8,8 @@ from devtools import debug
 
 from fractal_tasks_core.labels import prepare_label_group
 from fractal_tasks_core.tables.v1 import _write_elem_with_overwrite
-from fractal_tasks_core.write import open_zarr_group_with_overwrite
-from fractal_tasks_core.write import OverwriteNotAllowedError
+from fractal_tasks_core.zarr import open_zarr_group_with_overwrite
+from fractal_tasks_core.zarr import OverwriteNotAllowedError
 
 
 def test_open_zarr_group_with_overwrite(tmp_path, caplog):

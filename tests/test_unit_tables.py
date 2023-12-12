@@ -8,7 +8,7 @@ from fractal_tasks_core import __FRACTAL_TABLE_VERSION__
 from fractal_tasks_core.tables import write_table
 from fractal_tasks_core.tables.v1 import FeatureTableAttrs
 from fractal_tasks_core.tables.v1 import MaskingROITableAttrs
-from fractal_tasks_core.write import OverwriteNotAllowedError
+from fractal_tasks_core.zarr import OverwriteNotAllowedError
 
 
 TYPE = "some-arbitrary-type"

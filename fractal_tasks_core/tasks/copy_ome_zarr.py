@@ -27,7 +27,7 @@ from fractal_tasks_core.roi import (
     convert_ROIs_from_3D_to_2D,
 )
 from fractal_tasks_core.tables import write_table
-from fractal_tasks_core.write import open_zarr_group_with_overwrite
+from fractal_tasks_core.zarr import open_zarr_group_with_overwrite
 
 logger = logging.getLogger(__name__)
 

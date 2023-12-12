@@ -15,7 +15,7 @@ from pydantic import BaseModel
 from pydantic import validator
 from pydantic.error_wrappers import ValidationError
 
-from ..write import OverwriteNotAllowedError
+from ..zarr import OverwriteNotAllowedError
 
 logger = logging.getLogger(__name__)
 

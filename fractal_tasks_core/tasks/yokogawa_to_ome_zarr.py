@@ -39,7 +39,7 @@ from fractal_tasks_core.roi import check_valid_ROI_indices
 from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
-from fractal_tasks_core.write import OverwriteNotAllowedError
+from fractal_tasks_core.zarr import OverwriteNotAllowedError
 
 
 logger = logging.getLogger(__name__)

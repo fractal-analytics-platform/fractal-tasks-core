@@ -38,7 +38,7 @@ from fractal_tasks_core.roi import prepare_FOV_ROI_table
 from fractal_tasks_core.roi import prepare_well_ROI_table
 from fractal_tasks_core.roi import remove_FOV_overlaps
 from fractal_tasks_core.tables import write_table
-from fractal_tasks_core.write import open_zarr_group_with_overwrite
+from fractal_tasks_core.zarr import open_zarr_group_with_overwrite
 
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__

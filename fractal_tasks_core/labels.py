@@ -19,7 +19,7 @@ import zarr.hierarchy
 from pydantic.error_wrappers import ValidationError
 
 from .ngff import NgffImageMeta
-from .write import OverwriteNotAllowedError
+from .zarr import OverwriteNotAllowedError
 
 
 def prepare_label_group(
