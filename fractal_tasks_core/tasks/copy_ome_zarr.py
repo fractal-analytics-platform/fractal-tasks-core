@@ -23,7 +23,7 @@ from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
 from fractal_tasks_core.ngff import load_NgffImageMeta
-from fractal_tasks_core.ome_zarr.write import open_zarr_group_with_overwrite
+from fractal_tasks_core.ome_zarr.write import _open_zarr_group_with_overwrite
 from fractal_tasks_core.roi import (
     convert_ROIs_from_3D_to_2D,
 )
@@ -132,7 +132,7 @@ def copy_ome_zarr(
 
         # Replicate plate attrs
         old_plate_group = zarr.open_group(zarrurl_old, mode="r")
-        new_plate_group = open_zarr_group_with_overwrite(
+        new_plate_group = _open_zarr_group_with_overwrite(
             zarrurl_new, overwrite=overwrite
         )
         new_plate_group.attrs.put(old_plate_group.attrs.asdict())

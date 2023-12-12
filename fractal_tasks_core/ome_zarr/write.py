@@ -27,7 +27,7 @@ class OverwriteNotAllowedError(RuntimeError):
     pass
 
 
-def open_zarr_group_with_overwrite(
+def _open_zarr_group_with_overwrite(
     path: Union[str, MutableMapping],
     *,
     overwrite: bool,
@@ -89,7 +89,7 @@ def open_zarr_group_with_overwrite(
         new_mode = "w-"
 
     # Write log about current status
-    logger.info(f"Start open_zarr_group_with_overwrite ({overwrite=}).")
+    logger.info(f"Start _open_zarr_group_with_overwrite ({overwrite=}).")
     try:
         # Call `zarr.open_group` with `mode="r"`, which fails for missing group
         current_group = zarr.open_group(path, mode="r")
@@ -103,7 +103,7 @@ def open_zarr_group_with_overwrite(
         mode = open_group_kwargs.pop("mode")
         logger.warning(
             f"Overriding {mode=} with {new_mode=}, "
-            "in open_zarr_group_with_overwrite"
+            "in _open_zarr_group_with_overwrite"
         )
 
     # Call zarr.open_group
