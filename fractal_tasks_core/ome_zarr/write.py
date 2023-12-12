@@ -23,7 +23,7 @@ from pydantic.error_wrappers import ValidationError
 from zarr.errors import ContainsGroupError
 from zarr.errors import GroupNotFoundError
 
-from .ngff import NgffImageMeta
+from ..ngff import NgffImageMeta
 
 
 class OverwriteNotAllowedError(RuntimeError):

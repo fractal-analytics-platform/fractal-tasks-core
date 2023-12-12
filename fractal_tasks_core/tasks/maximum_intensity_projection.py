@@ -21,7 +21,7 @@ import dask.array as da
 from pydantic.decorator import validate_arguments
 from zarr.errors import ContainsArrayError
 
-from fractal_tasks_core.ome_zarr.ngff import load_NgffImageMeta
+from fractal_tasks_core.ngff import load_NgffImageMeta
 from fractal_tasks_core.ome_zarr.pyramids import build_pyramid
 from fractal_tasks_core.ome_zarr.write import OverwriteNotAllowedError
 

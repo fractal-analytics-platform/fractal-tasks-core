@@ -21,9 +21,9 @@ import dask.array as da
 import zarr
 from pydantic.decorator import validate_arguments
 
+from fractal_tasks_core.ngff import detect_ome_ngff_type
+from fractal_tasks_core.ngff import NgffImageMeta
 from fractal_tasks_core.ome_zarr.channels import update_omero_channels
-from fractal_tasks_core.ome_zarr.ngff import detect_ome_ngff_type
-from fractal_tasks_core.ome_zarr.ngff import NgffImageMeta
 from fractal_tasks_core.roi import get_image_grid_ROIs
 from fractal_tasks_core.roi import get_single_image_ROI
 from fractal_tasks_core.tables import write_table

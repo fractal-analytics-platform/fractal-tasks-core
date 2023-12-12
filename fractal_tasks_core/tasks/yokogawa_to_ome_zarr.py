@@ -28,9 +28,9 @@ from fractal_tasks_core.cellvoyager.filenames import (
     glob_with_multiple_patterns,
 )
 from fractal_tasks_core.cellvoyager.filenames import parse_filename
+from fractal_tasks_core.ngff import load_NgffImageMeta
 from fractal_tasks_core.ome_zarr.channels import get_omero_channel_list
 from fractal_tasks_core.ome_zarr.channels import OmeroChannel
-from fractal_tasks_core.ome_zarr.ngff import load_NgffImageMeta
 from fractal_tasks_core.ome_zarr.pyramids import build_pyramid
 from fractal_tasks_core.ome_zarr.read_fractal_metadata import (
     get_parameters_from_metadata,
