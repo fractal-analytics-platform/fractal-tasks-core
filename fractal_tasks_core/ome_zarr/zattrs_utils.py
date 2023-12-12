@@ -15,7 +15,6 @@ Helper functions for operations on Zarr attributes and OME-NGFF metadata.
 import logging
 from pathlib import Path
 from typing import Any
-from typing import Dict
 from typing import Sequence
 from typing import Union
 
@@ -155,9 +154,9 @@ def _find_omengff_acquisition(image_zarr_path: Path) -> Union[int, None]:
 def get_parameters_from_metadata(
     *,
     keys: Sequence[str],
-    metadata: Dict[str, Any],
+    metadata: dict[str, Any],
     image_zarr_path: Path,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Flexibly extract parameters from metadata dictionary
 
