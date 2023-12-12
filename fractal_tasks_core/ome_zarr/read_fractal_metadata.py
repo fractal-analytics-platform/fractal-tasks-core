@@ -20,7 +20,7 @@ from typing import Union
 import zarr
 
 
-def find_omengff_acquisition(image_zarr_path: Path) -> Union[int, None]:
+def _find_omengff_acquisition(image_zarr_path: Path) -> Union[int, None]:
     """
     Discover the acquisition index based on OME-NGFF metadata.
 
@@ -89,7 +89,7 @@ def get_parameters_from_metadata(
     """
 
     parameters = {}
-    acquisition = find_omengff_acquisition(image_zarr_path)
+    acquisition = _find_omengff_acquisition(image_zarr_path)
     if acquisition is not None:
         parameters["acquisition"] = acquisition
 
