@@ -6,10 +6,10 @@ import pytest
 import zarr
 from devtools import debug
 
-from fractal_tasks_core.ngff import Dataset
-from fractal_tasks_core.ngff import Multiscale
-from fractal_tasks_core.ngff import NgffImageMeta
-from fractal_tasks_core.ngff import NgffWellMeta
+from fractal_tasks_core.ngff.specs import Dataset
+from fractal_tasks_core.ngff.specs import Multiscale
+from fractal_tasks_core.ngff.specs import NgffImageMeta
+from fractal_tasks_core.ngff.specs import NgffWellMeta
 from fractal_tasks_core.ngff.zarr_utils import detect_ome_ngff_type
 from fractal_tasks_core.ngff.zarr_utils import load_NgffImageMeta
 from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
