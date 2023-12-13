@@ -30,10 +30,10 @@ from fractal_tasks_core.cellvoyager.filenames import parse_filename
 from fractal_tasks_core.cellvoyager.metadata import (
     parse_yokogawa_metadata,
 )
-from fractal_tasks_core.ome_zarr.channels import check_unique_wavelength_ids
-from fractal_tasks_core.ome_zarr.channels import check_well_channel_labels
-from fractal_tasks_core.ome_zarr.channels import define_omero_channels
-from fractal_tasks_core.ome_zarr.channels import OmeroChannel
+from fractal_tasks_core.channels import check_unique_wavelength_ids
+from fractal_tasks_core.channels import check_well_channel_labels
+from fractal_tasks_core.channels import define_omero_channels
+from fractal_tasks_core.channels import OmeroChannel
 from fractal_tasks_core.roi import prepare_FOV_ROI_table
 from fractal_tasks_core.roi import prepare_well_ROI_table
 from fractal_tasks_core.roi import remove_FOV_overlaps

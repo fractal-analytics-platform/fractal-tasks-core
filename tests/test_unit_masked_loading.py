@@ -5,7 +5,7 @@ from devtools import debug
 
 from ._zenodo_ome_zarrs import prepare_2D_zarr  # noqa
 from ._zenodo_ome_zarrs import prepare_3D_zarr  # noqa
-from fractal_tasks_core.ome_zarr.masked_loading import (
+from fractal_tasks_core.masked_loading import (
     masked_loading_wrapper,
 )  # noqa
 

@@ -15,8 +15,8 @@ import os
 
 from devtools import debug
 
-from fractal_tasks_core.ome_zarr.channels import OmeroChannel
-from fractal_tasks_core.ome_zarr.channels import Window
+from fractal_tasks_core.channels import OmeroChannel
+from fractal_tasks_core.channels import Window
 from fractal_tasks_core.tasks.cellpose_segmentation import (
     cellpose_segmentation,
 )

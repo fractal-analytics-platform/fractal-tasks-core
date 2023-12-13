@@ -13,8 +13,8 @@ from devtools import debug
 from PIL import Image
 from pytest import MonkeyPatch
 
+from fractal_tasks_core.channels import ChannelInputModel
 from fractal_tasks_core.ngff.zarr_utils import load_NgffImageMeta
-from fractal_tasks_core.ome_zarr.channels import ChannelInputModel
 from fractal_tasks_core.roi import (
     convert_indices_to_regions,
 )

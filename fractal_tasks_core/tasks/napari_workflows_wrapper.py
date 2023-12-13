@@ -31,12 +31,11 @@ from pydantic import validator
 from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
+from fractal_tasks_core.channels import ChannelInputModel
+from fractal_tasks_core.channels import get_channel_from_image_zarr
 from fractal_tasks_core.labels import prepare_label_group
 from fractal_tasks_core.ngff import load_NgffImageMeta
-from fractal_tasks_core.ome_zarr.channels import ChannelInputModel
-from fractal_tasks_core.ome_zarr.channels import get_channel_from_image_zarr
-from fractal_tasks_core.ome_zarr.pyramids import build_pyramid
-from fractal_tasks_core.ome_zarr.utils import rescale_datasets
+from fractal_tasks_core.pyramids import build_pyramid
 from fractal_tasks_core.roi import check_valid_ROI_indices
 from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
@@ -44,6 +43,7 @@ from fractal_tasks_core.roi import (
 from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
 from fractal_tasks_core.upscale_array import upscale_array
+from fractal_tasks_core.utils import rescale_datasets
 
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__

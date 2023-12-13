@@ -4,7 +4,7 @@ import shutil
 
 from devtools import debug
 
-from fractal_tasks_core.ome_zarr.channels import ChannelInputModel
+from fractal_tasks_core.channels import ChannelInputModel
 from fractal_tasks_core.tasks.cellpose_segmentation import (
     cellpose_segmentation,
 )

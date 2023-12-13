@@ -1,7 +1,7 @@
 import pytest
 from devtools import debug
 
-from fractal_tasks_core.ome_zarr.channels import ChannelInputModel
+from fractal_tasks_core.channels import ChannelInputModel
 from fractal_tasks_core.tasks.napari_workflows_wrapper import (
     NapariWorkflowsInput,
 )
