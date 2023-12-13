@@ -36,7 +36,7 @@ from fractal_tasks_core.ngff import load_NgffImageMeta
 from fractal_tasks_core.ome_zarr.channels import ChannelNotFoundError
 from fractal_tasks_core.ome_zarr.channels import get_channel_from_image_zarr
 from fractal_tasks_core.ome_zarr.channels import OmeroChannel
-from fractal_tasks_core.ome_zarr.input_models import Channel
+from fractal_tasks_core.ome_zarr.input_models import ChannelInputModel
 from fractal_tasks_core.ome_zarr.masked_loading import masked_loading_wrapper
 from fractal_tasks_core.ome_zarr.pyramids import build_pyramid
 from fractal_tasks_core.ome_zarr.zattrs_utils import rescale_datasets
@@ -156,8 +156,8 @@ def cellpose_segmentation(
     metadata: dict[str, Any],
     # Task-specific arguments
     level: int,
-    channel: Channel,
-    channel2: Optional[Channel] = None,
+    channel: ChannelInputModel,
+    channel2: Optional[ChannelInputModel] = None,
     input_ROI_table: str = "FOV_ROI_table",
     output_ROI_table: Optional[str] = None,
     output_label_name: Optional[str] = None,

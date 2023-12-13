@@ -34,7 +34,7 @@ import fractal_tasks_core
 from fractal_tasks_core.labels import prepare_label_group
 from fractal_tasks_core.ngff import load_NgffImageMeta
 from fractal_tasks_core.ome_zarr.channels import get_channel_from_image_zarr
-from fractal_tasks_core.ome_zarr.input_models import Channel
+from fractal_tasks_core.ome_zarr.input_models import ChannelInputModel
 from fractal_tasks_core.ome_zarr.pyramids import build_pyramid
 from fractal_tasks_core.ome_zarr.zattrs_utils import rescale_datasets
 from fractal_tasks_core.roi import check_valid_ROI_indices
@@ -67,12 +67,12 @@ class NapariWorkflowsInput(BaseModel):
     Attributes:
         type: Input type (either `image` or `label`).
         label_name: Label name (for label inputs only).
-        channel: Channel object (for image inputs only).
+        channel: `ChannelInputModel` object (for image inputs only).
     """
 
     type: Literal["image", "label"]
     label_name: Optional[str]
-    channel: Optional[Channel]
+    channel: Optional[ChannelInputModel]
 
     @validator("label_name", always=True)
     def label_name_is_present(cls, v, values):

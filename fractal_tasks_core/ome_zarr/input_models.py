@@ -17,7 +17,7 @@ from pydantic import BaseModel
 from pydantic import validator
 
 
-class Channel(BaseModel):
+class ChannelInputModel(BaseModel):
     """
     A channel which is specified by either `wavelength_id` or `label`.
 

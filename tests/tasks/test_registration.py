@@ -14,7 +14,7 @@ from PIL import Image
 from pytest import MonkeyPatch
 
 from fractal_tasks_core.ngff.zarr_utils import load_NgffImageMeta
-from fractal_tasks_core.ome_zarr.input_models import Channel
+from fractal_tasks_core.ome_zarr.input_models import ChannelInputModel
 from fractal_tasks_core.roi import (
     convert_indices_to_regions,
 )
@@ -258,7 +258,7 @@ def test_multiplexing_registration(
             metadata=metadata,
             component=component,
             level=1,
-            channel=Channel(wavelength_id="A01_C01"),
+            channel=ChannelInputModel(wavelength_id="A01_C01"),
         )
 
     # Calculate registration
