@@ -100,6 +100,40 @@ class OmeroChannel(BaseModel):
         return v
 
 
+class ChannelInputModel(BaseModel):
+    """
+    A channel which is specified by either `wavelength_id` or `label`.
+
+    This model is similar to `OmeroChannel`, but it is used for
+    task-function arguments (and for generating appropriate JSON schemas).
+
+    Attributes:
+        wavelength_id: Unique ID for the channel wavelength, e.g. `A01_C01`.
+        label: Name of the channel.
+    """
+
+    wavelength_id: Optional[str] = None
+    label: Optional[str] = None
+
+    @validator("label", always=True)
+    def mutually_exclusive_channel_attributes(cls, v, values):
+        """
+        Check that either `label` or `wavelength_id` is set.
+        """
+        wavelength_id = values.get("wavelength_id")
+        label = v
+        if wavelength_id and v:
+            raise ValueError(
+                "`wavelength_id` and `label` cannot be both set "
+                f"(given {wavelength_id=} and {label=})."
+            )
+        if wavelength_id is None and v is None:
+            raise ValueError(
+                "`wavelength_id` and `label` cannot be both `None`"
+            )
+        return v
+
+
 class ChannelNotFoundError(ValueError):
     """
     Custom error for when `get_channel_from_list` fails,

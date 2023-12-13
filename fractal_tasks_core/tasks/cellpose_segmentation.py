@@ -33,10 +33,10 @@ from pydantic.decorator import validate_arguments
 import fractal_tasks_core
 from fractal_tasks_core.labels import prepare_label_group
 from fractal_tasks_core.ngff import load_NgffImageMeta
+from fractal_tasks_core.ome_zarr.channels import ChannelInputModel
 from fractal_tasks_core.ome_zarr.channels import ChannelNotFoundError
 from fractal_tasks_core.ome_zarr.channels import get_channel_from_image_zarr
 from fractal_tasks_core.ome_zarr.channels import OmeroChannel
-from fractal_tasks_core.ome_zarr.input_models import ChannelInputModel
 from fractal_tasks_core.ome_zarr.masked_loading import masked_loading_wrapper
 from fractal_tasks_core.ome_zarr.pyramids import build_pyramid
 from fractal_tasks_core.ome_zarr.utils import rescale_datasets
