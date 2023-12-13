@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="d_02c373974d9ed707_calculate_registration_image_based_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.3.2">coverage.py v7.3.2</a>,
-            created at 2023-12-13 12:48 +0000
+            created at 2023-12-13 12:52 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -110,18 +110,18 @@
     <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="key">import</span> <span class="nam">zarr</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="key">from</span> <span class="nam">pydantic</span><span class="op">.</span><span class="nam">decorator</span> <span class="key">import</span> <span class="nam">validate_arguments</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_ngff</span> <span class="key">import</span> <span class="nam">load_NgffImageMeta</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_pyramid_creation</span> <span class="key">import</span> <span class="nam">build_pyramid</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_regions_of_interest</span> <span class="key">import</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">ngff</span> <span class="key">import</span> <span class="nam">load_NgffImageMeta</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">pyramids</span> <span class="key">import</span> <span class="nam">build_pyramid</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">roi</span> <span class="key">import</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">    <span class="nam">convert_indices_to_regions</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_regions_of_interest</span> <span class="key">import</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">roi</span> <span class="key">import</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">    <span class="nam">convert_ROI_table_to_indices</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_regions_of_interest</span> <span class="key">import</span> <span class="nam">is_standard_roi_table</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_regions_of_interest</span> <span class="key">import</span> <span class="nam">load_region</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_tables</span> <span class="key">import</span> <span class="nam">write_table</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_zattrs_utils</span> <span class="key">import</span> <span class="nam">get_table_path_dict</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">roi</span> <span class="key">import</span> <span class="nam">is_standard_roi_table</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">roi</span> <span class="key">import</span> <span class="nam">load_region</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">tables</span> <span class="key">import</span> <span class="nam">write_table</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">utils</span> <span class="key">import</span> <span class="nam">get_table_path_dict</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="nam">logger</span> <span class="op">=</span> <span class="nam">logging</span><span class="op">.</span><span class="nam">getLogger</span><span class="op">(</span><span class="nam">__name__</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -471,7 +471,7 @@
             <a id="nextFileLink" class="nav" href="d_02c373974d9ed707_calculate_registration_image_based_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.3.2">coverage.py v7.3.2</a>,
-            created at 2023-12-13 12:48 +0000
+            created at 2023-12-13 12:52 +0000
         </p>
     </div>
 </footer>

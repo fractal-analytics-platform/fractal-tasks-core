@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="d_02c373974d9ed707_import_ome_zarr_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.3.2">coverage.py v7.3.2</a>,
-            created at 2023-12-13 12:48 +0000
+            created at 2023-12-13 12:52 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -111,12 +111,12 @@
     <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="key">from</span> <span class="nam">pydantic</span><span class="op">.</span><span class="nam">decorator</span> <span class="key">import</span> <span class="nam">validate_arguments</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="key">from</span> <span class="nam">skimage</span><span class="op">.</span><span class="nam">io</span> <span class="key">import</span> <span class="nam">imread</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_channels</span> <span class="key">import</span> <span class="nam">get_omero_channel_list</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_channels</span> <span class="key">import</span> <span class="nam">OmeroChannel</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_ngff</span> <span class="key">import</span> <span class="nam">load_NgffImageMeta</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_pyramid_creation</span> <span class="key">import</span> <span class="nam">build_pyramid</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_regions_of_interest</span> <span class="key">import</span> <span class="nam">check_valid_ROI_indices</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">lib_regions_of_interest</span> <span class="key">import</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">channels</span> <span class="key">import</span> <span class="nam">get_omero_channel_list</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">channels</span> <span class="key">import</span> <span class="nam">OmeroChannel</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">ngff</span> <span class="key">import</span> <span class="nam">load_NgffImageMeta</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">pyramids</span> <span class="key">import</span> <span class="nam">build_pyramid</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">roi</span> <span class="key">import</span> <span class="nam">check_valid_ROI_indices</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">roi</span> <span class="key">import</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">    <span class="nam">convert_ROI_table_to_indices</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -401,7 +401,7 @@
             <a id="nextFileLink" class="nav" href="d_02c373974d9ed707_import_ome_zarr_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.3.2">coverage.py v7.3.2</a>,
-            created at 2023-12-13 12:48 +0000
+            created at 2023-12-13 12:52 +0000
         </p>
     </div>
 </footer>
