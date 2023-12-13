@@ -1,6 +1,6 @@
 import sys
 
-from fractal_tasks_core.lib_regions_of_interest import _inspect_ROI_table
+from fractal_tasks_core.roi import _inspect_ROI_table
 
 
 table = sys.argv[1]

@@ -20,7 +20,10 @@ tables we use, and it includes:
 > on hold, and `fractal-tasks-core` will evolve as soon as an official NGFF
 > table specs is adopted - see also the [Outlook](#outlook) section.
 
-## Specifications
+## Specifications (V1)
+
+In this section we describe version 1 (V1) of the Fractal table specifications;
+for the moment, only V1 exists.
 
 ### Core tables
 
@@ -192,11 +195,14 @@ Here is an example of valid Zarr attributes
 }
 ```
 
-**Table columns**
+**`AnnData` table attributes**
 
-On top of the required ROI-table colums, a masking ROI table must include the
-column which is defined in its `instance_key` attribute (e.g. the `label`
-column, for the example above).
+On top of the required ROI-table colums, the masking-ROI-table `AnnData` object
+must have an attribute `obs` with a key matching to the `instance_key` zarr
+attribute. For instance if `instance_key="label"` then `table.obs["label"]`
+must exist, with its items matching the labels in the image in
+`"../labels/label_DAPI"`.
+
 
 ### Feature tables
 
@@ -237,10 +243,13 @@ Here is an example of valid Zarr attributes
 }
 ```
 
-**Table columns**
 
-A feature table must include the column which is defined in its `instance_key`
-attribute (e.g. the `label` column, for the example above).
+**`AnnData` table attributes**
+
+The feature-table `AnnData` object must have an attribute `obs` with a key
+matching to the `instance_key` zarr attribute. For instance if
+`instance_key="label"` then `table.obs["label"]` must exist, with its items
+matching the labels in the image in `"../labels/label_DAPI"`.
 
 ## Examples
 
@@ -373,13 +382,13 @@ Here is an example of how to use `write_table`:
 import numpy as np
 import zarr
 import anndata as ad
-from fractal_tasks_core.lib_write import write_table
+from fractal_tasks_core.lib_tables import write_table
 
 table = ad.AnnData(X=np.ones((10, 10)))  # Generate a dummy `AnnData` object
 image_group = zarr.open_group("/tmp/image.zarr")
 table_name = "MyTable"
 table_attrs = {
-    "type": "ngff:region_table",
+    "type": "feature_table",
     "region": {"path": "../labels/MyLabel"},
     "instance_key": "label",
 }
@@ -430,7 +439,7 @@ $ cat /tmp/image.zarr/tables/MyTable/.zattrs    # View single-table attributes
     "region": {
         "path": "../labels/MyLabel"
     },
-    "type": "ngff:region_table"
+    "type": "feature_table"
 }
 ```
 

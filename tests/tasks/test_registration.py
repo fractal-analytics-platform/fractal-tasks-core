@@ -13,15 +13,15 @@ from devtools import debug
 from PIL import Image
 from pytest import MonkeyPatch
 
-from fractal_tasks_core.lib_input_models import Channel
-from fractal_tasks_core.lib_ngff import load_NgffImageMeta
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.channels import ChannelInputModel
+from fractal_tasks_core.ngff.zarr_utils import load_NgffImageMeta
+from fractal_tasks_core.roi import (
     convert_indices_to_regions,
 )
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
-from fractal_tasks_core.lib_regions_of_interest import load_region
+from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tasks.apply_registration_to_image import (
     apply_registration_to_image,
 )
@@ -258,7 +258,7 @@ def test_multiplexing_registration(
             metadata=metadata,
             component=component,
             level=1,
-            channel=Channel(wavelength_id="A01_C01"),
+            channel=ChannelInputModel(wavelength_id="A01_C01"),
         )
 
     # Calculate registration

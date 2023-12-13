@@ -25,12 +25,16 @@ from ._validation import validate_axes_and_coordinateTransformations
 from ._validation import validate_labels_and_measurements
 from ._validation import validate_schema
 from .lib_empty_ROI_table import _add_empty_ROI_table
-from fractal_tasks_core.lib_input_models import NapariWorkflowsInput
-from fractal_tasks_core.lib_input_models import NapariWorkflowsOutput
-from fractal_tasks_core.lib_write import OverwriteNotAllowedError
 from fractal_tasks_core.tasks.napari_workflows_wrapper import (
     napari_workflows_wrapper,
 )
+from fractal_tasks_core.tasks.napari_workflows_wrapper_models import (
+    NapariWorkflowsInput,
+)
+from fractal_tasks_core.tasks.napari_workflows_wrapper_models import (
+    NapariWorkflowsOutput,
+)
+from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 
 try:
     import napari_skimage_regionprops_mock
@@ -92,6 +96,7 @@ def test_napari_workflow(
     output_specs = {
         "regionprops_DAPI": {  # type: ignore # noqa
             "type": "dataframe",
+            "label_name": "label_DAPI",
             "table_name": "regionprops_DAPI",
         },
     }
@@ -233,7 +238,11 @@ input_specs = dict(
     input_label={"type": "label", "label_name": LABEL_NAME},
 )
 output_specs = dict(
-    output_dataframe={"type": "dataframe", "table_name": TABLE_NAME}
+    output_dataframe={
+        "type": "dataframe",
+        "table_name": TABLE_NAME,
+        "label_name": LABEL_NAME,
+    }
 )
 RELABELING_CASE_2: list = [workflow_file_name, input_specs, output_specs]
 # 3. Mixed labeling/measurement workflow.
@@ -243,7 +252,11 @@ input_specs = dict(
 )
 output_specs = dict(
     output_label={"type": "label", "label_name": LABEL_NAME},
-    output_dataframe={"type": "dataframe", "table_name": TABLE_NAME},
+    output_dataframe={
+        "type": "dataframe",
+        "table_name": TABLE_NAME,
+        "label_name": LABEL_NAME,
+    },
 )
 RELABELING_CASE_3: list = [workflow_file_name, input_specs, output_specs]
 # Assemble three cases
@@ -516,6 +529,7 @@ def test_napari_workflow_empty_input_ROI_table(
         "regionprops_DAPI": {  # type: ignore # noqa
             "type": "dataframe",
             "table_name": "regionprops_DAPI",
+            "label_name": "label_DAPI",
         },
     }
     for component in metadata["image"]:
@@ -609,6 +623,7 @@ def test_napari_workflow_CYX(
         "regionprops_DAPI": {  # type: ignore # noqa
             "type": "dataframe",
             "table_name": "regionprops_DAPI",
+            "label_name": "label_DAPI",
         },
     }
     for component in metadata["image"]:
@@ -789,6 +804,7 @@ def test_napari_workflow_mock(
         "regionprops_DAPI": {  # type: ignore # noqa
             "type": "dataframe",
             "table_name": "regionprops_DAPI",
+            "label_name": "label_DAPI",
         },
     }
 

@@ -1,12 +1,12 @@
 """
-Pydantic models related to OME-NGFF 0.4 specs.
+Pydantic models related to OME-NGFF 0.4 specs, as implemented in
+fractal-tasks-core.
 """
 import logging
 from typing import Literal
 from typing import Optional
 from typing import Union
 
-import zarr.hierarchy
 from pydantic import BaseModel
 from pydantic import Field
 from pydantic import validator
@@ -376,75 +376,3 @@ class NgffWellMeta(BaseModel):
                 )
             acquisition_dict[image.acquisition] = image.path
         return acquisition_dict
-
-
-def load_NgffImageMeta(zarr_path: str) -> NgffImageMeta:
-    """
-    Load the attributes of a zarr group and cast them to `NgffImageMeta`.
-
-    Args:
-        zarr_path: Path to the zarr group.
-
-    Returns:
-        A new `NgffImageMeta` object.
-    """
-    zarr_group = zarr.open_group(zarr_path, mode="r")
-    zarr_attrs = zarr_group.attrs.asdict()
-    try:
-        return NgffImageMeta(**zarr_attrs)
-    except Exception as e:
-        logging.error(
-            f"Contents of {zarr_path} cannot be cast to NgffImageMeta.\n"
-            f"Original error:\n{str(e)}"
-        )
-        raise e
-
-
-def load_NgffWellMeta(zarr_path: str) -> NgffWellMeta:
-    """
-    Load the attributes of a zarr group and cast them to `NgffWellMeta`.
-
-    Args:
-        zarr_path: Path to the zarr group.
-
-    Returns:
-        A new `NgffWellMeta` object.
-    """
-    zarr_group = zarr.open_group(zarr_path, mode="r")
-    zarr_attrs = zarr_group.attrs.asdict()
-    try:
-        return NgffWellMeta(**zarr_attrs)
-    except Exception as e:
-        logging.error(
-            f"Contents of {zarr_path} cannot be cast to NgffWellMeta.\n"
-            f"Original error:\n{str(e)}"
-        )
-        raise e
-
-
-def detect_ome_ngff_type(group: zarr.hierarchy.Group) -> str:
-    """
-    Given a Zarr group, find whether it is an OME-NGFF plate, well or image.
-
-    Args:
-        group: Zarr group
-
-    Returns:
-        The detected OME-NGFF type (`plate`, `well` or `image`).
-    """
-    attrs = group.attrs.asdict()
-    if "plate" in attrs.keys():
-        ngff_type = "plate"
-    elif "well" in attrs.keys():
-        ngff_type = "well"
-    elif "multiscales" in attrs.keys():
-        ngff_type = "image"
-    else:
-        error_msg = (
-            "Zarr group at cannot be identified as one "
-            "of OME-NGFF plate/well/image groups."
-        )
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-    logger.info(f"Zarr group identified as OME-NGFF {ngff_type}.")
-    return ngff_type

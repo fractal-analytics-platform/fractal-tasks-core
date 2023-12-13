@@ -12,8 +12,8 @@ from devtools import debug
 from jsonschema import validate
 
 from fractal_tasks_core import __OME_NGFF_VERSION__
-from fractal_tasks_core.lib_ngff import load_NgffImageMeta
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.ngff.zarr_utils import load_NgffImageMeta
+from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
 

@@ -9,34 +9,36 @@ import zarr
 from anndata._io.specs import write_elem
 from devtools import debug
 
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.roi import (
     are_ROI_table_columns_valid,
 )
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.roi import (
     array_to_bounding_box_table,
 )
-from fractal_tasks_core.lib_regions_of_interest import check_valid_ROI_indices
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.roi import check_valid_ROI_indices
+from fractal_tasks_core.roi import (
     convert_indices_to_regions,
 )
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.roi import (
     convert_ROIs_from_3D_to_2D,
 )
-from fractal_tasks_core.lib_regions_of_interest import empty_bounding_box_table
-from fractal_tasks_core.lib_regions_of_interest import get_image_grid_ROIs
-from fractal_tasks_core.lib_regions_of_interest import get_single_image_ROI
-from fractal_tasks_core.lib_regions_of_interest import is_ROI_table_valid
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.roi import empty_bounding_box_table
+from fractal_tasks_core.roi import (
+    find_overlaps_in_ROI_indices,
+)
+from fractal_tasks_core.roi import get_image_grid_ROIs
+from fractal_tasks_core.roi import get_single_image_ROI
+from fractal_tasks_core.roi import is_ROI_table_valid
+from fractal_tasks_core.roi import (
     is_standard_roi_table,
 )
-from fractal_tasks_core.lib_regions_of_interest import load_region
-from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
-from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
-from fractal_tasks_core.lib_regions_of_interest import reset_origin
-from fractal_tasks_core.lib_ROI_overlaps import find_overlaps_in_ROI_indices
+from fractal_tasks_core.roi import load_region
+from fractal_tasks_core.roi import prepare_FOV_ROI_table
+from fractal_tasks_core.roi import prepare_well_ROI_table
+from fractal_tasks_core.roi import reset_origin
 
 
 PIXEL_SIZE_X = 0.1625
@@ -494,7 +496,7 @@ def test_is_ROI_table_valid(tmp_path):
     assert not is_valid
 
     # Case 3: use_masks=True, valid attrs
-    group[table_name].attrs["type"] = "ngff:region_table"
+    group[table_name].attrs["type"] = "masking_roi_table"
     group[table_name].attrs["instance_key"] = "label"
     group[table_name].attrs["region"] = {"path": "/tmp/"}
     is_valid = is_ROI_table_valid(table_path=table_path, use_masks=True)
@@ -614,8 +616,6 @@ def test_get_single_image_ROI():
             array_shape[2] * pixels_ZYX[2],
             array_shape[1] * pixels_ZYX[1],
             array_shape[0] * pixels_ZYX[0],
-            0.0,
-            0.0,
         )
     )
     assert np.allclose(EXPECTED_DATA, ROI.X)
@@ -642,8 +642,6 @@ def test_get_image_grid_ROIs():
             array_shape[2] * pixels_ZYX[2] / grid_shape_X,
             array_shape[1] * pixels_ZYX[1] / grid_shape_Y,
             array_shape[0] * pixels_ZYX[0],
-            0.0,
-            0.0,
         )
     )
     assert np.allclose(EXPECTED_DATA, ROI.X[0])
@@ -673,9 +671,9 @@ def test_get_image_grid_ROIs():
     # Check data
     EXPECTED_DATA = np.array(
         [
-            [0.0, 0.0, 0.0, 0.8, 5.0, 3.0, 0.0, 0.0],
-            [0.8, 0.0, 0.0, 0.8, 5.0, 3.0, 0.8, 0.0],
-            [1.6, 0.0, 0.0, 0.4, 5.0, 3.0, 1.6, 0.0],
+            [0.0, 0.0, 0.0, 0.8, 5.0, 3.0],
+            [0.8, 0.0, 0.0, 0.8, 5.0, 3.0],
+            [1.6, 0.0, 0.0, 0.4, 5.0, 3.0],
         ]
     )
     assert np.allclose(EXPECTED_DATA, ROI.X)

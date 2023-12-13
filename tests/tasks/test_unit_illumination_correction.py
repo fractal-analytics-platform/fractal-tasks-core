@@ -10,8 +10,8 @@ import pytest
 from pytest import LogCaptureFixture
 from pytest import MonkeyPatch
 
-from fractal_tasks_core.lib_ngff import load_NgffImageMeta
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.ngff.zarr_utils import load_NgffImageMeta
+from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
 from fractal_tasks_core.tasks.illumination_correction import correct

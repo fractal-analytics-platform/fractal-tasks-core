@@ -1,10 +1,10 @@
 import zarr
 from devtools import debug
 
-from fractal_tasks_core.lib_zattrs_utils import (
+from fractal_tasks_core.utils import (
     get_table_path_dict,
 )
-from fractal_tasks_core.lib_zattrs_utils import rescale_datasets
+from fractal_tasks_core.utils import rescale_datasets
 
 
 def test_rescale_datasets(tmp_path):

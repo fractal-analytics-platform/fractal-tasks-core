@@ -4,7 +4,7 @@ import shutil
 
 from devtools import debug
 
-from fractal_tasks_core.lib_input_models import Channel
+from fractal_tasks_core.channels import ChannelInputModel
 from fractal_tasks_core.tasks.cellpose_segmentation import (
     cellpose_segmentation,
 )
@@ -31,7 +31,7 @@ for component in metadata["image"]:
         output_path=zarr_path_mip,
         metadata=metadata,
         component=component,
-        channel=Channel(wavelength_id="A01_C01"),
+        channel=ChannelInputModel(wavelength_id="A01_C01"),
         level=2,
         relabeling=True,
         diameter_level0=400.0,
@@ -53,7 +53,7 @@ for component in metadata["image"]:
         output_path=zarr_path_mip,
         metadata=metadata,
         component=component,
-        channel=Channel(wavelength_id="A01_C01"),
+        channel=ChannelInputModel(wavelength_id="A01_C01"),
         level=2,
         relabeling=True,
         diameter_level0=20.0,

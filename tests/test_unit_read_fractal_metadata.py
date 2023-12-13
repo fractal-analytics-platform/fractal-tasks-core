@@ -2,10 +2,10 @@ import pytest
 import zarr
 from devtools import debug
 
-from fractal_tasks_core.lib_read_fractal_metadata import (
-    find_omengff_acquisition,
+from fractal_tasks_core.utils import (
+    _find_omengff_acquisition,
 )
-from fractal_tasks_core.lib_read_fractal_metadata import (
+from fractal_tasks_core.utils import (
     get_parameters_from_metadata,
 )
 
@@ -22,7 +22,7 @@ def test_find_omengff_acquisition(tmp_path):
     debug(well_group)
     with pytest.raises(ValueError) as e:
         image_zarr_path = well_zarr_path / image_name
-        find_omengff_acquisition(image_zarr_path)
+        _find_omengff_acquisition(image_zarr_path)
     debug(e.value)
 
 

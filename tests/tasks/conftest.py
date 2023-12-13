@@ -117,7 +117,6 @@ def zenodo_zarr(testdata_path: Path) -> list[str]:
         if os.path.isdir(str(folder)):
             shutil.rmtree(str(folder))
         shutil.copytree(Path(zarr_full_path) / file_name, folder)
-
     return [str(f) for f in folders]
 
 

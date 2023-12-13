@@ -1,11 +1,11 @@
 import pytest
 from devtools import debug
 
-from fractal_tasks_core.lib_input_models import Channel
-from fractal_tasks_core.lib_input_models import (
+from fractal_tasks_core.channels import ChannelInputModel
+from fractal_tasks_core.tasks.napari_workflows_wrapper_models import (
     NapariWorkflowsInput,
 )
-from fractal_tasks_core.lib_input_models import (
+from fractal_tasks_core.tasks.napari_workflows_wrapper_models import (
     NapariWorkflowsOutput,
 )
 
@@ -14,12 +14,12 @@ def test_Channel():
 
     # Valid
 
-    c = Channel(wavelength_id="wavelength_id")
+    c = ChannelInputModel(wavelength_id="wavelength_id")
     debug(c)
     assert c.wavelength_id
     assert not c.label
 
-    c = Channel(label="label")
+    c = ChannelInputModel(label="label")
     debug(c)
     assert not c.wavelength_id
     assert c.label
@@ -27,11 +27,11 @@ def test_Channel():
     # Invalid
 
     with pytest.raises(ValueError) as e:
-        Channel()
+        ChannelInputModel()
     debug(e.value)
 
     with pytest.raises(ValueError) as e:
-        Channel(label="label", wavelength_id="wavelength_id")
+        ChannelInputModel(label="label", wavelength_id="wavelength_id")
     debug(e.value)
 
 
@@ -98,6 +98,13 @@ def test_NapariWorkflowsOutput():
         )
     debug(e.value)
 
+    with pytest.raises(ValueError) as e:
+        NapariWorkflowsOutput(
+            type="dataframe",
+            table_name="something",
+        )
+    debug(e.value)
+
     # Valid
 
     specs = NapariWorkflowsOutput(
@@ -110,6 +117,7 @@ def test_NapariWorkflowsOutput():
 
     specs = NapariWorkflowsOutput(
         type="dataframe",
+        label_name="label_DAPI",
         table_name="table_DAPI",
     )
     debug(specs)
