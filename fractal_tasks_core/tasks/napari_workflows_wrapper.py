@@ -36,7 +36,7 @@ from fractal_tasks_core.ngff import load_NgffImageMeta
 from fractal_tasks_core.ome_zarr.channels import get_channel_from_image_zarr
 from fractal_tasks_core.ome_zarr.input_models import ChannelInputModel
 from fractal_tasks_core.ome_zarr.pyramids import build_pyramid
-from fractal_tasks_core.ome_zarr.zattrs_utils import rescale_datasets
+from fractal_tasks_core.ome_zarr.utils import rescale_datasets
 from fractal_tasks_core.roi import check_valid_ROI_indices
 from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,

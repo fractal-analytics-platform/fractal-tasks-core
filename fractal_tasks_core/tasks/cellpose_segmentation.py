@@ -39,7 +39,7 @@ from fractal_tasks_core.ome_zarr.channels import OmeroChannel
 from fractal_tasks_core.ome_zarr.input_models import ChannelInputModel
 from fractal_tasks_core.ome_zarr.masked_loading import masked_loading_wrapper
 from fractal_tasks_core.ome_zarr.pyramids import build_pyramid
-from fractal_tasks_core.ome_zarr.zattrs_utils import rescale_datasets
+from fractal_tasks_core.ome_zarr.utils import rescale_datasets
 from fractal_tasks_core.roi import (
     array_to_bounding_box_table,
 )
