@@ -1,7 +1,7 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
 
-# 0.14.0 (unreleased)
+# 0.14.0
 
 * Breaking changes in tasks:
     * Make `NapariWorkflowsOutput.label_name` attribute required, and use it to fill the `region["path"]` table attribute (\#613).
