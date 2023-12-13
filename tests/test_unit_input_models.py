@@ -2,10 +2,10 @@ import pytest
 from devtools import debug
 
 from fractal_tasks_core.ome_zarr.input_models import Channel
-from fractal_tasks_core.ome_zarr.input_models import (
+from fractal_tasks_core.tasks.napari_workflows_wrapper import (
     NapariWorkflowsInput,
 )
-from fractal_tasks_core.ome_zarr.input_models import (
+from fractal_tasks_core.tasks.napari_workflows_wrapper import (
     NapariWorkflowsOutput,
 )
 
