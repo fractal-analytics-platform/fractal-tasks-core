@@ -22,7 +22,7 @@ def test_get_function_args_descriptions():
 
 def test_get_class_attrs_descriptions():
     attrs_descriptions = _get_class_attrs_descriptions(
-        "fractal_tasks_core", "ome_zarr/input_models.py", "Channel"
+        "fractal_tasks_core", "channels.py", "ChannelInputModel"
     )
     debug(attrs_descriptions)
     assert attrs_descriptions.keys() == set(("wavelength_id", "label"))
