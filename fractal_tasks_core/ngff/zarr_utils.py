@@ -6,8 +6,8 @@ import logging
 import zarr.hierarchy
 from zarr.errors import GroupNotFoundError
 
-from .specs import NgffImageMeta
-from .specs import NgffWellMeta
+from fractal_tasks_core.ngff.specs import NgffImageMeta
+from fractal_tasks_core.ngff.specs import NgffWellMeta
 
 logger = logging.getLogger(__name__)
 

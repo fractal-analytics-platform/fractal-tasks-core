@@ -18,8 +18,8 @@ from typing import Optional
 import zarr.hierarchy
 from pydantic.error_wrappers import ValidationError
 
-from .ngff import NgffImageMeta
-from .zarr_utils import OverwriteNotAllowedError
+from fractal_tasks_core.ngff import NgffImageMeta
+from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 
 
 def prepare_label_group(

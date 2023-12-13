@@ -19,7 +19,7 @@ import anndata as ad
 import zarr
 from pydantic.error_wrappers import ValidationError
 
-from ..tables.v1 import MaskingROITableAttrs
+from fractal_tasks_core.tables.v1 import MaskingROITableAttrs
 
 
 logger = logging.getLogger(__name__)

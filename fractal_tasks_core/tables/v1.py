@@ -15,7 +15,7 @@ from pydantic import BaseModel
 from pydantic import validator
 from pydantic.error_wrappers import ValidationError
 
-from ..zarr_utils import OverwriteNotAllowedError
+from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 
 logger = logging.getLogger(__name__)
 
