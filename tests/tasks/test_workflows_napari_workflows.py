@@ -34,7 +34,7 @@ from fractal_tasks_core.tasks.napari_workflows_wrapper import (
 from fractal_tasks_core.tasks.napari_workflows_wrapper import (
     NapariWorkflowsOutput,
 )
-from fractal_tasks_core.zarr import OverwriteNotAllowedError
+from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 
 try:
     import napari_skimage_regionprops_mock

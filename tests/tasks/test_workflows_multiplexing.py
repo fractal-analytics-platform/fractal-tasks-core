@@ -29,7 +29,7 @@ from fractal_tasks_core.tasks.maximum_intensity_projection import (
     maximum_intensity_projection,
 )
 from fractal_tasks_core.tasks.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
-from fractal_tasks_core.zarr import OverwriteNotAllowedError
+from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 
 
 single_cycle_allowed_channels_no_label = [
