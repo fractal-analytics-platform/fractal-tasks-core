@@ -6,6 +6,7 @@
 * Breaking changes in tasks:
     * Make `NapariWorkflowsOutput.label_name` attribute required, and use it to fill the `region["path"]` table attribute (\#613).
 * Breaking changes in core library:
+    * ⚠️ Refactor the whole package structure, leading to breaking changes for most imports (\#613); more details at [this page](https://fractal-analytics-platform.github.io/fractal-tasks-core/version_updates/v0_14_0/).
     * In `prepare_label_group` helper function:
         * Make `label_attrs` function argument required (\#613).
         * Validate `label_attrs` with `NgffImageMeta` model (\#613).
@@ -15,11 +16,8 @@
         * Add `table_name` function argument, taking priority over `table_attrs` (\#613).
         * Raise an error if no table type is not provided (\#613).
         * Raise an error if table attributes do not comply with table specs (\#613).
-    * Changes import of `lib_write.write_table` into `lib_tables.write_table` (\#613).
-    * Change imports from `lib_ROI_overlaps` into imports from `lib_regions_of_interest` (\#613).
 * Other internal changes:
     * Comply with table specs V1, by writing all required Zarr attributes (\#613).
-    * Refactor modules related to tables and ROIs (\#613).
     * Remove `has_args_schema` obsolete property from manifest (\#603).
     * Handle `GroupNotFoundError` in `load_NgffImageMeta` and `load_NgffWellMeta` (\#622).
 * Bug fixes:
