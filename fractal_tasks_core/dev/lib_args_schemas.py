@@ -47,13 +47,17 @@ from fractal_tasks_core.dev.lib_titles import _include_titles
 _Schema = dict[str, Any]
 
 FRACTAL_TASKS_CORE_PYDANTIC_MODELS = [
-    ("fractal_tasks_core", "ome_zarr/channels.py", "OmeroChannel"),
-    ("fractal_tasks_core", "ome_zarr/channels.py", "Window"),
-    ("fractal_tasks_core", "ome_zarr/input_models.py", "Channel"),
-    ("fractal_tasks_core", "ome_zarr/input_models.py", "NapariWorkflowsInput"),
+    ("fractal_tasks_core", "channels.py", "OmeroChannel"),
+    ("fractal_tasks_core", "channels.py", "Window"),
+    ("fractal_tasks_core", "channels.py", "ChannelInputModel"),
     (
         "fractal_tasks_core",
-        "ome_zarr/input_models.py",
+        "tasks/napari_workflows_wrapper.py",
+        "NapariWorkflowsInput",
+    ),
+    (
+        "fractal_tasks_core",
+        "tasks/napari_workflows_wrapper.py",
         "NapariWorkflowsOutput",
     ),
 ]
