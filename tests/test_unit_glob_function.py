@@ -1,6 +1,8 @@
 from devtools import debug
 
-from fractal_tasks_core.lib_glob import glob_with_multiple_patterns
+from fractal_tasks_core.cellvoyager.filenames import (
+    glob_with_multiple_patterns,
+)
 
 
 def test_unit_glob_with_multiple_patterns(tmp_path):

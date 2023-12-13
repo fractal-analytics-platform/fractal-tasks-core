@@ -6,14 +6,14 @@ import pytest
 import zarr
 from devtools import debug
 
-from fractal_tasks_core.lib_ngff import Dataset
-from fractal_tasks_core.lib_ngff import detect_ome_ngff_type
-from fractal_tasks_core.lib_ngff import load_NgffImageMeta
-from fractal_tasks_core.lib_ngff import load_NgffWellMeta
-from fractal_tasks_core.lib_ngff import Multiscale
-from fractal_tasks_core.lib_ngff import NgffImageMeta
-from fractal_tasks_core.lib_ngff import NgffWellMeta
-from fractal_tasks_core.lib_ngff import ZarrGroupNotFoundError
+from fractal_tasks_core.ngff.specs import Dataset
+from fractal_tasks_core.ngff.specs import Multiscale
+from fractal_tasks_core.ngff.specs import NgffImageMeta
+from fractal_tasks_core.ngff.specs import NgffWellMeta
+from fractal_tasks_core.ngff.zarr_utils import detect_ome_ngff_type
+from fractal_tasks_core.ngff.zarr_utils import load_NgffImageMeta
+from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
+from fractal_tasks_core.ngff.zarr_utils import ZarrGroupNotFoundError
 
 
 def test_load_NgffWellMeta(tmp_path):

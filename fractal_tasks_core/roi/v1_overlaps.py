@@ -20,10 +20,10 @@ from typing import Union
 
 import pandas as pd
 
-from ._overlaps_common import _is_overlapping_3D_int
-from ._overlaps_common import is_overlapping_1D
-from ._overlaps_common import is_overlapping_2D
-from ._overlaps_common import is_overlapping_3D
+from fractal_tasks_core.roi._overlaps_common import _is_overlapping_3D_int
+from fractal_tasks_core.roi._overlaps_common import is_overlapping_1D
+from fractal_tasks_core.roi._overlaps_common import is_overlapping_2D
+from fractal_tasks_core.roi._overlaps_common import is_overlapping_3D
 
 
 logger = logging.getLogger(__name__)

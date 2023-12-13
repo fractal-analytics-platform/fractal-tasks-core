@@ -9,8 +9,9 @@
 # Institute for Biomedical Research and Pelkmans Lab from the University of
 # Zurich.
 """
-Functions and classes related to table specifications (see
-https://fractal-analytics-platform.github.io/fractal-tasks-core/tables)."""
+Subpackage with functions and classes related to table specifications (see
+https://fractal-analytics-platform.github.io/fractal-tasks-core/tables).
+"""
 from typing import Any
 from typing import Optional
 
@@ -35,6 +36,7 @@ def write_table(
     This is the general interface that should allow for a smooth coexistence of
     tables with different `fractal_table_version` values. Currently only V1 is
     defined and implemented. The assumption is that V2 should only change:
+
     1. The lower-level writing function (that is, `_write_table_v2`).
     2. The type of the table (which would also reflect into a more general type
         hint for `table`, in the current funciton);
@@ -54,9 +56,8 @@ def write_table(
         overwrite:
             If `False`, check that the new table does not exist (either as a
             zarr sub-group or as part of the zarr-group attributes). In all
-            cases, propagate parameter to `_write_elem_with_overwrite`, to
-            determine the behavior in case of an existing sub-group named as
-            `table_name`.
+            cases, propagate parameter to low-level functions, to determine the
+            behavior in case of an existing sub-group named as in `table_name`.
         table_type: `type` attribute for the table; in case `type` is also
             present in `table_attrs`, this function argument takes priority.
         table_attrs:

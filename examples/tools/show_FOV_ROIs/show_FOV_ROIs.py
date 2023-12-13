@@ -3,7 +3,9 @@ An example of visualizing FOV ROIs and their overlaps.
 """
 import matplotlib.pyplot as plt
 
-from fractal_tasks_core.lib_metadata_parsing import parse_yokogawa_metadata
+from fractal_tasks_core.cellvoyager.metadata import (
+    parse_yokogawa_metadata,
+)
 from fractal_tasks_core.lib_ROI_overlaps import run_overlap_check
 
 

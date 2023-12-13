@@ -16,8 +16,8 @@ from pathlib import Path
 
 from devtools import debug
 
-from fractal_tasks_core.lib_channels import OmeroChannel
-from fractal_tasks_core.lib_channels import Window
+from fractal_tasks_core.channels import OmeroChannel
+from fractal_tasks_core.channels import Window
 from fractal_tasks_core.tasks.cellpose_segmentation import (
     cellpose_segmentation,
 )

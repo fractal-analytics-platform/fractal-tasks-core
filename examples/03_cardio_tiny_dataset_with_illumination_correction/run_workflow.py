@@ -16,8 +16,8 @@ from pathlib import Path
 
 from devtools import debug
 
-from fractal_tasks_core.lib_channels import OmeroChannel
-from fractal_tasks_core.lib_channels import Window
+from fractal_tasks_core.channels import OmeroChannel
+from fractal_tasks_core.channels import Window
 from fractal_tasks_core.tasks.create_ome_zarr import create_ome_zarr
 from fractal_tasks_core.tasks.illumination_correction import (
     illumination_correction,

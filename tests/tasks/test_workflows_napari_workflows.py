@@ -25,12 +25,16 @@ from ._validation import validate_axes_and_coordinateTransformations
 from ._validation import validate_labels_and_measurements
 from ._validation import validate_schema
 from .lib_empty_ROI_table import _add_empty_ROI_table
-from fractal_tasks_core.lib_input_models import NapariWorkflowsInput
-from fractal_tasks_core.lib_input_models import NapariWorkflowsOutput
-from fractal_tasks_core.lib_write import OverwriteNotAllowedError
 from fractal_tasks_core.tasks.napari_workflows_wrapper import (
     napari_workflows_wrapper,
 )
+from fractal_tasks_core.tasks.napari_workflows_wrapper_models import (
+    NapariWorkflowsInput,
+)
+from fractal_tasks_core.tasks.napari_workflows_wrapper_models import (
+    NapariWorkflowsOutput,
+)
+from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 
 try:
     import napari_skimage_regionprops_mock

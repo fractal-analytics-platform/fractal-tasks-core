@@ -393,12 +393,12 @@
             "description": "Pyramid level of the image to be segmented. Choose `0` to process at full resolution."
           },
           "channel": {
-            "$ref": "#/definitions/Channel",
+            "$ref": "#/definitions/ChannelInputModel",
             "title": "Channel",
             "description": "Primary channel for segmentation; requires either `wavelength_id` (e.g. `A01_C01`) or `label` (e.g. `DAPI`)."
           },
           "channel2": {
-            "$ref": "#/definitions/Channel",
+            "$ref": "#/definitions/ChannelInputModel",
             "title": "Channel2",
             "description": "Second channel for segmentation (in the same format as `channel`). If specified, cellpose runs in dual channel mode. For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker."
           },
@@ -505,8 +505,8 @@
         ],
         "additionalProperties": false,
         "definitions": {
-          "Channel": {
-            "title": "Channel",
+          "ChannelInputModel": {
+            "title": "ChannelInputModel",
             "description": "A channel which is specified by either `wavelength_id` or `label`.",
             "type": "object",
             "properties": {
@@ -709,8 +709,8 @@
         ],
         "additionalProperties": false,
         "definitions": {
-          "Channel": {
-            "title": "Channel",
+          "ChannelInputModel": {
+            "title": "ChannelInputModel",
             "description": "A channel which is specified by either `wavelength_id` or `label`.",
             "type": "object",
             "properties": {
@@ -746,9 +746,9 @@
                 "description": "Label name (for label inputs only)."
               },
               "channel": {
-                "$ref": "#/definitions/Channel",
+                "$ref": "#/definitions/ChannelInputModel",
                 "title": "Channel",
-                "description": "Channel object (for image inputs only)."
+                "description": "`ChannelInputModel` object (for image inputs only)."
               }
             },
             "required": [

@@ -21,9 +21,9 @@ import dask.array as da
 import numpy as np
 import zarr
 
-from fractal_tasks_core.lib_tables.v1 import MaskingROITableAttrs
-from fractal_tasks_core.lib_upscale_array import convert_region_to_low_res
-from fractal_tasks_core.lib_upscale_array import upscale_array
+from fractal_tasks_core.tables.v1 import MaskingROITableAttrs
+from fractal_tasks_core.upscale_array import convert_region_to_low_res
+from fractal_tasks_core.upscale_array import upscale_array
 
 logger = logging.getLogger(__name__)
 

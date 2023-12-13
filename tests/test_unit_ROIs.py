@@ -9,36 +9,36 @@ import zarr
 from anndata._io.specs import write_elem
 from devtools import debug
 
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.roi import (
     are_ROI_table_columns_valid,
 )
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.roi import (
     array_to_bounding_box_table,
 )
-from fractal_tasks_core.lib_regions_of_interest import check_valid_ROI_indices
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.roi import check_valid_ROI_indices
+from fractal_tasks_core.roi import (
     convert_indices_to_regions,
 )
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.roi import (
     convert_ROIs_from_3D_to_2D,
 )
-from fractal_tasks_core.lib_regions_of_interest import empty_bounding_box_table
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.roi import empty_bounding_box_table
+from fractal_tasks_core.roi import (
     find_overlaps_in_ROI_indices,
 )
-from fractal_tasks_core.lib_regions_of_interest import get_image_grid_ROIs
-from fractal_tasks_core.lib_regions_of_interest import get_single_image_ROI
-from fractal_tasks_core.lib_regions_of_interest import is_ROI_table_valid
-from fractal_tasks_core.lib_regions_of_interest import (
+from fractal_tasks_core.roi import get_image_grid_ROIs
+from fractal_tasks_core.roi import get_single_image_ROI
+from fractal_tasks_core.roi import is_ROI_table_valid
+from fractal_tasks_core.roi import (
     is_standard_roi_table,
 )
-from fractal_tasks_core.lib_regions_of_interest import load_region
-from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
-from fractal_tasks_core.lib_regions_of_interest import prepare_well_ROI_table
-from fractal_tasks_core.lib_regions_of_interest import reset_origin
+from fractal_tasks_core.roi import load_region
+from fractal_tasks_core.roi import prepare_FOV_ROI_table
+from fractal_tasks_core.roi import prepare_well_ROI_table
+from fractal_tasks_core.roi import reset_origin
 
 
 PIXEL_SIZE_X = 0.1625

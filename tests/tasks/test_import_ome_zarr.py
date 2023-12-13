@@ -4,7 +4,7 @@ from devtools import debug
 
 import fractal_tasks_core.tasks  # noqa
 from .._zenodo_ome_zarrs import prepare_3D_zarr
-from fractal_tasks_core.lib_input_models import Channel
+from fractal_tasks_core.channels import ChannelInputModel
 from fractal_tasks_core.tasks.copy_ome_zarr import copy_ome_zarr
 from fractal_tasks_core.tasks.import_ome_zarr import import_ome_zarr
 from fractal_tasks_core.tasks.maximum_intensity_projection import (
@@ -292,7 +292,7 @@ def test_import_ome_zarr_image_BIA(tmp_path, monkeypatch):
             input_ROI_table="grid_ROI_table",
             metadata=metadata,
             component=component,
-            channel=Channel(wavelength_id="Channel 0"),
+            channel=ChannelInputModel(wavelength_id="Channel 0"),
             level=0,
             relabeling=True,
             diameter_level0=80.0,

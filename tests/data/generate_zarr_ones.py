@@ -8,7 +8,7 @@ import pandas as pd
 import zarr
 from anndata._io.specs import write_elem
 
-from fractal_tasks_core.lib_regions_of_interest import prepare_FOV_ROI_table
+from fractal_tasks_core.roi import prepare_FOV_ROI_table
 
 
 num_C = 2
