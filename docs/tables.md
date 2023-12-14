@@ -366,7 +366,7 @@ The `anndata.experimental.write_elem` function provides the required
 functionality to write an `AnnData` object to a Zarr group. In
 `fractal-tasks-core`, the `write_table` helper function wraps the `anndata`
 function and includes additional functionalities -- see [its
-documentation](../reference/fractal_tasks_core/lib_write/#fractal_tasks_core.lib_write.write_table).
+documentation](../reference/fractal_tasks_core/tables/#fractal_tasks_core.tables.write_table).
 
 With respect to the wrapped `anndata` function, the main additional features of `write_table` are
 
@@ -378,7 +378,7 @@ Here is an example of how to use `write_table`:
 import numpy as np
 import zarr
 import anndata as ad
-from fractal_tasks_core.lib_tables import write_table
+from fractal_tasks_core.tables import write_table
 
 table = ad.AnnData(X=np.ones((10, 10)))  # Generate a dummy `AnnData` object
 image_group = zarr.open_group("/tmp/image.zarr")
