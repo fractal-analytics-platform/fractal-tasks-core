@@ -1,4 +1,4 @@
-# Tables
+# Table specifcations
 
 Within `fractal-tasks-core`, we make use of tables which are `AnnData` objects
 stored within OME-Zarr image groups. This page describes the different kinds of
@@ -9,12 +9,6 @@ tables we use, and it includes:
 * The definition of [masking ROI tables](#masking-roi-tables), namely ROI tables that are linked e.g. to labels;
 * A [feature-table specification](#feature-tables), to store measurements.
 
-> ⚠️  **Warning**: As of version 0.13 of `fractal-tasks-core`, the
-> specifications below are not yet fully implemented (see issue
-> [602](https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/602)
-> and
-> [593](https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/593)).
-<div></div>
 > **Note**: The specifications below are largely inspired by [a proposed update
 > to OME-NGFF specs](https://github.com/ome/ngff/pull/64). This update is currently
 > on hold, and `fractal-tasks-core` will evolve as soon as an official NGFF
@@ -24,6 +18,8 @@ tables we use, and it includes:
 
 In this section we describe version 1 (V1) of the Fractal table specifications;
 for the moment, only V1 exists.
+Note that V1 specifications are only implemented as os of version 0.14.0 of
+`fractal-tasks-core`.
 
 ### Core tables
 
@@ -370,7 +366,7 @@ The `anndata.experimental.write_elem` function provides the required
 functionality to write an `AnnData` object to a Zarr group. In
 `fractal-tasks-core`, the `write_table` helper function wraps the `anndata`
 function and includes additional functionalities -- see [its
-documentation](../reference/fractal_tasks_core/lib_write/#fractal_tasks_core.lib_write.write_table).
+documentation](../reference/fractal_tasks_core/tables/#fractal_tasks_core.tables.write_table).
 
 With respect to the wrapped `anndata` function, the main additional features of `write_table` are
 
@@ -382,7 +378,7 @@ Here is an example of how to use `write_table`:
 import numpy as np
 import zarr
 import anndata as ad
-from fractal_tasks_core.lib_tables import write_table
+from fractal_tasks_core.tables import write_table
 
 table = ad.AnnData(X=np.ones((10, 10)))  # Generate a dummy `AnnData` object
 image_group = zarr.open_group("/tmp/image.zarr")
