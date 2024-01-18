@@ -971,6 +971,7 @@ def test_workflow_secondary_labeling_no_labels(
             output_label_name="nuclei",
         )
 
+
 def test_workflow_secondary_labeling_two_channels(
     tmp_path: Path,
     testdata_path: Path,
