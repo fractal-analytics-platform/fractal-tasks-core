@@ -1,7 +1,9 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# Unreleased
-* Improve handling of potential race condition in Apply Registration to image task(\#516).
+# 0.14.1
+
+* Improve handling of potential race condition in Apply Registration to image task (\#516).
+* Fix bug in `cellpose_segmentation` upon using masked loading and setting `channel2` (\#639).
 
 # 0.14.0
 

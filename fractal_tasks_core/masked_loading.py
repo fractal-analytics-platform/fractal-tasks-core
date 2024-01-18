@@ -170,8 +170,9 @@ def _preprocess_input(
         )
 
     # Set image background to zero
-    background_4D = np.expand_dims(background_3D, axis=0)
-    image_array[background_4D] = 0
+    n_channels = image_array.shape[0]
+    for i in range(n_channels):
+        image_array[i, background_3D] = 0
 
     return (image_array, background_3D, current_label_region)
 

@@ -970,3 +970,85 @@ def test_workflow_secondary_labeling_no_labels(
             use_masks=True,
             output_label_name="nuclei",
         )
+
+
+def test_workflow_secondary_labeling_two_channels(
+    tmp_path: Path,
+    testdata_path: Path,
+    zenodo_zarr: list[str],
+    zenodo_zarr_metadata: list[dict[str, Any]],
+    monkeypatch: MonkeyPatch,
+):
+    """
+    Test that catches issue
+    https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/640,
+    namely the fact the cellpose_segmentation with masked-loading fails when
+    using more than one channel.
+    """
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
+        patched_cellpose_core_use_gpu,
+    )
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
+        patched_segment_ROI,
+    )
+
+    # Load pre-made 2D zarr array
+    zarr_path = tmp_path / "tmp_out_mip/"
+    metadata = prepare_2D_zarr(
+        str(zarr_path),
+        zenodo_zarr,
+        zenodo_zarr_metadata,
+        remove_labels=True,
+        make_CYX=False,
+    )
+
+    # Primary segmentation (organoid)
+    for component in metadata["image"]:
+        cellpose_segmentation(
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
+            metadata=metadata,
+            component=component,
+            channel=ChannelInputModel(wavelength_id="A01_C01"),
+            level=0,
+            relabeling=True,
+            input_ROI_table="FOV_ROI_table",
+            output_label_name="organoids",
+            output_ROI_table="organoid_ROI_table",
+        )
+
+    organoid_ROI_table_path = str(
+        zarr_path / metadata["image"][0] / "tables/organoid_ROI_table"
+    )
+    organoid_ROI_table = ad.read_zarr(organoid_ROI_table_path)
+    organoid_ROI_table_zarr_group = zarr.open(organoid_ROI_table_path)
+    debug(organoid_ROI_table_zarr_group.attrs.asdict())
+    debug(organoid_ROI_table)
+    debug(organoid_ROI_table.X)
+    NUM_LABELS_PER_FOV = 2
+    assert organoid_ROI_table.obs.shape == (NUM_LABELS_PER_FOV * 2, 1)
+    assert organoid_ROI_table.shape == (NUM_LABELS_PER_FOV * 2, 6)
+    assert len(organoid_ROI_table) > 0
+    assert np.max(organoid_ROI_table.X) == float(728)
+
+    debug(zarr_path / metadata["image"][0])
+
+    # Secondary segmentation (nuclei)
+    for component in metadata["image"]:
+        cellpose_segmentation(
+            input_paths=[str(zarr_path)],
+            output_path=str(zarr_path),
+            metadata=metadata,
+            component=component,
+            channel=ChannelInputModel(wavelength_id="A01_C01"),
+            channel2=ChannelInputModel(wavelength_id="A01_C01"),
+            level=0,
+            relabeling=True,
+            input_ROI_table="organoid_ROI_table",
+            use_masks=True,
+            output_label_name="nuclei",
+        )
