@@ -10,7 +10,7 @@
 | fractal\_tasks\_core/cellvoyager/metadata.py                        |       99 |        7 |       30 |        8 |     88% |94, 111, 225, 232, 234, 274, 319->327, 370 |
 | fractal\_tasks\_core/channels.py                                    |      188 |        1 |       98 |        4 |     98% |28, 84->83, 119->118, 465->467 |
 | fractal\_tasks\_core/labels.py                                      |       40 |        0 |       14 |        0 |    100% |           |
-| fractal\_tasks\_core/masked\_loading.py                             |       62 |        8 |       14 |        5 |     83% |92, 108, 137-144, 158, 168 |
+| fractal\_tasks\_core/masked\_loading.py                             |       63 |        8 |       16 |        5 |     84% |92, 108, 137-144, 158, 168 |
 | fractal\_tasks\_core/ngff/\_\_init\_\_.py                           |        6 |        0 |        0 |        0 |    100% |           |
 | fractal\_tasks\_core/ngff/specs.py                                  |      122 |        0 |       48 |        8 |     95% |111->110, 155->154, 183->182, 199->198, 206->205, 210->209, 217->216, 258->257 |
 | fractal\_tasks\_core/ngff/zarr\_utils.py                            |       47 |        3 |        6 |        0 |     94% |     77-82 |
@@ -41,7 +41,7 @@
 | fractal\_tasks\_core/upscale\_array.py                              |       74 |        7 |       48 |        6 |     88% |63, 91, 96->100, 113, 128, 192-197 |
 | fractal\_tasks\_core/utils.py                                       |       68 |        1 |       28 |        1 |     98% |        71 |
 | fractal\_tasks\_core/zarr\_utils.py                                 |       33 |        0 |        6 |        1 |     97% |    81->85 |
-|                                                           **TOTAL** | **2895** |  **191** | **1070** |  **154** | **91%** |           |
+|                                                           **TOTAL** | **2896** |  **191** | **1072** |  **154** | **91%** |           |
 
 
 ## Setup coverage badge
