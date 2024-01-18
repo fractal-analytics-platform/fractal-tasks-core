@@ -979,6 +979,12 @@ def test_workflow_secondary_labeling_two_channels(
     zenodo_zarr_metadata: list[dict[str, Any]],
     monkeypatch: MonkeyPatch,
 ):
+    """
+    Test that catches issue
+    https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/640,
+    namely the fact the cellpose_segmentation with masked-loading fails when
+    using more than one channel.
+    """
 
     monkeypatch.setattr(
         "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
@@ -1046,4 +1052,3 @@ def test_workflow_secondary_labeling_two_channels(
             use_masks=True,
             output_label_name="nuclei",
         )
-    # FIXME: what could we assert here?
