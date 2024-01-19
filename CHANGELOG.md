@@ -2,7 +2,7 @@
 
 # 0.14.1
 
-* Improve handling of potential race condition in Apply Registration to image task (\#638).
+* Improve handling of potential race condition in Apply Registration to image task (\#638). Thanks @FranziskaMoos-FMI and @enricotagliavini.
 * Fix bug in `cellpose_segmentation` upon using masked loading and setting `channel2` (\#639).
 
 # 0.14.0
