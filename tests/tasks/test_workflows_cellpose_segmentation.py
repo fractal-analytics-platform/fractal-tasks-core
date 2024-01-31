@@ -690,7 +690,15 @@ def test_workflow_with_per_FOV_labeling_via_script(
     res = subprocess.run(shlex.split(command), **run_options)  # type: ignore
     print(res.stdout)
     print(res.stderr)
-    error_msg = f"ERROR model_type={INVALID_MODEL_TYPE} is not allowed"
+    error_msg = (
+        "unexpected value; permitted: 'cyto', 'nuclei', "
+        "'tissuenet', 'livecell', 'cyto2', 'general', 'CP', 'CPx', "
+        "'TN1', 'TN2', 'TN3', 'LC1', 'LC2', 'LC3', 'LC4' "
+        f"(type=value_error.const; given={INVALID_MODEL_TYPE}; "
+        "permitted=('cyto', 'nuclei', 'tissuenet', 'livecell', "
+        "'cyto2', 'general', 'CP', 'CPx', 'TN1', 'TN2', 'TN3', "
+        "'LC1', 'LC2', 'LC3', 'LC4'))"
+    )
     assert error_msg in res.stderr
     assert "urllib.error.HTTPError" not in res.stdout
     assert "urllib.error.HTTPError" not in res.stderr
