@@ -319,8 +319,9 @@ def cellpose_segmentation(
     logger.info(f"{zarrurl=}")
 
     # Preliminary checks on Cellpose model
-    if not os.path.exists(pretrained_model):
-        raise ValueError(f"{pretrained_model=} does not exist.")
+    if pretrained_model:
+        if not os.path.exists(pretrained_model):
+            raise ValueError(f"{pretrained_model=} does not exist.")
 
     # Read attributes from NGFF metadata
     ngff_image_meta = load_NgffImageMeta(zarrurl)
