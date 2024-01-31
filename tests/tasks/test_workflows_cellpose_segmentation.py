@@ -690,6 +690,9 @@ def test_workflow_with_per_FOV_labeling_via_script(
     res = subprocess.run(shlex.split(command), **run_options)  # type: ignore
     print(res.stdout)
     print(res.stderr)
+    # If this check fails after updating the cellpose version, you'll likely
+    # need to update the manifest to include a changed set of available models
+    # See https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/401 # noqa E501
     error_msg = (
         "unexpected value; permitted: 'cyto', 'nuclei', "
         "'tissuenet', 'livecell', 'cyto2', 'general', 'CP', 'CPx', "
