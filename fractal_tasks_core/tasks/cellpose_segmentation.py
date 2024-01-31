@@ -18,6 +18,7 @@ import os
 import time
 from pathlib import Path
 from typing import Any
+from typing import Literal
 from typing import Optional
 from typing import Sequence
 
@@ -197,7 +198,8 @@ def cellpose_segmentation(
     relabeling: bool = True,
     # Cellpose-related arguments
     diameter_level0: float = 30.0,
-    model_type: str = "cyto2",
+    # https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/401 # noqa E501
+    model_type: Literal[tuple(models.MODEL_NAMES)] = "cyto2",
     pretrained_model: Optional[str] = None,
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
@@ -317,12 +319,8 @@ def cellpose_segmentation(
     logger.info(f"{zarrurl=}")
 
     # Preliminary checks on Cellpose model
-    if pretrained_model is None:
-        if model_type not in models.MODEL_NAMES:
-            raise ValueError(f"ERROR model_type={model_type} is not allowed.")
-    else:
-        if not os.path.exists(pretrained_model):
-            raise ValueError(f"{pretrained_model=} does not exist.")
+    if not os.path.exists(pretrained_model):
+        raise ValueError(f"{pretrained_model=} does not exist.")
 
     # Read attributes from NGFF metadata
     ngff_image_meta = load_NgffImageMeta(zarrurl)
