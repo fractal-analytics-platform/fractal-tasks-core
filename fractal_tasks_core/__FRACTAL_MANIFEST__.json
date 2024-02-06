@@ -478,9 +478,19 @@
           },
           "normalize": {
             "title": "Normalize",
-            "default": true,
-            "type": "boolean",
-            "description": "normalize data so 0.0=1st percentile and 1.0=99th percentile of image intensities in each channel. This automatic normalization can lead to issues when the image to be segmented is very sparse."
+            "default": {
+              "default_normalize": true,
+              "lower_percentile": null,
+              "upper_percentile": null,
+              "lower_bound": null,
+              "upper_bound": null
+            },
+            "allOf": [
+              {
+                "$ref": "#/definitions/CellposeCustomNormalizer"
+              }
+            ],
+            "description": "By default, data is normalized so 0.0=1st percentile and 1.0=99th percentile of image intensities in each channel. This automatic normalization can lead to issues when the image to be segmented is very sparse. You can turn off the automated rescaling and either provide your own rescaling percentiles or fixed rescaling upper and lower bound integers"
           },
           "anisotropy": {
             "title": "Anisotropy",
@@ -584,6 +594,34 @@
                 "title": "Label",
                 "type": "string",
                 "description": "Name of the channel."
+              }
+            }
+          },
+          "CellposeCustomNormalizer": {
+            "title": "CellposeCustomNormalizer",
+            "description": "Validator to handle different normalization scenarios for Cellpose models",
+            "type": "object",
+            "properties": {
+              "default_normalize": {
+                "title": "Default Normalize",
+                "default": true,
+                "type": "boolean"
+              },
+              "lower_percentile": {
+                "title": "Lower Percentile",
+                "type": "number"
+              },
+              "upper_percentile": {
+                "title": "Upper Percentile",
+                "type": "number"
+              },
+              "lower_bound": {
+                "title": "Lower Bound",
+                "type": "integer"
+              },
+              "upper_bound": {
+                "title": "Upper Bound",
+                "type": "integer"
               }
             }
           }

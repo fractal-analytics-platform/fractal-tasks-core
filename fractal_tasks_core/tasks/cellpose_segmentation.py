@@ -55,6 +55,10 @@ from fractal_tasks_core.roi import get_overlapping_pairs_3D
 from fractal_tasks_core.roi import is_ROI_table_valid
 from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
+from fractal_tasks_core.tasks.cellpose_transforms import (
+    CellposeCustomNormalizer,
+)
+from fractal_tasks_core.tasks.cellpose_transforms import normalized_img
 from fractal_tasks_core.utils import rescale_datasets
 
 logger = logging.getLogger(__name__)
@@ -71,7 +75,9 @@ def segment_ROI(
     diameter: float = 30.0,
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
-    normalize: bool = True,
+    normalize: CellposeCustomNormalizer = CellposeCustomNormalizer(
+        default_normalize=True
+    ),
     label_dtype: Optional[np.dtype] = None,
     augment: bool = False,
     net_avg: bool = False,
@@ -133,8 +139,19 @@ def segment_ROI(
         f" {do_3D=} |"
         f" {model.diam_mean=} |"
         f" {diameter=} |"
-        f" {flow_threshold=}"
+        f" {flow_threshold=} |"
+        f" {normalize.default_normalize=}"
     )
+
+    # Optionally perform custom normalization
+    if not normalize.default_normalize:
+        x = normalized_img(
+            x,
+            lower_p=normalize.lower_percentile,
+            upper_p=normalize.upper_percentile,
+            lower_bound=normalize.lower_bound,
+            upper_bound=normalize.upper_bound,
+        )
 
     # Actual labeling
     t0 = time.perf_counter()
@@ -203,7 +220,9 @@ def cellpose_segmentation(
     pretrained_model: Optional[str] = None,
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
-    normalize: bool = True,
+    normalize: CellposeCustomNormalizer = CellposeCustomNormalizer(
+        default_normalize=True
+    ),
     anisotropy: Optional[float] = None,
     min_size: int = 15,
     augment: bool = False,
@@ -278,10 +297,12 @@ def cellpose_segmentation(
             this threshold if cellpose is not returning as many ROIs as you’d
             expect. Similarly, decrease this threshold if cellpose is returning
             too many ill-shaped ROIs."
-        normalize: normalize data so 0.0=1st percentile and 1.0=99th
-            percentile of image intensities in each channel. This automatic
-            normalization can lead to issues when the image to be segmented
-            is very sparse.
+        normalize: By default, data is normalized so 0.0=1st percentile and
+            1.0=99th percentile of image intensities in each channel.
+            This automatic normalization can lead to issues when the image to
+            be segmented is very sparse. You can turn off the automated
+            rescaling and either provide your own rescaling percentiles or
+            fixed rescaling upper and lower bound integers
         anisotropy: Ratio of the pixel sizes along Z and XY axis (ignored if
             the image is not three-dimensional). If `None`, it is inferred from
             the OME-NGFF metadata.
