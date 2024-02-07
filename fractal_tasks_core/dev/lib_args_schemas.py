@@ -60,6 +60,11 @@ FRACTAL_TASKS_CORE_PYDANTIC_MODELS = [
         "tasks/napari_workflows_wrapper_models.py",
         "NapariWorkflowsOutput",
     ),
+    (
+        "fractal_tasks_core",
+        "tasks/cellpose_transforms.py",
+        "CellposeCustomNormalizer",
+    ),
 ]
 
 

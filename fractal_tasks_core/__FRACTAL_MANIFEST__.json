@@ -605,23 +605,28 @@
               "default_normalize": {
                 "title": "Default Normalize",
                 "default": true,
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Whether to use the default Cellpose normalization approach (rescaling the image between the 1st and 99th percentile)"
               },
               "lower_percentile": {
                 "title": "Lower Percentile",
-                "type": "number"
+                "type": "number",
+                "description": "Specify a custom lower-bound percentile for rescaling as a float value between 0 and 100. Set to 1 to run the same as default). You can only specify percentils or bounds, not both."
               },
               "upper_percentile": {
                 "title": "Upper Percentile",
-                "type": "number"
+                "type": "number",
+                "description": "Specify a custom upper-bound percentile for rescaling as a float value between 0 and 100. Set to 99 to run the same as default, set to e.g. 99.99 if the default rescaling was too harsh. You can only specify percentils or bounds, not both."
               },
               "lower_bound": {
                 "title": "Lower Bound",
-                "type": "integer"
+                "type": "integer",
+                "description": "Explicit lower bound value to rescale the image at. Needs to be an integer, e.g. 100. You can only specify percentils or bounds, not both."
               },
               "upper_bound": {
                 "title": "Upper Bound",
-                "type": "integer"
+                "type": "integer",
+                "description": "Explicit upper bound value to rescale the image at. Needs to be an integer, e.g. 2000 You can only specify percentils or bounds, not both."
               }
             }
           }
