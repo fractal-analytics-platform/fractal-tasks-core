@@ -122,8 +122,10 @@ def normalized_img(
     lower_bound=None,
     upper_bound=None,
 ):
-    """normalize each channel of the image so that so that 0.0=1st percentile
-    and 1.0=99th percentile of image intensities
+    """normalize each channel of the image so that so that 0.0=lower percentile
+    or lower bound and 1.0=upper percentile or upper bound of image intensities.
+
+    The normalization can result in values < 0 or > 1 (no clipping).
 
     Based on https://github.com/MouseLand/cellpose/blob/4f5661983c3787efa443bbbd3f60256f4fd8bf53/cellpose/transforms.py#L375 # noqa E501
 
@@ -205,6 +207,4 @@ def normalize_bounds(Y, lower: int = 0, upper: int = 65535):
     """
     X = Y.copy()
     X = (X - lower) / (upper - lower)
-    # Avoid negative values (if lower > pixel value)
-    X[X < 0] = 0
     return X
