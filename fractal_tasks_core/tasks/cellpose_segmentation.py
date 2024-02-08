@@ -165,7 +165,7 @@ def segment_ROI(
         anisotropy=anisotropy,
         cellprob_threshold=cellprob_threshold,
         flow_threshold=flow_threshold,
-        normalize=normalize,
+        normalize=normalize.default_normalize,
         min_size=min_size,
         batch_size=batch_size,
         invert=invert,
