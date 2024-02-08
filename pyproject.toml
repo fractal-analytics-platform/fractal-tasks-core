@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fractal-tasks-core"
-version = "0.14.2a1"
+version = "0.14.2a2"
 description = "Core bioimage-analysis library and tasks of the Fractal analytics platform"
 authors = [
     "Joel Lüthi  <joel.luethi@fmi.ch>",
@@ -89,7 +89,7 @@ source = ["fractal_tasks_core"]
 omit = ["tests/*", "examples/*", "fractal_tasks_core/dev/*", "fractal_tasks_core/tasks/compress_tif.py"]
 
 [tool.bumpver]
-current_version = "0.14.2a1"
+current_version = "0.14.2a2"
 version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true
