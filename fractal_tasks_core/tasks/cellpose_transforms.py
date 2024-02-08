@@ -16,6 +16,7 @@ from typing import Optional
 
 import numpy as np
 from pydantic import BaseModel
+from pydantic import Field
 from pydantic import root_validator
 
 
@@ -50,8 +51,8 @@ class CellposeCustomNormalizer(BaseModel):
     """
 
     default_normalize: bool = True
-    lower_percentile: Optional[float] = None
-    upper_percentile: Optional[float] = None
+    lower_percentile: Optional[float] = Field(None, ge=0, le=100)
+    upper_percentile: Optional[float] = Field(None, ge=0, le=100)
     lower_bound: Optional[int] = None
     upper_bound: Optional[int] = None
 

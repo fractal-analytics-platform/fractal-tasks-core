@@ -599,11 +599,15 @@
               },
               "lower_percentile": {
                 "title": "Lower Percentile",
+                "minimum": 0,
+                "maximum": 100,
                 "type": "number",
                 "description": "Specify a custom lower-bound percentile for rescaling as a float value between 0 and 100. Set to 1 to run the same as default). You can only specify percentils or bounds, not both."
               },
               "upper_percentile": {
                 "title": "Upper Percentile",
+                "minimum": 0,
+                "maximum": 100,
                 "type": "number",
                 "description": "Specify a custom upper-bound percentile for rescaling as a float value between 0 and 100. Set to 99 to run the same as default, set to e.g. 99.99 if the default rescaling was too harsh. You can only specify percentils or bounds, not both."
               },
