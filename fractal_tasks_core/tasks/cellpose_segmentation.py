@@ -220,9 +220,7 @@ def cellpose_segmentation(
     pretrained_model: Optional[str] = None,
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
-    normalize: CellposeCustomNormalizer = CellposeCustomNormalizer(
-        default_normalize=True
-    ),
+    normalize: Optional[CellposeCustomNormalizer] = None,
     anisotropy: Optional[float] = None,
     min_size: int = 15,
     augment: bool = False,
@@ -401,6 +399,10 @@ def cellpose_segmentation(
             output_label_name = f"label_{channel_label}"
         except (KeyError, IndexError):
             output_label_name = f"label_{ind_channel}"
+
+    # Set default normalizer
+    if normalize is None:
+        normalize = CellposeCustomNormalizer(default_normalize=True)
 
     # Load ZYX data
     data_zyx = da.from_zarr(f"{zarrurl}/{level}")[ind_channel]
