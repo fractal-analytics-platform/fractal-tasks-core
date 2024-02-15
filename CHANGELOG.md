@@ -1,5 +1,10 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# 0.14.2
+* Add custom normalization options to the Cellpose task (#650)
+* Add more options to the Cellpose task to control model behavior (#650)
+* For Cellpose task, switch to using Enums for model_type (see issue #401)
+
 # 0.14.1
 
 * Fix bug in `cellpose_segmentation` upon using masked loading and setting `channel2` (\#639). Thanks [@FranziskaMoos-FMI](https://github.com/FranziskaMoos-FMI) and [@enricotagliavini](https://github.com/enricotagliavini).

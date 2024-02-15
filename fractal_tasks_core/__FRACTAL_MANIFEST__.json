@@ -439,6 +439,23 @@
           "model_type": {
             "title": "Model Type",
             "default": "cyto2",
+            "enum": [
+              "cyto",
+              "nuclei",
+              "tissuenet",
+              "livecell",
+              "cyto2",
+              "general",
+              "CP",
+              "CPx",
+              "TN1",
+              "TN2",
+              "TN3",
+              "LC1",
+              "LC2",
+              "LC3",
+              "LC4"
+            ],
             "type": "string",
             "description": "Parameter of `CellposeModel` class. Defines which model should be used. Typical choices are `nuclei`, `cyto`, `cyto2`, etc."
           },
@@ -458,6 +475,22 @@
             "default": 0.4,
             "type": "number",
             "description": "Parameter of `CellposeModel.eval` method. Valid values between 0.0 and 1.0. From Cellpose documentation: \"Increase this threshold if cellpose is not returning as many ROIs as you\u2019d expect. Similarly, decrease this threshold if cellpose is returning too many ill-shaped ROIs.\""
+          },
+          "normalize": {
+            "title": "Normalize",
+            "default": {
+              "type": "default",
+              "lower_percentile": null,
+              "upper_percentile": null,
+              "lower_bound": null,
+              "upper_bound": null
+            },
+            "allOf": [
+              {
+                "$ref": "#/definitions/CellposeCustomNormalizer"
+              }
+            ],
+            "description": "By default, data is normalized so 0.0=1st percentile and 1.0=99th percentile of image intensities in each channel. This automatic normalization can lead to issues when the image to be segmented is very sparse. You can turn off the default rescaling. With the \"custom\" option, you can either provide your own rescaling percentiles or fixed rescaling upper and lower bound integers."
           },
           "anisotropy": {
             "title": "Anisotropy",
@@ -487,6 +520,48 @@
             "default": true,
             "type": "boolean",
             "description": "If `False`, always use the CPU; if `True`, use the GPU if possible (as defined in `cellpose.core.use_gpu()`) and fall-back to the CPU otherwise."
+          },
+          "batch_size": {
+            "title": "Batch Size",
+            "default": 8,
+            "type": "integer",
+            "description": "number of 224x224 patches to run simultaneously on the GPU (can make smaller or bigger depending on GPU memory usage)"
+          },
+          "invert": {
+            "title": "Invert",
+            "default": false,
+            "type": "boolean",
+            "description": "invert image pixel intensity before running network (if True, image is also normalized)"
+          },
+          "tile": {
+            "title": "Tile",
+            "default": true,
+            "type": "boolean",
+            "description": "tiles image to ensure GPU/CPU memory usage limited (recommended)"
+          },
+          "tile_overlap": {
+            "title": "Tile Overlap",
+            "default": 0.1,
+            "type": "number",
+            "description": "fraction of overlap of tiles when computing flows"
+          },
+          "resample": {
+            "title": "Resample",
+            "default": true,
+            "type": "boolean",
+            "description": "run dynamics at original image size (will be slower but create more accurate boundaries)"
+          },
+          "interp": {
+            "title": "Interp",
+            "default": true,
+            "type": "boolean",
+            "description": "interpolate during 2D dynamics (not available in 3D) (in previous versions it was False, now it defaults to True)"
+          },
+          "stitch_threshold": {
+            "title": "Stitch Threshold",
+            "default": 0.0,
+            "type": "number",
+            "description": "if stitch_threshold>0.0 and not do_3D and equal image sizes, masks are stitched in 3D to return volume segmentation"
           },
           "overwrite": {
             "title": "Overwrite",
@@ -519,6 +594,48 @@
                 "title": "Label",
                 "type": "string",
                 "description": "Name of the channel."
+              }
+            }
+          },
+          "CellposeCustomNormalizer": {
+            "title": "CellposeCustomNormalizer",
+            "description": "Validator to handle different normalization scenarios for Cellpose models",
+            "type": "object",
+            "properties": {
+              "type": {
+                "title": "Type",
+                "default": "default",
+                "enum": [
+                  "default",
+                  "custom",
+                  "no_normalization"
+                ],
+                "type": "string",
+                "description": "One of `default` (Cellpose default normalization), `custom` (using the other custom parameters) or `no_normalization`."
+              },
+              "lower_percentile": {
+                "title": "Lower Percentile",
+                "minimum": 0,
+                "maximum": 100,
+                "type": "number",
+                "description": "Specify a custom lower-bound percentile for rescaling as a float value between 0 and 100. Set to 1 to run the same as default). You can only specify percentiles or bounds, not both."
+              },
+              "upper_percentile": {
+                "title": "Upper Percentile",
+                "minimum": 0,
+                "maximum": 100,
+                "type": "number",
+                "description": "Specify a custom upper-bound percentile for rescaling as a float value between 0 and 100. Set to 99 to run the same as default, set to e.g. 99.99 if the default rescaling was too harsh. You can only specify percentiles or bounds, not both."
+              },
+              "lower_bound": {
+                "title": "Lower Bound",
+                "type": "integer",
+                "description": "Explicit lower bound value to rescale the image at. Needs to be an integer, e.g. 100. You can only specify percentiles or bounds, not both."
+              },
+              "upper_bound": {
+                "title": "Upper Bound",
+                "type": "integer",
+                "description": "Explicit upper bound value to rescale the image at. Needs to be an integer, e.g. 2000. You can only specify percentiles or bounds, not both."
               }
             }
           }

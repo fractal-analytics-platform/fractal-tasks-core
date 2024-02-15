@@ -18,6 +18,7 @@ import os
 import time
 from pathlib import Path
 from typing import Any
+from typing import Literal
 from typing import Optional
 from typing import Sequence
 
@@ -54,6 +55,10 @@ from fractal_tasks_core.roi import get_overlapping_pairs_3D
 from fractal_tasks_core.roi import is_ROI_table_valid
 from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
+from fractal_tasks_core.tasks.cellpose_transforms import (
+    CellposeCustomNormalizer,
+)
+from fractal_tasks_core.tasks.cellpose_transforms import normalized_img
 from fractal_tasks_core.utils import rescale_datasets
 
 logger = logging.getLogger(__name__)
@@ -70,10 +75,18 @@ def segment_ROI(
     diameter: float = 30.0,
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
+    normalize: CellposeCustomNormalizer = CellposeCustomNormalizer(),
     label_dtype: Optional[np.dtype] = None,
     augment: bool = False,
     net_avg: bool = False,
     min_size: int = 15,
+    batch_size: int = 8,
+    invert: bool = False,
+    tile: bool = True,
+    tile_overlap: float = 0.1,
+    resample: bool = True,
+    interp: bool = True,
+    stitch_threshold: float = 0.0,
 ) -> np.ndarray:
     """
     Internal function that runs Cellpose segmentation for a single ROI.
@@ -92,6 +105,10 @@ def segment_ROI(
         diameter: Expected object diameter in pixels for cellpose.
         cellprob_threshold: Cellpose model parameter.
         flow_threshold: Cellpose model parameter.
+        normalize: normalize data so 0.0=1st percentile and 1.0=99th
+            percentile of image intensities in each channel. This automatic
+            normalization can lead to issues when the image to be segmented
+            is very sparse.
         label_dtype: Label images are cast into this `np.dtype`.
         augment: Whether to use cellpose augmentation to tile images with
             overlap.
@@ -99,6 +116,18 @@ def segment_ROI(
             networks (useful for `nuclei`, `cyto` and `cyto2`, not sure it
             works for the others).
         min_size: Minimum size of the segmented objects.
+        batch_size: number of 224x224 patches to run simultaneously on the GPU
+            (can make smaller or bigger depending on GPU memory usage)
+        invert: invert image pixel intensity before running network (if True,
+            image is also normalized)
+        tile: tiles image to ensure GPU/CPU memory usage limited (recommended)
+        tile_overlap: fraction of overlap of tiles when computing flows
+        resample: run dynamics at original image size (will be slower but
+            create more accurate boundaries)
+        interp: interpolate during 2D dynamics (not available in 3D)
+            (in previous versions it was False, now it defaults to True)
+        stitch_threshold: if stitch_threshold>0.0 and not do_3D and equal
+            image sizes, masks are stitched in 3D to return volume segmentation
     """
 
     # Write some debugging info
@@ -108,8 +137,19 @@ def segment_ROI(
         f" {do_3D=} |"
         f" {model.diam_mean=} |"
         f" {diameter=} |"
-        f" {flow_threshold=}"
+        f" {flow_threshold=} |"
+        f" {normalize.type=}"
     )
+
+    # Optionally perform custom normalization
+    if normalize.type == "custom":
+        x = normalized_img(
+            x,
+            lower_p=normalize.lower_percentile,
+            upper_p=normalize.upper_percentile,
+            lower_bound=normalize.lower_bound,
+            upper_bound=normalize.upper_bound,
+        )
 
     # Actual labeling
     t0 = time.perf_counter()
@@ -123,7 +163,15 @@ def segment_ROI(
         anisotropy=anisotropy,
         cellprob_threshold=cellprob_threshold,
         flow_threshold=flow_threshold,
+        normalize=normalize.cellpose_normalize,
         min_size=min_size,
+        batch_size=batch_size,
+        invert=invert,
+        tile=tile,
+        tile_overlap=tile_overlap,
+        resample=resample,
+        interp=interp,
+        stitch_threshold=stitch_threshold,
     )
 
     if mask.ndim == 2:
@@ -165,15 +213,25 @@ def cellpose_segmentation(
     relabeling: bool = True,
     # Cellpose-related arguments
     diameter_level0: float = 30.0,
-    model_type: str = "cyto2",
+    # https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/401 # noqa E501
+    model_type: Literal[tuple(models.MODEL_NAMES)] = "cyto2",
     pretrained_model: Optional[str] = None,
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
+    normalize: CellposeCustomNormalizer = CellposeCustomNormalizer(),
     anisotropy: Optional[float] = None,
     min_size: int = 15,
     augment: bool = False,
     net_avg: bool = False,
     use_gpu: bool = True,
+    batch_size: int = 8,
+    invert: bool = False,
+    tile: bool = True,
+    tile_overlap: float = 0.1,
+    resample: bool = True,
+    interp: bool = True,
+    stitch_threshold: float = 0.0,
+    # Overwrite option
     overwrite: bool = True,
 ) -> dict[str, Any]:
     """
@@ -235,6 +293,13 @@ def cellpose_segmentation(
             this threshold if cellpose is not returning as many ROIs as you’d
             expect. Similarly, decrease this threshold if cellpose is returning
             too many ill-shaped ROIs."
+        normalize: By default, data is normalized so 0.0=1st percentile and
+            1.0=99th percentile of image intensities in each channel.
+            This automatic normalization can lead to issues when the image to
+            be segmented is very sparse. You can turn off the default
+            rescaling. With the "custom" option, you can either provide your
+            own rescaling percentiles or fixed rescaling upper and lower
+            bound integers.
         anisotropy: Ratio of the pixel sizes along Z and XY axis (ignored if
             the image is not three-dimensional). If `None`, it is inferred from
             the OME-NGFF metadata.
@@ -249,6 +314,18 @@ def cellpose_segmentation(
         use_gpu: If `False`, always use the CPU; if `True`, use the GPU if
             possible (as defined in `cellpose.core.use_gpu()`) and fall-back
             to the CPU otherwise.
+        batch_size: number of 224x224 patches to run simultaneously on the GPU
+            (can make smaller or bigger depending on GPU memory usage)
+        invert: invert image pixel intensity before running network (if True,
+            image is also normalized)
+        tile: tiles image to ensure GPU/CPU memory usage limited (recommended)
+        tile_overlap: fraction of overlap of tiles when computing flows
+        resample: run dynamics at original image size (will be slower but
+            create more accurate boundaries)
+        interp: interpolate during 2D dynamics (not available in 3D)
+            (in previous versions it was False, now it defaults to True)
+        stitch_threshold: if stitch_threshold>0.0 and not do_3D and equal
+            image sizes, masks are stitched in 3D to return volume segmentation
         overwrite: If `True`, overwrite the task output.
     """
 
@@ -260,10 +337,7 @@ def cellpose_segmentation(
     logger.info(f"{zarrurl=}")
 
     # Preliminary checks on Cellpose model
-    if pretrained_model is None:
-        if model_type not in models.MODEL_NAMES:
-            raise ValueError(f"ERROR model_type={model_type} is not allowed.")
-    else:
+    if pretrained_model:
         if not os.path.exists(pretrained_model):
             raise ValueError(f"{pretrained_model=} does not exist.")
 
@@ -529,9 +603,17 @@ def cellpose_segmentation(
             diameter=diameter_level0 / coarsening_xy**level,
             cellprob_threshold=cellprob_threshold,
             flow_threshold=flow_threshold,
+            normalize=normalize,
             min_size=min_size,
             augment=augment,
             net_avg=net_avg,
+            batch_size=batch_size,
+            invert=invert,
+            tile=tile,
+            tile_overlap=tile_overlap,
+            resample=resample,
+            interp=interp,
+            stitch_threshold=stitch_threshold,
         )
 
         # Prepare keyword arguments for preprocessing function
