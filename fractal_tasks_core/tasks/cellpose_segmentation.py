@@ -75,9 +75,7 @@ def segment_ROI(
     diameter: float = 30.0,
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
-    normalize: CellposeCustomNormalizer = CellposeCustomNormalizer(
-        default_normalize=True
-    ),
+    normalize: CellposeCustomNormalizer = CellposeCustomNormalizer(),
     label_dtype: Optional[np.dtype] = None,
     augment: bool = False,
     net_avg: bool = False,
@@ -165,7 +163,7 @@ def segment_ROI(
         anisotropy=anisotropy,
         cellprob_threshold=cellprob_threshold,
         flow_threshold=flow_threshold,
-        normalize=normalize.get_cellpose_normalize(),
+        normalize=normalize.cellpose_normalize,
         min_size=min_size,
         batch_size=batch_size,
         invert=invert,
@@ -400,10 +398,6 @@ def cellpose_segmentation(
             output_label_name = f"label_{channel_label}"
         except (KeyError, IndexError):
             output_label_name = f"label_{ind_channel}"
-
-    # Set default normalizer
-    if normalize is None:
-        normalize = CellposeCustomNormalizer(default_normalize=True)
 
     # Load ZYX data
     data_zyx = da.from_zarr(f"{zarrurl}/{level}")[ind_channel]

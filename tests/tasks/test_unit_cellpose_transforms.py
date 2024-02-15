@@ -58,7 +58,7 @@ def test_CellposeCustomNormalizer(
                 upper_percentile=upper_percentile,
                 lower_bound=lower_bound,
                 upper_bound=upper_bound,
-            ).get_cellpose_normalize()
+            ).cellpose_normalize
         else:
             assert not (
                 CellposeCustomNormalizer(
@@ -67,7 +67,7 @@ def test_CellposeCustomNormalizer(
                     upper_percentile=upper_percentile,
                     lower_bound=lower_bound,
                     upper_bound=upper_bound,
-                ).get_cellpose_normalize()
+                ).cellpose_normalize
             )
 
 

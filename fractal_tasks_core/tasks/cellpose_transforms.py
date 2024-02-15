@@ -124,23 +124,25 @@ class CellposeCustomNormalizer(BaseModel):
 
         return values
 
-    def get_cellpose_normalize(self):
-        # Set a variable for whether cellpose internal normalization is applied
-        cellpose_normalize = True
-        if self.type == "custom" or self.type == "no_normalization":
-            cellpose_normalize = False
+    @property
+    def cellpose_normalize(self) -> bool:
+        """
+        Determine whether cellpose should apply its internal normalization.
 
-        return cellpose_normalize
+        If type is set to `custom` or `no_normalization`, don't apply cellpose
+        internal normalization
+        """
+        return self.type == "default"
 
 
 def normalized_img(
-    img,
-    axis=-1,
-    invert=False,
+    img: np.ndarray,
+    axis: int = -1,
+    invert: bool = False,
     lower_p: float = 1.0,
     upper_p: float = 99.0,
-    lower_bound=None,
-    upper_bound=None,
+    lower_bound: Optional[int] = None,
+    upper_bound: Optional[int] = None,
 ):
     """normalize each channel of the image so that so that 0.0=lower percentile
     or lower bound and 1.0=upper percentile or upper bound of image intensities.
@@ -210,9 +212,15 @@ def normalized_img(
     return img
 
 
-def normalize_percentile(Y, lower: int = 1, upper: int = 99):
+def normalize_percentile(Y: np.ndarray, lower: float = 1, upper: float = 99):
     """normalize image so 0.0 is lower percentile and 1.0 is upper percentile
-    Percentiles are passed as integers
+    Percentiles are passed as floats (must be between 0 and 100)
+
+    Args:
+        Y: The image to be normalized
+        lower: Lower percentile
+        upper: Upper percentile
+
     """
     X = Y.copy()
     x01 = np.percentile(X, lower)
@@ -222,8 +230,13 @@ def normalize_percentile(Y, lower: int = 1, upper: int = 99):
 
 
 def normalize_bounds(Y, lower: int = 0, upper: int = 65535):
-    """normalize image so 0.0 is lower percentile and 1.0 is upper percentile
-    Percentiles are passed as integers
+    """normalize image so 0.0 is lower value and 1.0 is upper value
+
+    Args:
+        Y: The image to be normalized
+        lower: Lower normalization value
+        upper: Upper normalization value
+
     """
     X = Y.copy()
     X = (X - lower) / (upper - lower)
