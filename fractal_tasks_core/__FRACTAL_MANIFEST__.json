@@ -479,7 +479,7 @@
           "normalize": {
             "title": "Normalize",
             "default": {
-              "type": null,
+              "type": "default",
               "lower_percentile": null,
               "upper_percentile": null,
               "lower_bound": null,
@@ -604,6 +604,7 @@
             "properties": {
               "type": {
                 "title": "Type",
+                "default": "default",
                 "enum": [
                   "default",
                   "custom",

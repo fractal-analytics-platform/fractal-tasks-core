@@ -54,7 +54,7 @@ class CellposeCustomNormalizer(BaseModel):
             You can only specify percentiles or bounds, not both.
     """
 
-    type: Optional[Literal["default", "custom", "no_normalization"]] = None
+    type: Literal["default", "custom", "no_normalization"] = "default"
     lower_percentile: Optional[float] = Field(None, ge=0, le=100)
     upper_percentile: Optional[float] = Field(None, ge=0, le=100)
     lower_bound: Optional[int] = None
