@@ -50,29 +50,22 @@ poetry run mypy --package fractal_tasks_core --ignore-missing-imports --warn-red
 
 Preliminary check-list:
 
-1. The main branch is checked out.
-2. You reviewed dependencies and dev dependencies and the lock file is up to date with `pyproject.toml` (it is useful to have a look at the output of `deptry . -v`, where `deptry` is already installed as part of the dev dependencies - NOTE: `deptry` should be installed independently, e.g. via `pipx install deptry`).
+1. The `main` branch is checked out.
+2. You reviewed dependencies and dev dependencies and the lock file is up to date with `pyproject.toml`.
 3. The current HEAD of the main branch passes all the tests (note: make sure that you are using the poetry-installed local package).
-4. Update changelog. First look at the list of commits since the last tag, via:
-```console
-git log --pretty="[%cs] %h - %s" `git tag --sort version:refname | tail -n 1`..HEAD
-```
-then add the upcoming release to `docs/source/changelog.rst` with the main information about it, using standard categories like "New features", "Fixes" and "Other changes", and including PR numbers when relevant. Commit `docs/source/changelog.rst` and push.
+4. `CHANGELOG.md` is up to date.
 5. If appropriate (e.g. if you added some new task arguments, or if you modified some of their descriptions), update the JSON Schemas in the manifest via:
-```console
+```bash
 poetry run python fractal_tasks_core/dev/update_manifest.py
 ```
+(note: in principle this issue is covered by tests, but it is good to be aware of it)
 
 Actual release
 
 6. Use:
-```console
-poetry run bumpver update --[tag-num|patch|minor] --tag-commit --commit --dry
+```bash
+poetry run bumpver update --[tag-num|patch|minor] --dry
 ```
-to test updating the version bump.
-7. If the previous step looks good, use:
-```console
-poetry run bumpver update --[tag-num|patch|minor] --tag-commit --commit
-```
-to actually bump the version. This will trigger a dedicated GitHub
-action to build the new package and publish it to PyPI.
+to test updating the version bump
+7. If the previous step looks good, remove the `--dry` and re-run the same command. This will commit both the edited files and the new tag, and push.
+8. Approve (or have approved) the new version at [Publish package to PyPI](https://github.com/fractal-analytics-platform/fractal-tasks-core/actions/workflows/publish_pypi.yml).
