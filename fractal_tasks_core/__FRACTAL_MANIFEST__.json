@@ -479,7 +479,7 @@
           "normalize": {
             "$ref": "#/definitions/CellposeCustomNormalizer",
             "title": "Normalize",
-            "description": "By default, data is normalized so 0.0=1st percentile and 1.0=99th percentile of image intensities in each channel. This automatic normalization can lead to issues when the image to be segmented is very sparse. You can turn off the automated rescaling and either provide your own rescaling percentiles or fixed rescaling upper and lower bound integers"
+            "description": "By default, data is normalized so 0.0=1st percentile and 1.0=99th percentile of image intensities in each channel. This automatic normalization can lead to issues when the image to be segmented is very sparse. You can turn off the default rescaling. With the \"custom\" option, you can either provide your own rescaling percentiles or fixed rescaling upper and lower bound integers."
           },
           "anisotropy": {
             "title": "Anisotropy",
@@ -591,37 +591,44 @@
             "description": "Validator to handle different normalization scenarios for Cellpose models",
             "type": "object",
             "properties": {
-              "default_normalize": {
-                "title": "Default Normalize",
-                "default": true,
-                "type": "boolean",
-                "description": "Whether to use the default Cellpose normalization approach (rescaling the image between the 1st and 99th percentile)"
+              "type": {
+                "title": "Type",
+                "enum": [
+                  "default",
+                  "custom",
+                  "no_normalization"
+                ],
+                "type": "string",
+                "description": "One of `default` (Cellpose default normalization), `custom` (using the other custom parameters) or `no_normalization`."
               },
               "lower_percentile": {
                 "title": "Lower Percentile",
                 "minimum": 0,
                 "maximum": 100,
                 "type": "number",
-                "description": "Specify a custom lower-bound percentile for rescaling as a float value between 0 and 100. Set to 1 to run the same as default). You can only specify percentils or bounds, not both."
+                "description": "Specify a custom lower-bound percentile for rescaling as a float value between 0 and 100. Set to 1 to run the same as default). You can only specify percentiles or bounds, not both."
               },
               "upper_percentile": {
                 "title": "Upper Percentile",
                 "minimum": 0,
                 "maximum": 100,
                 "type": "number",
-                "description": "Specify a custom upper-bound percentile for rescaling as a float value between 0 and 100. Set to 99 to run the same as default, set to e.g. 99.99 if the default rescaling was too harsh. You can only specify percentils or bounds, not both."
+                "description": "Specify a custom upper-bound percentile for rescaling as a float value between 0 and 100. Set to 99 to run the same as default, set to e.g. 99.99 if the default rescaling was too harsh. You can only specify percentiles or bounds, not both."
               },
               "lower_bound": {
                 "title": "Lower Bound",
                 "type": "integer",
-                "description": "Explicit lower bound value to rescale the image at. Needs to be an integer, e.g. 100. You can only specify percentils or bounds, not both."
+                "description": "Explicit lower bound value to rescale the image at. Needs to be an integer, e.g. 100. You can only specify percentiles or bounds, not both."
               },
               "upper_bound": {
                 "title": "Upper Bound",
                 "type": "integer",
-                "description": "Explicit upper bound value to rescale the image at. Needs to be an integer, e.g. 2000 You can only specify percentils or bounds, not both."
+                "description": "Explicit upper bound value to rescale the image at. Needs to be an integer, e.g. 2000. You can only specify percentiles or bounds, not both."
               }
-            }
+            },
+            "exclude": [
+              "cellpose_normalize"
+            ]
           }
         }
       },

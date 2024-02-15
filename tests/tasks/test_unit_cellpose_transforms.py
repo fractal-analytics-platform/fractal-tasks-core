@@ -10,29 +10,30 @@ from fractal_tasks_core.tasks.cellpose_transforms import (
 
 
 @pytest.mark.parametrize(
-    "default_normalize, lower_percentile, upper_percentile, lower_bound, "
+    "type, lower_percentile, upper_percentile, lower_bound, "
     "upper_bound, expected_value_error",
     [
-        (True, None, None, None, None, False),
-        (True, 1, 99, None, None, True),
-        (True, 1, None, None, None, True),
-        (True, None, 99, None, None, True),
-        (True, 1, 99, 0, 100, True),
-        (True, None, None, 0, 100, True),
-        (True, None, None, None, 100, True),
-        (True, None, None, 0, None, True),
-        (False, None, None, None, None, False),
-        (False, 1, 99, None, None, False),
-        (False, 1, None, None, None, True),
-        (False, None, 99, None, None, True),
-        (False, 1, 99, 0, 100, True),
-        (False, None, None, 0, 100, False),
-        (False, None, None, None, 100, True),
-        (False, None, None, 0, None, True),
+        ("default", None, None, None, None, False),
+        ("default", 1, 99, None, None, True),
+        ("default", 1, None, None, None, True),
+        ("default", None, 99, None, None, True),
+        ("default", 1, 99, 0, 100, True),
+        ("default", None, None, 0, 100, True),
+        ("default", None, None, None, 100, True),
+        ("default", None, None, 0, None, True),
+        ("no_normalization", None, None, None, None, False),
+        ("custom", 1, 99, None, None, False),
+        ("custom", 1, None, None, None, True),
+        ("custom", None, 99, None, None, True),
+        ("custom", 1, 99, 0, 100, True),
+        ("custom", None, None, 0, 100, False),
+        ("custom", None, None, None, 100, True),
+        ("custom", None, None, 0, None, True),
+        ("wrong_type", None, None, None, None, True),
     ],
 )
 def test_CellposeCustomNormalizer(
-    default_normalize,
+    type,
     lower_percentile,
     upper_percentile,
     lower_bound,
@@ -43,23 +44,31 @@ def test_CellposeCustomNormalizer(
         pass
         with pytest.raises(ValueError):
             CellposeCustomNormalizer(
-                default_normalize=default_normalize,
+                type=type,
                 lower_percentile=lower_percentile,
                 upper_percentile=upper_percentile,
                 lower_bound=lower_bound,
                 upper_bound=upper_bound,
             )
     else:
-        assert (
-            CellposeCustomNormalizer(
-                default_normalize=default_normalize,
+        if type == "default":
+            assert CellposeCustomNormalizer(
+                type=type,
                 lower_percentile=lower_percentile,
                 upper_percentile=upper_percentile,
                 lower_bound=lower_bound,
                 upper_bound=upper_bound,
-            ).default_normalize
-            == default_normalize
-        )
+            ).get_cellpose_normalize()
+        else:
+            assert not (
+                CellposeCustomNormalizer(
+                    type=type,
+                    lower_percentile=lower_percentile,
+                    upper_percentile=upper_percentile,
+                    lower_bound=lower_bound,
+                    upper_bound=upper_bound,
+                ).get_cellpose_normalize()
+            )
 
 
 def test_normalized_img_percentile():

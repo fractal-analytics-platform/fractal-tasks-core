@@ -140,11 +140,11 @@ def segment_ROI(
         f" {model.diam_mean=} |"
         f" {diameter=} |"
         f" {flow_threshold=} |"
-        f" {normalize.default_normalize=}"
+        f" {normalize.type=}"
     )
 
     # Optionally perform custom normalization
-    if not normalize.default_normalize:
+    if normalize.type == "custom":
         x = normalized_img(
             x,
             lower_p=normalize.lower_percentile,
@@ -165,7 +165,7 @@ def segment_ROI(
         anisotropy=anisotropy,
         cellprob_threshold=cellprob_threshold,
         flow_threshold=flow_threshold,
-        normalize=normalize.default_normalize,
+        normalize=normalize.get_cellpose_normalize(),
         min_size=min_size,
         batch_size=batch_size,
         invert=invert,
@@ -298,9 +298,10 @@ def cellpose_segmentation(
         normalize: By default, data is normalized so 0.0=1st percentile and
             1.0=99th percentile of image intensities in each channel.
             This automatic normalization can lead to issues when the image to
-            be segmented is very sparse. You can turn off the automated
-            rescaling and either provide your own rescaling percentiles or
-            fixed rescaling upper and lower bound integers
+            be segmented is very sparse. You can turn off the default
+            rescaling. With the "custom" option, you can either provide your
+            own rescaling percentiles or fixed rescaling upper and lower
+            bound integers.
         anisotropy: Ratio of the pixel sizes along Z and XY axis (ignored if
             the image is not three-dimensional). If `None`, it is inferred from
             the OME-NGFF metadata.

@@ -12,6 +12,7 @@
 Helper functions for image normalization in
 """
 import logging
+from typing import Literal
 from typing import Optional
 
 import numpy as np
@@ -27,30 +28,33 @@ class CellposeCustomNormalizer(BaseModel):
     """
     Validator to handle different normalization scenarios for Cellpose models
 
-    If default normalization is to be used, no other parameters can be
-    specified. Alternatively, when default normalization is not applied,
-    either percentiles or explicit integer bounds can be applied.
+    If `type="default"`, then Cellpose default normalization is
+    used and no other parameters can be specified.
+    If `type="no_normalization"`, then no normalization is used and no
+    other parameters can be specified.
+    If `type="custom"`, then either percentiles or explicit integer
+    bounds can be applied.
 
     Attributes:
-        default_normalize: Whether to use the default Cellpose normalization
-            approach (rescaling the image between the 1st and 99th percentile)
+        type:
+            One of `default` (Cellpose default normalization), `custom`
+            (using the other custom parameters) or `no_normalization`.
         lower_percentile: Specify a custom lower-bound percentile for rescaling
             as a float value between 0 and 100. Set to 1 to run the same as
-            default). You can only specify percentils or bounds, not both.
+            default). You can only specify percentiles or bounds, not both.
         upper_percentile: Specify a custom upper-bound percentile for rescaling
             as a float value between 0 and 100. Set to 99 to run the same as
             default, set to e.g. 99.99 if the default rescaling was too harsh.
-            You can only specify percentils or bounds, not both.
+            You can only specify percentiles or bounds, not both.
         lower_bound: Explicit lower bound value to rescale the image at.
             Needs to be an integer, e.g. 100.
-            You can only specify percentils or bounds, not both.
+            You can only specify percentiles or bounds, not both.
         upper_bound: Explicit upper bound value to rescale the image at.
-            Needs to be an integer, e.g. 2000
-            You can only specify percentils or bounds, not both.
-
+            Needs to be an integer, e.g. 2000.
+            You can only specify percentiles or bounds, not both.
     """
 
-    default_normalize: bool = True
+    type: Optional[Literal["default", "custom", "no_normalization"]] = None
     lower_percentile: Optional[float] = Field(None, ge=0, le=100)
     upper_percentile: Optional[float] = Field(None, ge=0, le=100)
     lower_bound: Optional[int] = None
@@ -62,55 +66,71 @@ class CellposeCustomNormalizer(BaseModel):
 
     @root_validator
     def validate_conditions(cls, values):
-        default_normalize = values.get("default_normalize")
+        # Extract values
+        type = values.get("type")
         lower_percentile = values.get("lower_percentile")
         upper_percentile = values.get("upper_percentile")
         lower_bound = values.get("lower_bound")
         upper_bound = values.get("upper_bound")
 
-        # If default_normalize is True, check that all other fields are None
-        if default_normalize:
-            if any(
-                v is not None
-                for v in [
-                    lower_percentile,
-                    upper_percentile,
-                    lower_bound,
-                    upper_bound,
-                ]
-            ):
+        # Verify that custom parameters are only provided when type="custom"
+        if type != "custom":
+            if lower_percentile is not None:
                 raise ValueError(
-                    "When default_normalize is True, no percentile or "
-                    "bounds can be specified"
+                    f"Type='{type}' but {lower_percentile=}. "
+                    "Hint: set type='custom'."
+                )
+            if upper_percentile is not None:
+                raise ValueError(
+                    f"Type='{type}' but {upper_percentile=}. "
+                    "Hint: set type='custom'."
+                )
+            if lower_bound is not None:
+                raise ValueError(
+                    f"Type='{type}' but {lower_bound=}. "
+                    "Hint: set type='custom'."
+                )
+            if upper_bound is not None:
+                raise ValueError(
+                    f"Type='{type}' but {upper_bound=}. "
+                    "Hint: set type='custom'."
                 )
 
-        # Check for lower_percentile and upper_percentile condition
-        if lower_percentile is not None or upper_percentile is not None:
-            if lower_percentile is None or upper_percentile is None:
-                raise ValueError(
-                    "Both lower_percentile and upper_percentile must be set "
-                    "together"
-                )
-            if lower_bound is not None or upper_bound is not None:
-                raise ValueError(
-                    "If a percentile is specified, no hard set lower_bound "
-                    "or upper_bound can be specified"
-                )
-
-        # If lower_bound or upper_bound is set, the other must also be set,
-        # and lower_percentile & upper_percentile must be None
-        if lower_bound is not None or upper_bound is not None:
-            if lower_bound is None or upper_bound is None:
-                raise ValueError(
-                    "Both lower_bound and upper_bound must be set together"
-                )
-            if lower_percentile is not None or upper_percentile is not None:
-                raise ValueError(
-                    "If explicit lower and upper bounds are set, percentiles "
-                    "cannot be specified"
-                )
+        # The only valid options are:
+        # 1. Both percentiles are set and both bounds are unset
+        # 2. Both bounds are set and both percentiles are unset
+        are_percentiles_set = (
+            lower_percentile is not None,
+            upper_percentile is not None,
+        )
+        are_bounds_set = (
+            lower_bound is not None,
+            upper_bound is not None,
+        )
+        if len(set(are_percentiles_set)) != 1:
+            raise ValueError(
+                "Both lower_percentile and upper_percentile must be set "
+                "together."
+            )
+        if len(set(are_bounds_set)) != 1:
+            raise ValueError(
+                "Both lower_bound and upper_bound must be set together"
+            )
+        if lower_percentile is not None and lower_bound is not None:
+            raise ValueError(
+                "You cannot set both explicit bounds and percentile bounds "
+                "at the same time. Hint: use only one of the two options."
+            )
 
         return values
+
+    def get_cellpose_normalize(self):
+        # Set a variable for whether cellpose internal normalization is applied
+        cellpose_normalize = True
+        if self.type == "custom" or self.type == "no_normalization":
+            cellpose_normalize = False
+
+        return cellpose_normalize
 
 
 def normalized_img(
