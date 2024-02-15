@@ -229,7 +229,7 @@ def normalize_percentile(Y: np.ndarray, lower: float = 1, upper: float = 99):
     return X
 
 
-def normalize_bounds(Y, lower: int = 0, upper: int = 65535):
+def normalize_bounds(Y: np.ndarray, lower: int = 0, upper: int = 65535):
     """normalize image so 0.0 is lower value and 1.0 is upper value
 
     Args:
