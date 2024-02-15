@@ -477,8 +477,19 @@
             "description": "Parameter of `CellposeModel.eval` method. Valid values between 0.0 and 1.0. From Cellpose documentation: \"Increase this threshold if cellpose is not returning as many ROIs as you\u2019d expect. Similarly, decrease this threshold if cellpose is returning too many ill-shaped ROIs.\""
           },
           "normalize": {
-            "$ref": "#/definitions/CellposeCustomNormalizer",
             "title": "Normalize",
+            "default": {
+              "type": null,
+              "lower_percentile": null,
+              "upper_percentile": null,
+              "lower_bound": null,
+              "upper_bound": null
+            },
+            "allOf": [
+              {
+                "$ref": "#/definitions/CellposeCustomNormalizer"
+              }
+            ],
             "description": "By default, data is normalized so 0.0=1st percentile and 1.0=99th percentile of image intensities in each channel. This automatic normalization can lead to issues when the image to be segmented is very sparse. You can turn off the default rescaling. With the \"custom\" option, you can either provide your own rescaling percentiles or fixed rescaling upper and lower bound integers."
           },
           "anisotropy": {
@@ -625,10 +636,7 @@
                 "type": "integer",
                 "description": "Explicit upper bound value to rescale the image at. Needs to be an integer, e.g. 2000. You can only specify percentiles or bounds, not both."
               }
-            },
-            "exclude": [
-              "cellpose_normalize"
-            ]
+            }
           }
         }
       },

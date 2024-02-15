@@ -220,7 +220,7 @@ def cellpose_segmentation(
     pretrained_model: Optional[str] = None,
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
-    normalize: Optional[CellposeCustomNormalizer] = None,
+    normalize: CellposeCustomNormalizer = CellposeCustomNormalizer(),
     anisotropy: Optional[float] = None,
     min_size: int = 15,
     augment: bool = False,
