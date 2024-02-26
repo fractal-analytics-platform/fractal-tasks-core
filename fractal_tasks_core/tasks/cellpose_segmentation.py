@@ -357,8 +357,6 @@ def cellpose_segmentation(
         f"{actual_res_pxl_sizes_zyx}"
     )
 
-    plate, well = component.split(".zarr/")
-
     # Find channel index
     try:
         tmp_channel: OmeroChannel = get_channel_from_image_zarr(
