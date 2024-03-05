@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="d_e10b813cd32fe10c_v1_overlaps_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.3">coverage.py v7.4.3</a>,
-            created at 2024-02-27 09:29 +0000
+            created at 2024-03-05 12:24 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -154,8 +154,8 @@
     <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t">        <span class="key">if</span> <span class="nam">min_index</span> <span class="op">!=</span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t">            <span class="nam">axis</span> <span class="op">=</span> <span class="op">[</span><span class="str">"Z"</span><span class="op">,</span> <span class="str">"Y"</span><span class="op">,</span> <span class="str">"X"</span><span class="op">]</span><span class="op">[</span><span class="nam">ind</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t">            <span class="key">raise</span> <span class="nam">ValueError</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t">                <span class="str">f"{axis} component of ROI indices for table `{ROI_table_name}`"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t">                <span class="str">f" do not start with 0, but with {min_index}.\n"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t">                <span class="fst">f"</span><span class="op">{</span><span class="nam">axis</span><span class="op">}</span><span class="fst"> component of ROI indices for table `</span><span class="op">{</span><span class="nam">ROI_table_name</span><span class="op">}</span><span class="fst">`</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t">                <span class="fst">f"</span><span class="fst"> do not start with 0, but with </span><span class="op">{</span><span class="nam">min_index</span><span class="op">}</span><span class="fst">.\n</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t">                <span class="str">"Hint: As of fractal-tasks-core v0.12, FOV/well ROI "</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t">                <span class="str">"tables with non-zero origins (e.g. the ones created with "</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t">                <span class="str">"v0.11) are not supported."</span>&nbsp;</span><span class="r"></span></p>
@@ -190,7 +190,7 @@
     <p class="pln"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t">    <span class="com"># Check whether the table can be used for masked loading</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t">    <span class="nam">attrs</span> <span class="op">=</span> <span class="nam">zarr</span><span class="op">.</span><span class="nam">group</span><span class="op">(</span><span class="nam">table_path</span><span class="op">)</span><span class="op">.</span><span class="nam">attrs</span><span class="op">.</span><span class="nam">asdict</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t">    <span class="nam">logger</span><span class="op">.</span><span class="nam">info</span><span class="op">(</span><span class="str">f"ROI table at {table_path} has attrs: {attrs}"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t">    <span class="nam">logger</span><span class="op">.</span><span class="nam">info</span><span class="op">(</span><span class="fst">f"</span><span class="fst">ROI table at </span><span class="op">{</span><span class="nam">table_path</span><span class="op">}</span><span class="fst"> has attrs: </span><span class="op">{</span><span class="nam">attrs</span><span class="op">}</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t">    <span class="key">try</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t">        <span class="nam">MaskingROITableAttrs</span><span class="op">(</span><span class="op">**</span><span class="nam">attrs</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t">        <span class="nam">logging</span><span class="op">.</span><span class="nam">info</span><span class="op">(</span><span class="str">"ROI table can be used for masked loading"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -222,7 +222,7 @@
     <p class="pln"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t">    <span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t">    <span class="key">for</span> <span class="nam">column</span> <span class="key">in</span> <span class="nam">columns</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t">        <span class="key">if</span> <span class="nam">column</span> <span class="key">not</span> <span class="key">in</span> <span class="nam">table</span><span class="op">.</span><span class="nam">var_names</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t">            <span class="key">raise</span> <span class="nam">ValueError</span><span class="op">(</span><span class="str">f"Column {column} is not present in ROI table"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t">            <span class="key">raise</span> <span class="nam">ValueError</span><span class="op">(</span><span class="fst">f"</span><span class="fst">Column </span><span class="op">{</span><span class="nam">column</span><span class="op">}</span><span class="fst"> is not present in ROI table</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -232,7 +232,7 @@
             <a id="nextFileLink" class="nav" href="d_e10b813cd32fe10c_v1_overlaps_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.3">coverage.py v7.4.3</a>,
-            created at 2024-02-27 09:29 +0000
+            created at 2024-03-05 12:24 +0000
         </p>
     </div>
 </footer>

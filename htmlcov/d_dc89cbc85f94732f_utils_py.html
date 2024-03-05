@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="d_dc89cbc85f94732f_zarr_utils_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.3">coverage.py v7.4.3</a>,
-            created at 2024-02-27 09:29 +0000
+            created at 2024-03-05 12:24 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -179,14 +179,14 @@
     <p class="pln"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t">    <span class="key">try</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t">        <span class="nam">tables_group</span> <span class="op">=</span> <span class="nam">zarr</span><span class="op">.</span><span class="nam">open_group</span><span class="op">(</span><span class="str">f"{input_path / component}/tables"</span><span class="op">,</span> <span class="str">"r"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t">        <span class="nam">tables_group</span> <span class="op">=</span> <span class="nam">zarr</span><span class="op">.</span><span class="nam">open_group</span><span class="op">(</span><span class="fst">f"</span><span class="op">{</span><span class="nam">input_path</span> <span class="op">/</span> <span class="nam">component</span><span class="op">}</span><span class="fst">/tables</span><span class="fst">"</span><span class="op">,</span> <span class="str">"r"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t">        <span class="nam">table_list</span> <span class="op">=</span> <span class="nam">tables_group</span><span class="op">.</span><span class="nam">attrs</span><span class="op">[</span><span class="str">"tables"</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t">    <span class="key">except</span> <span class="op">(</span><span class="nam">zarr</span><span class="op">.</span><span class="nam">errors</span><span class="op">.</span><span class="nam">GroupNotFoundError</span><span class="op">,</span> <span class="nam">KeyError</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t">        <span class="nam">table_list</span> <span class="op">=</span> <span class="op">[</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t">    <span class="nam">table_path_dict</span> <span class="op">=</span> <span class="op">{</span><span class="op">}</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t">    <span class="key">for</span> <span class="nam">table</span> <span class="key">in</span> <span class="nam">table_list</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t">        <span class="nam">table_path_dict</span><span class="op">[</span><span class="nam">table</span><span class="op">]</span> <span class="op">=</span> <span class="str">f"{input_path / component}/tables/{table}"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t">        <span class="nam">table_path_dict</span><span class="op">[</span><span class="nam">table</span><span class="op">]</span> <span class="op">=</span> <span class="fst">f"</span><span class="op">{</span><span class="nam">input_path</span> <span class="op">/</span> <span class="nam">component</span><span class="op">}</span><span class="fst">/tables/</span><span class="op">{</span><span class="nam">table</span><span class="op">}</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t">    <span class="key">return</span> <span class="nam">table_path_dict</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -216,7 +216,7 @@
     <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t">    <span class="nam">well_zarr_path</span> <span class="op">=</span> <span class="nam">image_zarr_path</span><span class="op">.</span><span class="nam">parent</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t">    <span class="key">if</span> <span class="key">not</span> <span class="op">(</span><span class="nam">well_zarr_path</span> <span class="op">/</span> <span class="str">".zattrs"</span><span class="op">)</span><span class="op">.</span><span class="nam">exists</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t">        <span class="key">raise</span> <span class="nam">ValueError</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t">            <span class="str">f"{str(well_zarr_path)} must be an OME-NGFF well "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t">            <span class="fst">f"</span><span class="op">{</span><span class="nam">str</span><span class="op">(</span><span class="nam">well_zarr_path</span><span class="op">)</span><span class="op">}</span><span class="fst"> must be an OME-NGFF well </span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t">            <span class="str">"folder, but it does not include a .zattrs file."</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t">        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t">    <span class="nam">well_group</span> <span class="op">=</span> <span class="nam">zarr</span><span class="op">.</span><span class="nam">open_group</span><span class="op">(</span><span class="nam">str</span><span class="op">(</span><span class="nam">well_zarr_path</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -285,7 +285,7 @@
             <a id="nextFileLink" class="nav" href="d_dc89cbc85f94732f_zarr_utils_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.3">coverage.py v7.4.3</a>,
-            created at 2024-02-27 09:29 +0000
+            created at 2024-03-05 12:24 +0000
         </p>
     </div>
 </footer>
