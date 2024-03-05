@@ -329,18 +329,18 @@ css = ["tinycss2 (>=1.1.0,<1.3)"]
 
 [[package]]
 name = "build"
-version = "1.0.3"
+version = "1.1.1"
 description = "A simple, correct Python build frontend"
 optional = true
 python-versions = ">= 3.7"
 files = [
-    {file = "build-1.0.3-py3-none-any.whl", hash = "sha256:589bf99a67df7c9cf07ec0ac0e5e2ea5d4b37ac63301c4986d1acb126aa83f8f"},
-    {file = "build-1.0.3.tar.gz", hash = "sha256:538aab1b64f9828977f84bc63ae570b060a8ed1be419e7870b8b4fc5e6ea553b"},
+    {file = "build-1.1.1-py3-none-any.whl", hash = "sha256:8ed0851ee76e6e38adce47e4bee3b51c771d86c64cf578d0c2245567ee200e73"},
+    {file = "build-1.1.1.tar.gz", hash = "sha256:8eea65bb45b1aac2e734ba2cc8dad3a6d97d97901a395bd0ed3e7b46953d2a31"},
 ]
 
 [package.dependencies]
 colorama = {version = "*", markers = "os_name == \"nt\""}
-importlib-metadata = {version = ">=4.6", markers = "python_version < \"3.10\""}
+importlib-metadata = {version = ">=4.6", markers = "python_full_version < \"3.10.2\""}
 packaging = ">=19.0"
 pyproject_hooks = "*"
 tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
@@ -1218,13 +1218,13 @@ dev = ["flake8", "markdown", "twine", "wheel"]
 
 [[package]]
 name = "griffe"
-version = "0.41.0"
+version = "0.41.3"
 description = "Signatures for entire Python programs. Extract the structure, the frame, the skeleton of your project, to generate API documentation or find breaking changes in your API."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "griffe-0.41.0-py3-none-any.whl", hash = "sha256:8aa7fc6eb00cb80af9c0198178c6b7110cb59fa2c5187bb13ea25eebbe4dd928"},
-    {file = "griffe-0.41.0.tar.gz", hash = "sha256:850128c3198c18713eaf0a6cc8572e590a16b1965f72a4e871e66cf84740903f"},
+    {file = "griffe-0.41.3-py3-none-any.whl", hash = "sha256:27b4610f1ba6e5d039e9f0a2c97232e13463df75e53cb1833e0679f3377b9de2"},
+    {file = "griffe-0.41.3.tar.gz", hash = "sha256:9edcfa9f57f4d9c5fcc6d5ce067c67a685b7101a21a7d11848ce0437368e474c"},
 ]
 
 [package.dependencies]
@@ -1714,13 +1714,13 @@ i18n = ["Babel (>=2.7)"]
 
 [[package]]
 name = "json5"
-version = "0.9.17"
+version = "0.9.20"
 description = "A Python implementation of the JSON5 data format."
 optional = true
 python-versions = ">=3.8"
 files = [
-    {file = "json5-0.9.17-py2.py3-none-any.whl", hash = "sha256:f8ec1ecf985951d70f780f6f877c4baca6a47b6e61e02c4cd190138d10a7805a"},
-    {file = "json5-0.9.17.tar.gz", hash = "sha256:717d99d657fa71b7094877b1d921b1cce40ab444389f6d770302563bb7dfd9ae"},
+    {file = "json5-0.9.20-py3-none-any.whl", hash = "sha256:f623485b37fad95783233bad9352d21526709cbd9a2ec41ddc3e950fca85b701"},
+    {file = "json5-0.9.20.tar.gz", hash = "sha256:20a255981244081d5aaa4adc90d31cdbf05bed1863993cbf300b8e2cd2b6de88"},
 ]
 
 [package.extras]
@@ -1909,13 +1909,13 @@ jupyter-server = ">=1.1.2"
 
 [[package]]
 name = "jupyter-server"
-version = "2.12.5"
+version = "2.13.0"
 description = "The backend—i.e. core services, APIs, and REST endpoints—to Jupyter web applications."
 optional = true
 python-versions = ">=3.8"
 files = [
-    {file = "jupyter_server-2.12.5-py3-none-any.whl", hash = "sha256:184a0f82809a8522777cfb6b760ab6f4b1bb398664c5860a27cec696cb884923"},
-    {file = "jupyter_server-2.12.5.tar.gz", hash = "sha256:0edb626c94baa22809be1323f9770cf1c00a952b17097592e40d03e6a3951689"},
+    {file = "jupyter_server-2.13.0-py3-none-any.whl", hash = "sha256:77b2b49c3831fbbfbdb5048cef4350d12946191f833a24e5f83e5f8f4803e97b"},
+    {file = "jupyter_server-2.13.0.tar.gz", hash = "sha256:c80bfb049ea20053c3d9641c2add4848b38073bf79f1729cea1faed32fc1c78e"},
 ]
 
 [package.dependencies]
@@ -1941,7 +1941,7 @@ websocket-client = "*"
 
 [package.extras]
 docs = ["ipykernel", "jinja2", "jupyter-client", "jupyter-server", "myst-parser", "nbformat", "prometheus-client", "pydata-sphinx-theme", "send2trash", "sphinx-autodoc-typehints", "sphinxcontrib-github-alt", "sphinxcontrib-openapi (>=0.8.0)", "sphinxcontrib-spelling", "sphinxemoji", "tornado", "typing-extensions"]
-test = ["flaky", "ipykernel", "pre-commit", "pytest (>=7.0)", "pytest-console-scripts", "pytest-jupyter[server] (>=0.4)", "pytest-timeout", "requests"]
+test = ["flaky", "ipykernel", "pre-commit", "pytest (>=7.0)", "pytest-console-scripts", "pytest-jupyter[server] (>=0.7)", "pytest-timeout", "requests"]
 
 [[package]]
 name = "jupyter-server-terminals"
@@ -1964,13 +1964,13 @@ test = ["jupyter-server (>=2.0.0)", "pytest (>=7.0)", "pytest-jupyter[server] (>
 
 [[package]]
 name = "jupyterlab"
-version = "4.1.2"
+version = "4.1.3"
 description = "JupyterLab computational environment"
 optional = true
 python-versions = ">=3.8"
 files = [
-    {file = "jupyterlab-4.1.2-py3-none-any.whl", hash = "sha256:aa88193f03cf4d3555f6712f04d74112b5eb85edd7d222c588c7603a26d33c5b"},
-    {file = "jupyterlab-4.1.2.tar.gz", hash = "sha256:5d6348b3ed4085181499f621b7dfb6eb0b1f57f3586857aadfc8e3bf4c4885f9"},
+    {file = "jupyterlab-4.1.3-py3-none-any.whl", hash = "sha256:67dbec7057c6ad46f08a3667a80bdb890df9453822c93b5ddfd5e8313a718ef9"},
+    {file = "jupyterlab-4.1.3.tar.gz", hash = "sha256:b85bd8766f995d23461e1f68a0cbc688d23e0af2b6f42a7768fc7b1826b2ec39"},
 ]
 
 [package.dependencies]
@@ -2679,17 +2679,18 @@ min-versions = ["babel (==2.9.0)", "click (==7.0)", "colorama (==0.4)", "ghp-imp
 
 [[package]]
 name = "mkdocs-autorefs"
-version = "0.5.0"
+version = "1.0.1"
 description = "Automatically link across pages in MkDocs."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "mkdocs_autorefs-0.5.0-py3-none-any.whl", hash = "sha256:7930fcb8ac1249f10e683967aeaddc0af49d90702af111a5e390e8b20b3d97ff"},
-    {file = "mkdocs_autorefs-0.5.0.tar.gz", hash = "sha256:9a5054a94c08d28855cfab967ada10ed5be76e2bfad642302a610b252c3274c0"},
+    {file = "mkdocs_autorefs-1.0.1-py3-none-any.whl", hash = "sha256:aacdfae1ab197780fb7a2dac92ad8a3d8f7ca8049a9cbe56a4218cd52e8da570"},
+    {file = "mkdocs_autorefs-1.0.1.tar.gz", hash = "sha256:f684edf847eced40b570b57846b15f0bf57fb93ac2c510450775dcf16accb971"},
 ]
 
 [package.dependencies]
 Markdown = ">=3.3"
+markupsafe = ">=2.0.1"
 mkdocs = ">=1.1"
 
 [[package]]
@@ -2897,13 +2898,13 @@ files = [
 
 [[package]]
 name = "napari"
-version = "0.4.19"
+version = "0.4.19.post1"
 description = "n-dimensional array viewer in Python"
 optional = true
 python-versions = ">=3.8"
 files = [
-    {file = "napari-0.4.19-py3-none-any.whl", hash = "sha256:2328613ca49583d7cffe307310fcd0f8c014f435e41749338b088814b208cdd3"},
-    {file = "napari-0.4.19.tar.gz", hash = "sha256:083468ebbdb3e91c6bba6ed60bc75747adcba622376caf8a1a6490378cea0f6d"},
+    {file = "napari-0.4.19.post1-py3-none-any.whl", hash = "sha256:bdc21ef350bb1f3bb88aca333baa8c233023e3d4d8bacb0b7413a19e2e58aaf1"},
+    {file = "napari-0.4.19.post1.tar.gz", hash = "sha256:88e298697c38c9f842d7c26c8d51d2e0fbb90d0be05575fdd159d27eede11301"},
 ]
 
 [package.dependencies]
@@ -3185,13 +3186,13 @@ test = ["flaky", "ipykernel (>=6.19.3)", "ipython", "ipywidgets", "nbconvert (>=
 
 [[package]]
 name = "nbconvert"
-version = "7.16.1"
+version = "7.16.2"
 description = "Converting Jupyter Notebooks (.ipynb files) to other formats.  Output formats include asciidoc, html, latex, markdown, pdf, py, rst, script.  nbconvert can be used both as a Python library (`import nbconvert`) or as a command line tool (invoked as `jupyter nbconvert ...`)."
 optional = true
 python-versions = ">=3.8"
 files = [
-    {file = "nbconvert-7.16.1-py3-none-any.whl", hash = "sha256:3188727dffadfdc9c6a1c7250729063d7bc78b355ad7aa023138afa030d1cd07"},
-    {file = "nbconvert-7.16.1.tar.gz", hash = "sha256:e79e6a074f49ba3ed29428ed86487bf51509d9aab613bd8522ac08f6d28fd7fd"},
+    {file = "nbconvert-7.16.2-py3-none-any.whl", hash = "sha256:0c01c23981a8de0220255706822c40b751438e32467d6a686e26be08ba784382"},
+    {file = "nbconvert-7.16.2.tar.gz", hash = "sha256:8310edd41e1c43947e4ecf16614c61469ebc024898eb808cce0999860fc9fb16"},
 ]
 
 [package.dependencies]
@@ -4266,13 +4267,13 @@ windows-terminal = ["colorama (>=0.4.6)"]
 
 [[package]]
 name = "pymdown-extensions"
-version = "10.7"
+version = "10.7.1"
 description = "Extension pack for Python Markdown."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pymdown_extensions-10.7-py3-none-any.whl", hash = "sha256:6ca215bc57bc12bf32b414887a68b810637d039124ed9b2e5bd3325cbb2c050c"},
-    {file = "pymdown_extensions-10.7.tar.gz", hash = "sha256:c0d64d5cf62566f59e6b2b690a4095c931107c250a8c8e1351c1de5f6b036deb"},
+    {file = "pymdown_extensions-10.7.1-py3-none-any.whl", hash = "sha256:f5cc7000d7ff0d1ce9395d216017fa4df3dde800afb1fb72d1c7d3fd35e710f4"},
+    {file = "pymdown_extensions-10.7.1.tar.gz", hash = "sha256:c70e146bdd83c744ffc766b4671999796aba18842b268510a329f7f64700d584"},
 ]
 
 [package.dependencies]
@@ -4370,13 +4371,13 @@ rich = ">=12"
 
 [[package]]
 name = "python-dateutil"
-version = "2.8.2"
+version = "2.9.0.post0"
 description = "Extensions to the standard Python datetime module"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
 files = [
-    {file = "python-dateutil-2.8.2.tar.gz", hash = "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"},
-    {file = "python_dateutil-2.8.2-py2.py3-none-any.whl", hash = "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"},
+    {file = "python-dateutil-2.9.0.post0.tar.gz", hash = "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3"},
+    {file = "python_dateutil-2.9.0.post0-py2.py3-none-any.whl", hash = "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427"},
 ]
 
 [package.dependencies]
@@ -4828,13 +4829,13 @@ files = [
 
 [[package]]
 name = "rich"
-version = "13.7.0"
+version = "13.7.1"
 description = "Render rich text, tables, progress bars, syntax highlighting, markdown and more to the terminal"
 optional = false
 python-versions = ">=3.7.0"
 files = [
-    {file = "rich-13.7.0-py3-none-any.whl", hash = "sha256:6da14c108c4866ee9520bbffa71f6fe3962e193b7da68720583850cd4548e235"},
-    {file = "rich-13.7.0.tar.gz", hash = "sha256:5cb5123b5cf9ee70584244246816e9114227e0b98ad9176eede6ad54bf5403fa"},
+    {file = "rich-13.7.1-py3-none-any.whl", hash = "sha256:4edbae314f59eb482f54e9e30bf00d33350aaa94f4bfcd4e9e3110e64d0d7222"},
+    {file = "rich-13.7.1.tar.gz", hash = "sha256:9be308cb1fe2f1f57d67ce99e95af38a1e2bc71ad9813b0e247cf7ffbcc3a432"},
 ]
 
 [package.dependencies]
