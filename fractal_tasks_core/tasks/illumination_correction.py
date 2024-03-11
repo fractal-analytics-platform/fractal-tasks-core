@@ -112,9 +112,9 @@ def illumination_correction(
     """
     Applies illumination correction to the images in the OME-Zarr.
 
-    Assumes that the illumination correction profiles were generated before 
-    separately and that the same background subtraction was used during 
-    calculation of the illumination correction (otherwise, it will not work 
+    Assumes that the illumination correction profiles were generated before
+    separately and that the same background subtraction was used during
+    calculation of the illumination correction (otherwise, it will not work
     well & the correction may only be partial).
 
     Args:
@@ -144,15 +144,15 @@ def illumination_correction(
             If `True`, the results of this task will overwrite the input image
             data. In the current version, `overwrite_input=False` is not
             implemented.
-        input_ROI_table: Name of the ROI table that contains the information 
-            about the location of the individual field of views (FOVs) to 
-            which the illumination correction shall be applied. Defaults to 
-            "FOV_ROI_table", the default name Fractal converters give the ROI 
-            tables that list all FOVs separately. If you generated your 
-            OME-Zarr with a different converter and used Import OME-Zarr to 
-            generate the ROI tables, `image_ROI_table` is the right choice if 
-            you only have 1 FOV per Zarr image and `grid_ROI_table` if you 
-            have multiple FOVs per Zarr image and set the right grid options 
+        input_ROI_table: Name of the ROI table that contains the information
+            about the location of the individual field of views (FOVs) to
+            which the illumination correction shall be applied. Defaults to
+            "FOV_ROI_table", the default name Fractal converters give the ROI
+            tables that list all FOVs separately. If you generated your
+            OME-Zarr with a different converter and used Import OME-Zarr to
+            generate the ROI tables, `image_ROI_table` is the right choice if
+            you only have 1 FOV per Zarr image and `grid_ROI_table` if you
+            have multiple FOVs per Zarr image and set the right grid options
             during import.
         new_component: Not implemented yet. This is not implemented well in
             Fractal server at the moment, it's unclear how a user would specify
