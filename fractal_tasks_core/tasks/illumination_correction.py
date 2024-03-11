@@ -105,11 +105,17 @@ def illumination_correction(
     dict_corr: dict[str, str],
     background: int = 110,
     overwrite_input: bool = True,
+    input_ROI_table: str = "FOV_ROI_table",
     new_component: Optional[str] = None,
 ) -> dict[str, Any]:
 
     """
     Applies illumination correction to the images in the OME-Zarr.
+
+    Assumes that the illumination correction profiles were generated before 
+    separately and that the same background subtraction was used during 
+    calculation of the illumination correction (otherwise, it will not work 
+    well & the correction may only be partial).
 
     Args:
         input_paths: List of input paths where the image data is stored as
@@ -138,6 +144,16 @@ def illumination_correction(
             If `True`, the results of this task will overwrite the input image
             data. In the current version, `overwrite_input=False` is not
             implemented.
+        input_ROI_table: Name of the ROI table that contains the information 
+            about the location of the individual field of views (FOVs) to 
+            which the illumination correction shall be applied. Defaults to 
+            "FOV_ROI_table", the default name Fractal converters give the ROI 
+            tables that list all FOVs separately. If you generated your 
+            OME-Zarr with a different converter and used Import OME-Zarr to 
+            generate the ROI tables, `image_ROI_table` is the right choice if 
+            you only have 1 FOV per Zarr image and `grid_ROI_table` if you 
+            have multiple FOVs per Zarr image and set the right grid options 
+            during import.
         new_component: Not implemented yet. This is not implemented well in
             Fractal server at the moment, it's unclear how a user would specify
             fitting new components. If the results shall not overwrite the
@@ -198,7 +214,7 @@ def illumination_correction(
     num_channels = len(channels)
 
     # Read FOV ROIs
-    FOV_ROI_table = ad.read_zarr(f"{zarrurl_old}/tables/FOV_ROI_table")
+    FOV_ROI_table = ad.read_zarr(f"{zarrurl_old}/tables/{input_ROI_table}")
 
     # Create list of indices for 3D FOVs spanning the entire Z direction
     list_indices = convert_ROI_table_to_indices(
@@ -207,7 +223,7 @@ def illumination_correction(
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=full_res_pxl_sizes_zyx,
     )
-    check_valid_ROI_indices(list_indices, "FOV_ROI_table")
+    check_valid_ROI_indices(list_indices, input_ROI_table)
 
     # Extract image size from FOV-ROI indices. Note: this works at level=0,
     # where FOVs should all be of the exact same size (in pixels)
