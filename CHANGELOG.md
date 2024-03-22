@@ -1,10 +1,15 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# 0.14.3
+
+* Make Cellpose task work for non HCS plate OME-Zarr images (#659)
+* Add option to Illumination Correction to specify the ROI table name (#665)
+
 # 0.14.2
+
 * Add custom normalization options to the Cellpose task (#650)
 * Add more options to the Cellpose task to control model behavior (#650)
 * For Cellpose task, switch to using Enums for model_type (see issue #401)
-* Add option to Illumination Correction to specify the ROI table name (#665)
 
 # 0.14.1
 
