@@ -75,18 +75,14 @@ def rescale_datasets(
     return new_datasets
 
 
-def get_table_path_dict(input_path: Path, component: str) -> dict[str, str]:
+def _get_table_path_dict(zarr_url: str) -> dict[str, str]:
     """
     Compile dictionary of (table name, table path) key/value pairs.
 
 
     Args:
-        input_path:
-            Path to the parent folder of a plate zarr group (e.g.
-            `/some/path/`).
-        component:
-            Path (relative to `input_path`) to an image zarr group (e.g.
-            `plate.zarr/B/03/0`).
+        zarr_url:
+            Path or url to the individual OME-Zarr image to be processed.
 
     Returns:
         Dictionary with table names as keys and table paths as values. If
@@ -95,14 +91,14 @@ def get_table_path_dict(input_path: Path, component: str) -> dict[str, str]:
     """
 
     try:
-        tables_group = zarr.open_group(f"{input_path / component}/tables", "r")
+        tables_group = zarr.open_group(f"{zarr_url}/tables", "r")
         table_list = tables_group.attrs["tables"]
     except (zarr.errors.GroupNotFoundError, KeyError):
         table_list = []
 
     table_path_dict = {}
     for table in table_list:
-        table_path_dict[table] = f"{input_path / component}/tables/{table}"
+        table_path_dict[table] = f"{zarr_url}/tables/{table}"
 
     return table_path_dict
 
