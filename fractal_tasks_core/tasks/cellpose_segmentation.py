@@ -198,10 +198,7 @@ def segment_ROI(
 def cellpose_segmentation(
     *,
     # Fractal arguments
-    input_paths: Sequence[str],
-    output_path: str,
-    component: str,
-    metadata: dict[str, Any],
+    zarr_url,
     # Task-specific arguments
     level: int,
     channel: ChannelInputModel,
@@ -330,11 +327,7 @@ def cellpose_segmentation(
     """
 
     # Set input path
-    if len(input_paths) > 1:
-        raise NotImplementedError
-    in_path = Path(input_paths[0])
-    zarrurl = (in_path.resolve() / component).as_posix()
-    logger.info(f"{zarrurl=}")
+    logger.info(f"{zarr_url=}")
 
     # Preliminary checks on Cellpose model
     if pretrained_model:
@@ -342,7 +335,7 @@ def cellpose_segmentation(
             raise ValueError(f"{pretrained_model=} does not exist.")
 
     # Read attributes from NGFF metadata
-    ngff_image_meta = load_NgffImageMeta(zarrurl)
+    ngff_image_meta = load_NgffImageMeta(zarr_url)
     num_levels = ngff_image_meta.num_levels
     coarsening_xy = ngff_image_meta.coarsening_xy
     full_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
@@ -360,7 +353,7 @@ def cellpose_segmentation(
     # Find channel index
     try:
         tmp_channel: OmeroChannel = get_channel_from_image_zarr(
-            image_zarr_path=zarrurl,
+            image_zarr_path=zarr_url,
             wavelength_id=channel.wavelength_id,
             label=channel.label,
         )
@@ -376,7 +369,7 @@ def cellpose_segmentation(
     if channel2:
         try:
             tmp_channel_c2: OmeroChannel = get_channel_from_image_zarr(
-                image_zarr_path=zarrurl,
+                image_zarr_path=zarr_url,
                 wavelength_id=channel2.wavelength_id,
                 label=channel2.label,
             )
@@ -398,14 +391,14 @@ def cellpose_segmentation(
             output_label_name = f"label_{ind_channel}"
 
     # Load ZYX data
-    data_zyx = da.from_zarr(f"{zarrurl}/{level}")[ind_channel]
+    data_zyx = da.from_zarr(f"{zarr_url}/{level}")[ind_channel]
     logger.info(f"{data_zyx.shape=}")
     if channel2:
-        data_zyx_c2 = da.from_zarr(f"{zarrurl}/{level}")[ind_channel_c2]
+        data_zyx_c2 = da.from_zarr(f"{zarr_url}/{level}")[ind_channel_c2]
         logger.info(f"Second channel: {data_zyx_c2.shape=}")
 
     # Read ROI table
-    ROI_table_path = f"{zarrurl}/tables/{input_ROI_table}"
+    ROI_table_path = f"{zarr_url}/tables/{input_ROI_table}"
     ROI_table = ad.read_zarr(ROI_table_path)
 
     # Perform some checks on the ROI table
@@ -481,7 +474,7 @@ def cellpose_segmentation(
         ],
     }
 
-    image_group = zarr.group(zarrurl)
+    image_group = zarr.group(zarr_url)
     label_group = prepare_label_group(
         image_group,
         output_label_name,
@@ -493,8 +486,8 @@ def cellpose_segmentation(
     logger.info(
         f"Helper function `prepare_label_group` returned {label_group=}"
     )
-    logger.info(f"Output label path: {zarrurl}/labels/{output_label_name}/0")
-    store = zarr.storage.FSStore(f"{zarrurl}/labels/{output_label_name}/0")
+    logger.info(f"Output label path: {zarr_url}/labels/{output_label_name}/0")
+    store = zarr.storage.FSStore(f"{zarr_url}/labels/{output_label_name}/0")
     label_dtype = np.uint32
 
     # Ensure that all output shapes & chunks are 3D (for 2D data: (1, y, x))
@@ -529,7 +522,7 @@ def cellpose_segmentation(
         model = models.CellposeModel(gpu=gpu, model_type=model_type)
 
     # Initialize other things
-    logger.info(f"Start cellpose_segmentation task for {zarrurl}")
+    logger.info(f"Start cellpose_segmentation task for {zarr_url}")
     logger.info(f"relabeling: {relabeling}")
     logger.info(f"do_3D: {do_3D}")
     logger.info(f"use_gpu: {gpu}")
@@ -619,7 +612,7 @@ def cellpose_segmentation(
         if use_masks:
             preprocessing_kwargs = dict(
                 region=region,
-                current_label_path=f"{zarrurl}/labels/{output_label_name}/0",
+                current_label_path=f"{zarr_url}/labels/{output_label_name}/0",
                 ROI_table_path=ROI_table_path,
                 ROI_positional_index=i_ROI,
             )
@@ -678,14 +671,14 @@ def cellpose_segmentation(
         )
 
     logger.info(
-        f"End cellpose_segmentation task for {zarrurl}, "
+        f"End cellpose_segmentation task for {zarr_url}, "
         "now building pyramids."
     )
 
     # Starting from on-disk highest-resolution data, build and write to disk a
     # pyramid of coarser levels
     build_pyramid(
-        zarrurl=f"{zarrurl}/labels/{output_label_name}",
+        zarrurl=f"{zarr_url}/labels/{output_label_name}",
         overwrite=overwrite,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
@@ -714,10 +707,10 @@ def cellpose_segmentation(
         bbox_table.obs = labels
 
         # Write to zarr group
-        image_group = zarr.group(f"{in_path}/{component}")
+        image_group = zarr.group(zarr_url)
         logger.info(
             "Now writing bounding-box ROI table to "
-            f"{in_path}/{component}/tables/{output_ROI_table}"
+            f"{zarr_url}/tables/{output_ROI_table}"
         )
         table_attrs = {
             "type": "masking_roi_table",
