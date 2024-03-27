@@ -16,11 +16,8 @@ Image segmentation via Cellpose library.
 import logging
 import os
 import time
-from pathlib import Path
-from typing import Any
 from typing import Literal
 from typing import Optional
-from typing import Sequence
 
 import anndata as ad
 import cellpose
@@ -235,7 +232,7 @@ def cellpose_segmentation(
     Run cellpose segmentation on the ROIs of a single OME-Zarr image.
 
     Args:
-        zarr_url: Path or url to the individual OME-Zarr image to be processed. 
+        zarr_url: Path or url to the individual OME-Zarr image to be processed.
             (standard argument for Fractal tasks, managed by Fractal server).
         level: Pyramid level of the image to be segmented. Choose `0` to
             process at full resolution.

@@ -272,9 +272,7 @@ def test_multiplexing_registration(
 
     # Check the table for the second component (the image of the second cycle)
     component = metadata["image"][1]
-    curr_table = ad.read_zarr(
-        f"{zarr_dir_mip / component}/tables/{roi_table}"
-    )
+    curr_table = ad.read_zarr(f"{zarr_dir_mip / component}/tables/{roi_table}")
     assert curr_table.shape == (2, 11)
     np.testing.assert_almost_equal(
         curr_table.X[0, 8:11], np.array(expected_shift[roi_table]), decimal=5
