@@ -84,7 +84,7 @@ def apply_registration_to_image(
 
     """
     logger.info(zarr_url)
-    # FIXME: Implement this now for Zarr V2
+    # FIXME: Implement this now for Fractal V2
     if not overwrite_input:
         raise NotImplementedError(
             "This task is only implemented for the overwrite_input version"
@@ -255,13 +255,9 @@ def write_registered_zarr(
     the two lists of ROI indices vary.
 
     Args:
-        input_path: Base folder where the Zarr is stored
-            (does not contain the Zarr file itself)
-        component: Path to the OME-Zarr image that is processed. For example:
-            `"20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr/B/03/1"`
-        new_component: Path to the new Zarr image that will be written
-            (also in the input_path folder). For example:
-            `"20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr/B/03/1_registered"`
+        zarr_url: Path or url to the individual OME-Zarr image to be used as
+            the basis for the new OME-Zarr image.
+        new_zarr_url: Path or url to the new OME-Zarr image to be written
         ROI_table: Fractal ROI table for the component
         ROI_table_ref: Fractal ROI table for the reference cycle
         num_levels: Number of pyramid layers to be created (argument of
