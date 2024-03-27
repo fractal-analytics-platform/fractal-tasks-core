@@ -1,0 +1,3701 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../load_region/">
+      
+      
+        <link rel="next" href="../v1_checks/">
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.1.21">
+    
+    
+      
+        <title>v1 - Fractal Tasks Core</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.eebd395e.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ecc896b0.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../../../extra.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="light-blue">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#fractal_tasks_core.roi.v1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="Fractal Tasks Core" class="md-header__button md-logo" aria-label="Fractal Tasks Core" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Fractal Tasks Core
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              v1
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="light-blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+            
+              <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+              </label>
+            
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="light-blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+            
+              <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+              </label>
+            
+          
+        </form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/fractal-analytics-platform/fractal-tasks-core" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fractal-tasks-core
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Fractal Tasks Core" class="md-nav__button md-logo" aria-label="Fractal Tasks Core" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Fractal Tasks Core
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/fractal-analytics-platform/fractal-tasks-core" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fractal-tasks-core
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        Home page
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../install/" class="md-nav__link">
+        Install
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../../../run_tasks/">Run tasks</a>
+          
+            <label for="__nav_3">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Run tasks
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../run_tasks/tasks_in_fractal/" class="md-nav__link">
+        Within Fractal
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../run_tasks/tasks_in_scripts/" class="md-nav__link">
+        From Python scripts
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../all_tasks/" class="md-nav__link">
+        Task list
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../tables/" class="md-nav__link">
+        Table specs
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../custom_task/" class="md-nav__link">
+        Write a custom task
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../development/" class="md-nav__link">
+        Development
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          Code reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Code reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_1" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../tasks/">tasks</a>
+          
+            <label for="__nav_8_1">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_1_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_1">
+          <span class="md-nav__icon md-icon"></span>
+          tasks
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/_utils/" class="md-nav__link">
+        _utils
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/apply_registration_to_image/" class="md-nav__link">
+        apply_registration_to_image
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/apply_registration_to_ROI_tables/" class="md-nav__link">
+        apply_registration_to_ROI_tables
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/calculate_registration_image_based/" class="md-nav__link">
+        calculate_registration_image_based
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/cellpose_segmentation/" class="md-nav__link">
+        cellpose_segmentation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/cellpose_transforms/" class="md-nav__link">
+        cellpose_transforms
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/compress_tif/" class="md-nav__link">
+        compress_tif
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/copy_ome_zarr/" class="md-nav__link">
+        copy_ome_zarr
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/create_ome_zarr/" class="md-nav__link">
+        create_ome_zarr
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/create_ome_zarr_multiplex/" class="md-nav__link">
+        create_ome_zarr_multiplex
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/illumination_correction/" class="md-nav__link">
+        illumination_correction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/import_ome_zarr/" class="md-nav__link">
+        import_ome_zarr
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/maximum_intensity_projection/" class="md-nav__link">
+        maximum_intensity_projection
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/napari_workflows_wrapper/" class="md-nav__link">
+        napari_workflows_wrapper
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/napari_workflows_wrapper_models/" class="md-nav__link">
+        napari_workflows_wrapper_models
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/yokogawa_to_ome_zarr/" class="md-nav__link">
+        yokogawa_to_ome_zarr
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_2" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../dev/">dev</a>
+          
+            <label for="__nav_8_2">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_2">
+          <span class="md-nav__icon md-icon"></span>
+          dev
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dev/check_manifest/" class="md-nav__link">
+        check_manifest
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dev/lib_args_schemas/" class="md-nav__link">
+        lib_args_schemas
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dev/lib_descriptions/" class="md-nav__link">
+        lib_descriptions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dev/lib_signature_constraints/" class="md-nav__link">
+        lib_signature_constraints
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dev/lib_task_docs/" class="md-nav__link">
+        lib_task_docs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dev/lib_titles/" class="md-nav__link">
+        lib_titles
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dev/update_manifest/" class="md-nav__link">
+        update_manifest
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../cellvoyager/">cellvoyager</a>
+          
+            <label for="__nav_8_3">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_3">
+          <span class="md-nav__icon md-icon"></span>
+          cellvoyager
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cellvoyager/filenames/" class="md-nav__link">
+        filenames
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cellvoyager/metadata/" class="md-nav__link">
+        metadata
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../channels/" class="md-nav__link">
+        channels
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labels/" class="md-nav__link">
+        labels
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../masked_loading/" class="md-nav__link">
+        masked_loading
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_7" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../ngff/">ngff</a>
+          
+            <label for="__nav_8_7">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_7">
+          <span class="md-nav__icon md-icon"></span>
+          ngff
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ngff/specs/" class="md-nav__link">
+        specs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ngff/zarr_utils/" class="md-nav__link">
+        zarr_utils
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pyramids/" class="md-nav__link">
+        pyramids
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_9" checked>
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../">roi</a>
+          
+            <label for="__nav_8_9">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_9_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_8_9">
+          <span class="md-nav__icon md-icon"></span>
+          roi
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../_overlaps_common/" class="md-nav__link">
+        _overlaps_common
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../load_region/" class="md-nav__link">
+        load_region
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          v1
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        v1
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1" class="md-nav__link">
+    v1
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1.array_to_bounding_box_table" class="md-nav__link">
+    array_to_bounding_box_table
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1.convert_ROI_table_to_indices" class="md-nav__link">
+    convert_ROI_table_to_indices
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1.convert_ROIs_from_3D_to_2D" class="md-nav__link">
+    convert_ROIs_from_3D_to_2D
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1.convert_indices_to_regions" class="md-nav__link">
+    convert_indices_to_regions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1.empty_bounding_box_table" class="md-nav__link">
+    empty_bounding_box_table
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1.get_image_grid_ROIs" class="md-nav__link">
+    get_image_grid_ROIs
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1.get_single_image_ROI" class="md-nav__link">
+    get_single_image_ROI
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1.is_standard_roi_table" class="md-nav__link">
+    is_standard_roi_table
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1.prepare_FOV_ROI_table" class="md-nav__link">
+    prepare_FOV_ROI_table
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1.prepare_well_ROI_table" class="md-nav__link">
+    prepare_well_ROI_table
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1.reset_origin" class="md-nav__link">
+    reset_origin
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v1_checks/" class="md-nav__link">
+        v1_checks
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v1_overlaps/" class="md-nav__link">
+        v1_overlaps
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_10" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../tables/">tables</a>
+          
+            <label for="__nav_8_10">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_10_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_10">
+          <span class="md-nav__icon md-icon"></span>
+          tables
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tables/v1/" class="md-nav__link">
+        v1
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../upscale_array/" class="md-nav__link">
+        upscale_array
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/" class="md-nav__link">
+        utils
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../zarr_utils/" class="md-nav__link">
+        zarr_utils
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../changelog/" class="md-nav__link">
+        Changelog
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1" class="md-nav__link">
+    v1
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1.array_to_bounding_box_table" class="md-nav__link">
+    array_to_bounding_box_table
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1.convert_ROI_table_to_indices" class="md-nav__link">
+    convert_ROI_table_to_indices
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1.convert_ROIs_from_3D_to_2D" class="md-nav__link">
+    convert_ROIs_from_3D_to_2D
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1.convert_indices_to_regions" class="md-nav__link">
+    convert_indices_to_regions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1.empty_bounding_box_table" class="md-nav__link">
+    empty_bounding_box_table
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1.get_image_grid_ROIs" class="md-nav__link">
+    get_image_grid_ROIs
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1.get_single_image_ROI" class="md-nav__link">
+    get_single_image_ROI
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1.is_standard_roi_table" class="md-nav__link">
+    is_standard_roi_table
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1.prepare_FOV_ROI_table" class="md-nav__link">
+    prepare_FOV_ROI_table
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1.prepare_well_ROI_table" class="md-nav__link">
+    prepare_well_ROI_table
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractal_tasks_core.roi.v1.reset_origin" class="md-nav__link">
+    reset_origin
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+  <h1>v1</h1>
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="fractal_tasks_core.roi.v1"></a>
+  <div class="doc doc-contents first">
+  
+      <p>Functions to produce/process ROI tables.</p>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="fractal_tasks_core.roi.v1.array_to_bounding_box_table" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">array_to_bounding_box_table</span><span class="p">(</span><span class="n">mask_array</span><span class="p">,</span> <span class="n">pxl_sizes_zyx</span><span class="p">,</span> <span class="n">origin_zyx</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span></code>
+
+<a href="#fractal_tasks_core.roi.v1.array_to_bounding_box_table" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Construct bounding-box ROI table for a mask array.</p>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>mask_array</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Original array to construct bounding boxes.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="numpy.ndarray" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray">ndarray</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>pxl_sizes_zyx</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Physical-unit pixel ZYX sizes.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#float">float</a>]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>origin_zyx</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Shift ROI origin by this amount of ZYX pixels.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/library/stdtypes.html#tuple">tuple</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#int">int</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#int">int</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>(0, 0, 0)</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code><span title="pandas.DataFrame">DataFrame</span></code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <div class="doc-md-description">
+              <p>DataFrame with each line representing the bounding-box ROI that
+corresponds to a unique value of <code>mask_array</code>. ROI properties are
+expressed in physical units (with columns defined as elsewhere this
+module - see e.g. <code>prepare_well_ROI_table</code>), and positions are
+optionally shifted (if <code>origin_zyx</code> is set). An additional column
+<code>label</code> keeps track of the <code>mask_array</code> value corresponding to each
+ROI.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>fractal_tasks_core/roi/v1.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">array_to_bounding_box_table</span><span class="p">(</span>
+    <span class="n">mask_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">pxl_sizes_zyx</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">origin_zyx</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Construct bounding-box ROI table for a mask array.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mask_array: Original array to construct bounding boxes.</span>
+<span class="sd">        pxl_sizes_zyx: Physical-unit pixel ZYX sizes.</span>
+<span class="sd">        origin_zyx: Shift ROI origin by this amount of ZYX pixels.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        DataFrame with each line representing the bounding-box ROI that</span>
+<span class="sd">            corresponds to a unique value of `mask_array`. ROI properties are</span>
+<span class="sd">            expressed in physical units (with columns defined as elsewhere this</span>
+<span class="sd">            module - see e.g. `prepare_well_ROI_table`), and positions are</span>
+<span class="sd">            optionally shifted (if `origin_zyx` is set). An additional column</span>
+<span class="sd">            `label` keeps track of the `mask_array` value corresponding to each</span>
+<span class="sd">            ROI.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">pxl_sizes_zyx_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pxl_sizes_zyx</span><span class="p">)</span>
+    <span class="n">z_origin</span><span class="p">,</span> <span class="n">y_origin</span><span class="p">,</span> <span class="n">x_origin</span> <span class="o">=</span> <span class="n">origin_zyx</span><span class="p">[:]</span>
+
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">mask_array</span><span class="p">)</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">labels</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">elem_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+        <span class="c1"># Compute bounding box</span>
+        <span class="n">label_match</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask_array</span> <span class="o">==</span> <span class="n">label</span><span class="p">)</span>
+        <span class="n">zmin</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">xmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">label_match</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">pxl_sizes_zyx_array</span>
+        <span class="n">zmax</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">label_match</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="p">)</span> <span class="o">*</span> <span class="n">pxl_sizes_zyx_array</span>
+
+        <span class="c1"># Compute bounding-box edges</span>
+        <span class="n">length_x</span> <span class="o">=</span> <span class="n">xmax</span> <span class="o">-</span> <span class="n">xmin</span>
+        <span class="n">length_y</span> <span class="o">=</span> <span class="n">ymax</span> <span class="o">-</span> <span class="n">ymin</span>
+        <span class="n">length_z</span> <span class="o">=</span> <span class="n">zmax</span> <span class="o">-</span> <span class="n">zmin</span>
+
+        <span class="c1"># Shift origin</span>
+        <span class="n">zmin</span> <span class="o">+=</span> <span class="n">z_origin</span> <span class="o">*</span> <span class="n">pxl_sizes_zyx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ymin</span> <span class="o">+=</span> <span class="n">y_origin</span> <span class="o">*</span> <span class="n">pxl_sizes_zyx</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">xmin</span> <span class="o">+=</span> <span class="n">x_origin</span> <span class="o">*</span> <span class="n">pxl_sizes_zyx</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="n">elem_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">xmin</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">zmin</span><span class="p">,</span> <span class="n">length_x</span><span class="p">,</span> <span class="n">length_y</span><span class="p">,</span> <span class="n">length_z</span><span class="p">))</span>
+
+    <span class="n">df_columns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;x_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;y_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;z_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;len_x_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;len_y_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;len_z_micrometer&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elem_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">df_columns</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">elem_list</span><span class="p">),</span> <span class="n">columns</span><span class="o">=</span><span class="n">df_columns</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">labels</span>
+
+    <span class="k">return</span> <span class="n">df</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="fractal_tasks_core.roi.v1.convert_ROI_table_to_indices" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">convert_ROI_table_to_indices</span><span class="p">(</span><span class="n">ROI</span><span class="p">,</span> <span class="n">full_res_pxl_sizes_zyx</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">coarsening_xy</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">cols_xyz_pos</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x_micrometer&#39;</span><span class="p">,</span> <span class="s1">&#39;y_micrometer&#39;</span><span class="p">,</span> <span class="s1">&#39;z_micrometer&#39;</span><span class="p">],</span> <span class="n">cols_xyz_len</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;len_x_micrometer&#39;</span><span class="p">,</span> <span class="s1">&#39;len_y_micrometer&#39;</span><span class="p">,</span> <span class="s1">&#39;len_z_micrometer&#39;</span><span class="p">])</span></code>
+
+<a href="#fractal_tasks_core.roi.v1.convert_ROI_table_to_indices" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Convert a ROI AnnData table into integer array indices.</p>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>ROI</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>AnnData table with list of ROIs.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="anndata.AnnData" href="https://anndata.readthedocs.io/en/latest/generated/anndata.AnnData.html#anndata.AnnData">AnnData</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>full_res_pxl_sizes_zyx</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Physical-unit pixel ZYX sizes at the full-resolution pyramid level.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/library/typing.html#typing.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#float">float</a>]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>level</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Pyramid level.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#int">int</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>0</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>coarsening_xy</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Linear coarsening factor in the YX plane.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#int">int</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>2</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>cols_xyz_pos</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Column names for XYZ ROI positions.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/library/typing.html#typing.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/library/stdtypes.html#str">str</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>[&#39;x_micrometer&#39;, &#39;y_micrometer&#39;, &#39;z_micrometer&#39;]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>cols_xyz_len</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Column names for XYZ ROI edges.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/library/typing.html#typing.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/library/stdtypes.html#str">str</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>[&#39;len_x_micrometer&#39;, &#39;len_y_micrometer&#39;, &#39;len_z_micrometer&#39;]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RAISES</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-external" href="https://docs.python.org/library/exceptions.html#ValueError">ValueError</a></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <div class="doc-md-description">
+              <p>If any of the array indices is negative.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#int">int</a>]]</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <div class="doc-md-description">
+              <p>Nested list of indices. The main list has one item per ROI. Each ROI
+item is a list of six integers as in <code>[start_z, end_z, start_y,
+end_y, start_x, end_x]</code>. The array-index interval for a given ROI
+is <code>start_x:end_x</code> along X, and so on for Y and Z.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>fractal_tasks_core/roi/v1.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">convert_ROI_table_to_indices</span><span class="p">(</span>
+    <span class="n">ROI</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span>
+    <span class="n">full_res_pxl_sizes_zyx</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">coarsening_xy</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">cols_xyz_pos</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;x_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;y_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;z_micrometer&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="n">cols_xyz_len</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;len_x_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;len_y_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;len_z_micrometer&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a ROI AnnData table into integer array indices.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ROI: AnnData table with list of ROIs.</span>
+<span class="sd">        full_res_pxl_sizes_zyx:</span>
+<span class="sd">            Physical-unit pixel ZYX sizes at the full-resolution pyramid level.</span>
+<span class="sd">        level: Pyramid level.</span>
+<span class="sd">        coarsening_xy: Linear coarsening factor in the YX plane.</span>
+<span class="sd">        cols_xyz_pos: Column names for XYZ ROI positions.</span>
+<span class="sd">        cols_xyz_len: Column names for XYZ ROI edges.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError:</span>
+<span class="sd">            If any of the array indices is negative.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Nested list of indices. The main list has one item per ROI. Each ROI</span>
+<span class="sd">            item is a list of six integers as in `[start_z, end_z, start_y,</span>
+<span class="sd">            end_y, start_x, end_x]`. The array-index interval for a given ROI</span>
+<span class="sd">            is `start_x:end_x` along X, and so on for Y and Z.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Handle empty ROI table</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ROI</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="c1"># Set pyramid-level pixel sizes</span>
+    <span class="n">pxl_size_z</span><span class="p">,</span> <span class="n">pxl_size_y</span><span class="p">,</span> <span class="n">pxl_size_x</span> <span class="o">=</span> <span class="n">full_res_pxl_sizes_zyx</span>
+    <span class="n">prefactor</span> <span class="o">=</span> <span class="n">coarsening_xy</span><span class="o">**</span><span class="n">level</span>
+    <span class="n">pxl_size_x</span> <span class="o">*=</span> <span class="n">prefactor</span>
+    <span class="n">pxl_size_y</span> <span class="o">*=</span> <span class="n">prefactor</span>
+
+    <span class="n">x_pos</span><span class="p">,</span> <span class="n">y_pos</span><span class="p">,</span> <span class="n">z_pos</span> <span class="o">=</span> <span class="n">cols_xyz_pos</span><span class="p">[:]</span>
+    <span class="n">x_len</span><span class="p">,</span> <span class="n">y_len</span><span class="p">,</span> <span class="n">z_len</span> <span class="o">=</span> <span class="n">cols_xyz_len</span><span class="p">[:]</span>
+
+    <span class="n">list_indices</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ROI_name</span> <span class="ow">in</span> <span class="n">ROI</span><span class="o">.</span><span class="n">obs_names</span><span class="p">:</span>
+        <span class="c1"># Extract data from anndata table</span>
+        <span class="n">x_micrometer</span> <span class="o">=</span> <span class="n">ROI</span><span class="p">[</span><span class="n">ROI_name</span><span class="p">,</span> <span class="n">x_pos</span><span class="p">]</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">y_micrometer</span> <span class="o">=</span> <span class="n">ROI</span><span class="p">[</span><span class="n">ROI_name</span><span class="p">,</span> <span class="n">y_pos</span><span class="p">]</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">z_micrometer</span> <span class="o">=</span> <span class="n">ROI</span><span class="p">[</span><span class="n">ROI_name</span><span class="p">,</span> <span class="n">z_pos</span><span class="p">]</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">len_x_micrometer</span> <span class="o">=</span> <span class="n">ROI</span><span class="p">[</span><span class="n">ROI_name</span><span class="p">,</span> <span class="n">x_len</span><span class="p">]</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">len_y_micrometer</span> <span class="o">=</span> <span class="n">ROI</span><span class="p">[</span><span class="n">ROI_name</span><span class="p">,</span> <span class="n">y_len</span><span class="p">]</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">len_z_micrometer</span> <span class="o">=</span> <span class="n">ROI</span><span class="p">[</span><span class="n">ROI_name</span><span class="p">,</span> <span class="n">z_len</span><span class="p">]</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Identify indices along the three dimensions</span>
+        <span class="n">start_x</span> <span class="o">=</span> <span class="n">x_micrometer</span> <span class="o">/</span> <span class="n">pxl_size_x</span>
+        <span class="n">end_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_micrometer</span> <span class="o">+</span> <span class="n">len_x_micrometer</span><span class="p">)</span> <span class="o">/</span> <span class="n">pxl_size_x</span>
+        <span class="n">start_y</span> <span class="o">=</span> <span class="n">y_micrometer</span> <span class="o">/</span> <span class="n">pxl_size_y</span>
+        <span class="n">end_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_micrometer</span> <span class="o">+</span> <span class="n">len_y_micrometer</span><span class="p">)</span> <span class="o">/</span> <span class="n">pxl_size_y</span>
+        <span class="n">start_z</span> <span class="o">=</span> <span class="n">z_micrometer</span> <span class="o">/</span> <span class="n">pxl_size_z</span>
+        <span class="n">end_z</span> <span class="o">=</span> <span class="p">(</span><span class="n">z_micrometer</span> <span class="o">+</span> <span class="n">len_z_micrometer</span><span class="p">)</span> <span class="o">/</span> <span class="n">pxl_size_z</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">start_z</span><span class="p">,</span> <span class="n">end_z</span><span class="p">,</span> <span class="n">start_y</span><span class="p">,</span> <span class="n">end_y</span><span class="p">,</span> <span class="n">start_x</span><span class="p">,</span> <span class="n">end_x</span><span class="p">]</span>
+
+        <span class="c1"># Round indices to lower integer</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">round</span><span class="p">,</span> <span class="n">indices</span><span class="p">))</span>
+
+        <span class="c1"># Fail for negative indices</span>
+        <span class="k">if</span> <span class="nb">min</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;ROI </span><span class="si">{</span><span class="n">ROI_name</span><span class="si">}</span><span class="s2"> converted into negative array indices.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;ZYX position: </span><span class="si">{</span><span class="n">z_micrometer</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">y_micrometer</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x_micrometer</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;ZYX pixel sizes: </span><span class="si">{</span><span class="n">pxl_size_z</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">pxl_size_y</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pxl_size_x</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">level</span><span class="si">=}</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;Hint: As of fractal-tasks-core v0.12, FOV/well ROI &quot;</span>
+                <span class="s2">&quot;tables with non-zero origins (e.g. the ones created with &quot;</span>
+                <span class="s2">&quot;v0.11) are not supported.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Append ROI indices to to list</span>
+        <span class="n">list_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">indices</span><span class="p">[:])</span>
+
+    <span class="k">return</span> <span class="n">list_indices</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="fractal_tasks_core.roi.v1.convert_ROIs_from_3D_to_2D" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">convert_ROIs_from_3D_to_2D</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">pixel_size_z</span><span class="p">)</span></code>
+
+<a href="#fractal_tasks_core.roi.v1.convert_ROIs_from_3D_to_2D" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>TBD</p>
+<p>Note that this function is only relevant when the ROIs in adata span the
+whole extent of the Z axis.
+TODO: check this explicitly.</p>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>adata</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>TBD</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="anndata.AnnData" href="https://anndata.readthedocs.io/en/latest/generated/anndata.AnnData.html#anndata.AnnData">AnnData</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>pixel_size_z</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>TBD</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#float">float</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>fractal_tasks_core/roi/v1.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">convert_ROIs_from_3D_to_2D</span><span class="p">(</span>
+    <span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span>
+    <span class="n">pixel_size_z</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    TBD</span>
+
+<span class="sd">    Note that this function is only relevant when the ROIs in adata span the</span>
+<span class="sd">    whole extent of the Z axis.</span>
+<span class="sd">    TODO: check this explicitly.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        adata: TBD</span>
+<span class="sd">        pixel_size_z: TBD</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Compress a 3D stack of images to a single Z plane,</span>
+    <span class="c1"># with thickness equal to pixel_size_z</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;len_z_micrometer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pixel_size_z</span>
+
+    <span class="c1"># Assign dtype explicitly, to avoid</span>
+    <span class="c1"># &gt;&gt; UserWarning: X converted to numpy array with dtype float64</span>
+    <span class="c1"># when creating AnnData object</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="c1"># Create an AnnData object directly from the DataFrame</span>
+    <span class="n">new_adata</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="c1"># Rename rows and columns</span>
+    <span class="n">new_adata</span><span class="o">.</span><span class="n">obs_names</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs_names</span>
+    <span class="n">new_adata</span><span class="o">.</span><span class="n">var_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">new_adata</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="fractal_tasks_core.roi.v1.convert_indices_to_regions" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">convert_indices_to_regions</span><span class="p">(</span><span class="n">index</span><span class="p">)</span></code>
+
+<a href="#fractal_tasks_core.roi.v1.convert_indices_to_regions" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Converts index tuples to region tuple</p>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>index</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Tuple containing 6 entries of (z_start, z_end, y_start,
+y_end, x_start, x_end).</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#int">int</a>]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <code>region</code>
+          </td>
+          <td class="doc-returns-details">
+            <div class="doc-md-description">
+              <p>tuple of three slices (ZYX)</p>
+            </div>
+              <p>
+                <span class="doc-returns-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/library/stdtypes.html#tuple">tuple</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#slice">slice</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#slice">slice</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#slice">slice</a>]</code>
+                </span>
+              </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>fractal_tasks_core/roi/v1.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">convert_indices_to_regions</span><span class="p">(</span>
+    <span class="n">index</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">slice</span><span class="p">,</span> <span class="nb">slice</span><span class="p">,</span> <span class="nb">slice</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts index tuples to region tuple</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        index: Tuple containing 6 entries of (z_start, z_end, y_start,</span>
+<span class="sd">            y_end, x_start, x_end).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        region: tuple of three slices (ZYX)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="nb">slice</span><span class="p">(</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">index</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+        <span class="nb">slice</span><span class="p">(</span><span class="n">index</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">index</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span>
+        <span class="nb">slice</span><span class="p">(</span><span class="n">index</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">index</span><span class="p">[</span><span class="mi">5</span><span class="p">]),</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="fractal_tasks_core.roi.v1.empty_bounding_box_table" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">empty_bounding_box_table</span><span class="p">()</span></code>
+
+<a href="#fractal_tasks_core.roi.v1.empty_bounding_box_table" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Construct an empty bounding-box ROI table of given shape.</p>
+<p>This function mirrors the functionality of <code>array_to_bounding_box_table</code>,
+for the specific case where the array includes no label. The advantages of
+this function are that:</p>
+<ol>
+<li>It does not require computing a whole array of zeros;</li>
+<li>We avoid hardcoding column names in the task functions.</li>
+</ol>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code><span title="pandas.DataFrame">DataFrame</span></code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <div class="doc-md-description">
+              <p>DataFrame with no rows, and with columns corresponding to the output of
+<code>array_to_bounding_box_table</code>.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>fractal_tasks_core/roi/v1.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">empty_bounding_box_table</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Construct an empty bounding-box ROI table of given shape.</span>
+
+<span class="sd">    This function mirrors the functionality of `array_to_bounding_box_table`,</span>
+<span class="sd">    for the specific case where the array includes no label. The advantages of</span>
+<span class="sd">    this function are that:</span>
+
+<span class="sd">    1. It does not require computing a whole array of zeros;</span>
+<span class="sd">    2. We avoid hardcoding column names in the task functions.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        DataFrame with no rows, and with columns corresponding to the output of</span>
+<span class="sd">            `array_to_bounding_box_table`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">df_columns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;x_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;y_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;z_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;len_x_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;len_y_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;len_z_micrometer&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">df_columns</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">df</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="fractal_tasks_core.roi.v1.get_image_grid_ROIs" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">get_image_grid_ROIs</span><span class="p">(</span><span class="n">array_shape</span><span class="p">,</span> <span class="n">pixels_ZYX</span><span class="p">,</span> <span class="n">grid_YX_shape</span><span class="p">)</span></code>
+
+<a href="#fractal_tasks_core.roi.v1.get_image_grid_ROIs" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Produce a table with ROIS placed on a rectangular grid.</p>
+<p>The main goal of this ROI grid is to allow processing of smaller subset of
+the whole array.</p>
+<p>In a specific case (that is, if the image array was obtained by stitching
+together a set of FOVs placed on a regular grid), the ROIs correspond to
+the original FOVs.</p>
+<p>TODO: make this flexible with respect to the presence/absence of Z.</p>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>array_shape</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>ZYX shape of the image array.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/library/stdtypes.html#tuple">tuple</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#int">int</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#int">int</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#int">int</a>]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>pixels_ZYX</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>ZYX pixel sizes in micrometers.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#float">float</a>]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>grid_YX_shape</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/library/stdtypes.html#tuple">tuple</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#int">int</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#int">int</a>]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code><a class="autorefs autorefs-external" title="anndata.AnnData" href="https://anndata.readthedocs.io/en/latest/generated/anndata.AnnData.html#anndata.AnnData">AnnData</a></code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <div class="doc-md-description">
+              <p>An <code>AnnData</code> table with a single ROI.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>fractal_tasks_core/roi/v1.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">518</span>
+<span class="normal">519</span>
+<span class="normal">520</span>
+<span class="normal">521</span>
+<span class="normal">522</span>
+<span class="normal">523</span>
+<span class="normal">524</span>
+<span class="normal">525</span>
+<span class="normal">526</span>
+<span class="normal">527</span>
+<span class="normal">528</span>
+<span class="normal">529</span>
+<span class="normal">530</span>
+<span class="normal">531</span>
+<span class="normal">532</span>
+<span class="normal">533</span>
+<span class="normal">534</span>
+<span class="normal">535</span>
+<span class="normal">536</span>
+<span class="normal">537</span>
+<span class="normal">538</span>
+<span class="normal">539</span>
+<span class="normal">540</span>
+<span class="normal">541</span>
+<span class="normal">542</span>
+<span class="normal">543</span>
+<span class="normal">544</span>
+<span class="normal">545</span>
+<span class="normal">546</span>
+<span class="normal">547</span>
+<span class="normal">548</span>
+<span class="normal">549</span>
+<span class="normal">550</span>
+<span class="normal">551</span>
+<span class="normal">552</span>
+<span class="normal">553</span>
+<span class="normal">554</span>
+<span class="normal">555</span>
+<span class="normal">556</span>
+<span class="normal">557</span>
+<span class="normal">558</span>
+<span class="normal">559</span>
+<span class="normal">560</span>
+<span class="normal">561</span>
+<span class="normal">562</span>
+<span class="normal">563</span>
+<span class="normal">564</span>
+<span class="normal">565</span>
+<span class="normal">566</span>
+<span class="normal">567</span>
+<span class="normal">568</span>
+<span class="normal">569</span>
+<span class="normal">570</span>
+<span class="normal">571</span>
+<span class="normal">572</span>
+<span class="normal">573</span>
+<span class="normal">574</span>
+<span class="normal">575</span>
+<span class="normal">576</span>
+<span class="normal">577</span>
+<span class="normal">578</span>
+<span class="normal">579</span>
+<span class="normal">580</span>
+<span class="normal">581</span>
+<span class="normal">582</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_image_grid_ROIs</span><span class="p">(</span>
+    <span class="n">array_shape</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">pixels_ZYX</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">grid_YX_shape</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Produce a table with ROIS placed on a rectangular grid.</span>
+
+<span class="sd">    The main goal of this ROI grid is to allow processing of smaller subset of</span>
+<span class="sd">    the whole array.</span>
+
+<span class="sd">    In a specific case (that is, if the image array was obtained by stitching</span>
+<span class="sd">    together a set of FOVs placed on a regular grid), the ROIs correspond to</span>
+<span class="sd">    the original FOVs.</span>
+
+<span class="sd">    TODO: make this flexible with respect to the presence/absence of Z.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        array_shape: ZYX shape of the image array.</span>
+<span class="sd">        pixels_ZYX: ZYX pixel sizes in micrometers.</span>
+<span class="sd">        grid_YX_shape:</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        An `AnnData` table with a single ROI.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">shape_z</span><span class="p">,</span> <span class="n">shape_y</span><span class="p">,</span> <span class="n">shape_x</span> <span class="o">=</span> <span class="n">array_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:]</span>
+    <span class="n">grid_size_y</span><span class="p">,</span> <span class="n">grid_size_x</span> <span class="o">=</span> <span class="n">grid_YX_shape</span><span class="p">[:]</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">obs_names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">start_z</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">len_z</span> <span class="o">=</span> <span class="n">shape_z</span>
+
+    <span class="c1"># Find minimal len_y that covers [0,shape_y] with grid_size_y intervals</span>
+    <span class="n">len_y</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">shape_y</span> <span class="o">/</span> <span class="n">grid_size_y</span><span class="p">)</span>
+    <span class="n">len_x</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">shape_x</span> <span class="o">/</span> <span class="n">grid_size_x</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ind_y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">grid_size_y</span><span class="p">):</span>
+        <span class="n">start_y</span> <span class="o">=</span> <span class="n">ind_y</span> <span class="o">*</span> <span class="n">len_y</span>
+        <span class="n">tmp_len_y</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">shape_y</span><span class="p">,</span> <span class="n">start_y</span> <span class="o">+</span> <span class="n">len_y</span><span class="p">)</span> <span class="o">-</span> <span class="n">start_y</span>
+        <span class="k">for</span> <span class="n">ind_x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">grid_size_x</span><span class="p">):</span>
+            <span class="n">start_x</span> <span class="o">=</span> <span class="n">ind_x</span> <span class="o">*</span> <span class="n">len_x</span>
+            <span class="n">tmp_len_x</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">shape_x</span><span class="p">,</span> <span class="n">start_x</span> <span class="o">+</span> <span class="n">len_x</span><span class="p">)</span> <span class="o">-</span> <span class="n">start_x</span>
+            <span class="n">X</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">start_x</span> <span class="o">*</span> <span class="n">pixels_ZYX</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                    <span class="n">start_y</span> <span class="o">*</span> <span class="n">pixels_ZYX</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">start_z</span> <span class="o">*</span> <span class="n">pixels_ZYX</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">tmp_len_x</span> <span class="o">*</span> <span class="n">pixels_ZYX</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                    <span class="n">tmp_len_y</span> <span class="o">*</span> <span class="n">pixels_ZYX</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">len_z</span> <span class="o">*</span> <span class="n">pixels_ZYX</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">obs_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ROI_</span><span class="si">{</span><span class="n">counter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">ROI_table</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
+    <span class="n">ROI_table</span><span class="o">.</span><span class="n">obs_names</span> <span class="o">=</span> <span class="n">obs_names</span>
+    <span class="n">ROI_table</span><span class="o">.</span><span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;x_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;y_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;z_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;len_x_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;len_y_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;len_z_micrometer&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">ROI_table</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="fractal_tasks_core.roi.v1.get_single_image_ROI" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">get_single_image_ROI</span><span class="p">(</span><span class="n">array_shape</span><span class="p">,</span> <span class="n">pixels_ZYX</span><span class="p">)</span></code>
+
+<a href="#fractal_tasks_core.roi.v1.get_single_image_ROI" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Produce a table with a single ROI that covers the whole array</p>
+<p>TODO: make this flexible with respect to the presence/absence of Z.</p>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>array_shape</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>ZYX shape of the image array.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/library/stdtypes.html#tuple">tuple</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#int">int</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#int">int</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#int">int</a>]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>pixels_ZYX</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>ZYX pixel sizes in micrometers.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#float">float</a>]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code><a class="autorefs autorefs-external" title="anndata.AnnData" href="https://anndata.readthedocs.io/en/latest/generated/anndata.AnnData.html#anndata.AnnData">AnnData</a></code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <div class="doc-md-description">
+              <p>An <code>AnnData</code> table with a single ROI.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>fractal_tasks_core/roi/v1.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">474</span>
+<span class="normal">475</span>
+<span class="normal">476</span>
+<span class="normal">477</span>
+<span class="normal">478</span>
+<span class="normal">479</span>
+<span class="normal">480</span>
+<span class="normal">481</span>
+<span class="normal">482</span>
+<span class="normal">483</span>
+<span class="normal">484</span>
+<span class="normal">485</span>
+<span class="normal">486</span>
+<span class="normal">487</span>
+<span class="normal">488</span>
+<span class="normal">489</span>
+<span class="normal">490</span>
+<span class="normal">491</span>
+<span class="normal">492</span>
+<span class="normal">493</span>
+<span class="normal">494</span>
+<span class="normal">495</span>
+<span class="normal">496</span>
+<span class="normal">497</span>
+<span class="normal">498</span>
+<span class="normal">499</span>
+<span class="normal">500</span>
+<span class="normal">501</span>
+<span class="normal">502</span>
+<span class="normal">503</span>
+<span class="normal">504</span>
+<span class="normal">505</span>
+<span class="normal">506</span>
+<span class="normal">507</span>
+<span class="normal">508</span>
+<span class="normal">509</span>
+<span class="normal">510</span>
+<span class="normal">511</span>
+<span class="normal">512</span>
+<span class="normal">513</span>
+<span class="normal">514</span>
+<span class="normal">515</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_single_image_ROI</span><span class="p">(</span>
+    <span class="n">array_shape</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">pixels_ZYX</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Produce a table with a single ROI that covers the whole array</span>
+
+<span class="sd">    TODO: make this flexible with respect to the presence/absence of Z.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        array_shape: ZYX shape of the image array.</span>
+<span class="sd">        pixels_ZYX: ZYX pixel sizes in micrometers.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        An `AnnData` table with a single ROI.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">shape_z</span><span class="p">,</span> <span class="n">shape_y</span><span class="p">,</span> <span class="n">shape_x</span> <span class="o">=</span> <span class="n">array_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:]</span>
+    <span class="n">ROI_table</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">(</span>
+        <span class="n">X</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">[</span>
+                    <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="n">shape_x</span> <span class="o">*</span> <span class="n">pixels_ZYX</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                    <span class="n">shape_y</span> <span class="o">*</span> <span class="n">pixels_ZYX</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">shape_z</span> <span class="o">*</span> <span class="n">pixels_ZYX</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="p">],</span>
+            <span class="p">],</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">ROI_table</span><span class="o">.</span><span class="n">obs_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;image_1&quot;</span><span class="p">]</span>
+    <span class="n">ROI_table</span><span class="o">.</span><span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;x_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;y_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;z_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;len_x_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;len_y_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;len_z_micrometer&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">ROI_table</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="fractal_tasks_core.roi.v1.is_standard_roi_table" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">is_standard_roi_table</span><span class="p">(</span><span class="n">table</span><span class="p">)</span></code>
+
+<a href="#fractal_tasks_core.roi.v1.is_standard_roi_table" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>True if the name of the table contains one of the standard Fractal tables</p>
+<p>If a table name is well_ROI_table, FOV_ROI_table or contains either of the
+two (e.g. registered_FOV_ROI_table), this function returns True.</p>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>table</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>table name</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/library/stdtypes.html#str">str</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/library/functions.html#bool">bool</a></code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <div class="doc-md-description">
+              <p>bool of whether it's a standard ROI table</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>fractal_tasks_core/roi/v1.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">452</span>
+<span class="normal">453</span>
+<span class="normal">454</span>
+<span class="normal">455</span>
+<span class="normal">456</span>
+<span class="normal">457</span>
+<span class="normal">458</span>
+<span class="normal">459</span>
+<span class="normal">460</span>
+<span class="normal">461</span>
+<span class="normal">462</span>
+<span class="normal">463</span>
+<span class="normal">464</span>
+<span class="normal">465</span>
+<span class="normal">466</span>
+<span class="normal">467</span>
+<span class="normal">468</span>
+<span class="normal">469</span>
+<span class="normal">470</span>
+<span class="normal">471</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">is_standard_roi_table</span><span class="p">(</span><span class="n">table</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    True if the name of the table contains one of the standard Fractal tables</span>
+
+<span class="sd">    If a table name is well_ROI_table, FOV_ROI_table or contains either of the</span>
+<span class="sd">    two (e.g. registered_FOV_ROI_table), this function returns True.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        table: table name</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool of whether it&#39;s a standard ROI table</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;well_ROI_table&quot;</span> <span class="ow">in</span> <span class="n">table</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="s2">&quot;FOV_ROI_table&quot;</span> <span class="ow">in</span> <span class="n">table</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="fractal_tasks_core.roi.v1.prepare_FOV_ROI_table" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">prepare_FOV_ROI_table</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">))</span></code>
+
+<a href="#fractal_tasks_core.roi.v1.prepare_FOV_ROI_table" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Prepare an AnnData table for fields-of-view ROIs.</p>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>df</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Input dataframe, possibly prepared through
+<code>parse_yokogawa_metadata</code>.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="pandas.DataFrame">DataFrame</span></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>metadata</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Columns of <code>df</code> to be stored (if present) into AnnData table <code>obs</code>.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/library/stdtypes.html#tuple">tuple</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/library/stdtypes.html#str">str</a>, ...]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>(&#39;time&#39;)</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>fractal_tasks_core/roi/v1.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">prepare_FOV_ROI_table</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prepare an AnnData table for fields-of-view ROIs.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df:</span>
+<span class="sd">            Input dataframe, possibly prepared through</span>
+<span class="sd">            `parse_yokogawa_metadata`.</span>
+<span class="sd">        metadata:</span>
+<span class="sd">            Columns of `df` to be stored (if present) into AnnData table `obs`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Make a local copy of the dataframe, to avoid SettingWithCopyWarning</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># Convert DataFrame index to str, to avoid</span>
+    <span class="c1"># &gt;&gt; ImplicitModificationWarning: Transforming to str index</span>
+    <span class="c1"># when creating AnnData object.</span>
+    <span class="c1"># Do this in the beginning to allow concatenation with e.g. time</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+    <span class="c1"># Obtain box size in physical units</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">len_x_micrometer</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">x_pixel</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">pixel_size_x</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">len_y_micrometer</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">y_pixel</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">pixel_size_y</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">len_z_micrometer</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">z_pixel</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">pixel_size_z</span><span class="p">)</span>
+
+    <span class="c1"># Select only the numeric positional columns needed to define ROIs</span>
+    <span class="c1"># (to avoid) casting things like the data column to float32</span>
+    <span class="c1"># or to use unnecessary columns like bit_depth</span>
+    <span class="n">positional_columns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;x_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;y_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;z_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;len_x_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;len_y_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;len_z_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;x_micrometer_original&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;y_micrometer_original&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Assign dtype explicitly, to avoid</span>
+    <span class="c1"># &gt;&gt; UserWarning: X converted to numpy array with dtype float64</span>
+    <span class="c1"># when creating AnnData object</span>
+    <span class="n">df_roi</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">positional_columns</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="c1"># Create an AnnData object directly from the DataFrame</span>
+    <span class="n">adata</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">df_roi</span><span class="p">)</span>
+
+    <span class="c1"># Reset origin of the FOV ROI table, so that it matches with the well</span>
+    <span class="c1"># origin</span>
+    <span class="n">adata</span> <span class="o">=</span> <span class="n">reset_origin</span><span class="p">(</span><span class="n">adata</span><span class="p">)</span>
+
+    <span class="c1"># Save any metadata that is specified to the obs df</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
+            <span class="c1"># Cast all metadata to str.</span>
+            <span class="c1"># Reason: AnnData Zarr writers don&#39;t support all pandas types.</span>
+            <span class="c1"># e.g. pandas.core.arrays.datetimes.DatetimeArray can&#39;t be written</span>
+            <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+    <span class="c1"># Rename rows and columns: Maintain FOV indices from the dataframe</span>
+    <span class="c1"># (they are already enforced to be unique by Pandas and may contain</span>
+    <span class="c1"># information for the user, as they are based on the filenames)</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">obs_names</span> <span class="o">=</span> <span class="s2">&quot;FOV_&quot;</span> <span class="o">+</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">var_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">df_roi</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">adata</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="fractal_tasks_core.roi.v1.prepare_well_ROI_table" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">prepare_well_ROI_table</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">))</span></code>
+
+<a href="#fractal_tasks_core.roi.v1.prepare_well_ROI_table" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Prepare an AnnData table with a single well ROI.</p>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>df</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Input dataframe, possibly prepared through
+<code>parse_yokogawa_metadata</code>.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="pandas.DataFrame">DataFrame</span></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>metadata</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Columns of <code>df</code> to be stored (if present) into AnnData table <code>obs</code>.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/library/stdtypes.html#tuple">tuple</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/library/stdtypes.html#str">str</a>, ...]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>(&#39;time&#39;)</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>fractal_tasks_core/roi/v1.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">prepare_well_ROI_table</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prepare an AnnData table with a single well ROI.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df:</span>
+<span class="sd">            Input dataframe, possibly prepared through</span>
+<span class="sd">            `parse_yokogawa_metadata`.</span>
+<span class="sd">        metadata:</span>
+<span class="sd">            Columns of `df` to be stored (if present) into AnnData table `obs`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Make a local copy of the dataframe, to avoid SettingWithCopyWarning</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># Convert DataFrame index to str, to avoid</span>
+    <span class="c1"># &gt;&gt; ImplicitModificationWarning: Transforming to str index</span>
+    <span class="c1"># when creating AnnData object.</span>
+    <span class="c1"># Do this in the beginning to allow concatenation with e.g. time</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+    <span class="c1"># Calculate bounding box extents in physical units</span>
+    <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">]:</span>
+        <span class="c1"># Obtain per-FOV properties in physical units.</span>
+        <span class="c1"># NOTE: a FOV ROI is defined here as the interval [min_micrometer,</span>
+        <span class="c1"># max_micrometer], with max_micrometer=min_micrometer+len_micrometer</span>
+        <span class="n">min_micrometer</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mu</span><span class="si">}</span><span class="s2">_micrometer&quot;</span><span class="p">]</span>
+        <span class="n">len_micrometer</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mu</span><span class="si">}</span><span class="s2">_pixel&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;pixel_size_</span><span class="si">{</span><span class="n">mu</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+        <span class="n">max_micrometer</span> <span class="o">=</span> <span class="n">min_micrometer</span> <span class="o">+</span> <span class="n">len_micrometer</span>
+        <span class="c1"># Obtain well bounding box, in physical units</span>
+        <span class="n">min_min_micrometer</span> <span class="o">=</span> <span class="n">min_micrometer</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">max_max_micrometer</span> <span class="o">=</span> <span class="n">max_micrometer</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mu</span><span class="si">}</span><span class="s2">_micrometer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_min_micrometer</span>
+        <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;len_</span><span class="si">{</span><span class="n">mu</span><span class="si">}</span><span class="s2">_micrometer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_max_micrometer</span> <span class="o">-</span> <span class="n">min_min_micrometer</span>
+
+    <span class="c1"># Select only the numeric positional columns needed to define ROIs</span>
+    <span class="c1"># (to avoid) casting things like the data column to float32</span>
+    <span class="c1"># or to use unnecessary columns like bit_depth</span>
+    <span class="n">positional_columns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;x_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;y_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;z_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;len_x_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;len_y_micrometer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;len_z_micrometer&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Assign dtype explicitly, to avoid</span>
+    <span class="c1"># &gt;&gt; UserWarning: X converted to numpy array with dtype float64</span>
+    <span class="c1"># when creating AnnData object</span>
+    <span class="n">df_roi</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">positional_columns</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="c1"># Create an AnnData object directly from the DataFrame</span>
+    <span class="n">adata</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">df_roi</span><span class="p">)</span>
+
+    <span class="c1"># Reset origin of the single-entry well ROI table</span>
+    <span class="n">adata</span> <span class="o">=</span> <span class="n">reset_origin</span><span class="p">(</span><span class="n">adata</span><span class="p">)</span>
+
+    <span class="c1"># Save any metadata that is specified to the obs df</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
+            <span class="c1"># Cast all metadata to str.</span>
+            <span class="c1"># Reason: AnnData Zarr writers don&#39;t support all pandas types.</span>
+            <span class="c1"># e.g. pandas.core.arrays.datetimes.DatetimeArray can&#39;t be written</span>
+            <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+    <span class="c1"># Rename rows and columns: Maintain FOV indices from the dataframe</span>
+    <span class="c1"># (they are already enforced to be unique by Pandas and may contain</span>
+    <span class="c1"># information for the user, as they are based on the filenames)</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">obs_names</span> <span class="o">=</span> <span class="s2">&quot;well_&quot;</span> <span class="o">+</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">var_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">df_roi</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">adata</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="fractal_tasks_core.roi.v1.reset_origin" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">reset_origin</span><span class="p">(</span><span class="n">ROI_table</span><span class="p">,</span> <span class="n">x_pos</span><span class="o">=</span><span class="s1">&#39;x_micrometer&#39;</span><span class="p">,</span> <span class="n">y_pos</span><span class="o">=</span><span class="s1">&#39;y_micrometer&#39;</span><span class="p">,</span> <span class="n">z_pos</span><span class="o">=</span><span class="s1">&#39;z_micrometer&#39;</span><span class="p">)</span></code>
+
+<a href="#fractal_tasks_core.roi.v1.reset_origin" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Return a copy of a ROI table, with shifted-to-zero origin for some columns.</p>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>ROI_table</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Original ROI table.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="anndata.AnnData" href="https://anndata.readthedocs.io/en/latest/generated/anndata.AnnData.html#anndata.AnnData">AnnData</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>x_pos</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Name of the column with X position of ROIs.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/library/stdtypes.html#str">str</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>&#39;x_micrometer&#39;</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>y_pos</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Name of the column with Y position of ROIs.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/library/stdtypes.html#str">str</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>&#39;y_micrometer&#39;</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>z_pos</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Name of the column with Z position of ROIs.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/library/stdtypes.html#str">str</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>&#39;z_micrometer&#39;</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code><a class="autorefs autorefs-external" title="anndata.AnnData" href="https://anndata.readthedocs.io/en/latest/generated/anndata.AnnData.html#anndata.AnnData">AnnData</a></code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <div class="doc-md-description">
+              <p>A copy of the <code>ROI_table</code> AnnData table, where values of <code>x_pos</code>,
+<code>y_pos</code> and <code>z_pos</code> columns have been shifted by their minimum
+values.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>fractal_tasks_core/roi/v1.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span>
+<span class="normal">438</span>
+<span class="normal">439</span>
+<span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span>
+<span class="normal">445</span>
+<span class="normal">446</span>
+<span class="normal">447</span>
+<span class="normal">448</span>
+<span class="normal">449</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">reset_origin</span><span class="p">(</span>
+    <span class="n">ROI_table</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span>
+    <span class="n">x_pos</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;x_micrometer&quot;</span><span class="p">,</span>
+    <span class="n">y_pos</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;y_micrometer&quot;</span><span class="p">,</span>
+    <span class="n">z_pos</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;z_micrometer&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a copy of a ROI table, with shifted-to-zero origin for some columns.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ROI_table: Original ROI table.</span>
+<span class="sd">        x_pos: Name of the column with X position of ROIs.</span>
+<span class="sd">        y_pos: Name of the column with Y position of ROIs.</span>
+<span class="sd">        z_pos: Name of the column with Z position of ROIs.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A copy of the `ROI_table` AnnData table, where values of `x_pos`,</span>
+<span class="sd">            `y_pos` and `z_pos` columns have been shifted by their minimum</span>
+<span class="sd">            values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">new_table</span> <span class="o">=</span> <span class="n">ROI_table</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="n">origin_x</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">new_table</span><span class="p">[:,</span> <span class="n">x_pos</span><span class="p">]</span><span class="o">.</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="n">origin_y</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">new_table</span><span class="p">[:,</span> <span class="n">y_pos</span><span class="p">]</span><span class="o">.</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="n">origin_z</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">new_table</span><span class="p">[:,</span> <span class="n">z_pos</span><span class="p">]</span><span class="o">.</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">FOV</span> <span class="ow">in</span> <span class="n">new_table</span><span class="o">.</span><span class="n">obs_names</span><span class="p">:</span>
+        <span class="n">new_table</span><span class="p">[</span><span class="n">FOV</span><span class="p">,</span> <span class="n">x_pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_table</span><span class="p">[</span><span class="n">FOV</span><span class="p">,</span> <span class="n">x_pos</span><span class="p">]</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">origin_x</span>
+        <span class="n">new_table</span><span class="p">[</span><span class="n">FOV</span><span class="p">,</span> <span class="n">y_pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_table</span><span class="p">[</span><span class="n">FOV</span><span class="p">,</span> <span class="n">y_pos</span><span class="p">]</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">origin_y</span>
+        <span class="n">new_table</span><span class="p">[</span><span class="n">FOV</span><span class="p">,</span> <span class="n">z_pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_table</span><span class="p">[</span><span class="n">FOV</span><span class="p">,</span> <span class="n">z_pos</span><span class="p">]</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">origin_z</span>
+
+    <span class="k">return</span> <span class="n">new_table</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      © Copyright 2022
+Friedrich Miescher Institute for Biomedical Research and
+University of Zurich
+(see <u><a href="https://github.com/fractal-analytics-platform/fractal-tasks-core/blob/main/LICENSE">
+LICENSE
+</a></u>).
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../../../..", "features": ["content.code.annotate", "content.code.copy"], "search": "../../../../assets/javascripts/workers/search.74e28a9f.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.220ee61c.min.js"></script>
+      
+        
+          <script src="../../../../javascripts/mathjax.js"></script>
+        
+      
+        
+          <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        
+      
+        
+          <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        
+      
+    
+  </body>
+</html>

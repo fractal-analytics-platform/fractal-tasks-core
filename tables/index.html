@@ -1,0 +1,2068 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../all_tasks/">
+      
+      
+        <link rel="next" href="../custom_task/">
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.1.21">
+    
+    
+      
+        <title>Table specs - Fractal Tasks Core</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.eebd395e.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ecc896b0.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="light-blue">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#table-specifcations" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Fractal Tasks Core" class="md-header__button md-logo" aria-label="Fractal Tasks Core" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Fractal Tasks Core
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Table specs
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="light-blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+            
+              <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+              </label>
+            
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="light-blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+            
+              <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+              </label>
+            
+          
+        </form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/fractal-analytics-platform/fractal-tasks-core" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fractal-tasks-core
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Fractal Tasks Core" class="md-nav__button md-logo" aria-label="Fractal Tasks Core" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Fractal Tasks Core
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/fractal-analytics-platform/fractal-tasks-core" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fractal-tasks-core
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Home page
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../install/" class="md-nav__link">
+        Install
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../run_tasks/">Run tasks</a>
+          
+            <label for="__nav_3">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Run tasks
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../run_tasks/tasks_in_fractal/" class="md-nav__link">
+        Within Fractal
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../run_tasks/tasks_in_scripts/" class="md-nav__link">
+        From Python scripts
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../all_tasks/" class="md-nav__link">
+        Task list
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Table specs
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Table specs
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#specifications-v1" class="md-nav__link">
+    Specifications (V1)
+  </a>
+  
+    <nav class="md-nav" aria-label="Specifications (V1)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-tables" class="md-nav__link">
+    Core tables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#roi-tables" class="md-nav__link">
+    ROI tables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#masking-roi-tables" class="md-nav__link">
+    Masking ROI tables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#feature-tables" class="md-nav__link">
+    Feature tables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    Examples
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#use-cases-for-roi-tables" class="md-nav__link">
+    Use cases for ROI tables
+  </a>
+  
+    <nav class="md-nav" aria-label="Use cases for ROI tables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ome-zarr-creation" class="md-nav__link">
+    OME-Zarr creation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ome-zarr-import" class="md-nav__link">
+    OME-Zarr import
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ome-zarr-processing" class="md-nav__link">
+    OME-Zarr processing
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#readingwriting-tables" class="md-nav__link">
+    Reading/writing tables
+  </a>
+  
+    <nav class="md-nav" aria-label="Reading/writing tables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reading-a-table" class="md-nav__link">
+    Reading a table
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writing-a-table" class="md-nav__link">
+    Writing a table
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#outlook" class="md-nav__link">
+    Outlook
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../custom_task/" class="md-nav__link">
+        Write a custom task
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/" class="md-nav__link">
+        Development
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          Code reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Code reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_1" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/fractal_tasks_core/tasks/">tasks</a>
+          
+            <label for="__nav_8_1">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_1_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_1">
+          <span class="md-nav__icon md-icon"></span>
+          tasks
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/_utils/" class="md-nav__link">
+        _utils
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/apply_registration_to_image/" class="md-nav__link">
+        apply_registration_to_image
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/apply_registration_to_ROI_tables/" class="md-nav__link">
+        apply_registration_to_ROI_tables
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/calculate_registration_image_based/" class="md-nav__link">
+        calculate_registration_image_based
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/cellpose_segmentation/" class="md-nav__link">
+        cellpose_segmentation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/cellpose_transforms/" class="md-nav__link">
+        cellpose_transforms
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/compress_tif/" class="md-nav__link">
+        compress_tif
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/copy_ome_zarr/" class="md-nav__link">
+        copy_ome_zarr
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/create_ome_zarr/" class="md-nav__link">
+        create_ome_zarr
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/create_ome_zarr_multiplex/" class="md-nav__link">
+        create_ome_zarr_multiplex
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/illumination_correction/" class="md-nav__link">
+        illumination_correction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/import_ome_zarr/" class="md-nav__link">
+        import_ome_zarr
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/maximum_intensity_projection/" class="md-nav__link">
+        maximum_intensity_projection
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/napari_workflows_wrapper/" class="md-nav__link">
+        napari_workflows_wrapper
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/napari_workflows_wrapper_models/" class="md-nav__link">
+        napari_workflows_wrapper_models
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/yokogawa_to_ome_zarr/" class="md-nav__link">
+        yokogawa_to_ome_zarr
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_2" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/fractal_tasks_core/dev/">dev</a>
+          
+            <label for="__nav_8_2">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_2">
+          <span class="md-nav__icon md-icon"></span>
+          dev
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/check_manifest/" class="md-nav__link">
+        check_manifest
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/lib_args_schemas/" class="md-nav__link">
+        lib_args_schemas
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/lib_descriptions/" class="md-nav__link">
+        lib_descriptions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/lib_signature_constraints/" class="md-nav__link">
+        lib_signature_constraints
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/lib_task_docs/" class="md-nav__link">
+        lib_task_docs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/lib_titles/" class="md-nav__link">
+        lib_titles
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/update_manifest/" class="md-nav__link">
+        update_manifest
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/fractal_tasks_core/cellvoyager/">cellvoyager</a>
+          
+            <label for="__nav_8_3">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_3">
+          <span class="md-nav__icon md-icon"></span>
+          cellvoyager
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/cellvoyager/filenames/" class="md-nav__link">
+        filenames
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/cellvoyager/metadata/" class="md-nav__link">
+        metadata
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/channels/" class="md-nav__link">
+        channels
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/labels/" class="md-nav__link">
+        labels
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/masked_loading/" class="md-nav__link">
+        masked_loading
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_7" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/fractal_tasks_core/ngff/">ngff</a>
+          
+            <label for="__nav_8_7">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_7">
+          <span class="md-nav__icon md-icon"></span>
+          ngff
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/ngff/specs/" class="md-nav__link">
+        specs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/ngff/zarr_utils/" class="md-nav__link">
+        zarr_utils
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/pyramids/" class="md-nav__link">
+        pyramids
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_9" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/fractal_tasks_core/roi/">roi</a>
+          
+            <label for="__nav_8_9">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_9_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_9">
+          <span class="md-nav__icon md-icon"></span>
+          roi
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/roi/_overlaps_common/" class="md-nav__link">
+        _overlaps_common
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/roi/load_region/" class="md-nav__link">
+        load_region
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/roi/v1/" class="md-nav__link">
+        v1
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/roi/v1_checks/" class="md-nav__link">
+        v1_checks
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/roi/v1_overlaps/" class="md-nav__link">
+        v1_overlaps
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_10" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/fractal_tasks_core/tables/">tables</a>
+          
+            <label for="__nav_8_10">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_10_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_10">
+          <span class="md-nav__icon md-icon"></span>
+          tables
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tables/v1/" class="md-nav__link">
+        v1
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/upscale_array/" class="md-nav__link">
+        upscale_array
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/utils/" class="md-nav__link">
+        utils
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/zarr_utils/" class="md-nav__link">
+        zarr_utils
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        Changelog
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#specifications-v1" class="md-nav__link">
+    Specifications (V1)
+  </a>
+  
+    <nav class="md-nav" aria-label="Specifications (V1)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-tables" class="md-nav__link">
+    Core tables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#roi-tables" class="md-nav__link">
+    ROI tables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#masking-roi-tables" class="md-nav__link">
+    Masking ROI tables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#feature-tables" class="md-nav__link">
+    Feature tables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    Examples
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#use-cases-for-roi-tables" class="md-nav__link">
+    Use cases for ROI tables
+  </a>
+  
+    <nav class="md-nav" aria-label="Use cases for ROI tables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ome-zarr-creation" class="md-nav__link">
+    OME-Zarr creation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ome-zarr-import" class="md-nav__link">
+    OME-Zarr import
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ome-zarr-processing" class="md-nav__link">
+    OME-Zarr processing
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#readingwriting-tables" class="md-nav__link">
+    Reading/writing tables
+  </a>
+  
+    <nav class="md-nav" aria-label="Reading/writing tables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reading-a-table" class="md-nav__link">
+    Reading a table
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writing-a-table" class="md-nav__link">
+    Writing a table
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#outlook" class="md-nav__link">
+    Outlook
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="table-specifcations">Table specifcations<a class="headerlink" href="#table-specifcations" title="Permanent link">&para;</a></h1>
+<p>Within <code>fractal-tasks-core</code>, we make use of tables which are <code>AnnData</code> objects
+stored within OME-Zarr image groups. This page describes the different kinds of
+tables we use, and it includes:</p>
+<ul>
+<li>A core <a href="#core-tables">table specification</a>, valid for all tables;</li>
+<li>The definition of <a href="#roi-tables">tables for regions of interests (ROIs)</a>;</li>
+<li>The definition of <a href="#masking-roi-tables">masking ROI tables</a>, namely ROI tables that are linked e.g. to labels;</li>
+<li>A <a href="#feature-tables">feature-table specification</a>, to store measurements.</li>
+</ul>
+<blockquote>
+<p><strong>Note</strong>: The specifications below are largely inspired by <a href="https://github.com/ome/ngff/pull/64">a proposed update
+to OME-NGFF specs</a>. This update is currently
+on hold, and <code>fractal-tasks-core</code> will evolve as soon as an official NGFF
+table specs is adopted - see also the <a href="#outlook">Outlook</a> section.</p>
+</blockquote>
+<h2 id="specifications-v1">Specifications (V1)<a class="headerlink" href="#specifications-v1" title="Permanent link">&para;</a></h2>
+<p>In this section we describe version 1 (V1) of the Fractal table specifications;
+for the moment, only V1 exists.
+Note that V1 specifications are only implemented as os of version 0.14.0 of
+<code>fractal-tasks-core</code>.</p>
+<h3 id="core-tables">Core tables<a class="headerlink" href="#core-tables" title="Permanent link">&para;</a></h3>
+<p>The core-table specification consists in the definition of the required Zarr
+structure and attributes, and of the <code>AnnData</code> table format.</p>
+<p><strong><code>AnnData</code> table format</strong></p>
+<p>We store tabular data into Zarr groups as <code>AnnData</code> ("Annotated Data") objects;
+the <a href="https://anndata.readthedocs.io"><code>anndata</code> Python library</a> provides the
+definition of this format and the relevant tools. Quoting from the <code>anndata</code>
+documentation:</p>
+<blockquote>
+<p><code>AnnData</code> is specifically designed for matrix-like data. By this we mean that
+we have <span class="arithmatex">\(n\)</span> observations, each of which can be represented as <span class="arithmatex">\(d\)</span>-dimensional
+vectors, where each dimension corresponds to a variable or feature. Both the
+rows and columns of this <span class="arithmatex">\(n \times d\)</span> matrix are special in the sense that
+they are indexed.</p>
+<p>(<a href="https://anndata.readthedocs.io/en/latest/tutorials/notebooks/getting-started.html">https://anndata.readthedocs.io/en/latest/tutorials/notebooks/getting-started.html</a>)</p>
+</blockquote>
+<p>Note that <code>AnnData</code> tables are easily transformed from/into <code>pandas.DataFrame</code>
+objects - see e.g. the <a href="https://anndata.readthedocs.io/en/latest/generated/anndata.AnnData.to_df.html#anndata.AnnData.to_df"><code>AnnData.to_df</code>
+method</a>.</p>
+<p><strong>Zarr structure and attributes</strong></p>
+<p>The structure of Zarr groups is based on the <a href="https://ngff.openmicroscopy.org/0.4/index.html#image-layout"><code>image</code> specification in NGFF
+0.4</a>, with an
+additional <code>tables</code> group and the corresponding subgroups (similar to
+<code>labels</code>):
+<div class="highlight"><pre><span></span><code>image.zarr        # Zarr group for a NGFF image
+|
+├── 0             # Zarr array for multiscale level 0
+├── ...
+├── N             # Zarr array for multiscale level N
+|
+├── labels        # Zarr subgroup with a list of labels associated to this image
+|   ├── label_A   # Zarr subgroup for a given label
+|   ├── label_B   # Zarr subgroup for a given label
+|   └── ...
+|
+<span class="hll">└── tables        # Zarr subgroup with a list of tables associated to this image
+</span><span class="hll">    ├── table_1   # Zarr subgroup for a given table
+</span><span class="hll">    ├── table_2   # Zarr subgroup for a given table
+</span><span class="hll">    └── ...
+</span></code></pre></div></p>
+<p>The Zarr attributes of the <code>tables</code> group must include the key <code>tables</code>,
+pointing to the list of all tables (this simplifies discovery of tables
+associated to the current NGFF image), as in
+<div class="highlight"><span class="filename">image.zarr/tables/.zattrs</span><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;tables&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;table_1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;table_2&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p>The Zarr attributes of each specific-table group must include the version of
+the table specification (currently version 1), through the
+<code>fractal_table_version</code> attribute. Also note that the <code>anndata</code> function to
+write an <code>AnnData</code> object into a Zarr group automatically sets additional
+attributes. Here is an example of the resulting Zarr attributes:
+<div class="highlight"><span class="filename">image.zarr/tables/table_1/.zattrs</span><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;fractal_table_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;encoding-type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;anndata&quot;</span><span class="p">,</span><span class="w">    </span><span class="c1">// Automatically added by anndata 0.11</span>
+<span class="w">    </span><span class="nt">&quot;encoding-version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span><span class="w">   </span><span class="c1">// Automatically added by anndata 0.11</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<h3 id="roi-tables">ROI tables<a class="headerlink" href="#roi-tables" title="Permanent link">&para;</a></h3>
+<p>In <code>fractal-tasks-core</code>, a ROI table defines regions of space which are
+three-dimensional (see also the <a href="#outlook">Outlook section</a> about
+dimensionality flexibility) and box-shaped.
+Typical use cases are described <a href="#use-cases-for-roi-tables">here</a>.</p>
+<p><strong>Zarr attributes</strong></p>
+<p>The specification of a ROI table is a subset of the <a href="#core-tables">core table
+one</a>. Moreover, the table-group Zarr attributes must include the
+<code>type</code> attribute with value <code>roi_table</code>, as in
+<div class="highlight"><span class="filename">image.zarr/tables/table_1/.zattrs</span><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;fractal_table_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1&quot;</span><span class="p">,</span>
+<span class="hll"><span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;roi_table&quot;</span><span class="p">,</span>
+</span><span class="w">    </span><span class="nt">&quot;encoding-type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;anndata&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;encoding-version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong>Table columns</strong></p>
+<p>The <a href="https://anndata.readthedocs.io/en/latest/generated/anndata.AnnData.var.html#anndata.AnnData.var"><code>var</code>
+attribute</a>
+of a given <code>AnnData</code> object indexes the columns of the table. A
+<code>fractal-tasks-core</code> ROI table must include the following six columns:</p>
+<ul>
+<li><code>x_micrometer</code>, <code>y_micrometer</code>, <code>z_micrometer</code>:
+  the lower bounds of the XYZ intervals defining the ROI, in micrometers;</li>
+<li><code>len_x_micrometer</code>, <code>len_y_micrometer</code>, <code>len_z_micrometer</code>:
+  the XYZ edge lengths, in micrometers.</li>
+</ul>
+<blockquote>
+<p>Notes:</p>
+<ol>
+<li>The <strong>axes origin</strong> for the ROI positions (e.g. for <code>x_micrometer</code>)
+   corresponds to the top-left corner of the image (for the YX axes) and to
+   the lowest Z plane.</li>
+<li>ROIs are defined in <strong>physical coordinates</strong>, and they do not store
+   information on the number or size of pixels.</li>
+</ol>
+</blockquote>
+<p>ROI tables may also include other columns, beyond the required ones. Here are
+the ones that are typically used in <code>fractal-tasks-core</code> (see also the <a href="#roi-tables-use-cases">Use
+cases</a> section):</p>
+<ul>
+<li><code>x_micrometer_original</code> and <code>y_micrometer_original</code>, which are a copy of
+  <code>x_micrometer</code> and <code>y_micrometer</code> taken before applying some transformation;</li>
+<li><code>translation_x</code>, <code>translation_y</code> and <code>translation_z</code>, which are used during
+  registration of multiplexing cycles;</li>
+<li><code>label</code>, which is used to link a ROI to a label (either for
+  <a href="#masking-roi-tables">masking ROI tables</a> or for
+  <a href="#feature-tables">feature tables</a>).</li>
+</ul>
+<h3 id="masking-roi-tables">Masking ROI tables<a class="headerlink" href="#masking-roi-tables" title="Permanent link">&para;</a></h3>
+<p>Masking ROI tables are a specific instance of the basic ROI tables described
+above, where each ROI must also be associated to a specific label of a label
+image.</p>
+<p><strong>Motivation</strong></p>
+<p>The motivation for this association is based on the following use case:</p>
+<ul>
+<li>By performing segmentation of a NGFF image, we identify N objects and we
+  store them as a label image (where the value at each pixel correspond to the
+  label index);</li>
+<li>We also compute the three-dimensional bounding box of each segmented object,
+  and store these bounding boxes into a <code>masking</code> ROI table;</li>
+<li>For each one of these ROIs, we also include information that link it to both
+  the label image and a specific label index;</li>
+<li>During further processing we can load/modify specific sub-regions of the ROI,
+  based on information contained in the label image. This kind of operations
+  are <code>masked</code>, as they only act on the array elements that match a certain
+  condition on the label value.</li>
+</ul>
+<p><strong>Zarr attributes</strong></p>
+<p>For this kind of tables, <code>fractal-tasks-core</code> closely follows the <a href="https://github.com/ome/ngff/pull/64">proposed
+NGFF update mentioned above</a>. The
+requirements on the Zarr attributes of a given table are:</p>
+<ul>
+<li>Attributes must contain a <code>type</code> key, with value <code>masking_roi_table</code><sup id="fnref2:2"><a class="footnote-ref" href="#fn:2">2</a></sup>.</li>
+<li>Attributes must contain a <code>region</code> key; the corresponding value must be an
+  object with a <code>path</code> key and a string value (i.e. the path to the data the
+  table is annotating).</li>
+<li>Attributes must include a key <code>instance_key</code>, which is the key in <code>obs</code> that
+  denotes which instance in <code>region</code> the row corresponds to.</li>
+</ul>
+<p>Here is an example of valid Zarr attributes
+<div class="highlight"><span class="filename">image.zarr/tables/table_1/.zattrs</span><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;fractal_table_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1&quot;</span><span class="p">,</span>
+<span class="hll"><span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;masking_roi_table&quot;</span><span class="p">,</span>
+</span><span class="hll"><span class="w">    </span><span class="nt">&quot;region&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;../labels/label_DAPI&quot;</span><span class="w"> </span><span class="p">},</span>
+</span><span class="hll"><span class="w">    </span><span class="nt">&quot;instance_key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;label&quot;</span><span class="p">,</span>
+</span><span class="w">    </span><span class="nt">&quot;encoding-type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;anndata&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;encoding-version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong><code>AnnData</code> table attributes</strong></p>
+<p>On top of the required ROI-table colums, the masking-ROI-table <code>AnnData</code> object
+must have an attribute <code>obs</code> with a key matching to the <code>instance_key</code> zarr
+attribute. For instance if <code>instance_key="label"</code> then <code>table.obs["label"]</code>
+must exist, with its items matching the labels in the image in
+<code>"../labels/label_DAPI"</code>.</p>
+<h3 id="feature-tables">Feature tables<a class="headerlink" href="#feature-tables" title="Permanent link">&para;</a></h3>
+<p><strong>Motivation</strong></p>
+<p>The typical use case for feature tables is to store measurements related to
+segmented objects, while mantaining a link to the original instances (e.g.
+labels). Note that the current specification is aligned to the one of <a href="#masking-roi-tables">masking
+ROI tables</a>, since they both need to relate a table to a
+label image, but the two may diverge in the future.</p>
+<p>As part of the current <code>fractal-tasks-core</code> tasks, measurements can be
+performed e.g. via <code>regionprops</code> from <code>scikit-image</code>, as wrapped in
+<a href="https://github.com/haesleinhuepf/napari-skimage-regionprops">napari-skimage-regionprops</a>).</p>
+<p><strong>Zarr attributes</strong></p>
+<p>For this kind of tables, <code>fractal-tasks-core</code> closely follows the <a href="https://github.com/ome/ngff/pull/64">proposed
+NGFF update mentioned above</a>. The
+requirements on the Zarr attributes of a given table are:</p>
+<ul>
+<li>Attributes must contain a <code>type</code> key, with value <code>feature_table</code><sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup>.</li>
+<li>Attributes must contain a <code>region</code> key; the corresponding value must be an
+  object with a <code>path</code> key and a string value (i.e. the path to the data the
+  table is annotating).</li>
+<li>Attributes must include a key <code>instance_key</code>, which is the key in <code>obs</code> that
+  denotes which instance in <code>region</code> the row corresponds to.</li>
+</ul>
+<p>Here is an example of valid Zarr attributes
+<div class="highlight"><span class="filename">image.zarr/tables/table_1/.zattrs</span><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;fractal_table_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1&quot;</span><span class="p">,</span>
+<span class="hll"><span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;feature_table&quot;</span><span class="p">,</span>
+</span><span class="hll"><span class="w">    </span><span class="nt">&quot;region&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;../labels/label_DAPI&quot;</span><span class="w"> </span><span class="p">},</span>
+</span><span class="hll"><span class="w">    </span><span class="nt">&quot;instance_key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;label&quot;</span><span class="p">,</span>
+</span><span class="w">    </span><span class="nt">&quot;encoding-type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;anndata&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;encoding-version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong><code>AnnData</code> table attributes</strong></p>
+<p>The feature-table <code>AnnData</code> object must have an attribute <code>obs</code> with a key
+matching to the <code>instance_key</code> zarr attribute. For instance if
+<code>instance_key="label"</code> then <code>table.obs["label"]</code> must exist, with its items
+matching the labels in the image in <code>"../labels/label_DAPI"</code>.</p>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
+<h3 id="use-cases-for-roi-tables">Use cases for ROI tables<a class="headerlink" href="#use-cases-for-roi-tables" title="Permanent link">&para;</a></h3>
+<h4 id="ome-zarr-creation">OME-Zarr creation<a class="headerlink" href="#ome-zarr-creation" title="Permanent link">&para;</a></h4>
+<p>OME-Zarrs created via <code>fractal-tasks-core</code> (e.g. by parsing Yokogawa images via
+the
+<a href="../reference/fractal_tasks_core/tasks/create_ome_zarr/#fractal_tasks_core.tasks.create_ome_zarr.create_ome_zarr"><code>create_ome_zarr</code></a>
+or
+<a href="../reference/fractal_tasks_core/tasks/create_ome_zarr_multiplex/#fractal_tasks_core.tasks.create_ome_zarr_multiplex.create_ome_zarr_multiplex"><code>create_ome_zarr_multiplex</code></a>
+tasks) always include two specific ROI tables:</p>
+<ul>
+<li>The table named <code>well_ROI_table</code>, which covers the NGFF image corresponding to the whole well<sup id="fnref2:1"><a class="footnote-ref" href="#fn:1">1</a></sup>;</li>
+<li>The table named <code>FOV_ROI_table</code>, which lists all original fields of view (FOVs).</li>
+</ul>
+<p>Each one of these two tables includes ROIs that span the whole image size along
+the Z axis. Note that this differs, e.g., from ROIs which are the bounding
+boxes of three-dimensional segmented objects, and which may cover only a part
+of the image Z size.</p>
+<h4 id="ome-zarr-import">OME-Zarr import<a class="headerlink" href="#ome-zarr-import" title="Permanent link">&para;</a></h4>
+<p>When working with an externally-generated OME-Zarr, one may use the
+<a href="../reference/fractal_tasks_core/tasks/import_ome_zarr/#fractal_tasks_core.tasks.import_ome_zarr.import_ome_zarr"><code>import_ome_zarr</code>
+task</a>
+to make it compatible with <code>fractal-tasks-core</code>. This task optionally adds two
+ROI tables to the NGFF images:</p>
+<ul>
+<li>The table named <code>image_ROI_table</code>, which covers the whole image;</li>
+<li>A table named <code>grid_ROI_table</code>, which splits the whole-image ROI into a YX
+  rectangular grid of smaller ROIs. This may correspond to original FOVs (in
+  case the image is a tiled well<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>), or it may simply be useful for applying
+  downstream processing to smaller arrays and avoid large memory requirements.</li>
+</ul>
+<p>As for the case of <code>well_ROI_table</code> and <code>FOV_ROI_table</code> described
+<a href="#ome-zarr-creation">above</a>, also these two tables include ROIs spanning the
+whole image extension along the Z axis.</p>
+<h4 id="ome-zarr-processing">OME-Zarr processing<a class="headerlink" href="#ome-zarr-processing" title="Permanent link">&para;</a></h4>
+<p>ROI tables are also used and updated during image processing, e.g as in:</p>
+<ul>
+<li>The FOV ROI table may undergo transformations during processing, e.g. FOV
+  ROIs may be shifted to avoid overlaps; in this case, we use the optional
+  columns <code>x_micrometer_original</code> and <code>y_micrometer_original</code> to store the values
+  before the transformation.</li>
+<li>The FOV ROI table is also used to store information on the registration of
+  multiplexing cycles, via the <code>translation_x</code>, <code>translation_y</code> and
+  <code>translation_z</code> optional columns.</li>
+<li>Several tasks in <code>fractal-tasks-core</code> take an existing ROI table as an input
+  and then loop over the ROIs defined in the table. This makes the task more
+  flexible, as it can be used to process e.g. a whole well, a set of FOVs, or a
+  set of custom regions of the array.</li>
+</ul>
+<h3 id="readingwriting-tables">Reading/writing tables<a class="headerlink" href="#readingwriting-tables" title="Permanent link">&para;</a></h3>
+<p>The <code>anndata</code> library offers a set of functions for input/output of AnnData
+tables, including functions specifically targeting the Zarr format.</p>
+<h4 id="reading-a-table">Reading a table<a class="headerlink" href="#reading-a-table" title="Permanent link">&para;</a></h4>
+<p>To read an <code>AnnData</code> table from a Zarr group, one may use the <a href="https://anndata.readthedocs.io/en/latest/generated/anndata.read_zarr.html"><code>read_zarr</code>
+function</a>.
+In the following example a NGFF image was created by stitching together two
+field of views, where each one is made of a stack of five Z planes with 1 um
+spacing between the planes.
+The <code>FOV_ROI_table</code> has information on the XY position and size of the two
+original FOVs (named <code>FOV_1</code> and <code>FOV_2</code>):
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">anndata</span> <span class="k">as</span> <span class="nn">ad</span>
+
+<span class="n">table</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">read_zarr</span><span class="p">(</span><span class="s2">&quot;/somewhere/image.zarr/tables/FOV_ROI_table&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="c1"># `AnnData` object with n_obs × n_vars = 2 × 8</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">obs_names</span><span class="p">)</span>
+<span class="c1"># Index([&#39;FOV_1&#39;, &#39;FOV_2&#39;], dtype=&#39;object&#39;, name=&#39;FieldIndex&#39;)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">var_names</span><span class="p">)</span>
+<span class="c1"># Index([</span>
+<span class="c1">#        &#39;x_micrometer&#39;,</span>
+<span class="c1">#        &#39;y_micrometer&#39;,</span>
+<span class="c1">#        &#39;z_micrometer&#39;,</span>
+<span class="c1">#        &#39;len_x_micrometer&#39;,</span>
+<span class="c1">#        &#39;len_y_micrometer&#39;,</span>
+<span class="c1">#        &#39;len_z_micrometer&#39;,</span>
+<span class="c1">#        &#39;x_micrometer_original&#39;,</span>
+<span class="c1">#        &#39;y_micrometer_original&#39;</span>
+<span class="c1">#       ],</span>
+<span class="c1">#       dtype=&#39;object&#39;)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+<span class="c1"># [[    0.      0.      0.    416.    351.      5.  -1448.3 -1517.7]</span>
+<span class="c1">#  [  416.      0.      0.    416.    351.      5.  -1032.3 -1517.7]]</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>  <span class="c1"># Convert to pandas DataFrame</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="c1">#             x_micrometer  y_micrometer  z_micrometer  ...  len_z_micrometer  x_micrometer_original  y_micrometer_original</span>
+<span class="c1"># FieldIndex                                            ...</span>
+<span class="c1"># FOV_1                0.0           0.0           0.0  ...               2.0           -1448.300049           -1517.699951</span>
+<span class="c1"># FOV_2              416.0           0.0           0.0  ...               2.0           -1032.300049           -1517.699951</span>
+<span class="c1">#</span>
+<span class="c1"># [2 rows x 8 columns]</span>
+</code></pre></div></p>
+<p>In this case, the second FOV (labeled <code>FOV_2</code>) is defined as the three-dimensional region such that</p>
+<ul>
+<li>X is between 416 and 832 micrometers;</li>
+<li>Y is between 0 and 351 micrometers;</li>
+<li>Z is between 0 and 5 - which means that all the five available Z planes are included.</li>
+</ul>
+<h4 id="writing-a-table">Writing a table<a class="headerlink" href="#writing-a-table" title="Permanent link">&para;</a></h4>
+<p>The <code>anndata.experimental.write_elem</code> function provides the required
+functionality to write an <code>AnnData</code> object to a Zarr group. In
+<code>fractal-tasks-core</code>, the <code>write_table</code> helper function wraps the <code>anndata</code>
+function and includes additional functionalities -- see <a href="../reference/fractal_tasks_core/tables/#fractal_tasks_core.tables.write_table">its
+documentation</a>.</p>
+<p>With respect to the wrapped <code>anndata</code> function, the main additional features of <code>write_table</code> are</p>
+<ul>
+<li>The boolean parameter <code>overwrite</code> (defaulting to <code>False</code>), that determines the behavior in case of an already-existing table at the given path.</li>
+<li>The <code>table_attrs</code> parameter, as a shorthand for updating the Zarr attributes of the table group after its creation.</li>
+</ul>
+<p>Here is an example of how to use <code>write_table</code>:
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">zarr</span>
+<span class="kn">import</span> <span class="nn">anndata</span> <span class="k">as</span> <span class="nn">ad</span>
+<span class="kn">from</span> <span class="nn">fractal_tasks_core.tables</span> <span class="kn">import</span> <span class="n">write_table</span>
+
+<span class="n">table</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)))</span>  <span class="c1"># Generate a dummy `AnnData` object</span>
+<span class="n">image_group</span> <span class="o">=</span> <span class="n">zarr</span><span class="o">.</span><span class="n">open_group</span><span class="p">(</span><span class="s2">&quot;/tmp/image.zarr&quot;</span><span class="p">)</span>
+<span class="n">table_name</span> <span class="o">=</span> <span class="s2">&quot;MyTable&quot;</span>
+<span class="n">table_attrs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;feature_table&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;../labels/MyLabel&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;instance_key&quot;</span><span class="p">:</span> <span class="s2">&quot;label&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">write_table</span><span class="p">(</span>
+    <span class="n">image_group</span><span class="p">,</span>
+    <span class="n">table_name</span><span class="p">,</span>
+    <span class="n">table</span><span class="p">,</span>
+    <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">table_attrs</span><span class="o">=</span><span class="n">table_attrs</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+After running this Python code snippet, the on-disk output  is as follows:
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>tree<span class="w"> </span>/tmp/image.zarr/tables/<span class="w">                  </span><span class="c1"># View folder structure</span>
+<span class="go">/tmp/image.zarr/tables/</span>
+<span class="go">└── MyTable</span>
+<span class="go">    ├── layers</span>
+<span class="go">    ├── obs</span>
+<span class="go">    │   └── _index</span>
+<span class="go">    │       └── 0</span>
+<span class="go">    ├── obsm</span>
+<span class="go">    ├── obsp</span>
+<span class="go">    ├── uns</span>
+<span class="go">    ├── var</span>
+<span class="go">    │   └── _index</span>
+<span class="go">    │       └── 0</span>
+<span class="go">    ├── varm</span>
+<span class="go">    ├── varp</span>
+<span class="go">    └── X</span>
+<span class="go">        └── 0.0</span>
+
+<span class="go">12 directories, 3 files</span>
+
+<span class="gp">$ </span>cat<span class="w"> </span>/tmp/image.zarr/tables/.zattrs<span class="w">            </span><span class="c1"># View tables atributes</span>
+<span class="go">{</span>
+<span class="go">    &quot;tables&quot;: [</span>
+<span class="go">        &quot;MyTable&quot;</span>
+<span class="go">    ]</span>
+<span class="go">}</span>
+
+<span class="gp">$ </span>cat<span class="w"> </span>/tmp/image.zarr/tables/MyTable/.zattrs<span class="w">    </span><span class="c1"># View single-table attributes</span>
+<span class="go">{</span>
+<span class="go">    &quot;encoding-type&quot;: &quot;anndata&quot;,</span>
+<span class="go">    &quot;encoding-version&quot;: &quot;0.1.0&quot;,</span>
+<span class="go">    &quot;fractal_table_version&quot;: &quot;1&quot;,</span>
+<span class="go">    &quot;instance_key&quot;: &quot;label&quot;,</span>
+<span class="go">    &quot;region&quot;: {</span>
+<span class="go">        &quot;path&quot;: &quot;../labels/MyLabel&quot;</span>
+<span class="go">    },</span>
+<span class="go">    &quot;type&quot;: &quot;feature_table&quot;</span>
+<span class="go">}</span>
+</code></pre></div></p>
+<h2 id="outlook">Outlook<a class="headerlink" href="#outlook" title="Permanent link">&para;</a></h2>
+<p>These specifications may evolve (especially based on the future NGFF updates),
+eventually leading to breaking changes in future versions.
+<code>fractal-tasks-core</code> will aim at mantaining backwards-compatibility with V1 for
+a reasonable amount of time.</p>
+<p>Here is an in-progress list of aspects that may be reviewed:</p>
+<ul>
+<li>We aim at removing the use of hard-coded units from the column names (e.g.
+  <code>x_micrometer</code>), in favor of a more general definition of units.</li>
+<li>The <code>z_micrometer</code> and <code>len_z_micrometer</code> columns are currently required in
+  all ROI tables, even when the ROIs actually define a two-dimensional XY
+  region; in that case, we set <code>z_micrometer=0</code> and <code>len_z_micrometer</code> is such
+  that the whole Z size is covered (that is, <code>len_z_micrometer</code> is the product
+  of the spacing between Z planes and the number of planes). In a future
+  version, we may introduce more flexibility and also accept ROI tables which
+  only include X and Y axes, and adapt the relevant tools so that they
+  automatically expand these ROIs into three-dimensions when appropriate.</li>
+<li>Concerning the use of <code>AnnData</code> tables or other formats for tabular data, our
+  plan is to follow whatever serialised table specification becomes part of the
+  NGFF standard. For the record, Zarr does not natively support storage of
+  dataframes (see e.g.
+  <a href="https://github.com/zarr-developers/numcodecs/issues/452">https://github.com/zarr-developers/numcodecs/issues/452</a>), which is one aspect
+  in favor of sticking with the <code>anndata</code> library.</li>
+</ul>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>Within <code>fractal-tasks-core</code>, NGFF images represent whole wells; this still
+complies with the NGFF specifications, as of an <a href="https://github.com/ome/ngff/pull/137">approved clarification in the
+specs</a>. This explains the reason for
+storing the regions corresponding to the original FOVs in a specific ROI table,
+since one NGFF image includes a collection of FOVs. Note that this approach
+does not rely on the assumption that the FOVs constitute a regular tiling of
+the well, but it also covers the case of irregularly placed FOVs.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
+<p>Note that the table types <code>masking_roi_table</code> and <code>feature_table</code> closely
+resemble the <code>type="ngff:region_table"</code> specification in the previous <a href="https://github.com/ome/ngff/pull/64">proposed
+NGFF table specs</a>.&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      © Copyright 2022
+Friedrich Miescher Institute for Biomedical Research and
+University of Zurich
+(see <u><a href="https://github.com/fractal-analytics-platform/fractal-tasks-core/blob/main/LICENSE">
+LICENSE
+</a></u>).
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "content.code.copy"], "search": "../assets/javascripts/workers/search.74e28a9f.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.220ee61c.min.js"></script>
+      
+        
+          <script src="../javascripts/mathjax.js"></script>
+        
+      
+        
+          <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        
+      
+        
+          <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        
+      
+    
+  </body>
+</html>

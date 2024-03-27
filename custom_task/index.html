@@ -1,0 +1,1791 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../tables/">
+      
+      
+        <link rel="next" href="../development/">
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.1.21">
+    
+    
+      
+        <title>Write a custom task - Fractal Tasks Core</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.eebd395e.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ecc896b0.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="light-blue">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#how-to-write-a-fractal-compatible-custom-task" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Fractal Tasks Core" class="md-header__button md-logo" aria-label="Fractal Tasks Core" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Fractal Tasks Core
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Write a custom task
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="light-blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+            
+              <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+              </label>
+            
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="light-blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+            
+              <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+              </label>
+            
+          
+        </form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/fractal-analytics-platform/fractal-tasks-core" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fractal-tasks-core
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Fractal Tasks Core" class="md-nav__button md-logo" aria-label="Fractal Tasks Core" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Fractal Tasks Core
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/fractal-analytics-platform/fractal-tasks-core" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fractal-tasks-core
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Home page
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../install/" class="md-nav__link">
+        Install
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../run_tasks/">Run tasks</a>
+          
+            <label for="__nav_3">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Run tasks
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../run_tasks/tasks_in_fractal/" class="md-nav__link">
+        Within Fractal
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../run_tasks/tasks_in_scripts/" class="md-nav__link">
+        From Python scripts
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../all_tasks/" class="md-nav__link">
+        Task list
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tables/" class="md-nav__link">
+        Table specs
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Write a custom task
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Write a custom task
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#single-custom-task" class="md-nav__link">
+    Single custom task
+  </a>
+  
+    <nav class="md-nav" aria-label="Single custom task">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-metadata" class="md-nav__link">
+    Task metadata
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#command-line-interface" class="md-nav__link">
+    Command-line interface
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-meta-parameters" class="md-nav__link">
+    Task meta-parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-input-parameters" class="md-nav__link">
+    Task input parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-output" class="md-nav__link">
+    Task output
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#advanced-features" class="md-nav__link">
+    Advanced features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-task-example" class="md-nav__link">
+    Full task example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-package" class="md-nav__link">
+    Task package
+  </a>
+  
+    <nav class="md-nav" aria-label="Task package">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reasons" class="md-nav__link">
+    Reasons
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    Requirements
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/" class="md-nav__link">
+        Development
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          Code reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Code reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_1" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/fractal_tasks_core/tasks/">tasks</a>
+          
+            <label for="__nav_8_1">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_1_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_1">
+          <span class="md-nav__icon md-icon"></span>
+          tasks
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/_utils/" class="md-nav__link">
+        _utils
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/apply_registration_to_image/" class="md-nav__link">
+        apply_registration_to_image
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/apply_registration_to_ROI_tables/" class="md-nav__link">
+        apply_registration_to_ROI_tables
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/calculate_registration_image_based/" class="md-nav__link">
+        calculate_registration_image_based
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/cellpose_segmentation/" class="md-nav__link">
+        cellpose_segmentation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/cellpose_transforms/" class="md-nav__link">
+        cellpose_transforms
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/compress_tif/" class="md-nav__link">
+        compress_tif
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/copy_ome_zarr/" class="md-nav__link">
+        copy_ome_zarr
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/create_ome_zarr/" class="md-nav__link">
+        create_ome_zarr
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/create_ome_zarr_multiplex/" class="md-nav__link">
+        create_ome_zarr_multiplex
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/illumination_correction/" class="md-nav__link">
+        illumination_correction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/import_ome_zarr/" class="md-nav__link">
+        import_ome_zarr
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/maximum_intensity_projection/" class="md-nav__link">
+        maximum_intensity_projection
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/napari_workflows_wrapper/" class="md-nav__link">
+        napari_workflows_wrapper
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/napari_workflows_wrapper_models/" class="md-nav__link">
+        napari_workflows_wrapper_models
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/yokogawa_to_ome_zarr/" class="md-nav__link">
+        yokogawa_to_ome_zarr
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_2" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/fractal_tasks_core/dev/">dev</a>
+          
+            <label for="__nav_8_2">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_2">
+          <span class="md-nav__icon md-icon"></span>
+          dev
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/check_manifest/" class="md-nav__link">
+        check_manifest
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/lib_args_schemas/" class="md-nav__link">
+        lib_args_schemas
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/lib_descriptions/" class="md-nav__link">
+        lib_descriptions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/lib_signature_constraints/" class="md-nav__link">
+        lib_signature_constraints
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/lib_task_docs/" class="md-nav__link">
+        lib_task_docs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/lib_titles/" class="md-nav__link">
+        lib_titles
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/update_manifest/" class="md-nav__link">
+        update_manifest
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/fractal_tasks_core/cellvoyager/">cellvoyager</a>
+          
+            <label for="__nav_8_3">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_3">
+          <span class="md-nav__icon md-icon"></span>
+          cellvoyager
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/cellvoyager/filenames/" class="md-nav__link">
+        filenames
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/cellvoyager/metadata/" class="md-nav__link">
+        metadata
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/channels/" class="md-nav__link">
+        channels
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/labels/" class="md-nav__link">
+        labels
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/masked_loading/" class="md-nav__link">
+        masked_loading
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_7" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/fractal_tasks_core/ngff/">ngff</a>
+          
+            <label for="__nav_8_7">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_7">
+          <span class="md-nav__icon md-icon"></span>
+          ngff
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/ngff/specs/" class="md-nav__link">
+        specs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/ngff/zarr_utils/" class="md-nav__link">
+        zarr_utils
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/pyramids/" class="md-nav__link">
+        pyramids
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_9" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/fractal_tasks_core/roi/">roi</a>
+          
+            <label for="__nav_8_9">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_9_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_9">
+          <span class="md-nav__icon md-icon"></span>
+          roi
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/roi/_overlaps_common/" class="md-nav__link">
+        _overlaps_common
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/roi/load_region/" class="md-nav__link">
+        load_region
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/roi/v1/" class="md-nav__link">
+        v1
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/roi/v1_checks/" class="md-nav__link">
+        v1_checks
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/roi/v1_overlaps/" class="md-nav__link">
+        v1_overlaps
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_10" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/fractal_tasks_core/tables/">tables</a>
+          
+            <label for="__nav_8_10">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_10_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_10">
+          <span class="md-nav__icon md-icon"></span>
+          tables
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tables/v1/" class="md-nav__link">
+        v1
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/upscale_array/" class="md-nav__link">
+        upscale_array
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/utils/" class="md-nav__link">
+        utils
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/zarr_utils/" class="md-nav__link">
+        zarr_utils
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        Changelog
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#single-custom-task" class="md-nav__link">
+    Single custom task
+  </a>
+  
+    <nav class="md-nav" aria-label="Single custom task">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-metadata" class="md-nav__link">
+    Task metadata
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#command-line-interface" class="md-nav__link">
+    Command-line interface
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-meta-parameters" class="md-nav__link">
+    Task meta-parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-input-parameters" class="md-nav__link">
+    Task input parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-output" class="md-nav__link">
+    Task output
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#advanced-features" class="md-nav__link">
+    Advanced features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-task-example" class="md-nav__link">
+    Full task example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-package" class="md-nav__link">
+    Task package
+  </a>
+  
+    <nav class="md-nav" aria-label="Task package">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reasons" class="md-nav__link">
+    Reasons
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    Requirements
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="how-to-write-a-fractal-compatible-custom-task">How to write a Fractal-compatible custom task<a class="headerlink" href="#how-to-write-a-fractal-compatible-custom-task" title="Permanent link">&para;</a></h1>
+<p>The <code>fractal-tasks-core</code> repository is the reference implementation for Fractal
+tasks and for Fractal task packages, but the Fractal platform can also be
+used to execute custom tasks. This page lists the Fractal-compatibility
+requirements, for a <a href="#single-custom-task">single custom task</a> or for a <a href="#task-package">task
+package</a>.</p>
+<p>Note that these specifications evolve frequently, see e.g. discussion at
+<a href="https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/151">https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/151</a>.</p>
+<blockquote>
+<p><strong>Note</strong>: While the contents of this page remain valid, the recommended
+procedure to get up to speed and build a Python package of Fractal-compatible
+tasks is to use the template available at
+<a href="https://github.com/fractal-analytics-platform/fractal-tasks-template">https://github.com/fractal-analytics-platform/fractal-tasks-template</a>.</p>
+</blockquote>
+<p>A Fractal task is mainly formed by two components:</p>
+<ol>
+<li>A set of metadata, which are stored in the <code>task</code> table of the database of a
+   <code>fractal-server</code> instance, see <a href="#task-metadata">Task metadata</a>.</li>
+<li>An executable command, which can take some specific command-line arguments
+   (see <a href="#command-line-interface">Command-line interface</a>); the standard
+   example is a Python script.</li>
+</ol>
+<p>In the following we explain what are the Fractal-compatibility requirements for
+a single task, and then for a task package.</p>
+<h2 id="single-custom-task">Single custom task<a class="headerlink" href="#single-custom-task" title="Permanent link">&para;</a></h2>
+<p>We describe how to define the multiple aspects of a task, and provide a <a href="#full-task-example">Full task example</a>.</p>
+<h3 id="task-metadata">Task metadata<a class="headerlink" href="#task-metadata" title="Permanent link">&para;</a></h3>
+<p>Each task must be associated to some metadata, so that it can be used in
+Fractal. The full specification is
+<a href="https://fractal-analytics-platform.github.io/fractal-server/reference/fractal_server/app/models/task/#fractal_server.app.models.task.Task">here</a>,
+and the required attributes are:</p>
+<ul>
+<li><code>name</code>: the task name, e.g. <code>"Create OME-Zarr structure"</code>;</li>
+<li><code>command</code>: a command that can be executed from the command line;</li>
+<li><code>input_type</code>: this can be any string (typical examples: <code>"image"</code> or <code>"zarr"</code>);
+  the special value <code>"Any"</code> means that Fractal won't perform any check of the
+  <code>input_type</code> when applying the task to a dataset.</li>
+<li><code>output_type</code>: same logic as <code>input_type</code>.</li>
+<li><code>source</code>: this is meant to be as close as possible to unique task identifier;
+  for custom tasks, it can be anything (e.g. <code>"my_task"</code>), but for task that
+  are collected automatically from a package (see <a href="#task-package">Task package</a> this
+   attribute will have a very specific form (e.g.
+   <code>"pip_remote:fractal_tasks_core:0.10.0:fractal-tasks::convert_yokogawa_to_ome-zarr"</code>).</li>
+<li><code>meta</code>: a JSON object (similar to a Python dictionary) with some additional
+  information, see <a href="#task-meta-parameters">Task meta-parameters</a>.</li>
+</ul>
+<p>There are multiple ways to get the appropriate metadata into the database,
+including a POST request to the <code>fractal-server</code> API (see <code>Tasks</code> section in
+the <a href="https://fractal-analytics-platform.github.io/fractal-server/openapi"><code>fractal-server</code> API
+documentation</a>)
+or the automated addition of a whole set of tasks through specific API
+endpoints (see <a href="#task-package">Task package</a>).</p>
+<h3 id="command-line-interface">Command-line interface<a class="headerlink" href="#command-line-interface" title="Permanent link">&para;</a></h3>
+<p>Some examples of task commands may look like</p>
+<ul>
+<li><code>python3 /some/path/my_task.py</code>,</li>
+<li><code>/some/absolute/path/python3.10 /some/other/absolute/path/my_task.py</code>,</li>
+<li><code>/some/path/my_executable_task.py</code>,</li>
+<li>any other executable command (not necessarily based on Python).</li>
+</ul>
+<p>Given a task command, Fractal will add two additional command-line arguments to it:</p>
+<ul>
+<li><code>-j /some/path/input-arguments.json</code></li>
+<li><code>--metadata-out /some/path/output-metadata-update.json</code></li>
+</ul>
+<p>Therefore the task command must accept these additional command-line arguments.
+If the task is a Python script, this can be achieved easily by using the
+<code>run_fractal_task</code> function - which is available as part of
+<a href="https://github.com/fractal-analytics-platform/fractal-tasks-core/blob/main/fractal_tasks_core/tasks/_utils.py"><code>fractal_tasks_core.tasks._utils</code></a>.</p>
+<h3 id="task-meta-parameters">Task meta-parameters<a class="headerlink" href="#task-meta-parameters" title="Permanent link">&para;</a></h3>
+<p>The <code>meta</code> attribute of tasks (see the corresponding item in <a href="#task-metadata">Task
+metadata</a>) is where we specify some requirements on how the
+task should be run. This notably includes:</p>
+<ul>
+<li>If the task has to be run in parallel (e.g. over multiple wells of an
+  OME-Zarr dataset), then <code>meta</code> should include a key-value pair like
+  <code>{"parallelization_level": "well"}</code>. If the <code>parallelization_level</code> key is
+  missing, the task is considered as non-parallel.</li>
+<li>If Fractal is configured to run on a SLURM cluster, <code>meta</code> may include
+  additional information on the SLRUM requirements (more info on the Fractal
+  SLURM backend
+  <a href="https://fractal-analytics-platform.github.io/fractal-server/internals/runners/slurm/">here</a>).</li>
+</ul>
+<h3 id="task-input-parameters">Task input parameters<a class="headerlink" href="#task-input-parameters" title="Permanent link">&para;</a></h3>
+<p>When a task is run via Fractal, its input parameters (i.e. the ones in the file
+specified via the <code>-j</code> command-line otion) will always include a set of keyword
+arguments with specific names:</p>
+<ul>
+<li><code>input_paths</code></li>
+<li><code>output_path</code></li>
+<li><code>metadata</code></li>
+<li><code>component</code> (only for parallel tasks)</li>
+</ul>
+<h3 id="task-output">Task output<a class="headerlink" href="#task-output" title="Permanent link">&para;</a></h3>
+<p>The only task output which will be visible to Fractal is what goes in the
+output metadata-update file (i.e. the one specified through the
+<code>--metadata-out</code> command-line option). Note that this only holds for
+non-parallel tasks, while (for the moment) Fractal fully ignores the output of
+parallel tasks.</p>
+<blockquote>
+<p><strong>IMPORTANT</strong>: This means that each task must always write any output to
+disk, before ending.</p>
+</blockquote>
+<h3 id="advanced-features">Advanced features<a class="headerlink" href="#advanced-features" title="Permanent link">&para;</a></h3>
+<p>The description of other advanced features is not yet available in this page.</p>
+<ol>
+<li>Also other attributes of the <a href="#task-metadata">Task metadata</a> exist, and they
+   would be recognized by other Fractal components (e.g.  <code>fractal-server</code> or
+   <code>fractal-web</code>). These include JSON Schemas for input parameters and additional
+   documentation-related attributes.</li>
+<li>In <code>fractal-tasks-core</code>, we use <a href="https://docs.pydantic.dev/1.10"><code>pydantic
+   v1</code></a> to fully coerce and validate the input
+   parameters into a set of given types.</li>
+</ol>
+<h3 id="full-task-example">Full task example<a class="headerlink" href="#full-task-example" title="Permanent link">&para;</a></h3>
+<p>Here we describe a simplified example of a Fractal-compatible Python task (for
+more realistic examples see the <code>fractal-task-core</code> <a href="https://github.com/fractal-analytics-platform/fractal-tasks-core/tree/main/fractal_tasks_core/tasks">tasks
+folder</a>).</p>
+<p>The script <code>/some/path/my_task.py</code> may look like
+<div class="highlight"><pre><span></span><code><span class="c1"># Import a helper function from fractal_tasks_core</span>
+<span class="kn">from</span> <span class="nn">fractal_tasks_core.tasks._utils</span> <span class="kn">import</span> <span class="n">run_fractal_task</span>
+
+<span class="k">def</span> <span class="nf">my_task_function</span><span class="p">(</span>
+    <span class="c1"># Reserved Fractal arguments</span>
+    <span class="n">input_paths</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">,</span>
+    <span class="n">metadata</span><span class="p">,</span>
+    <span class="c1"># Task-specific arguments</span>
+    <span class="n">argument_A</span><span class="p">,</span>
+    <span class="n">argument_B</span> <span class="o">=</span> <span class="s2">&quot;default_B_value&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># Do something, based on the task parameters</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Here we go, we are in `my_task_function`&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">/output.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;argument_A=</span><span class="si">{</span><span class="n">argument_A</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;argument_B=</span><span class="si">{</span><span class="n">argument_B</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># Compile the output metadata update and return</span>
+    <span class="n">output_metadata_update</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;nothing&quot;</span><span class="p">:</span> <span class="s2">&quot;to add&quot;</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">output_metadata_update</span>
+
+<span class="c1"># Thi block is executed when running the Python script directly</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">run_fractal_task</span><span class="p">(</span><span class="n">task_function</span><span class="o">=</span><span class="n">my_task_function</span><span class="p">)</span>
+</code></pre></div>
+where we use <code>run_fractal_task</code> so that we don't have to take care of the <a href="#command-line-interface">command-line arguments</a>.</p>
+<p>Some valid <a href="#task-metadata">metadata attributes</a> for this task would be:
+<div class="highlight"><pre><span></span><code><span class="n">name</span><span class="o">=</span><span class="s2">&quot;My Task&quot;</span>
+<span class="n">command</span><span class="o">=</span><span class="s2">&quot;python3 /some/path/my_task.py&quot;</span>
+<span class="n">input_type</span><span class="o">=</span><span class="s2">&quot;Any&quot;</span>
+<span class="n">output_type</span><span class="o">=</span><span class="s2">&quot;Any&quot;</span>
+<span class="n">source</span><span class="o">=</span><span class="s2">&quot;my_custom_task&quot;</span>
+<span class="n">meta</span><span class="o">=</span><span class="p">{}</span>
+</code></pre></div></p>
+<blockquote>
+<p>Note that this was an example of a non-parallel tasks; to have a parallel
+one, we would also need to:</p>
+<ol>
+<li>Set <code>meta={"parallelization_level": "something"}</code>;</li>
+<li>Include <code>component</code> in the input arguments of <code>my_task_function</code>.</li>
+</ol>
+</blockquote>
+<h2 id="task-package">Task package<a class="headerlink" href="#task-package" title="Permanent link">&para;</a></h2>
+<p>Given a set of Python scripts corresponding to Fractal tasks, it is useful to
+combine them into a single Python package, using the <a href="https://packaging.python.org/en/latest/tutorials/packaging-projects">standard
+tools</a> or
+other options (e.g. for <code>fractal-tasks-core</code> we use
+<a href="https://python-poetry.org/">poetry</a>).</p>
+<h3 id="reasons">Reasons<a class="headerlink" href="#reasons" title="Permanent link">&para;</a></h3>
+<p>Creating a package is often a good practice, for reasons unrelated to Fractal:</p>
+<ol>
+<li>It makes it simple to assign a global version to the package, and to host it
+   on a public index like PyPI;</li>
+<li>It may reduce code duplication:<ul>
+<li>The scripts may have a shared set of external dependencies, which are
+  defined in a single place for a package.</li>
+<li>The scripts may import functions from a shared set of auxiliary Python
+  modules, which can be included in the package.</li>
+</ul>
+</li>
+</ol>
+<p>Moreover, having a single package also streamlines some Fractal-related
+operations. Given the package <code>MyTasks</code> (available on PyPI, or locally), the
+Fractal platform offers a feature that automatically:</p>
+<ol>
+<li>Downloads the wheel file of package <code>MyTasks</code> (if it's on a public index,
+   rather than a local file);</li>
+<li>Creates a Python virtual environment (venv) which is specific for a given
+   version of the <code>MyTasks</code> package, and installs the <code>MyTasks</code> package in that
+   venv;</li>
+<li>Populates all the corresponding entries in the <code>task</code> database table with
+   the appropriate <a href="#task-metadata">Task metadata</a>, which are extracted from
+   the package manifest.</li>
+</ol>
+<p>This feature is currently exposed in the <code>/api/v1/task/collect/pip/</code> endpoint of <code>fractal-server</code> (see <a href="https://fractal-analytics-platform.github.io/fractal-server/openapi">API documentation</a>).</p>
+<h3 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h3>
+<p>To be compatible with Fractal, a task package must satisfy some additional requirements:</p>
+<ul>
+<li>The package is built as a a wheel file, and can be installed via <code>pip</code>.</li>
+<li>The <code>__FRACTAL_MANIFEST__.json</code> file is bundled in the package, in its root
+  folder. If you are using <code>poetry</code>, no special operation is needed. If you
+  are using a <code>setup.cfg</code> file, see
+  <a href="https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/151#issuecomment-1524929477">this
+  comment</a>.</li>
+<li>Include JSON Schemas. The tools in <code>fractal_tasks_core.dev</code> are used to
+  generate JSON Schema's for the input parameters of each task in
+  <code>fractal-tasks-core</code>. They are meant to be flexible and re-usable to perform
+  the same operation on an independent package, but they are not thoroughly
+  documented/tested for more general use; feel free to open an issue if something
+  is not clear.</li>
+<li>Include additional task metadata like <code>docs_info</code> or <code>docs_link</code>, which will
+  be displayed in the Fractal web-client. Note: this feature is not yet
+  implemented.</li>
+</ul>
+<blockquote>
+<p>The ones in the list are the main requirements; if you hit unexpected
+behaviors, also have a look at
+<a href="https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/151">https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/151</a>
+or open a new issue.</p>
+</blockquote>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      © Copyright 2022
+Friedrich Miescher Institute for Biomedical Research and
+University of Zurich
+(see <u><a href="https://github.com/fractal-analytics-platform/fractal-tasks-core/blob/main/LICENSE">
+LICENSE
+</a></u>).
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "content.code.copy"], "search": "../assets/javascripts/workers/search.74e28a9f.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.220ee61c.min.js"></script>
+      
+        
+          <script src="../javascripts/mathjax.js"></script>
+        
+      
+        
+          <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        
+      
+        
+          <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        
+      
+    
+  </body>
+</html>
