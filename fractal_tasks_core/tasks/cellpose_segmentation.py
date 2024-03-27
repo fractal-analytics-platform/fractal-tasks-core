@@ -230,7 +230,7 @@ def cellpose_segmentation(
     stitch_threshold: float = 0.0,
     # Overwrite option
     overwrite: bool = True,
-) -> dict[str, Any]:
+) -> None:
     """
     Run cellpose segmentation on the ROIs of a single OME-Zarr image.
 
@@ -714,8 +714,6 @@ def cellpose_segmentation(
             overwrite=overwrite,
             table_attrs=table_attrs,
         )
-
-    return {}
 
 
 if __name__ == "__main__":
