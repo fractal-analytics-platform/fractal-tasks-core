@@ -197,8 +197,8 @@ def segment_ROI(
 @validate_arguments
 def cellpose_segmentation(
     *,
-    # Fractal arguments
-    zarr_url,
+    # Fractal argument
+    zarr_url: str,
     # Task-specific arguments
     level: int,
     channel: ChannelInputModel,
