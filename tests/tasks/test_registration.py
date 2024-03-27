@@ -207,13 +207,13 @@ def test_multiplexing_registration(
         patched_segment_ROI,
     )
 
-    zarr_path = tmp_path / "registration_output/"
-    zarr_path_mip = tmp_path / "registration_output_mip/"
+    zarr_dir = tmp_path / "registration_output/"
+    zarr_dir_mip = tmp_path / "registration_output_mip/"
     metadata = {}
     # Create the multiplexed OME-Zarr
     metadata_update = create_ome_zarr_multiplex(
         input_paths=zenodo_images_multiplex_shifted,
-        output_path=str(zarr_path),
+        output_path=str(zarr_dir),
         metadata={},
         image_extension="png",
         allowed_channels=allowed_channels,
@@ -223,8 +223,8 @@ def test_multiplexing_registration(
 
     for component in metadata["image"]:
         yokogawa_to_ome_zarr(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
+            input_paths=[str(zarr_dir)],
+            output_path=str(zarr_dir),
             metadata=metadata,
             component=component,
         )
@@ -232,8 +232,8 @@ def test_multiplexing_registration(
 
     # Replicate
     metadata_update = copy_ome_zarr(
-        input_paths=[str(zarr_path)],
-        output_path=str(zarr_path_mip),
+        input_paths=[str(zarr_dir)],
+        output_path=str(zarr_dir_mip),
         metadata=metadata,
         project_to_2D=True,
         suffix="mip",
@@ -244,19 +244,17 @@ def test_multiplexing_registration(
     # MIP
     for component in metadata["image"]:
         maximum_intensity_projection(
-            input_paths=[str(zarr_path_mip)],
-            output_path=str(zarr_path_mip),
+            input_paths=[str(zarr_dir_mip)],
+            output_path=str(zarr_dir_mip),
             metadata=metadata,
             component=component,
         )
 
     # Cellpose segmentation (so that we test handling of label images)
     for component in metadata["image"]:
+        zarr_url = str(zarr_dir_mip / component)
         cellpose_segmentation(
-            input_paths=[str(zarr_path_mip)],
-            output_path=str(zarr_path_mip),
-            metadata=metadata,
-            component=component,
+            zarr_url=zarr_url,
             level=1,
             channel=ChannelInputModel(wavelength_id="A01_C01"),
         )
@@ -264,8 +262,8 @@ def test_multiplexing_registration(
     # Calculate registration
     for component in metadata["image"]:
         calculate_registration_image_based(
-            input_paths=[str(zarr_path_mip)],
-            output_path=str(zarr_path_mip),
+            input_paths=[str(zarr_dir_mip)],
+            output_path=str(zarr_dir_mip),
             metadata=metadata,
             component=component,
             wavelength_id="A01_C01",
@@ -275,7 +273,7 @@ def test_multiplexing_registration(
     # Check the table for the second component (the image of the second cycle)
     component = metadata["image"][1]
     curr_table = ad.read_zarr(
-        f"{zarr_path_mip / component}/tables/{roi_table}"
+        f"{zarr_dir_mip / component}/tables/{roi_table}"
     )
     assert curr_table.shape == (2, 11)
     np.testing.assert_almost_equal(
@@ -284,8 +282,8 @@ def test_multiplexing_registration(
     # Apply registration to ROI table
     for component in metadata["well"]:
         apply_registration_to_ROI_tables(
-            input_paths=[str(zarr_path_mip)],
-            output_path=str(zarr_path_mip),
+            input_paths=[str(zarr_dir_mip)],
+            output_path=str(zarr_dir_mip),
             metadata=metadata,
             component=component,
             roi_table=roi_table,
@@ -294,7 +292,7 @@ def test_multiplexing_registration(
     # Validate the aligned tables
     for component in metadata["image"]:
         registered_table = ad.read_zarr(
-            f"{zarr_path_mip / component}/tables/registered_{roi_table}"
+            f"{zarr_dir_mip / component}/tables/registered_{roi_table}"
         )
         pd.testing.assert_frame_equal(
             registered_table.to_df()[registered_columns].astype("float32"),
@@ -305,8 +303,8 @@ def test_multiplexing_registration(
     # Apply registration to image
     for component in metadata["image"]:
         apply_registration_to_image(
-            input_paths=[str(zarr_path_mip)],
-            output_path=str(zarr_path_mip),
+            input_paths=[str(zarr_dir_mip)],
+            output_path=str(zarr_dir_mip),
             metadata=metadata,
             component=component,
             registered_roi_table="registered_" + roi_table,
@@ -318,11 +316,11 @@ def test_multiplexing_registration(
     # b) none when loading the registered ROI
     for component in metadata["image"]:
         # Read pixel sizes from zattrs file
-        ngff_image_meta = load_NgffImageMeta(str(zarr_path_mip / component))
+        ngff_image_meta = load_NgffImageMeta(str(zarr_dir_mip / component))
         pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
 
         original_table = ad.read_zarr(
-            f"{zarr_path_mip / component}/tables/{roi_table}"
+            f"{zarr_dir_mip / component}/tables/{roi_table}"
         )
         # Create list of indices for 3D ROIs
         list_indices = convert_ROI_table_to_indices(
@@ -332,14 +330,14 @@ def test_multiplexing_registration(
             full_res_pxl_sizes_zyx=pxl_sizes_zyx,
         )
         region = convert_indices_to_regions(list_indices[0])
-        data_array = da.from_zarr(f"{zarr_path_mip / component / str(0)}")[0]
+        data_array = da.from_zarr(f"{zarr_dir_mip / component / str(0)}")[0]
         img_array = load_region(
             data_zyx=data_array, region=region, compute=True
         )
         assert np.sum(img_array == 0) == 545280
 
         registered_table = ad.read_zarr(
-            f"{zarr_path_mip / component}/tables/registered_{roi_table}"
+            f"{zarr_dir_mip / component}/tables/registered_{roi_table}"
         )
         # Create list of indices for 3D ROIs
         list_indices = convert_ROI_table_to_indices(
@@ -349,7 +347,7 @@ def test_multiplexing_registration(
             full_res_pxl_sizes_zyx=pxl_sizes_zyx,
         )
         region = convert_indices_to_regions(list_indices[0])
-        data_array = da.from_zarr(f"{zarr_path_mip / component / str(0)}")[0]
+        data_array = da.from_zarr(f"{zarr_dir_mip / component / str(0)}")[0]
         img_array_reg = load_region(
             data_zyx=data_array, region=region, compute=True
         )
@@ -357,7 +355,7 @@ def test_multiplexing_registration(
 
         # Check that the Zarr files contains the relevant label channels:
         with open(
-            f"{str(zarr_path_mip / component)}/labels/.zattrs", "r"
+            f"{str(zarr_dir_mip / component)}/labels/.zattrs", "r"
         ) as jsonfile:
             zattrs = json.load(jsonfile)
         assert len(zattrs["labels"]) == 1
