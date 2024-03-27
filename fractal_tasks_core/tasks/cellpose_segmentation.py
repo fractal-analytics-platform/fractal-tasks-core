@@ -235,17 +235,7 @@ def cellpose_segmentation(
     Run cellpose segmentation on the ROIs of a single OME-Zarr image.
 
     Args:
-        input_paths: List of input paths where the image data is stored as
-            OME-Zarrs. Should point to the parent folder containing one or many
-            OME-Zarr files, not the actual OME-Zarr file. Example:
-            `["/some/path/"]`. This task only supports a single input path.
-            (standard argument for Fractal tasks, managed by Fractal server).
-        output_path: This parameter is not used by this task.
-            (standard argument for Fractal tasks, managed by Fractal server).
-        component: Path to the OME-Zarr image in the OME-Zarr plate that is
-            processed. Example: `"some_plate.zarr/B/03/0"`.
-            (standard argument for Fractal tasks, managed by Fractal server).
-        metadata: This parameter is not used by this task.
+        zarr_url: Path or url to the individual OME-Zarr image to be processed. 
             (standard argument for Fractal tasks, managed by Fractal server).
         level: Pyramid level of the image to be segmented. Choose `0` to
             process at full resolution.
