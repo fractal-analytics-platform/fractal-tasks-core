@@ -300,11 +300,9 @@ def test_multiplexing_registration(
 
     # Apply registration to image
     for component in metadata["image"]:
+        zarr_url = str(zarr_dir_mip / component)
         apply_registration_to_image(
-            input_paths=[str(zarr_dir_mip)],
-            output_path=str(zarr_dir_mip),
-            metadata=metadata,
-            component=component,
+            zarr_url=zarr_url,
             registered_roi_table="registered_" + roi_table,
         )
 
