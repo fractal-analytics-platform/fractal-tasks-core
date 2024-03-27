@@ -84,11 +84,6 @@ def apply_registration_to_image(
 
     """
     logger.info(zarr_url)
-    # FIXME: Implement this now for Fractal V2
-    if not overwrite_input:
-        raise NotImplementedError(
-            "This task is only implemented for the overwrite_input version"
-        )
     logger.info(
         f"Running `apply_registration_to_image` on {zarr_url=}, "
         f"{registered_roi_table=} and {reference_cycle=}. "
@@ -210,6 +205,7 @@ def apply_registration_to_image(
                 table,
                 curr_table,
                 table_attrs=old_table_group.attrs.asdict(),
+                overwrite=True,
             )
 
     ####################
@@ -225,13 +221,13 @@ def apply_registration_to_image(
         os.rename(zarr_url, f"{zarr_url}_tmp")
         os.rename(new_zarr_url, zarr_url)
         shutil.rmtree(f"{zarr_url}_tmp")
+        image_list_updates = dict(image_list_updates=[dict(zarr_url=zarr_url)])
     else:
-        # FIXME: Implement non-overwrite functionality & return correct new
-        # image list update
-        raise NotImplementedError
-        # The thing that would be missing in this branch is that Fractal
-        # isn't aware of the new component. If there's a way to add it back,
-        # that's the only thing that would be required here
+        image_list_updates = dict(
+            image_list_updates=[dict(zarr_url=new_zarr_url, origin=zarr_url)]
+        )
+
+    return image_list_updates
 
 
 def write_registered_zarr(

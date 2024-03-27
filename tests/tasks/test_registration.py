@@ -298,26 +298,63 @@ def test_multiplexing_registration(
             check_column_type=False,
         )
 
-    # Apply registration to image
+    # Apply registration to image without overwrite_input and validate the
+    # output
+    zarr_list = []
     for component in metadata["image"]:
         zarr_url = str(zarr_dir_mip / component)
-        apply_registration_to_image(
+        zarr_list.append(f"{zarr_url}_registered")
+        image_list_update = apply_registration_to_image(
             zarr_url=zarr_url,
             registered_roi_table="registered_" + roi_table,
+            overwrite_input=False,
+        )
+        assert image_list_update == dict(
+            image_list_updates=[
+                dict(zarr_url=f"{zarr_url}_registered", origin=zarr_url)
+            ]
         )
 
+    validate_assumptions_after_image_registration(
+        zarr_list=zarr_list,
+        roi_table=roi_table,
+    )
+
+    # # Apply registration to image with overwrite_input and validate the
+    # # output
+    zarr_list = []
+    for component in metadata["image"]:
+        zarr_url = str(zarr_dir_mip / component)
+        zarr_list.append(zarr_url)
+        image_list_update = apply_registration_to_image(
+            zarr_url=zarr_url,
+            registered_roi_table="registered_" + roi_table,
+            overwrite_input=True,
+        )
+        assert image_list_update == dict(
+            image_list_updates=[dict(zarr_url=zarr_url)]
+        )
+    validate_assumptions_after_image_registration(
+        zarr_list=zarr_list,
+        roi_table=roi_table,
+    )
+
+
+def validate_assumptions_after_image_registration(
+    zarr_list,
+    roi_table,
+):
     # Load the Zarr image
     # How many padded pixels are expected => number of pixels that are 0
     # a) many when loading the original ROI
     # b) none when loading the registered ROI
-    for component in metadata["image"]:
+    for zarr_url in zarr_list:
+        print(zarr_url)
         # Read pixel sizes from zattrs file
-        ngff_image_meta = load_NgffImageMeta(str(zarr_dir_mip / component))
+        ngff_image_meta = load_NgffImageMeta(zarr_url)
         pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
 
-        original_table = ad.read_zarr(
-            f"{zarr_dir_mip / component}/tables/{roi_table}"
-        )
+        original_table = ad.read_zarr(f"{zarr_url}/tables/{roi_table}")
         # Create list of indices for 3D ROIs
         list_indices = convert_ROI_table_to_indices(
             original_table,
@@ -326,14 +363,14 @@ def test_multiplexing_registration(
             full_res_pxl_sizes_zyx=pxl_sizes_zyx,
         )
         region = convert_indices_to_regions(list_indices[0])
-        data_array = da.from_zarr(f"{zarr_dir_mip / component / str(0)}")[0]
+        data_array = da.from_zarr(f"{zarr_url}/0")[0]
         img_array = load_region(
             data_zyx=data_array, region=region, compute=True
         )
         assert np.sum(img_array == 0) == 545280
 
         registered_table = ad.read_zarr(
-            f"{zarr_dir_mip / component}/tables/registered_{roi_table}"
+            f"{zarr_url}/tables/registered_{roi_table}"
         )
         # Create list of indices for 3D ROIs
         list_indices = convert_ROI_table_to_indices(
@@ -343,18 +380,16 @@ def test_multiplexing_registration(
             full_res_pxl_sizes_zyx=pxl_sizes_zyx,
         )
         region = convert_indices_to_regions(list_indices[0])
-        data_array = da.from_zarr(f"{zarr_dir_mip / component / str(0)}")[0]
+        data_array = da.from_zarr(f"{zarr_url}/0")[0]
         img_array_reg = load_region(
             data_zyx=data_array, region=region, compute=True
         )
         assert np.sum(img_array_reg == 0) == 0
 
         # Check that the Zarr files contains the relevant label channels:
-        with open(
-            f"{str(zarr_dir_mip / component)}/labels/.zattrs", "r"
-        ) as jsonfile:
+        with open(f"{zarr_url}/labels/.zattrs", "r") as jsonfile:
             zattrs = json.load(jsonfile)
         assert len(zattrs["labels"]) == 1
-        assert (
-            zattrs["labels"][0] == f"label_{component.split('/')[-1]}_A01_C01"
-        )
+        print(zarr_url.split("/")[-1].split("_")[0])
+        label_name = f"label_{zarr_url.split('/')[-1].split('_')[0]}_A01_C01"
+        assert zattrs["labels"][0] == label_name
