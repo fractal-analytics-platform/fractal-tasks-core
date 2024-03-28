@@ -627,8 +627,6 @@ def napari_workflows_wrapper(
             aggregation_function=np.max,
         )
 
-    return {}
-
 
 if __name__ == "__main__":
     from fractal_tasks_core.tasks._utils import run_fractal_task
