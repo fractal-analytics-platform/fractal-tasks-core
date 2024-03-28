@@ -2,7 +2,7 @@ import zarr
 from devtools import debug
 
 from fractal_tasks_core.utils import (
-    get_table_path_dict,
+    _get_table_path_dict,
 )
 from fractal_tasks_core.utils import rescale_datasets
 
@@ -47,26 +47,21 @@ def test_rescale_datasets(tmp_path):
 
 def test_get_table_path_dict(tmp_path):
 
-    input_path = tmp_path
-    component = "plate.zarr/B/03/0"
-    img_group = zarr.open_group(str(input_path / component))
+    zarr_url = str(tmp_path / "plate.zarr/B/03/0")
+    img_group = zarr.open_group(zarr_url)
 
     # Missing tables sub-group
-    table_path_dict = get_table_path_dict(input_path, component)
+    table_path_dict = _get_table_path_dict(zarr_url)
     debug(table_path_dict)
     assert table_path_dict == {}
 
     tables_group = img_group.create_group("tables")
-    table_path_dict = get_table_path_dict(input_path, component)
+    table_path_dict = _get_table_path_dict(zarr_url)
     debug(table_path_dict)
     assert table_path_dict == {}
 
     tables_group.attrs.update({"tables": ["table1", "table2"]})
-    table_path_dict = get_table_path_dict(input_path, component)
+    table_path_dict = _get_table_path_dict(zarr_url)
     debug(table_path_dict)
-    assert table_path_dict.pop("table1") == str(
-        input_path / component / "tables/table1"
-    )
-    assert table_path_dict.pop("table2") == str(
-        input_path / component / "tables/table2"
-    )
+    assert table_path_dict.pop("table1") == str(f"{zarr_url}/tables/table1")
+    assert table_path_dict.pop("table2") == str(f"{zarr_url}/tables/table2")

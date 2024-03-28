@@ -286,12 +286,10 @@ def test_import_ome_zarr_image_BIA(tmp_path, monkeypatch):
 
     # Per-FOV labeling
     for component in metadata["image"]:
+        zarr_url = f"{root_path}/{component})"
         cellpose_segmentation(
-            input_paths=[str(root_path)],
-            output_path=str(root_path),
+            zarr_url=zarr_url,
             input_ROI_table="grid_ROI_table",
-            metadata=metadata,
-            component=component,
             channel=ChannelInputModel(wavelength_id="Channel 0"),
             level=0,
             relabeling=True,
