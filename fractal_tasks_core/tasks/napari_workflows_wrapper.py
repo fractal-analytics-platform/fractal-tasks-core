@@ -13,9 +13,7 @@
 Wrapper of napari-workflows.
 """
 import logging
-from pathlib import Path
 from typing import Any
-from typing import Sequence
 
 import anndata as ad
 import dask.array as da
@@ -64,11 +62,8 @@ class OutOfTaskScopeError(NotImplementedError):
 @validate_arguments
 def napari_workflows_wrapper(
     *,
-    # Default arguments for fractal tasks:
-    input_paths: Sequence[str],
-    output_path: str,
-    component: str,
-    metadata: dict[str, Any],
+    # Fractal argument
+    zarr_url: str,
     # Task-specific arguments:
     workflow_file: str,
     input_specs: dict[str, NapariWorkflowsInput],
@@ -101,19 +96,7 @@ def napari_workflows_wrapper(
     ```
 
     Args:
-        input_paths: List of input paths where the image data is stored as
-            OME-Zarrs. Should point to the parent folder containing one or many
-            OME-Zarr files, not the actual OME-Zarr file.
-            Example: `["/some/path/"]`.
-            his task only supports a single input path.
-            (standard argument for Fractal tasks, managed by Fractal server).
-        output_path: This parameter is not used by this task.
-            (standard argument for Fractal tasks, managed by Fractal server).
-        component: Path to the OME-Zarr image in the OME-Zarr plate that is
-            processed.
-            Example: `"some_plate.zarr/B/03/0"`.
-            (standard argument for Fractal tasks, managed by Fractal server).
-        metadata: This parameter is not used by this task.
+        zarr_url: Path or url to the individual OME-Zarr image to be processed.
             (standard argument for Fractal tasks, managed by Fractal server).
         workflow_file: Absolute path to napari-workflows YAML file
         input_specs: A dictionary of `NapariWorkflowsInput` values.
@@ -187,20 +170,13 @@ def napari_workflows_wrapper(
     if relabeling:
         max_label_for_relabeling = 0
 
-    # Pre-processing of task inputs
-    if len(input_paths) > 1:
-        raise NotImplementedError(
-            "We currently only support a single input path"
-        )
-    in_path = Path(input_paths[0]).as_posix()
     label_dtype = np.uint32
 
     # Read ROI table
-    zarrurl = f"{in_path}/{component}"
-    ROI_table = ad.read_zarr(f"{in_path}/{component}/tables/{input_ROI_table}")
+    ROI_table = ad.read_zarr(f"{zarr_url}/tables/{input_ROI_table}")
 
     # Load image metadata
-    ngff_image_meta = load_NgffImageMeta(zarrurl)
+    ngff_image_meta = load_NgffImageMeta(zarr_url)
     num_levels = ngff_image_meta.num_levels
     coarsening_xy = ngff_image_meta.coarsening_xy
 
@@ -229,11 +205,11 @@ def napari_workflows_wrapper(
     ]
     input_image_arrays = {}
     if image_inputs:
-        img_array = da.from_zarr(f"{in_path}/{component}/{level}")
+        img_array = da.from_zarr(f"{zarr_url}/{level}")
         # Loop over image inputs and assign corresponding channel of the image
         for (name, params) in image_inputs:
             channel = get_channel_from_image_zarr(
-                image_zarr_path=f"{in_path}/{component}",
+                image_zarr_path=zarr_url,
                 wavelength_id=params.channel.wavelength_id,
                 label=params.channel.label,
             )
@@ -287,7 +263,7 @@ def napari_workflows_wrapper(
         for (name, params) in label_inputs:
             label_name = params.label_name
             label_array_raw = da.from_zarr(
-                f"{in_path}/{component}/labels/{label_name}/{level}"
+                f"{zarr_url}/labels/{label_name}/{level}"
             )
             input_label_arrays[name] = label_array_raw
 
@@ -371,7 +347,7 @@ def napari_workflows_wrapper(
             # Re-load pixel size, matching to the correct level
             input_label_name = label_inputs[0][1].label_name
             ngff_label_image_meta = load_NgffImageMeta(
-                f"{in_path}/{component}/labels/{input_label_name}"
+                f"{zarr_url}/labels/{input_label_name}"
             )
             full_res_pxl_sizes_zyx = ngff_label_image_meta.get_pixel_sizes_zyx(
                 level=0
@@ -456,8 +432,7 @@ def napari_workflows_wrapper(
             }
 
             # (2) Prepare label group
-            zarrurl = f"{in_path}/{component}"
-            image_group = zarr.group(zarrurl)
+            image_group = zarr.group(zarr_url)
             label_group = prepare_label_group(
                 image_group,
                 label_name,
@@ -471,9 +446,7 @@ def napari_workflows_wrapper(
             )
 
             # (3) Create zarr group at level=0
-            store = zarr.storage.FSStore(
-                f"{in_path}/{component}/labels/{label_name}/0"
-            )
+            store = zarr.storage.FSStore(f"{zarr_url}/labels/{label_name}/0")
             mask_zarr = zarr.create(
                 shape=label_shape,
                 chunks=label_chunksize,
@@ -627,7 +600,7 @@ def napari_workflows_wrapper(
             measurement_table.obs = labels
 
         # Write to zarr group
-        image_group = zarr.group(f"{in_path}/{component}")
+        image_group = zarr.group(zarr_url)
         table_attrs = dict(
             type="feature_table",
             region=dict(path=f"../labels/{out_params.label_name}"),
@@ -646,7 +619,7 @@ def napari_workflows_wrapper(
     for (name, out_params) in label_outputs:
         label_name = out_params.label_name
         build_pyramid(
-            zarrurl=f"{zarrurl}/labels/{label_name}",
+            zarrurl=f"{zarr_url}/labels/{label_name}",
             overwrite=overwrite,
             num_levels=num_levels,
             coarsening_xy=coarsening_xy,
