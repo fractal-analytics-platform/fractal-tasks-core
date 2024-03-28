@@ -5,6 +5,7 @@ University of Zurich
 Original authors:
 Marco Franzon <marco.franzon@exact-lab.it>
 Tommaso Comparin <tommaso.comparin@exact-lab.it>
+Joel Lüthi <joel.luethi@uzh.ch>
 
 This file is part of Fractal and was originally developed by eXact lab S.r.l.
 <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
@@ -18,8 +19,12 @@ from devtools import debug
 
 from fractal_tasks_core.channels import OmeroChannel
 from fractal_tasks_core.channels import Window
-from fractal_tasks_core.tasks.create_ome_zarr import create_ome_zarr
-from fractal_tasks_core.tasks.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
+from fractal_tasks_core.tasks.create_cellvoyager_ome_zarr_compute import (
+    create_cellvoyager_ome_zarr_compute,
+)
+from fractal_tasks_core.tasks.create_cellvoyager_ome_zarr_init import (
+    create_cellvoyager_ome_zarr_init,
+)
 
 
 allowed_channels = [
@@ -53,28 +58,25 @@ if not os.path.isdir(Path(img_path).parent):
         f"{Path(img_path).parent} is missing,"
         " try running ./fetch_test_data_from_zenodo.sh"
     )
-zarr_path = "tmp_out/"
-metadata: dict = {}
+zarr_dir = "tmp_out/"
 
 # Create zarr structure
-metadata_update = create_ome_zarr(
-    input_paths=[img_path],
-    output_path=zarr_path,
+parallelization_list = create_cellvoyager_ome_zarr_init(
+    zarr_urls=[],
+    zarr_dir=zarr_dir,
+    image_dirs=[img_path],
     allowed_channels=allowed_channels,
     image_extension="png",
-    metadata=metadata,
     num_levels=num_levels,
     coarsening_xy=coarsening_xy,
+    overwrite=True,
 )
-metadata.update(metadata_update)
-debug(metadata)
+debug(parallelization_list)
 
-# Yokogawa to zarr
-for component in metadata["image"]:
-    yokogawa_to_ome_zarr(
-        input_paths=[zarr_path],
-        output_path=zarr_path,
-        metadata=metadata,
-        component=component,
+# # Yokogawa to zarr
+for image in parallelization_list:
+    image_list_updates = create_cellvoyager_ome_zarr_compute(
+        zarr_url=image["zarr_url"],
+        init_args=image["init_args"],
     )
-debug(metadata)
+debug(image_list_updates)
