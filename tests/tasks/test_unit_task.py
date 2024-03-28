@@ -4,7 +4,9 @@ from pathlib import Path
 from devtools import debug
 
 import fractal_tasks_core
-from fractal_tasks_core.tasks.create_ome_zarr import create_ome_zarr
+from fractal_tasks_core.tasks.create_cellvoyager_ome_zarr_init import (
+    create_cellvoyager_ome_zarr_init,
+)
 
 
 # Load manifest
@@ -21,24 +23,24 @@ create_ome_zarr_manifest = next(
 
 
 def test_create_ome_zarr(tmp_path, testdata_path):
-    input_paths = [str(testdata_path / "png/")]
-    output_path = str(tmp_path)
+    img_path = str(testdata_path / "png/")
+    zarr_dir = str(tmp_path)
     args = {}
     args["allowed_channels"] = [
         {"wavelength_id": "A01_C01", "window": dict(start=0, end=1000)}
     ]
     args["image_extension"] = "png"
 
-    debug(input_paths)
-    debug(output_path)
+    debug(img_path)
+    debug(zarr_dir)
     debug(args)
 
-    dummy = create_ome_zarr(
-        input_paths=input_paths, output_path=output_path, metadata={}, **args
+    dummy = create_cellvoyager_ome_zarr_init(
+        zarr_urls=[], zarr_dir=zarr_dir, image_dirs=[img_path], **args
     )
     debug(dummy)
 
-    zattrs = Path(output_path) / "myplate.zarr/.zattrs"
+    zattrs = Path(zarr_dir) / "myplate.zarr/.zattrs"
     with open(zattrs) as f:
         data = json.load(f)
         debug(data)
@@ -55,13 +57,13 @@ def test_run_fractal_tasks(tmp_path, testdata_path, monkeypatch):
 
     # Write arguments to a file
     args = {}
-    args["input_paths"] = [str(testdata_path / "png/")]
-    args["output_path"] = str(tmp_path)
+    args["zarr_urls"] = []
+    args["image_dirs"] = [str(testdata_path / "png/")]
+    args["zarr_dir"] = str(tmp_path)
     args["allowed_channels"] = [
         {"wavelength_id": "A01_C01", "window": dict(start=0, end=1000)}
     ]
     args["image_extension"] = "png"
-    args["metadata"] = {}
     debug(args)
     args_path = tmp_path / "args.json"
     with args_path.open("w") as f:
@@ -88,7 +90,7 @@ def test_run_fractal_tasks(tmp_path, testdata_path, monkeypatch):
 
     # Run the task
     out = fractal_tasks_core.tasks._utils.run_fractal_task(
-        task_function=create_ome_zarr
+        task_function=create_cellvoyager_ome_zarr_init
     )
 
     # Check that the task wrote some output to args.metadata_out
@@ -98,7 +100,7 @@ def test_run_fractal_tasks(tmp_path, testdata_path, monkeypatch):
     assert out
 
     # Check that the output zarr exists and includes a well
-    zattrs = Path(args["output_path"]) / "myplate.zarr/.zattrs"
+    zattrs = Path(args["zarr_dir"]) / "myplate.zarr/.zattrs"
     with open(zattrs) as f:
         data = json.load(f)
         debug(data)
