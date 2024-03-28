@@ -54,16 +54,15 @@ def test_workflow_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: str):
 
     # Init
     img_path = zenodo_images
-    zarr_path = str(tmp_path / "tmp_out/")
-    metadata = {}
+    zarr_dir = str(tmp_path / "tmp_out/")
     tasks_path = str(Path(fractal_tasks_core.tasks.__file__).parent)
 
     # Create zarr structure
     args_create_zarr = dict(
-        input_paths=[str(img_path)],
-        output_path=str(zarr_path),
+        zarr_urls=[],
+        zarr_dir=zarr_dir,
+        image_dirs=[img_path],
         allowed_channels=allowed_channels,
-        metadata={},
         image_extension="png",
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
@@ -72,38 +71,33 @@ def test_workflow_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: str):
 
     # Run task as executable
     input_json_path = f"{str(tmp_path)}/args_create_zarr.json"
-    output_json_path = f"{str(tmp_path)}/metadata_create_zarr.json"
+    output_json_path = f"{str(tmp_path)}/out_create_zarr.json"
     with open(input_json_path, "w") as js:
         json.dump(args_create_zarr, js, cls=TaskParameterEncoder)
     cmd = (
-        f"python {tasks_path}/create_ome_zarr.py "
+        f"python {tasks_path}/create_cellvoyager_ome_zarr_init.py "
         f"-j {input_json_path} "
         f"--metadata-out {output_json_path}"
     )
     run_command(cmd)
     with open(output_json_path, "r") as js:
-        diff_metadata = json.load(js)
-
-    # Update metadata
-    metadata.update(diff_metadata)
-    debug(metadata)
+        parallelization_list = json.load(js)
+    debug(parallelization_list)
 
     # Yokogawa to zarr
-    for component in metadata["image"]:
+    for image in parallelization_list:
         args_yokogawa = dict(
-            input_paths=[zarr_path],
-            output_path=zarr_path,
-            metadata=metadata,
-            component=component,
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
         )
 
         # Run task as executable
         input_json_path = f"{str(tmp_path)}/args_yokogawa.json"
-        output_json_path = f"{str(tmp_path)}/metadata_yokogawa.json"
+        output_json_path = f"{str(tmp_path)}/out_yokogawa.json"
         with open(input_json_path, "w") as js:
             json.dump(args_yokogawa, js, cls=TaskParameterEncoder)
         cmd = (
-            f"python {tasks_path}/yokogawa_to_ome_zarr.py "
+            f"python {tasks_path}/create_cellvoyager_ome_zarr_compute.py "
             f"-j {input_json_path} "
             f"--metadata-out {output_json_path}"
         )
