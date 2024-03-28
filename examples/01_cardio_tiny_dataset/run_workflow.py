@@ -73,9 +73,10 @@ parallelization_list = create_cellvoyager_ome_zarr_init(
 )
 debug(parallelization_list)
 
+image_list_updates = []
 # # Yokogawa to zarr
 for image in parallelization_list:
-    image_list_updates = create_cellvoyager_ome_zarr_compute(
+    image_list_updates += create_cellvoyager_ome_zarr_compute(
         zarr_url=image["zarr_url"],
         init_args=image["init_args"],
     )
