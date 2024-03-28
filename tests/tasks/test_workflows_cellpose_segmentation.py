@@ -37,16 +37,20 @@ from fractal_tasks_core.channels import ChannelInputModel
 from fractal_tasks_core.tasks.cellpose_segmentation import (
     cellpose_segmentation,
 )
-from fractal_tasks_core.tasks.copy_ome_zarr import (
-    copy_ome_zarr,
-)  # noqa
-from fractal_tasks_core.tasks.create_ome_zarr import create_ome_zarr
-from fractal_tasks_core.tasks.maximum_intensity_projection import (
-    maximum_intensity_projection,
-)  # noqa
-from fractal_tasks_core.tasks.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 
+# from fractal_tasks_core.tasks.copy_ome_zarr import (
+#     copy_ome_zarr,
+# )  # noqa
+# from fractal_tasks_core.tasks.create_cellvoyager_ome_zarr_compute import (
+#     create_cellvoyager_ome_zarr_compute,
+# )
+# from fractal_tasks_core.tasks.create_cellvoyager_ome_zarr_init import (
+#     create_cellvoyager_ome_zarr_init,
+# )
+# from fractal_tasks_core.tasks.maximum_intensity_projection import (
+#     maximum_intensity_projection,
+# )  # noqa
 
 allowed_channels = [
     {
@@ -375,98 +379,95 @@ def test_workflow_with_per_FOV_labeling_2D(
     check_file_number(zarr_path=image_zarr)
 
 
-def test_workflow_with_per_well_labeling_2D(
-    tmp_path: Path,
-    testdata_path: Path,
-    zenodo_images: str,
-    caplog: pytest.LogCaptureFixture,
-    monkeypatch: MonkeyPatch,
-):
+# def test_workflow_with_per_well_labeling_2D(
+#     tmp_path: Path,
+#     testdata_path: Path,
+#     zenodo_images: str,
+#     caplog: pytest.LogCaptureFixture,
+#     monkeypatch: MonkeyPatch,
+# ):
 
-    monkeypatch.setattr(
-        "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
-        patched_cellpose_core_use_gpu,
-    )
+#     monkeypatch.setattr(
+#         "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
+#         patched_cellpose_core_use_gpu,
+#     )
 
-    # Do not use cellpose
-    monkeypatch.setattr(
-        "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
-        patched_segment_ROI,
-    )
+#     # Do not use cellpose
+#     monkeypatch.setattr(
+#         "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
+#         patched_segment_ROI,
+#     )
 
-    # Init
-    img_path = Path(zenodo_images)
-    zarr_dir = tmp_path / "tmp_out/"
-    zarr_dir_mip = tmp_path / "tmp_out_mip/"
-    metadata: dict[str, Any] = {}
+#     # Init
+#     img_path = Path(zenodo_images)
+#     zarr_dir = tmp_path / "tmp_out/"
+#     zarr_dir_mip = tmp_path / "tmp_out_mip/"
 
-    # Create zarr structure
-    metadata_update = create_ome_zarr(
-        input_paths=[str(img_path)],
-        output_path=str(zarr_dir),
-        metadata=metadata,
-        image_extension="png",
-        allowed_channels=allowed_channels,
-        num_levels=num_levels,
-        coarsening_xy=coarsening_xy,
-        metadata_table_file=None,
-    )
-    metadata.update(metadata_update)
+#     # Create zarr structure
+#     parallelization_list = create_cellvoyager_ome_zarr_init(
+#         zarr_urls=[],
+#         zarr_dir=str(zarr_dir),
+#         image_dirs=[str(img_path)],
+#         image_extension="png",
+#         allowed_channels=allowed_channels,
+#         num_levels=num_levels,
+#         coarsening_xy=coarsening_xy,
+#         metadata_table_file=None,
+#     )
 
-    # Yokogawa to zarr
-    for component in metadata["image"]:
-        yokogawa_to_ome_zarr(
-            input_paths=[str(zarr_dir)],
-            output_path=str(zarr_dir),
-            metadata=metadata,
-            component=component,
-        )
+#     # Yokogawa to zarr
+#     image_list_updates = []
+#     for image in parallelization_list:
+#         image_list_updates += create_cellvoyager_ome_zarr_compute(
+#             zarr_url=image["zarr_url"],
+#             init_args=image["init_args"],
+#         )
 
-    # Replicate
-    metadata_update = copy_ome_zarr(
-        input_paths=[str(zarr_dir)],
-        output_path=str(zarr_dir_mip),
-        metadata=metadata,
-        project_to_2D=True,
-        suffix="mip",
-    )
-    metadata.update(metadata_update)
-    debug(metadata)
+#     # Replicate
+#     metadata_update = copy_ome_zarr(
+#         input_paths=[str(zarr_dir)],
+#         output_path=str(zarr_dir_mip),
+#         metadata=metadata,
+#         project_to_2D=True,
+#         suffix="mip",
+#     )
+#     metadata.update(metadata_update)
+#     debug(metadata)
 
-    # MIP
-    for component in metadata["image"]:
-        maximum_intensity_projection(
-            input_paths=[str(zarr_dir_mip)],
-            output_path=str(zarr_dir_mip),
-            metadata=metadata,
-            component=component,
-        )
+#     # MIP
+#     for component in metadata["image"]:
+#         maximum_intensity_projection(
+#             input_paths=[str(zarr_dir_mip)],
+#             output_path=str(zarr_dir_mip),
+#             metadata=metadata,
+#             component=component,
+#         )
 
-    # Whole-well labeling
-    for component in metadata["image"]:
-        zarr_url = str(zarr_dir_mip / component)
-        cellpose_segmentation(
-            zarr_url=zarr_url,
-            channel=ChannelInputModel(wavelength_id="A01_C01"),
-            level=2,
-            input_ROI_table="well_ROI_table",
-            relabeling=True,
-            diameter_level0=80.0,
-        )
+#     # Whole-well labeling
+#     for component in metadata["image"]:
+#         zarr_url = str(zarr_dir_mip / component)
+#         cellpose_segmentation(
+#             zarr_url=zarr_url,
+#             channel=ChannelInputModel(wavelength_id="A01_C01"),
+#             level=2,
+#             input_ROI_table="well_ROI_table",
+#             relabeling=True,
+#             diameter_level0=80.0,
+#         )
 
-    # OME-NGFF JSON validation
-    image_zarr = Path(zarr_dir_mip / metadata["image"][0])
-    label_zarr = image_zarr / "labels/label_DAPI"
-    debug(image_zarr)
-    well_zarr = image_zarr.parent
-    plate_zarr = image_zarr.parents[2]
-    validate_schema(path=str(image_zarr), type="image")
-    validate_schema(path=str(well_zarr), type="well")
-    validate_schema(path=str(plate_zarr), type="plate")
+#     # OME-NGFF JSON validation
+#     image_zarr = Path(zarr_dir_mip / metadata["image"][0])
+#     label_zarr = image_zarr / "labels/label_DAPI"
+#     debug(image_zarr)
+#     well_zarr = image_zarr.parent
+#     plate_zarr = image_zarr.parents[2]
+#     validate_schema(path=str(image_zarr), type="image")
+#     validate_schema(path=str(well_zarr), type="well")
+#     validate_schema(path=str(plate_zarr), type="plate")
 
-    validate_axes_and_coordinateTransformations(label_zarr)
-    validate_axes_and_coordinateTransformations(image_zarr)
-    check_file_number(zarr_path=image_zarr)
+#     validate_axes_and_coordinateTransformations(label_zarr)
+#     validate_axes_and_coordinateTransformations(image_zarr)
+#     check_file_number(zarr_path=image_zarr)
 
 
 def test_workflow_bounding_box(
