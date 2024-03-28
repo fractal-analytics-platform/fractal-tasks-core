@@ -420,7 +420,7 @@ def test_illumination_correction(
 
     # Init
     img_path = Path(zenodo_images)
-    zarr_path = tmp_path / "tmp_out"
+    zarr_dir = tmp_path / "tmp_out"
     metadata: dict = {}
 
     testdata_str = testdata_path.as_posix()
@@ -430,7 +430,7 @@ def test_illumination_correction(
     # Create zarr structure
     metadata_update = create_ome_zarr(
         input_paths=[str(img_path)],
-        output_path=str(zarr_path),
+        output_path=str(zarr_dir),
         metadata=metadata,
         image_extension="png",
         allowed_channels=allowed_channels,
@@ -445,8 +445,8 @@ def test_illumination_correction(
     # Yokogawa to zarr
     for component in metadata["image"]:
         yokogawa_to_ome_zarr(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
+            input_paths=[str(zarr_dir)],
+            output_path=str(zarr_dir),
             metadata=metadata,
             component=component,
         )
@@ -455,11 +455,9 @@ def test_illumination_correction(
 
     # Illumination correction
     for component in metadata["image"]:
+        zarr_url = str(zarr_dir / component)
         illumination_correction(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
-            metadata=metadata,
-            component=component,
+            zarr_url=zarr_url,
             overwrite_input=True,
             illumination_profiles_folder=illumination_profiles_folder,
             dict_corr=illum_params,
@@ -468,7 +466,7 @@ def test_illumination_correction(
     caplog.clear()
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path / metadata["image"][0])
+    image_zarr = Path(zarr_dir / metadata["image"][0])
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
     validate_schema(path=str(image_zarr), type="image")
