@@ -82,10 +82,10 @@ def create_cellvoyager_ome_zarr_init(
         zarr_dir: path of the directory where the new OME-Zarrs will be
             created.
             (standard argument for Fractal tasks, managed by Fractal server).
-        image_dir: path to the folder that contains the Cellvoyager image
-            files. This is the path to the folder that contains the image
-            files themselves and the MeasurementData & MeasurementDetail
-            metadata files.
+        image_dirs: list of paths to the folders that contains the Cellvoyager
+            image files. Each entry is a path to a folder that contains the
+            image files themselves for a multiwell plate and the
+            MeasurementData & MeasurementDetail metadata files.
         allowed_channels: A list of `OmeroChannel` s, where each channel must
             include the `wavelength_id` attribute and where the
             `wavelength_id` values must be unique across the list.
