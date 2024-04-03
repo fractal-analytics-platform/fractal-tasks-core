@@ -196,8 +196,25 @@ def test_yokogawa_to_ome_zarr(
         image_list_updates += create_cellvoyager_ome_zarr_compute(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
-        )
+        )["image_list_updates"]
     debug(image_list_updates)
+
+    # Validate image_list_updates contents
+    expected_image_list_update = {
+        "zarr_url": (
+            f"{output_path}/20200812-CardiomyocyteDifferentiation14"
+            "-Cycle1.zarr/B/03/0/"
+        ),
+        "attributes": {
+            "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
+            "well": "B03",
+        },
+        "types": {
+            "is_3D": True,
+        },
+    }
+
+    assert image_list_updates[0] == expected_image_list_update
 
     # Re-run (with overwrite=True)
     for image in parallelization_list:
@@ -362,11 +379,12 @@ def test_MIP(
 
 #     # Yokogawa to zarr
 #     image_list_updates = []
+#     # Yokogawa to zarr
 #     for image in parallelization_list:
 #         image_list_updates += create_cellvoyager_ome_zarr_compute(
-#             zarr_url=image["zarr_url"],
-#             init_args=image["init_args"],
-#         )
+#                 zarr_url=image["zarr_url"],
+#                 init_args=image["init_args"],
+#             )["image_list_updates"]
 #     debug(image_list_updates)
 
 #     # Replicate
