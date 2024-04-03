@@ -200,20 +200,26 @@ def create_cellvoyager_ome_zarr_compute(
     )
 
     # Generate image list updates
-    # FIXME: Get info whether image is 3D
-    is_3D = True
+    # TODO: Can we check for dimensionality more robustly? Just checks for the
+    # last FOV of the last wavelength now
+    if FOV_4D.shape[-3] > 1:
+        is_3D = True
+    else:
+        is_3D = False
     attributes = {
         "plate": f"{init_args.plate_prefix}.zarr",
         "well": init_args.well_ID,
-        # FIXME: Can we provide None items to image_list_updates?
-        # "acquisition": init_args.acquisition
     }
     if init_args.acquisition is not None:
         attributes["acquisition"] = init_args.acquisition
 
     image_list_updates = dict(
         image_list_updates=[
-            dict(zarr_url=zarr_url, attributes=attributes, types={"3D": is_3D})
+            dict(
+                zarr_url=zarr_url,
+                attributes=attributes,
+                types={"is_3D": is_3D},
+            )
         ]
     )
 
