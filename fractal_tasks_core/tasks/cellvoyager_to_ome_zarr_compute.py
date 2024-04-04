@@ -33,7 +33,7 @@ from fractal_tasks_core.roi import check_valid_ROI_indices
 from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
-from fractal_tasks_core.tasks.input_models import InitArgsCellVoyager
+from fractal_tasks_core.tasks.io_models import InitArgsCellVoyager
 from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 
 
@@ -56,7 +56,7 @@ def sort_fun(filename: str) -> list[int]:
 
 
 @validate_arguments
-def create_cellvoyager_ome_zarr_compute(
+def cellvoyager_to_ome_zarr_compute(
     *,
     zarr_url: str,
     init_args: InitArgsCellVoyager,
@@ -230,6 +230,6 @@ if __name__ == "__main__":
     from fractal_tasks_core.tasks._utils import run_fractal_task
 
     run_fractal_task(
-        task_function=create_cellvoyager_ome_zarr_compute,
+        task_function=cellvoyager_to_ome_zarr_compute,
         logger_name=logger.name,
     )

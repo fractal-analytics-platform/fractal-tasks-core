@@ -34,7 +34,7 @@ from fractal_tasks_core.roi import prepare_FOV_ROI_table
 from fractal_tasks_core.roi import prepare_well_ROI_table
 from fractal_tasks_core.roi import remove_FOV_overlaps
 from fractal_tasks_core.tables import write_table
-from fractal_tasks_core.tasks.input_models import InitArgsCellVoyager
+from fractal_tasks_core.tasks.io_models import InitArgsCellVoyager
 from fractal_tasks_core.zarr_utils import open_zarr_group_with_overwrite
 
 
@@ -46,7 +46,7 @@ logger = logging.getLogger(__name__)
 
 
 @validate_arguments
-def create_cellvoyager_ome_zarr_init(
+def cellvoyager_to_ome_zarr_init(
     *,
     zarr_urls: list[str],
     zarr_dir: str,
@@ -453,6 +453,6 @@ if __name__ == "__main__":
     from fractal_tasks_core.tasks._utils import run_fractal_task
 
     run_fractal_task(
-        task_function=create_cellvoyager_ome_zarr_init,
+        task_function=cellvoyager_to_ome_zarr_init,
         logger_name=logger.name,
     )

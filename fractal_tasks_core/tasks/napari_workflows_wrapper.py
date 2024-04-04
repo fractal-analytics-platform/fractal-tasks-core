@@ -35,10 +35,10 @@ from fractal_tasks_core.roi import (
 )
 from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
-from fractal_tasks_core.tasks.napari_workflows_wrapper_models import (
+from fractal_tasks_core.tasks.io_models import (
     NapariWorkflowsInput,
 )
-from fractal_tasks_core.tasks.napari_workflows_wrapper_models import (
+from fractal_tasks_core.tasks.io_models import (
     NapariWorkflowsOutput,
 )
 from fractal_tasks_core.upscale_array import upscale_array

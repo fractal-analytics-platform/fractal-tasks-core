@@ -22,13 +22,13 @@ from devtools import debug
 
 from ._validation import check_file_number
 from ._validation import validate_schema
+from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_compute import (
+    cellvoyager_to_ome_zarr_compute,
+)
+from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_init import (
+    cellvoyager_to_ome_zarr_init,
+)
 from fractal_tasks_core.tasks.copy_ome_zarr import copy_ome_zarr
-from fractal_tasks_core.tasks.create_cellvoyager_ome_zarr_compute import (
-    create_cellvoyager_ome_zarr_compute,
-)
-from fractal_tasks_core.tasks.create_cellvoyager_ome_zarr_init import (
-    create_cellvoyager_ome_zarr_init,
-)
 from fractal_tasks_core.tasks.illumination_correction import (
     illumination_correction,
 )
@@ -78,7 +78,7 @@ def test_create_ome_zarr_fail(tmp_path: Path, zenodo_images: str):
 
     # Create zarr structure
     with pytest.raises(ValueError):
-        _ = create_cellvoyager_ome_zarr_init(
+        _ = cellvoyager_to_ome_zarr_init(
             zarr_urls=[],
             zarr_dir=zarr_dir,
             image_dirs=[image_dir],
@@ -99,7 +99,7 @@ def test_create_ome_zarr_no_images(
     create_ome_zarr must fail.
     """
     with pytest.raises(ValueError):
-        create_cellvoyager_ome_zarr_init(
+        cellvoyager_to_ome_zarr_init(
             zarr_urls=[],
             zarr_dir=str(tmp_path / "output"),
             image_dirs=[zenodo_images],
@@ -110,7 +110,7 @@ def test_create_ome_zarr_no_images(
             image_extension="xyz",
         )
     with pytest.raises(ValueError):
-        create_cellvoyager_ome_zarr_init(
+        cellvoyager_to_ome_zarr_init(
             zarr_urls=[],
             zarr_dir=str(tmp_path / "output"),
             image_dirs=[zenodo_images],
@@ -150,7 +150,7 @@ def test_yokogawa_to_ome_zarr(
     output_path = tmp_path / "output"
 
     # Create zarr structure
-    parallelization_list = create_cellvoyager_ome_zarr_init(
+    parallelization_list = cellvoyager_to_ome_zarr_init(
         zarr_urls=[],
         zarr_dir=str(output_path),
         image_dirs=[str(img_path)],
@@ -164,7 +164,7 @@ def test_yokogawa_to_ome_zarr(
 
     # Re-run (with overwrite=False) and fail
     with pytest.raises(OverwriteNotAllowedError):
-        create_cellvoyager_ome_zarr_init(
+        cellvoyager_to_ome_zarr_init(
             zarr_urls=[],
             zarr_dir=str(output_path),
             image_dirs=[str(img_path)],
@@ -177,7 +177,7 @@ def test_yokogawa_to_ome_zarr(
         )
 
     # Re-run (with overwrite=True)
-    parallelization_list = create_cellvoyager_ome_zarr_init(
+    parallelization_list = cellvoyager_to_ome_zarr_init(
         zarr_urls=[],
         zarr_dir=str(output_path),
         image_dirs=[str(img_path)],
@@ -193,7 +193,7 @@ def test_yokogawa_to_ome_zarr(
     image_list_updates = []
     # Yokogawa to zarr
     for image in parallelization_list:
-        image_list_updates += create_cellvoyager_ome_zarr_compute(
+        image_list_updates += cellvoyager_to_ome_zarr_compute(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
         )["image_list_updates"]
@@ -218,7 +218,7 @@ def test_yokogawa_to_ome_zarr(
 
     # Re-run (with overwrite=True)
     for image in parallelization_list:
-        create_cellvoyager_ome_zarr_compute(
+        cellvoyager_to_ome_zarr_compute(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
             overwrite=True,
@@ -227,7 +227,7 @@ def test_yokogawa_to_ome_zarr(
     # Re-run (with overwrite=False)
     for image in parallelization_list:
         with pytest.raises(OverwriteNotAllowedError):
-            create_cellvoyager_ome_zarr_compute(
+            cellvoyager_to_ome_zarr_compute(
                 zarr_url=image["zarr_url"],
                 init_args=image["init_args"],
                 overwrite=False,
@@ -437,7 +437,7 @@ def test_illumination_correction(
     illumination_profiles_folder = f"{testdata_str}/illumination_correction/"
 
     # Create zarr structure
-    parallelization_list = create_cellvoyager_ome_zarr_init(
+    parallelization_list = cellvoyager_to_ome_zarr_init(
         zarr_urls=[],
         zarr_dir=str(zarr_dir),
         image_dirs=[str(img_path)],
@@ -452,7 +452,7 @@ def test_illumination_correction(
 
     # Yokogawa to zarr
     for image in parallelization_list:
-        create_cellvoyager_ome_zarr_compute(
+        cellvoyager_to_ome_zarr_compute(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
         )

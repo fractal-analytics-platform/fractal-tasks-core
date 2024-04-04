@@ -4,8 +4,8 @@ from pathlib import Path
 from devtools import debug
 
 import fractal_tasks_core
-from fractal_tasks_core.tasks.create_cellvoyager_ome_zarr_init import (
-    create_cellvoyager_ome_zarr_init,
+from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_init import (
+    cellvoyager_to_ome_zarr_init,
 )
 
 
@@ -35,7 +35,7 @@ def test_create_ome_zarr(tmp_path, testdata_path):
     debug(zarr_dir)
     debug(args)
 
-    dummy = create_cellvoyager_ome_zarr_init(
+    dummy = cellvoyager_to_ome_zarr_init(
         zarr_urls=[], zarr_dir=zarr_dir, image_dirs=[img_path], **args
     )
     debug(dummy)
@@ -90,7 +90,7 @@ def test_run_fractal_tasks(tmp_path, testdata_path, monkeypatch):
 
     # Run the task
     out = fractal_tasks_core.tasks._utils.run_fractal_task(
-        task_function=create_cellvoyager_ome_zarr_init
+        task_function=cellvoyager_to_ome_zarr_init
     )
 
     # Check that the task wrote some output to args.metadata_out
