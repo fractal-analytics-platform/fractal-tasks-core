@@ -422,7 +422,7 @@ class WellInPlate(BaseModel):
 
 class Plate(BaseModel):
     """
-    Model for `NgffWellMeta.well`.
+    Model for `NgffPlateMeta.plate`.
 
     See https://ngff.openmicroscopy.org/0.4/#plate-md.
     """

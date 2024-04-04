@@ -25,6 +25,14 @@ from fractal_tasks_core.ngff import load_NgffImageMeta
 from fractal_tasks_core.pyramids import build_pyramid
 from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 
+# from fractal_tasks_core.ngff import load_NgffImageMeta
+# from fractal_tasks_core.roi import (
+#     convert_ROIs_from_3D_to_2D,
+# )
+# import anndata as ad
+# from fractal_tasks_core.tables import write_table
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -36,6 +44,7 @@ def maximum_intensity_projection(
     component: str,
     metadata: dict[str, Any],
     overwrite: bool = False,
+    # ROI_table_names: tuple[str, ...] = ("FOV_ROI_table", "well_ROI_table"),
 ) -> dict[str, Any]:
     """
     Perform maximum-intensity projection along Z axis.
@@ -94,6 +103,16 @@ def maximum_intensity_projection(
         accumulate_chl.append(mip_yx)
     accumulated_array = da.stack(accumulate_chl, axis=0)
 
+    # FIXME: Add image attributes
+    # # Replicate image attrs
+    # old_image_group = zarr.open_group(
+    #     f"{plate_url_old}/{well_path}/{image_path}", mode="r"
+    # )
+    # new_image_group = zarr.group(
+    #     f"{zarrurl_new}/{well_path}/{image_path}"
+    # )
+    # new_image_group.attrs.put(old_image_group.attrs.asdict())
+
     # Write to disk (triggering execution)
     try:
         accumulated_array.to_zarr(
@@ -120,6 +139,45 @@ def maximum_intensity_projection(
         coarsening_xy=coarsening_xy,
         chunksize=(1, 1, chunksize_y, chunksize_x),
     )
+
+    # TODO: Copy ROI tables
+    # if ROI_table_names:
+    #     if project_to_2D:
+    #         path_image = f"{plate_url_old}/{well_path}/{image_path}"
+    #         ngff_image_meta = load_NgffImageMeta(path_image)
+    #         pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(
+    #             level=0
+    #         )
+    #         pxl_size_z = pxl_sizes_zyx[0]
+
+    #     # Copy the tables in ROI_table_names
+    #     for ROI_table_name in ROI_table_names:
+
+    #         logger.info(
+    #             f"Reading {ROI_table_name} from "
+    #             f"{plate_url_old=}, convert it to 2D, and "
+    #             "write it back to the new zarr file."
+    #         )
+    #         new_ROI_table = ad.read_zarr(
+    #             f"{plate_url_old}/{well_path}/{image_path}/"
+    #             f"tables/{ROI_table_name}"
+    #         )
+    #         old_ROI_table_attrs = zarr.open_group(
+    #             f"{plate_url_old}/{well_path}/{image_path}/"
+    #             f"tables/{ROI_table_name}"
+    #         ).attrs.asdict()
+    #         # Convert 3D ROIs to 2D
+    #         if project_to_2D:
+    #             new_ROI_table = convert_ROIs_from_3D_to_2D(
+    #                 new_ROI_table, pxl_size_z
+    #             )
+    #         # Write new table
+    #         write_table(
+    #             new_image_group,
+    #             ROI_table_name,
+    #             new_ROI_table,
+    #             table_attrs=old_ROI_table_attrs,
+    #         )
 
     return {}
 
