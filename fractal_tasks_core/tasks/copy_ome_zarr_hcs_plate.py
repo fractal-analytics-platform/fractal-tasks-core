@@ -19,9 +19,10 @@ import zarr
 from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
-from fractal_tasks_core.zarr_utils import open_zarr_group_with_overwrite
 from fractal_tasks_core.ngff.specs import NgffPlateMeta
-from fractal_tasks_core.ngff.specs import WellInPlate, Well, NgffWellMeta
+from fractal_tasks_core.ngff.specs import NgffWellMeta
+from fractal_tasks_core.ngff.specs import WellInPlate
+from fractal_tasks_core.zarr_utils import open_zarr_group_with_overwrite
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +59,7 @@ def _get_plate_url_from_image_url(zarr_url: str) -> str:
 #         if plate_path not in potential_plate_paths:
 #             potential_plate_paths.append(plate_path)
 
-#     # TODO: Actually verify the plates, e.g. with a Pydantic model like for 
+#     # TODO: Actually verify the plates, e.g. with a Pydantic model like for
 #     # load_NgffImageMeta approach
 #     # Verify that they are OME-Zarr HCS plates
 #     for plate_path in potential_plate_paths:
@@ -66,20 +67,24 @@ def _get_plate_url_from_image_url(zarr_url: str) -> str:
 #             plate_urls.append(plate_path)
 #         else:
 #             logger.warning(
-#                 f"While copying the HCS plate, found {plate_path} in zarr_urls"
+#                 f"While copying the HCS plate, found {plate_path} in "
+#                 "zarr_urls"
 #                 "which was not verified as a plate"
 #             )
 #     return plate_urls
+
 
 def _get_well_sub_url(zarr_url):
     zarr_url = zarr_url.rstrip("/")
     well_url = "/".join(zarr_url.split("/")[-3:-1])
     return well_url
 
+
 def _get_image_sub_url(zarr_url):
     zarr_url = zarr_url.rstrip("/")
     image_sub_url = zarr_url.split("/")[-1]
     return image_sub_url
+
 
 def _generate_plate_well_metadata(well_list):
     """
@@ -117,8 +122,8 @@ def copy_ome_zarr_hcs_plate(
     """
     Duplicate the OME-Zarr HCS structure for a set of zarr_urls.
 
-    This task only processes the zarr images in the zarr_urls, not all the 
-    images in the plate. It copies all the  plate & well structure, but none 
+    This task only processes the zarr images in the zarr_urls, not all the
+    images in the plate. It copies all the  plate & well structure, but none
     of the image metadata or the actual image data:
 
     - For each plate, create a new OME-Zarr HCS plate with the attributes for
@@ -153,7 +158,7 @@ def copy_ome_zarr_hcs_plate(
         )
 
     # Generate the plate metadata & parallelization list
-    # TODO: Simplify this block. Currently complicated, because we need to loop 
+    # TODO: Simplify this block. Currently complicated, because we need to loop
     # through all potential plates, all their wells & their images to build up
     # the metadata for the plate & well.
     plate_metadata_dicts = {}
@@ -173,30 +178,37 @@ def copy_ome_zarr_hcs_plate(
                     acquisitions=old_plate_meta.plate.acquisitions,
                     field_count=old_plate_meta.plate.field_count,
                     name=old_plate_meta.plate.name,
-                    # The new field count could be different from the old 
+                    # The new field count could be different from the old
                     # field count
-                    version=old_plate_meta.plate.version
+                    version=old_plate_meta.plate.version,
                 )
             )
             plate_metadata_dicts[old_plate_url] = plate_metadata
             plate_wells[old_plate_url] = []
             well_image_attrs[old_plate_url] = {}
             new_well_image_attrs[old_plate_url] = {}
-        
+
         # Add info about the wells to the plate_wells dict:
         well_sub_url = _get_well_sub_url(zarr_url)
-        # Check if well already exists. If no, init well metadata. 
+        # Check if well already exists. If no, init well metadata.
         if well_sub_url not in plate_wells[old_plate_url]:
             plate_wells[old_plate_url].append(well_sub_url)
-            old_well_group = zarr.open_group(f"{old_plate_url}/{well_sub_url}", mode="r")
+            old_well_group = zarr.open_group(
+                f"{old_plate_url}/{well_sub_url}", mode="r"
+            )
             well_attrs = NgffWellMeta(**old_well_group.attrs.asdict())
-            # well_image_attrs[old_plate_url][well_sub_url] = well_attrs.well.images
             well_image_attrs[old_plate_url][well_sub_url] = well_attrs.well
             new_well_image_attrs[old_plate_url][well_sub_url] = []
-        
+
         curr_img_sub_url = _get_image_sub_url(zarr_url)
-        curr_well_image_list = [img for img in well_image_attrs[old_plate_url][well_sub_url].images if img.path == curr_img_sub_url]
-        new_well_image_attrs[old_plate_url][well_sub_url] += curr_well_image_list
+        curr_well_image_list = [
+            img
+            for img in well_image_attrs[old_plate_url][well_sub_url].images
+            if img.path == curr_img_sub_url
+        ]
+        new_well_image_attrs[old_plate_url][
+            well_sub_url
+        ] += curr_well_image_list
 
         # Generate parallelization list
         new_zarr_url = f"{old_plate_url}/{well_sub_url}/{curr_img_sub_url}"
@@ -205,27 +217,34 @@ def copy_ome_zarr_hcs_plate(
                 zarr_url=new_zarr_url,
                 init_args=dict(
                     origin_url=zarr_url,
-                )
+                ),
             )
         )
-    
+
     # Fill in the plate metadata based on all available wells
     for old_plate_url in plate_metadata_dicts:
-        well_list, column_list, row_list = _generate_plate_well_metadata(plate_wells[old_plate_url])
+        well_list, column_list, row_list = _generate_plate_well_metadata(
+            plate_wells[old_plate_url]
+        )
         plate_metadata_dicts[old_plate_url]["plate"]["columns"] = []
         for column in column_list:
-            plate_metadata_dicts[old_plate_url]["plate"]["columns"].append({"name": column})
+            plate_metadata_dicts[old_plate_url]["plate"]["columns"].append(
+                {"name": column}
+            )
 
         plate_metadata_dicts[old_plate_url]["plate"]["rows"] = []
         for row in row_list:
-            plate_metadata_dicts[old_plate_url]["plate"]["rows"].append({"name": row})
+            plate_metadata_dicts[old_plate_url]["plate"]["rows"].append(
+                {"name": row}
+            )
         plate_metadata_dicts[old_plate_url]["plate"]["wells"] = well_list
-    
 
     # Create the new OME-Zarr HCS plate
     for old_plate_url in plate_metadata_dicts:
         # Validate plate metadata & drop Nones from plate_meta_dict
-        plate_metadata_dicts[old_plate_url] = NgffPlateMeta(**plate_metadata_dicts[old_plate_url]).dict(exclude_none=True)
+        plate_metadata_dicts[old_plate_url] = NgffPlateMeta(
+            **plate_metadata_dicts[old_plate_url]
+        ).dict(exclude_none=True)
         old_plate_name = old_plate_url.split(".zarr")[-2].split("/")[-1]
         new_plate_name = f"{old_plate_name}_{suffix}"
         zarrurl_new = f"{zarr_dir}/{new_plate_name}.zarr"
@@ -240,8 +259,11 @@ def copy_ome_zarr_hcs_plate(
         for well_sub_url in new_well_image_attrs[old_plate_url]:
             new_well_group = zarr.group(f"{zarrurl_new}/{well_sub_url}")
             well_attrs = dict(
-                images = [i.dict(exclude_none=True) for i in new_well_image_attrs[old_plate_url][well_sub_url]],
-                version = well_image_attrs[old_plate_url][well_sub_url].version
+                images=[
+                    i.dict(exclude_none=True)
+                    for i in new_well_image_attrs[old_plate_url][well_sub_url]
+                ],
+                version=well_image_attrs[old_plate_url][well_sub_url].version,
             )
             new_well_group.attrs.put(well_attrs)
 

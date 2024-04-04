@@ -25,9 +25,8 @@ from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_compute import (
 from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_init import (
     cellvoyager_to_ome_zarr_init,
 )
-
 from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
-    copy_ome_zarr_hcs_plate
+    copy_ome_zarr_hcs_plate,
 )
 
 
@@ -65,29 +64,32 @@ if not os.path.isdir(Path(img_path).parent):
 zarr_dir = "tmp_out"
 
 # Create zarr structure
-# parallelization_list = cellvoyager_to_ome_zarr_init(
-#     zarr_urls=[],
-#     zarr_dir=zarr_dir,
-#     image_dirs=[img_path],
-#     allowed_channels=allowed_channels,
-#     image_extension="png",
-#     num_levels=num_levels,
-#     coarsening_xy=coarsening_xy,
-#     overwrite=True,
-# )
-# debug(parallelization_list)
+parallelization_list = cellvoyager_to_ome_zarr_init(
+    zarr_urls=[],
+    zarr_dir=zarr_dir,
+    image_dirs=[img_path],
+    allowed_channels=allowed_channels,
+    image_extension="png",
+    num_levels=num_levels,
+    coarsening_xy=coarsening_xy,
+    overwrite=True,
+)
+debug(parallelization_list)
 
-# image_list_updates = []
-# # Convert image to Zarr
-# for image in parallelization_list:
-#     image_list_updates += cellvoyager_to_ome_zarr_compute(
-#         zarr_url=image["zarr_url"],
-#         init_args=image["init_args"],
-#     )["image_list_updates"]
-# debug(image_list_updates)
+image_list_updates = []
+# Convert image to Zarr
+for image in parallelization_list:
+    image_list_updates += cellvoyager_to_ome_zarr_compute(
+        zarr_url=image["zarr_url"],
+        init_args=image["init_args"],
+    )["image_list_updates"]
+debug(image_list_updates)
 
-zarr_urls = ["tmp_out/20200812-CardiomyocyteDifferentiation14-Cycle1.zarr/B/03/0/"]
+zarr_urls = [
+    "tmp_out/20200812-CardiomyocyteDifferentiation14-Cycle1.zarr/B/03/0/"
+]
 
 # Create an MIP
-parallelization_list = copy_ome_zarr_hcs_plate(zarr_urls=zarr_urls, zarr_dir="tmp_out", overwrite=True)
-
+parallelization_list = copy_ome_zarr_hcs_plate(
+    zarr_urls=zarr_urls, zarr_dir="tmp_out", overwrite=True
+)
