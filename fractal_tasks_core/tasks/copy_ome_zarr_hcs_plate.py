@@ -111,7 +111,9 @@ def _generate_wells_rows_columns(well_list):
     return wells, rows, columns
 
 
-def _generate_plate_well_metadata(zarr_urls: list[str]):
+def _generate_plate_well_metadata(
+    zarr_urls: list[str],
+) -> tuple[dict[str, dict], dict[str, dict[str, dict]], dict[str, dict]]:
     """
     Generate metadata for OME-Zarr HCS plate & wells.
 
