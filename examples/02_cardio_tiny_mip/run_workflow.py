@@ -28,11 +28,9 @@ from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_init import (
 from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
     copy_ome_zarr_hcs_plate,
 )
-
-# from fractal_tasks_core.tasks.maximum_intensity_projection import (
-#     maximum_intensity_projection,
-# )
-
+from fractal_tasks_core.tasks.maximum_intensity_projection import (
+    maximum_intensity_projection,
+)
 
 allowed_channels = [
     OmeroChannel(
@@ -99,9 +97,9 @@ parallelization_list = copy_ome_zarr_hcs_plate(
 )
 debug(parallelization_list)
 
-# for image in parallelization_list:
-#     maximum_intensity_projection(
-#         zarr_url=image["zarr_url"],
-#         init_args=image["init_args"],
-#         # overwrite=True,
-#     )
+for image in parallelization_list:
+    maximum_intensity_projection(
+        zarr_url=image["zarr_url"],
+        init_args=image["init_args"],
+        # overwrite=True,
+    )

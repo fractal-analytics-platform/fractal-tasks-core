@@ -22,6 +22,7 @@ import fractal_tasks_core
 from fractal_tasks_core.ngff.specs import NgffPlateMeta
 from fractal_tasks_core.ngff.specs import NgffWellMeta
 from fractal_tasks_core.ngff.specs import WellInPlate
+from fractal_tasks_core.tasks.io_models import InitArgsMIP
 from fractal_tasks_core.zarr_utils import open_zarr_group_with_overwrite
 
 logger = logging.getLogger(__name__)
@@ -264,14 +265,14 @@ def copy_ome_zarr_hcs_plate(
         zarrurl_plate_new = f"{zarr_dir}/{new_plate_name}.zarr"
         curr_img_sub_url = _get_image_sub_url(zarr_url)
         new_zarr_url = f"{zarrurl_plate_new}/{well_sub_url}/{curr_img_sub_url}"
-        parallelization_list.append(
-            dict(
-                zarr_url=new_zarr_url,
-                init_args=dict(
-                    origin_url=zarr_url,
-                ),
-            )
+        parallelization_item = dict(
+            zarr_url=new_zarr_url,
+            init_args=dict(
+                origin_url=zarr_url,
+            ),
         )
+        InitArgsMIP(**parallelization_item["init_args"])
+        parallelization_list.append(parallelization_item)
 
     # Generate the plate metadata & parallelization list
     (

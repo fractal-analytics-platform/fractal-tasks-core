@@ -60,15 +60,13 @@ class InitArgsIllumination(BaseModel):
 
 class InitArgsMIP(BaseModel):
     """
-    Dummy model description.
+    Init Args for MIP task.
 
     Attributes:
-        new_path: dummy attribute description.
-        new_plate: dummy attribute description.
+        origin_url: Path to the zarr_url with the 3D data
     """
 
-    new_path: str
-    new_plate: str  # FIXME: remove this
+    origin_url: str
 
 
 class MultiplexingAcquisition(BaseModel):
