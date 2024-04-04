@@ -259,8 +259,11 @@ def copy_ome_zarr_hcs_plate(
     for zarr_url in zarr_urls:
         old_plate_url = _get_plate_url_from_image_url(zarr_url)
         well_sub_url = _get_well_sub_url(zarr_url)
+        old_plate_name = old_plate_url.split(".zarr")[-2].split("/")[-1]
+        new_plate_name = f"{old_plate_name}_{suffix}"
+        zarrurl_plate_new = f"{zarr_dir}/{new_plate_name}.zarr"
         curr_img_sub_url = _get_image_sub_url(zarr_url)
-        new_zarr_url = f"{old_plate_url}/{well_sub_url}/{curr_img_sub_url}"
+        new_zarr_url = f"{zarrurl_plate_new}/{well_sub_url}/{curr_img_sub_url}"
         parallelization_list.append(
             dict(
                 zarr_url=new_zarr_url,
