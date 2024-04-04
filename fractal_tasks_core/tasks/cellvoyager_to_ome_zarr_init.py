@@ -30,13 +30,15 @@ from fractal_tasks_core.cellvoyager.metadata import (
 from fractal_tasks_core.channels import check_unique_wavelength_ids
 from fractal_tasks_core.channels import define_omero_channels
 from fractal_tasks_core.channels import OmeroChannel
+from fractal_tasks_core.ngff.specs import NgffImageMeta
+from fractal_tasks_core.ngff.specs import Plate
+from fractal_tasks_core.ngff.specs import Well
 from fractal_tasks_core.roi import prepare_FOV_ROI_table
 from fractal_tasks_core.roi import prepare_well_ROI_table
 from fractal_tasks_core.roi import remove_FOV_overlaps
 from fractal_tasks_core.tables import write_table
 from fractal_tasks_core.tasks.io_models import InitArgsCellVoyager
 from fractal_tasks_core.zarr_utils import open_zarr_group_with_overwrite
-
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
@@ -336,10 +338,11 @@ def cellvoyager_to_ome_zarr_init(
         row_list = sorted(list(set(row_list)))
         col_list = sorted(list(set(col_list)))
 
-        group_plate.attrs["plate"] = {
+        plate_attrs = {
             "acquisitions": [{"id": 0, "name": plate}],
             "columns": [{"name": col} for col in col_list],
             "rows": [{"name": row} for row in row_list],
+            "version": __OME_NGFF_VERSION__,
             "wells": [
                 {
                     "path": well_row_column[0] + "/" + well_row_column[1],
@@ -349,6 +352,11 @@ def cellvoyager_to_ome_zarr_init(
                 for well_row_column in well_rows_columns
             ],
         }
+
+        # Validate plate attrs:
+        Plate(**plate_attrs)
+
+        group_plate.attrs["plate"] = plate_attrs
 
         for row, column in well_rows_columns:
             parallelization_list.append(
@@ -365,10 +373,14 @@ def cellvoyager_to_ome_zarr_init(
             )
             group_well = group_plate.create_group(f"{row}/{column}/")
 
-            group_well.attrs["well"] = {
+            well_attrs = {
                 "images": [{"path": "0"}],
                 "version": __OME_NGFF_VERSION__,
             }
+
+            # Validate well attrs:
+            Well(**well_attrs)
+            group_well.attrs["well"] = well_attrs
 
             group_image = group_well.create_group("0/")  # noqa: F841
             group_image.attrs["multiscales"] = [
@@ -422,6 +434,9 @@ def cellvoyager_to_ome_zarr_init(
                     channels=actual_channels, bit_depth=bit_depth
                 ),
             }
+
+            # Validate Image attrs
+            NgffImageMeta(**group_image.attrs)
 
             # Prepare AnnData tables for FOV/well ROIs
             well_id = row + column

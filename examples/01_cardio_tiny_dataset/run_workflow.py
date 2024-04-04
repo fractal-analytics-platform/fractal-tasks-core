@@ -19,11 +19,11 @@ from devtools import debug
 
 from fractal_tasks_core.channels import OmeroChannel
 from fractal_tasks_core.channels import Window
-from fractal_tasks_core.tasks.create_cellvoyager_ome_zarr_compute import (
-    create_cellvoyager_ome_zarr_compute,
+from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_compute import (
+    cellvoyager_to_ome_zarr_compute,
 )
-from fractal_tasks_core.tasks.create_cellvoyager_ome_zarr_init import (
-    create_cellvoyager_ome_zarr_init,
+from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_init import (
+    cellvoyager_to_ome_zarr_init,
 )
 
 
@@ -58,10 +58,10 @@ if not os.path.isdir(Path(img_path).parent):
         f"{Path(img_path).parent} is missing,"
         " try running ./fetch_test_data_from_zenodo.sh"
     )
-zarr_dir = "tmp_out/"
+zarr_dir = "tmp_out"
 
 # Create zarr structure
-parallelization_list = create_cellvoyager_ome_zarr_init(
+parallelization_list = cellvoyager_to_ome_zarr_init(
     zarr_urls=[],
     zarr_dir=zarr_dir,
     image_dirs=[img_path],
@@ -76,8 +76,8 @@ debug(parallelization_list)
 image_list_updates = []
 # # Yokogawa to zarr
 for image in parallelization_list:
-    image_list_updates += create_cellvoyager_ome_zarr_compute(
+    image_list_updates += cellvoyager_to_ome_zarr_compute(
         zarr_url=image["zarr_url"],
         init_args=image["init_args"],
-    )
+    )["image_list_updates"]
 debug(image_list_updates)

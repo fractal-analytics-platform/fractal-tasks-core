@@ -32,6 +32,9 @@ from fractal_tasks_core.cellvoyager.metadata import (
 from fractal_tasks_core.channels import check_unique_wavelength_ids
 from fractal_tasks_core.channels import check_well_channel_labels
 from fractal_tasks_core.channels import define_omero_channels
+from fractal_tasks_core.ngff.specs import NgffImageMeta
+from fractal_tasks_core.ngff.specs import Plate
+from fractal_tasks_core.ngff.specs import Well
 from fractal_tasks_core.roi import prepare_FOV_ROI_table
 from fractal_tasks_core.roi import prepare_well_ROI_table
 from fractal_tasks_core.roi import remove_FOV_overlaps
@@ -39,7 +42,6 @@ from fractal_tasks_core.tables import write_table
 from fractal_tasks_core.tasks.io_models import InitArgsCellVoyager
 from fractal_tasks_core.tasks.io_models import MultiplexingAcquisition
 from fractal_tasks_core.zarr_utils import open_zarr_group_with_overwrite
-
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
@@ -358,6 +360,9 @@ def cellvoyager_to_ome_zarr_init_multiplex(
             }
             for well_row_column in well_rows_columns
         ]
+        plate_attrs["version"] = __OME_NGFF_VERSION__
+        # Validate plate attrs
+        Plate(**plate_attrs)
         group_plate.attrs["plate"] = plate_attrs
 
         for row, column in well_rows_columns:
@@ -380,7 +385,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
             try:
                 group_well = group_plate.create_group(f"{row}/{column}/")
                 logging.info(f"Created new group_well at {row}/{column}/")
-                group_well.attrs["well"] = {
+                well_attrs = {
                     "images": [
                         {
                             "path": f"{acquisition}",
@@ -389,6 +394,9 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                     ],
                     "version": __OME_NGFF_VERSION__,
                 }
+                # Validate well attrs:
+                Well(**well_attrs)
+                group_well.attrs["well"] = well_attrs
                 zarrurls["well"].append(f"{plate}.zarr/{row}/{column}")
             except ContainsGroupError:
                 group_well = zarr.open_group(
@@ -400,10 +408,13 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                 current_images = group_well.attrs["well"]["images"] + [
                     {"path": f"{acquisition}", "acquisition": int(acquisition)}
                 ]
-                group_well.attrs["well"] = dict(
+                well_attrs = dict(
                     images=current_images,
                     version=group_well.attrs["well"]["version"],
                 )
+                # Validate well attrs:
+                Well(**well_attrs)
+                group_well.attrs["well"] = well_attrs
 
             group_image = group_well.create_group(
                 f"{acquisition}/"
@@ -465,6 +476,8 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                     label_prefix=acquisition,
                 ),
             }
+            # Validate Image attrs
+            NgffImageMeta(**group_image.attrs)
 
             # Prepare AnnData tables for FOV/well ROIs
             well_id = row + column
