@@ -136,6 +136,7 @@ def maximum_intensity_projection(
             table,
             new_ROI_table,
             table_attrs=old_ROI_table_attrs,
+            overwrite=overwrite,
         )
 
     for table in non_roi_tables:
@@ -155,9 +156,22 @@ def maximum_intensity_projection(
             table,
             new_ROI_table,
             table_attrs=old_ROI_table_attrs,
+            overwrite=overwrite,
         )
 
-    return {}
+    # Generate image_list_updates
+    image_list_update_dict = dict(
+        image_list_updates=[
+            dict(
+                zarr_url=zarr_url,
+                origin=init_args.origin_url,
+                types=dict(
+                    is_3D=False,
+                ),
+            )
+        ]
+    )
+    return image_list_update_dict
 
 
 if __name__ == "__main__":
