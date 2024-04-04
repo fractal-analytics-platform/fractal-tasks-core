@@ -86,7 +86,7 @@ def _get_image_sub_url(zarr_url):
     return image_sub_url
 
 
-def _generate_plate_well_metadata(well_list):
+def _generate_wells_rows_columns(well_list):
     """
     Generates the plate well metadata based on the list of wells.
     """
@@ -110,54 +110,25 @@ def _generate_plate_well_metadata(well_list):
     return wells, rows, columns
 
 
-@validate_arguments
-def copy_ome_zarr_hcs_plate(
-    *,
-    zarr_urls: list[str],
-    zarr_dir: str,
-    suffix: str = "mip",
-    overwrite: bool = False,
-) -> dict[str, Any]:
-
+def _generate_plate_well_metadata(zarr_urls: list[str]):
     """
-    Duplicate the OME-Zarr HCS structure for a set of zarr_urls.
+    Generate metadata for OME-Zarr HCS plate & wells.
 
-    This task only processes the zarr images in the zarr_urls, not all the
-    images in the plate. It copies all the  plate & well structure, but none
-    of the image metadata or the actual image data:
-
-    - For each plate, create a new OME-Zarr HCS plate with the attributes for
-        all the images in zarr_urls
-    - For each well (in each plate), create a new zarr subgroup with the
-       same attributes as the original one.
-
-    Note: this task makes use of methods from the `Attributes` class, see
-    https://zarr.readthedocs.io/en/stable/api/attrs.html.
+    Based on the list of zarr_urls, generate metadata for all plates and all
+    their wells.
 
     Args:
         zarr_urls: List of paths or urls to the individual OME-Zarr image to
-            be processed. Not used by the converter task.
-            (standard argument for Fractal tasks, managed by Fractal server).
-        zarr_dir: path of the directory where the new OME-Zarrs will be
-            created.
-            (standard argument for Fractal tasks, managed by Fractal server).
-        suffix: The suffix that is used to transform `plate.zarr` into
-            `plate_suffix.zarr`. Note that `None` is not currently supported.
-        overwrite: If `True`, overwrite the task output.
+            be processed.
 
     Returns:
-        A parallelization list to be used in a compute task to fill the wells
-        with OME-Zarr images.
+        plate_metadata_dicts: Dictionary of plate plate metadata. The structure
+            is: {"old_plate_name": NgffPlateMeta (as dict)}.
+        new_well_image_attrs: Dictionary of image lists for the new wells.
+            The structure is: {"old_plate_name": {"old_well_name":
+            [ImageInWell(as dict)]}}
+        well_image_attrs: Dictionary of Image attributes of the existing wells.
     """
-
-    # Preliminary check
-    if suffix is None or suffix == "":
-        raise ValueError(
-            "Running copy_ome_zarr_hcs_plate without a suffix would lead to"
-            "overwriting of the existing HCS plates."
-        )
-
-    # Generate the plate metadata & parallelization list
     # TODO: Simplify this block. Currently complicated, because we need to loop
     # through all potential plates, all their wells & their images to build up
     # the metadata for the plate & well.
@@ -165,7 +136,6 @@ def copy_ome_zarr_hcs_plate(
     plate_wells = {}
     well_image_attrs = {}
     new_well_image_attrs = {}
-    parallelization_list = []
     for zarr_url in zarr_urls:
         old_plate_url = _get_plate_url_from_image_url(zarr_url)
         if old_plate_url not in plate_metadata_dicts:
@@ -210,20 +180,9 @@ def copy_ome_zarr_hcs_plate(
             well_sub_url
         ] += curr_well_image_list
 
-        # Generate parallelization list
-        new_zarr_url = f"{old_plate_url}/{well_sub_url}/{curr_img_sub_url}"
-        parallelization_list.append(
-            dict(
-                zarr_url=new_zarr_url,
-                init_args=dict(
-                    origin_url=zarr_url,
-                ),
-            )
-        )
-
     # Fill in the plate metadata based on all available wells
     for old_plate_url in plate_metadata_dicts:
-        well_list, column_list, row_list = _generate_plate_well_metadata(
+        well_list, column_list, row_list = _generate_wells_rows_columns(
             plate_wells[old_plate_url]
         )
         plate_metadata_dicts[old_plate_url]["plate"]["columns"] = []
@@ -239,12 +198,87 @@ def copy_ome_zarr_hcs_plate(
             )
         plate_metadata_dicts[old_plate_url]["plate"]["wells"] = well_list
 
-    # Create the new OME-Zarr HCS plate
-    for old_plate_url in plate_metadata_dicts:
-        # Validate plate metadata & drop Nones from plate_meta_dict
+        # Validate with NgffPlateMeta model
         plate_metadata_dicts[old_plate_url] = NgffPlateMeta(
             **plate_metadata_dicts[old_plate_url]
         ).dict(exclude_none=True)
+
+    return plate_metadata_dicts, new_well_image_attrs, well_image_attrs
+
+
+@validate_arguments
+def copy_ome_zarr_hcs_plate(
+    *,
+    zarr_urls: list[str],
+    zarr_dir: str,
+    suffix: str = "mip",
+    overwrite: bool = False,
+) -> dict[str, Any]:
+
+    """
+    Duplicate the OME-Zarr HCS structure for a set of zarr_urls.
+
+    This task only processes the zarr images in the zarr_urls, not all the
+    images in the plate. It copies all the  plate & well structure, but none
+    of the image metadata or the actual image data:
+
+    - For each plate, create a new OME-Zarr HCS plate with the attributes for
+        all the images in zarr_urls
+    - For each well (in each plate), create a new zarr subgroup with the
+       same attributes as the original one.
+
+    Note: this task makes use of methods from the `Attributes` class, see
+    https://zarr.readthedocs.io/en/stable/api/attrs.html.
+
+    Args:
+        zarr_urls: List of paths or urls to the individual OME-Zarr image to
+            be processed.
+            (standard argument for Fractal tasks, managed by Fractal server).
+        zarr_dir: path of the directory where the new OME-Zarrs will be
+            created.
+            (standard argument for Fractal tasks, managed by Fractal server).
+        suffix: The suffix that is used to transform `plate.zarr` into
+            `plate_suffix.zarr`. Note that `None` is not currently supported.
+        overwrite: If `True`, overwrite the task output.
+
+    Returns:
+        A parallelization list to be used in a compute task to fill the wells
+        with OME-Zarr images.
+    """
+
+    # Preliminary check
+    if suffix is None or suffix == "":
+        raise ValueError(
+            "Running copy_ome_zarr_hcs_plate without a suffix would lead to"
+            "overwriting of the existing HCS plates."
+        )
+
+    parallelization_list = []
+
+    # Generate parallelization list
+    for zarr_url in zarr_urls:
+        old_plate_url = _get_plate_url_from_image_url(zarr_url)
+        well_sub_url = _get_well_sub_url(zarr_url)
+        curr_img_sub_url = _get_image_sub_url(zarr_url)
+        new_zarr_url = f"{old_plate_url}/{well_sub_url}/{curr_img_sub_url}"
+        parallelization_list.append(
+            dict(
+                zarr_url=new_zarr_url,
+                init_args=dict(
+                    origin_url=zarr_url,
+                ),
+            )
+        )
+
+    # Generate the plate metadata & parallelization list
+    (
+        plate_attrs_dicts,
+        new_well_image_attrs,
+        well_image_attrs,
+    ) = _generate_plate_well_metadata(zarr_urls=zarr_urls)
+
+    # Create the new OME-Zarr HCS plate
+    for old_plate_url, plate_attrs in plate_attrs_dicts.items():
         old_plate_name = old_plate_url.split(".zarr")[-2].split("/")[-1]
         new_plate_name = f"{old_plate_name}_{suffix}"
         zarrurl_new = f"{zarr_dir}/{new_plate_name}.zarr"
@@ -253,7 +287,7 @@ def copy_ome_zarr_hcs_plate(
         new_plate_group = open_zarr_group_with_overwrite(
             zarrurl_new, overwrite=overwrite
         )
-        new_plate_group.attrs.put(plate_metadata_dicts[old_plate_url])
+        new_plate_group.attrs.put(plate_attrs)
 
         # Write well groups:
         for well_sub_url in new_well_image_attrs[old_plate_url]:
