@@ -25,15 +25,14 @@ from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_compute import (
 from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_init_multiplex import (
     cellvoyager_to_ome_zarr_init_multiplex,
 )
+from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
+    copy_ome_zarr_hcs_plate,
+)
 from fractal_tasks_core.tasks.io_models import MultiplexingAcquisition
+from fractal_tasks_core.tasks.maximum_intensity_projection import (
+    maximum_intensity_projection,
+)
 from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
-
-# from fractal_tasks_core.tasks.copy_ome_zarr import (
-#     copy_ome_zarr,
-# )
-# from fractal_tasks_core.tasks.maximum_intensity_projection import (
-#     maximum_intensity_projection,
-# )
 
 
 single_cycle_allowed_channels_no_label = [
@@ -225,68 +224,75 @@ def test_multiplexing_compute(
     check_file_number(zarr_path=image_zarr_1)
 
 
-# def test_multiplexing_MIP(
-#     tmp_path: Path, zenodo_images_multiplex: Sequence[str]
-# ):
+def test_multiplexing_MIP(
+    tmp_path: Path, zenodo_images_multiplex: Sequence[str]
+):
 
-#     # Init
-#     zarr_path = tmp_path / "tmp_out/"
-#     zarr_path_mip = tmp_path / "tmp_out_mip/"
-#     metadata: dict = {}
+    # Init
+    zarr_dir = tmp_path / "tmp_out/"
 
-#     # Create zarr structure
-#     metadata_update = create_ome_zarr_multiplex(
-#         input_paths=zenodo_images_multiplex,
-#         output_path=str(zarr_path),
-#         metadata=metadata,
-#         allowed_channels=allowed_channels,
-#         image_extension="png",
-#         num_levels=num_levels,
-#         coarsening_xy=coarsening_xy,
-#         metadata_table_files=None,
-#     )
-#     metadata.update(metadata_update)
-#     debug(metadata)
+    acquisitions = {
+        "0": MultiplexingAcquisition(
+            image_dir=zenodo_images_multiplex[0],
+            allowed_channels=single_cycle_allowed_channels_no_label,
+        ),
+        "1": MultiplexingAcquisition(
+            image_dir=zenodo_images_multiplex[1],
+            allowed_channels=single_cycle_allowed_channels_no_label,
+        ),
+    }
 
-#     # Yokogawa to zarr
-#     for component in metadata["image"]:
-#         yokogawa_to_ome_zarr(
-#             input_paths=[str(zarr_path)],
-#             output_path=str(zarr_path),
-#             metadata=metadata,
-#             component=component,
-#         )
-#     debug(metadata)
+    # Create zarr structure
+    parallelization_list = cellvoyager_to_ome_zarr_init_multiplex(
+        zarr_urls=[],
+        zarr_dir=str(zarr_dir),
+        acquisitions=acquisitions,
+        num_levels=num_levels,
+        coarsening_xy=coarsening_xy,
+        image_extension="png",
+        metadata_table_files=None,
+    )
+    debug(parallelization_list)
 
-#     # Replicate
-#     metadata_update = copy_ome_zarr(
-#         input_paths=[str(zarr_path)],
-#         output_path=str(zarr_path_mip),
-#         metadata=metadata,
-#         project_to_2D=True,
-#         suffix="mip",
-#     )
-#     metadata.update(metadata_update)
-#     debug(metadata)
+    # Convert to OME-Zarr
+    image_list_updates = []
+    for image in parallelization_list:
+        image_list_updates += cellvoyager_to_ome_zarr_compute(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+        )["image_list_updates"]
+    debug(image_list_updates)
 
-#     # MIP
-#     for component in metadata["image"]:
-#         maximum_intensity_projection(
-#             input_paths=[str(zarr_path_mip)],
-#             output_path=str(zarr_path_mip),
-#             metadata=metadata,
-#             component=component,
-#         )
+    zarr_urls = []
+    for image in image_list_updates:
+        zarr_urls.append(image["zarr_url"])
 
-#     # OME-NGFF JSON validation
-#     image_zarr_0 = zarr_path_mip / metadata["image"][0]
-#     image_zarr_1 = zarr_path_mip / metadata["image"][1]
-#     well_zarr = image_zarr_0.parent
-#     plate_zarr = image_zarr_0.parents[2]
-#     validate_schema(path=str(image_zarr_0), type="image")
-#     validate_schema(path=str(image_zarr_1), type="image")
-#     validate_schema(path=str(well_zarr), type="well")
-#     validate_schema(path=str(plate_zarr), type="plate")
+    # Replicate
+    parallelization_list = copy_ome_zarr_hcs_plate(
+        zarr_urls=zarr_urls,
+        zarr_dir=str(zarr_dir),
+        overwrite=True,
+    )
+    debug(parallelization_list)
 
-#     check_file_number(zarr_path=image_zarr_0)
-#     check_file_number(zarr_path=image_zarr_1)
+    # MIP
+    image_list_updates = []
+    for image in parallelization_list:
+        image_list_updates += maximum_intensity_projection(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+            overwrite=True,
+        )["image_list_updates"]
+
+    # OME-NGFF JSON validation
+    image_zarr_0 = Path(zarr_dir) / parallelization_list[0]["zarr_url"]
+    image_zarr_1 = Path(zarr_dir) / parallelization_list[1]["zarr_url"]
+    well_zarr = image_zarr_0.parent
+    plate_zarr = image_zarr_0.parents[2]
+    validate_schema(path=str(image_zarr_0), type="image")
+    validate_schema(path=str(image_zarr_1), type="image")
+    validate_schema(path=str(well_zarr), type="well")
+    validate_schema(path=str(plate_zarr), type="plate")
+
+    check_file_number(zarr_path=image_zarr_0)
+    check_file_number(zarr_path=image_zarr_1)

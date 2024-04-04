@@ -429,8 +429,7 @@ def test_workflow_with_per_well_labeling_2D(
     # Replicate
     parallelization_list = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
-        zarr_dir="tmp_out",
-        overwrite=True,
+        zarr_dir=str(zarr_dir),
     )
     debug(parallelization_list)
 
