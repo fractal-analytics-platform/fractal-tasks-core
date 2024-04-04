@@ -198,8 +198,7 @@ def patched_segment_ROI(
 #     zenodo_images_multiplex_shifted: list[str],
 #     tmp_path,
 #     monkeypatch: MonkeyPatch,
-# noqa
-#     roi_table="FOV_ROI_table",  # Given the test data, only implemented per FOV 
+#     roi_table="FOV_ROI_table",  # Given the test data, only implemented per FOV
 # ):
 
 #     monkeypatch.setattr(
@@ -269,13 +268,11 @@ def patched_segment_ROI(
 #             wavelength_id="A01_C01",
 #             roi_table=roi_table,
 #         )
-# noqa
-#     # Check the table for the second component (the image of the second cycle) 
+#     # Check the table for the second component (the image of the second cycle)
 #     component = metadata["image"][1]
 #     curr_table = ad.read_zarr(f"{zarr_dir_mip / component}/tables/{roi_table}")
 #     assert curr_table.shape == (2, 11)
 #     np.testing.assert_almost_equal(
-# noqa
 #         curr_table.X[0, 8:11], np.array(expected_shift[roi_table]), decimal=5
 #     )
 #     # Apply registration to ROI table
