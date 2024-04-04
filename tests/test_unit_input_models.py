@@ -2,10 +2,10 @@ import pytest
 from devtools import debug
 
 from fractal_tasks_core.channels import ChannelInputModel
-from fractal_tasks_core.tasks.napari_workflows_wrapper_models import (
+from fractal_tasks_core.tasks.io_models import (
     NapariWorkflowsInput,
 )
-from fractal_tasks_core.tasks.napari_workflows_wrapper_models import (
+from fractal_tasks_core.tasks.io_models import (
     NapariWorkflowsOutput,
 )
 
