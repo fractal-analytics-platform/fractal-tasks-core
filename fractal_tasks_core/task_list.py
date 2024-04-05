@@ -12,30 +12,29 @@
 Fractal task list.
 """
 from fractal_tasks_core.dev.task_models import CompoundTask
+from fractal_tasks_core.dev.task_models import NonParallelTask
 from fractal_tasks_core.dev.task_models import ParallelTask
-
-# from fractal_tasks_core.dev.task_models import NonParallelTask
 
 TASK_LIST = [
     CompoundTask(
         name="Convert Cellvoyager to OME-Zarr",
-        executable_init="cellvoyager_to_ome_zarr_init.py",
-        executable="cellvoyager_to_ome_zarr_compute.py",
+        executable_init="tasks/cellvoyager_to_ome_zarr_init.py",
+        executable="tasks/cellvoyager_to_ome_zarr_compute.py",
         meta_init={"cpus_per_task": 1, "mem": 4000},
         meta={"cpus_per_task": 1, "mem": 4000},
     ),
     CompoundTask(
         name="Convert Cellvoyager Multiplexing to OME-Zarr",
-        executable_init="cellvoyager_to_ome_zarr_init_multiplex.py",
-        executable="cellvoyager_to_ome_zarr_compute.py",
+        executable_init="tasks/cellvoyager_to_ome_zarr_init_multiplex.py",
+        executable="tasks/cellvoyager_to_ome_zarr_compute.py",
         meta_init={"cpus_per_task": 1, "mem": 4000},
         meta={"cpus_per_task": 1, "mem": 4000},
     ),
     CompoundTask(
         name="Maximum Intensity Projection HCS Plate",
         input_types={"3D": True},
-        executable_init="copy_ome_zarr_hcs_plate.py",
-        executable="maximum_intensity_projection.py",
+        executable_init="tasks/copy_ome_zarr_hcs_plate.py",
+        executable="tasks/maximum_intensity_projection.py",
         output_types={"3D": False},
         meta_init={"cpus_per_task": 1, "mem": 4000},
         meta={"cpus_per_task": 1, "mem": 4000},
@@ -43,7 +42,7 @@ TASK_LIST = [
     ParallelTask(
         name="Illumination Correction",
         input_types=dict(illumination_corrected=False),
-        executable="illumination_correction.py",
+        executable="tasks/illumination_correction.py",
         output_types=dict(illumination_corrected=True),
         meta={"cpus_per_task": 1, "mem": 4000},
     ),
@@ -56,7 +55,7 @@ TASK_LIST = [
     # ),
     ParallelTask(
         name="cellpose_segmentation",
-        executable="cellpose_segmentation.py",
+        executable="tasks/cellpose_segmentation.py",
         meta={"cpus_per_task": 4, "mem": 16000, "needs_gpu": True},
     ),
     # CompoundTask(
@@ -71,8 +70,12 @@ TASK_LIST = [
     ParallelTask(
         name="Apply Registration to Image",
         input_types=dict(registered=False),
-        executable="apply_registration_to_image.py",
+        executable="tasks/apply_registration_to_image.py",
         output_types=dict(registered=True),
         meta={"cpus_per_task": 1, "mem": 4000},
+    ),
+    NonParallelTask(
+        name="Import OME-Zarr",
+        executable="tasks/import_ome_zarr.py",
     ),
 ]
