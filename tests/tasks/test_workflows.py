@@ -161,7 +161,7 @@ def test_yokogawa_to_ome_zarr(
         coarsening_xy=coarsening_xy,
         metadata_table_file=metadata_table_file,
         image_extension="png",
-    )
+    )["parallelization_list"]
     debug(parallelization_list)
 
     # Re-run (with overwrite=False) and fail
@@ -189,7 +189,7 @@ def test_yokogawa_to_ome_zarr(
         metadata_table_file=metadata_table_file,
         image_extension="png",
         overwrite=True,
-    )
+    )["parallelization_list"]
     debug(parallelization_list)
 
     image_list_updates = []
@@ -276,7 +276,7 @@ def test_MIP(
         zarr_urls=zarr_urls,
         zarr_dir="tmp_out",
         overwrite=True,
-    )
+    )["parallelization_list"]
     debug(parallelization_list)
 
     # Run again, with overwrite=True
@@ -284,7 +284,7 @@ def test_MIP(
         zarr_urls=zarr_urls,
         zarr_dir="tmp_out",
         overwrite=True,
-    )
+    )["parallelization_list"]
     assert parallelization_list_2 == parallelization_list
 
     # Run again, with overwrite=False
@@ -372,7 +372,7 @@ def test_MIP_subset_of_images(
         metadata_table_file=None,
         image_extension="png",
         image_glob_patterns=["*F001*"],
-    )
+    )["parallelization_list"]
     debug(parallelization_list)
 
     # Yokogawa to zarr
@@ -392,7 +392,7 @@ def test_MIP_subset_of_images(
         zarr_urls=zarr_urls,
         zarr_dir="tmp_out",
         overwrite=True,
-    )
+    )["parallelization_list"]
     debug(parallelization_list)
 
     # MIP
@@ -442,7 +442,7 @@ def test_illumination_correction(
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         metadata_table_file=None,
-    )
+    )["parallelization_list"]
     print(caplog.text)
     caplog.clear()
 

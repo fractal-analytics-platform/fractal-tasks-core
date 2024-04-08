@@ -411,7 +411,7 @@ def test_workflow_with_per_well_labeling_2D(
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         metadata_table_file=None,
-    )
+    )["parallelization_list"]
 
     # Yokogawa to zarr
     image_list_updates = []
@@ -430,7 +430,7 @@ def test_workflow_with_per_well_labeling_2D(
     parallelization_list = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir=str(zarr_dir),
-    )
+    )["parallelization_list"]
     debug(parallelization_list)
 
     # MIP
