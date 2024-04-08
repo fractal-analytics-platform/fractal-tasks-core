@@ -686,7 +686,7 @@
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {
-      "name": "cellpose_segmentation",
+      "name": "Cellpose Segmentation",
       "executable_parallel": "tasks/cellpose_segmentation.py",
       "args_schema_parallel": {
         "title": "CellposeSegmentation",
