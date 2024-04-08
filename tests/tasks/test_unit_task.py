@@ -64,8 +64,8 @@ def test_run_fractal_tasks(tmp_path, testdata_path, monkeypatch):
             class Args(object):
                 def __init__(self):
                     debug("INIT")
-                    self.metadata_out = str(tmp_path / "metadiff.json")
-                    self.json = str(args_path)
+                    self.out_json = str(tmp_path / "metadiff.json")
+                    self.args_json = str(args_path)
 
             return Args()
 
