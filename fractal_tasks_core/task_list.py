@@ -54,7 +54,7 @@ TASK_LIST = [
     #     output_types=dict(illumination_correction=True),
     # ),
     ParallelTask(
-        name="cellpose_segmentation",
+        name="Cellpose Segmentation",
         executable="tasks/cellpose_segmentation.py",
         meta={"cpus_per_task": 4, "mem": 16000, "needs_gpu": True},
     ),
