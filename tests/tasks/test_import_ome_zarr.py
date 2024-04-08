@@ -68,7 +68,7 @@ def test_import_ome_zarr_plate(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
         zarr_urls=zarr_urls,
         zarr_dir="tmp_out",
         overwrite=True,
-    )
+    )["parallelization_list"]
     debug(parallelization_list)
 
     for image in parallelization_list:
