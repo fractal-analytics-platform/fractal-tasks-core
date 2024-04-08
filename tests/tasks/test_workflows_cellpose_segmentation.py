@@ -628,7 +628,7 @@ def test_workflow_with_per_FOV_labeling_via_script(
     out_path = tmp_path / "out.json"
     command = (
         f"{str(python_path)} {str(task_path)} "
-        f"-j {str(args_path)} --metadata-out {str(out_path)}"
+        f"--args-json {str(args_path)} --out-json {str(out_path)}"
     )
     debug(command)
 
