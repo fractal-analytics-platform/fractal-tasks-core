@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+import pytest
 import requests
 from devtools import debug
 from jsonschema import validate
@@ -8,6 +9,12 @@ from jsonschema import validate
 import fractal_tasks_core
 
 
+@pytest.mark.xfail(
+    reason=(
+        "See https://github.com/fractal-analytics-platform/"
+        "fractal-server/issues/1347"
+    )
+)
 def test_valid_manifest(tmp_path):
     """
     NOTE: to avoid adding a fractal-server dependency, we simply download the
