@@ -518,10 +518,10 @@
     {
       "name": "Maximum Intensity Projection HCS Plate",
       "input_types": {
-        "3D": true
+        "is_3D": true
       },
       "output_types": {
-        "3D": false
+        "is_3D": false
       },
       "executable_non_parallel": "tasks/copy_ome_zarr_hcs_plate.py",
       "executable_parallel": "tasks/maximum_intensity_projection.py",
