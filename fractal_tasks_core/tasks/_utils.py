@@ -51,10 +51,10 @@ def run_fractal_task(
     # Parse `-j` and `--metadata-out` arguments
     parser = ArgumentParser()
     parser.add_argument(
-        "-j", "--json", help="Read parameters from json file", required=True
+        "--args-json", help="Read parameters from json file", required=True
     )
     parser.add_argument(
-        "--metadata-out",
+        "--out-json",
         help="Output file to redirect serialised returned data",
         required=True,
     )
