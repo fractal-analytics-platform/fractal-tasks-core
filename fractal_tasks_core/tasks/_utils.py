@@ -58,20 +58,20 @@ def run_fractal_task(
         help="Output file to redirect serialised returned data",
         required=True,
     )
-    args = parser.parse_args()
+    parsed_args = parser.parse_args()
 
     # Set logger
     logger = logging.getLogger(logger_name)
 
     # Preliminary check
-    if Path(args.metadata_out).exists():
+    if Path(parsed_args.out_json).exists():
         logger.error(
-            f"Output file {args.metadata_out} already exists. Terminating"
+            f"Output file {parsed_args.out_json} already exists. Terminating"
         )
         exit(1)
 
     # Read parameters dictionary
-    with open(args.json, "r") as f:
+    with open(parsed_args.args_json, "r") as f:
         pars = json.load(f)
 
     # Run task
@@ -80,5 +80,5 @@ def run_fractal_task(
     logger.info(f"END {task_function.__name__} task")
 
     # Write output metadata to file, with custom JSON encoder
-    with open(args.metadata_out, "w") as fout:
+    with open(parsed_args.out_json, "w") as fout:
         json.dump(metadata_update, fout, cls=TaskParameterEncoder, indent=2)
