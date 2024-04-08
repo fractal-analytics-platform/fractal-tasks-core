@@ -509,7 +509,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
             well_zarr_path=str(Path(zarr_dir) / well_path)
         )
 
-    return parallelization_list
+    return dict(parallelization_list=parallelization_list)
 
 
 if __name__ == "__main__":
