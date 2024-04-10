@@ -70,6 +70,7 @@ def calculate_registration_image_based(
         init_args: Intialization arguments provided by
             `image_based_registration_hcs_init`. They contain the
             reference_zarr_url that is used for registration.
+            (standard argument for Fractal tasks, managed by Fractal server).
         wavelength_id: Wavelength that will be used for image-based
             registration; e.g. `A01_C01` for Yokogawa, `C01` for MD.
         roi_table: Name of the ROI table over which the task loops to
