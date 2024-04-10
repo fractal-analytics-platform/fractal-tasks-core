@@ -6,10 +6,11 @@ from pathlib import Path
 
 import anndata as ad
 import dask.array as da
+import imageio
 import numpy as np
 import pandas as pd
 import pytest
-from PIL import Image
+from pytest import MonkeyPatch
 
 from fractal_tasks_core.ngff.zarr_utils import load_NgffImageMeta
 from fractal_tasks_core.roi import (
@@ -21,7 +22,7 @@ from fractal_tasks_core.roi import (
 from fractal_tasks_core.roi import load_region
 
 # from devtools import debug
-# from pytest import MonkeyPatch
+
 # from fractal_tasks_core.channels import ChannelInputModel
 # from fractal_tasks_core.tasks.apply_registration_to_image import (
 #     apply_registration_to_image,
@@ -69,23 +70,20 @@ def _shift_image(
     """
 
     # Open old image as array
-    old_img = Image.open(img_path)
-    new_array = np.asarray(old_img).copy()
+    img = imageio.v2.imread(img_path)
 
     # Shift image by (shift_y_pxl, shift_x_pxl)
-    new_array[:, :-shift_x_pxl] = new_array[:, shift_x_pxl:]
-    new_array[:-shift_y_pxl] = new_array[shift_y_pxl:, :]
+    img[:, :-shift_x_pxl] = img[:, shift_x_pxl:]
+    img[:-shift_y_pxl] = img[shift_y_pxl:, :]
 
-    new_array[:, -shift_x_pxl:] = (
-        np.ones(new_array[:, -shift_x_pxl:].shape) * 110
-    )
-    new_array[-shift_y_pxl:, :] = (
-        np.ones(new_array[-shift_y_pxl:, :].shape) * 110
-    )
+    img[:, -shift_x_pxl:] = np.ones(img[:, -shift_x_pxl:].shape) * 110
+    img[-shift_y_pxl:, :] = np.ones(img[-shift_y_pxl:, :].shape) * 110
 
     # Save new image
-    new_img = Image.fromarray(new_array, mode="I")
-    new_img.save(img_path, mode="png")
+    imageio.v2.imwrite(
+        uri=img_path,
+        im=img,
+    )
 
 
 @pytest.fixture(scope="function")
@@ -192,6 +190,158 @@ def patched_segment_ROI(
     logger.info(f"[{well_id}][patched_segment_ROI] END")
 
     return mask.astype(label_dtype)
+
+
+def test_multiplexing_hcs_init(
+    zenodo_images_multiplex_shifted: list[str],
+    tmp_path,
+    monkeypatch: MonkeyPatch,
+    # Given the test data, only implemented per FOV
+    roi_table="FOV_ROI_table",
+):
+
+    zarr_dir = tmp_path / "registration_output/"
+    print(zarr_dir)
+    print(zenodo_images_multiplex_shifted)
+
+    # Init
+
+    # acquisitions = {
+    #     "0": MultiplexingAcquisition(
+    #         image_dir=zenodo_images_multiplex[0],
+    #         allowed_channels=single_cycle_allowed_channels_no_label,
+    #     ),
+    #     "1": MultiplexingAcquisition(
+    #         image_dir=zenodo_images_multiplex[1],
+    #         allowed_channels=single_cycle_allowed_channels_no_label,
+    #     ),
+    # }
+
+    # # Create zarr structure
+    # parallelization_list = cellvoyager_to_ome_zarr_init_multiplex(
+    #     zarr_urls=[],
+    #     zarr_dir=str(zarr_dir),
+    #     acquisitions=acquisitions,
+    #     num_levels=num_levels,
+    #     coarsening_xy=coarsening_xy,
+    #     image_extension="png",
+    #     metadata_table_files=None,
+    # )["parallelization_list"]
+    # debug(parallelization_list)
+
+    # # Convert to OME-Zarr
+    # image_list_updates = []
+    # for image in parallelization_list:
+    #     image_list_updates += cellvoyager_to_ome_zarr_compute(
+    #         zarr_url=image["zarr_url"],
+    #         init_args=image["init_args"],
+    #     )["image_list_updates"]
+    # debug(image_list_updates)
+
+    # zarr_urls = []
+    # for image in image_list_updates:
+    #     zarr_urls.append(image["zarr_url"])
+
+    # metadata_update = create_ome_zarr_multiplex(
+    #     input_paths=zenodo_images_multiplex_shifted,
+    #     output_path=str(zarr_dir),
+    #     metadata={},
+    #     image_extension="png",
+    #     allowed_channels=allowed_channels,
+    # )
+
+    # # Load zarr array from zenodo
+    # zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
+    # shutil.copytree(
+    #     zenodo_zarr_3D, str(zarr_path / Path(zenodo_zarr_3D).name)
+    # )
+
+    # zarr_urls = []
+    # zarr_dir = "/".join(zenodo_zarr_3D.split("/")[:-1])
+    # for image in zenodo_zarr_metadata[0]["image"]:
+    #     zarr_urls.append(f"{zarr_dir}/{image}")
+
+    # parallelization_list = copy_ome_zarr_hcs_plate(
+    #     zarr_urls=zarr_urls,
+    #     zarr_dir="tmp_out",
+    #     overwrite=True,
+    # )["parallelization_list"]
+    # debug(parallelization_list)
+
+    # # Run again, with overwrite=True
+    # parallelization_list_2 = copy_ome_zarr_hcs_plate(
+    #     zarr_urls=zarr_urls,
+    #     zarr_dir="tmp_out",
+    #     overwrite=True,
+    # )["parallelization_list"]
+    # assert parallelization_list_2 == parallelization_list
+
+    # # Run again, with overwrite=False
+    # with pytest.raises(OverwriteNotAllowedError):
+    #     _ = copy_ome_zarr_hcs_plate(
+    #         zarr_urls=zarr_urls,
+    #         zarr_dir="tmp_out",
+    #         overwrite=False,
+    #     )
+
+    # # MIP
+    # image_list_updates = []
+    # for image in parallelization_list:
+    #     image_list_updates += maximum_intensity_projection(
+    #         zarr_url=image["zarr_url"],
+    #         init_args=image["init_args"],
+    #         overwrite=True,
+    #     )["image_list_updates"]
+
+    # debug(image_list_updates)
+    # expected_image_list_updates = {
+    #     "zarr_url": (parallelization_list[0]["zarr_url"]),
+    #     "origin": f"{zarr_dir}/plate.zarr/B/03/0/",
+    #     "types": {
+    #         "is_3D": False,
+    #     },
+    # }
+    # assert image_list_updates[0] == expected_image_list_updates
+
+    # # Create the multiplexed OME-Zarr
+    # metadata_update = create_ome_zarr_multiplex(
+    #     input_paths=zenodo_images_multiplex_shifted,
+    #     output_path=str(zarr_dir),
+    #     metadata={},
+    #     image_extension="png",
+    #     allowed_channels=allowed_channels,
+    # )
+    # metadata.update(metadata_update)
+    # debug(metadata)
+
+    # for component in metadata["image"]:
+    #     yokogawa_to_ome_zarr(
+    #         input_paths=[str(zarr_dir)],
+    #         output_path=str(zarr_dir),
+    #         metadata=metadata,
+    #         component=component,
+    #     )
+    # debug(metadata)
+
+    # # Replicate
+    # metadata_update = copy_ome_zarr(
+    #     input_paths=[str(zarr_dir)],
+    #     output_path=str(zarr_dir_mip),
+    #     metadata=metadata,
+    #     project_to_2D=True,
+    #     suffix="mip",
+    # )
+    # metadata.update(metadata_update)
+    # debug(metadata)
+
+    # # MIP
+    # for component in metadata["image"]:
+    #     maximum_intensity_projection(
+    #         input_paths=[str(zarr_dir_mip)],
+    #         output_path=str(zarr_dir_mip),
+    #         metadata=metadata,
+    #         component=component,
+    #     )
 
 
 # def test_multiplexing_registration(
