@@ -3,22 +3,8 @@ from pathlib import Path
 
 from devtools import debug
 
-import fractal_tasks_core
 from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_init import (
     cellvoyager_to_ome_zarr_init,
-)
-
-
-# Load manifest
-module_dir = Path(fractal_tasks_core.__file__).parent
-with (module_dir / "__FRACTAL_MANIFEST__.json").open("r") as fin:
-    __FRACTAL_MANIFEST__ = json.load(fin)
-
-# Select a task
-create_ome_zarr_manifest = next(
-    item
-    for item in __FRACTAL_MANIFEST__["task_list"]
-    if item["name"] == "Create OME-Zarr structure"
 )
 
 
@@ -78,8 +64,8 @@ def test_run_fractal_tasks(tmp_path, testdata_path, monkeypatch):
             class Args(object):
                 def __init__(self):
                     debug("INIT")
-                    self.metadata_out = str(tmp_path / "metadiff.json")
-                    self.json = str(args_path)
+                    self.out_json = str(tmp_path / "metadiff.json")
+                    self.args_json = str(args_path)
 
             return Args()
 

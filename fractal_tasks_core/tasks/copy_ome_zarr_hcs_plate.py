@@ -307,7 +307,7 @@ def copy_ome_zarr_hcs_plate(
             )
             new_well_group.attrs.put(well_attrs)
 
-    return parallelization_list
+    return dict(parallelization_list=parallelization_list)
 
 
 if __name__ == "__main__":

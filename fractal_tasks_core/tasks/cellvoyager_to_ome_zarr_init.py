@@ -461,7 +461,7 @@ def cellvoyager_to_ome_zarr_init(
                 table_attrs={"type": "roi_table"},
             )
 
-    return parallelization_list
+    return dict(parallelization_list=parallelization_list)
 
 
 if __name__ == "__main__":

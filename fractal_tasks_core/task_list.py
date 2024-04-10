@@ -32,10 +32,10 @@ TASK_LIST = [
     ),
     CompoundTask(
         name="Maximum Intensity Projection HCS Plate",
-        input_types={"3D": True},
+        input_types={"is_3D": True},
         executable_init="tasks/copy_ome_zarr_hcs_plate.py",
         executable="tasks/maximum_intensity_projection.py",
-        output_types={"3D": False},
+        output_types={"is_3D": False},
         meta_init={"cpus_per_task": 1, "mem": 4000},
         meta={"cpus_per_task": 1, "mem": 4000},
     ),
@@ -54,7 +54,7 @@ TASK_LIST = [
     #     output_types=dict(illumination_correction=True),
     # ),
     ParallelTask(
-        name="cellpose_segmentation",
+        name="Cellpose Segmentation",
         executable="tasks/cellpose_segmentation.py",
         meta={"cpus_per_task": 4, "mem": 16000, "needs_gpu": True},
     ),

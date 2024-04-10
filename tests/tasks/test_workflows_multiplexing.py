@@ -138,7 +138,7 @@ def test_multiplexing_compute(
         coarsening_xy=coarsening_xy,
         image_extension="png",
         metadata_table_files=metadata_table_files,
-    )
+    )["parallelization_list"]
 
     debug(parallelization_list)
 
@@ -152,7 +152,7 @@ def test_multiplexing_compute(
         image_extension="png",
         metadata_table_files=metadata_table_files,
         overwrite=True,
-    )
+    )["parallelization_list"]
     assert parallelization_list_2 == parallelization_list
 
     # Run again, with overwrite=False
@@ -251,7 +251,7 @@ def test_multiplexing_MIP(
         coarsening_xy=coarsening_xy,
         image_extension="png",
         metadata_table_files=None,
-    )
+    )["parallelization_list"]
     debug(parallelization_list)
 
     # Convert to OME-Zarr
@@ -272,7 +272,7 @@ def test_multiplexing_MIP(
         zarr_urls=zarr_urls,
         zarr_dir=str(zarr_dir),
         overwrite=True,
-    )
+    )["parallelization_list"]
     debug(parallelization_list)
 
     # MIP
