@@ -957,6 +957,202 @@
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {
+      "name": "Calculate Registration (image-based)",
+      "executable_non_parallel": "tasks/image_based_registration_hcs_init.py",
+      "executable_parallel": "tasks/calculate_registration_image_based.py",
+      "args_schema_non_parallel": {
+        "title": "ImageBasedRegistrationHcsInit",
+        "type": "object",
+        "properties": {
+          "zarr_urls": {
+            "title": "Zarr Urls",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of paths or urls to the individual OME-Zarr image to be processed. (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "zarr_dir": {
+            "title": "Zarr Dir",
+            "type": "string",
+            "description": "path of the directory where the new OME-Zarrs will be created. Not used by this task. (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "reference_cycle": {
+            "title": "Reference Cycle",
+            "default": 0,
+            "type": "integer",
+            "description": "Which cycle to register against. Needs to match the acquisition metadata in the OME-Zarr image."
+          }
+        },
+        "required": [
+          "zarr_urls",
+          "zarr_dir"
+        ],
+        "additionalProperties": false
+      },
+      "args_schema_parallel": {
+        "title": "CalculateRegistrationImageBased",
+        "type": "object",
+        "properties": {
+          "zarr_url": {
+            "title": "Zarr Url",
+            "type": "string",
+            "description": "Path or url to the individual OME-Zarr image to be processed. (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "init_args": {
+            "$ref": "#/definitions/InitArgsRegistration",
+            "title": "Init_Args",
+            "description": "Intialization arguments provided by `image_based_registration_hcs_init`. They contain the reference_zarr_url that is used for registration."
+          },
+          "wavelength_id": {
+            "title": "Wavelength Id",
+            "type": "string",
+            "description": "Wavelength that will be used for image-based registration; e.g. `A01_C01` for Yokogawa, `C01` for MD."
+          },
+          "roi_table": {
+            "title": "Roi Table",
+            "default": "FOV_ROI_table",
+            "type": "string",
+            "description": "Name of the ROI table over which the task loops to calculate the registration. Examples: `FOV_ROI_table` => loop over the field of views, `well_ROI_table` => process the whole well as one image."
+          },
+          "level": {
+            "title": "Level",
+            "default": 2,
+            "type": "integer",
+            "description": "Pyramid level of the image to be used for registration. Choose `0` to process at full resolution."
+          }
+        },
+        "required": [
+          "zarr_url",
+          "init_args",
+          "wavelength_id"
+        ],
+        "additionalProperties": false,
+        "definitions": {
+          "InitArgsRegistration": {
+            "title": "InitArgsRegistration",
+            "description": "Registration init args.",
+            "type": "object",
+            "properties": {
+              "reference_zarr_url": {
+                "title": "Reference Zarr Url",
+                "type": "string"
+              }
+            },
+            "required": [
+              "reference_zarr_url"
+            ]
+          }
+        }
+      },
+      "meta_non_parallel": {
+        "cpus_per_task": 1,
+        "mem": 1000
+      },
+      "meta_parallel": {
+        "cpus_per_task": 1,
+        "mem": 8000
+      },
+      "docs_info": "## image_based_registration_hcs_init\nInitialized calculate registration task\n\nThis task prepares a parallelization list of all zarr_urls that need to be\nused to calculate the registration between cycles (all zarr_urls except\nthe reference cycle vs. the reference cycle).\nThis task only works for HCS OME-Zarrs for 2 reasons: Only HCS OME-Zarrs\ncurrently have defined acquisition metadata to determine reference cycles.\nAnd we have only implemented the grouping of images for HCS OME-Zarrs by\nwell (with the assumption that every well just has 1 image per acqusition).\n## calculate_registration_image_based\nCalculate registration based on images\n\nThis task consists of 3 parts:\n\n1. Loading the images of a given ROI (=> loop over ROIs)\n2. Calculating the transformation for that ROI\n3. Storing the calculated transformation in the ROI table\n",
+      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
+    },
+    {
+      "name": "Find Registration Consensus",
+      "executable_non_parallel": "tasks/init_group_by_well_for_multiplexing.py",
+      "executable_parallel": "tasks/find_registration_consensus.py",
+      "args_schema_non_parallel": {
+        "title": "InitGroupByWellForMultiplexing",
+        "type": "object",
+        "properties": {
+          "zarr_urls": {
+            "title": "Zarr Urls",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of paths or urls to the individual OME-Zarr image to be processed. (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "zarr_dir": {
+            "title": "Zarr Dir",
+            "type": "string",
+            "description": "path of the directory where the new OME-Zarrs will be created. Not used by this task. (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "reference_cycle": {
+            "title": "Reference Cycle",
+            "default": 0,
+            "type": "integer",
+            "description": "Which cycle to register against. Defaults to 0, which is the first OME-Zarr image in the well, usually the first cycle that was provided"
+          }
+        },
+        "required": [
+          "zarr_urls",
+          "zarr_dir"
+        ],
+        "additionalProperties": false
+      },
+      "args_schema_parallel": {
+        "title": "FindRegistrationConsensus",
+        "type": "object",
+        "properties": {
+          "zarr_url": {
+            "title": "Zarr Url",
+            "type": "string",
+            "description": "Missing description"
+          },
+          "init_args": {
+            "$ref": "#/definitions/InitArgsRegistrationConsensus",
+            "title": "Init_Args",
+            "description": "Missing description"
+          },
+          "roi_table": {
+            "title": "Roi Table",
+            "default": "FOV_ROI_table",
+            "type": "string",
+            "description": "Name of the ROI table over which the task loops to calculate the registration. Examples: `FOV_ROI_table` => loop over the field of views, `well_ROI_table` => process the whole well as one image."
+          },
+          "new_roi_table": {
+            "title": "New Roi Table",
+            "type": "string",
+            "description": "Optional name for the new, registered ROI table. If no name is given, it will default to \"registered_\" + `roi_table`"
+          }
+        },
+        "required": [
+          "zarr_url",
+          "init_args"
+        ],
+        "additionalProperties": false,
+        "definitions": {
+          "InitArgsRegistrationConsensus": {
+            "title": "InitArgsRegistrationConsensus",
+            "description": "Registration consensus init args.",
+            "type": "object",
+            "properties": {
+              "zarr_url_list": {
+                "title": "Zarr Url List",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "zarr_url_list"
+            ]
+          }
+        }
+      },
+      "meta_non_parallel": {
+        "cpus_per_task": 1,
+        "mem": 1000
+      },
+      "meta_parallel": {
+        "cpus_per_task": 1,
+        "mem": 1000
+      },
+      "docs_info": "## init_group_by_well_for_multiplexing\nFinds images for all acquisitions per well.\n\nReturns the parallelization_list to run `find_registration_consensus`.\n## find_registration_consensus\nApplies pre-calculated registration to ROI tables.\n\nApply pre-calculated registration such that resulting ROIs contain\nthe consensus align region between all cycles.\n\nParallelization level: well\n",
+      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
+    },
+    {
       "name": "Apply Registration to Image",
       "input_types": {
         "registered": false

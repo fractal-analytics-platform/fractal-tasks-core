@@ -61,15 +61,17 @@ TASK_LIST = [
     CompoundTask(
         name="Calculate Registration (image-based)",
         executable_init="tasks/image_based_registration_hcs_init.py",
-        executable="tasks/calculate_registration_compute.py",
+        executable="tasks/calculate_registration_image_based.py",
         meta_init={"cpus_per_task": 1, "mem": 1000},
         meta={"cpus_per_task": 1, "mem": 8000},
     ),
-    # NonParallelTask(
-    #     name="Find Registration Consensus",
-    #     executable="find_registration_consensus.py",
-    #     meta_init={"cpus_per_task": 1, "mem": 1000},
-    # ),
+    CompoundTask(
+        name="Find Registration Consensus",
+        executable_init="tasks/init_group_by_well_for_multiplexing.py",
+        executable="tasks/find_registration_consensus.py",
+        meta_init={"cpus_per_task": 1, "mem": 1000},
+        meta={"cpus_per_task": 1, "mem": 1000},
+    ),
     ParallelTask(
         name="Apply Registration to Image",
         input_types=dict(registered=False),
