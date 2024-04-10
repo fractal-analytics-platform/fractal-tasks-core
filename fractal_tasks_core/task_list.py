@@ -58,14 +58,17 @@ TASK_LIST = [
         executable="tasks/cellpose_segmentation.py",
         meta={"cpus_per_task": 4, "mem": 16000, "needs_gpu": True},
     ),
-    # CompoundTask(
-    #     name="calculate_registration_compound",
-    #     executable_init="calculate_registration_init.py",
-    #     executable="calculate_registration_compute.py",
-    # ),
+    CompoundTask(
+        name="Calculate Registration (image-based)",
+        executable_init="tasks/image_based_registration_hcs_init.py",
+        executable="tasks/calculate_registration_compute.py",
+        meta_init={"cpus_per_task": 1, "mem": 1000},
+        meta={"cpus_per_task": 1, "mem": 8000},
+    ),
     # NonParallelTask(
-    #     name="find_registration_consensus",
+    #     name="Find Registration Consensus",
     #     executable="find_registration_consensus.py",
+    #     meta_init={"cpus_per_task": 1, "mem": 1000},
     # ),
     ParallelTask(
         name="Apply Registration to Image",
