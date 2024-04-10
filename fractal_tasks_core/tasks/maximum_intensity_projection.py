@@ -57,12 +57,20 @@ def maximum_intensity_projection(
     logger.info(f"{init_args.origin_url=}")
     logger.info(f"{zarr_url=}")
 
-    # Read some parameters from metadata
+    # Read image metadata
     ngff_image = load_NgffImageMeta(init_args.origin_url)
+    # Currently not using the validation models due to wavelength_id issue
+    # See #681 for discussion
+    # new_attrs = ngff_image.dict(exclude_none=True)
+    # Current way to get the necessary metadata for MIP
+    group = zarr.open_group(init_args.origin_url, mode="r")
+    new_attrs = group.attrs.asdict()
+
+    print(new_attrs)
 
     # Create the zarr image with correct
     new_image_group = zarr.group(zarr_url)
-    new_image_group.attrs.put(ngff_image.dict(exclude_none=True))
+    new_image_group.attrs.put(new_attrs)
 
     # Load 0-th level
     data_czyx = da.from_zarr(init_args.origin_url + "/0")
