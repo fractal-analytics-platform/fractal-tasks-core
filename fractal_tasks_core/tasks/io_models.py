@@ -11,13 +11,16 @@ from fractal_tasks_core.channels import OmeroChannel
 
 class InitArgsRegistration(BaseModel):
     """
-    Dummy model description.
+    Registration init args.
+
+    Passed from `image_based_registration_hcs_init` to
+    `calculate_registration_image_based`.
 
     Attributes:
-        ref_path: dummy attribute description.
+        reference_zarr_url: zarr_url for the reference image
     """
 
-    ref_path: str
+    reference_zarr_url: str
 
 
 class InitArgsCellVoyager(BaseModel):

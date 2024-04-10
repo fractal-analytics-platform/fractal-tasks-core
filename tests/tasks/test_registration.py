@@ -21,6 +21,9 @@ from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
 from fractal_tasks_core.roi import load_region
+from fractal_tasks_core.tasks.calculate_registration_image_based import (
+    calculate_registration_image_based,
+)
 from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_compute import (
     cellvoyager_to_ome_zarr_compute,
 )
@@ -194,7 +197,7 @@ def test_multiplexing_hcs_init(
 ):
 
     zarr_dir = str(tmp_path / "registration_output/")
-    num_levels = 2
+    num_levels = 3
 
     # Init
 
@@ -235,7 +238,7 @@ def test_multiplexing_hcs_init(
 
     parallelization_list = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls_3D,
-        zarr_dir="tmp_out",
+        zarr_dir=zarr_dir,
         overwrite=True,
     )["parallelization_list"]
     debug(parallelization_list)
@@ -275,154 +278,86 @@ def test_multiplexing_hcs_init(
         },
     ]
     assert expected_par_list == parallelization_list
+    debug(zarr_urls_2D)
 
+    for image in parallelization_list:
+        calculate_registration_image_based(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+            wavelength_id="A01_C01",
+            roi_table=roi_table,
+        )
 
-# def test_multiplexing_registration(
-#     zenodo_images_multiplex_shifted: list[str],
-#     tmp_path,
-#     monkeypatch: MonkeyPatch,
-#     # Given the test data, only implemented per FOV
-#     roi_table="FOV_ROI_table",
-# ):
+    # Check the table for the second acquisition
+    # (the image of the second cycle)
+    curr_table = ad.read_zarr(
+        f"{parallelization_list[0]['zarr_url']}/tables/{roi_table}"
+    )
+    assert curr_table.shape == (2, 11)
+    np.testing.assert_almost_equal(
+        curr_table.X[0, 8:11], np.array(expected_shift[roi_table]), decimal=5
+    )
+    # # Apply registration to ROI table
+    # for component in metadata["well"]:
+    #     apply_registration_to_ROI_tables(
+    #         input_paths=[str(zarr_dir_mip)],
+    #         output_path=str(zarr_dir_mip),
+    #         metadata=metadata,
+    #         component=component,
+    #         roi_table=roi_table,
+    #     )
 
-#     monkeypatch.setattr(
-#         "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
-#         patched_segment_ROI,
-#     )
+    # # Validate the aligned tables
+    # for component in metadata["image"]:
+    #     registered_table = ad.read_zarr(
+    #         f"{zarr_dir_mip / component}/tables/registered_{roi_table}"
+    #     )
+    #     pd.testing.assert_frame_equal(
+    #         registered_table.to_df()[registered_columns].astype("float32"),
+    #         expected_registered_table[roi_table][component].astype("float32"),
+    #         check_column_type=False,
+    #     )
 
-#     zarr_dir = tmp_path / "registration_output/"
-#     zarr_dir_mip = tmp_path / "registration_output_mip/"
-#     metadata = {}
-#     # Create the multiplexed OME-Zarr
-#     metadata_update = create_ome_zarr_multiplex(
-#         input_paths=zenodo_images_multiplex_shifted,
-#         output_path=str(zarr_dir),
-#         metadata={},
-#         image_extension="png",
-#         allowed_channels=allowed_channels,
-#     )
-#     metadata.update(metadata_update)
-#     debug(metadata)
+    # # Apply registration to image without overwrite_input and validate the
+    # # output
+    # zarr_list = []
+    # for component in metadata["image"]:
+    #     zarr_url = str(zarr_dir_mip / component)
+    #     zarr_list.append(f"{zarr_url}_registered")
+    #     image_list_update = apply_registration_to_image(
+    #         zarr_url=zarr_url,
+    #         registered_roi_table="registered_" + roi_table,
+    #         overwrite_input=False,
+    #     )
+    #     assert image_list_update == dict(
+    #         image_list_updates=[
+    #             dict(zarr_url=f"{zarr_url}_registered", origin=zarr_url)
+    #         ]
+    #     )
 
-#     for component in metadata["image"]:
-#         yokogawa_to_ome_zarr(
-#             input_paths=[str(zarr_dir)],
-#             output_path=str(zarr_dir),
-#             metadata=metadata,
-#             component=component,
-#         )
-#     debug(metadata)
+    # validate_assumptions_after_image_registration(
+    #     zarr_list=zarr_list,
+    #     roi_table=roi_table,
+    # )
 
-#     # Replicate
-#     metadata_update = copy_ome_zarr(
-#         input_paths=[str(zarr_dir)],
-#         output_path=str(zarr_dir_mip),
-#         metadata=metadata,
-#         project_to_2D=True,
-#         suffix="mip",
-#     )
-#     metadata.update(metadata_update)
-#     debug(metadata)
-
-#     # MIP
-#     for component in metadata["image"]:
-#         maximum_intensity_projection(
-#             input_paths=[str(zarr_dir_mip)],
-#             output_path=str(zarr_dir_mip),
-#             metadata=metadata,
-#             component=component,
-#         )
-
-#     # Cellpose segmentation (so that we test handling of label images)
-#     for component in metadata["image"]:
-#         zarr_url = str(zarr_dir_mip / component)
-#         cellpose_segmentation(
-#             zarr_url=zarr_url,
-#             level=1,
-#             channel=ChannelInputModel(wavelength_id="A01_C01"),
-#         )
-
-#     # Calculate registration
-#     for component in metadata["image"]:
-#         calculate_registration_image_based(
-#             input_paths=[str(zarr_dir_mip)],
-#             output_path=str(zarr_dir_mip),
-#             metadata=metadata,
-#             component=component,
-#             wavelength_id="A01_C01",
-#             roi_table=roi_table,
-#         )
-#     # Check the table for the second component
-#     # (the image of the second cycle)
-#     component = metadata["image"][1]
-#     curr_table = ad.read_zarr(
-#         f"{zarr_dir_mip / component}/tables/{roi_table}"
-#     )
-#     assert curr_table.shape == (2, 11)
-#     np.testing.assert_almost_equal(
-#         curr_table.X[0, 8:11], np.array(expected_shift[roi_table]), decimal=5
-#     )
-#     # Apply registration to ROI table
-#     for component in metadata["well"]:
-#         apply_registration_to_ROI_tables(
-#             input_paths=[str(zarr_dir_mip)],
-#             output_path=str(zarr_dir_mip),
-#             metadata=metadata,
-#             component=component,
-#             roi_table=roi_table,
-#         )
-
-#     # Validate the aligned tables
-#     for component in metadata["image"]:
-#         registered_table = ad.read_zarr(
-#             f"{zarr_dir_mip / component}/tables/registered_{roi_table}"
-#         )
-#         pd.testing.assert_frame_equal(
-#             registered_table.to_df()[registered_columns].astype("float32"),
-#             expected_registered_table[roi_table][component].astype("float32"),
-#             check_column_type=False,
-#         )
-
-#     # Apply registration to image without overwrite_input and validate the
-#     # output
-#     zarr_list = []
-#     for component in metadata["image"]:
-#         zarr_url = str(zarr_dir_mip / component)
-#         zarr_list.append(f"{zarr_url}_registered")
-#         image_list_update = apply_registration_to_image(
-#             zarr_url=zarr_url,
-#             registered_roi_table="registered_" + roi_table,
-#             overwrite_input=False,
-#         )
-#         assert image_list_update == dict(
-#             image_list_updates=[
-#                 dict(zarr_url=f"{zarr_url}_registered", origin=zarr_url)
-#             ]
-#         )
-
-#     validate_assumptions_after_image_registration(
-#         zarr_list=zarr_list,
-#         roi_table=roi_table,
-#     )
-
-#     # # Apply registration to image with overwrite_input and validate the
-#     # # output
-#     zarr_list = []
-#     for component in metadata["image"]:
-#         zarr_url = str(zarr_dir_mip / component)
-#         zarr_list.append(zarr_url)
-#         image_list_update = apply_registration_to_image(
-#             zarr_url=zarr_url,
-#             registered_roi_table="registered_" + roi_table,
-#             overwrite_input=True,
-#         )
-#         assert image_list_update == dict(
-#             image_list_updates=[dict(zarr_url=zarr_url)]
-#         )
-#     validate_assumptions_after_image_registration(
-#         zarr_list=zarr_list,
-#         roi_table=roi_table,
-#     )
+    # # # Apply registration to image with overwrite_input and validate the
+    # # # output
+    # zarr_list = []
+    # for component in metadata["image"]:
+    #     zarr_url = str(zarr_dir_mip / component)
+    #     zarr_list.append(zarr_url)
+    #     image_list_update = apply_registration_to_image(
+    #         zarr_url=zarr_url,
+    #         registered_roi_table="registered_" + roi_table,
+    #         overwrite_input=True,
+    #     )
+    #     assert image_list_update == dict(
+    #         image_list_updates=[dict(zarr_url=zarr_url)]
+    #     )
+    # validate_assumptions_after_image_registration(
+    #     zarr_list=zarr_list,
+    #     roi_table=roi_table,
+    # )
 
 
 def validate_assumptions_after_image_registration(
