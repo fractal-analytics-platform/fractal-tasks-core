@@ -66,8 +66,6 @@ def maximum_intensity_projection(
     group = zarr.open_group(init_args.origin_url, mode="r")
     new_attrs = group.attrs.asdict()
 
-    print(new_attrs)
-
     # Create the zarr image with correct
     new_image_group = zarr.group(zarr_url)
     new_image_group.attrs.put(new_attrs)

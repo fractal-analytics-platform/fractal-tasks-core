@@ -23,6 +23,20 @@ class InitArgsRegistration(BaseModel):
     reference_zarr_url: str
 
 
+class InitArgsRegistrationConsensus(BaseModel):
+    """
+    Registration consensus init args.
+
+    Provides the list of zarr_urls for all acquisitions for a given well
+
+    Attributes:
+        zarr_url_list: List of zarr_urls for all the OME-Zarr images in the
+            well.
+    """
+
+    zarr_url_list: list[str]
+
+
 class InitArgsCellVoyager(BaseModel):
     """
     Arguments to be passed from cellvoyager converter init to compute
