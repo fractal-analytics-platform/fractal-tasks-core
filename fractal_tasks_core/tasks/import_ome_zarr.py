@@ -152,6 +152,7 @@ def _process_single_image(
 
     # Determine image types:
     # Later: also provide a has_T flag.
+    # TODO: Potentially also load acquisition metadata if available in a Zarr
     is_3D = False
     if "z" in image_meta.axes_names:
         if array.shape[-3] > 1:
