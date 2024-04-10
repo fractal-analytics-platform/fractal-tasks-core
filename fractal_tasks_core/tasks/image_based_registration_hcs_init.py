@@ -15,23 +15,13 @@ Initializes the parallelization list for registration in HCS plates.
 import logging
 from typing import Any
 
-import zarr
 from pydantic.decorator import validate_arguments
 
-from fractal_tasks_core.ngff.specs import Well
-
+from fractal_tasks_core.tasks._registration_utils import (
+    create_well_acquisition_dict,
+)
 
 logger = logging.getLogger(__name__)
-
-
-def _split_well_path_image_path(zarr_url: str):
-    """
-    Returns path to well folder for HCS OME-Zarr zarr_url
-    """
-    zarr_url = zarr_url.rstrip("/")
-    well_path = "/".join(zarr_url.split("/")[:-1])
-    img_path = zarr_url.split("/")[-1]
-    return well_path, img_path
 
 
 @validate_arguments
@@ -71,35 +61,7 @@ def image_based_registration_hcs_init(
     logger.info(
         f"Running `image_based_registration_hcs_init` for {zarr_urls=}"
     )
-    # Dict with keys a unique description of the acquisition (e.g. plate +
-    # well for HCS plates). The values are a dictionary. The keys of the
-    # secondary dictionary are the acqusitions, its values the zarr_url for
-    # a given acquisition
-    image_groups = dict()
-    # Dict to cache well-level metadata
-    well_metadata = dict()
-    for zarr_url in zarr_urls:
-        well_path, img_sub_path = _split_well_path_image_path(zarr_url)
-        # For the first zarr_url of a well, load the well metadata and
-        # initialize the image_groups dict
-        if well_path not in image_groups:
-            image_groups[well_path] = {}
-            well_group = zarr.open_group(well_path, mode="r")
-            well_metadata[well_path] = Well(**well_group.attrs.asdict())
-
-        # For every zarr_url, add it under the well_path & acquisition keys to
-        # the image_groups dict
-        for image in well_metadata[well_path].images:
-            if image.path == img_sub_path:
-                if image.acquisition in image_groups[well_path]:
-                    raise ValueError(
-                        "This task has not been built for OME-Zarr HCS plates"
-                        "with multiple images of the same acquisition per well"
-                        f". {image.acquisition} is the acquisition for "
-                        f"multiple images in {well_path=}."
-                    )
-
-                image_groups[well_path][image.acquisition] = zarr_url
+    image_groups = create_well_acquisition_dict(zarr_urls)
 
     # Create the parallelization list
     parallelization_list = []
