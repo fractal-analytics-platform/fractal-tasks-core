@@ -10,6 +10,7 @@ import imageio
 import numpy as np
 import pandas as pd
 import pytest
+from devtools import debug
 from pytest import MonkeyPatch
 
 from fractal_tasks_core.ngff.zarr_utils import load_NgffImageMeta
@@ -20,31 +21,23 @@ from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
 from fractal_tasks_core.roi import load_region
+from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_compute import (
+    cellvoyager_to_ome_zarr_compute,
+)
+from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_init_multiplex import (
+    cellvoyager_to_ome_zarr_init_multiplex,
+)
+from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
+    copy_ome_zarr_hcs_plate,
+)
+from fractal_tasks_core.tasks.image_based_registration_hcs_init import (
+    image_based_registration_hcs_init,
+)
+from fractal_tasks_core.tasks.io_models import MultiplexingAcquisition
+from fractal_tasks_core.tasks.maximum_intensity_projection import (
+    maximum_intensity_projection,
+)
 
-# from devtools import debug
-
-# from fractal_tasks_core.channels import ChannelInputModel
-# from fractal_tasks_core.tasks.apply_registration_to_image import (
-#     apply_registration_to_image,
-# )
-# from fractal_tasks_core.tasks.apply_registration_to_ROI_tables import (
-#     apply_registration_to_ROI_tables,
-# )
-# from fractal_tasks_core.tasks.calculate_registration_image_based import (
-#     calculate_registration_image_based,
-# )
-# from fractal_tasks_core.tasks.cellpose_segmentation import (
-#     cellpose_segmentation,
-# )
-# from fractal_tasks_core.tasks.copy_ome_zarr import (
-#     copy_ome_zarr,
-# )
-# from fractal_tasks_core.tasks.create_ome_zarr_multiplex import (
-#     create_ome_zarr_multiplex,
-# )
-# from fractal_tasks_core.tasks.maximum_intensity_projection import (
-#     maximum_intensity_projection,
-# )
 
 single_cycle_allowed_channels_no_label = [
     {
@@ -200,148 +193,88 @@ def test_multiplexing_hcs_init(
     roi_table="FOV_ROI_table",
 ):
 
-    zarr_dir = tmp_path / "registration_output/"
-    print(zarr_dir)
-    print(zenodo_images_multiplex_shifted)
+    zarr_dir = str(tmp_path / "registration_output/")
+    num_levels = 2
 
     # Init
 
-    # acquisitions = {
-    #     "0": MultiplexingAcquisition(
-    #         image_dir=zenodo_images_multiplex[0],
-    #         allowed_channels=single_cycle_allowed_channels_no_label,
-    #     ),
-    #     "1": MultiplexingAcquisition(
-    #         image_dir=zenodo_images_multiplex[1],
-    #         allowed_channels=single_cycle_allowed_channels_no_label,
-    #     ),
-    # }
+    acquisitions = {
+        "0": MultiplexingAcquisition(
+            image_dir=zenodo_images_multiplex_shifted[0],
+            allowed_channels=single_cycle_allowed_channels_no_label,
+        ),
+        "1": MultiplexingAcquisition(
+            image_dir=zenodo_images_multiplex_shifted[1],
+            allowed_channels=single_cycle_allowed_channels_no_label,
+        ),
+    }
 
     # # Create zarr structure
-    # parallelization_list = cellvoyager_to_ome_zarr_init_multiplex(
-    #     zarr_urls=[],
-    #     zarr_dir=str(zarr_dir),
-    #     acquisitions=acquisitions,
-    #     num_levels=num_levels,
-    #     coarsening_xy=coarsening_xy,
-    #     image_extension="png",
-    #     metadata_table_files=None,
-    # )["parallelization_list"]
-    # debug(parallelization_list)
+    parallelization_list = cellvoyager_to_ome_zarr_init_multiplex(
+        zarr_urls=[],
+        zarr_dir=zarr_dir,
+        acquisitions=acquisitions,
+        num_levels=num_levels,
+        coarsening_xy=2,
+        image_extension="png",
+        metadata_table_files=None,
+    )["parallelization_list"]
+    debug(parallelization_list)
 
     # # Convert to OME-Zarr
-    # image_list_updates = []
-    # for image in parallelization_list:
-    #     image_list_updates += cellvoyager_to_ome_zarr_compute(
-    #         zarr_url=image["zarr_url"],
-    #         init_args=image["init_args"],
-    #     )["image_list_updates"]
-    # debug(image_list_updates)
+    image_list_updates = []
+    for image in parallelization_list:
+        image_list_updates += cellvoyager_to_ome_zarr_compute(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+        )["image_list_updates"]
+    debug(image_list_updates)
 
-    # zarr_urls = []
-    # for image in image_list_updates:
-    #     zarr_urls.append(image["zarr_url"])
+    zarr_urls_3D = [image["zarr_url"] for image in image_list_updates]
+    debug(zarr_urls_3D)
 
-    # metadata_update = create_ome_zarr_multiplex(
-    #     input_paths=zenodo_images_multiplex_shifted,
-    #     output_path=str(zarr_dir),
-    #     metadata={},
-    #     image_extension="png",
-    #     allowed_channels=allowed_channels,
-    # )
-
-    # # Load zarr array from zenodo
-    # zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
-    # shutil.copytree(
-    #     zenodo_zarr_3D, str(zarr_path / Path(zenodo_zarr_3D).name)
-    # )
-
-    # zarr_urls = []
-    # zarr_dir = "/".join(zenodo_zarr_3D.split("/")[:-1])
-    # for image in zenodo_zarr_metadata[0]["image"]:
-    #     zarr_urls.append(f"{zarr_dir}/{image}")
-
-    # parallelization_list = copy_ome_zarr_hcs_plate(
-    #     zarr_urls=zarr_urls,
-    #     zarr_dir="tmp_out",
-    #     overwrite=True,
-    # )["parallelization_list"]
-    # debug(parallelization_list)
-
-    # # Run again, with overwrite=True
-    # parallelization_list_2 = copy_ome_zarr_hcs_plate(
-    #     zarr_urls=zarr_urls,
-    #     zarr_dir="tmp_out",
-    #     overwrite=True,
-    # )["parallelization_list"]
-    # assert parallelization_list_2 == parallelization_list
-
-    # # Run again, with overwrite=False
-    # with pytest.raises(OverwriteNotAllowedError):
-    #     _ = copy_ome_zarr_hcs_plate(
-    #         zarr_urls=zarr_urls,
-    #         zarr_dir="tmp_out",
-    #         overwrite=False,
-    #     )
+    parallelization_list = copy_ome_zarr_hcs_plate(
+        zarr_urls=zarr_urls_3D,
+        zarr_dir="tmp_out",
+        overwrite=True,
+    )["parallelization_list"]
+    debug(parallelization_list)
 
     # # MIP
-    # image_list_updates = []
-    # for image in parallelization_list:
-    #     image_list_updates += maximum_intensity_projection(
-    #         zarr_url=image["zarr_url"],
-    #         init_args=image["init_args"],
-    #         overwrite=True,
-    #     )["image_list_updates"]
+    image_list_updates = []
+    for image in parallelization_list:
+        image_list_updates += maximum_intensity_projection(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+            overwrite=True,
+        )["image_list_updates"]
 
-    # debug(image_list_updates)
-    # expected_image_list_updates = {
-    #     "zarr_url": (parallelization_list[0]["zarr_url"]),
-    #     "origin": f"{zarr_dir}/plate.zarr/B/03/0/",
-    #     "types": {
-    #         "is_3D": False,
-    #     },
-    # }
-    # assert image_list_updates[0] == expected_image_list_updates
+    zarr_urls_2D = [image["zarr_url"] for image in image_list_updates]
+    debug(zarr_urls_2D)
 
-    # # Create the multiplexed OME-Zarr
-    # metadata_update = create_ome_zarr_multiplex(
-    #     input_paths=zenodo_images_multiplex_shifted,
-    #     output_path=str(zarr_dir),
-    #     metadata={},
-    #     image_extension="png",
-    #     allowed_channels=allowed_channels,
-    # )
-    # metadata.update(metadata_update)
-    # debug(metadata)
+    # Test non-available reference cycle:
+    with pytest.raises(ValueError):
+        image_based_registration_hcs_init(
+            zarr_urls=zarr_urls_2D,
+            zarr_dir=zarr_dir,
+            reference_cycle=2,
+        )
 
-    # for component in metadata["image"]:
-    #     yokogawa_to_ome_zarr(
-    #         input_paths=[str(zarr_dir)],
-    #         output_path=str(zarr_dir),
-    #         metadata=metadata,
-    #         component=component,
-    #     )
-    # debug(metadata)
+    parallelization_list = image_based_registration_hcs_init(
+        zarr_urls=zarr_urls_2D,
+        zarr_dir=zarr_dir,
+    )["parallelization_list"]
+    debug(parallelization_list)
 
-    # # Replicate
-    # metadata_update = copy_ome_zarr(
-    #     input_paths=[str(zarr_dir)],
-    #     output_path=str(zarr_dir_mip),
-    #     metadata=metadata,
-    #     project_to_2D=True,
-    #     suffix="mip",
-    # )
-    # metadata.update(metadata_update)
-    # debug(metadata)
-
-    # # MIP
-    # for component in metadata["image"]:
-    #     maximum_intensity_projection(
-    #         input_paths=[str(zarr_dir_mip)],
-    #         output_path=str(zarr_dir_mip),
-    #         metadata=metadata,
-    #         component=component,
-    #     )
+    expected_par_list = [
+        {
+            "zarr_url": zarr_urls_2D[1],
+            "init_args": {
+                "reference_zarr_url": zarr_urls_2D[0],
+            },
+        },
+    ]
+    assert expected_par_list == parallelization_list
 
 
 # def test_multiplexing_registration(
