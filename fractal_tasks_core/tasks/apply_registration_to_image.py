@@ -176,7 +176,7 @@ def apply_registration_to_image(
 
     if table_dict:
         logger.info(f"Processing the tables: {table_dict}")
-        new_image_group = zarr.group(f"{new_zarr_url}")
+        new_image_group = zarr.group(new_zarr_url)
 
         for table in table_dict.keys():
             logger.info(f"Copying table: {table}")
