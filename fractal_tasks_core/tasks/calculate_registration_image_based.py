@@ -54,7 +54,7 @@ def calculate_registration_image_based(
     wavelength_id: str,
     roi_table: str = "FOV_ROI_table",
     level: int = 2,
-):
+) -> None:
     """
     Calculate registration based on images
 
