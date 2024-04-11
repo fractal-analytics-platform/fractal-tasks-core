@@ -83,4 +83,12 @@ TASK_LIST = [
         name="Import OME-Zarr",
         executable="tasks/import_ome_zarr.py",
     ),
+    ParallelTask(
+        name="Napari workflows wrapper",
+        executable="tasks/napari_workflows_wrapper.py",
+        meta={
+            "cpus_per_task": 8,
+            "mem": 32000,
+        },
+    ),
 ]
