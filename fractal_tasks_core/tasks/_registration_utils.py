@@ -10,9 +10,8 @@ import copy
 import anndata as ad
 import numpy as np
 import pandas as pd
-import zarr
 
-from fractal_tasks_core.ngff.specs import Well
+from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
 
 
 def _split_well_path_image_path(zarr_url: str) -> tuple[str, str]:
@@ -32,8 +31,8 @@ def create_well_acquisition_dict(
     Parses zarr_urls & groups them by HCS wells & acquisition
 
     Generates a dict with keys a unique description of the acquisition
-    (e.g. plate + well for HCS plates). The values are a dictionary. The keys
-    of the secondary dictionary are the acqusitions, its values the zarr_url
+    (e.g. plate + well for HCS plates). The values are dictionaries. The keys
+    of the secondary dictionary are the acqusitions, its values the `zarr_url`
     for a given acquisition.
 
     Args:
@@ -51,9 +50,9 @@ def create_well_acquisition_dict(
         # For the first zarr_url of a well, load the well metadata and
         # initialize the image_groups dict
         if well_path not in image_groups:
+            well_meta = load_NgffWellMeta(well_path)
+            well_metadata[well_path] = well_meta.well
             image_groups[well_path] = {}
-            well_group = zarr.open_group(well_path, mode="r")
-            well_metadata[well_path] = Well(**well_group.attrs.asdict())
 
         # For every zarr_url, add it under the well_path & acquisition keys to
         # the image_groups dict
