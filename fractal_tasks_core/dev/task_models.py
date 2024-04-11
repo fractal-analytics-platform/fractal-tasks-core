@@ -10,6 +10,10 @@
 # Zurich.
 """
 Task models for Fractal tasks.
+
+These models are used in `task_list.py`, and they provide a layer that
+simplifies writing the task list of a package in a way that is compliant with
+fractal-server v2.
 """
 from typing import Any
 from typing import Optional
