@@ -99,6 +99,10 @@ def create_manifest(
             ] = task_obj.executable_non_parallel
         if task_obj.executable_parallel is not None:
             task_dict["executable_parallel"] = task_obj.executable_parallel
+        if task_obj.meta_non_parallel is not None:
+            task_dict["meta_non_parallel"] = task_obj.meta_non_parallel
+        if task_obj.meta_parallel is not None:
+            task_dict["meta_parallel"] = task_obj.meta_parallel
 
         # Autogenerate JSON Schemas for non-parallel/parallel task arguments
         if has_args_schemas:
@@ -113,12 +117,6 @@ def create_manifest(
                     )
                     logging.info(f"[{executable}] END (new schema)")
                     task_dict[f"args_schema_{kind}"] = schema
-
-        # Copy some properties from `task_obj` to `task_dict`
-        if task_obj.meta_non_parallel is not None:
-            task_dict["meta_non_parallel"] = task_obj.meta_non_parallel
-        if task_obj.meta_parallel is not None:
-            task_dict["meta_parallel"] = task_obj.meta_parallel
 
         # Update docs_info, based on task-function description
         docs_info = create_docs_info(

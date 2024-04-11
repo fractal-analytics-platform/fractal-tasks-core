@@ -5,6 +5,14 @@
       "name": "Convert Cellvoyager to OME-Zarr",
       "executable_non_parallel": "tasks/cellvoyager_to_ome_zarr_init.py",
       "executable_parallel": "tasks/cellvoyager_to_ome_zarr_compute.py",
+      "meta_non_parallel": {
+        "cpus_per_task": 1,
+        "mem": 4000
+      },
+      "meta_parallel": {
+        "cpus_per_task": 1,
+        "mem": 4000
+      },
       "args_schema_non_parallel": {
         "title": "CellvoyagerToOmeZarrInit",
         "type": "object",
@@ -239,6 +247,13 @@
           }
         }
       },
+      "docs_info": "## cellvoyager_to_ome_zarr_init\nCreate a OME-NGFF zarr folder, without reading/writing image data.\n\nFind plates (for each folder in input_paths):\n\n- glob image files,\n- parse metadata from image filename to identify plates,\n- identify populated channels.\n\nCreate a zarr folder (for each plate):\n\n- parse mlf metadata,\n- identify wells and field of view (FOV),\n- create FOV ZARR,\n- verify that channels are uniform (i.e., same channels).\n## cellvoyager_to_ome_zarr_compute\nConvert Yokogawa output (png, tif) to zarr file.\n\nThis task is typically run after Create OME-Zarr or\nCreate OME-Zarr Multiplexing and populates the empty OME-Zarr files that\nwere prepared.\n",
+      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
+    },
+    {
+      "name": "Convert Cellvoyager Multiplexing to OME-Zarr",
+      "executable_non_parallel": "tasks/cellvoyager_to_ome_zarr_init_multiplex.py",
+      "executable_parallel": "tasks/cellvoyager_to_ome_zarr_compute.py",
       "meta_non_parallel": {
         "cpus_per_task": 1,
         "mem": 4000
@@ -247,13 +262,6 @@
         "cpus_per_task": 1,
         "mem": 4000
       },
-      "docs_info": "## cellvoyager_to_ome_zarr_init\nCreate a OME-NGFF zarr folder, without reading/writing image data.\n\nFind plates (for each folder in input_paths):\n\n- glob image files,\n- parse metadata from image filename to identify plates,\n- identify populated channels.\n\nCreate a zarr folder (for each plate):\n\n- parse mlf metadata,\n- identify wells and field of view (FOV),\n- create FOV ZARR,\n- verify that channels are uniform (i.e., same channels).\n## cellvoyager_to_ome_zarr_compute\nConvert Yokogawa output (png, tif) to zarr file.\n\nThis task is typically run after Create OME-Zarr or\nCreate OME-Zarr Multiplexing and populates the empty OME-Zarr files that\nwere prepared.\n",
-      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
-    },
-    {
-      "name": "Convert Cellvoyager Multiplexing to OME-Zarr",
-      "executable_non_parallel": "tasks/cellvoyager_to_ome_zarr_init_multiplex.py",
-      "executable_parallel": "tasks/cellvoyager_to_ome_zarr_compute.py",
       "args_schema_non_parallel": {
         "title": "CellvoyagerToOmeZarrInitMultiplex",
         "type": "object",
@@ -504,14 +512,6 @@
           }
         }
       },
-      "meta_non_parallel": {
-        "cpus_per_task": 1,
-        "mem": 4000
-      },
-      "meta_parallel": {
-        "cpus_per_task": 1,
-        "mem": 4000
-      },
       "docs_info": "## cellvoyager_to_ome_zarr_init_multiplex\nCreate OME-NGFF structure and metadata to host a multiplexing dataset.\n\nThis task takes a set of image folders (i.e. different acquisition cycles)\nand build the internal structure and metadata of a OME-NGFF zarr group,\nwithout actually loading/writing the image data.\n\nEach element in input_paths should be treated as a different acquisition.\n## cellvoyager_to_ome_zarr_compute\nConvert Yokogawa output (png, tif) to zarr file.\n\nThis task is typically run after Create OME-Zarr or\nCreate OME-Zarr Multiplexing and populates the empty OME-Zarr files that\nwere prepared.\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
@@ -525,6 +525,14 @@
       },
       "executable_non_parallel": "tasks/copy_ome_zarr_hcs_plate.py",
       "executable_parallel": "tasks/maximum_intensity_projection.py",
+      "meta_non_parallel": {
+        "cpus_per_task": 1,
+        "mem": 4000
+      },
+      "meta_parallel": {
+        "cpus_per_task": 1,
+        "mem": 4000
+      },
       "args_schema_non_parallel": {
         "title": "CopyOmeZarrHcsPlate",
         "type": "object",
@@ -604,14 +612,6 @@
           }
         }
       },
-      "meta_non_parallel": {
-        "cpus_per_task": 1,
-        "mem": 4000
-      },
-      "meta_parallel": {
-        "cpus_per_task": 1,
-        "mem": 4000
-      },
       "docs_info": "## copy_ome_zarr_hcs_plate\nDuplicate the OME-Zarr HCS structure for a set of zarr_urls.\n\nThis task only processes the zarr images in the zarr_urls, not all the\nimages in the plate. It copies all the  plate & well structure, but none\nof the image metadata or the actual image data:\n\n- For each plate, create a new OME-Zarr HCS plate with the attributes for\n    all the images in zarr_urls\n- For each well (in each plate), create a new zarr subgroup with the\n   same attributes as the original one.\n\nNote: this task makes use of methods from the `Attributes` class, see\nhttps://zarr.readthedocs.io/en/stable/api/attrs.html.\n## maximum_intensity_projection\nPerform maximum-intensity projection along Z axis.\n\nNote: this task stores the output in a new zarr file.\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
@@ -624,6 +624,10 @@
         "illumination_corrected": true
       },
       "executable_parallel": "tasks/illumination_correction.py",
+      "meta_parallel": {
+        "cpus_per_task": 1,
+        "mem": 4000
+      },
       "args_schema_parallel": {
         "title": "IlluminationCorrection",
         "type": "object",
@@ -678,16 +682,17 @@
         ],
         "additionalProperties": false
       },
-      "meta_parallel": {
-        "cpus_per_task": 1,
-        "mem": 4000
-      },
       "docs_info": "## illumination_correction\nApplies illumination correction to the images in the OME-Zarr.\n\nAssumes that the illumination correction profiles were generated before\nseparately and that the same background subtraction was used during\ncalculation of the illumination correction (otherwise, it will not work\nwell & the correction may only be partial).\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {
       "name": "Cellpose Segmentation",
       "executable_parallel": "tasks/cellpose_segmentation.py",
+      "meta_parallel": {
+        "cpus_per_task": 4,
+        "mem": 16000,
+        "needs_gpu": true
+      },
       "args_schema_parallel": {
         "title": "CellposeSegmentation",
         "type": "object",
@@ -948,11 +953,6 @@
           }
         }
       },
-      "meta_parallel": {
-        "cpus_per_task": 4,
-        "mem": 16000,
-        "needs_gpu": true
-      },
       "docs_info": "## cellpose_segmentation\nRun cellpose segmentation on the ROIs of a single OME-Zarr image.\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
@@ -960,6 +960,14 @@
       "name": "Calculate Registration (image-based)",
       "executable_non_parallel": "tasks/image_based_registration_hcs_init.py",
       "executable_parallel": "tasks/calculate_registration_image_based.py",
+      "meta_non_parallel": {
+        "cpus_per_task": 1,
+        "mem": 1000
+      },
+      "meta_parallel": {
+        "cpus_per_task": 1,
+        "mem": 8000
+      },
       "args_schema_non_parallel": {
         "title": "ImageBasedRegistrationHcsInit",
         "type": "object",
@@ -1045,14 +1053,6 @@
           }
         }
       },
-      "meta_non_parallel": {
-        "cpus_per_task": 1,
-        "mem": 1000
-      },
-      "meta_parallel": {
-        "cpus_per_task": 1,
-        "mem": 8000
-      },
       "docs_info": "## image_based_registration_hcs_init\nInitialized calculate registration task\n\nThis task prepares a parallelization list of all zarr_urls that need to be\nused to calculate the registration between cycles (all zarr_urls except\nthe reference cycle vs. the reference cycle).\nThis task only works for HCS OME-Zarrs for 2 reasons: Only HCS OME-Zarrs\ncurrently have defined acquisition metadata to determine reference cycles.\nAnd we have only implemented the grouping of images for HCS OME-Zarrs by\nwell (with the assumption that every well just has 1 image per acqusition).\n## calculate_registration_image_based\nCalculate registration based on images\n\nThis task consists of 3 parts:\n\n1. Loading the images of a given ROI (=> loop over ROIs)\n2. Calculating the transformation for that ROI\n3. Storing the calculated transformation in the ROI table\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
@@ -1060,6 +1060,14 @@
       "name": "Find Registration Consensus",
       "executable_non_parallel": "tasks/init_group_by_well_for_multiplexing.py",
       "executable_parallel": "tasks/find_registration_consensus.py",
+      "meta_non_parallel": {
+        "cpus_per_task": 1,
+        "mem": 1000
+      },
+      "meta_parallel": {
+        "cpus_per_task": 1,
+        "mem": 1000
+      },
       "args_schema_non_parallel": {
         "title": "InitGroupByWellForMultiplexing",
         "type": "object",
@@ -1141,14 +1149,6 @@
           }
         }
       },
-      "meta_non_parallel": {
-        "cpus_per_task": 1,
-        "mem": 1000
-      },
-      "meta_parallel": {
-        "cpus_per_task": 1,
-        "mem": 1000
-      },
       "docs_info": "## init_group_by_well_for_multiplexing\nFinds images for all acquisitions per well.\n\nReturns the parallelization_list to run `find_registration_consensus`.\n## find_registration_consensus\nApplies pre-calculated registration to ROI tables.\n\nApply pre-calculated registration such that resulting ROIs contain\nthe consensus align region between all cycles.\n\nParallelization level: well\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
@@ -1161,6 +1161,10 @@
         "registered": true
       },
       "executable_parallel": "tasks/apply_registration_to_image.py",
+      "meta_parallel": {
+        "cpus_per_task": 1,
+        "mem": 4000
+      },
       "args_schema_parallel": {
         "title": "ApplyRegistrationToImage",
         "type": "object",
@@ -1193,10 +1197,6 @@
           "registered_roi_table"
         ],
         "additionalProperties": false
-      },
-      "meta_parallel": {
-        "cpus_per_task": 1,
-        "mem": 4000
       },
       "docs_info": "## apply_registration_to_image\nApply registration to images by using a registered ROI table\n\nThis task consists of 4 parts:\n\n1. Mask all regions in images that are not available in the\nregistered ROI table and store each cycle aligned to the\nreference_cycle (by looping over ROIs).\n2. Do the same for all label images.\n3. Copy all tables from the non-aligned image to the aligned image\n(currently only works well if the only tables are well & FOV ROI tables\n(registered and original). Not implemented for measurement tables and\nother ROI tables).\n4. Clean up: Delete the old, non-aligned image and rename the new,\naligned image to take over its place.\n\nParallelization level: image\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
