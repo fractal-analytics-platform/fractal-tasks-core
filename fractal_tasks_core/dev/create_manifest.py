@@ -139,7 +139,7 @@ def create_manifest(
         Path(imported_package.__file__).parent / "__FRACTAL_MANIFEST__.json"
     )
     with manifest_path.open("w") as f:
-        json.dump(manifest, f, indent=2, sort_keys=True)
+        json.dump(manifest, f, indent=2)
         f.write("\n")
     logging.info(f"Manifest stored in {manifest_path.as_posix()}")
 
