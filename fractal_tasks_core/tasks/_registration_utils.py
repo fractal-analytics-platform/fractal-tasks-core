@@ -15,9 +15,9 @@ import zarr
 from fractal_tasks_core.ngff.specs import Well
 
 
-def _split_well_path_image_path(zarr_url: str):
+def _split_well_path_image_path(zarr_url: str) -> tuple[str, str]:
     """
-    Returns path to well folder for HCS OME-Zarr zarr_url
+    Returns path to well folder for HCS OME-Zarr `zarr_url`.
     """
     zarr_url = zarr_url.rstrip("/")
     well_path = "/".join(zarr_url.split("/")[:-1])
