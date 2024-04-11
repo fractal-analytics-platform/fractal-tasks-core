@@ -85,8 +85,8 @@ jobs:
       - name: Install dependencies (including fractal-tasks extra)
         run: poetry install --with dev --without docs --no-interaction -E fractal-tasks
 
-      # - name: Check manifest task metadata
-      #   run: poetry run python fractal_tasks_core/dev/check_manifest.py
+      - name: Check manifest task metadata
+        run: poetry run python fractal_tasks_core/dev/check_manifest.py
 
       - name: Cache Pooch folder
         id: cache-pooch-folder
