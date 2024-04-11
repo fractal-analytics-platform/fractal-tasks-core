@@ -426,14 +426,16 @@
             "properties": {
               "image_dir": {
                 "title": "Image Dir",
-                "type": "string"
+                "type": "string",
+                "description": "Path to the folder that contains the Cellvoyager image files for that acquisition and the MeasurementData & MeasurementDetail metadata files."
               },
               "allowed_channels": {
                 "title": "Allowed Channels",
                 "type": "array",
                 "items": {
                   "$ref": "#/definitions/OmeroChannel"
-                }
+                },
+                "description": "A list of `OmeroChannel` objects, where each channel must include the `wavelength_id` attribute and where the `wavelength_id` values must be unique across the list."
               }
             },
             "required": [
