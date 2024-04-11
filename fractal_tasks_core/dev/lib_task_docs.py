@@ -79,23 +79,3 @@ def create_docs_info(
     docs_info = "".join(docs_info)
     logging.info("[create_docs_info] END")
     return docs_info
-
-
-def create_docs_link(executable: str) -> str:
-    """
-    Return link to docs page for a fractal_tasks_core task.
-    """
-    logging.info("[create_docs_link] START")
-
-    # Extract the function name. Note: this could be made more general, but for
-    # the moment we assume the function has the same name as the module)
-    function_name = Path(executable).with_suffix("").name
-    logging.info(f"[create_docs_link] {function_name=}")
-    # Define docs_link
-    docs_link = (
-        "https://fractal-analytics-platform.github.io/fractal-tasks-core/"
-        f"reference/fractal_tasks_core/tasks/{function_name}/"
-        f"#fractal_tasks_core.tasks.{function_name}.{function_name}"
-    )
-    logging.info("[create_docs_link] END")
-    return docs_link
