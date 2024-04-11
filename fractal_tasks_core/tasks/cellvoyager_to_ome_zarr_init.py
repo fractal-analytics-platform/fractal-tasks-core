@@ -230,17 +230,16 @@ def cellvoyager_to_ome_zarr_init(
 
     for plate in plates:
         # Define plate zarr
-        zarrurl = f"{plate}.zarr"
+        relative_zarrurl = f"{plate}.zarr"
         in_path = dict_plate_paths[plate]
-        logger.info(f"Creating {zarrurl}")
+        logger.info(f"Creating {relative_zarrurl}")
         # Call zarr.open_group wrapper, which handles overwrite=True/False
         group_plate = open_zarr_group_with_overwrite(
-            str(Path(zarr_dir) / zarrurl),
+            str(Path(zarr_dir) / relative_zarrurl),
             overwrite=overwrite,
         )
 
         # Obtain FOV-metadata dataframe
-
         if metadata_table_file is None:
             mrf_path = f"{in_path}/MeasurementDetail.mrf"
             mlf_path = f"{in_path}/MeasurementData.mlf"
