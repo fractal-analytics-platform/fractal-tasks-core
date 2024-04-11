@@ -21,9 +21,7 @@ from fractal_tasks_core.dev.lib_args_schemas import (
     create_schema_for_single_task,
 )
 from fractal_tasks_core.dev.lib_task_docs import create_docs_info
-from fractal_tasks_core.task_list import TASK_LIST
-
-# from fractal_tasks_core.dev.lib_task_docs import create_docs_link
+from fractal_tasks_core.dev.task_list import TASK_LIST
 
 
 PACKAGE = "fractal_tasks_core"

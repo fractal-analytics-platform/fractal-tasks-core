@@ -1002,7 +1002,7 @@
           "init_args": {
             "$ref": "#/definitions/InitArgsRegistration",
             "title": "Init_Args",
-            "description": "Intialization arguments provided by `image_based_registration_hcs_init`. They contain the reference_zarr_url that is used for registration."
+            "description": "Intialization arguments provided by `image_based_registration_hcs_init`. They contain the reference_zarr_url that is used for registration. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "wavelength_id": {
             "title": "Wavelength Id",
@@ -1097,12 +1097,12 @@
           "zarr_url": {
             "title": "Zarr Url",
             "type": "string",
-            "description": "Missing description"
+            "description": "Path or url to the individual OME-Zarr image to be processed. Refers to the zarr_url of the reference cycle. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "init_args": {
             "$ref": "#/definitions/InitArgsRegistrationConsensus",
             "title": "Init_Args",
-            "description": "Missing description"
+            "description": "Intialization arguments provided by `init_group_by_well_for_multiplexing`. It contains the zarr_url_list listing all the zarr_urls in the same well as the zarr_url of the reference cycle that are being processed. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "roi_table": {
             "title": "Roi Table",
