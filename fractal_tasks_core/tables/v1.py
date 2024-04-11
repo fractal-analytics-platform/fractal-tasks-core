@@ -268,7 +268,7 @@ def _write_table_v1(
 
 def get_tables_list_v1(
     zarr_url: str, table_type: str = None, strict: bool = False
-):
+) -> list[str]:
     """
     Find the list of tables in the Zarr file
 
@@ -276,12 +276,13 @@ def get_tables_list_v1(
 
     Args:
         zarr_url: Path to the OME-Zarr image
-        table_type (str): The type of table to look for. Special handling for
+        table_type: The type of table to look for. Special handling for
             "ROIs" => matches both "roi_table" & "masking_roi_table".
-        strict (bool): If True, only return tables that have a type attribute.
-            If False, also include tables without a type attribute.
+        strict: If `True`, only return tables that have a type attribute.
+            If `False`, also include tables without a type attribute.
+
     Returns:
-        table_list: list of the names of available tables
+        List of the names of available tables
     """
     with zarr.open(zarr_url, mode="r") as zarr_group:
         zarr_subgroups = list(zarr_group.group_keys())
@@ -299,8 +300,11 @@ def get_tables_list_v1(
 
 
 def _filter_tables_by_type_v1(
-    zarr_url, all_tables, table_type: str = None, strict: bool = False
-):
+    zarr_url: str,
+    all_tables: list[str],
+    table_type: Optional[str] = None,
+    strict: bool = False,
+) -> list[str]:
     tables_list = []
     for table_name in all_tables:
         with zarr.open(zarr_url, mode="r").tables[table_name] as table:
