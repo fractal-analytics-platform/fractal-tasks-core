@@ -86,7 +86,7 @@ def calculate_physical_shifts(
         full_res_pxl_sizes_zyx: pixel sizes in physical units as zyx
 
     Returns:
-        shifts_physical: shifts in physical units as zyx
+        shifts in physical units as zyx
     """
 
     curr_pixel_size = np.array(full_res_pxl_sizes_zyx) * coarsening_xy**level
