@@ -22,13 +22,11 @@ def _check_ROI_tables(_image_path):
     zarr.open_group(f"{_image_path}/tables/grid_ROI_table", mode="r")
 
 
-def test_import_ome_zarr_plate(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
+def test_import_ome_zarr_plate(tmp_path, zenodo_zarr):
 
     # Prepare an on-disk OME-Zarr at the plate level
     zarr_dir = str(tmp_path)
-    prepare_3D_zarr(
-        zarr_dir, zenodo_zarr, zenodo_zarr_metadata, remove_tables=True
-    )
+    prepare_3D_zarr(zarr_dir, zenodo_zarr, remove_tables=True)
     zarr_name = "plate.zarr"
 
     # Run import_ome_zarr
@@ -79,13 +77,11 @@ def test_import_ome_zarr_plate(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
         )
 
 
-def test_import_ome_zarr_well(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
+def test_import_ome_zarr_well(tmp_path, zenodo_zarr):
 
     # Prepare an on-disk OME-Zarr at the plate level
     zarr_dir = str(tmp_path)
-    prepare_3D_zarr(
-        zarr_dir, zenodo_zarr, zenodo_zarr_metadata, remove_tables=True
-    )
+    prepare_3D_zarr(zarr_dir, zenodo_zarr, remove_tables=True)
     zarr_name = "plate.zarr/B/03"
 
     # Run import_ome_zarr
@@ -121,16 +117,13 @@ def test_import_ome_zarr_well(tmp_path, zenodo_zarr, zenodo_zarr_metadata):
 
 
 @pytest.mark.parametrize("reset_omero", [True, False])
-def test_import_ome_zarr_image(
-    tmp_path, zenodo_zarr, zenodo_zarr_metadata, reset_omero
-):
+def test_import_ome_zarr_image(tmp_path, zenodo_zarr, reset_omero):
 
     # Prepare an on-disk OME-Zarr at the plate level
     zarr_dir = str(tmp_path)
     prepare_3D_zarr(
         zarr_dir,
         zenodo_zarr,
-        zenodo_zarr_metadata,
         remove_tables=True,
         remove_omero=reset_omero,
     )
@@ -182,15 +175,12 @@ def test_import_ome_zarr_image(
         )
 
 
-def test_import_ome_zarr_image_wrong_channels(
-    tmp_path, zenodo_zarr, zenodo_zarr_metadata
-):
+def test_import_ome_zarr_image_wrong_channels(tmp_path, zenodo_zarr):
     # Prepare an on-disk OME-Zarr at the plate level
     zarr_dir = str(tmp_path)
     prepare_3D_zarr(
         zarr_dir,
         zenodo_zarr,
-        zenodo_zarr_metadata,
         remove_tables=True,
         remove_omero=True,
     )
