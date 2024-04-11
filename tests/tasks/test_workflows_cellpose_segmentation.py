@@ -793,7 +793,7 @@ def test_workflow_secondary_labeling(
         )
 
     organoid_ROI_table_path = str(
-        zarr_dir / zarr_urls[0] / "tables/organoid_ROI_table"
+        Path(zarr_urls[0]) / "tables/organoid_ROI_table"
     )
     organoid_ROI_table = ad.read_zarr(organoid_ROI_table_path)
     organoid_ROI_table_zarr_group = zarr.open(organoid_ROI_table_path)
@@ -870,7 +870,7 @@ def test_workflow_secondary_labeling_no_labels(
         )
 
     organoid_ROI_table_path = str(
-        zarr_dir / zarr_urls[0] / "tables/organoid_ROI_table"
+        Path(zarr_urls[0]) / "tables/organoid_ROI_table"
     )
     organoid_ROI_table = ad.read_zarr(organoid_ROI_table_path)
     organoid_ROI_table_zarr_group = zarr.open(organoid_ROI_table_path)
@@ -940,7 +940,7 @@ def test_workflow_secondary_labeling_two_channels(
         )
 
     organoid_ROI_table_path = str(
-        zarr_dir / zarr_urls[0] / "tables/organoid_ROI_table"
+        Path(zarr_urls[0]) / "tables/organoid_ROI_table"
     )
     organoid_ROI_table = ad.read_zarr(organoid_ROI_table_path)
     organoid_ROI_table_zarr_group = zarr.open(organoid_ROI_table_path)
