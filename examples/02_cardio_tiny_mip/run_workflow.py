@@ -80,7 +80,7 @@ debug(parallelization_list)
 
 image_list_updates = []
 # Convert image to Zarr
-for image in parallelization_list:
+for image in parallelization_list["parallelization_list"]:
     image_list_updates += cellvoyager_to_ome_zarr_compute(
         zarr_url=image["zarr_url"],
         init_args=image["init_args"],
@@ -97,7 +97,7 @@ parallelization_list = copy_ome_zarr_hcs_plate(
 )
 debug(parallelization_list)
 
-for image in parallelization_list:
+for image in parallelization_list["parallelization_list"]:
     maximum_intensity_projection(
         zarr_url=image["zarr_url"],
         init_args=image["init_args"],
