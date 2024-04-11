@@ -64,6 +64,8 @@ def create_manifest(
     if manifest_version != "2":
         raise NotImplementedError(f"{manifest_version=} is not supported")
 
+    logging.info("Start generating a new manifest")
+
     # Prepare an empty manifest
     manifest = dict(
         manifest_version=manifest_version,
@@ -139,7 +141,7 @@ def create_manifest(
     with manifest_path.open("w") as f:
         json.dump(manifest, f, indent=2, sort_keys=True)
         f.write("\n")
-    logging.info(f"Up-to-date manifest stored in {manifest_path.as_posix()}")
+    logging.info(f"Manifest stored in {manifest_path.as_posix()}")
 
 
 if __name__ == "__main__":
