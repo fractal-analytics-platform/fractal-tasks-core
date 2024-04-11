@@ -32,7 +32,7 @@ def image_based_registration_hcs_init(
     zarr_dir: str,
     # Task-specific arguments
     reference_cycle: int = 0,
-) -> dict[str, Any]:
+) -> dict[str, list[str, Any]]:
     """
     Initialized calculate registration task
 
