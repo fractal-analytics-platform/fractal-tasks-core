@@ -349,7 +349,7 @@ def cellpose_segmentation(
             "Channel not found, exit from the task.\n"
             f"Original error: {str(e)}"
         )
-        return {}
+        return None
     ind_channel = tmp_channel.index
 
     # Find channel index for second channel, if one is provided
@@ -366,7 +366,7 @@ def cellpose_segmentation(
                 f"and label: {channel2.label} not found, exit from the task.\n"
                 f"Original error: {str(e)}"
             )
-            return {}
+            return None
         ind_channel_c2 = tmp_channel_c2.index
 
     # Set channel label
