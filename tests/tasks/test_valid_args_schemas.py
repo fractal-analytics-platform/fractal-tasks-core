@@ -103,9 +103,12 @@ def test_task_functions_have_valid_signatures():
     Test that task functions have valid signatures.
     """
     for ind_task, task in enumerate(TASK_LIST):
-        function_name = Path(task["executable"]).with_suffix("").name
-        task_function = _extract_function(task["executable"], function_name)
-        _validate_function_signature(task_function)
+        for key in ["executable_non_parallel", "executable_parallel"]:
+            value = task.get(key, None)
+            if value is not None:
+                function_name = Path(task[key]).with_suffix("").name
+                task_function = _extract_function(task[key], function_name)
+                _validate_function_signature(task_function)
 
 
 def test_args_schemas_are_up_to_date():
