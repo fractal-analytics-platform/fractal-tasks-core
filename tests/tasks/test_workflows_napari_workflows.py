@@ -12,7 +12,6 @@ Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
 from pathlib import Path
-from typing import Any
 
 import anndata as ad
 import pytest
@@ -49,16 +48,13 @@ def test_napari_workflow(
     tmp_path: Path,
     testdata_path: Path,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
 
     # Init
     zarr_dir = tmp_path / "tmp_out/"
-    metadata = prepare_3D_zarr(
-        str(zarr_dir), zenodo_zarr, zenodo_zarr_metadata
-    )
+    zarr_urls = prepare_3D_zarr(str(zarr_dir), zenodo_zarr)
     debug(zarr_dir)
-    debug(metadata)
+    debug(zarr_urls)
 
     # Prepare parameters for first napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
@@ -73,8 +69,7 @@ def test_napari_workflow(
     }
 
     # Run once
-    for component in metadata["image"]:
-        zarr_url = str(zarr_dir / component)
+    for zarr_url in zarr_urls:
         napari_workflows_wrapper(
             zarr_url=zarr_url,
             input_specs=input_specs,
@@ -83,7 +78,6 @@ def test_napari_workflow(
             input_ROI_table="FOV_ROI_table",
             level=2,
         )
-    debug(metadata)
 
     # Prepare parameters for second napari-workflows task (measurement)
     workflow_file = str(testdata_path / "napari_workflows/wf_4.yaml")
@@ -100,8 +94,7 @@ def test_napari_workflow(
     }
 
     # Run once
-    for component in metadata["image"]:
-        zarr_url = str(zarr_dir / component)
+    for zarr_url in zarr_urls:
         napari_workflows_wrapper(
             zarr_url=zarr_url,
             input_specs=input_specs,
@@ -109,10 +102,9 @@ def test_napari_workflow(
             workflow_file=workflow_file,
             input_ROI_table="FOV_ROI_table",
         )
-    debug(metadata)
 
     # OME-NGFF JSON validation
-    image_zarr = zarr_dir / metadata["image"][0]
+    image_zarr = Path(zarr_urls[0])
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
     label_zarr = image_zarr / "labels/label_DAPI"
@@ -130,9 +122,7 @@ def test_napari_workflow(
     validate_axes_and_coordinateTransformations(label_zarr)
 
     # Load measurements
-    meas = ad.read_zarr(
-        str(zarr_dir / metadata["image"][0] / "tables/regionprops_DAPI/")
-    )
+    meas = ad.read_zarr(str(Path(zarr_urls[0]) / "tables/regionprops_DAPI/"))
     debug(meas.var_names)
     assert "area" in meas.var_names
     assert "bbox_area" in meas.var_names
@@ -142,16 +132,13 @@ def test_napari_worfklow_label_input_only(
     tmp_path: Path,
     testdata_path: Path,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
 
     # Prepare 3D zarr
     zarr_dir = tmp_path / "tmp_out/"
-    metadata = prepare_3D_zarr(
-        str(zarr_dir), zenodo_zarr, zenodo_zarr_metadata
-    )
+    zarr_urls = prepare_3D_zarr(str(zarr_dir), zenodo_zarr)
     debug(zarr_dir)
-    debug(metadata)
+    debug(zarr_urls)
 
     # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
@@ -164,8 +151,7 @@ def test_napari_worfklow_label_input_only(
             "label_name": "label_DAPI",
         },
     }
-    for component in metadata["image"]:
-        zarr_url = str(zarr_dir / component)
+    for zarr_url in zarr_urls:
         napari_workflows_wrapper(
             zarr_url=zarr_url,
             input_specs=input_specs,
@@ -174,7 +160,6 @@ def test_napari_worfklow_label_input_only(
             input_ROI_table="FOV_ROI_table",
             level=2,
         )
-    debug(metadata)
 
     # Second napari-workflows task (measurement)
     workflow_file = str(
@@ -189,8 +174,7 @@ def test_napari_worfklow_label_input_only(
             "label_name": "label_DAPI_expanded",
         },
     }
-    for component in metadata["image"]:
-        zarr_url = str(zarr_dir / component)
+    for zarr_url in zarr_urls:
         napari_workflows_wrapper(
             zarr_url=zarr_url,
             input_specs=input_specs,
@@ -198,10 +182,9 @@ def test_napari_worfklow_label_input_only(
             workflow_file=workflow_file,
             input_ROI_table="FOV_ROI_table",
         )
-    debug(metadata)
 
     # OME-NGFF JSON validation
-    image_zarr = zarr_dir / metadata["image"][0]
+    image_zarr = Path(zarr_urls[0])
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
     label_zarr = image_zarr / "labels/label_DAPI"
@@ -270,24 +253,20 @@ def test_relabeling(
     tmp_path: Path,
     testdata_path: Path,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
 
     # Prepare 3D zarr
     zarr_dir = tmp_path / "tmp_out/"
-    metadata = prepare_3D_zarr(
-        str(zarr_dir), zenodo_zarr, zenodo_zarr_metadata
-    )
+    zarr_urls = prepare_3D_zarr(str(zarr_dir), zenodo_zarr)
     debug(zarr_dir)
-    debug(metadata)
+    debug(zarr_urls)
 
     # If needed, produce some labels before the actual test
     if needs_labels:
         workflow_file = str(
             testdata_path / "napari_workflows" / RELABELING_CASE_1[0]
         )
-        for component in metadata["image"]:
-            zarr_url = str(zarr_dir / component)
+        for zarr_url in zarr_urls:
             napari_workflows_wrapper(
                 zarr_url=zarr_url,
                 input_specs=RELABELING_CASE_1[1],
@@ -303,8 +282,7 @@ def test_relabeling(
     debug(workflow_file)
     debug(input_specs)
     debug(output_specs)
-    for component in metadata["image"]:
-        zarr_url = str(zarr_dir / component)
+    for zarr_url in zarr_urls:
         napari_workflows_wrapper(
             zarr_url=zarr_url,
             input_specs=input_specs,
@@ -312,10 +290,9 @@ def test_relabeling(
             workflow_file=workflow_file,
             input_ROI_table="FOV_ROI_table",
         )
-    debug(metadata)
 
     # Check output
-    image_zarr = Path(zarr_dir / metadata["image"][0])
+    image_zarr = Path(zarr_urls[0])
     validate_labels_and_measurements(
         image_zarr, label_name=LABEL_NAME, table_name=TABLE_NAME
     )
@@ -325,7 +302,7 @@ def test_relabeling(
     ]
     if dataframe_outputs:
         meas = ad.read_zarr(
-            zarr_dir / metadata["image"][0] / f"tables/{TABLE_NAME}/"
+            Path(zarr_urls[0], f"tables/{TABLE_NAME}/").as_posix()
         )
         debug(meas.var_names)
         assert "area" in meas.var_names
@@ -336,16 +313,13 @@ def test_fail_if_no_relabeling(
     tmp_path: Path,
     testdata_path: Path,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
 
     # Prepare 3D zarr
     zarr_dir = tmp_path / "tmp_out/"
-    metadata = prepare_3D_zarr(
-        str(zarr_dir), zenodo_zarr, zenodo_zarr_metadata
-    )
+    zarr_urls = prepare_3D_zarr(str(zarr_dir), zenodo_zarr)
     debug(zarr_dir)
-    debug(metadata)
+    debug(zarr_urls)
 
     # Run napari-workflow RELABELING_CASE_1, but with relabeling=False
     workflow_file_name, input_specs, output_specs = RELABELING_CASE_1
@@ -355,8 +329,7 @@ def test_fail_if_no_relabeling(
     debug(workflow_file)
     debug(input_specs)
     debug(output_specs)
-    for component in metadata["image"]:
-        zarr_url = str(zarr_dir / component)
+    for zarr_url in zarr_urls:
         napari_workflows_wrapper(
             zarr_url=zarr_url,
             input_specs=input_specs,
@@ -365,9 +338,8 @@ def test_fail_if_no_relabeling(
             input_ROI_table="FOV_ROI_table",
             relabeling=False,
         )
-    debug(metadata)
 
-    image_zarr = zarr_dir / metadata["image"][0]
+    image_zarr = Path(zarr_urls[0])
     with pytest.raises(AssertionError):
         validate_labels_and_measurements(
             image_zarr, label_name=LABEL_NAME, table_name=TABLE_NAME
@@ -395,27 +367,23 @@ def test_expected_dimensions(
     tmp_path: Path,
     testdata_path: Path,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
 
     # Prepare zarr
     zarr_dir = tmp_path / "tmp_out/"
     if zarr_dimensions == 2:
-        metadata = prepare_2D_zarr(
+        zarr_urls = prepare_2D_zarr(
             str(zarr_dir),
             zenodo_zarr,
-            zenodo_zarr_metadata,
             remove_labels=True,
             make_CYX=make_CYX,
         )
     else:
         if make_CYX:
             raise ValueError(f"{make_CYX=} and {zarr_dimensions=}")
-        metadata = prepare_3D_zarr(
-            str(zarr_dir), zenodo_zarr, zenodo_zarr_metadata
-        )
+        zarr_urls = prepare_3D_zarr(str(zarr_dir), zenodo_zarr)
     debug(zarr_dir)
-    debug(metadata)
+    debug(zarr_urls)
 
     # First napari-workflows task (labeling)
     workflow_file = str(
@@ -434,8 +402,7 @@ def test_expected_dimensions(
         },
     }
 
-    for component in metadata["image"]:
-        zarr_url = str(zarr_dir / component)
+    for zarr_url in zarr_urls:
         arguments = dict(
             zarr_url=zarr_url,
             input_specs=input_specs,
@@ -457,7 +424,6 @@ def test_napari_workflow_empty_input_ROI_table(
     tmp_path: Path,
     testdata_path: Path,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
     """
     Run the napari_workflows task, iterating over an empty table of ROIs
@@ -465,16 +431,14 @@ def test_napari_workflow_empty_input_ROI_table(
 
     # Init
     zarr_dir = tmp_path / "tmp_out/"
-    metadata = prepare_3D_zarr(
-        str(zarr_dir), zenodo_zarr, zenodo_zarr_metadata
-    )
+    zarr_urls = prepare_3D_zarr(str(zarr_dir), zenodo_zarr)
     debug(zarr_dir)
-    debug(metadata)
+    debug(zarr_urls)
 
     # Prepare empty ROI table
     TABLE_NAME = "empty_ROI_table"
     _add_empty_ROI_table(
-        image_zarr_path=Path(zarr_dir / metadata["image"][0]),
+        image_zarr_path=Path(zarr_urls[0]),
         table_name=TABLE_NAME,
     )
 
@@ -489,8 +453,7 @@ def test_napari_workflow_empty_input_ROI_table(
             "label_name": "label_DAPI",
         },
     }
-    for component in metadata["image"]:
-        zarr_url = str(zarr_dir / component)
+    for zarr_url in zarr_urls:
         napari_workflows_wrapper(
             zarr_url=zarr_url,
             input_ROI_table=TABLE_NAME,
@@ -499,7 +462,6 @@ def test_napari_workflow_empty_input_ROI_table(
             workflow_file=workflow_file,
             level=2,
         )
-    debug(metadata)
 
     # Second napari-workflows task (measurement)
     workflow_file = str(testdata_path / "napari_workflows/wf_4.yaml")
@@ -514,8 +476,7 @@ def test_napari_workflow_empty_input_ROI_table(
             "label_name": "label_DAPI",
         },
     }
-    for component in metadata["image"]:
-        zarr_url = str(zarr_dir / component)
+    for zarr_url in zarr_urls:
         napari_workflows_wrapper(
             zarr_url=zarr_url,
             input_ROI_table=TABLE_NAME,
@@ -523,10 +484,9 @@ def test_napari_workflow_empty_input_ROI_table(
             output_specs=output_specs,
             workflow_file=workflow_file,
         )
-    debug(metadata)
 
     # OME-NGFF JSON validation
-    image_zarr = zarr_dir / metadata["image"][0]
+    image_zarr = Path(zarr_urls[0])
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
     label_zarr = image_zarr / "labels/label_DAPI"
@@ -543,7 +503,7 @@ def test_napari_workflow_empty_input_ROI_table(
 
     # Load measurements
     meas = ad.read_zarr(
-        str(zarr_dir / metadata["image"][0] / "tables/regionprops_DAPI/")
+        Path(zarr_urls[0], "tables/regionprops_DAPI/").as_posix()
     )
     debug(meas.var_names)
 
@@ -552,20 +512,18 @@ def test_napari_workflow_CYX(
     tmp_path: Path,
     testdata_path: Path,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
 
     # Init
     zarr_dir = tmp_path / "tmp_out/"
-    metadata = prepare_2D_zarr(
+    zarr_urls = prepare_2D_zarr(
         str(zarr_dir),
         zenodo_zarr,
-        zenodo_zarr_metadata,
         remove_labels=True,
         make_CYX=True,
     )
     debug(zarr_dir)
-    debug(metadata)
+    debug(zarr_urls)
 
     # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
@@ -578,8 +536,7 @@ def test_napari_workflow_CYX(
             "label_name": "label_DAPI",
         },
     }
-    for component in metadata["image"]:
-        zarr_url = str(zarr_dir / component)
+    for zarr_url in zarr_urls:
         napari_workflows_wrapper(
             zarr_url=zarr_url,
             input_specs=input_specs,
@@ -589,7 +546,7 @@ def test_napari_workflow_CYX(
             expected_dimensions=2,
             level=2,
         )
-    debug(metadata)
+    debug(zarr_urls)
 
     # Second napari-workflows task (measurement)
     workflow_file = str(testdata_path / "napari_workflows/wf_4.yaml")
@@ -604,8 +561,7 @@ def test_napari_workflow_CYX(
             "label_name": "label_DAPI",
         },
     }
-    for component in metadata["image"]:
-        zarr_url = str(zarr_dir / component)
+    for zarr_url in zarr_urls:
         napari_workflows_wrapper(
             zarr_url=zarr_url,
             input_specs=input_specs,
@@ -614,10 +570,10 @@ def test_napari_workflow_CYX(
             input_ROI_table="FOV_ROI_table",
             expected_dimensions=2,
         )
-    debug(metadata)
+    debug(zarr_urls)
 
     # OME-NGFF JSON validation
-    image_zarr = zarr_dir / metadata["image"][0]
+    image_zarr = Path(zarr_urls[0])
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
     label_zarr = image_zarr / "labels/label_DAPI"
@@ -635,9 +591,7 @@ def test_napari_workflow_CYX(
     validate_axes_and_coordinateTransformations(label_zarr)
 
     # Load measurements
-    meas = ad.read_zarr(
-        str(zarr_dir / metadata["image"][0] / "tables/regionprops_DAPI/")
-    )
+    meas = ad.read_zarr(str(Path(zarr_urls[0]) / "tables/regionprops_DAPI/"))
     debug(meas.var_names)
     assert "area" in meas.var_names
     assert "bbox_area" in meas.var_names
@@ -647,7 +601,6 @@ def test_napari_workflow_CYX_wrong_dimensions(
     tmp_path: Path,
     testdata_path: Path,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
     """
     This will fail because of wrong expected_dimensions
@@ -655,15 +608,14 @@ def test_napari_workflow_CYX_wrong_dimensions(
 
     # Init
     zarr_dir = tmp_path / "tmp_out/"
-    metadata = prepare_2D_zarr(
+    zarr_urls = prepare_2D_zarr(
         str(zarr_dir),
         zenodo_zarr,
-        zenodo_zarr_metadata,
         remove_labels=True,
         make_CYX=True,
     )
     debug(zarr_dir)
-    debug(metadata)
+    debug(zarr_urls)
 
     # First napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
@@ -676,8 +628,7 @@ def test_napari_workflow_CYX_wrong_dimensions(
             "label_name": "label_DAPI",
         },
     }
-    for component in metadata["image"]:
-        zarr_url = str(zarr_dir / component)
+    for zarr_url in zarr_urls:
         with pytest.raises(ValueError) as e:
             napari_workflows_wrapper(
                 zarr_url=zarr_url,
@@ -699,16 +650,13 @@ def test_napari_workflow_mock(
     tmp_path: Path,
     testdata_path: Path,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
 
     # Init
     zarr_dir = tmp_path / "tmp_out/"
-    metadata = prepare_3D_zarr(
-        str(zarr_dir), zenodo_zarr, zenodo_zarr_metadata
-    )
+    zarr_urls = prepare_3D_zarr(str(zarr_dir), zenodo_zarr)
     debug(zarr_dir)
-    debug(metadata)
+    debug(zarr_urls)
 
     # Prepare parameters for first napari-workflows task (labeling)
     workflow_file = str(testdata_path / "napari_workflows/wf_1.yaml")
@@ -723,8 +671,7 @@ def test_napari_workflow_mock(
     }
 
     # Run once
-    for component in metadata["image"]:
-        zarr_url = str(zarr_dir / component)
+    for zarr_url in zarr_urls:
         napari_workflows_wrapper(
             zarr_url=zarr_url,
             input_specs=input_specs,
@@ -733,11 +680,9 @@ def test_napari_workflow_mock(
             input_ROI_table="FOV_ROI_table",
             level=2,
         )
-    debug(metadata)
 
     # Re-run with overwrite=True
-    for component in metadata["image"]:
-        zarr_url = str(zarr_dir / component)
+    for zarr_url in zarr_urls:
         napari_workflows_wrapper(
             zarr_url=zarr_url,
             input_specs=input_specs,
@@ -749,8 +694,7 @@ def test_napari_workflow_mock(
         )
 
     # Re-run with overwrite=False
-    for component in metadata["image"]:
-        zarr_url = str(zarr_dir / component)
+    for zarr_url in zarr_urls:
         with pytest.raises(OverwriteNotAllowedError):
             napari_workflows_wrapper(
                 zarr_url=zarr_url,
@@ -777,8 +721,7 @@ def test_napari_workflow_mock(
     }
 
     # Run once
-    for component in metadata["image"]:
-        zarr_url = str(zarr_dir / component)
+    for zarr_url in zarr_urls:
         napari_workflows_wrapper(
             zarr_url=zarr_url,
             input_specs=input_specs,
@@ -786,11 +729,9 @@ def test_napari_workflow_mock(
             workflow_file=workflow_file,
             input_ROI_table="FOV_ROI_table",
         )
-    debug(metadata)
 
     # Re-run with overwrite=True
-    for component in metadata["image"]:
-        zarr_url = str(zarr_dir / component)
+    for zarr_url in zarr_urls:
         napari_workflows_wrapper(
             zarr_url=zarr_url,
             input_specs=input_specs,
@@ -801,8 +742,7 @@ def test_napari_workflow_mock(
         )
 
     # Re-run with overwrite=False
-    for component in metadata["image"]:
-        zarr_url = str(zarr_dir / component)
+    for zarr_url in zarr_urls:
         with pytest.raises(OverwriteNotAllowedError):
             napari_workflows_wrapper(
                 zarr_url=zarr_url,
