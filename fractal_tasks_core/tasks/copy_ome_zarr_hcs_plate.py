@@ -37,44 +37,6 @@ def _get_plate_url_from_image_url(zarr_url: str) -> str:
     return plate_path
 
 
-# def _find_plate_urls_from_zarr_urls(zarr_urls: list[str]) -> list[str]:
-#     """
-#     Finds plate urls based on zarr_urls.
-
-#     Draft version of this function, assumes zarr_urls are always formatted as
-#     /path/to/my_plate.zarr/B/03/0 (with optional trailing slashes).
-#     Missing actual verification that the paths point to OME-Zarr HCS plates.
-
-#     Args:
-#         zarr_urls: List of zarr_urls belonging to the images in an HCS plate.
-
-#     Returns:
-#         plate_urls: List of urls pointing to OME-Zarr HCS plates.
-#     """
-#     plate_urls = []
-#     potential_plate_paths = []
-
-#     # Get all potential plate paths
-#     for zarr_url in zarr_urls:
-#         plate_path = _get_plate_url_from_image_url(zarr_url)
-#         if plate_path not in potential_plate_paths:
-#             potential_plate_paths.append(plate_path)
-
-#     # TODO: Actually verify the plates, e.g. with a Pydantic model like for
-#     # load_NgffImageMeta approach
-#     # Verify that they are OME-Zarr HCS plates
-#     for plate_path in potential_plate_paths:
-#         if plate_path.endswith(".zarr"):
-#             plate_urls.append(plate_path)
-#         else:
-#             logger.warning(
-#                 f"While copying the HCS plate, found {plate_path} in "
-#                 "zarr_urls"
-#                 "which was not verified as a plate"
-#             )
-#     return plate_urls
-
-
 def _get_well_sub_url(zarr_url):
     zarr_url = zarr_url.rstrip("/")
     well_url = "/".join(zarr_url.split("/")[-3:-1])
