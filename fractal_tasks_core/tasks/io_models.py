@@ -94,8 +94,8 @@ class MultiplexingAcquisition(BaseModel):
         image_dir: Path to the folder that contains the Cellvoyager image
             files for that acquisition and the MeasurementData &
             MeasurementDetail metadata files.
-        allowed_channels: A list of `OmeroChannel` s, where each channel must
-            include the `wavelength_id` attribute and where the
+        allowed_channels: A list of `OmeroChannel` objects, where each channel
+            must include the `wavelength_id` attribute and where the
             `wavelength_id` values must be unique across the list.
     """
 
