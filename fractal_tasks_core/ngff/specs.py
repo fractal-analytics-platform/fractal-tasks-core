@@ -391,7 +391,7 @@ class AcquisitionInPlate(BaseModel):
     """
 
     id: int = Field(
-        None, description="A unique identifier within the context of the plate"
+        description="A unique identifier within the context of the plate"
     )
     maximumfieldcount: Optional[int] = Field(
         None,
@@ -402,6 +402,10 @@ class AcquisitionInPlate(BaseModel):
     )
     name: Optional[str] = Field(
         None, description="a string identifying the name of the acquisition"
+    )
+    description: Optional[str] = Field(
+        None,
+        description="The description of the acquisition",
     )
     # TODO: Add starttime & endtime
     # starttime: Optional[str] = Field()
@@ -420,6 +424,26 @@ class WellInPlate(BaseModel):
     columnIndex: int
 
 
+class ColumnInPlate(BaseModel):
+    """
+    Model for an element of `Plate.columns`.
+
+    See https://ngff.openmicroscopy.org/0.4/#plate-md.
+    """
+
+    name: str
+
+
+class RowInPlate(BaseModel):
+    """
+    Model for an element of `Plate.rows`.
+
+    See https://ngff.openmicroscopy.org/0.4/#plate-md.
+    """
+
+    name: str
+
+
 class Plate(BaseModel):
     """
     Model for `NgffPlateMeta.plate`.
@@ -428,10 +452,10 @@ class Plate(BaseModel):
     """
 
     acquisitions: list[AcquisitionInPlate]
-    columns: list[dict[str, str]]
+    columns: list[ColumnInPlate]
     field_count: Optional[int]
     name: Optional[str]
-    rows: list[dict[str, str]]
+    rows: list[RowInPlate]
     # version will become required in 0.5
     version: Optional[str] = Field(
         None, description="The version of the specification"
