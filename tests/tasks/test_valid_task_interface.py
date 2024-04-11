@@ -4,11 +4,10 @@ from pathlib import Path
 from shlex import split as shlex_split
 from subprocess import PIPE
 
+import pytest
 from devtools import debug
 
 import fractal_tasks_core
-
-# import pytest
 
 
 def validate_command(cmd: str):
@@ -40,19 +39,23 @@ with (module_dir / "__FRACTAL_MANIFEST__.json").open("r") as fin:
     manifest_dict = json.load(fin)
 
 
-# @pytest.mark.parametrize("task", manifest_dict["task_list"])
-# def test_task_interface(task, tmp_path):
+@pytest.mark.parametrize("task", manifest_dict["task_list"])
+def test_task_interface(task, tmp_path):
 
-#     tmp_file_args = str(tmp_path / "args.json")
-#     tmp_file_metadiff = str(tmp_path / "metadiff.json")
-#     with open(tmp_file_args, "w") as fout:
-#         args = dict(wrong_arg_1=123, wrong_arg_2=[1, 2, 3])
-#         json.dump(args, fout, indent=4)
+    tmp_file_args = str(tmp_path / "args.json")
+    tmp_file_metadiff = str(tmp_path / "metadiff.json")
+    with open(tmp_file_args, "w") as fout:
+        args = dict(wrong_arg_1=123, wrong_arg_2=[1, 2, 3])
+        json.dump(args, fout, indent=4)
 
-#     task_path = (module_dir / task["executable"]).as_posix()
-#     cmd = (
-#         f"python {task_path} "
-#         f"-j {tmp_file_args} "
-#         f"--metadata-out {tmp_file_metadiff}"
-#     )
-#     validate_command(cmd)
+    for key in ["executable_non_parallel", "executable_parallel"]:
+        value = task.get(key, None)
+        if value is None:
+            continue
+        task_path = (module_dir / value).as_posix()
+        cmd = (
+            f"python {task_path} "
+            f"--args-json {tmp_file_args} "
+            f"--out-json {tmp_file_metadiff}"
+        )
+        validate_command(cmd)
