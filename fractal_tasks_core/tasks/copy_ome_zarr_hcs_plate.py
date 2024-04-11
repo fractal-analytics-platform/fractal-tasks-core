@@ -299,11 +299,17 @@ def copy_ome_zarr_hcs_plate(
         for well_sub_url in new_well_image_attrs[old_plate_url]:
             new_well_group = zarr.group(f"{zarrurl_new}/{well_sub_url}")
             well_attrs = dict(
-                images=[
-                    i.dict(exclude_none=True)
-                    for i in new_well_image_attrs[old_plate_url][well_sub_url]
-                ],
-                version=well_image_attrs[old_plate_url][well_sub_url].version,
+                well=dict(
+                    images=[
+                        i.dict(exclude_none=True)
+                        for i in new_well_image_attrs[old_plate_url][
+                            well_sub_url
+                        ]
+                    ],
+                    version=well_image_attrs[old_plate_url][
+                        well_sub_url
+                    ].version,
+                )
             )
             new_well_group.attrs.put(well_attrs)
 
