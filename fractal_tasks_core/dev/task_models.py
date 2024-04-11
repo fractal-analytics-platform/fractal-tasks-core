@@ -34,6 +34,12 @@ class _BaseTask(BaseModel):
 
 
 class CompoundTask(_BaseTask):
+    """
+    A `CompoundTask` object must include both `executable_init` and
+    `executable` attributes, and it may include the `meta_init` and `meta`
+    attributes.
+    """
+
     executable_init: str
     meta_init: Optional[dict[str, Any]]
 
@@ -42,30 +48,12 @@ class CompoundTask(_BaseTask):
         return self.executable_init
 
     @property
-    def executable_parallel(self) -> str:
-        return self.executable
-
-    @property
     def meta_non_parallel(self) -> Optional[dict[str, Any]]:
         return self.meta_init
 
     @property
-    def meta_parallel(self) -> Optional[dict[str, Any]]:
-        return self.meta
-
-
-class ParallelTask(_BaseTask):
-    @property
-    def executable_non_parallel(self) -> None:
-        return None
-
-    @property
     def executable_parallel(self) -> str:
         return self.executable
-
-    @property
-    def meta_non_parallel(self) -> None:
-        return None
 
     @property
     def meta_parallel(self) -> Optional[dict[str, Any]]:
@@ -73,18 +61,46 @@ class ParallelTask(_BaseTask):
 
 
 class NonParallelTask(_BaseTask):
-    @property
-    def executable_parallel(self) -> None:
-        return None
+    """
+    A `NonParallelTask` object must include the `executable` attribute, and it
+    may include the `meta` attribute.
+    """
 
     @property
     def executable_non_parallel(self) -> str:
         return self.executable
 
     @property
-    def meta_parallel(self) -> None:
+    def meta_non_parallel(self) -> Optional[dict[str, Any]]:
+        return self.meta
+
+    @property
+    def executable_parallel(self) -> None:
         return None
 
     @property
-    def meta_non_parallel(self) -> Optional[dict[str, Any]]:
+    def meta_parallel(self) -> None:
+        return None
+
+
+class ParallelTask(_BaseTask):
+    """
+    A `ParallelTask` object must include the `executable` attribute, and it may
+    include the `meta` attribute.
+    """
+
+    @property
+    def executable_non_parallel(self) -> None:
+        return None
+
+    @property
+    def meta_non_parallel(self) -> None:
+        return None
+
+    @property
+    def executable_parallel(self) -> str:
+        return self.executable
+
+    @property
+    def meta_parallel(self) -> Optional[dict[str, Any]]:
         return self.meta
