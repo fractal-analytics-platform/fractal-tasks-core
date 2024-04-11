@@ -2,9 +2,9 @@ name: CI (poetry)
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "V2_tasks"]
   pull_request:
-    branches: ["main"]
+    branches: ["main", "V2_tasks"]
 
 jobs:
 
