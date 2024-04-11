@@ -14,7 +14,6 @@ Zurich.
 import logging
 import shutil
 from pathlib import Path
-from typing import Any
 
 import pytest
 import zarr
@@ -257,7 +256,6 @@ def test_yokogawa_to_ome_zarr(
 def test_MIP(
     tmp_path: Path,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
 
     # Init
@@ -269,8 +267,7 @@ def test_MIP(
 
     zarr_urls = []
     zarr_dir = "/".join(zenodo_zarr_3D.split("/")[:-1])
-    for image in zenodo_zarr_metadata[0]["image"]:
-        zarr_urls.append(f"{zarr_dir}/{image}")
+    zarr_urls = [Path(zarr_dir, "plate.zarr/B/03/0").as_posix()]
 
     parallelization_list = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
@@ -304,14 +301,15 @@ def test_MIP(
             overwrite=True,
         )["image_list_updates"]
 
-    debug(image_list_updates)
+    debug(image_list_updates[0])
     expected_image_list_updates = {
         "zarr_url": (parallelization_list[0]["zarr_url"]),
-        "origin": f"{zarr_dir}/plate.zarr/B/03/0/",
+        "origin": f"{zarr_dir}/plate.zarr/B/03/0",
         "types": {
             "is_3D": False,
         },
     }
+    debug(expected_image_list_updates)
     assert image_list_updates[0] == expected_image_list_updates
 
     # Re-run with overwrite=True
