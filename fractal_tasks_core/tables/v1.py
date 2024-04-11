@@ -286,7 +286,7 @@ def get_tables_list_v1(
     with zarr.open(zarr_url, mode="r") as zarr_group:
         zarr_subgroups = list(zarr_group.group_keys())
     if "tables" not in zarr_subgroups:
-        return [""]
+        return []
     with zarr.open(zarr_url, mode="r") as zarr_group:
         all_tables = list(zarr_group.tables.group_keys())
 
