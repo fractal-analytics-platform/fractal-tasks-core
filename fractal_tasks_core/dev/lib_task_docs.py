@@ -55,7 +55,7 @@ def create_docs_info(
     executable_non_parallel: Optional[str] = None,
     executable_parallel: Optional[str] = None,
     package: str = "fractal_tasks_core",
-) -> str:
+) -> list[str]:
     """
     Return task description based on function docstring.
     """
