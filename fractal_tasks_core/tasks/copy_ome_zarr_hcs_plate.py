@@ -32,26 +32,40 @@ __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
 
 def _get_plate_url_from_image_url(zarr_url: str) -> str:
+    """
+    Given the absolute `zarr_url` for an OME-Zarr image within an HCS plate,
+    return the path to the plate zarr group.
+    """
     zarr_url = zarr_url.rstrip("/")
     plate_path = "/".join(zarr_url.split("/")[:-3])
     return plate_path
 
 
-def _get_well_sub_url(zarr_url):
+def _get_well_sub_url(zarr_url: str) -> str:
+    """
+    Given the absolute `zarr_url` for an OME-Zarr image within an HCS plate,
+    return the path to the image zarr group.
+    """
     zarr_url = zarr_url.rstrip("/")
     well_url = "/".join(zarr_url.split("/")[-3:-1])
     return well_url
 
 
-def _get_image_sub_url(zarr_url):
+def _get_image_sub_url(zarr_url: str) -> str:
+    """
+    Given the absolute `zarr_url` for an OME-Zarr image, return the image
+    zarr-group name.
+    """
     zarr_url = zarr_url.rstrip("/")
     image_sub_url = zarr_url.split("/")[-1]
     return image_sub_url
 
 
-def _generate_wells_rows_columns(well_list):
+def _generate_wells_rows_columns(
+    well_list: list[str],
+) -> tuple[list[WellInPlate], list[str], list[str]]:
     """
-    Generates the plate well metadata based on the list of wells.
+    Generate the plate well metadata based on the list of wells.
     """
     rows = []
     columns = []
