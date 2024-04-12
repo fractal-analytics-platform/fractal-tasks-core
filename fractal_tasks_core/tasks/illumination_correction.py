@@ -136,7 +136,7 @@ def illumination_correction(
             the input image data. If false, a new image is generated and the
             illumination corrected data is saved there.
         suffix: What suffix to append to the illumination corrected images.
-            Only relevant if overwrite_input=False.
+            Only relevant if `overwrite_input=False`.
     """
 
     # Defione old/new zarrurls
@@ -214,10 +214,8 @@ def illumination_correction(
 
     # Create zarr for output
     if overwrite_input:
-        fov_path = zarr_url
-        new_zarr = zarr.open(f"{zarr_url}/0")
+        new_zarr = zarr.open(f"{zarr_url_new}/0")
     else:
-        fov_path = zarr_url_new
         new_zarr = zarr.create(
             shape=data_czyx.shape,
             chunks=data_czyx.chunksize,
@@ -259,7 +257,7 @@ def illumination_correction(
     # Starting from on-disk highest-resolution data, build and write to disk a
     # pyramid of coarser levels
     build_pyramid(
-        zarrurl=fov_path,
+        zarrurl=zarr_url_new,
         overwrite=True,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
