@@ -674,7 +674,7 @@
             "title": "Suffix",
             "default": "_illum_corr",
             "type": "string",
-            "description": "What suffix to append to the illumination corrected images. Only relevant if overwrite_input=False."
+            "description": "What suffix to append to the illumination corrected images. Only relevant if `overwrite_input=False`."
           }
         },
         "required": [
