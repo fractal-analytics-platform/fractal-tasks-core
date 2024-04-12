@@ -6,6 +6,6 @@ logging.basicConfig(
 )
 
 
-__VERSION__ = "0.14.3"
+__VERSION__ = "1.0.0a0"
 __OME_NGFF_VERSION__ = "0.4"
 __FRACTAL_TABLE_VERSION__ = "1"
