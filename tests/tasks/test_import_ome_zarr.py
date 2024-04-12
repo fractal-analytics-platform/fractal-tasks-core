@@ -48,7 +48,7 @@ def test_import_ome_zarr_plate(tmp_path, zenodo_zarr):
                 "zarr_url": zarr_urls[0],
                 "attributes": {
                     "plate": "plate.zarr",
-                    "well": "plate.zarr/B/03",
+                    "well": "B03",
                 },
                 "types": {
                     "is_3D": True,

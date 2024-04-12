@@ -246,7 +246,7 @@ def import_ome_zarr(
                         zarr_url=zarr_url,
                         attributes=dict(
                             plate=zarr_name,
-                            well=f"{zarr_name}/{well_path}",
+                            well=well_path.replace("/", ""),
                         ),
                         types=types,
                     )
