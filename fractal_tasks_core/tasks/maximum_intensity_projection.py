@@ -151,8 +151,10 @@ def maximum_intensity_projection(
             f"{init_args.origin_url=}, and "
             "write it back to the new zarr file."
         )
-        new_ROI_table = ad.read_zarr(f"{init_args.origin_url}/tables/{table}")
-        old_ROI_table_attrs = zarr.open_group(
+        new_non_ROI_table = ad.read_zarr(
+            f"{init_args.origin_url}/tables/{table}"
+        )
+        old_non_ROI_table_attrs = zarr.open_group(
             f"{init_args.origin_url}/tables/{table}"
         ).attrs.asdict()
 
@@ -160,8 +162,8 @@ def maximum_intensity_projection(
         write_table(
             new_image_group,
             table,
-            new_ROI_table,
-            table_attrs=old_ROI_table_attrs,
+            new_non_ROI_table,
+            table_attrs=old_non_ROI_table_attrs,
             overwrite=overwrite,
         )
 
@@ -171,9 +173,7 @@ def maximum_intensity_projection(
             dict(
                 zarr_url=zarr_url,
                 origin=init_args.origin_url,
-                types=dict(
-                    is_3D=False,
-                ),
+                types=dict(is_3D=False),
             )
         ]
     )
