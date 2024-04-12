@@ -46,7 +46,7 @@ jobs:
         run: poetry run coverage run -m pytest tests --ignore tests/tasks
 
       - name: Upload coverage data
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: coverage-data
           path: ".coverage*"
@@ -99,7 +99,7 @@ jobs:
         run: poetry run coverage run -m pytest tests/tasks -s --log-cli-level info
 
       - name: Upload coverage data
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: coverage-data
           path: ".coverage*"
