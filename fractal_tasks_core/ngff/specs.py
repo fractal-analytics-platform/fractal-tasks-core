@@ -376,3 +376,98 @@ class NgffWellMeta(BaseModel):
                 )
             acquisition_dict[image.acquisition] = image.path
         return acquisition_dict
+
+
+######################
+# Plate models
+######################
+
+
+class AcquisitionInPlate(BaseModel):
+    """
+    Model for an element of `Plate.acquisitions`.
+
+    See https://ngff.openmicroscopy.org/0.4/#plate-md.
+    """
+
+    id: int = Field(
+        description="A unique identifier within the context of the plate"
+    )
+    maximumfieldcount: Optional[int] = Field(
+        None,
+        description=(
+            "Int indicating the maximum number of fields of view for the "
+            "acquisition"
+        ),
+    )
+    name: Optional[str] = Field(
+        None, description="a string identifying the name of the acquisition"
+    )
+    description: Optional[str] = Field(
+        None,
+        description="The description of the acquisition",
+    )
+    # TODO: Add starttime & endtime
+    # starttime: Optional[str] = Field()
+    # endtime: Optional[str] = Field()
+
+
+class WellInPlate(BaseModel):
+    """
+    Model for an element of `Plate.wells`.
+
+    See https://ngff.openmicroscopy.org/0.4/#plate-md.
+    """
+
+    path: str
+    rowIndex: int
+    columnIndex: int
+
+
+class ColumnInPlate(BaseModel):
+    """
+    Model for an element of `Plate.columns`.
+
+    See https://ngff.openmicroscopy.org/0.4/#plate-md.
+    """
+
+    name: str
+
+
+class RowInPlate(BaseModel):
+    """
+    Model for an element of `Plate.rows`.
+
+    See https://ngff.openmicroscopy.org/0.4/#plate-md.
+    """
+
+    name: str
+
+
+class Plate(BaseModel):
+    """
+    Model for `NgffPlateMeta.plate`.
+
+    See https://ngff.openmicroscopy.org/0.4/#plate-md.
+    """
+
+    acquisitions: list[AcquisitionInPlate]
+    columns: list[ColumnInPlate]
+    field_count: Optional[int]
+    name: Optional[str]
+    rows: list[RowInPlate]
+    # version will become required in 0.5
+    version: Optional[str] = Field(
+        None, description="The version of the specification"
+    )
+    wells: list[WellInPlate]
+
+
+class NgffPlateMeta(BaseModel):
+    """
+    Model for the metadata of a NGFF plate.
+
+    See https://ngff.openmicroscopy.org/0.4/#plate-md.
+    """
+
+    plate: Plate

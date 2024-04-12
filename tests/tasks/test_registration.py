@@ -6,11 +6,11 @@ from pathlib import Path
 
 import anndata as ad
 import dask.array as da
+import imageio
 import numpy as np
 import pandas as pd
 import pytest
 from devtools import debug
-from PIL import Image
 from pytest import MonkeyPatch
 
 from fractal_tasks_core.channels import ChannelInputModel
@@ -25,25 +25,34 @@ from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tasks.apply_registration_to_image import (
     apply_registration_to_image,
 )
-from fractal_tasks_core.tasks.apply_registration_to_ROI_tables import (
-    apply_registration_to_ROI_tables,
-)
 from fractal_tasks_core.tasks.calculate_registration_image_based import (
     calculate_registration_image_based,
 )
 from fractal_tasks_core.tasks.cellpose_segmentation import (
     cellpose_segmentation,
 )
-from fractal_tasks_core.tasks.copy_ome_zarr import (
-    copy_ome_zarr,
+from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_compute import (
+    cellvoyager_to_ome_zarr_compute,
 )
-from fractal_tasks_core.tasks.create_ome_zarr_multiplex import (
-    create_ome_zarr_multiplex,
+from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_init_multiplex import (
+    cellvoyager_to_ome_zarr_init_multiplex,
 )
+from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
+    copy_ome_zarr_hcs_plate,
+)
+from fractal_tasks_core.tasks.find_registration_consensus import (
+    find_registration_consensus,
+)
+from fractal_tasks_core.tasks.image_based_registration_hcs_init import (
+    image_based_registration_hcs_init,
+)
+from fractal_tasks_core.tasks.init_group_by_well_for_multiplexing import (
+    init_group_by_well_for_multiplexing,
+)
+from fractal_tasks_core.tasks.io_models import MultiplexingAcquisition
 from fractal_tasks_core.tasks.maximum_intensity_projection import (
     maximum_intensity_projection,
 )
-from fractal_tasks_core.tasks.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 
 
 single_cycle_allowed_channels_no_label = [
@@ -70,23 +79,20 @@ def _shift_image(
     """
 
     # Open old image as array
-    old_img = Image.open(img_path)
-    new_array = np.asarray(old_img).copy()
+    img = imageio.v2.imread(img_path)
 
     # Shift image by (shift_y_pxl, shift_x_pxl)
-    new_array[:, :-shift_x_pxl] = new_array[:, shift_x_pxl:]
-    new_array[:-shift_y_pxl] = new_array[shift_y_pxl:, :]
+    img[:, :-shift_x_pxl] = img[:, shift_x_pxl:]
+    img[:-shift_y_pxl] = img[shift_y_pxl:, :]
 
-    new_array[:, -shift_x_pxl:] = (
-        np.ones(new_array[:, -shift_x_pxl:].shape) * 110
-    )
-    new_array[-shift_y_pxl:, :] = (
-        np.ones(new_array[-shift_y_pxl:, :].shape) * 110
-    )
+    img[:, -shift_x_pxl:] = np.ones(img[:, -shift_x_pxl:].shape) * 110
+    img[-shift_y_pxl:, :] = np.ones(img[-shift_y_pxl:, :].shape) * 110
 
     # Save new image
-    new_img = Image.fromarray(new_array, mode="I")
-    new_img.save(img_path, mode="png")
+    imageio.v2.imwrite(
+        uri=img_path,
+        im=img,
+    )
 
 
 @pytest.fixture(scope="function")
@@ -137,8 +143,8 @@ registered_columns = [
 ]
 
 expected_registered_table = {
-    "FOV_ROI_table": {
-        "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr/B/03/0": pd.DataFrame(  # noqa: E501
+    "FOV_ROI_table": [
+        pd.DataFrame(
             {
                 "x_micrometer": [32.5, 448.5],
                 "y_micrometer": [7.8, 7.8],
@@ -148,10 +154,8 @@ expected_registered_table = {
                 "len_z_micrometer": [1.0, 1.0],
             },
             index=["FOV_1", "FOV_2"],
-        ).rename_axis(
-            "FieldIndex"
-        ),
-        "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr/B/03/1": pd.DataFrame(  # noqa: E501
+        ).rename_axis("FieldIndex"),
+        pd.DataFrame(
             {
                 "x_micrometer": [0.0, 416.0],
                 "y_micrometer": [0, 0],
@@ -161,10 +165,8 @@ expected_registered_table = {
                 "len_z_micrometer": [1.0, 1.0],
             },
             index=["FOV_1", "FOV_2"],
-        ).rename_axis(
-            "FieldIndex"
-        ),
-    }
+        ).rename_axis("FieldIndex"),
+    ]
 }
 
 
@@ -199,131 +201,210 @@ def test_multiplexing_registration(
     zenodo_images_multiplex_shifted: list[str],
     tmp_path,
     monkeypatch: MonkeyPatch,
-    roi_table="FOV_ROI_table",  # Given the test data, only implemented per FOV
+    # Given the test data, only implemented per FOV
+    roi_table="FOV_ROI_table",
 ):
+
+    zarr_dir = str(tmp_path / "registration_output/")
+    num_levels = 3
 
     monkeypatch.setattr(
         "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
         patched_segment_ROI,
     )
 
-    zarr_path = tmp_path / "registration_output/"
-    zarr_path_mip = tmp_path / "registration_output_mip/"
-    metadata = {}
-    # Create the multiplexed OME-Zarr
-    metadata_update = create_ome_zarr_multiplex(
-        input_paths=zenodo_images_multiplex_shifted,
-        output_path=str(zarr_path),
-        metadata={},
+    acquisitions = {
+        "0": MultiplexingAcquisition(
+            image_dir=zenodo_images_multiplex_shifted[0],
+            allowed_channels=single_cycle_allowed_channels_no_label,
+        ),
+        "1": MultiplexingAcquisition(
+            image_dir=zenodo_images_multiplex_shifted[1],
+            allowed_channels=single_cycle_allowed_channels_no_label,
+        ),
+    }
+
+    # # Create zarr structure
+    parallelization_list = cellvoyager_to_ome_zarr_init_multiplex(
+        zarr_urls=[],
+        zarr_dir=zarr_dir,
+        acquisitions=acquisitions,
+        num_levels=num_levels,
+        coarsening_xy=2,
         image_extension="png",
-        allowed_channels=allowed_channels,
-    )
-    metadata.update(metadata_update)
-    debug(metadata)
+        metadata_table_files=None,
+    )["parallelization_list"]
+    debug(parallelization_list)
 
-    for component in metadata["image"]:
-        yokogawa_to_ome_zarr(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
-            metadata=metadata,
-            component=component,
-        )
-    debug(metadata)
+    # # Convert to OME-Zarr
+    image_list_updates = []
+    for image in parallelization_list:
+        image_list_updates += cellvoyager_to_ome_zarr_compute(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+        )["image_list_updates"]
+    debug(image_list_updates)
 
-    # Replicate
-    metadata_update = copy_ome_zarr(
-        input_paths=[str(zarr_path)],
-        output_path=str(zarr_path_mip),
-        metadata=metadata,
-        project_to_2D=True,
-        suffix="mip",
-    )
-    metadata.update(metadata_update)
-    debug(metadata)
+    zarr_urls_3D = [image["zarr_url"] for image in image_list_updates]
+    debug(zarr_urls_3D)
 
-    # MIP
-    for component in metadata["image"]:
-        maximum_intensity_projection(
-            input_paths=[str(zarr_path_mip)],
-            output_path=str(zarr_path_mip),
-            metadata=metadata,
-            component=component,
-        )
+    parallelization_list = copy_ome_zarr_hcs_plate(
+        zarr_urls=zarr_urls_3D,
+        zarr_dir=zarr_dir,
+        overwrite=True,
+    )["parallelization_list"]
+    debug(parallelization_list)
 
-    # Cellpose segmentation (so that we test handling of label images)
-    for component in metadata["image"]:
+    # # MIP
+    image_list_updates = []
+    for image in parallelization_list:
+        image_list_updates += maximum_intensity_projection(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+            overwrite=True,
+        )["image_list_updates"]
+
+    zarr_urls_2D = [image["zarr_url"] for image in image_list_updates]
+    debug(zarr_urls_2D)
+
+    # Run cellpose to create a label image that needs to be handled in
+    # registration
+    # Per-FOV labeling
+    for zarr_url in zarr_urls_2D:
         cellpose_segmentation(
-            input_paths=[str(zarr_path_mip)],
-            output_path=str(zarr_path_mip),
-            metadata=metadata,
-            component=component,
-            level=1,
+            zarr_url=zarr_url,
             channel=ChannelInputModel(wavelength_id="A01_C01"),
+            level=1,
         )
 
-    # Calculate registration
-    for component in metadata["image"]:
+    # Test non-available reference cycle:
+    with pytest.raises(ValueError):
+        image_based_registration_hcs_init(
+            zarr_urls=zarr_urls_2D,
+            zarr_dir=zarr_dir,
+            reference_cycle=2,
+        )
+
+    parallelization_list = image_based_registration_hcs_init(
+        zarr_urls=zarr_urls_2D,
+        zarr_dir=zarr_dir,
+    )["parallelization_list"]
+    debug(parallelization_list)
+
+    expected_par_list = [
+        {
+            "zarr_url": zarr_urls_2D[1],
+            "init_args": {
+                "reference_zarr_url": zarr_urls_2D[0],
+            },
+        },
+    ]
+    assert expected_par_list == parallelization_list
+    debug(zarr_urls_2D)
+
+    for image in parallelization_list:
         calculate_registration_image_based(
-            input_paths=[str(zarr_path_mip)],
-            output_path=str(zarr_path_mip),
-            metadata=metadata,
-            component=component,
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
             wavelength_id="A01_C01",
             roi_table=roi_table,
         )
 
-    # Check the table for the second component (the image of the second cycle)
-    component = metadata["image"][1]
+    # Check the table for the second acquisition
+    # (the image of the second cycle)
     curr_table = ad.read_zarr(
-        f"{zarr_path_mip / component}/tables/{roi_table}"
+        f"{parallelization_list[0]['zarr_url']}/tables/{roi_table}"
     )
     assert curr_table.shape == (2, 11)
     np.testing.assert_almost_equal(
         curr_table.X[0, 8:11], np.array(expected_shift[roi_table]), decimal=5
     )
-    # Apply registration to ROI table
-    for component in metadata["well"]:
-        apply_registration_to_ROI_tables(
-            input_paths=[str(zarr_path_mip)],
-            output_path=str(zarr_path_mip),
-            metadata=metadata,
-            component=component,
+
+    # Initialize consensus finding
+    parallelization_list_well = init_group_by_well_for_multiplexing(
+        zarr_urls=zarr_urls_2D,
+        zarr_dir=zarr_dir,
+        reference_cycle=0,
+    )["parallelization_list"]
+    debug(parallelization_list_well)
+    well_paral_list = {
+        "zarr_url": zarr_urls_2D[0],
+        "init_args": {"zarr_url_list": [zarr_urls_2D[0], zarr_urls_2D[1]]},
+    }
+    assert parallelization_list_well[0] == well_paral_list
+
+    for image in parallelization_list_well:
+        find_registration_consensus(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
             roi_table=roi_table,
         )
 
     # Validate the aligned tables
-    for component in metadata["image"]:
+    for i, zarr_url in enumerate(zarr_urls_2D):
         registered_table = ad.read_zarr(
-            f"{zarr_path_mip / component}/tables/registered_{roi_table}"
+            f"{zarr_url}/tables/registered_{roi_table}"
         )
         pd.testing.assert_frame_equal(
             registered_table.to_df()[registered_columns].astype("float32"),
-            expected_registered_table[roi_table][component].astype("float32"),
+            expected_registered_table[roi_table][i].astype("float32"),
             check_column_type=False,
         )
 
-    # Apply registration to image
-    for component in metadata["image"]:
-        apply_registration_to_image(
-            input_paths=[str(zarr_path_mip)],
-            output_path=str(zarr_path_mip),
-            metadata=metadata,
-            component=component,
+    # Apply registration to image without overwrite_input and validate the
+    # output
+    zarr_list = []
+    for zarr_url in zarr_urls_2D:
+        zarr_list.append(f"{zarr_url}_registered")
+        image_list_update = apply_registration_to_image(
+            zarr_url=zarr_url,
             registered_roi_table="registered_" + roi_table,
+            overwrite_input=False,
+        )
+        assert image_list_update == dict(
+            image_list_updates=[
+                dict(zarr_url=f"{zarr_url}_registered", origin=zarr_url)
+            ]
         )
 
+    validate_assumptions_after_image_registration(
+        zarr_list=zarr_list,
+        roi_table=roi_table,
+    )
+
+    # # Apply registration to image with overwrite_input and validate the
+    # # output
+    zarr_list = []
+    for zarr_url in zarr_urls_2D:
+        zarr_list.append(zarr_url)
+        image_list_update = apply_registration_to_image(
+            zarr_url=zarr_url,
+            registered_roi_table="registered_" + roi_table,
+            overwrite_input=True,
+        )
+        assert image_list_update == dict(
+            image_list_updates=[dict(zarr_url=zarr_url)]
+        )
+    validate_assumptions_after_image_registration(
+        zarr_list=zarr_list,
+        roi_table=roi_table,
+    )
+
+
+def validate_assumptions_after_image_registration(
+    zarr_list,
+    roi_table,
+):
     # Load the Zarr image
     # How many padded pixels are expected => number of pixels that are 0
     # a) many when loading the original ROI
     # b) none when loading the registered ROI
-    for component in metadata["image"]:
+    for zarr_url in zarr_list:
         # Read pixel sizes from zattrs file
-        ngff_image_meta = load_NgffImageMeta(str(zarr_path_mip / component))
+        ngff_image_meta = load_NgffImageMeta(zarr_url)
         pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
 
-        original_table = ad.read_zarr(
-            f"{zarr_path_mip / component}/tables/{roi_table}"
-        )
+        original_table = ad.read_zarr(f"{zarr_url}/tables/{roi_table}")
         # Create list of indices for 3D ROIs
         list_indices = convert_ROI_table_to_indices(
             original_table,
@@ -332,14 +413,14 @@ def test_multiplexing_registration(
             full_res_pxl_sizes_zyx=pxl_sizes_zyx,
         )
         region = convert_indices_to_regions(list_indices[0])
-        data_array = da.from_zarr(f"{zarr_path_mip / component / str(0)}")[0]
+        data_array = da.from_zarr(f"{zarr_url}/0")[0]
         img_array = load_region(
             data_zyx=data_array, region=region, compute=True
         )
         assert np.sum(img_array == 0) == 545280
 
         registered_table = ad.read_zarr(
-            f"{zarr_path_mip / component}/tables/registered_{roi_table}"
+            f"{zarr_url}/tables/registered_{roi_table}"
         )
         # Create list of indices for 3D ROIs
         list_indices = convert_ROI_table_to_indices(
@@ -349,18 +430,16 @@ def test_multiplexing_registration(
             full_res_pxl_sizes_zyx=pxl_sizes_zyx,
         )
         region = convert_indices_to_regions(list_indices[0])
-        data_array = da.from_zarr(f"{zarr_path_mip / component / str(0)}")[0]
+        data_array = da.from_zarr(f"{zarr_url}/0")[0]
         img_array_reg = load_region(
             data_zyx=data_array, region=region, compute=True
         )
         assert np.sum(img_array_reg == 0) == 0
 
         # Check that the Zarr files contains the relevant label channels:
-        with open(
-            f"{str(zarr_path_mip / component)}/labels/.zattrs", "r"
-        ) as jsonfile:
+        with open(f"{zarr_url}/labels/.zattrs", "r") as jsonfile:
             zattrs = json.load(jsonfile)
         assert len(zattrs["labels"]) == 1
-        assert (
-            zattrs["labels"][0] == f"label_{component.split('/')[-1]}_A01_C01"
-        )
+        print(zarr_url.split("/")[-1].split("_")[0])
+        label_name = f"label_{zarr_url.split('/')[-1].split('_')[0]}_A01_C01"
+        assert zattrs["labels"][0] == label_name

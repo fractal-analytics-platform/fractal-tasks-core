@@ -17,8 +17,6 @@ import time
 import warnings
 from pathlib import Path
 from typing import Any
-from typing import Optional
-from typing import Sequence
 
 import anndata as ad
 import dask.array as da
@@ -95,18 +93,15 @@ def correct(
 @validate_arguments
 def illumination_correction(
     *,
-    # Standard arguments
-    input_paths: Sequence[str],
-    output_path: str,
-    component: str,
-    metadata: dict[str, Any],
+    # Fractal argument
+    zarr_url: str,
     # Task-specific arguments
     illumination_profiles_folder: str,
     dict_corr: dict[str, str],
     background: int = 110,
-    overwrite_input: bool = True,
     input_ROI_table: str = "FOV_ROI_table",
-    new_component: Optional[str] = None,
+    overwrite_input: bool = True,
+    suffix: str = "_illum_corr",
 ) -> dict[str, Any]:
 
     """
@@ -118,20 +113,7 @@ def illumination_correction(
     well & the correction may only be partial).
 
     Args:
-        input_paths: List of input paths where the image data is stored as
-            OME-Zarrs. Should point to the parent folder containing one or many
-            OME-Zarr files, not the actual OME-Zarr file. Example:
-            `["/some/path/"]`. This task only supports a single input path.
-            (standard argument for Fractal tasks, managed by Fractal server).
-        output_path: Path were the output of this task is stored. Examples:
-            `"/some/path/"` => puts the new OME-Zarr file in the same folder as
-            the input OME-Zarr file; `"/some/new_path"` => puts the new
-            OME-Zarr file into a new folder at `/some/new_path`.
-            (standard argument for Fractal tasks, managed by Fractal server).
-        component: Path to the OME-Zarr image in the OME-Zarr plate that is
-            processed. Example: `"some_plate.zarr/B/03/0"`.
-            (standard argument for Fractal tasks, managed by Fractal server).
-        metadata: This parameter is not used by this task.
+        zarr_url: Path or url to the individual OME-Zarr image to be processed.
             (standard argument for Fractal tasks, managed by Fractal server).
         illumination_profiles_folder: Path of folder of illumination profiles.
         dict_corr: Dictionary where keys match the `wavelength_id` attributes
@@ -140,10 +122,6 @@ def illumination_correction(
         background: Background value that is subtracted from the image before
             the illumination correction is applied. Set it to `0` if you don't
             want any background subtraction.
-        overwrite_input:
-            If `True`, the results of this task will overwrite the input image
-            data. In the current version, `overwrite_input=False` is not
-            implemented.
         input_ROI_table: Name of the ROI table that contains the information
             about the location of the individual field of views (FOVs) to
             which the illumination correction shall be applied. Defaults to
@@ -154,50 +132,27 @@ def illumination_correction(
             you only have 1 FOV per Zarr image and `grid_ROI_table` if you
             have multiple FOVs per Zarr image and set the right grid options
             during import.
-        new_component: Not implemented yet. This is not implemented well in
-            Fractal server at the moment, it's unclear how a user would specify
-            fitting new components. If the results shall not overwrite the
-            input data and the output path is the same as the input path, a new
-            component needs to be provided.
-            Example: `myplate_new_name.zarr/B/03/0/`.
+        overwrite_input: If `True`, the results of this task will overwrite
+            the input image data. If false, a new image is generated and the
+            illumination corrected data is saved there.
+        suffix: What suffix to append to the illumination corrected images.
+            Only relevant if `overwrite_input=False`.
     """
 
-    # Preliminary checks
-    if len(input_paths) > 1:
-        raise NotImplementedError
-    if (overwrite_input and new_component is not None) or (
-        new_component is None and not overwrite_input
-    ):
-        raise ValueError(f"{overwrite_input=}, but {new_component=}")
-
-    if not overwrite_input:
-        msg = (
-            "We still have to harmonize illumination_correction("
-            "overwrite_input=False) with replicate_zarr_structure(..., "
-            "suffix=..)"
-        )
-        raise NotImplementedError(msg)
-
     # Defione old/new zarrurls
-    plate, well = component.split(".zarr/")
-    in_path = Path(input_paths[0])
-    zarrurl_old = (in_path / component).as_posix()
     if overwrite_input:
-        zarrurl_new = zarrurl_old
+        zarr_url_new = zarr_url
     else:
-        new_plate, new_well = new_component.split(".zarr/")
-        if new_well != well:
-            raise ValueError(f"{well=}, {new_well=}")
-        zarrurl_new = (Path(output_path) / new_component).as_posix()
+        zarr_url_new = zarr_url + suffix
 
     t_start = time.perf_counter()
     logger.info("Start illumination_correction")
     logger.info(f"  {overwrite_input=}")
-    logger.info(f"  {zarrurl_old=}")
-    logger.info(f"  {zarrurl_new=}")
+    logger.info(f"  {zarr_url=}")
+    logger.info(f"  {zarr_url_new=}")
 
     # Read attributes from NGFF metadata
-    ngff_image_meta = load_NgffImageMeta(zarrurl_old)
+    ngff_image_meta = load_NgffImageMeta(zarr_url)
     num_levels = ngff_image_meta.num_levels
     coarsening_xy = ngff_image_meta.coarsening_xy
     full_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
@@ -209,12 +164,12 @@ def illumination_correction(
 
     # Read channels from .zattrs
     channels: list[OmeroChannel] = get_omero_channel_list(
-        image_zarr_path=zarrurl_old
+        image_zarr_path=zarr_url
     )
     num_channels = len(channels)
 
     # Read FOV ROIs
-    FOV_ROI_table = ad.read_zarr(f"{zarrurl_old}/tables/{input_ROI_table}")
+    FOV_ROI_table = ad.read_zarr(f"{zarr_url}/tables/{input_ROI_table}")
 
     # Create list of indices for 3D FOVs spanning the entire Z direction
     list_indices = convert_ROI_table_to_indices(
@@ -255,19 +210,17 @@ def illumination_correction(
             )
 
     # Lazily load highest-res level from original zarr array
-    data_czyx = da.from_zarr(f"{zarrurl_old}/0")
+    data_czyx = da.from_zarr(f"{zarr_url}/0")
 
     # Create zarr for output
     if overwrite_input:
-        fov_path = zarrurl_old
-        new_zarr = zarr.open(f"{zarrurl_old}/0")
+        new_zarr = zarr.open(f"{zarr_url_new}/0")
     else:
-        fov_path = zarrurl_new
         new_zarr = zarr.create(
             shape=data_czyx.shape,
             chunks=data_czyx.chunksize,
             dtype=data_czyx.dtype,
-            store=zarr.storage.FSStore(f"{zarrurl_new}/0"),
+            store=zarr.storage.FSStore(f"{zarr_url_new}/0"),
             overwrite=False,
             dimension_separator="/",
         )
@@ -304,7 +257,7 @@ def illumination_correction(
     # Starting from on-disk highest-resolution data, build and write to disk a
     # pyramid of coarser levels
     build_pyramid(
-        zarrurl=fov_path,
+        zarrurl=zarr_url_new,
         overwrite=True,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
@@ -314,7 +267,13 @@ def illumination_correction(
     t_end = time.perf_counter()
     logger.info(f"End illumination_correction, elapsed: {t_end-t_start}")
 
-    return {}
+    if overwrite_input:
+        image_list_updates = dict(image_list_updates=[dict(zarr_url=zarr_url)])
+    else:
+        image_list_updates = dict(
+            image_list_updates=[dict(zarr_url=zarr_url_new, origin=zarr_url)]
+        )
+    return image_list_updates
 
 
 if __name__ == "__main__":

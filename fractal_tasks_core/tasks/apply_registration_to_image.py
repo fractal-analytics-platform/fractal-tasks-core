@@ -15,10 +15,7 @@ import logging
 import os
 import shutil
 import time
-from pathlib import Path
-from typing import Any
 from typing import Callable
-from typing import Sequence
 
 import anndata as ad
 import dask.array as da
@@ -37,7 +34,7 @@ from fractal_tasks_core.roi import (
 from fractal_tasks_core.roi import is_standard_roi_table
 from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
-from fractal_tasks_core.utils import get_table_path_dict
+from fractal_tasks_core.utils import _get_table_path_dict
 
 logger = logging.getLogger(__name__)
 
@@ -45,11 +42,8 @@ logger = logging.getLogger(__name__)
 @validate_arguments
 def apply_registration_to_image(
     *,
-    # Fractal arguments
-    input_paths: Sequence[str],
-    output_path: str,
-    component: str,
-    metadata: dict[str, Any],
+    # Fractal argument
+    zarr_url: str,
     # Task-specific arguments
     registered_roi_table: str,
     reference_cycle: str = "0",
@@ -74,17 +68,7 @@ def apply_registration_to_image(
     Parallelization level: image
 
     Args:
-        input_paths: List of input paths where the image data is stored as
-            OME-Zarrs. Should point to the parent folder containing one or many
-            OME-Zarr files, not the actual OME-Zarr file. Example:
-            `["/some/path/"]`. This task only supports a single input path.
-            (standard argument for Fractal tasks, managed by Fractal server).
-        output_path: This parameter is not used by this task.
-            (standard argument for Fractal tasks, managed by Fractal server).
-        component: Path to the OME-Zarr image in the OME-Zarr plate that is
-            processed. Example: `"some_plate.zarr/B/03/0"`.
-            (standard argument for Fractal tasks, managed by Fractal server).
-        metadata: This parameter is not used by this task.
+        zarr_url: Path or url to the individual OME-Zarr image to be processed.
             (standard argument for Fractal tasks, managed by Fractal server).
         registered_roi_table: Name of the ROI table which has been registered
             and will be applied to mask and shift the images.
@@ -99,33 +83,26 @@ def apply_registration_to_image(
             `overwrite_input=True`.
 
     """
-    logger.info(component)
-    if not overwrite_input:
-        raise NotImplementedError(
-            "This task is only implemented for the overwrite_input version"
-        )
+    logger.info(zarr_url)
     logger.info(
-        f"Running `apply_registration_to_image` on {input_paths=}, "
-        f"{component=}, {registered_roi_table=} and {reference_cycle=}. "
+        f"Running `apply_registration_to_image` on {zarr_url=}, "
+        f"{registered_roi_table=} and {reference_cycle=}. "
         f"Using {overwrite_input=}"
     )
 
-    input_path = Path(input_paths[0])
-    new_component = "/".join(
-        component.split("/")[:-1] + [component.split("/")[-1] + "_registered"]
+    new_zarr_url = "/".join(
+        zarr_url.split("/")[:-1] + [zarr_url.split("/")[-1] + "_registered"]
     )
-    reference_component = "/".join(
-        component.split("/")[:-1] + [reference_cycle]
-    )
+    # TODO: Make this more robust by actually checking for acquisition
+    # metadata
+    reference_zarr_url = "/".join(zarr_url.split("/")[:-1] + [reference_cycle])
 
     ROI_table_ref = ad.read_zarr(
-        f"{input_path / reference_component}/tables/{registered_roi_table}"
+        f"{reference_zarr_url}/tables/{registered_roi_table}"
     )
-    ROI_table_cycle = ad.read_zarr(
-        f"{input_path / component}/tables/{registered_roi_table}"
-    )
+    ROI_table_cycle = ad.read_zarr(f"{zarr_url}/tables/{registered_roi_table}")
 
-    ngff_image_meta = load_NgffImageMeta(str(input_path / component))
+    ngff_image_meta = load_NgffImageMeta(zarr_url)
     coarsening_xy = ngff_image_meta.coarsening_xy
     num_levels = ngff_image_meta.num_levels
 
@@ -134,9 +111,8 @@ def apply_registration_to_image(
     ####################
     logger.info("Write the registered Zarr image to disk")
     write_registered_zarr(
-        input_path=input_path,
-        component=component,
-        new_component=new_component,
+        zarr_url=zarr_url,
+        new_zarr_url=new_zarr_url,
         ROI_table=ROI_table_cycle,
         ROI_table_ref=ROI_table_ref,
         num_levels=num_levels,
@@ -148,23 +124,20 @@ def apply_registration_to_image(
     # Process labels
     ####################
     try:
-        labels_group = zarr.open_group(f"{input_path / component}/labels", "r")
+        labels_group = zarr.open_group(f"{zarr_url}/labels", "r")
         label_list = labels_group.attrs["labels"]
     except (zarr.errors.GroupNotFoundError, KeyError):
         label_list = []
 
     if label_list:
         logger.info(f"Processing the label images: {label_list}")
-        labels_group = zarr.group(f"{input_path / new_component}/labels")
+        labels_group = zarr.group(f"{new_zarr_url}/labels")
         labels_group.attrs["labels"] = label_list
 
         for label in label_list:
-            label_component = f"{component}/labels/{label}"
-            label_component_new = f"{new_component}/labels/{label}"
             write_registered_zarr(
-                input_path=input_path,
-                component=label_component,
-                new_component=label_component_new,
+                zarr_url=f"{zarr_url}/labels/{label}",
+                new_zarr_url=f"{new_zarr_url}/labels/{label}",
                 ROI_table=ROI_table_cycle,
                 ROI_table_ref=ROI_table_ref,
                 num_levels=num_levels,
@@ -177,8 +150,8 @@ def apply_registration_to_image(
     # 1. Copy all standard ROI tables from cycle 0.
     # 2. Copy all tables that aren't standard ROI tables from the given cycle
     ####################
-    table_dict_reference = get_table_path_dict(input_path, reference_component)
-    table_dict_component = get_table_path_dict(input_path, component)
+    table_dict_reference = _get_table_path_dict(reference_zarr_url)
+    table_dict_component = _get_table_path_dict(zarr_url)
 
     table_dict = {}
     # Define which table should get copied:
@@ -187,9 +160,9 @@ def apply_registration_to_image(
             table_dict[table] = table_dict_reference[table]
     for table in table_dict_component:
         if not is_standard_roi_table(table):
-            if reference_component != component:
+            if reference_zarr_url != zarr_url:
                 logger.warning(
-                    f"{component} contained a table that is not a standard "
+                    f"{zarr_url} contained a table that is not a standard "
                     "ROI table. The `Apply Registration To Image task` is "
                     "best used before additional tables are generated. It "
                     f"will copy the {table} from this cycle without applying "
@@ -203,7 +176,7 @@ def apply_registration_to_image(
 
     if table_dict:
         logger.info(f"Processing the tables: {table_dict}")
-        new_image_group = zarr.group(f"{input_path / new_component}")
+        new_image_group = zarr.group(new_zarr_url)
 
         for table in table_dict.keys():
             logger.info(f"Copying table: {table}")
@@ -232,6 +205,7 @@ def apply_registration_to_image(
                 table,
                 curr_table,
                 table_attrs=old_table_group.attrs.asdict(),
+                overwrite=True,
             )
 
     ####################
@@ -244,20 +218,21 @@ def apply_registration_to_image(
         # Potential for race conditions: Every cycle reads the
         # reference cycle, but the reference cycle also gets modified
         # See issue #516 for the details
-        os.rename(f"{input_path / component}", f"{input_path / component}_tmp")
-        os.rename(f"{input_path / new_component}", f"{input_path / component}")
-        shutil.rmtree(f"{input_path / component}_tmp")
+        os.rename(zarr_url, f"{zarr_url}_tmp")
+        os.rename(new_zarr_url, zarr_url)
+        shutil.rmtree(f"{zarr_url}_tmp")
+        image_list_updates = dict(image_list_updates=[dict(zarr_url=zarr_url)])
     else:
-        raise NotImplementedError
-        # The thing that would be missing in this branch is that Fractal
-        # isn't aware of the new component. If there's a way to add it back,
-        # that's the only thing that would be required here
+        image_list_updates = dict(
+            image_list_updates=[dict(zarr_url=new_zarr_url, origin=zarr_url)]
+        )
+
+    return image_list_updates
 
 
 def write_registered_zarr(
-    input_path: Path,
-    component: str,
-    new_component: str,
+    zarr_url: str,
+    new_zarr_url: str,
     ROI_table: ad.AnnData,
     ROI_table_ref: ad.AnnData,
     num_levels: int,
@@ -276,13 +251,9 @@ def write_registered_zarr(
     the two lists of ROI indices vary.
 
     Args:
-        input_path: Base folder where the Zarr is stored
-            (does not contain the Zarr file itself)
-        component: Path to the OME-Zarr image that is processed. For example:
-            `"20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr/B/03/1"`
-        new_component: Path to the new Zarr image that will be written
-            (also in the input_path folder). For example:
-            `"20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr/B/03/1_registered"`
+        zarr_url: Path or url to the individual OME-Zarr image to be used as
+            the basis for the new OME-Zarr image.
+        new_zarr_url: Path or url to the new OME-Zarr image to be written
         ROI_table: Fractal ROI table for the component
         ROI_table_ref: Fractal ROI table for the reference cycle
         num_levels: Number of pyramid layers to be created (argument of
@@ -293,7 +264,7 @@ def write_registered_zarr(
 
     """
     # Read pixel sizes from Zarr attributes
-    ngff_image_meta = load_NgffImageMeta(str(input_path / component))
+    ngff_image_meta = load_NgffImageMeta(zarr_url)
     pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
 
     # Create list of indices for 3D ROIs
@@ -310,9 +281,9 @@ def write_registered_zarr(
         full_res_pxl_sizes_zyx=pxl_sizes_zyx,
     )
 
-    old_image_group = zarr.open_group(f"{input_path / component}", mode="r")
-    old_ngff_image_meta = load_NgffImageMeta(str(input_path / component))
-    new_image_group = zarr.group(f"{input_path / new_component}")
+    old_image_group = zarr.open_group(zarr_url, mode="r")
+    old_ngff_image_meta = load_NgffImageMeta(zarr_url)
+    new_image_group = zarr.group(new_zarr_url)
     new_image_group.attrs.put(old_image_group.attrs.asdict())
 
     # Loop over all channels. For each channel, write full-res image data.
@@ -364,7 +335,7 @@ def write_registered_zarr(
             )
 
     new_array.to_zarr(
-        f"{input_path / new_component}/0",
+        f"{new_zarr_url}/0",
         overwrite=True,
         dimension_separator="/",
         write_empty_chunks=False,
@@ -373,7 +344,7 @@ def write_registered_zarr(
     # Starting from on-disk highest-resolution data, build and write to
     # disk a pyramid of coarser levels
     build_pyramid(
-        zarrurl=f"{input_path / new_component}",
+        zarrurl=new_zarr_url,
         overwrite=True,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,

@@ -15,7 +15,6 @@ import os
 from pathlib import Path
 from typing import Any
 from typing import Optional
-from typing import Sequence
 
 import pandas as pd
 import zarr
@@ -33,13 +32,16 @@ from fractal_tasks_core.cellvoyager.metadata import (
 from fractal_tasks_core.channels import check_unique_wavelength_ids
 from fractal_tasks_core.channels import check_well_channel_labels
 from fractal_tasks_core.channels import define_omero_channels
-from fractal_tasks_core.channels import OmeroChannel
+from fractal_tasks_core.ngff.specs import NgffImageMeta
+from fractal_tasks_core.ngff.specs import Plate
+from fractal_tasks_core.ngff.specs import Well
 from fractal_tasks_core.roi import prepare_FOV_ROI_table
 from fractal_tasks_core.roi import prepare_well_ROI_table
 from fractal_tasks_core.roi import remove_FOV_overlaps
 from fractal_tasks_core.tables import write_table
+from fractal_tasks_core.tasks.io_models import InitArgsCellVoyager
+from fractal_tasks_core.tasks.io_models import MultiplexingAcquisition
 from fractal_tasks_core.zarr_utils import open_zarr_group_with_overwrite
-
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
@@ -49,12 +51,11 @@ logger = logging.getLogger(__name__)
 
 
 @validate_arguments
-def create_ome_zarr_multiplex(
+def cellvoyager_to_ome_zarr_init_multiplex(
     *,
-    input_paths: Sequence[str],
-    output_path: str,
-    metadata: dict[str, Any],
-    allowed_channels: dict[str, list[OmeroChannel]],
+    zarr_urls: list[str],
+    zarr_dir: str,
+    acquisitions: dict[str, MultiplexingAcquisition],
     image_glob_patterns: Optional[list[str]] = None,
     num_levels: int = 5,
     coarsening_xy: int = 2,
@@ -72,24 +73,15 @@ def create_ome_zarr_multiplex(
     Each element in input_paths should be treated as a different acquisition.
 
     Args:
-        input_paths: List of input paths where the image data from the
-            microscope is stored (as TIF or PNG).  Each element of the list is
-            treated as another cycle of the multiplexing data, the cycles are
-            ordered by their order in this list.  Should point to the parent
-            folder containing the images and the metadata files
-            `MeasurementData.mlf` and `MeasurementDetail.mrf` (if present).
-            Example: `["/path/cycle1/", "/path/cycle2/"]`. (standard argument
-            for Fractal tasks, managed by Fractal server).
-        output_path: Path were the output of this task is stored.
-            Example: `"/some/path/"` => puts the new OME-Zarr file in the
-            `/some/path/`.
+        zarr_urls: List of paths or urls to the individual OME-Zarr image to
+            be processed. Not used by the converter task.
             (standard argument for Fractal tasks, managed by Fractal server).
-        metadata: This parameter is not used by this task.
+        zarr_dir: path of the directory where the new OME-Zarrs will be
+            created.
             (standard argument for Fractal tasks, managed by Fractal server).
-        allowed_channels: A dictionary of lists of `OmeroChannel`s, where
-            each channel must include the `wavelength_id` attribute and where
-            the `wavelength_id` values must be unique across each list.
-            Dictionary keys represent channel indices (`"0","1",..`).
+        acquisitions: dictionary of acquisitions. Each key is the acquisition
+            identifier (normally 0, 1, 2, 3 etc.). Each item defines the
+            acquisition by providing the image_dir and the allowed_channels.
         image_glob_patterns: If specified, only parse images with filenames
             that match with all these patterns. Patterns must be defined as in
             https://docs.python.org/3/library/fnmatch.html, Example:
@@ -106,9 +98,9 @@ def create_ome_zarr_multiplex(
             (e.g. `"tif"` or `"png"`).
         metadata_table_files: If `None`, parse Yokogawa metadata from mrf/mlf
             files in the input_path folder; else, a dictionary of key-value
-            pairs like `(acquisition, path)` with `acquisition` a string
-            and `path` pointing to a csv file containing the parsed metadata
-            table.
+            pairs like `(acquisition, path)` with `acquisition` a string like
+            the key of the `acquisitions` dict and `path` pointing to a csv
+            file containing the parsed metadata table.
         overwrite: If `True`, overwrite the task output.
 
     Returns:
@@ -120,13 +112,13 @@ def create_ome_zarr_multiplex(
     if metadata_table_files:
 
         # Checks on the dict:
-        # 1. Acquisitions as keys (same as keys of allowed_channels)
+        # 1. Acquisitions in acquisitions dict and metadata_table_files match
         # 2. Files end with ".csv"
         # 3. Files exist.
-        if set(allowed_channels.keys()) != set(metadata_table_files.keys()):
+        if set(acquisitions.keys()) != set(metadata_table_files.keys()):
             raise ValueError(
                 "Mismatch in acquisition keys between "
-                f"{allowed_channels.keys()=} and "
+                f"{acquisitions.keys()=} and "
                 f"{metadata_table_files.keys()=}"
             )
         for f in metadata_table_files.values():
@@ -139,20 +131,17 @@ def create_ome_zarr_multiplex(
                     f"{f} (in metadata_table_file) does not exist."
                 )
 
-    # Preliminary checks on allowed_channels
+    # Preliminary checks on acquisitions
     # Note that in metadata the keys of dictionary arguments should be
     # strings (and not integers), so that they can be read from a JSON file
-    for key, _channels in allowed_channels.items():
+    for key, values in acquisitions.items():
         if not isinstance(key, str):
-            raise ValueError(f"{allowed_channels=} has non-string keys")
-        check_unique_wavelength_ids(_channels)
+            raise ValueError(f"{acquisitions=} has non-string keys")
+        check_unique_wavelength_ids(values.allowed_channels)
 
     # Identify all plates and all channels, per input folders
     dict_acquisitions: dict = {}
-
-    for ind_in_path, in_path_str in enumerate(input_paths):
-        acquisition = str(ind_in_path)
-        in_path = Path(in_path_str)
+    for acquisition, acq_input in acquisitions.items():
         dict_acquisitions[acquisition] = {}
 
         actual_wavelength_ids = []
@@ -164,7 +153,7 @@ def create_ome_zarr_multiplex(
         if image_glob_patterns:
             patterns.extend(image_glob_patterns)
         input_filenames = glob_with_multiple_patterns(
-            folder=in_path_str,
+            folder=acq_input.image_dir,
             patterns=patterns,
         )
         for fn in input_filenames:
@@ -209,7 +198,7 @@ def create_ome_zarr_multiplex(
 
         # Check that all channels are in the allowed_channels
         allowed_wavelength_ids = [
-            c.wavelength_id for c in allowed_channels[acquisition]
+            c.wavelength_id for c in acq_input.allowed_channels
         ]
         if not set(actual_wavelength_ids).issubset(
             set(allowed_wavelength_ids)
@@ -223,7 +212,7 @@ def create_ome_zarr_multiplex(
         # are present
         actual_channels = [
             channel
-            for channel in allowed_channels[acquisition]
+            for channel in acq_input.allowed_channels
             if channel.wavelength_id in actual_wavelength_ids
         ]
 
@@ -234,21 +223,24 @@ def create_ome_zarr_multiplex(
         dict_acquisitions[acquisition]["plate"] = plate
         dict_acquisitions[acquisition]["original_plate"] = original_plate
         dict_acquisitions[acquisition]["plate_prefix"] = plate_prefix
-        dict_acquisitions[acquisition]["image_folder"] = in_path
-        dict_acquisitions[acquisition]["original_paths"] = [in_path]
+        dict_acquisitions[acquisition]["image_folder"] = acq_input.image_dir
+        dict_acquisitions[acquisition]["original_paths"] = [
+            acq_input.image_dir
+        ]
         dict_acquisitions[acquisition]["actual_channels"] = actual_channels
         dict_acquisitions[acquisition][
             "actual_wavelength_ids"
         ] = actual_wavelength_ids
 
-    acquisitions = sorted(list(dict_acquisitions.keys()))
+    parallelization_list = []
+    acquisitions_sorted = sorted(list(acquisitions.keys()))
     current_plates = [item["plate"] for item in dict_acquisitions.values()]
     if len(set(current_plates)) > 1:
         raise ValueError(f"{current_plates=}")
     plate = current_plates[0]
 
-    zarrurl = dict_acquisitions[acquisitions[0]]["plate"] + ".zarr"
-    full_zarrurl = str(Path(output_path) / zarrurl)
+    zarrurl = dict_acquisitions[acquisitions_sorted[0]]["plate"] + ".zarr"
+    full_zarrurl = str(Path(zarr_dir) / zarrurl)
     logger.info(f"Creating {full_zarrurl=}")
     # Call zarr.open_group wrapper, which handles overwrite=True/False
     group_plate = open_zarr_group_with_overwrite(
@@ -260,7 +252,7 @@ def create_ome_zarr_multiplex(
                 "id": int(acquisition),
                 "name": dict_acquisitions[acquisition]["original_plate"],
             }
-            for acquisition in acquisitions
+            for acquisition in acquisitions_sorted
         ]
     }
 
@@ -268,9 +260,9 @@ def create_ome_zarr_multiplex(
     zarrurls["plate"] = [f"{plate}.zarr"]
 
     ################################################################
-    logging.info(f"{acquisitions=}")
+    logging.info(f"{acquisitions_sorted=}")
 
-    for acquisition in acquisitions:
+    for acquisition in acquisitions_sorted:
 
         # Define plate zarr
         image_folder = dict_acquisitions[acquisition]["image_folder"]
@@ -368,14 +360,32 @@ def create_ome_zarr_multiplex(
             }
             for well_row_column in well_rows_columns
         ]
+        plate_attrs["version"] = __OME_NGFF_VERSION__
+        # Validate plate attrs
+        Plate(**plate_attrs)
         group_plate.attrs["plate"] = plate_attrs
 
         for row, column in well_rows_columns:
-
+            parallelization_list.append(
+                {
+                    "zarr_url": (
+                        f"{zarr_dir}/{plate}.zarr/{row}/{column}/"
+                        f"{acquisition}/"
+                    ),
+                    "init_args": InitArgsCellVoyager(
+                        image_dir=acquisitions[acquisition].image_dir,
+                        plate_prefix=plate_prefix,
+                        well_ID=f"{row}{column}",
+                        image_extension=image_extension,
+                        image_glob_patterns=image_glob_patterns,
+                        acquisition=acquisition,
+                    ).dict(),
+                }
+            )
             try:
                 group_well = group_plate.create_group(f"{row}/{column}/")
                 logging.info(f"Created new group_well at {row}/{column}/")
-                group_well.attrs["well"] = {
+                well_attrs = {
                     "images": [
                         {
                             "path": f"{acquisition}",
@@ -384,6 +394,9 @@ def create_ome_zarr_multiplex(
                     ],
                     "version": __OME_NGFF_VERSION__,
                 }
+                # Validate well attrs:
+                Well(**well_attrs)
+                group_well.attrs["well"] = well_attrs
                 zarrurls["well"].append(f"{plate}.zarr/{row}/{column}")
             except ContainsGroupError:
                 group_well = zarr.open_group(
@@ -395,10 +408,13 @@ def create_ome_zarr_multiplex(
                 current_images = group_well.attrs["well"]["images"] + [
                     {"path": f"{acquisition}", "acquisition": int(acquisition)}
                 ]
-                group_well.attrs["well"] = dict(
+                well_attrs = dict(
                     images=current_images,
                     version=group_well.attrs["well"]["version"],
                 )
+                # Validate well attrs:
+                Well(**well_attrs)
+                group_well.attrs["well"] = well_attrs
 
             group_image = group_well.create_group(
                 f"{acquisition}/"
@@ -460,6 +476,8 @@ def create_ome_zarr_multiplex(
                     label_prefix=acquisition,
                 ),
             }
+            # Validate Image attrs
+            NgffImageMeta(**group_image.attrs)
 
             # Prepare AnnData tables for FOV/well ROIs
             well_id = row + column
@@ -488,31 +506,16 @@ def create_ome_zarr_multiplex(
     # have unique labels
     for well_path in zarrurls["well"]:
         check_well_channel_labels(
-            well_zarr_path=str(Path(output_path) / well_path)
+            well_zarr_path=str(Path(zarr_dir) / well_path)
         )
 
-    original_paths = {
-        acquisition: dict_acquisitions[acquisition]["original_paths"]
-        for acquisition in acquisitions
-    }
-
-    metadata_update = dict(
-        plate=zarrurls["plate"],
-        well=zarrurls["well"],
-        image=zarrurls["image"],
-        num_levels=num_levels,
-        coarsening_xy=coarsening_xy,
-        original_paths=original_paths,
-        image_extension=image_extension,
-        image_glob_patterns=image_glob_patterns,
-    )
-    return metadata_update
+    return dict(parallelization_list=parallelization_list)
 
 
 if __name__ == "__main__":
     from fractal_tasks_core.tasks._utils import run_fractal_task
 
     run_fractal_task(
-        task_function=create_ome_zarr_multiplex,
+        task_function=cellvoyager_to_ome_zarr_init_multiplex,
         logger_name=logger.name,
     )

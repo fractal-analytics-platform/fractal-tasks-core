@@ -12,10 +12,8 @@
 Task to import an existing OME-Zarr.
 """
 import logging
-from pathlib import Path
 from typing import Any
 from typing import Optional
-from typing import Sequence
 
 import dask.array as da
 import zarr
@@ -39,7 +37,7 @@ def _process_single_image(
     *,
     grid_YX_shape: Optional[tuple[int, int]] = None,
     overwrite: bool = False,
-) -> None:
+) -> dict[str, str]:
     """
     Validate OME-NGFF metadata and optionally generate ROI tables.
 
@@ -48,6 +46,7 @@ def _process_single_image(
     1. Validates OME-NGFF image metadata, via `NgffImageMeta`;
     2. Optionally generates and writes two ROI tables;
     3. Optionally update OME-NGFF omero metadata.
+    4. Returns dataset types
 
     Args:
         image_path: Absolute path to the image Zarr group.
@@ -151,13 +150,22 @@ def _process_single_image(
         new_omero["channels"] = new_channels
         image_group.attrs.update(omero=new_omero)
 
+    # Determine image types:
+    # Later: also provide a has_T flag.
+    # TODO: Potentially also load acquisition metadata if available in a Zarr
+    is_3D = False
+    if "z" in image_meta.axes_names:
+        if array.shape[-3] > 1:
+            is_3D = True
+    types = dict(is_3D=is_3D)
+    return types
+
 
 @validate_arguments
 def import_ome_zarr(
     *,
-    input_paths: Sequence[str],
-    output_path: str,
-    metadata: dict[str, Any],
+    zarr_urls: list[str],
+    zarr_dir: str,
     zarr_name: str,
     add_image_ROI_table: bool = True,
     add_grid_ROI_table: bool = True,
@@ -167,26 +175,26 @@ def import_ome_zarr(
     overwrite: bool = False,
 ) -> dict[str, Any]:
     """
-    Import an OME-Zarr into Fractal.
+    Import a single OME-Zarr into Fractal.
 
-    The current version of this task:
+    The single OME-Zarr can be a full OME-Zarr HCS plate or an individual
+    OME-Zarr image. The image needs to be in the zarr_dir as specified by the
+    dataset. The current version of this task:
 
     1. Creates the appropriate components-related metadata, needed for
        processing an existing OME-Zarr through Fractal.
     2. Optionally adds new ROI tables to the existing OME-Zarr.
 
     Args:
-        input_paths: A length-one list with the parent folder of the OME-Zarr
-            to be imported; e.g. `input_paths=["/somewhere"]`, if the OME-Zarr
-            path is `/somewhere/array.zarr`.
+        zarr_urls: List of paths or urls to the individual OME-Zarr image to
+            be processed. Not used.
             (standard argument for Fractal tasks, managed by Fractal server).
-        output_path: Not used in this task.
+        zarr_dir: path of the directory where the new OME-Zarrs will be
+            created.
             (standard argument for Fractal tasks, managed by Fractal server).
-        metadata: Not used in this task.
-            (standard argument for Fractal tasks, managed by Fractal server).
-        zarr_name: The OME-Zarr name, without its parent folder; e.g.
-            `zarr_name="array.zarr"`, if the OME-Zarr path is
-            `/somewhere/array.zarr`.
+        zarr_name: The OME-Zarr name, without its parent folder. The parent
+            folder is provided by zarr_dir; e.g. `zarr_name="array.zarr"`,
+            if the OME-Zarr path is in `/zarr_dir/array.zarr`.
         add_image_ROI_table: Whether to add a `image_ROI_table` table to each
             image, with a single ROI covering the whole image.
         add_grid_ROI_table: Whether to add a `grid_ROI_table` table to each
@@ -199,41 +207,51 @@ def import_ome_zarr(
             and/or `add_grid_ROI_table` are `True`) can overwite existing ones.
     """
 
-    # Preliminary checks
-    if len(input_paths) > 1:
-        raise NotImplementedError
+    # Is this based on the Zarr_dir or the zarr_urls?
+    if len(zarr_urls) > 0:
+        logger.warning(
+            "Running import while there are already items from the image list "
+            "provided to the task. The following inputs were provided: "
+            f"{zarr_urls=}"
+            "This task will not process the existing images, but look for "
+            f"zarr files named {zarr_name=} in the {zarr_dir=} instead."
+        )
 
-    zarr_path = str(Path(input_paths[0]) / zarr_name)
+    zarr_path = f"{zarr_dir.rstrip('/')}/{zarr_name}"
     logger.info(f"Zarr path: {zarr_path}")
-
-    zarrurls: dict = dict(plate=[], well=[], image=[])
 
     root_group = zarr.open_group(zarr_path, mode="r")
     ngff_type = detect_ome_ngff_type(root_group)
     grid_YX_shape = (grid_y_shape, grid_x_shape)
 
+    image_list_updates = []
     if ngff_type == "plate":
-        zarrurls["plate"].append(zarr_name)
         for well in root_group.attrs["plate"]["wells"]:
             well_path = well["path"]
-            zarrurls["well"].append(f"{zarr_name}/{well_path}")
 
             well_group = zarr.open_group(zarr_path, path=well_path, mode="r")
             for image in well_group.attrs["well"]["images"]:
                 image_path = image["path"]
-                zarrurls["image"].append(
-                    f"{zarr_name}/{well_path}/{image_path}"
-                )
-                _process_single_image(
-                    f"{zarr_path}/{well_path}/{image_path}",
+                zarr_url = f"{zarr_path}/{well_path}/{image_path}"
+                types = _process_single_image(
+                    zarr_url,
                     add_image_ROI_table,
                     add_grid_ROI_table,
                     update_omero_metadata,
                     grid_YX_shape=grid_YX_shape,
                     overwrite=overwrite,
                 )
+                image_list_updates.append(
+                    dict(
+                        zarr_url=zarr_url,
+                        attributes=dict(
+                            plate=zarr_name,
+                            well=well_path.replace("/", ""),
+                        ),
+                        types=types,
+                    )
+                )
     elif ngff_type == "well":
-        zarrurls["well"].append(zarr_name)
         logger.warning(
             "Only OME-Zarr for plates are fully supported in Fractal; "
             f"e.g. the current one ({ngff_type=}) cannot be "
@@ -241,37 +259,48 @@ def import_ome_zarr(
         )
         for image in root_group.attrs["well"]["images"]:
             image_path = image["path"]
-            zarrurls["image"].append(f"{zarr_name}/{image_path}")
-            _process_single_image(
-                f"{zarr_path}/{image_path}",
+            zarr_url = f"{zarr_path}/{image_path}"
+            types = _process_single_image(
+                zarr_url,
                 add_image_ROI_table,
                 add_grid_ROI_table,
                 update_omero_metadata,
                 grid_YX_shape=grid_YX_shape,
                 overwrite=overwrite,
             )
+            image_list_updates.append(
+                dict(
+                    zarr_url=zarr_url,
+                    attributes=dict(
+                        well=zarr_name,
+                    ),
+                    types=types,
+                )
+            )
     elif ngff_type == "image":
-        zarrurls["image"].append(zarr_name)
         logger.warning(
             "Only OME-Zarr for plates are fully supported in Fractal; "
             f"e.g. the current one ({ngff_type=}) cannot be "
             "processed via the `maximum_intensity_projection` task."
         )
-        _process_single_image(
-            zarr_path,
+        zarr_url = zarr_path
+        types = _process_single_image(
+            zarr_url,
             add_image_ROI_table,
             add_grid_ROI_table,
             update_omero_metadata,
             grid_YX_shape=grid_YX_shape,
             overwrite=overwrite,
         )
+        image_list_updates.append(
+            dict(
+                zarr_url=zarr_url,
+                types=types,
+            )
+        )
 
-    # Remove zarrurls keys pointing to empty lists
-    clean_zarrurls = {
-        key: value for key, value in zarrurls.items() if len(value) > 0
-    }
-
-    return clean_zarrurls
+    image_list_changes = dict(image_list_updates=image_list_updates)
+    return image_list_changes
 
 
 if __name__ == "__main__":

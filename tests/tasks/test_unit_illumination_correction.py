@@ -6,7 +6,6 @@ from pathlib import Path
 import anndata as ad
 import dask.array as da
 import numpy as np
-import pytest
 from pytest import LogCaptureFixture
 from pytest import MonkeyPatch
 
@@ -18,34 +17,6 @@ from fractal_tasks_core.tasks.illumination_correction import correct
 from fractal_tasks_core.tasks.illumination_correction import (
     illumination_correction,
 )
-
-
-def test_illumination_correction_fail(tmp_path):
-
-    with pytest.raises(ValueError):
-        illumination_correction(
-            input_paths=["/tmp"],
-            output_path="/tmp",
-            metadata={},
-            component="something",
-            overwrite_input=False,
-            illumination_profiles_folder="/tmp",
-            dict_corr={},
-            background=0,
-        )
-
-    with pytest.raises(NotImplementedError):
-        illumination_correction(
-            input_paths=["/tmp"],
-            output_path="/tmp",
-            metadata={},
-            component="something",
-            overwrite_input=False,
-            new_component="something_else",
-            illumination_profiles_folder="/tmp",
-            dict_corr={},
-            background=0,
-        )
 
 
 def test_illumination_correction(
@@ -64,20 +35,18 @@ def test_illumination_correction(
 
     # Copy a reference zarr into a temporary folder
     raw_zarrurl = (testdata_path / "plate_ones.zarr").as_posix()
-    zarrurl = (tmp_path / "plate.zarr").resolve().as_posix()
-    shutil.copytree(raw_zarrurl, zarrurl)
-    zarrurl += "/B/03/0/"
-    component = "plate.zarr/B/03/0"
+    zarr_url = (tmp_path / "plate.zarr").resolve().as_posix()
+    shutil.copytree(raw_zarrurl, zarr_url)
+    zarr_url += "/B/03/0/"
 
     # Prepare arguments for illumination_correction function
-    zarr_path = str(tmp_path)
     testdata_str = testdata_path.as_posix()
     illum_params = {
         "A01_C01": "illum_corr_matrix.png",
         "A01_C02": "illum_corr_matrix.png",
     }
     illumination_profiles_folder = f"{testdata_str}/illumination_correction/"
-    with open(zarrurl + ".zattrs") as fin:
+    with open(zarr_url + ".zattrs") as fin:
         zattrs = json.load(fin)
         num_levels = len(zattrs["multiscales"][0]["datasets"])
     metadata: dict = {
@@ -88,9 +57,9 @@ def test_illumination_correction(
     num_levels = metadata["num_levels"]
 
     # Read FOV ROIs and create corresponding indices
-    ngff_image_meta = load_NgffImageMeta(zarrurl)
+    ngff_image_meta = load_NgffImageMeta(zarr_url)
     pixels = ngff_image_meta.get_pixel_sizes_zyx(level=0)
-    ROIs = ad.read_zarr(zarrurl + "tables/FOV_ROI_table/")
+    ROIs = ad.read_zarr(zarr_url + "tables/FOV_ROI_table/")
     list_indices = convert_ROI_table_to_indices(
         ROIs, level=0, full_res_pxl_sizes_zyx=pixels
     )
@@ -116,10 +85,7 @@ def test_illumination_correction(
 
     # Call illumination correction task, with patched correct()
     illumination_correction(
-        input_paths=[zarr_path],
-        output_path=zarr_path,
-        metadata=metadata,
-        component=component,
+        zarr_url=zarr_url,
         overwrite_input=True,
         illumination_profiles_folder=illumination_profiles_folder,
         dict_corr=illum_params,
@@ -139,7 +105,7 @@ def test_illumination_correction(
         old = da.from_zarr(
             testdata_path / f"plate_ones.zarr/B/03/0/{ind_level}"
         )
-        new = da.from_zarr(f"{zarrurl}{ind_level}")
+        new = da.from_zarr(f"{zarr_url}{ind_level}")
         assert old.shape == new.shape
         assert old.chunks == new.chunks
         assert new.compute()[0, 0, 0, 0] == 1

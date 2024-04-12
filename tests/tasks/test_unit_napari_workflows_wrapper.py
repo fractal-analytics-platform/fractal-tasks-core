@@ -23,12 +23,10 @@ def test_input_specs(tmp_path, testdata_path):
     output_specs = {
         "output_label": {"type": "label", "label_name": "label_DAPI"}
     }
+    zarr_url = str(tmp_path / "component")
     with pytest.raises(ValidationError):
         napari_workflows_wrapper(
-            input_paths=[str(tmp_path)],
-            output_path=str(tmp_path),
-            metadata={},
-            component="component",
+            zarr_url=zarr_url,
             input_specs=input_specs,
             output_specs=output_specs,
             workflow_file=workflow_file,
@@ -56,13 +54,11 @@ def test_output_specs(tmp_path, testdata_path, caplog):
         }
     }
     output_specs = {"some_output": {"type": "label", "label_name": "xxx"}}
+    zarr_url = str(tmp_path / "component")
 
     try:
         napari_workflows_wrapper(
-            input_paths=[str(tmp_path)],
-            output_path=str(tmp_path),
-            metadata={},
-            component="component",
+            zarr_url=zarr_url,
             input_specs=input_specs,
             output_specs=output_specs,
             workflow_file=workflow_file,
@@ -109,13 +105,10 @@ def test_level_setting_in_non_labeling_worfklow(tmp_path, testdata_path):
             "label_name": "label_DAPI",
         },
     }
-
+    zarr_url = str(tmp_path / "component")
     with pytest.raises(NotImplementedError):
         napari_workflows_wrapper(
-            input_paths=[str(tmp_path)],
-            output_path=str(tmp_path),
-            metadata={},
-            component="component",
+            zarr_url=zarr_url,
             input_specs=input_specs,
             output_specs=output_specs,
             workflow_file=workflow_file,

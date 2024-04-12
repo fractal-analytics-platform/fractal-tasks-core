@@ -15,7 +15,6 @@ import json
 import logging
 import shutil
 from pathlib import Path
-from typing import Any
 
 import dask.array as da
 import zarr
@@ -25,12 +24,10 @@ from devtools import debug
 def prepare_3D_zarr(
     zarr_path: str,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
     remove_tables: bool = False,
     remove_omero: bool = False,
-):
+) -> list[str]:
     zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
-    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
     shutil.copytree(
         zenodo_zarr_3D, str(Path(zarr_path) / Path(zenodo_zarr_3D).name)
     )
@@ -48,19 +45,17 @@ def prepare_3D_zarr(
         image_attrs.pop("omero")
         image_group.attrs.put(image_attrs)
         logging.warning("Removing omero attributes from 3D Zenodo zarr")
-    metadata = metadata_3D.copy()
-    return metadata
+
+    return [str(Path(zarr_path) / Path(zenodo_zarr_3D).name / "B/03/0")]
 
 
 def prepare_2D_zarr(
     zarr_path: str,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
     remove_labels: bool = False,
     make_CYX: bool = False,
-):
+) -> list[str]:
     zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
-    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
     shutil.copytree(
         zenodo_zarr_2D, str(Path(zarr_path) / Path(zenodo_zarr_2D).name)
     )
@@ -103,5 +98,4 @@ def prepare_2D_zarr(
             shutil.rmtree(zarr_path)
             da.array(data_cyx).to_zarr(zarr_path, dimension_separator="/")
 
-    metadata = metadata_2D.copy()
-    return metadata
+    return [FOV_path.as_posix()]

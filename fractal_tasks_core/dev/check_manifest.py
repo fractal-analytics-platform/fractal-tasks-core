@@ -22,7 +22,6 @@ from fractal_tasks_core.dev.lib_args_schemas import (
     create_schema_for_single_task,
 )
 from fractal_tasks_core.dev.lib_task_docs import create_docs_info
-from fractal_tasks_core.dev.lib_task_docs import create_docs_link
 
 
 PACKAGE = "fractal_tasks_core"
@@ -95,35 +94,44 @@ if __name__ == "__main__":
     task_list = manifest["task_list"]
     for ind, task in enumerate(task_list):
 
-        # Read current schema
-        current_schema = task["args_schema"]
+        for kind in ["non_paralell", "parallel"]:
+            executable = task.get(f"executable_{kind}")
+            if executable is None:
+                continue
 
-        # Create new schema
-        executable = task["executable"]
-        logging.info(f"[{executable}] START")
-        new_schema = create_schema_for_single_task(executable, package=PACKAGE)
+            # Read current schema
+            current_schema = task[f"args_schema_{kind}"]
 
-        # The following step is required because some arguments may have a
-        # default which has a non-JSON type (e.g. a tuple), which we need to
-        # convert to JSON type (i.e. an array) before comparison.
-        new_schema = json.loads(json.dumps(new_schema))
+            # Create new schema
+            logging.info(f"[{executable}] START")
+            new_schema = create_schema_for_single_task(
+                executable, package=PACKAGE
+            )
 
-        # Try to provide an informative comparison of current_schema and
-        # new_schema
-        _compare_dicts(current_schema, new_schema, path=[])
+            # The following step is required because some arguments may have a
+            # default which has a non-JSON type (e.g. a tuple), which we need
+            # to convert to JSON type (i.e. an array) before comparison.
+            new_schema = json.loads(json.dumps(new_schema))
 
-        # Also directly check the equality of current_schema and new_schema
-        # (this is redundant, in principle)
-        if current_schema != new_schema:
-            raise ValueError("Schemas are different.")
+            # Try to provide an informative comparison of current_schema and
+            # new_schema
+            _compare_dicts(current_schema, new_schema, path=[])
+
+            # Also directly check the equality of current_schema and new_schema
+            # (this is redundant, in principle)
+            if current_schema != new_schema:
+                raise ValueError("Schemas are different.")
+
+            logging.info(
+                f"[{executable}] END (task schemas are up-to-date in manifest)"
+            )
+            print()
 
         # Check docs_info and docs_link
-        docs_info = create_docs_info(executable, package=PACKAGE)
-        docs_link = create_docs_link(executable)
+        docs_info = create_docs_info(
+            executable_non_parallel=task.get("executable_non_parallel"),
+            executable_parallel=task.get("executable_parallel"),
+            package=PACKAGE,
+        )
         if docs_info != task.get("docs_info", ""):
             raise ValueError("docs_info not up-to-date")
-        if docs_link != task.get("docs_link", ""):
-            raise ValueError("docs_link not up-to-date")
-
-        logging.info(f"[{executable}] END (task is up-to-date in manifest)")
-        print()

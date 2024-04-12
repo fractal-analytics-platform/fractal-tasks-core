@@ -264,3 +264,62 @@ def _write_table_v1(
     table_group.attrs.update(**table_attrs)
 
     return table_group
+
+
+def get_tables_list_v1(
+    zarr_url: str, table_type: str = None, strict: bool = False
+) -> list[str]:
+    """
+    Find the list of tables in the Zarr file
+
+    Optionally match a table type and only return the names of those tables.
+
+    Args:
+        zarr_url: Path to the OME-Zarr image
+        table_type: The type of table to look for. Special handling for
+            "ROIs" => matches both "roi_table" & "masking_roi_table".
+        strict: If `True`, only return tables that have a type attribute.
+            If `False`, also include tables without a type attribute.
+
+    Returns:
+        List of the names of available tables
+    """
+    with zarr.open(zarr_url, mode="r") as zarr_group:
+        zarr_subgroups = list(zarr_group.group_keys())
+    if "tables" not in zarr_subgroups:
+        return []
+    with zarr.open(zarr_url, mode="r") as zarr_group:
+        all_tables = list(zarr_group.tables.group_keys())
+
+    if not table_type:
+        return all_tables
+    else:
+        return _filter_tables_by_type_v1(
+            zarr_url, all_tables, table_type, strict
+        )
+
+
+def _filter_tables_by_type_v1(
+    zarr_url: str,
+    all_tables: list[str],
+    table_type: Optional[str] = None,
+    strict: bool = False,
+) -> list[str]:
+    tables_list = []
+    for table_name in all_tables:
+        with zarr.open(zarr_url, mode="r").tables[table_name] as table:
+            table_attrs = table.attrs.asdict()
+            if "type" in table_attrs:
+                if table_type == "ROIs":
+                    roi_table_types = ["roi_table", "masking_roi_table"]
+                    if table_attrs["type"] in roi_table_types:
+                        tables_list.append(table_name)
+                elif table_attrs["type"] == table_type:
+                    tables_list.append(table_name)
+            else:
+                # If there are tables without types, let the users choose
+                # from all tables
+                logger.warning(f"Table {table_name} had no type attribute.")
+                if not strict:
+                    tables_list.append(table_name)
+    return tables_list

@@ -13,17 +13,24 @@
 Task for 3D->2D maximum-intensity projection.
 """
 import logging
-from pathlib import Path
 from typing import Any
-from typing import Sequence
 
+import anndata as ad
 import dask.array as da
+import zarr
 from pydantic.decorator import validate_arguments
 from zarr.errors import ContainsArrayError
 
 from fractal_tasks_core.ngff import load_NgffImageMeta
 from fractal_tasks_core.pyramids import build_pyramid
+from fractal_tasks_core.roi import (
+    convert_ROIs_from_3D_to_2D,
+)
+from fractal_tasks_core.tables import write_table
+from fractal_tasks_core.tables.v1 import get_tables_list_v1
+from fractal_tasks_core.tasks.io_models import InitArgsMIP
 from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
+
 
 logger = logging.getLogger(__name__)
 
@@ -31,10 +38,8 @@ logger = logging.getLogger(__name__)
 @validate_arguments
 def maximum_intensity_projection(
     *,
-    input_paths: Sequence[str],
-    output_path: str,
-    component: str,
-    metadata: dict[str, Any],
+    zarr_url: str,
+    init_args: InitArgsMIP,
     overwrite: bool = False,
 ) -> dict[str, Any]:
     """
@@ -43,49 +48,37 @@ def maximum_intensity_projection(
     Note: this task stores the output in a new zarr file.
 
     Args:
-        input_paths: This parameter is not used by this task.
-            This task only supports a single input path.
+        zarr_url: Path or url to the individual OME-Zarr image to be processed.
             (standard argument for Fractal tasks, managed by Fractal server).
-        output_path: Path were the output of this task is stored.
-            Example: `"/some/path/"` => puts the new OME-Zarr file in that
-            folder.
-            (standard argument for Fractal tasks, managed by Fractal server).
-        component: Path to the OME-Zarr image in the OME-Zarr plate that
-            is processed. Component is typically changed by the `copy_ome_zarr`
-            task before, to point to a new mip Zarr file.
-            Example: `"some_plate_mip.zarr/B/03/0"`.
-            (standard argument for Fractal tasks, managed by Fractal server).
-        metadata: Dictionary containing metadata about the OME-Zarr.
-            This task requires the key `copy_ome_zarr` to be present in the
-            metadata (as defined in `copy_ome_zarr` task).
-            (standard argument for Fractal tasks, managed by Fractal server).
+        init_args: Intialization arguments provided by
+            `create_cellvoyager_ome_zarr_init`.
         overwrite: If `True`, overwrite the task output.
     """
+    logger.info(f"{init_args.origin_url=}")
+    logger.info(f"{zarr_url=}")
 
-    # Preliminary checks
-    if len(input_paths) > 1:
-        raise NotImplementedError
+    # Read image metadata
+    ngff_image = load_NgffImageMeta(init_args.origin_url)
+    # Currently not using the validation models due to wavelength_id issue
+    # See #681 for discussion
+    # new_attrs = ngff_image.dict(exclude_none=True)
+    # Current way to get the necessary metadata for MIP
+    group = zarr.open_group(init_args.origin_url, mode="r")
+    new_attrs = group.attrs.asdict()
 
-    plate, well = component.split(".zarr/")
-    zarrurl_old = metadata["copy_ome_zarr"]["sources"][plate] + "/" + well
-    clean_output_path = Path(output_path).resolve()
-    zarrurl_new = (clean_output_path / component).as_posix()
-    logger.info(f"{zarrurl_old=}")
-    logger.info(f"{zarrurl_new=}")
-
-    # Read some parameters from metadata
-    ngff_image = load_NgffImageMeta(zarrurl_old)
-    num_levels = ngff_image.num_levels
-    coarsening_xy = ngff_image.coarsening_xy
+    # Create the zarr image with correct
+    new_image_group = zarr.group(zarr_url)
+    new_image_group.attrs.put(new_attrs)
 
     # Load 0-th level
-    data_czyx = da.from_zarr(zarrurl_old + "/0")
+    data_czyx = da.from_zarr(init_args.origin_url + "/0")
     num_channels = data_czyx.shape[0]
     chunksize_y = data_czyx.chunksize[-2]
     chunksize_x = data_czyx.chunksize[-1]
     logger.info(f"{num_channels=}")
     logger.info(f"{chunksize_y=}")
     logger.info(f"{chunksize_x=}")
+
     # Loop over channels
     accumulate_chl = []
     for ind_ch in range(num_channels):
@@ -97,14 +90,14 @@ def maximum_intensity_projection(
     # Write to disk (triggering execution)
     try:
         accumulated_array.to_zarr(
-            f"{zarrurl_new}/0",
+            f"{zarr_url}/0",
             overwrite=overwrite,
             dimension_separator="/",
             write_empty_chunks=False,
         )
     except ContainsArrayError as e:
         error_msg = (
-            f"Cannot write array to zarr group at '{zarrurl_new}/0', "
+            f"Cannot write array to zarr group at '{zarr_url}/0', "
             f"with {overwrite=} (original error: {str(e)}).\n"
             "Hint: try setting overwrite=True."
         )
@@ -114,14 +107,77 @@ def maximum_intensity_projection(
     # Starting from on-disk highest-resolution data, build and write to disk a
     # pyramid of coarser levels
     build_pyramid(
-        zarrurl=zarrurl_new,
+        zarrurl=zarr_url,
         overwrite=overwrite,
-        num_levels=num_levels,
-        coarsening_xy=coarsening_xy,
+        num_levels=ngff_image.num_levels,
+        coarsening_xy=ngff_image.coarsening_xy,
         chunksize=(1, 1, chunksize_y, chunksize_x),
     )
 
-    return {}
+    # Copy over any tables from the original zarr
+    # Generate the list of tables:
+    tables = get_tables_list_v1(init_args.origin_url)
+    roi_tables = get_tables_list_v1(init_args.origin_url, table_type="ROIs")
+    non_roi_tables = [table for table in tables if table not in roi_tables]
+
+    for table in roi_tables:
+        logger.info(
+            f"Reading {table} from "
+            f"{init_args.origin_url=}, convert it to 2D, and "
+            "write it back to the new zarr file."
+        )
+        new_ROI_table = ad.read_zarr(f"{init_args.origin_url}/tables/{table}")
+        old_ROI_table_attrs = zarr.open_group(
+            f"{init_args.origin_url}/tables/{table}"
+        ).attrs.asdict()
+
+        # Convert 3D ROIs to 2D
+        pxl_sizes_zyx = ngff_image.get_pixel_sizes_zyx(level=0)
+        new_ROI_table = convert_ROIs_from_3D_to_2D(
+            new_ROI_table, pixel_size_z=pxl_sizes_zyx[0]
+        )
+        # Write new table
+        write_table(
+            new_image_group,
+            table,
+            new_ROI_table,
+            table_attrs=old_ROI_table_attrs,
+            overwrite=overwrite,
+        )
+
+    for table in non_roi_tables:
+        logger.info(
+            f"Reading {table} from "
+            f"{init_args.origin_url=}, and "
+            "write it back to the new zarr file."
+        )
+        new_non_ROI_table = ad.read_zarr(
+            f"{init_args.origin_url}/tables/{table}"
+        )
+        old_non_ROI_table_attrs = zarr.open_group(
+            f"{init_args.origin_url}/tables/{table}"
+        ).attrs.asdict()
+
+        # Write new table
+        write_table(
+            new_image_group,
+            table,
+            new_non_ROI_table,
+            table_attrs=old_non_ROI_table_attrs,
+            overwrite=overwrite,
+        )
+
+    # Generate image_list_updates
+    image_list_update_dict = dict(
+        image_list_updates=[
+            dict(
+                zarr_url=zarr_url,
+                origin=init_args.origin_url,
+                types=dict(is_3D=False),
+            )
+        ]
+    )
+    return image_list_update_dict
 
 
 if __name__ == "__main__":

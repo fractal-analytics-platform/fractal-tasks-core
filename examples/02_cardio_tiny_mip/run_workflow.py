@@ -25,7 +25,12 @@ from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_compute import (
 from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_init import (
     cellvoyager_to_ome_zarr_init,
 )
-
+from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
+    copy_ome_zarr_hcs_plate,
+)
+from fractal_tasks_core.tasks.maximum_intensity_projection import (
+    maximum_intensity_projection,
+)
 
 allowed_channels = [
     OmeroChannel(
@@ -74,10 +79,27 @@ parallelization_list = cellvoyager_to_ome_zarr_init(
 debug(parallelization_list)
 
 image_list_updates = []
-# # Yokogawa to zarr
+# Convert image to Zarr
 for image in parallelization_list["parallelization_list"]:
     image_list_updates += cellvoyager_to_ome_zarr_compute(
         zarr_url=image["zarr_url"],
         init_args=image["init_args"],
     )["image_list_updates"]
 debug(image_list_updates)
+
+zarr_urls = [
+    "tmp_out/20200812-CardiomyocyteDifferentiation14-Cycle1.zarr/B/03/0/"
+]
+
+# Create an MIP
+parallelization_list = copy_ome_zarr_hcs_plate(
+    zarr_urls=zarr_urls, zarr_dir="tmp_out", overwrite=True
+)
+debug(parallelization_list)
+
+for image in parallelization_list["parallelization_list"]:
+    maximum_intensity_projection(
+        zarr_url=image["zarr_url"],
+        init_args=image["init_args"],
+        # overwrite=True,
+    )

@@ -17,7 +17,6 @@ import shlex
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any
 
 import anndata as ad
 import numpy as np
@@ -37,16 +36,19 @@ from fractal_tasks_core.channels import ChannelInputModel
 from fractal_tasks_core.tasks.cellpose_segmentation import (
     cellpose_segmentation,
 )
-from fractal_tasks_core.tasks.copy_ome_zarr import (
-    copy_ome_zarr,
-)  # noqa
-from fractal_tasks_core.tasks.create_ome_zarr import create_ome_zarr
+from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_compute import (
+    cellvoyager_to_ome_zarr_compute,
+)
+from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_init import (
+    cellvoyager_to_ome_zarr_init,
+)
+from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
+    copy_ome_zarr_hcs_plate,
+)
 from fractal_tasks_core.tasks.maximum_intensity_projection import (
     maximum_intensity_projection,
-)  # noqa
-from fractal_tasks_core.tasks.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
+)
 from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
-
 
 allowed_channels = [
     {
@@ -146,9 +148,7 @@ def patched_cellpose_core_use_gpu(*args, **kwargs):
 
 def test_failures(
     tmp_path: Path,
-    testdata_path: Path,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -166,21 +166,19 @@ def test_failures(
     caplog.set_level(logging.WARNING)
 
     # Use pre-made 3D zarr
-    zarr_path = tmp_path / "tmp_out/"
-    metadata = prepare_3D_zarr(
-        str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
+    zarr_dir = tmp_path / "tmp_out/"
+    zarr_urls = prepare_3D_zarr(
+        str(zarr_dir),
+        zenodo_zarr,
     )
-    debug(zarr_path)
-    debug(metadata)
+    debug(zarr_dir)
+    debug(zarr_urls)
+    caplog.clear()
 
     # A sequence of invalid attempts
-    for component in metadata["image"]:
-
+    for zarr_url in zarr_urls:
         kwargs = dict(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
-            metadata=metadata,
-            component=component,
+            zarr_url=zarr_url,
             level=3,
         )
         # Attempt 1
@@ -211,9 +209,7 @@ def test_failures(
 
 def test_workflow_with_per_FOV_labeling(
     tmp_path: Path,
-    testdata_path: Path,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -233,20 +229,18 @@ def test_workflow_with_per_FOV_labeling(
     caplog.set_level(logging.INFO)
 
     # Use pre-made 3D zarr
-    zarr_path = tmp_path / "tmp_out/"
-    metadata = prepare_3D_zarr(
-        str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
+    zarr_dir = tmp_path / "tmp_out/"
+    zarr_urls = prepare_3D_zarr(
+        str(zarr_dir),
+        zenodo_zarr,
     )
-    debug(zarr_path)
-    debug(metadata)
+    debug(zarr_dir)
+    debug(zarr_urls)
 
     # Per-FOV labeling
-    for component in metadata["image"]:
+    for zarr_url in zarr_urls:
         cellpose_segmentation(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
-            metadata=metadata,
-            component=component,
+            zarr_url=zarr_url,
             channel=ChannelInputModel(wavelength_id="A01_C01"),
             level=3,
             relabeling=True,
@@ -257,7 +251,7 @@ def test_workflow_with_per_FOV_labeling(
         )
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path / metadata["image"][0])
+    image_zarr = Path(zarr_urls[0])
     label_zarr = image_zarr / "labels/label_DAPI"
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
@@ -271,9 +265,7 @@ def test_workflow_with_per_FOV_labeling(
 
 def test_workflow_with_multi_channel_input(
     tmp_path: Path,
-    testdata_path: Path,
     zenodo_zarr: list[Path],
-    zenodo_zarr_metadata: list[dict[str, Any]],
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -295,20 +287,18 @@ def test_workflow_with_multi_channel_input(
     caplog.set_level(logging.INFO)
 
     # Use pre-made 3D zarr
-    zarr_path = tmp_path / "tmp_out/"
-    metadata = prepare_3D_zarr(
-        str(zarr_path), [str(x) for x in zenodo_zarr], zenodo_zarr_metadata
+    zarr_dir = tmp_path / "tmp_out/"
+    zarr_urls = prepare_3D_zarr(
+        str(zarr_dir),
+        [str(x) for x in zenodo_zarr],
     )
-    debug(zarr_path)
-    debug(metadata)
+    debug(zarr_dir)
+    debug(zarr_urls)
 
     # Per-FOV labeling
-    for component in metadata["image"]:
+    for zarr_url in zarr_urls:
         cellpose_segmentation(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
-            metadata=metadata,
-            component=component,
+            zarr_url=zarr_url,
             channel=ChannelInputModel(wavelength_id="A01_C01"),
             channel2=ChannelInputModel(wavelength_id="A01_C01"),
             level=3,
@@ -318,7 +308,7 @@ def test_workflow_with_multi_channel_input(
         )
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path / metadata["image"][0])
+    image_zarr = Path(zarr_urls[0])
     label_zarr = image_zarr / "labels/label_DAPI"
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
@@ -332,10 +322,7 @@ def test_workflow_with_multi_channel_input(
 
 def test_workflow_with_per_FOV_labeling_2D(
     tmp_path: Path,
-    testdata_path: Path,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
-    caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
 
@@ -351,21 +338,17 @@ def test_workflow_with_per_FOV_labeling_2D(
     )
 
     # Load pre-made 2D zarr array
-    zarr_path_mip = tmp_path / "tmp_out_mip/"
-    metadata = prepare_2D_zarr(
-        str(zarr_path_mip),
+    zarr_dir_mip = tmp_path / "tmp_out_mip/"
+    zarr_urls = prepare_2D_zarr(
+        str(zarr_dir_mip),
         zenodo_zarr,
-        zenodo_zarr_metadata,
         remove_labels=True,
     )
 
     # Per-FOV labeling
-    for component in metadata["image"]:
+    for zarr_url in zarr_urls:
         cellpose_segmentation(
-            input_paths=[str(zarr_path_mip)],
-            output_path=str(zarr_path_mip),
-            metadata=metadata,
-            component=component,
+            zarr_url=zarr_url,
             channel=ChannelInputModel(wavelength_id="A01_C01"),
             level=2,
             relabeling=True,
@@ -373,7 +356,7 @@ def test_workflow_with_per_FOV_labeling_2D(
         )
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path_mip / metadata["image"][0])
+    image_zarr = Path(zarr_urls[0])
     debug(image_zarr)
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
@@ -386,9 +369,7 @@ def test_workflow_with_per_FOV_labeling_2D(
 
 def test_workflow_with_per_well_labeling_2D(
     tmp_path: Path,
-    testdata_path: Path,
     zenodo_images: str,
-    caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
 
@@ -405,59 +386,53 @@ def test_workflow_with_per_well_labeling_2D(
 
     # Init
     img_path = Path(zenodo_images)
-    zarr_path = tmp_path / "tmp_out/"
-    zarr_path_mip = tmp_path / "tmp_out_mip/"
-    metadata: dict[str, Any] = {}
+    zarr_dir = tmp_path / "tmp_out/"
 
     # Create zarr structure
-    metadata_update = create_ome_zarr(
-        input_paths=[str(img_path)],
-        output_path=str(zarr_path),
-        metadata=metadata,
+    parallelization_list = cellvoyager_to_ome_zarr_init(
+        zarr_urls=[],
+        zarr_dir=str(zarr_dir),
+        image_dirs=[str(img_path)],
         image_extension="png",
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         metadata_table_file=None,
-    )
-    metadata.update(metadata_update)
+    )["parallelization_list"]
 
     # Yokogawa to zarr
-    for component in metadata["image"]:
-        yokogawa_to_ome_zarr(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
-            metadata=metadata,
-            component=component,
-        )
+    image_list_updates = []
+    for image in parallelization_list:
+        image_list_updates += cellvoyager_to_ome_zarr_compute(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+        )["image_list_updates"]
+    debug(image_list_updates)
+
+    zarr_urls = []
+    for image in image_list_updates:
+        zarr_urls.append(image["zarr_url"])
 
     # Replicate
-    metadata_update = copy_ome_zarr(
-        input_paths=[str(zarr_path)],
-        output_path=str(zarr_path_mip),
-        metadata=metadata,
-        project_to_2D=True,
-        suffix="mip",
-    )
-    metadata.update(metadata_update)
-    debug(metadata)
+    parallelization_list = copy_ome_zarr_hcs_plate(
+        zarr_urls=zarr_urls,
+        zarr_dir=str(zarr_dir),
+    )["parallelization_list"]
+    debug(parallelization_list)
 
     # MIP
-    for component in metadata["image"]:
-        maximum_intensity_projection(
-            input_paths=[str(zarr_path_mip)],
-            output_path=str(zarr_path_mip),
-            metadata=metadata,
-            component=component,
-        )
+    image_list_updates = []
+    for image in parallelization_list:
+        image_list_updates += maximum_intensity_projection(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+            overwrite=True,
+        )["image_list_updates"]
 
     # Whole-well labeling
-    for component in metadata["image"]:
+    for zarr_url in zarr_urls:
         cellpose_segmentation(
-            input_paths=[str(zarr_path_mip)],
-            output_path=str(zarr_path_mip),
-            metadata=metadata,
-            component=component,
+            zarr_url=zarr_url,
             channel=ChannelInputModel(wavelength_id="A01_C01"),
             level=2,
             input_ROI_table="well_ROI_table",
@@ -466,7 +441,7 @@ def test_workflow_with_per_well_labeling_2D(
         )
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path_mip / metadata["image"][0])
+    image_zarr = Path(zarr_urls[0])
     label_zarr = image_zarr / "labels/label_DAPI"
     debug(image_zarr)
     well_zarr = image_zarr.parent
@@ -482,9 +457,7 @@ def test_workflow_with_per_well_labeling_2D(
 
 def test_workflow_bounding_box(
     tmp_path: Path,
-    testdata_path: Path,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -505,20 +478,15 @@ def test_workflow_bounding_box(
     caplog.set_level(logging.INFO)
 
     # Use pre-made 3D zarr
-    zarr_path = tmp_path / "tmp_out/"
-    metadata = prepare_3D_zarr(
-        str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
-    )
-    debug(zarr_path)
-    debug(metadata)
+    zarr_dir = tmp_path / "tmp_out/"
+    zarr_urls = prepare_3D_zarr(str(zarr_dir), zenodo_zarr)
+    debug(zarr_dir)
+    debug(zarr_urls)
 
     # Per-FOV labeling
-    for component in metadata["image"]:
+    for zarr_url in zarr_urls:
         cellpose_segmentation(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
-            metadata=metadata,
-            component=component,
+            zarr_url=zarr_url,
             channel=ChannelInputModel(wavelength_id="A01_C01"),
             level=3,
             relabeling=True,
@@ -527,12 +495,9 @@ def test_workflow_bounding_box(
         )
 
     # Re-run with overwrite=True
-    for component in metadata["image"]:
+    for zarr_url in zarr_urls:
         cellpose_segmentation(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
-            metadata=metadata,
-            component=component,
+            zarr_url=zarr_url,
             channel=ChannelInputModel(wavelength_id="A01_C01"),
             level=3,
             relabeling=True,
@@ -543,12 +508,9 @@ def test_workflow_bounding_box(
 
     # Re-run with overwrite=False
     with pytest.raises(OverwriteNotAllowedError):
-        for component in metadata["image"]:
+        for zarr_url in zarr_urls:
             cellpose_segmentation(
-                input_paths=[str(zarr_path)],
-                output_path=str(zarr_path),
-                metadata=metadata,
-                component=component,
+                zarr_url=zarr_url,
                 channel=ChannelInputModel(wavelength_id="A01_C01"),
                 level=3,
                 relabeling=True,
@@ -557,9 +519,7 @@ def test_workflow_bounding_box(
                 overwrite=False,
             )
 
-    bbox_ROIs_table_path = str(
-        zarr_path / metadata["image"][0] / "tables/bbox_table/"
-    )
+    bbox_ROIs_table_path = str(Path(zarr_urls[0]) / "tables/bbox_table/")
     bbox_ROIs = ad.read_zarr(bbox_ROIs_table_path)
     debug(bbox_ROIs)
     debug(bbox_ROIs.X)
@@ -579,9 +539,7 @@ def test_workflow_bounding_box(
 
 def test_workflow_bounding_box_with_overlap(
     tmp_path: Path,
-    testdata_path: Path,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
@@ -601,20 +559,15 @@ def test_workflow_bounding_box_with_overlap(
     caplog.set_level(logging.WARNING)
 
     # Use pre-made 3D zarr
-    zarr_path = tmp_path / "tmp_out/"
-    metadata = prepare_3D_zarr(
-        str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
-    )
-    debug(zarr_path)
-    debug(metadata)
+    zarr_dir = tmp_path / "tmp_out/"
+    zarr_urls = prepare_3D_zarr(str(zarr_dir), zenodo_zarr)
+    debug(zarr_dir)
+    debug(zarr_urls)
 
     # Per-FOV labeling
-    for component in metadata["image"]:
+    for zarr_url in zarr_urls:
         cellpose_segmentation(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
-            metadata=metadata,
-            component=component,
+            zarr_url=zarr_url,
             channel=ChannelInputModel(wavelength_id="A01_C01"),
             level=3,
             relabeling=True,
@@ -627,17 +580,13 @@ def test_workflow_bounding_box_with_overlap(
 
 def test_workflow_with_per_FOV_labeling_via_script(
     tmp_path: Path,
-    testdata_path: Path,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
     # Use pre-made 3D zarr
-    zarr_path = tmp_path / "tmp_out/"
-    metadata = prepare_3D_zarr(
-        str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
-    )
-    debug(zarr_path)
-    debug(metadata)
+    zarr_dir = tmp_path / "tmp_out/"
+    zarr_urls = prepare_3D_zarr(str(zarr_dir), zenodo_zarr)
+    debug(zarr_dir)
+    debug(zarr_urls)
 
     python_path = sys.executable
     task_path = (
@@ -648,15 +597,13 @@ def test_workflow_with_per_FOV_labeling_via_script(
     out_path = tmp_path / "out.json"
     command = (
         f"{str(python_path)} {str(task_path)} "
-        f"-j {str(args_path)} --metadata-out {str(out_path)}"
+        f"--args-json {str(args_path)} --out-json {str(out_path)}"
     )
     debug(command)
 
+    zarr_url = str(zarr_urls[0])
     task_args = dict(
-        input_paths=[str(zarr_path)],
-        output_path=str(zarr_path),
-        metadata=metadata,
-        component=metadata["image"][0],
+        zarr_url=zarr_url,
         channel=dict(wavelength_id="A01_C01"),
         level=4,
         relabeling=True,
@@ -709,38 +656,29 @@ def test_workflow_with_per_FOV_labeling_via_script(
 
 def test_workflow_with_per_FOV_labeling_with_empty_FOV_table(
     tmp_path: Path,
-    testdata_path: Path,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
-    caplog: pytest.LogCaptureFixture,
-    monkeypatch: MonkeyPatch,
 ):
     """
     Run the cellpose task iterating over an empty table of ROIs
     """
 
     # Use pre-made 3D zarr
-    zarr_path = tmp_path / "tmp_out/"
-    metadata = prepare_3D_zarr(
-        str(zarr_path), zenodo_zarr, zenodo_zarr_metadata
-    )
-    debug(zarr_path)
-    debug(metadata)
+    zarr_dir = tmp_path / "tmp_out/"
+    zarr_urls = prepare_3D_zarr(str(zarr_dir), zenodo_zarr)
+    debug(zarr_dir)
+    debug(zarr_urls)
 
     # Prepare empty ROI table
     TABLE_NAME = "empty_ROI_table"
     _add_empty_ROI_table(
-        image_zarr_path=Path(zarr_path / metadata["image"][0]),
+        image_zarr_path=Path(zarr_urls[0]),
         table_name=TABLE_NAME,
     )
 
     # Per-FOV labeling
-    for component in metadata["image"]:
+    for zarr_url in zarr_urls:
         cellpose_segmentation(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
-            metadata=metadata,
-            component=component,
+            zarr_url=zarr_url,
             input_ROI_table=TABLE_NAME,
             channel=ChannelInputModel(wavelength_id="A01_C01"),
             level=3,
@@ -752,7 +690,7 @@ def test_workflow_with_per_FOV_labeling_with_empty_FOV_table(
         )
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path / metadata["image"][0])
+    image_zarr = Path(zarr_urls[0])
     label_zarr = image_zarr / "labels/label_DAPI"
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
@@ -766,10 +704,7 @@ def test_workflow_with_per_FOV_labeling_with_empty_FOV_table(
 
 def test_CYX_input(
     tmp_path: Path,
-    testdata_path: Path,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
-    caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
     """
@@ -789,22 +724,18 @@ def test_CYX_input(
     )
 
     # Load pre-made 2D zarr array
-    zarr_path_mip = tmp_path / "tmp_out_mip/"
-    metadata = prepare_2D_zarr(
-        str(zarr_path_mip),
+    zarr_dir_mip = tmp_path / "tmp_out_mip/"
+    zarr_urls = prepare_2D_zarr(
+        str(zarr_dir_mip),
         zenodo_zarr,
-        zenodo_zarr_metadata,
         remove_labels=True,
         make_CYX=True,
     )
 
     # Per-FOV labeling
-    for component in metadata["image"]:
+    for zarr_url in zarr_urls:
         cellpose_segmentation(
-            input_paths=[str(zarr_path_mip)],
-            output_path=str(zarr_path_mip),
-            metadata=metadata,
-            component=component,
+            zarr_url=zarr_url,
             channel=ChannelInputModel(wavelength_id="A01_C01"),
             level=0,
             relabeling=True,
@@ -812,7 +743,7 @@ def test_CYX_input(
         )
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path_mip / metadata["image"][0])
+    image_zarr = Path(zarr_urls[0])
     label_zarr = image_zarr / "labels/label_DAPI"
     debug(image_zarr)
     well_zarr = image_zarr.parent
@@ -826,9 +757,7 @@ def test_CYX_input(
 
 def test_workflow_secondary_labeling(
     tmp_path: Path,
-    testdata_path: Path,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
     monkeypatch: MonkeyPatch,
 ):
 
@@ -843,22 +772,18 @@ def test_workflow_secondary_labeling(
     )
 
     # Load pre-made 2D zarr array
-    zarr_path = tmp_path / "tmp_out_mip/"
-    metadata = prepare_2D_zarr(
-        str(zarr_path),
+    zarr_dir = tmp_path / "tmp_out_mip/"
+    zarr_urls = prepare_2D_zarr(
+        str(zarr_dir),
         zenodo_zarr,
-        zenodo_zarr_metadata,
         remove_labels=True,
         make_CYX=False,
     )
 
     # Primary segmentation (organoid)
-    for component in metadata["image"]:
+    for zarr_url in zarr_urls:
         cellpose_segmentation(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
-            metadata=metadata,
-            component=component,
+            zarr_url=zarr_url,
             channel=ChannelInputModel(wavelength_id="A01_C01"),
             level=0,
             relabeling=True,
@@ -868,7 +793,7 @@ def test_workflow_secondary_labeling(
         )
 
     organoid_ROI_table_path = str(
-        zarr_path / metadata["image"][0] / "tables/organoid_ROI_table"
+        Path(zarr_urls[0]) / "tables/organoid_ROI_table"
     )
     organoid_ROI_table = ad.read_zarr(organoid_ROI_table_path)
     organoid_ROI_table_zarr_group = zarr.open(organoid_ROI_table_path)
@@ -881,15 +806,12 @@ def test_workflow_secondary_labeling(
     assert len(organoid_ROI_table) > 0
     assert np.max(organoid_ROI_table.X) == float(728)
 
-    debug(zarr_path / metadata["image"][0])
+    debug(zarr_urls[0])
 
     # Secondary segmentation (nuclei)
-    for component in metadata["image"]:
+    for zarr_url in zarr_urls:
         cellpose_segmentation(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
-            metadata=metadata,
-            component=component,
+            zarr_url=zarr_url,
             channel=ChannelInputModel(wavelength_id="A01_C01"),
             level=0,
             relabeling=True,
@@ -902,9 +824,7 @@ def test_workflow_secondary_labeling(
 
 def test_workflow_secondary_labeling_no_labels(
     tmp_path: Path,
-    testdata_path: Path,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
     monkeypatch: MonkeyPatch,
 ):
     """
@@ -929,22 +849,18 @@ def test_workflow_secondary_labeling_no_labels(
     )
 
     # Load pre-made 2D zarr array
-    zarr_path = tmp_path / "tmp_out_mip/"
-    metadata = prepare_2D_zarr(
-        str(zarr_path),
+    zarr_dir = tmp_path / "tmp_out_mip/"
+    zarr_urls = prepare_2D_zarr(
+        str(zarr_dir),
         zenodo_zarr,
-        zenodo_zarr_metadata,
         remove_labels=True,
         make_CYX=False,
     )
 
     # Primary segmentation (organoid)
-    for component in metadata["image"]:
+    for zarr_url in zarr_urls:
         cellpose_segmentation(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
-            metadata=metadata,
-            component=component,
+            zarr_url=zarr_url,
             channel=ChannelInputModel(wavelength_id="A01_C01"),
             level=0,
             relabeling=True,
@@ -954,7 +870,7 @@ def test_workflow_secondary_labeling_no_labels(
         )
 
     organoid_ROI_table_path = str(
-        zarr_path / metadata["image"][0] / "tables/organoid_ROI_table"
+        Path(zarr_urls[0]) / "tables/organoid_ROI_table"
     )
     organoid_ROI_table = ad.read_zarr(organoid_ROI_table_path)
     organoid_ROI_table_zarr_group = zarr.open(organoid_ROI_table_path)
@@ -964,15 +880,12 @@ def test_workflow_secondary_labeling_no_labels(
     debug(organoid_ROI_table.shape)
     assert len(organoid_ROI_table) == 0
 
-    debug(zarr_path / metadata["image"][0])
+    debug(zarr_urls[0])
 
     # Secondary segmentation (nuclei)
-    for component in metadata["image"]:
+    for zarr_url in zarr_urls:
         cellpose_segmentation(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
-            metadata=metadata,
-            component=component,
+            zarr_url=zarr_url,
             channel=ChannelInputModel(wavelength_id="A01_C01"),
             level=0,
             relabeling=True,
@@ -985,9 +898,7 @@ def test_workflow_secondary_labeling_no_labels(
 
 def test_workflow_secondary_labeling_two_channels(
     tmp_path: Path,
-    testdata_path: Path,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
     monkeypatch: MonkeyPatch,
 ):
     """
@@ -1008,22 +919,18 @@ def test_workflow_secondary_labeling_two_channels(
     )
 
     # Load pre-made 2D zarr array
-    zarr_path = tmp_path / "tmp_out_mip/"
-    metadata = prepare_2D_zarr(
-        str(zarr_path),
+    zarr_dir = tmp_path / "tmp_out_mip/"
+    zarr_urls = prepare_2D_zarr(
+        str(zarr_dir),
         zenodo_zarr,
-        zenodo_zarr_metadata,
         remove_labels=True,
         make_CYX=False,
     )
 
     # Primary segmentation (organoid)
-    for component in metadata["image"]:
+    for zarr_url in zarr_urls:
         cellpose_segmentation(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
-            metadata=metadata,
-            component=component,
+            zarr_url=zarr_url,
             channel=ChannelInputModel(wavelength_id="A01_C01"),
             level=0,
             relabeling=True,
@@ -1033,7 +940,7 @@ def test_workflow_secondary_labeling_two_channels(
         )
 
     organoid_ROI_table_path = str(
-        zarr_path / metadata["image"][0] / "tables/organoid_ROI_table"
+        Path(zarr_urls[0]) / "tables/organoid_ROI_table"
     )
     organoid_ROI_table = ad.read_zarr(organoid_ROI_table_path)
     organoid_ROI_table_zarr_group = zarr.open(organoid_ROI_table_path)
@@ -1046,15 +953,12 @@ def test_workflow_secondary_labeling_two_channels(
     assert len(organoid_ROI_table) > 0
     assert np.max(organoid_ROI_table.X) == float(728)
 
-    debug(zarr_path / metadata["image"][0])
+    debug(zarr_urls[0])
 
     # Secondary segmentation (nuclei)
-    for component in metadata["image"]:
+    for zarr_url in zarr_urls:
         cellpose_segmentation(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
-            metadata=metadata,
-            component=component,
+            zarr_url=zarr_url,
             channel=ChannelInputModel(wavelength_id="A01_C01"),
             channel2=ChannelInputModel(wavelength_id="A01_C01"),
             level=0,

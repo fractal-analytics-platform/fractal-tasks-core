@@ -15,7 +15,6 @@ import os
 from pathlib import Path
 from typing import Any
 from typing import Optional
-from typing import Sequence
 
 import pandas as pd
 from pydantic.decorator import validate_arguments
@@ -29,15 +28,17 @@ from fractal_tasks_core.cellvoyager.metadata import (
     parse_yokogawa_metadata,
 )
 from fractal_tasks_core.channels import check_unique_wavelength_ids
-from fractal_tasks_core.channels import check_well_channel_labels
 from fractal_tasks_core.channels import define_omero_channels
 from fractal_tasks_core.channels import OmeroChannel
+from fractal_tasks_core.ngff.specs import NgffImageMeta
+from fractal_tasks_core.ngff.specs import Plate
+from fractal_tasks_core.ngff.specs import Well
 from fractal_tasks_core.roi import prepare_FOV_ROI_table
 from fractal_tasks_core.roi import prepare_well_ROI_table
 from fractal_tasks_core.roi import remove_FOV_overlaps
 from fractal_tasks_core.tables import write_table
+from fractal_tasks_core.tasks.io_models import InitArgsCellVoyager
 from fractal_tasks_core.zarr_utils import open_zarr_group_with_overwrite
-
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
@@ -47,11 +48,11 @@ logger = logging.getLogger(__name__)
 
 
 @validate_arguments
-def create_ome_zarr(
+def cellvoyager_to_ome_zarr_init(
     *,
-    input_paths: Sequence[str],
-    output_path: str,
-    metadata: dict[str, Any],
+    zarr_urls: list[str],
+    zarr_dir: str,
+    image_dirs: list[str],
     allowed_channels: list[OmeroChannel],
     image_glob_patterns: Optional[list[str]] = None,
     num_levels: int = 5,
@@ -77,18 +78,16 @@ def create_ome_zarr(
     - verify that channels are uniform (i.e., same channels).
 
     Args:
-        input_paths: List of input paths where the image data from
-            the microscope is stored (as TIF or PNG).  Should point to the
-            parent folder containing the images and the metadata files
-            `MeasurementData.mlf` and `MeasurementDetail.mrf` (if present).
-            Example: `["/some/path/"]`.
+        zarr_urls: List of paths or urls to the individual OME-Zarr image to
+            be processed. Not used by the converter task.
             (standard argument for Fractal tasks, managed by Fractal server).
-        output_path: Path were the output of this task is stored.
-            Example: "/some/path/" => puts the new OME-Zarr file in the
-            "/some/path/".
+        zarr_dir: path of the directory where the new OME-Zarrs will be
+            created.
             (standard argument for Fractal tasks, managed by Fractal server).
-        metadata: This parameter is not used by this task.
-            (standard argument for Fractal tasks, managed by Fractal server).
+        image_dirs: list of paths to the folders that contains the Cellvoyager
+            image files. Each entry is a path to a folder that contains the
+            image files themselves for a multiwell plate and the
+            MeasurementData & MeasurementDetail metadata files.
         allowed_channels: A list of `OmeroChannel` s, where each channel must
             include the `wavelength_id` attribute and where the
             `wavelength_id` values must be unique across the list.
@@ -132,15 +131,13 @@ def create_ome_zarr(
     # Preliminary checks on allowed_channels argument
     check_unique_wavelength_ids(allowed_channels)
 
-    for in_path_str in input_paths:
-        in_path = Path(in_path_str)
-
+    for image_dir in image_dirs:
         # Glob image filenames
         patterns = [f"*.{image_extension}"]
         if image_glob_patterns:
             patterns.extend(image_glob_patterns)
         input_filenames = glob_with_multiple_patterns(
-            folder=in_path_str,
+            folder=image_dir,
             patterns=patterns,
         )
 
@@ -166,7 +163,7 @@ def create_ome_zarr(
 
         info = (
             "Listing plates/channels:\n"
-            f"Folder:   {in_path_str}\n"
+            f"Folder:   {image_dir}\n"
             f"Patterns: {patterns}\n"
             f"Plates:   {tmp_plates}\n"
             f"Channels: {tmp_wavelength_ids}\n"
@@ -206,7 +203,7 @@ def create_ome_zarr(
                 )
 
         # Update dict_plate_paths
-        dict_plate_paths[plate] = in_path
+        dict_plate_paths[plate] = image_dir
 
     # Check that all channels are in the allowed_channels
     allowed_wavelength_ids = [
@@ -226,23 +223,23 @@ def create_ome_zarr(
         if channel.wavelength_id in actual_wavelength_ids
     ]
 
-    zarrurls: dict[str, list[str]] = {"plate": [], "well": [], "image": []}
-
     ################################################################
+    # Create well/image OME-Zarr folders on disk, and prepare output
+    # metadata
+    parallelization_list = []
+
     for plate in plates:
         # Define plate zarr
-        zarrurl = f"{plate}.zarr"
+        relative_zarrurl = f"{plate}.zarr"
         in_path = dict_plate_paths[plate]
-        logger.info(f"Creating {zarrurl}")
+        logger.info(f"Creating {relative_zarrurl}")
         # Call zarr.open_group wrapper, which handles overwrite=True/False
         group_plate = open_zarr_group_with_overwrite(
-            str(Path(output_path) / zarrurl),
+            str(Path(zarr_dir) / relative_zarrurl),
             overwrite=overwrite,
         )
-        zarrurls["plate"].append(zarrurl)
 
         # Obtain FOV-metadata dataframe
-
         if metadata_table_file is None:
             mrf_path = f"{in_path}/MeasurementDetail.mrf"
             mlf_path = f"{in_path}/MeasurementData.mlf"
@@ -340,10 +337,11 @@ def create_ome_zarr(
         row_list = sorted(list(set(row_list)))
         col_list = sorted(list(set(col_list)))
 
-        group_plate.attrs["plate"] = {
+        plate_attrs = {
             "acquisitions": [{"id": 0, "name": plate}],
             "columns": [{"name": col} for col in col_list],
             "rows": [{"name": row} for row in row_list],
+            "version": __OME_NGFF_VERSION__,
             "wells": [
                 {
                     "path": well_row_column[0] + "/" + well_row_column[1],
@@ -354,19 +352,36 @@ def create_ome_zarr(
             ],
         }
 
-        for row, column in well_rows_columns:
+        # Validate plate attrs:
+        Plate(**plate_attrs)
 
+        group_plate.attrs["plate"] = plate_attrs
+
+        for row, column in well_rows_columns:
+            parallelization_list.append(
+                {
+                    "zarr_url": f"{zarr_dir}/{plate}.zarr/{row}/{column}/0/",
+                    "init_args": InitArgsCellVoyager(
+                        image_dir=in_path,
+                        plate_prefix=plate_prefix,
+                        well_ID=f"{row}{column}",
+                        image_extension=image_extension,
+                        image_glob_patterns=image_glob_patterns,
+                    ).dict(),
+                }
+            )
             group_well = group_plate.create_group(f"{row}/{column}/")
 
-            group_well.attrs["well"] = {
+            well_attrs = {
                 "images": [{"path": "0"}],
                 "version": __OME_NGFF_VERSION__,
             }
 
-            group_image = group_well.create_group("0/")  # noqa: F841
-            zarrurls["well"].append(f"{plate}.zarr/{row}/{column}/")
-            zarrurls["image"].append(f"{plate}.zarr/{row}/{column}/0/")
+            # Validate well attrs:
+            Well(**well_attrs)
+            group_well.attrs["well"] = well_attrs
 
+            group_image = group_well.create_group("0/")  # noqa: F841
             group_image.attrs["multiscales"] = [
                 {
                     "version": __OME_NGFF_VERSION__,
@@ -411,13 +426,16 @@ def create_ome_zarr(
             ]
 
             group_image.attrs["omero"] = {
-                "id": 1,  # FIXME does this depend on the plate number?
+                "id": 1,  # TODO does this depend on the plate number?
                 "name": "TBD",
                 "version": __OME_NGFF_VERSION__,
                 "channels": define_omero_channels(
                     channels=actual_channels, bit_depth=bit_depth
                 ),
             }
+
+            # Validate Image attrs
+            NgffImageMeta(**group_image.attrs)
 
             # Prepare AnnData tables for FOV/well ROIs
             well_id = row + column
@@ -442,32 +460,13 @@ def create_ome_zarr(
                 table_attrs={"type": "roi_table"},
             )
 
-    # Check that the different images in each well have unique channel labels.
-    # Since we currently merge all fields of view in the same image, this check
-    # is useless. It should remain there to catch an error in case we switch
-    # back to one-image-per-field-of-view mode
-    for well_path in zarrurls["well"]:
-        check_well_channel_labels(
-            well_zarr_path=str(Path(output_path) / well_path)
-        )
-
-    metadata_update = dict(
-        plate=zarrurls["plate"],
-        well=zarrurls["well"],
-        image=zarrurls["image"],
-        num_levels=num_levels,
-        coarsening_xy=coarsening_xy,
-        image_extension=image_extension,
-        image_glob_patterns=image_glob_patterns,
-        original_paths=input_paths[:],
-    )
-    return metadata_update
+    return dict(parallelization_list=parallelization_list)
 
 
 if __name__ == "__main__":
     from fractal_tasks_core.tasks._utils import run_fractal_task
 
     run_fractal_task(
-        task_function=create_ome_zarr,
+        task_function=cellvoyager_to_ome_zarr_init,
         logger_name=logger.name,
     )

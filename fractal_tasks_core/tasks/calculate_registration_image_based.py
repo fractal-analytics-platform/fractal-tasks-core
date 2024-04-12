@@ -13,14 +13,10 @@
 Calculates translation for image-based registration
 """
 import logging
-from pathlib import Path
-from typing import Any
-from typing import Sequence
 
 import anndata as ad
 import dask.array as da
 import numpy as np
-import pandas as pd
 import zarr
 from pydantic.decorator import validate_arguments
 from skimage.registration import phase_cross_correlation
@@ -37,6 +33,13 @@ from fractal_tasks_core.roi import (
 )
 from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
+from fractal_tasks_core.tasks._registration_utils import (
+    calculate_physical_shifts,
+)
+from fractal_tasks_core.tasks._registration_utils import (
+    get_ROI_table_with_translation,
+)
+from fractal_tasks_core.tasks.io_models import InitArgsRegistration
 
 logger = logging.getLogger(__name__)
 
@@ -45,16 +48,13 @@ logger = logging.getLogger(__name__)
 def calculate_registration_image_based(
     *,
     # Fractal arguments
-    input_paths: Sequence[str],
-    output_path: str,
-    component: str,
-    metadata: dict[str, Any],
+    zarr_url: str,
+    init_args: InitArgsRegistration,
     # Task-specific arguments
     wavelength_id: str,
     roi_table: str = "FOV_ROI_table",
-    reference_cycle: int = 0,
     level: int = 2,
-) -> dict[str, Any]:
+) -> None:
     """
     Calculate registration based on images
 
@@ -64,20 +64,12 @@ def calculate_registration_image_based(
     2. Calculating the transformation for that ROI
     3. Storing the calculated transformation in the ROI table
 
-    Parallelization level: image
-
     Args:
-        input_paths: List of input paths where the image data is stored as
-            OME-Zarrs. Should point to the parent folder containing one or many
-            OME-Zarr files, not the actual OME-Zarr file. Example:
-            `["/some/path/"]`. This task only supports a single input path.
+        zarr_url: Path or url to the individual OME-Zarr image to be processed.
             (standard argument for Fractal tasks, managed by Fractal server).
-        output_path: This parameter is not used by this task.
-            (standard argument for Fractal tasks, managed by Fractal server).
-        component: Path to the OME-Zarr image in the OME-Zarr plate that is
-            processed. Example: `"some_plate.zarr/B/03/0"`.
-            (standard argument for Fractal tasks, managed by Fractal server).
-        metadata: This parameter is not used by this task.
+        init_args: Intialization arguments provided by
+            `image_based_registration_hcs_init`. They contain the
+            reference_zarr_url that is used for registration.
             (standard argument for Fractal tasks, managed by Fractal server).
         wavelength_id: Wavelength that will be used for image-based
             registration; e.g. `A01_C01` for Yokogawa, `C01` for MD.
@@ -85,69 +77,49 @@ def calculate_registration_image_based(
             calculate the registration. Examples: `FOV_ROI_table` => loop over
             the field of views, `well_ROI_table` => process the whole well as
             one image.
-        reference_cycle: Which cycle to register against. Defaults to 0,
-            which is the first OME-Zarr image in the well (usually the first
-            cycle that was provided).
-        level: Pyramid level of the image to be segmented. Choose `0` to
-            process at full resolution.
+        level: Pyramid level of the image to be used for registration.
+            Choose `0` to process at full resolution.
 
     """
     logger.info(
-        f"Running for {input_paths=}, {component=}. \n"
+        f"Running for {zarr_url=}.\n"
         f"Calculating translation registration per {roi_table=} for "
         f"{wavelength_id=}."
     )
-    # Set OME-Zarr paths
-    zarr_img_cycle_x = Path(input_paths[0]) / component
 
-    # If the task is run for the reference cycle, exit
-    # TODO: Improve the input for this: Can we filter components to not
-    # run for itself?
-    alignment_cycle = zarr_img_cycle_x.name
-    if alignment_cycle == str(reference_cycle):
-        logger.info(
-            "Calculate registration image-based is running for "
-            f"cycle {alignment_cycle}, which is the reference_cycle."
-            "Thus, exiting the task."
-        )
-        return {}
-    else:
-        logger.info(
-            "Calculate registration image-based is running for "
-            f"cycle {alignment_cycle}"
-        )
-
-    zarr_img_ref_cycle = zarr_img_cycle_x.parent / str(reference_cycle)
+    init_args.reference_zarr_url = init_args.reference_zarr_url
 
     # Read some parameters from Zarr metadata
-    ngff_image_meta = load_NgffImageMeta(str(zarr_img_ref_cycle))
+    ngff_image_meta = load_NgffImageMeta(str(init_args.reference_zarr_url))
     coarsening_xy = ngff_image_meta.coarsening_xy
 
     # Get channel_index via wavelength_id.
     # Intially only allow registration of the same wavelength
     channel_ref: OmeroChannel = get_channel_from_image_zarr(
-        image_zarr_path=str(zarr_img_ref_cycle),
+        image_zarr_path=init_args.reference_zarr_url,
         wavelength_id=wavelength_id,
     )
     channel_index_ref = channel_ref.index
 
     channel_align: OmeroChannel = get_channel_from_image_zarr(
-        image_zarr_path=str(zarr_img_cycle_x),
+        image_zarr_path=zarr_url,
         wavelength_id=wavelength_id,
     )
     channel_index_align = channel_align.index
 
     # Lazily load zarr array
-    data_reference_zyx = da.from_zarr(f"{zarr_img_ref_cycle}/{level}")[
-        channel_index_ref
-    ]
-    data_alignment_zyx = da.from_zarr(f"{zarr_img_cycle_x}/{level}")[
+    data_reference_zyx = da.from_zarr(
+        f"{init_args.reference_zarr_url}/{level}"
+    )[channel_index_ref]
+    data_alignment_zyx = da.from_zarr(f"{zarr_url}/{level}")[
         channel_index_align
     ]
 
     # Read ROIs
-    ROI_table_ref = ad.read_zarr(f"{zarr_img_ref_cycle}/tables/{roi_table}")
-    ROI_table_x = ad.read_zarr(f"{zarr_img_cycle_x}/tables/{roi_table}")
+    ROI_table_ref = ad.read_zarr(
+        f"{init_args.reference_zarr_url}/tables/{roi_table}"
+    )
+    ROI_table_x = ad.read_zarr(f"{zarr_url}/tables/{roi_table}")
     logger.info(
         f"Found {len(ROI_table_x)} ROIs in {roi_table=} to be processed."
     )
@@ -161,7 +133,7 @@ def calculate_registration_image_based(
         None,
     ]
     ROI_table_ref_group = zarr.open_group(
-        f"{zarr_img_ref_cycle}/tables/{roi_table}",
+        f"{init_args.reference_zarr_url}/tables/{roi_table}",
         mode="r",
     )
     ref_table_attrs = ROI_table_ref_group.attrs.asdict()
@@ -189,7 +161,7 @@ def calculate_registration_image_based(
     # in the list will break.
 
     # Read pixel sizes from zarr attributes
-    ngff_image_meta_cycle_x = load_NgffImageMeta(str(zarr_img_cycle_x))
+    ngff_image_meta_cycle_x = load_NgffImageMeta(zarr_url)
     pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
     pxl_sizes_zyx_cycle_x = ngff_image_meta_cycle_x.get_pixel_sizes_zyx(
         level=0
@@ -274,7 +246,7 @@ def calculate_registration_image_based(
 
     # Write physical shifts to disk (as part of the ROI table)
     logger.info(f"Updating the {roi_table=} with translation columns")
-    image_group = zarr.group(zarr_img_cycle_x)
+    image_group = zarr.group(zarr_url)
     new_ROI_table = get_ROI_table_with_translation(ROI_table_x, new_shifts)
     write_table(
         image_group,
@@ -283,77 +255,6 @@ def calculate_registration_image_based(
         overwrite=True,
         table_attrs=ref_table_attrs,
     )
-
-    return {}
-
-
-def calculate_physical_shifts(
-    shifts: np.array,
-    level: int,
-    coarsening_xy: int,
-    full_res_pxl_sizes_zyx: list[float],
-) -> list[float]:
-    """
-    Calculates shifts in physical units based on pixel shifts
-
-    Args:
-        shifts: array of shifts, zyx or yx
-        level: resolution level
-        coarsening_xy: coarsening factor between levels
-        full_res_pxl_sizes_zyx: pixel sizes in physical units as zyx
-
-    Returns:
-        shifts_physical: shifts in physical units as zyx
-    """
-
-    curr_pixel_size = np.array(full_res_pxl_sizes_zyx) * coarsening_xy**level
-    if len(shifts) == 3:
-        shifts_physical = shifts * curr_pixel_size
-    elif len(shifts) == 2:
-        shifts_physical = [
-            0,
-            shifts[0] * curr_pixel_size[1],
-            shifts[1] * curr_pixel_size[2],
-        ]
-    else:
-        raise ValueError(
-            f"Wrong input for calculate_physical_shifts ({shifts=})"
-        )
-    return shifts_physical
-
-
-def get_ROI_table_with_translation(
-    ROI_table: ad.AnnData,
-    new_shifts: dict[str, list[float]],
-) -> ad.AnnData:
-    """
-    Adds translation columns to a ROI table
-
-    Args:
-        ROI_table: Fractal ROI table
-        new_shifts: zyx list of shifts
-
-    Returns:
-        Fractal ROI table with 3 additional columns for calculated translations
-    """
-
-    shift_table = pd.DataFrame(new_shifts).T
-    shift_table.columns = ["translation_z", "translation_y", "translation_x"]
-    shift_table = shift_table.rename_axis("FieldIndex")
-    new_roi_table = ROI_table.to_df().merge(
-        shift_table, left_index=True, right_index=True
-    )
-    if len(new_roi_table) != len(ROI_table):
-        raise ValueError(
-            "New ROI table with registration info has a "
-            f"different length ({len(new_roi_table)=}) "
-            f"from the original ROI table ({len(ROI_table)=})"
-        )
-
-    adata = ad.AnnData(X=new_roi_table.astype(np.float32))
-    adata.obs_names = new_roi_table.index
-    adata.var_names = list(map(str, new_roi_table.columns))
-    return adata
 
 
 if __name__ == "__main__":

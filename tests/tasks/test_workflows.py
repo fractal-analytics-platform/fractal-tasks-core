@@ -14,7 +14,6 @@ Zurich.
 import logging
 import shutil
 from pathlib import Path
-from typing import Any
 
 import pytest
 import zarr
@@ -22,15 +21,21 @@ from devtools import debug
 
 from ._validation import check_file_number
 from ._validation import validate_schema
-from fractal_tasks_core.tasks.copy_ome_zarr import copy_ome_zarr
-from fractal_tasks_core.tasks.create_ome_zarr import create_ome_zarr
+from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_compute import (
+    cellvoyager_to_ome_zarr_compute,
+)
+from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_init import (
+    cellvoyager_to_ome_zarr_init,
+)
+from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
+    copy_ome_zarr_hcs_plate,
+)
 from fractal_tasks_core.tasks.illumination_correction import (
     illumination_correction,
 )
 from fractal_tasks_core.tasks.maximum_intensity_projection import (
     maximum_intensity_projection,
-)  # noqa
-from fractal_tasks_core.tasks.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
+)
 from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 
 
@@ -69,15 +74,15 @@ def test_create_ome_zarr_fail(tmp_path: Path, zenodo_images: str):
     ]
 
     # Init
-    img_path = zenodo_images
-    zarr_path = str(tmp_path / "tmp_out/")
+    image_dir = zenodo_images
+    zarr_dir = str(tmp_path / "tmp_out/")
 
     # Create zarr structure
     with pytest.raises(ValueError):
-        _ = create_ome_zarr(
-            input_paths=[img_path],
-            metadata={},
-            output_path=zarr_path,
+        _ = cellvoyager_to_ome_zarr_init(
+            zarr_urls=[],
+            zarr_dir=zarr_dir,
+            image_dirs=[image_dir],
             allowed_channels=tmp_allowed_channels,
             num_levels=num_levels,
             coarsening_xy=coarsening_xy,
@@ -95,10 +100,10 @@ def test_create_ome_zarr_no_images(
     create_ome_zarr must fail.
     """
     with pytest.raises(ValueError):
-        create_ome_zarr(
-            input_paths=[zenodo_images],
-            output_path=str(tmp_path / "output"),
-            metadata={},
+        cellvoyager_to_ome_zarr_init(
+            zarr_urls=[],
+            zarr_dir=str(tmp_path / "output"),
+            image_dirs=[zenodo_images],
             allowed_channels=allowed_channels,
             num_levels=num_levels,
             coarsening_xy=coarsening_xy,
@@ -106,10 +111,10 @@ def test_create_ome_zarr_no_images(
             image_extension="xyz",
         )
     with pytest.raises(ValueError):
-        create_ome_zarr(
-            input_paths=[zenodo_images],
-            output_path=str(tmp_path / "output"),
-            metadata={},
+        cellvoyager_to_ome_zarr_init(
+            zarr_urls=[],
+            zarr_dir=str(tmp_path / "output"),
+            image_dirs=[zenodo_images],
             allowed_channels=allowed_channels,
             num_levels=num_levels,
             coarsening_xy=coarsening_xy,
@@ -146,27 +151,24 @@ def test_yokogawa_to_ome_zarr(
     output_path = tmp_path / "output"
 
     # Create zarr structure
-    metadata: dict = {}
-    _original_metadata: dict = {}
-    metadata_update = create_ome_zarr(
-        input_paths=[str(img_path)],
-        output_path=str(output_path),
-        metadata=metadata,
+    parallelization_list = cellvoyager_to_ome_zarr_init(
+        zarr_urls=[],
+        zarr_dir=str(output_path),
+        image_dirs=[str(img_path)],
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         metadata_table_file=metadata_table_file,
         image_extension="png",
-    )
-    metadata.update(metadata_update)
-    debug(metadata)
+    )["parallelization_list"]
+    debug(parallelization_list)
 
     # Re-run (with overwrite=False) and fail
     with pytest.raises(OverwriteNotAllowedError):
-        create_ome_zarr(
-            input_paths=[str(img_path)],
-            output_path=str(output_path),
-            metadata=_original_metadata,
+        cellvoyager_to_ome_zarr_init(
+            zarr_urls=[],
+            zarr_dir=str(output_path),
+            image_dirs=[str(img_path)],
             allowed_channels=allowed_channels,
             num_levels=num_levels,
             coarsening_xy=coarsening_xy,
@@ -176,53 +178,64 @@ def test_yokogawa_to_ome_zarr(
         )
 
     # Re-run (with overwrite=True)
-    metadata_update = create_ome_zarr(
-        input_paths=[str(img_path)],
-        output_path=str(output_path),
-        metadata=_original_metadata,
+    parallelization_list = cellvoyager_to_ome_zarr_init(
+        zarr_urls=[],
+        zarr_dir=str(output_path),
+        image_dirs=[str(img_path)],
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         metadata_table_file=metadata_table_file,
         image_extension="png",
         overwrite=True,
-    )
-    metadata.update(metadata_update)
-    debug(metadata)
+    )["parallelization_list"]
+    debug(parallelization_list)
 
+    image_list_updates = []
     # Yokogawa to zarr
-    for component in metadata["image"]:
-        yokogawa_to_ome_zarr(
-            input_paths=[str(output_path)],
-            output_path=str(output_path),
-            metadata=metadata,
-            component=component,
-        )
-    debug(metadata)
+    for image in parallelization_list:
+        image_list_updates += cellvoyager_to_ome_zarr_compute(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+        )["image_list_updates"]
+    debug(image_list_updates)
+
+    # Validate image_list_updates contents
+    expected_image_list_update = {
+        "zarr_url": (
+            f"{output_path}/20200812-CardiomyocyteDifferentiation14"
+            "-Cycle1.zarr/B/03/0/"
+        ),
+        "attributes": {
+            "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
+            "well": "B03",
+        },
+        "types": {
+            "is_3D": True,
+        },
+    }
+
+    assert image_list_updates[0] == expected_image_list_update
 
     # Re-run (with overwrite=True)
-    for component in metadata["image"]:
-        yokogawa_to_ome_zarr(
-            input_paths=[str(output_path)],
-            output_path=str(output_path),
-            metadata=metadata,
-            component=component,
+    for image in parallelization_list:
+        cellvoyager_to_ome_zarr_compute(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
             overwrite=True,
         )
 
     # Re-run (with overwrite=False)
-    with pytest.raises(OverwriteNotAllowedError):
-        for component in metadata["image"]:
-            yokogawa_to_ome_zarr(
-                input_paths=[str(output_path)],
-                output_path=str(output_path),
-                metadata=metadata,
-                component=component,
+    for image in parallelization_list:
+        with pytest.raises(OverwriteNotAllowedError):
+            cellvoyager_to_ome_zarr_compute(
+                zarr_url=image["zarr_url"],
+                init_args=image["init_args"],
                 overwrite=False,
             )
 
     # OME-NGFF JSON validation
-    image_zarr = Path(output_path / metadata["image"][0])
+    image_zarr = Path(parallelization_list[0]["zarr_url"])
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
     validate_schema(path=str(image_zarr), type="image")
@@ -243,85 +256,81 @@ def test_yokogawa_to_ome_zarr(
 def test_MIP(
     tmp_path: Path,
     zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
 ):
 
     # Init
     zarr_path = tmp_path / "tmp_out/"
-    zarr_path_mip = tmp_path / "tmp_out_mip/"
 
     # Load zarr array from zenodo
     zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
-    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
     shutil.copytree(zenodo_zarr_3D, str(zarr_path / Path(zenodo_zarr_3D).name))
-    metadata = metadata_3D.copy()
 
-    # Replicate
-    _original_metadata = metadata.copy()
-    metadata_update = copy_ome_zarr(
-        input_paths=[str(zarr_path)],
-        output_path=str(zarr_path_mip),
-        metadata=metadata,
-        project_to_2D=True,
-        suffix="mip",
-    )
-    metadata.update(metadata_update)
-    debug(metadata)
+    zarr_urls = []
+    zarr_dir = "/".join(zenodo_zarr_3D.split("/")[:-1])
+    zarr_urls = [Path(zarr_dir, "plate.zarr/B/03/0").as_posix()]
+
+    parallelization_list = copy_ome_zarr_hcs_plate(
+        zarr_urls=zarr_urls,
+        zarr_dir="tmp_out",
+        overwrite=True,
+    )["parallelization_list"]
+    debug(parallelization_list)
 
     # Run again, with overwrite=True
-    metadata_update_second_try = copy_ome_zarr(
-        input_paths=[str(zarr_path)],
-        output_path=str(zarr_path_mip),
-        metadata=_original_metadata,
-        project_to_2D=True,
-        suffix="mip",
+    parallelization_list_2 = copy_ome_zarr_hcs_plate(
+        zarr_urls=zarr_urls,
+        zarr_dir="tmp_out",
         overwrite=True,
-    )
-    assert metadata_update_second_try == metadata_update
+    )["parallelization_list"]
+    assert parallelization_list_2 == parallelization_list
 
     # Run again, with overwrite=False
     with pytest.raises(OverwriteNotAllowedError):
-        copy_ome_zarr(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path_mip),
-            metadata=_original_metadata,
-            project_to_2D=True,
-            suffix="mip",
+        _ = copy_ome_zarr_hcs_plate(
+            zarr_urls=zarr_urls,
+            zarr_dir="tmp_out",
             overwrite=False,
         )
 
     # MIP
-    for component in metadata["image"]:
-        maximum_intensity_projection(
-            input_paths=[str(zarr_path_mip)],
-            output_path=str(zarr_path_mip),
-            metadata=metadata,
-            component=component,
-        )
+    image_list_updates = []
+    for image in parallelization_list:
+        image_list_updates += maximum_intensity_projection(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+            overwrite=True,
+        )["image_list_updates"]
+
+    debug(image_list_updates[0])
+    expected_image_list_updates = {
+        "zarr_url": (parallelization_list[0]["zarr_url"]),
+        "origin": f"{zarr_dir}/plate.zarr/B/03/0",
+        "types": {
+            "is_3D": False,
+        },
+    }
+    debug(expected_image_list_updates)
+    assert image_list_updates[0] == expected_image_list_updates
 
     # Re-run with overwrite=True
-    for component in metadata["image"]:
+    for image in parallelization_list:
         maximum_intensity_projection(
-            input_paths=[str(zarr_path_mip)],
-            output_path=str(zarr_path_mip),
-            metadata=metadata,
-            component=component,
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
             overwrite=True,
         )
 
     # Re-run with overwrite=False
     with pytest.raises(OverwriteNotAllowedError):
-        for component in metadata["image"]:
+        for image in parallelization_list:
             maximum_intensity_projection(
-                input_paths=[str(zarr_path_mip)],
-                output_path=str(zarr_path_mip),
-                metadata=metadata,
-                component=component,
+                zarr_url=image["zarr_url"],
+                init_args=image["init_args"],
                 overwrite=False,
             )
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path_mip / metadata["image"][0])
+    image_zarr = Path(parallelization_list[0]["zarr_url"])
     debug(image_zarr)
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
@@ -348,57 +357,52 @@ def test_MIP_subset_of_images(
     """
 
     # Init
-    zarr_path = tmp_path / "tmp_out/"
-    zarr_path_mip = tmp_path / "tmp_out_mip/"
+    zarr_dir = tmp_path / "tmp_out/"
 
     # Create zarr structure
-    metadata: dict = {}
-    metadata_update = create_ome_zarr(
-        input_paths=[zenodo_images],
-        output_path=str(zarr_path),
-        metadata=metadata,
+    parallelization_list = cellvoyager_to_ome_zarr_init(
+        zarr_urls=[],
+        zarr_dir=str(zarr_dir),
+        image_dirs=[zenodo_images],
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         metadata_table_file=None,
         image_extension="png",
         image_glob_patterns=["*F001*"],
-    )
-    metadata.update(metadata_update)
-    debug(metadata)
+    )["parallelization_list"]
+    debug(parallelization_list)
 
     # Yokogawa to zarr
-    for component in metadata["image"]:
-        yokogawa_to_ome_zarr(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
-            metadata=metadata,
-            component=component,
-        )
-    debug(metadata)
+    image_list_updates = []
+    # Yokogawa to zarr
+    for image in parallelization_list:
+        image_list_updates += cellvoyager_to_ome_zarr_compute(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+        )["image_list_updates"]
+    debug(image_list_updates)
 
+    zarr_urls = [a["zarr_url"] for a in image_list_updates]
+    debug(zarr_urls)
     # Replicate
-    metadata_update = copy_ome_zarr(
-        input_paths=[str(zarr_path)],
-        output_path=str(zarr_path_mip),
-        metadata=metadata,
-        project_to_2D=True,
-        suffix="mip",
-    )
-    metadata.update(metadata_update)
-    debug(metadata)
+    parallelization_list = copy_ome_zarr_hcs_plate(
+        zarr_urls=zarr_urls,
+        zarr_dir="tmp_out",
+        overwrite=True,
+    )["parallelization_list"]
+    debug(parallelization_list)
 
     # MIP
-    for component in metadata["image"]:
+    for image in parallelization_list:
         maximum_intensity_projection(
-            input_paths=[str(zarr_path_mip)],
-            output_path=str(zarr_path_mip),
-            metadata=metadata,
-            component=component,
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+            overwrite=True,
         )
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path_mip / metadata["image"][0])
+    image_zarr = Path(parallelization_list[0]["zarr_url"])
     debug(image_zarr)
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
@@ -420,46 +424,39 @@ def test_illumination_correction(
 
     # Init
     img_path = Path(zenodo_images)
-    zarr_path = tmp_path / "tmp_out"
-    metadata: dict = {}
+    zarr_dir = tmp_path / "tmp_out"
 
     testdata_str = testdata_path.as_posix()
     illum_params = {"A01_C01": "illum_corr_matrix.png"}
     illumination_profiles_folder = f"{testdata_str}/illumination_correction/"
 
     # Create zarr structure
-    metadata_update = create_ome_zarr(
-        input_paths=[str(img_path)],
-        output_path=str(zarr_path),
-        metadata=metadata,
+    parallelization_list = cellvoyager_to_ome_zarr_init(
+        zarr_urls=[],
+        zarr_dir=str(zarr_dir),
+        image_dirs=[str(img_path)],
         image_extension="png",
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         metadata_table_file=None,
-    )
-    metadata.update(metadata_update)
+    )["parallelization_list"]
     print(caplog.text)
     caplog.clear()
 
     # Yokogawa to zarr
-    for component in metadata["image"]:
-        yokogawa_to_ome_zarr(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
-            metadata=metadata,
-            component=component,
+    for image in parallelization_list:
+        cellvoyager_to_ome_zarr_compute(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
         )
     print(caplog.text)
     caplog.clear()
 
     # Illumination correction
-    for component in metadata["image"]:
+    for image in parallelization_list:
         illumination_correction(
-            input_paths=[str(zarr_path)],
-            output_path=str(zarr_path),
-            metadata=metadata,
-            component=component,
+            zarr_url=image["zarr_url"],
             overwrite_input=True,
             illumination_profiles_folder=illumination_profiles_folder,
             dict_corr=illum_params,
@@ -468,7 +465,7 @@ def test_illumination_correction(
     caplog.clear()
 
     # OME-NGFF JSON validation
-    image_zarr = Path(zarr_path / metadata["image"][0])
+    image_zarr = Path(parallelization_list[0]["zarr_url"])
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
     validate_schema(path=str(image_zarr), type="image")
@@ -476,52 +473,3 @@ def test_illumination_correction(
     validate_schema(path=str(plate_zarr), type="plate")
 
     check_file_number(zarr_path=image_zarr)
-
-
-def test_copy_ome_zarr_twice(
-    tmp_path: Path,
-    zenodo_zarr: list[str],
-    zenodo_zarr_metadata: list[dict[str, Any]],
-):
-    """
-    See
-    https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/510
-    """
-
-    # Init and load zarr array from zenodo
-    zarr_path = tmp_path / "data"
-    zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
-    metadata_3D, metadata_2D = zenodo_zarr_metadata[:]
-    shutil.copytree(zenodo_zarr_3D, str(zarr_path / Path(zenodo_zarr_3D).name))
-    metadata = metadata_3D.copy()
-
-    # Run first time
-    _original_metadata = metadata.copy()
-    metadata_update = copy_ome_zarr(
-        input_paths=[str(zarr_path)],
-        output_path=str(zarr_path),
-        metadata=_original_metadata,
-        project_to_2D=True,
-        suffix="mip",
-    )
-    metadata.update(metadata_update)
-    debug(metadata)
-    assert len(metadata["copy_ome_zarr"]["sources"].keys()) == 1
-    assert "plate_mip_mip" not in metadata["copy_ome_zarr"]["sources"].keys()
-
-    # Run second time, with overwrite=True
-    metadata_update = copy_ome_zarr(
-        input_paths=[str(zarr_path)],
-        output_path=str(zarr_path),
-        metadata=_original_metadata,
-        project_to_2D=True,
-        suffix="mip",
-        overwrite=True,
-    )
-    debug(metadata_update)
-    metadata.update(metadata_update)
-    assert (
-        "plate_mip_mip"
-        not in metadata_update["copy_ome_zarr"]["sources"].keys()
-    )
-    assert len(metadata_update["copy_ome_zarr"]["sources"].keys()) == 1

@@ -118,32 +118,3 @@ def zenodo_zarr(testdata_path: Path) -> list[str]:
             shutil.rmtree(str(folder))
         shutil.copytree(Path(zarr_full_path) / file_name, folder)
     return [str(f) for f in folders]
-
-
-@pytest.fixture(scope="function")
-def zenodo_zarr_metadata(testdata_path: Path):
-    metadata_3D = {
-        "plate": ["plate.zarr"],
-        "well": ["plate.zarr/B/03"],
-        "image": ["plate.zarr/B/03/0/"],
-        "num_levels": 6,
-        "coarsening_xy": 2,
-        "original_paths": [str(testdata_path / "10_5281_zenodo_7059515/")],
-        "image_extension": "png",
-    }
-
-    metadata_2D = {
-        "plate": ["plate.zarr"],
-        "well": ["plate_mip.zarr/B/03/"],
-        "image": ["plate_mip.zarr/B/03/0/"],
-        "num_levels": 6,
-        "coarsening_xy": 2,
-        "original_paths": [str(testdata_path / "10_5281_zenodo_7059515/")],
-        "image_extension": "png",
-        "replicate_zarr": {
-            "suffix": "mip",
-            "sources": {"plate_mip": "/this/should/not/be/used/"},
-        },
-    }
-
-    return [metadata_3D, metadata_2D]

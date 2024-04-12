@@ -10,6 +10,7 @@
 # Zurich.
 import logging
 from pathlib import Path
+from typing import Optional
 
 from docstring_parser import parse as docparse
 
@@ -51,42 +52,30 @@ def _get_function_description(
 
 
 def create_docs_info(
-    executable: str,
+    executable_non_parallel: Optional[str] = None,
+    executable_parallel: Optional[str] = None,
     package: str = "fractal_tasks_core",
-) -> str:
+) -> list[str]:
     """
     Return task description based on function docstring.
     """
     logging.info("[create_docs_info] START")
-    # Extract the function name. Note: this could be made more general, but for
-    # the moment we assume the function has the same name as the module)
-    function_name = Path(executable).with_suffix("").name
-    logging.info(f"[create_docs_info] {function_name=}")
-    # Get function description
-    docs_info = _get_function_description(
-        package_name=package,
-        module_relative_path=executable,
-        function_name=function_name,
-    )
+    docs_info = []
+    for executable in [executable_non_parallel, executable_parallel]:
+        if executable is None:
+            continue
+        # Extract the function name.
+        # Note: this could be made more general, but for the moment we assume
+        # that the function has the same name as the module)
+        function_name = Path(executable).with_suffix("").name
+        logging.info(f"[create_docs_info] {function_name=}")
+        # Get function description
+        description = _get_function_description(
+            package_name=package,
+            module_relative_path=executable,
+            function_name=function_name,
+        )
+        docs_info.append(f"## {function_name}\n{description}\n")
+    docs_info = "".join(docs_info)
     logging.info("[create_docs_info] END")
     return docs_info
-
-
-def create_docs_link(executable: str) -> str:
-    """
-    Return link to docs page for a fractal_tasks_core task.
-    """
-    logging.info("[create_docs_link] START")
-
-    # Extract the function name. Note: this could be made more general, but for
-    # the moment we assume the function has the same name as the module)
-    function_name = Path(executable).with_suffix("").name
-    logging.info(f"[create_docs_link] {function_name=}")
-    # Define docs_link
-    docs_link = (
-        "https://fractal-analytics-platform.github.io/fractal-tasks-core/"
-        f"reference/fractal_tasks_core/tasks/{function_name}/"
-        f"#fractal_tasks_core.tasks.{function_name}.{function_name}"
-    )
-    logging.info("[create_docs_link] END")
-    return docs_link
