@@ -29,12 +29,12 @@ jobs:
         run: poetry config virtualenvs.in-project true
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Cache poetry virtualenv
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ./.venv
           key: ${{ runner.os }}-python-${{ matrix.python-version }}-venv-${{ hashFiles('**/poetry.lock') }}-tests_core
@@ -46,7 +46,7 @@ jobs:
         run: poetry run coverage run -m pytest tests --ignore tests/tasks
 
       - name: Upload coverage data
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-data
           path: ".coverage*"
@@ -72,12 +72,12 @@ jobs:
         run: poetry config virtualenvs.in-project true
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Cache poetry virtualenv
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ./.venv
           key: ${{ runner.os }}-python-${{ matrix.python-version }}-venv-${{ hashFiles('**/poetry.lock') }}-tests_tasks
@@ -90,7 +90,7 @@ jobs:
 
       - name: Cache Pooch folder
         id: cache-pooch-folder
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/pooch
           key: pooch-cache
@@ -99,7 +99,7 @@ jobs:
         run: poetry run coverage run -m pytest tests/tasks -s --log-cli-level info
 
       - name: Upload coverage data
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-data
           path: ".coverage*"
@@ -111,7 +111,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
