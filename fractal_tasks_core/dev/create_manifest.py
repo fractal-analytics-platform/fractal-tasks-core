@@ -124,6 +124,7 @@ def create_manifest(
         docs_info = create_docs_info(
             executable_non_parallel=task_obj.executable_non_parallel,
             executable_parallel=task_obj.executable_parallel,
+            package=package,
         )
         if docs_info is not None:
             task_dict["docs_info"] = docs_info
