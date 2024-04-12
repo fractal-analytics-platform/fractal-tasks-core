@@ -7,6 +7,7 @@ import zarr.hierarchy
 from zarr.errors import GroupNotFoundError
 
 from fractal_tasks_core.ngff.specs import NgffImageMeta
+from fractal_tasks_core.ngff.specs import NgffPlateMeta
 from fractal_tasks_core.ngff.specs import NgffWellMeta
 
 logger = logging.getLogger(__name__)
@@ -37,7 +38,7 @@ def load_NgffImageMeta(zarr_path: str) -> NgffImageMeta:
     except GroupNotFoundError:
         error_msg = (
             "Could not load attributes for the requested image, "
-            f"because no Zarr image was found at {zarr_path}"
+            f"because no Zarr group was found at {zarr_path}"
         )
         logging.error(error_msg)
         raise ZarrGroupNotFoundError(error_msg)
@@ -67,7 +68,7 @@ def load_NgffWellMeta(zarr_path: str) -> NgffWellMeta:
     except GroupNotFoundError:
         error_msg = (
             "Could not load attributes for the requested well, "
-            f"because no Zarr image was found at {zarr_path}"
+            f"because no Zarr group was found at {zarr_path}"
         )
         logging.error(error_msg)
         raise ZarrGroupNotFoundError(error_msg)
@@ -77,6 +78,36 @@ def load_NgffWellMeta(zarr_path: str) -> NgffWellMeta:
     except Exception as e:
         logging.error(
             f"Contents of {zarr_path} cannot be cast to NgffWellMeta.\n"
+            f"Original error:\n{str(e)}"
+        )
+        raise e
+
+
+def load_NgffPlateMeta(zarr_path: str) -> NgffPlateMeta:
+    """
+    Load the attributes of a zarr group and cast them to `NgffPlateMeta`.
+
+    Args:
+        zarr_path: Path to the zarr group.
+
+    Returns:
+        A new `NgffPlateMeta` object.
+    """
+    try:
+        zarr_group = zarr.open_group(zarr_path, mode="r")
+    except GroupNotFoundError:
+        error_msg = (
+            "Could not load attributes for the requested plate, "
+            f"because no Zarr group was found at {zarr_path}"
+        )
+        logging.error(error_msg)
+        raise ZarrGroupNotFoundError(error_msg)
+    zarr_attrs = zarr_group.attrs.asdict()
+    try:
+        return NgffPlateMeta(**zarr_attrs)
+    except Exception as e:
+        logging.error(
+            f"Contents of {zarr_path} cannot be cast to NgffPlateMeta.\n"
             f"Original error:\n{str(e)}"
         )
         raise e
