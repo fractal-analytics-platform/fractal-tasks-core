@@ -20,8 +20,9 @@ from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
 from fractal_tasks_core.ngff.specs import NgffPlateMeta
-from fractal_tasks_core.ngff.specs import NgffWellMeta
 from fractal_tasks_core.ngff.specs import WellInPlate
+from fractal_tasks_core.ngff.zarr_utils import load_NgffPlateMeta
+from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
 from fractal_tasks_core.tasks.io_models import InitArgsMIP
 from fractal_tasks_core.zarr_utils import open_zarr_group_with_overwrite
 
@@ -91,7 +92,7 @@ def _generate_plate_well_metadata(
     zarr_urls: list[str],
 ) -> tuple[dict[str, dict], dict[str, dict[str, dict]], dict[str, dict]]:
     """
-    Generate metadata for OME-Zarr HCS plate & wells.
+    Generate metadata for OME-Zarr HCS plates & wells.
 
     Based on the list of zarr_urls, generate metadata for all plates and all
     their wells.
@@ -116,12 +117,15 @@ def _generate_plate_well_metadata(
     well_image_attrs = {}
     new_well_image_attrs = {}
     for zarr_url in zarr_urls:
+        # Extract plate/well/image parts of `zarr_url`
         old_plate_url = _get_plate_url_from_image_url(zarr_url)
+        well_sub_url = _get_well_sub_url(zarr_url)
+        curr_img_sub_url = _get_image_sub_url(zarr_url)
+
+        # The first time a plate is found, create its metadata
         if old_plate_url not in plate_metadata_dicts:
-            logger.info(f"Reading metadata of {old_plate_url=}")
-            old_plate_group = zarr.open_group(old_plate_url, mode="r")
-            attrs = old_plate_group.attrs.asdict()
-            old_plate_meta = NgffPlateMeta(**attrs)
+            logger.info(f"Reading plate metadata of {old_plate_url=}")
+            old_plate_meta = load_NgffPlateMeta(old_plate_url)
             plate_metadata = dict(
                 plate=dict(
                     acquisitions=old_plate_meta.plate.acquisitions,
@@ -137,19 +141,17 @@ def _generate_plate_well_metadata(
             well_image_attrs[old_plate_url] = {}
             new_well_image_attrs[old_plate_url] = {}
 
-        # Add info about the wells to the plate_wells dict:
-        well_sub_url = _get_well_sub_url(zarr_url)
-        # Check if well already exists. If no, init well metadata.
+        # The first time a plate/well pair is found, create the well metadata
         if well_sub_url not in plate_wells[old_plate_url]:
             plate_wells[old_plate_url].append(well_sub_url)
-            old_well_group = zarr.open_group(
-                f"{old_plate_url}/{well_sub_url}", mode="r"
-            )
-            well_attrs = NgffWellMeta(**old_well_group.attrs.asdict())
+            old_well_url = f"{old_plate_url}/{well_sub_url}"
+            logger.info(f"Reading well metadata of {old_well_url}")
+            well_attrs = load_NgffWellMeta(old_well_url)
             well_image_attrs[old_plate_url][well_sub_url] = well_attrs.well
             new_well_image_attrs[old_plate_url][well_sub_url] = []
 
-        curr_img_sub_url = _get_image_sub_url(zarr_url)
+        # Find images of the current well with name matching the current image
+        # TODO: clarify whether this list must always have length 1
         curr_well_image_list = [
             img
             for img in well_image_attrs[old_plate_url][well_sub_url].images
@@ -193,7 +195,6 @@ def copy_ome_zarr_hcs_plate(
     suffix: str = "mip",
     overwrite: bool = False,
 ) -> dict[str, Any]:
-
     """
     Duplicate the OME-Zarr HCS structure for a set of zarr_urls.
 
@@ -245,9 +246,7 @@ def copy_ome_zarr_hcs_plate(
         new_zarr_url = f"{zarrurl_plate_new}/{well_sub_url}/{curr_img_sub_url}"
         parallelization_item = dict(
             zarr_url=new_zarr_url,
-            init_args=dict(
-                origin_url=zarr_url,
-            ),
+            init_args=dict(origin_url=zarr_url),
         )
         InitArgsMIP(**parallelization_item["init_args"])
         parallelization_list.append(parallelization_item)
@@ -277,8 +276,8 @@ def copy_ome_zarr_hcs_plate(
             well_attrs = dict(
                 well=dict(
                     images=[
-                        i.dict(exclude_none=True)
-                        for i in new_well_image_attrs[old_plate_url][
+                        img.dict(exclude_none=True)
+                        for img in new_well_image_attrs[old_plate_url][
                             well_sub_url
                         ]
                     ],
