@@ -24,6 +24,7 @@ import zarr
 from pydantic.decorator import validate_arguments
 
 from fractal_tasks_core.ngff import load_NgffImageMeta
+from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
 from fractal_tasks_core.pyramids import build_pyramid
 from fractal_tasks_core.roi import (
     convert_indices_to_regions,
@@ -34,11 +35,10 @@ from fractal_tasks_core.roi import (
 from fractal_tasks_core.roi import is_standard_roi_table
 from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
-from fractal_tasks_core.utils import _get_table_path_dict
 from fractal_tasks_core.tasks._registration_utils import (
-    _split_well_path_image_path
+    _split_well_path_image_path,
 )
-from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
+from fractal_tasks_core.utils import _get_table_path_dict
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +77,7 @@ def apply_registration_to_image(
             Examples: `registered_FOV_ROI_table` => loop over the field of
             views, `registered_well_ROI_table` => process the whole well as
             one image.
-        reference_cycle: Which cycle to register against. Uses the OME-NGFF 
+        reference_cycle: Which cycle to register against. Uses the OME-NGFF
             HCS well metadata acquisition keys to find the reference cycle.
         overwrite_input: Whether the old image data should be replaced with the
             newly registered image data. Currently only implemented for
