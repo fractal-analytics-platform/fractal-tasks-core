@@ -94,8 +94,6 @@ def apply_registration_to_image(
     well_url, _ = _split_well_path_image_path(zarr_url)
     new_zarr_url = f"{well_url}/{zarr_url.split('/')[-1]}_registered"
     # Get the zarr_url for the reference cycle
-    print(well_url)
-    print(load_NgffWellMeta(well_url))
     acq_dict = load_NgffWellMeta(well_url).get_acquisition_paths()
     if reference_cycle not in acq_dict:
         raise ValueError(
