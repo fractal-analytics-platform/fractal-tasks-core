@@ -97,8 +97,8 @@ def illumination_correction(
     zarr_url: str,
     # Core parameters
     illumination_profiles_folder: str,
-    dict_corr: dict[str, str],
-    background: int = 110,
+    illumination_profiles: dict[str, str],
+    background: int = 0,
     input_ROI_table: str = "FOV_ROI_table",
     overwrite_input: bool = True,
     # Advanced parameters
@@ -117,9 +117,9 @@ def illumination_correction(
         zarr_url: Path or url to the individual OME-Zarr image to be processed.
             (standard argument for Fractal tasks, managed by Fractal server).
         illumination_profiles_folder: Path of folder of illumination profiles.
-        dict_corr: Dictionary where keys match the `wavelength_id` attributes
-            of existing channels (e.g.  `A01_C01` ) and values are the
-            filenames of the corresponding illumination profiles.
+        illumination_profiles: Dictionary where keys match the `wavelength_id`
+            attributes of existing channels (e.g.  `A01_C01` ) and values are
+            the filenames of the corresponding illumination profiles.
         background: Background value that is subtracted from the image before
             the illumination correction is applied. Set it to `0` if you don't
             want any background subtraction.
@@ -201,7 +201,8 @@ def illumination_correction(
         wavelength_id = channel.wavelength_id
         corrections[wavelength_id] = imread(
             (
-                Path(illumination_profiles_folder) / dict_corr[wavelength_id]
+                Path(illumination_profiles_folder)
+                / illumination_profiles[wavelength_id]
             ).as_posix()
         )
         if corrections[wavelength_id].shape != (img_size_y, img_size_x):
