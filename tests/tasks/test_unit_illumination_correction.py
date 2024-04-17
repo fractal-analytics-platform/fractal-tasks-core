@@ -19,11 +19,13 @@ from fractal_tasks_core.tasks.illumination_correction import (
 )
 
 
+# @pytest.mark.parametrize("overwrite_input", [True, False])
 def test_illumination_correction(
     tmp_path: Path,
     testdata_path: Path,
     monkeypatch: MonkeyPatch,
     caplog: LogCaptureFixture,
+    overwrite_input: bool = False,
 ):
     # GIVEN a zarr pyramid on disk, made of all ones
     # WHEN I apply illumination_correction
@@ -82,14 +84,15 @@ def test_illumination_correction(
         "fractal_tasks_core.tasks.illumination_correction.correct",
         patched_correct,
     )
-
+    suffix = "_illum_corr"
     # Call illumination correction task, with patched correct()
     illumination_correction(
         zarr_url=zarr_url,
-        overwrite_input=True,
+        overwrite_input=overwrite_input,
         illumination_profiles_folder=illumination_profiles_folder,
         illumination_profiles=illum_params,
         background=0,
+        suffix=suffix,
     )
 
     print(caplog.text)
@@ -100,13 +103,28 @@ def test_illumination_correction(
         tot_calls_correct = len(f.read().splitlines())
     assert tot_calls_correct == expected_tot_calls_correct
 
+    old_urls = [testdata_path / "plate_ones.zarr/B/03/0"]
+    if overwrite_input:
+        new_zarr_url = zarr_url.rstrip("/")
+    else:
+        new_zarr_url = zarr_url.rstrip("/") + suffix
+        old_urls.append(zarr_url.rstrip("/"))
+
     # Verify the output
-    for ind_level in range(num_levels):
-        old = da.from_zarr(
-            testdata_path / f"plate_ones.zarr/B/03/0/{ind_level}"
-        )
-        new = da.from_zarr(f"{zarr_url}{ind_level}")
-        assert old.shape == new.shape
-        assert old.chunks == new.chunks
-        assert new.compute()[0, 0, 0, 0] == 1
-        assert np.allclose(old.compute(), new.compute())
+    for old_url in old_urls:
+        for ind_level in range(num_levels):
+            old = da.from_zarr(f"{old_url}/{ind_level}")
+            print(testdata_path / f"plate_ones.zarr/B/03/0/{ind_level}")
+            print(f"{zarr_url}{ind_level}")
+            new = da.from_zarr(f"{new_zarr_url}/{ind_level}")
+            assert old.shape == new.shape
+            assert old.chunks == new.chunks
+            assert new.compute()[0, 0, 0, 0] == 1
+            assert np.allclose(old.compute(), new.compute())
+
+    # Verify that the new_zarr_url has valid OME-Zarr metadata
+    # image_meta = load_NgffImageMeta(new_zarr_url)
+    # print(image_meta)
+
+    # Verify the well metadata: Are all the images in well present in the
+    # well metadata?

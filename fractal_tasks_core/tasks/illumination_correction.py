@@ -226,6 +226,7 @@ def illumination_correction(
             overwrite=False,
             dimension_separator="/",
         )
+        # FIXME: Add Zarr metadata
 
     # Iterate over FOV ROIs
     num_ROIs = len(list_indices)
