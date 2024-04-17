@@ -27,10 +27,10 @@ logger = logging.getLogger(__name__)
 @validate_arguments
 def image_based_registration_hcs_init(
     *,
-    # Fractal arguments
+    # Fractal parameters
     zarr_urls: list[str],
     zarr_dir: str,
-    # Task-specific arguments
+    # Core parameters
     reference_cycle: int = 0,
 ) -> dict[str, list[dict[str, Any]]]:
     """

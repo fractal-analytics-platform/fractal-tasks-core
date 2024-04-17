@@ -41,11 +41,12 @@ logger = logging.getLogger(__name__)
 @validate_arguments
 def find_registration_consensus(
     *,
-    # Fractal arguments
+    # Fractal parameters
     zarr_url: str,
     init_args: InitArgsRegistrationConsensus,
-    # Task-specific arguments
+    # Core parameters
     roi_table: str = "FOV_ROI_table",
+    # Advanced parameters
     new_roi_table: Optional[str] = None,
 ):
     """

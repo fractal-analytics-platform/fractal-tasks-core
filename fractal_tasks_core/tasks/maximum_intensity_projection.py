@@ -38,8 +38,10 @@ logger = logging.getLogger(__name__)
 @validate_arguments
 def maximum_intensity_projection(
     *,
+    # Fractal parameters
     zarr_url: str,
     init_args: InitArgsMIP,
+    # Advanced parameters
     overwrite: bool = False,
 ) -> dict[str, Any]:
     """

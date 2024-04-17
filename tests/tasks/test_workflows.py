@@ -459,7 +459,7 @@ def test_illumination_correction(
             zarr_url=image["zarr_url"],
             overwrite_input=True,
             illumination_profiles_folder=illumination_profiles_folder,
-            dict_corr=illum_params,
+            illumination_profiles=illum_params,
         )
     print(caplog.text)
     caplog.clear()

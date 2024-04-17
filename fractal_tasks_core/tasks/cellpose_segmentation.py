@@ -194,22 +194,21 @@ def segment_ROI(
 @validate_arguments
 def cellpose_segmentation(
     *,
-    # Fractal argument
+    # Fractal parameters
     zarr_url: str,
-    # Task-specific arguments
+    # Core parameters
     level: int,
     channel: ChannelInputModel,
     channel2: Optional[ChannelInputModel] = None,
     input_ROI_table: str = "FOV_ROI_table",
     output_ROI_table: Optional[str] = None,
     output_label_name: Optional[str] = None,
-    use_masks: bool = True,
-    relabeling: bool = True,
     # Cellpose-related arguments
     diameter_level0: float = 30.0,
     # https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/401 # noqa E501
     model_type: Literal[tuple(models.MODEL_NAMES)] = "cyto2",
     pretrained_model: Optional[str] = None,
+    # Advanced parameters
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
     normalize: CellposeCustomNormalizer = CellposeCustomNormalizer(),
@@ -225,7 +224,8 @@ def cellpose_segmentation(
     resample: bool = True,
     interp: bool = True,
     stitch_threshold: float = 0.0,
-    # Overwrite option
+    use_masks: bool = True,
+    relabeling: bool = True,
     overwrite: bool = True,
 ) -> None:
     """

@@ -190,8 +190,10 @@ def _generate_plate_well_metadata(
 @validate_arguments
 def copy_ome_zarr_hcs_plate(
     *,
+    # Fractal parameters
     zarr_urls: list[str],
     zarr_dir: str,
+    # Advanced parameters
     suffix: str = "mip",
     overwrite: bool = False,
 ) -> dict[str, Any]:

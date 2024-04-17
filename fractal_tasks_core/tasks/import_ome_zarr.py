@@ -164,14 +164,17 @@ def _process_single_image(
 @validate_arguments
 def import_ome_zarr(
     *,
+    # Fractal parameters
     zarr_urls: list[str],
     zarr_dir: str,
+    # Core parameters
     zarr_name: str,
+    update_omero_metadata: bool = True,
     add_image_ROI_table: bool = True,
     add_grid_ROI_table: bool = True,
+    # Advanced parameters
     grid_y_shape: int = 2,
     grid_x_shape: int = 2,
-    update_omero_metadata: bool = True,
     overwrite: bool = False,
 ) -> dict[str, Any]:
     """

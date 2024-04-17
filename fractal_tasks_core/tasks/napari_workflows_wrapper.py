@@ -62,14 +62,15 @@ class OutOfTaskScopeError(NotImplementedError):
 @validate_arguments
 def napari_workflows_wrapper(
     *,
-    # Fractal argument
+    # Fractal parameters
     zarr_url: str,
-    # Task-specific arguments:
+    # Core parameters
     workflow_file: str,
     input_specs: dict[str, NapariWorkflowsInput],
     output_specs: dict[str, NapariWorkflowsOutput],
     input_ROI_table: str = "FOV_ROI_table",
     level: int = 0,
+    # Advanced parameters
     relabeling: bool = True,
     expected_dimensions: int = 3,
     overwrite: bool = True,
