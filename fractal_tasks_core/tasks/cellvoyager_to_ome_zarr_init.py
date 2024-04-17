@@ -50,10 +50,13 @@ logger = logging.getLogger(__name__)
 @validate_arguments
 def cellvoyager_to_ome_zarr_init(
     *,
+    # Fractal parameters
     zarr_urls: list[str],
     zarr_dir: str,
+    # Core parameters
     image_dirs: list[str],
     allowed_channels: list[OmeroChannel],
+    # Advanced parameters
     image_glob_patterns: Optional[list[str]] = None,
     num_levels: int = 5,
     coarsening_xy: int = 2,

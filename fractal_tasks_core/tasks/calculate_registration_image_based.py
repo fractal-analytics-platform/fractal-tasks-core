@@ -50,7 +50,7 @@ def calculate_registration_image_based(
     # Fractal arguments
     zarr_url: str,
     init_args: InitArgsRegistration,
-    # Task-specific arguments
+    # Core parameters
     wavelength_id: str,
     roi_table: str = "FOV_ROI_table",
     level: int = 2,

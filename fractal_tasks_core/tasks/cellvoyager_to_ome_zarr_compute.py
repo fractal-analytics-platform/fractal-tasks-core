@@ -58,8 +58,10 @@ def sort_fun(filename: str) -> list[int]:
 @validate_arguments
 def cellvoyager_to_ome_zarr_compute(
     *,
+    # Fractal parameters
     zarr_url: str,
     init_args: InitArgsCellVoyager,
+    # Advanced parameters
     overwrite: bool = False,
 ):
     """

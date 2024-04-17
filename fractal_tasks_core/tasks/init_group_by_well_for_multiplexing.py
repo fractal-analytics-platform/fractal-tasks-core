@@ -26,10 +26,10 @@ logger = logging.getLogger(__name__)
 @validate_arguments
 def init_group_by_well_for_multiplexing(
     *,
-    # Fractal arguments
+    # Fractal parameters
     zarr_urls: list[str],
     zarr_dir: str,
-    # Task-specific arguments
+    # Core parameters
     reference_cycle: int = 0,
 ) -> dict[str, list[str]]:
     """

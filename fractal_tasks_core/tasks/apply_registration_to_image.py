@@ -46,9 +46,9 @@ logger = logging.getLogger(__name__)
 @validate_arguments
 def apply_registration_to_image(
     *,
-    # Fractal argument
+    # Fractal parameters
     zarr_url: str,
-    # Task-specific arguments
+    # Core parameters
     registered_roi_table: str,
     reference_cycle: int = 0,
     overwrite_input: bool = True,

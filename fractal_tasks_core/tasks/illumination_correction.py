@@ -93,14 +93,15 @@ def correct(
 @validate_arguments
 def illumination_correction(
     *,
-    # Fractal argument
+    # Fractal parameters
     zarr_url: str,
-    # Task-specific arguments
+    # Core parameters
     illumination_profiles_folder: str,
     dict_corr: dict[str, str],
     background: int = 110,
     input_ROI_table: str = "FOV_ROI_table",
     overwrite_input: bool = True,
+    # Advanced parameters
     suffix: str = "_illum_corr",
 ) -> dict[str, Any]:
 
