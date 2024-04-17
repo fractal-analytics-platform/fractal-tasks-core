@@ -35,6 +35,10 @@ from fractal_tasks_core.roi import is_standard_roi_table
 from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
 from fractal_tasks_core.utils import _get_table_path_dict
+from fractal_tasks_core.tasks._registration_utils import (
+    _split_well_path_image_path
+)
+from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +50,7 @@ def apply_registration_to_image(
     zarr_url: str,
     # Task-specific arguments
     registered_roi_table: str,
-    reference_cycle: str = "0",
+    reference_cycle: int = 0,
     overwrite_input: bool = True,
 ):
     """
@@ -65,8 +69,6 @@ def apply_registration_to_image(
     4. Clean up: Delete the old, non-aligned image and rename the new,
     aligned image to take over its place.
 
-    Parallelization level: image
-
     Args:
         zarr_url: Path or url to the individual OME-Zarr image to be processed.
             (standard argument for Fractal tasks, managed by Fractal server).
@@ -75,9 +77,8 @@ def apply_registration_to_image(
             Examples: `registered_FOV_ROI_table` => loop over the field of
             views, `registered_well_ROI_table` => process the whole well as
             one image.
-        reference_cycle: Which cycle to register against. Defaults to 0,
-            which is the first OME-Zarr image in the well, usually the first
-            cycle that was provided
+        reference_cycle: Which cycle to register against. Uses the OME-NGFF 
+            HCS well metadata acquisition keys to find the reference cycle.
         overwrite_input: Whether the old image data should be replaced with the
             newly registered image data. Currently only implemented for
             `overwrite_input=True`.
@@ -90,12 +91,18 @@ def apply_registration_to_image(
         f"Using {overwrite_input=}"
     )
 
-    new_zarr_url = "/".join(
-        zarr_url.split("/")[:-1] + [zarr_url.split("/")[-1] + "_registered"]
-    )
-    # TODO: Make this more robust by actually checking for acquisition
-    # metadata
-    reference_zarr_url = "/".join(zarr_url.split("/")[:-1] + [reference_cycle])
+    well_url, _ = _split_well_path_image_path(zarr_url)
+    new_zarr_url = f"{well_url}/{zarr_url.split('/')[-1]}_registered"
+    # Get the zarr_url for the reference cycle
+    print(well_url)
+    print(load_NgffWellMeta(well_url))
+    acq_dict = load_NgffWellMeta(well_url).get_acquisition_paths()
+    if reference_cycle not in acq_dict:
+        raise ValueError(
+            f"{reference_cycle=} was not one of the available acquisitions in "
+            f"{acq_dict=} for well {well_url}"
+        )
+    reference_zarr_url = f"{well_url}/{acq_dict[reference_cycle]}"
 
     ROI_table_ref = ad.read_zarr(
         f"{reference_zarr_url}/tables/{registered_roi_table}"
