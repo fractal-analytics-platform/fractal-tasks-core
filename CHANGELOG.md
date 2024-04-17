@@ -1,5 +1,13 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# [WIP] 1.0.0
+
+* Update all tasks to use the new Fractal API from Fractal server 2.0 (#671)
+* Rename tasks for increase clarity (#671 & #706)
+* Provide new dev tooling to create Fractal manifest for new task API (#671)
+* Add Pydantic models for OME-NGFF HCS Plate validation (#671)
+
+
 # 0.14.3
 
 * Make Cellpose task work for non HCS plate OME-Zarr images (#659)
