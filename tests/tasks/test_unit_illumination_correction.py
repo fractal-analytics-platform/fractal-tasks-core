@@ -6,12 +6,17 @@ from pathlib import Path
 import anndata as ad
 import dask.array as da
 import numpy as np
+import pytest
 from pytest import LogCaptureFixture
 from pytest import MonkeyPatch
 
 from fractal_tasks_core.ngff.zarr_utils import load_NgffImageMeta
+from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
 from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
+)
+from fractal_tasks_core.tasks._registration_utils import (
+    _split_well_path_image_path,
 )
 from fractal_tasks_core.tasks.illumination_correction import correct
 from fractal_tasks_core.tasks.illumination_correction import (
@@ -19,13 +24,13 @@ from fractal_tasks_core.tasks.illumination_correction import (
 )
 
 
-# @pytest.mark.parametrize("overwrite_input", [True, False])
+@pytest.mark.parametrize("overwrite_input", [True, False])
 def test_illumination_correction(
     tmp_path: Path,
     testdata_path: Path,
     monkeypatch: MonkeyPatch,
     caplog: LogCaptureFixture,
-    overwrite_input: bool = False,
+    overwrite_input: bool,
 ):
     # GIVEN a zarr pyramid on disk, made of all ones
     # WHEN I apply illumination_correction
@@ -123,8 +128,15 @@ def test_illumination_correction(
             assert np.allclose(old.compute(), new.compute())
 
     # Verify that the new_zarr_url has valid OME-Zarr metadata
-    # image_meta = load_NgffImageMeta(new_zarr_url)
-    # print(image_meta)
+    _ = load_NgffImageMeta(new_zarr_url)
 
     # Verify the well metadata: Are all the images in well present in the
     # well metadata?
+    well_url, _ = _split_well_path_image_path(new_zarr_url)
+    well_meta = load_NgffWellMeta(well_url)
+    well_paths = [image.path for image in well_meta.well.images]
+
+    if overwrite_input:
+        assert well_paths == ["0"]
+    else:
+        assert well_paths == ["0", "0" + suffix]

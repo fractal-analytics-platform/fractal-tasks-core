@@ -33,6 +33,7 @@ from fractal_tasks_core.roi import check_valid_ROI_indices
 from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
+from fractal_tasks_core.tasks._zarr_utils import _copy_hcs_ome_zarr_metadata
 
 logger = logging.getLogger(__name__)
 
@@ -142,9 +143,9 @@ def illumination_correction(
 
     # Defione old/new zarrurls
     if overwrite_input:
-        zarr_url_new = zarr_url
+        zarr_url_new = zarr_url.rstrip("/")
     else:
-        zarr_url_new = zarr_url + suffix
+        zarr_url_new = zarr_url.rstrip("/") + suffix
 
     t_start = time.perf_counter()
     logger.info("Start illumination_correction")
@@ -226,7 +227,7 @@ def illumination_correction(
             overwrite=False,
             dimension_separator="/",
         )
-        # FIXME: Add Zarr metadata
+        _copy_hcs_ome_zarr_metadata(zarr_url, zarr_url_new)
 
     # Iterate over FOV ROIs
     num_ROIs = len(list_indices)

@@ -35,7 +35,7 @@ from fractal_tasks_core.roi import (
 from fractal_tasks_core.roi import is_standard_roi_table
 from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
-from fractal_tasks_core.tasks._registration_utils import (
+from fractal_tasks_core.tasks._zarr_utils import (
     _split_well_path_image_path,
 )
 from fractal_tasks_core.utils import _get_table_path_dict
