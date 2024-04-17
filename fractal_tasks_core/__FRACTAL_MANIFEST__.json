@@ -1091,7 +1091,7 @@
             "title": "Reference Cycle",
             "default": 0,
             "type": "integer",
-            "description": "Which cycle to register against. Defaults to 0, which is the first OME-Zarr image in the well, usually the first cycle that was provided"
+            "description": "Which cycle to register against. Uses the OME-NGFF HCS well metadata acquisition keys to find the reference cycle."
           }
         },
         "required": [
@@ -1183,9 +1183,9 @@
           },
           "reference_cycle": {
             "title": "Reference Cycle",
-            "default": "0",
-            "type": "string",
-            "description": "Which cycle to register against. Defaults to 0, which is the first OME-Zarr image in the well, usually the first cycle that was provided"
+            "default": 0,
+            "type": "integer",
+            "description": "Which cycle to register against. Uses the OME-NGFF HCS well metadata acquisition keys to find the reference cycle."
           },
           "overwrite_input": {
             "title": "Overwrite Input",
@@ -1200,7 +1200,7 @@
         ],
         "additionalProperties": false
       },
-      "docs_info": "## apply_registration_to_image\nApply registration to images by using a registered ROI table\n\nThis task consists of 4 parts:\n\n1. Mask all regions in images that are not available in the\nregistered ROI table and store each cycle aligned to the\nreference_cycle (by looping over ROIs).\n2. Do the same for all label images.\n3. Copy all tables from the non-aligned image to the aligned image\n(currently only works well if the only tables are well & FOV ROI tables\n(registered and original). Not implemented for measurement tables and\nother ROI tables).\n4. Clean up: Delete the old, non-aligned image and rename the new,\naligned image to take over its place.\n\nParallelization level: image\n",
+      "docs_info": "## apply_registration_to_image\nApply registration to images by using a registered ROI table\n\nThis task consists of 4 parts:\n\n1. Mask all regions in images that are not available in the\nregistered ROI table and store each cycle aligned to the\nreference_cycle (by looping over ROIs).\n2. Do the same for all label images.\n3. Copy all tables from the non-aligned image to the aligned image\n(currently only works well if the only tables are well & FOV ROI tables\n(registered and original). Not implemented for measurement tables and\nother ROI tables).\n4. Clean up: Delete the old, non-aligned image and rename the new,\naligned image to take over its place.\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {
@@ -1276,7 +1276,7 @@
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {
-      "name": "Napari workflows wrapper",
+      "name": "Napari Workflows Wrapper",
       "executable_parallel": "tasks/napari_workflows_wrapper.py",
       "meta_parallel": {
         "cpus_per_task": 8,
