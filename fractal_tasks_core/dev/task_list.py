@@ -47,7 +47,7 @@ TASK_LIST = [
         meta={"cpus_per_task": 1, "mem": 4000},
     ),
     # CompoundTask(
-    #     name="illumination_correction_compound",
+    #     name="Illumination Correction (channel parallelized)",
     #     input_types=dict(illumination_correction=False),
     #     executable_init="illumination_correction_init.py",
     #     executable="illumination_correction_compute.py",
@@ -84,7 +84,7 @@ TASK_LIST = [
         executable="tasks/import_ome_zarr.py",
     ),
     ParallelTask(
-        name="Napari workflows wrapper",
+        name="Napari Workflows Wrapper",
         executable="tasks/napari_workflows_wrapper.py",
         meta={
             "cpus_per_task": 8,
