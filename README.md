@@ -26,26 +26,26 @@
 | fractal\_tasks\_core/tasks/\_\_init\_\_.py                                |        0 |        0 |        0 |        0 |    100% |           |
 | fractal\_tasks\_core/tasks/\_registration\_utils.py                       |       73 |        2 |       24 |        2 |     96% |   62, 209 |
 | fractal\_tasks\_core/tasks/\_utils.py                                     |       29 |        5 |        8 |        1 |     78% |33-35, 68-71 |
-| fractal\_tasks\_core/tasks/apply\_registration\_to\_image.py              |      113 |       16 |       38 |        7 |     81% |43->42, 129-130, 132->153, 159->158, 163-175, 177->214, 194-200, 319-332, 357-359 |
+| fractal\_tasks\_core/tasks/apply\_registration\_to\_image.py              |      119 |       17 |       40 |        8 |     81% |47->46, 99, 134-135, 137->158, 164->163, 168-180, 182->219, 199-205, 324-337, 362-364 |
 | fractal\_tasks\_core/tasks/calculate\_registration\_image\_based.py       |       71 |        6 |       14 |        6 |     86% |48->47, 142, 152, 171, 216, 261-263 |
 | fractal\_tasks\_core/tasks/cellpose\_segmentation.py                      |      202 |       23 |       62 |       10 |     85% |131-191, 195->194, 321-322, 363-369, 377-378, 416, 424->429, 433, 505, 529->533, 618->634, 628, 717-719 |
 | fractal\_tasks\_core/tasks/cellpose\_transforms.py                        |       78 |        8 |       36 |        8 |     86% |68->67, 128->127, 181-183, 197-199, 206-210 |
-| fractal\_tasks\_core/tasks/cellvoyager\_to\_ome\_zarr\_compute.py         |       86 |        5 |       20 |        5 |     91% |59->58, 110, 166, 208, 230-232 |
-| fractal\_tasks\_core/tasks/cellvoyager\_to\_ome\_zarr\_init.py            |      163 |       25 |       54 |       11 |     82% |51->50, 121, 123, 174, 181-191, 199-200, 213-216, 270, 301, 317-318, 321, 467-469 |
-| fractal\_tasks\_core/tasks/cellvoyager\_to\_ome\_zarr\_init\_multiplex.py |      197 |       20 |       54 |       15 |     86% |54->53, 119, 126, 130, 139, 154, 185, 187, 206-209, 239, 290, 296, 313, 326-327, 333, 516-518 |
-| fractal\_tasks\_core/tasks/copy\_ome\_zarr\_hcs\_plate.py                 |      108 |        3 |       28 |        3 |     96% |191->190, 231, 295-297 |
-| fractal\_tasks\_core/tasks/find\_registration\_consensus.py               |       48 |        4 |       18 |        5 |     86% |42->41, 76->78, 106, 118, 166-168 |
-| fractal\_tasks\_core/tasks/illumination\_correction.py                    |       91 |       10 |       28 |        9 |     84% |60, 81-85, 94->93, 146, 192, 207, 219, 273, 280-282 |
+| fractal\_tasks\_core/tasks/cellvoyager\_to\_ome\_zarr\_compute.py         |       86 |        5 |       20 |        5 |     91% |59->58, 112, 168, 210, 232-234 |
+| fractal\_tasks\_core/tasks/cellvoyager\_to\_ome\_zarr\_init.py            |      163 |       25 |       54 |       11 |     82% |51->50, 124, 126, 177, 184-194, 202-203, 216-219, 273, 304, 320-321, 324, 470-472 |
+| fractal\_tasks\_core/tasks/cellvoyager\_to\_ome\_zarr\_init\_multiplex.py |      197 |       20 |       54 |       15 |     86% |54->53, 122, 129, 133, 142, 157, 188, 190, 209-212, 242, 293, 299, 316, 329-330, 336, 519-521 |
+| fractal\_tasks\_core/tasks/copy\_ome\_zarr\_hcs\_plate.py                 |      108 |        3 |       28 |        3 |     96% |191->190, 233, 297-299 |
+| fractal\_tasks\_core/tasks/find\_registration\_consensus.py               |       48 |        4 |       18 |        5 |     86% |42->41, 77->79, 107, 119, 167-169 |
+| fractal\_tasks\_core/tasks/illumination\_correction.py                    |       91 |       10 |       28 |        9 |     84% |60, 81-85, 94->93, 147, 193, 209, 221, 275, 282-284 |
 | fractal\_tasks\_core/tasks/image\_based\_registration\_hcs\_init.py       |       22 |        2 |       12 |        2 |     88% |28->27, 92-94 |
-| fractal\_tasks\_core/tasks/import\_ome\_zarr.py                           |       97 |       10 |       36 |       11 |     84% |69, 71, 83->94, 94->109, 109->156, 113-122, 157->160, 158->160, 165->164, 212, 280->302, 308-310 |
-| fractal\_tasks\_core/tasks/init\_group\_by\_well\_for\_multiplexing.py    |       23 |        3 |       12 |        3 |     83% |27->26, 61, 86-88 |
+| fractal\_tasks\_core/tasks/import\_ome\_zarr.py                           |       97 |       10 |       36 |       11 |     84% |69, 71, 83->94, 94->109, 109->156, 113-122, 157->160, 158->160, 165->164, 215, 283->305, 311-313 |
+| fractal\_tasks\_core/tasks/init\_group\_by\_well\_for\_multiplexing.py    |       23 |        3 |       12 |        3 |     83% |27->26, 60, 85-87 |
 | fractal\_tasks\_core/tasks/io\_models.py                                  |       52 |        0 |       12 |        3 |     95% |123->122, 150->149, 162->161 |
-| fractal\_tasks\_core/tasks/maximum\_intensity\_projection.py              |       64 |        6 |       10 |        3 |     88% |39->38, 149-162, 185-187 |
-| fractal\_tasks\_core/tasks/napari\_workflows\_wrapper.py                  |      236 |       19 |      100 |       14 |     90% |63->62, 136-138, 273, 280, 286-291, 296, 327, 332, 372-376, 399, 499->486, 538-543, 550->552, 632-634 |
+| fractal\_tasks\_core/tasks/maximum\_intensity\_projection.py              |       64 |        6 |       10 |        3 |     88% |39->38, 151-164, 187-189 |
+| fractal\_tasks\_core/tasks/napari\_workflows\_wrapper.py                  |      236 |       19 |      100 |       14 |     90% |63->62, 137-139, 274, 281, 287-292, 297, 328, 333, 373-377, 400, 500->487, 539-544, 551->553, 633-635 |
 | fractal\_tasks\_core/upscale\_array.py                                    |       74 |        7 |       48 |        6 |     88% |63, 91, 96->100, 113, 128, 192-197 |
 | fractal\_tasks\_core/utils.py                                             |       68 |        2 |       28 |        5 |     93% |71, 139->147, 140->139, 176->179, 181 |
 | fractal\_tasks\_core/zarr\_utils.py                                       |       33 |        0 |        6 |        1 |     97% |    81->85 |
-|                                                                 **TOTAL** | **3137** |  **215** | **1032** |  **169** | **90%** |           |
+|                                                                 **TOTAL** | **3143** |  **216** | **1034** |  **170** | **90%** |           |
 
 
 ## Setup coverage badge
