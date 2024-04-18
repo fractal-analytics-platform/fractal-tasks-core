@@ -57,13 +57,9 @@ def _update_well_metadata(
         new_image_path: path relative to well_url where the new image is placed
         timeout: Timeout in seconds for trying to get the file lock
     """
-    lock = FileLock(f"{well_url}/.zattrs")
-    # FIXME: Running load_NgffWellMeta within the file-lock leads to a json
-    # decode error. But doing it before the lock risks having stale data in a
-    # process
-    well_meta = load_NgffWellMeta(well_url)
+    lock = FileLock(f"{well_url}/.zattrs.lock")
     with lock.acquire(timeout=timeout):
-        # well_meta = load_NgffWellMeta(well_url)
+        well_meta = load_NgffWellMeta(well_url)
         existing_well_images = [image.path for image in well_meta.well.images]
         if new_image_path in existing_well_images:
             raise ValueError(
