@@ -231,6 +231,8 @@ def apply_registration_to_image(
         image_list_updates = dict(
             image_list_updates=[dict(zarr_url=new_zarr_url, origin=zarr_url)]
         )
+        # Update the metadata of the the well
+        # _copy_hcs_ome_zarr_metadata(zarr_url, new_zarr_url)
 
     return image_list_updates
 
