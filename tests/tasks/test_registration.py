@@ -452,3 +452,5 @@ def validate_assumptions_after_image_registration(
         assert img_path in well_img_paths
 
         debug(well_meta.well)
+
+        # TODO: Assert correct acquisition in well metadata
