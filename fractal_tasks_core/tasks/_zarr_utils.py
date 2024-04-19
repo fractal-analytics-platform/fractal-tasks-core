@@ -36,6 +36,9 @@ def _copy_hcs_ome_zarr_metadata(
     _update_well_metadata(well_url, old_image_path, new_image_path)
 
 
+import logging
+
+
 def _update_well_metadata(
     well_url: str,
     old_image_path: str,
@@ -57,9 +60,16 @@ def _update_well_metadata(
         new_image_path: path relative to well_url where the new image is placed
         timeout: Timeout in seconds for trying to get the file lock
     """
-    lock = FileLock(f"{well_url}/.zattrs.lock")
-    with lock.acquire(timeout=timeout):
+    import time
 
+    lock = FileLock(f"{well_url}/.zattrs.lock")
+    logging.critical(
+        f"[new_image_path] {time.perf_counter():.3f} Try to acquire lock"
+    )
+    with lock.acquire(timeout=timeout):
+        logging.critical(
+            f"[new_image_path] {time.perf_counter():.3f} Lock acquired"
+        )
         well_meta = load_NgffWellMeta(well_url)
         existing_well_images = [image.path for image in well_meta.well.images]
         if new_image_path in existing_well_images:
@@ -89,6 +99,9 @@ def _update_well_metadata(
 
         well_group = zarr.group(well_url)
         well_group.attrs.put(well_meta.dict(exclude_none=True))
+    logging.critical(
+        f"[new_image_path] {time.perf_counter():.3f} Lock released"
+    )
 
     # One could catch the timeout with a try except Timeout. But what to do
     # with it?
