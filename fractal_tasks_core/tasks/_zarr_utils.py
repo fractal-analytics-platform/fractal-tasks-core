@@ -84,7 +84,7 @@ def _update_well_metadata(
         well_meta.well.images.append(well_meta_image)
         well_meta.well.images = sorted(
             well_meta.well.images,
-            key=lambda x: x.path,
+            key=lambda _image: _image.path,
         )
 
         well_group = zarr.group(well_url)
