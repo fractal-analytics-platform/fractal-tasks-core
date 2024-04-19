@@ -24,11 +24,11 @@ def _copy_hcs_ome_zarr_metadata(
     """
     # Copy over OME-Zarr metadata for illumination_corrected image
     # See #681 for discussion for validation of this zattrs
+    old_image_group = zarr.open_group(zarr_url_origin, mode="r")
+    old_attrs = old_image_group.attrs.asdict()
     zarr_url_new = zarr_url_new.rstrip("/")
-    group = zarr.open_group(zarr_url_origin, mode="r")
-    new_attrs = group.attrs.asdict()
     new_image_group = zarr.group(zarr_url_new)
-    new_image_group.attrs.put(new_attrs)
+    new_image_group.attrs.put(old_attrs)
 
     # Update well metadata about adding the new image:
     new_image_path = zarr_url_new.split("/")[-1]
@@ -59,6 +59,7 @@ def _update_well_metadata(
     """
     lock = FileLock(f"{well_url}/.zattrs.lock")
     with lock.acquire(timeout=timeout):
+
         well_meta = load_NgffWellMeta(well_url)
         existing_well_images = [image.path for image in well_meta.well.images]
         if new_image_path in existing_well_images:
@@ -67,18 +68,29 @@ def _update_well_metadata(
                 "metadata because and image with that name "
                 f"already existed in the well metadata: {well_meta}"
             )
-        well_meta_image = copy.deepcopy(
-            [
+        try:
+            well_meta_image_old = next(
                 image
                 for image in well_meta.well.images
                 if image.path == old_image_path
-            ][0]
-        )
+            )
+        except StopIteration:
+            raise ValueError(
+                f"Could not find an image with {old_image_path=} in the "
+                "current well metadata."
+            )
+        well_meta_image = copy.deepcopy(well_meta_image_old)
         well_meta_image.path = new_image_path
         well_meta.well.images.append(well_meta_image)
+        well_meta.well.images = sorted(
+            well_meta.well.images,
+            key=lambda _image: _image.path,
+        )
+
         well_group = zarr.group(well_url)
         well_group.attrs.put(well_meta.dict(exclude_none=True))
-    # One could catch the timeout with a try expect Timeout. But what to do
+
+    # One could catch the timeout with a try except Timeout. But what to do
     # with it?
 
 

@@ -56,13 +56,9 @@ def test_illumination_correction(
     with open(zarr_url + ".zattrs") as fin:
         zattrs = json.load(fin)
         num_levels = len(zattrs["multiscales"][0]["datasets"])
-    metadata: dict = {
-        "num_levels": num_levels,
-        "coarsening_xy": 2,
-    }
-    num_channels = 2
-    num_levels = metadata["num_levels"]
 
+    num_channels = 2
+    num_levels = num_levels
     # Read FOV ROIs and create corresponding indices
     ngff_image_meta = load_NgffImageMeta(zarr_url)
     pixels = ngff_image_meta.get_pixel_sizes_zyx(level=0)
