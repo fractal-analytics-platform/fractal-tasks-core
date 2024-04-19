@@ -28,6 +28,23 @@ zarrurl = "plate_ones.zarr/"
 
 if os.path.isdir(zarrurl):
     shutil.rmtree(zarrurl)
+
+plate_group = zarr.open_group(zarrurl)
+plate_group.attrs.put(
+    {
+        "plate": {
+            "acquisitions": [{"id": 1, "name": "plate_ones"}],
+            "columns": [{"name": "03"}],
+            "rows": [{"name": "B"}],
+            "version": "0.4",
+            "wells": [{"columnIndex": 0, "path": "B/03", "rowIndex": 0}],
+        }
+    }
+)
+
+well_group = zarr.open(f"{zarrurl}B/03/")
+well_group.attrs.put({"well": {"images": [{"path": "0"}], "version": "0.4"}})
+
 component = "B/03/0/"
 
 for ind_level in range(num_levels):
