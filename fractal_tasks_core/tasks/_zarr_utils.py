@@ -59,6 +59,7 @@ def _update_well_metadata(
     """
     lock = FileLock(f"{well_url}/.zattrs.lock")
     with lock.acquire(timeout=timeout):
+
         well_meta = load_NgffWellMeta(well_url)
         existing_well_images = [image.path for image in well_meta.well.images]
         if new_image_path in existing_well_images:
@@ -67,17 +68,28 @@ def _update_well_metadata(
                 "metadata because and image with that name "
                 f"already existed in the well metadata: {well_meta}"
             )
-        well_meta_image = copy.deepcopy(
-            [
+        try:
+            well_meta_image_old = next(
                 image
                 for image in well_meta.well.images
                 if image.path == old_image_path
-            ][0]
-        )
+            )
+        except StopIteration:
+            raise ValueError(
+                f"Could not find an image with {old_image_path=} in the "
+                "current well metadata."
+            )
+        well_meta_image = copy.deepcopy(well_meta_image_old)
         well_meta_image.path = new_image_path
         well_meta.well.images.append(well_meta_image)
+        well_meta.well.images = sorted(
+            well_meta.well.images,
+            key=lambda x: x.path,
+        )
+
         well_group = zarr.group(well_url)
         well_group.attrs.put(well_meta.dict(exclude_none=True))
+
     # One could catch the timeout with a try expect Timeout. But what to do
     # with it?
 
