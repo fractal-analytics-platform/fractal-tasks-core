@@ -90,7 +90,7 @@ def _update_well_metadata(
         well_group = zarr.group(well_url)
         well_group.attrs.put(well_meta.dict(exclude_none=True))
 
-    # One could catch the timeout with a try expect Timeout. But what to do
+    # One could catch the timeout with a try except Timeout. But what to do
     # with it?
 
 
