@@ -39,7 +39,7 @@ jobs:
         run: python -m pytest tests --ignore tests/tasks
 
   tests_tasks:
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    # if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
