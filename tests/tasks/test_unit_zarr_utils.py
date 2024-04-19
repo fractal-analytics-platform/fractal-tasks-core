@@ -75,6 +75,19 @@ def _star_update_well_metadata(args):
     return _update_well_metadata(*args)
 
 
+INTERVAL = 0.5
+
+
+def _slow_load_NgffWellMeta(*args, **kwargs):
+    logging.warning(
+        f"START _slow wrapper for {args}, {time.perf_counter():.3f}"
+    )
+    time.sleep(INTERVAL)
+    output = load_NgffWellMeta(*args, **kwargs)
+    logging.warning(f"END _slow wrapper for {args}, {time.perf_counter():.3f}")
+    return output
+
+
 def test_update_well_metadata_concurrency(
     tmp_path: Path,
     testdata_path: Path,
@@ -113,6 +126,7 @@ def test_update_well_metadata_concurrency(
     # Run `_update_well_metadata` N times
     time_start = time.perf_counter()
     with ProcessPoolExecutor(mp_context=mp.get_context("fork")) as executor:
+
         res_iter = executor.map(_star_update_well_metadata, list_args)
         list(res_iter)  # This is needed, to wait for all results.
     time_end = time.perf_counter()
@@ -141,6 +155,7 @@ def test_update_well_metadata_concurrency(
         with ProcessPoolExecutor(
             mp_context=mp.get_context("fork")
         ) as executor:
+
             res_iter = executor.map(_star_update_well_metadata, list_args)
             list(res_iter)  # This is needed, to wait for all results.
     debug(e.value)
