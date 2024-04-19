@@ -64,11 +64,11 @@ def _update_well_metadata(
 
     lock = FileLock(f"{well_url}/.zattrs.lock")
     logging.critical(
-        f"[new_image_path] {time.perf_counter():.3f} Try to acquire lock"
+        f"[{new_image_path}] {time.perf_counter():.3f} Try to acquire lock"
     )
     with lock.acquire(timeout=timeout):
         logging.critical(
-            f"[new_image_path] {time.perf_counter():.3f} Lock acquired"
+            f"[{new_image_path}] {time.perf_counter():.3f} Lock acquired"
         )
         well_meta = load_NgffWellMeta(well_url)
         existing_well_images = [image.path for image in well_meta.well.images]
@@ -100,7 +100,7 @@ def _update_well_metadata(
         well_group = zarr.group(well_url)
         well_group.attrs.put(well_meta.dict(exclude_none=True))
     logging.critical(
-        f"[new_image_path] {time.perf_counter():.3f} Lock released"
+        f"[{new_image_path}] {time.perf_counter():.3f} Lock released"
     )
 
     # One could catch the timeout with a try except Timeout. But what to do

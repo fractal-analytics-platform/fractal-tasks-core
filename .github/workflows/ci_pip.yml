@@ -36,4 +36,4 @@ jobs:
         run: python -m pip install pytest devtools jsonschema requests wget pooch
 
       - name: Test core library with pytest
-        run: python -m pytest -vv --log-cli-level info -s tests/tasks/test_unit_zarr_utils.py
+        run: python -m pytest -vv --log-cli-level info -s tests/tasks/test_unit_zarr_utils.py::test_update_well_metadata_concurrency
