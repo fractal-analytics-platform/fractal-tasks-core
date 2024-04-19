@@ -91,8 +91,12 @@ def test_update_well_metadata_concurrency(
     # Artificially slow down `_update_well_metadata`
     import fractal_tasks_core.tasks._zarr_utils
 
+    import logging
+
     def _slow_load_NgffWellMeta(*args, **kwargs):
+        logging.critical(f"{time.perf_counter():.3f} START SLOW ({args})")
         time.sleep(INTERVAL)
+        logging.critical(f"{time.perf_counter():.3f} END SLOW ({args})")
         return load_NgffWellMeta(*args, **kwargs)
 
     monkeypatch.setattr(
