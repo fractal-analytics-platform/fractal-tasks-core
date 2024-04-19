@@ -67,7 +67,6 @@ def _star_update_well_metadata(args):
 def test_update_well_metadata(
     tmp_path: Path,
     testdata_path: Path,
-    caplog: LogCaptureFixture,
     monkeypatch,
 ):
     """
@@ -123,3 +122,25 @@ def test_update_well_metadata(
         "0_new_2",
         "0_new_3",
     ]
+
+
+def test_update_well_metadata_missing_old_image(
+    tmp_path: Path,
+    testdata_path: Path,
+):
+    """
+    When called with an invalid `old_image_path`, `_update_well_metadata`
+    fails.
+    """
+
+    # Copy a reference zarr into a temporary folder
+    raw_zarrurl = (testdata_path / "plate_ones.zarr").as_posix()
+    zarr_url = (tmp_path / "plate.zarr").resolve().as_posix()
+    shutil.copytree(raw_zarrurl, zarr_url)
+
+    # Prepare parallel-execution argument list
+    well_url = Path(zarr_url, "B/03").as_posix()
+    with pytest.raises(ValueError) as e:
+        _update_well_metadata(well_url, "INVALID_OLD_IMAGE_PATH", "0_new")
+
+    assert "Could not find an image with old_image_path" in str(e.value)
