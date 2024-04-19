@@ -1,9 +1,12 @@
 import copy
+import logging
 
 import zarr
 from filelock import FileLock
 
 from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
+
+logger = logging.getLogger(__name__)
 
 
 def _copy_hcs_ome_zarr_metadata(
@@ -102,3 +105,59 @@ def _split_well_path_image_path(zarr_url: str) -> tuple[str, str]:
     well_path = "/".join(zarr_url.split("/")[:-1])
     img_path = zarr_url.split("/")[-1]
     return well_path, img_path
+
+
+def _get_matching_ref_cycle_path_heuristic(
+    path_list: list[str], path: str
+) -> str:
+    """
+    Pick the best match from path_list to a given path
+
+    This is a workaround to find the reference registration cycle when there
+    are multiple OME-Zarrs with the same acquisition identifier in the well
+    metadata and we need to find which one is the reference for a given path.
+
+    Args:
+        path_list: List of paths to OME-Zarr images in the well metadata. For
+            example: ['0', '0_illum_corr']
+        path: A given path for which we want to find the reference image. For
+            example, '1_illum_corr'
+
+    Returns:
+        The best matching reference path. If no direct match is found, it
+        returns the most similar one based on suffix hierarchy or the base
+        path if applicable. For example, '0_illum_corr' with the example
+        inputs above.
+    """
+    # Extract the base number and suffix from the input path
+    parts = path.split("_")
+    base = parts[0]
+    suffix = "_".join(parts[1:]) if len(parts) > 1 else ""
+
+    # Iterate over each path in the list to find the best match with the same
+    # base
+    for p in path_list:
+        # Split the list path into base and suffix
+        p_parts = p.split("_")
+        p_base = p_parts[0]
+        p_suffix = "_".join(p_parts[1:]) if len(p_parts) > 1 else ""
+
+        # If suffices match, it's the match.
+        if p_suffix == suffix:
+            return p
+
+        # Check for matching base
+        if p_base == base:
+            # If no suffix in input, the base path is the best match
+            if not suffix and not p_suffix:
+                return p
+            # If suffix matches, it's a definitive best match
+            if suffix == p_suffix:
+                return p
+
+    # If no match is found, return the first entry in the list
+    logger.warning(
+        "No heuristic reference cycle match found, defaulting to first option "
+        f"{path_list[0]}."
+    )
+    return path_list[0]

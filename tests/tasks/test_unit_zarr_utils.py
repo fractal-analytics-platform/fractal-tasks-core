@@ -15,6 +15,9 @@ from fractal_tasks_core.tasks._registration_utils import (
     _split_well_path_image_path,
 )
 from fractal_tasks_core.tasks._zarr_utils import _copy_hcs_ome_zarr_metadata
+from fractal_tasks_core.tasks._zarr_utils import (
+    _get_matching_ref_cycle_path_heuristic,
+)
 from fractal_tasks_core.tasks._zarr_utils import _update_well_metadata
 
 
@@ -165,3 +168,28 @@ def test_update_well_metadata_failures(
         _update_well_metadata(well_url, "0", "0")
 
     assert "Could not add the new_image_path" in str(e.value)
+
+
+def test_get_matching_ref_cycle_path_heuristic():
+    assert (
+        _get_matching_ref_cycle_path_heuristic(
+            ["0", "0_illum_corr"], "1_illum_corr"
+        )
+        == "0_illum_corr"
+    )
+    assert (
+        _get_matching_ref_cycle_path_heuristic(["0", "0_illum_corr"], "1")
+        == "0"
+    )
+    assert (
+        _get_matching_ref_cycle_path_heuristic(
+            ["0", "0_illum_corr", "0_registered"], "1_illum_corr"
+        )
+        == "0_illum_corr"
+    )
+    assert (
+        _get_matching_ref_cycle_path_heuristic(
+            ["0", "1", "2", "3"], "0_cycle2"
+        )
+        == "0"
+    )

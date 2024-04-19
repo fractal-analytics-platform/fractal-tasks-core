@@ -36,6 +36,9 @@ from fractal_tasks_core.roi import is_standard_roi_table
 from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
 from fractal_tasks_core.tasks._zarr_utils import (
+    _get_matching_ref_cycle_path_heuristic,
+)
+from fractal_tasks_core.tasks._zarr_utils import (
     _split_well_path_image_path,
 )
 from fractal_tasks_core.tasks._zarr_utils import _update_well_metadata
@@ -101,7 +104,18 @@ def apply_registration_to_image(
             f"{reference_cycle=} was not one of the available acquisitions in "
             f"{acq_dict=} for well {well_url}"
         )
-    reference_zarr_url = f"{well_url}/{acq_dict[reference_cycle]}"
+    elif len(acq_dict[reference_cycle]) > 1:
+        ref_path = _get_matching_ref_cycle_path_heuristic(
+            acq_dict[reference_cycle], old_img_path
+        )
+        logger.warning(
+            "Running registration when there are multiple images of the same "
+            "acquisition in a well. Using a heuristic to match the reference "
+            f"cycle. Using {ref_path} as the reference image."
+        )
+    else:
+        ref_path = acq_dict[reference_cycle][0]
+    reference_zarr_url = f"{well_url}/{ref_path}"
 
     ROI_table_ref = ad.read_zarr(
         f"{reference_zarr_url}/tables/{registered_roi_table}"
