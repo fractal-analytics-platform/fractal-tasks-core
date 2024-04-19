@@ -24,11 +24,11 @@ def _copy_hcs_ome_zarr_metadata(
     """
     # Copy over OME-Zarr metadata for illumination_corrected image
     # See #681 for discussion for validation of this zattrs
+    old_image_group = zarr.open_group(zarr_url_origin, mode="r")
+    old_attrs = old_image_group.attrs.asdict()
     zarr_url_new = zarr_url_new.rstrip("/")
-    group = zarr.open_group(zarr_url_origin, mode="r")
-    new_attrs = group.attrs.asdict()
     new_image_group = zarr.group(zarr_url_new)
-    new_image_group.attrs.put(new_attrs)
+    new_image_group.attrs.put(old_attrs)
 
     # Update well metadata about adding the new image:
     new_image_path = zarr_url_new.split("/")[-1]
