@@ -130,8 +130,7 @@ def test_update_well_metadata_concurrency(
     # Prepare parallel-execution argument list with short timeout
     well_url = Path(zarr_url, "B/03").as_posix()
     list_args = [
-        (well_url, "0", f"0_new_{suffix}", INTERVAL / 100)
-        for suffix in range(N, 2 * N)
+        (well_url, "0", f"0_new_{suffix}", 0.0) for suffix in range(N, 2 * N)
     ]
     with pytest.raises(Timeout) as e:
         res_iter = executor.map(_star_update_well_metadata, list_args)
