@@ -1,4 +1,5 @@
 import logging
+import multiprocessing as mp
 import shutil
 import time
 from concurrent.futures import ProcessPoolExecutor
@@ -111,7 +112,7 @@ def test_update_well_metadata_concurrency(
 
     # Run `_update_well_metadata` N times
     time_start = time.perf_counter()
-    with ProcessPoolExecutor() as executor:
+    with ProcessPoolExecutor(mp_context=mp.get_context("fork")) as executor:
         res_iter = executor.map(_star_update_well_metadata, list_args)
         list(res_iter)  # This is needed, to wait for all results.
     time_end = time.perf_counter()
@@ -137,7 +138,9 @@ def test_update_well_metadata_concurrency(
         (well_url, "0", f"0_new_{suffix}", 0.0) for suffix in range(N, 2 * N)
     ]
     with pytest.raises(Timeout) as e:
-        with ProcessPoolExecutor() as executor:
+        with ProcessPoolExecutor(
+            mp_context=mp.get_context("fork")
+        ) as executor:
             res_iter = executor.map(_star_update_well_metadata, list_args)
             list(res_iter)  # This is needed, to wait for all results.
     debug(e.value)
