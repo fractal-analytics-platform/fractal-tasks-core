@@ -115,7 +115,7 @@ def test_update_well_metadata(
     well_meta = load_NgffWellMeta(well_url)
     well_image_paths = [img.path for img in well_meta.well.images]
     debug(well_image_paths)
-    assert set(well_image_paths) == [
+    assert well_image_paths == [
         "0",
         "0_new_0",
         "0_new_1",
