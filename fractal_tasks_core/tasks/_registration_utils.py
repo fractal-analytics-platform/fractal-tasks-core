@@ -12,16 +12,7 @@ import numpy as np
 import pandas as pd
 
 from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
-
-
-def _split_well_path_image_path(zarr_url: str) -> tuple[str, str]:
-    """
-    Returns path to well folder for HCS OME-Zarr `zarr_url`.
-    """
-    zarr_url = zarr_url.rstrip("/")
-    well_path = "/".join(zarr_url.split("/")[:-1])
-    img_path = zarr_url.split("/")[-1]
-    return well_path, img_path
+from fractal_tasks_core.tasks._zarr_utils import _split_well_path_image_path
 
 
 def create_well_acquisition_dict(
