@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 import zarr
 from devtools import debug
+from filelock._error import Timeout
 from pytest import LogCaptureFixture
 
 from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
@@ -64,7 +65,7 @@ def _star_update_well_metadata(args):
     return _update_well_metadata(*args)
 
 
-def test_update_well_metadata(
+def test_update_well_metadata_concurrency(
     tmp_path: Path,
     testdata_path: Path,
     monkeypatch,
@@ -74,6 +75,9 @@ def test_update_well_metadata(
     well. We artificially slow down each call by INTERVAL seconds, and verify
     that the test takes at least N x INTERVAL seconds (since each call to
     `_update_well_metadata` is blocking).
+
+    In the last section of the test, we verify that a timeout error is raised
+    when the timeout is too short.
     """
 
     N = 4
@@ -122,6 +126,17 @@ def test_update_well_metadata(
         "0_new_2",
         "0_new_3",
     ]
+
+    # Prepare parallel-execution argument list with short timeout
+    well_url = Path(zarr_url, "B/03").as_posix()
+    list_args = [
+        (well_url, "0", f"0_new_{suffix}", INTERVAL / 100)
+        for suffix in range(N, 2 * N)
+    ]
+    with pytest.raises(Timeout) as e:
+        res_iter = executor.map(_star_update_well_metadata, list_args)
+        list(res_iter)  # This is needed, to wait for all results.
+    debug(e.value)
 
 
 def test_update_well_metadata_failures(
