@@ -17,6 +17,15 @@ from fractal_tasks_core.tasks._registration_utils import (
 from fractal_tasks_core.tasks._zarr_utils import _copy_hcs_ome_zarr_metadata
 from fractal_tasks_core.tasks._zarr_utils import _update_well_metadata
 
+INTERVAL = 0.5
+
+
+def _slow_load_NgffWellMeta(*args, **kwargs):
+    logging.critical(f"{time.perf_counter():.3f} START SLOW ({args})")
+    time.sleep(INTERVAL)
+    logging.critical(f"{time.perf_counter():.3f} END SLOW ({args})")
+    return load_NgffWellMeta(*args, **kwargs)
+
 
 @pytest.mark.parametrize("trailing_slash", [True, False])
 def test_copy_hcs_ome_zarr_metadata(
@@ -81,7 +90,6 @@ def test_update_well_metadata_concurrency(
     """
 
     N = 4
-    INTERVAL = 0.5
 
     # Copy a reference zarr into a temporary folder
     raw_zarrurl = (testdata_path / "plate_ones.zarr").as_posix()
@@ -90,14 +98,6 @@ def test_update_well_metadata_concurrency(
 
     # Artificially slow down `_update_well_metadata`
     import fractal_tasks_core.tasks._zarr_utils
-
-    import logging
-
-    def _slow_load_NgffWellMeta(*args, **kwargs):
-        logging.critical(f"{time.perf_counter():.3f} START SLOW ({args})")
-        time.sleep(INTERVAL)
-        logging.critical(f"{time.perf_counter():.3f} END SLOW ({args})")
-        return load_NgffWellMeta(*args, **kwargs)
 
     monkeypatch.setattr(
         fractal_tasks_core.tasks._zarr_utils,
