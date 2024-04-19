@@ -65,6 +65,19 @@ def _star_update_well_metadata(args):
     return _update_well_metadata(*args)
 
 
+INTERVAL = 0.5
+
+
+def _slow_load_NgffWellMeta(*args, **kwargs):
+    logging.warning(
+        f"START _slow wrapper for {args}, {time.perf_counter():.3f}"
+    )
+    time.sleep(INTERVAL)
+    output = load_NgffWellMeta(*args, **kwargs)
+    logging.warning(f"END _slow wrapper for {args}, {time.perf_counter():.3f}")
+    return output
+
+
 def test_update_well_metadata_concurrency(
     tmp_path: Path,
     testdata_path: Path,
@@ -81,7 +94,6 @@ def test_update_well_metadata_concurrency(
     """
 
     N = 4
-    INTERVAL = 0.5
 
     # Copy a reference zarr into a temporary folder
     raw_zarrurl = (testdata_path / "plate_ones.zarr").as_posix()
@@ -90,10 +102,6 @@ def test_update_well_metadata_concurrency(
 
     # Artificially slow down `_update_well_metadata`
     import fractal_tasks_core.tasks._zarr_utils
-
-    def _slow_load_NgffWellMeta(*args, **kwargs):
-        time.sleep(INTERVAL)
-        return load_NgffWellMeta(*args, **kwargs)
 
     monkeypatch.setattr(
         fractal_tasks_core.tasks._zarr_utils,
