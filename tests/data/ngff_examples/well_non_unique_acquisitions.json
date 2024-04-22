@@ -2,12 +2,12 @@
     "well": {
         "images": [
             {
-                "path": "nine",
-                "acquisition": 9
+                "path": "0",
+                "acquisition": 1
             },
             {
-                "path": "seven",
-                "acquisition": 9
+                "path": "0_registered",
+                "acquisition": 1
             }
         ],
         "version": "0.4"

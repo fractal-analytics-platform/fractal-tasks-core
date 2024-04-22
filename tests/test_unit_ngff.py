@@ -184,11 +184,11 @@ def test_NgffWellMeta_get_acquisition_paths(ngffdata_path):
 
     # Fail for repeated acquisitions
     ngff_well_meta = _load_and_validate(
-        ngffdata_path / "well_acquisitions_error.json", NgffWellMeta
+        ngffdata_path / "well_non_unique_acquisitions.json", NgffWellMeta
     )
 
     multi_acquisitions = ngff_well_meta.get_acquisition_paths()
-    assert multi_acquisitions == {9: ["nine", "seven"]}
+    assert multi_acquisitions == {1: ["0", "0_registered"]}
 
     # Success
     ngff_well_meta = _load_and_validate(
@@ -196,8 +196,8 @@ def test_NgffWellMeta_get_acquisition_paths(ngffdata_path):
     )
     debug(ngff_well_meta.get_acquisition_paths())
     assert ngff_well_meta.get_acquisition_paths() == {
-        9: ["nine"],
-        7: ["seven"],
+        1: ["cycle1"],
+        2: ["cycle2"],
     }
 
 
