@@ -107,6 +107,16 @@ def _split_well_path_image_path(zarr_url: str) -> tuple[str, str]:
     return well_path, img_path
 
 
+def _split_base_suffix(input: str) -> tuple[str, str]:
+    parts = input.split("_")
+    base = parts[0]
+    if len(parts) > 1:
+        suffix = "_".join(parts[1:])
+    else:
+        suffix = ""
+    return base, suffix
+
+
 def _get_matching_ref_cycle_path_heuristic(
     path_list: list[str], path: str
 ) -> str:
@@ -130,17 +140,13 @@ def _get_matching_ref_cycle_path_heuristic(
         inputs above.
     """
     # Extract the base number and suffix from the input path
-    parts = path.split("_")
-    base = parts[0]
-    suffix = "_".join(parts[1:]) if len(parts) > 1 else ""
+    base, suffix = _split_base_suffix(path)
 
     # Iterate over each path in the list to find the best match with the same
     # base
     for p in path_list:
         # Split the list path into base and suffix
-        p_parts = p.split("_")
-        p_base = p_parts[0]
-        p_suffix = "_".join(p_parts[1:]) if len(p_parts) > 1 else ""
+        p_base, p_suffix = _split_base_suffix(p)
 
         # If suffices match, it's the match.
         if p_suffix == suffix:
