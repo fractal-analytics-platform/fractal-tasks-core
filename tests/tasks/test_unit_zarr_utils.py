@@ -182,26 +182,19 @@ def test_update_well_metadata_failures(
     assert "Could not add the new_image_path" in str(e.value)
 
 
-def test_get_matching_ref_cycle_path_heuristic():
-    assert (
-        _get_matching_ref_cycle_path_heuristic(
-            ["0", "0_illum_corr"], "1_illum_corr"
-        )
-        == "0_illum_corr"
+HEURISTIC_CASES = [
+    (["0", "0_illum_corr"], "1_illum_corr", "0_illum_corr"),
+    (["0", "0_illum_corr"], "1", "0"),
+    (["0", "0_illum_corr", "0_registered"], "1_illum_corr", "0_illum_corr"),
+    (["0", "1", "2", "3"], "0_cycle2", "0"),
+]
+
+
+@pytest.mark.parametrize("path_list, path, expected_match", HEURISTIC_CASES)
+def test_get_matching_ref_cycle_path_heuristic(
+    path_list: list[str], path: str, expected_match: str
+):
+    match = _get_matching_ref_cycle_path_heuristic(
+        path_list=path_list, path=path
     )
-    assert (
-        _get_matching_ref_cycle_path_heuristic(["0", "0_illum_corr"], "1")
-        == "0"
-    )
-    assert (
-        _get_matching_ref_cycle_path_heuristic(
-            ["0", "0_illum_corr", "0_registered"], "1_illum_corr"
-        )
-        == "0_illum_corr"
-    )
-    assert (
-        _get_matching_ref_cycle_path_heuristic(
-            ["0", "1", "2", "3"], "0_cycle2"
-        )
-        == "0"
-    )
+    assert match == expected_match
