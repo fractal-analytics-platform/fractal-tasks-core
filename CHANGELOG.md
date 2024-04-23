@@ -22,7 +22,7 @@
 
 * Add custom normalization options to the Cellpose task (#650)
 * Add more options to the Cellpose task to control model behavior (#650)
-* For Cellpose task, switch to using Enums for model_type (see issue #401)
+* For Cellpose task, switch to using Enums for `model_type` (see issue #401)
 
 # 0.14.1
 
