@@ -142,9 +142,12 @@ def _get_matching_ref_cycle_path_heuristic(
     # Extract the base number and suffix from the input path
     base, suffix = _split_base_suffix(path)
 
+    # Sort path_list
+    sorted_path_list = sorted(path_list)
+
     # Iterate over each path in the list to find the best match with the same
     # base
-    for p in path_list:
+    for p in sorted_path_list:
         # Split the list path into base and suffix
         p_base, p_suffix = _split_base_suffix(p)
 
@@ -155,6 +158,6 @@ def _get_matching_ref_cycle_path_heuristic(
     # If no match is found, return the first entry in the list
     logger.warning(
         "No heuristic reference cycle match found, defaulting to first option "
-        f"{path_list[0]}."
+        f"{sorted_path_list[0]}."
     )
-    return path_list[0]
+    return sorted_path_list[0]
