@@ -152,15 +152,6 @@ def _get_matching_ref_cycle_path_heuristic(
         if p_suffix == suffix:
             return p
 
-        # Check for matching base
-        if p_base == base:
-            # If no suffix in input, the base path is the best match
-            if not suffix and not p_suffix:
-                return p
-            # If suffix matches, it's a definitive best match
-            if suffix == p_suffix:
-                return p
-
     # If no match is found, return the first entry in the list
     logger.warning(
         "No heuristic reference cycle match found, defaulting to first option "
