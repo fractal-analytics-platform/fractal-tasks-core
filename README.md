@@ -26,8 +26,8 @@
 | fractal\_tasks\_core/tasks/\_\_init\_\_.py                                |        0 |        0 |        0 |        0 |    100% |           |
 | fractal\_tasks\_core/tasks/\_registration\_utils.py                       |       69 |        2 |       24 |        2 |     96% |   53, 200 |
 | fractal\_tasks\_core/tasks/\_utils.py                                     |       29 |        5 |        8 |        1 |     78% |33-35, 68-71 |
-| fractal\_tasks\_core/tasks/\_zarr\_utils.py                               |       35 |        0 |        8 |        0 |    100% |           |
-| fractal\_tasks\_core/tasks/apply\_registration\_to\_image.py              |      119 |       17 |       40 |        8 |     81% |47->46, 99, 134-135, 137->158, 164->163, 168-180, 182->219, 199-205, 324-337, 362-364 |
+| fractal\_tasks\_core/tasks/\_zarr\_utils.py                               |       55 |        0 |       16 |        0 |    100% |           |
+| fractal\_tasks\_core/tasks/apply\_registration\_to\_image.py              |      127 |       17 |       42 |        8 |     82% |51->50, 103, 149-150, 152->173, 179->178, 183-195, 197->234, 214-220, 346-359, 384-386 |
 | fractal\_tasks\_core/tasks/calculate\_registration\_image\_based.py       |       71 |        6 |       14 |        6 |     86% |48->47, 142, 152, 171, 216, 261-263 |
 | fractal\_tasks\_core/tasks/cellpose\_segmentation.py                      |      202 |       23 |       62 |       10 |     85% |131-191, 195->194, 321-322, 363-369, 377-378, 416, 424->429, 433, 505, 529->533, 618->634, 628, 717-719 |
 | fractal\_tasks\_core/tasks/cellpose\_transforms.py                        |       78 |        8 |       36 |        8 |     86% |68->67, 128->127, 181-183, 197-199, 206-210 |
@@ -46,7 +46,7 @@
 | fractal\_tasks\_core/upscale\_array.py                                    |       74 |        7 |       48 |        6 |     88% |63, 91, 96->100, 113, 128, 192-197 |
 | fractal\_tasks\_core/utils.py                                             |       68 |        2 |       28 |        5 |     93% |71, 139->147, 140->139, 176->179, 181 |
 | fractal\_tasks\_core/zarr\_utils.py                                       |       33 |        0 |        6 |        1 |     97% |    81->85 |
-|                                                                 **TOTAL** | **3176** |  **213** | **1042** |  **167** | **90%** |           |
+|                                                                 **TOTAL** | **3204** |  **213** | **1052** |  **167** | **91%** |           |
 
 
 ## Setup coverage badge
