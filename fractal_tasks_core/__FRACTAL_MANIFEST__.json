@@ -1185,13 +1185,13 @@
             "title": "Reference Acquisition",
             "default": 0,
             "type": "integer",
-            "description": "Missing description"
+            "description": "Which cycle to register against. Uses the OME-NGFF HCS well metadata acquisition keys to find the reference cycle."
           },
           "overwrite_input": {
             "title": "Overwrite Input",
             "default": true,
             "type": "boolean",
-            "description": "Missing description"
+            "description": "Whether the old image data should be replaced with the newly registered image data. Currently only implemented for `overwrite_input=True`."
           }
         },
         "required": [
