@@ -36,8 +36,12 @@ from fractal_tasks_core.roi import is_standard_roi_table
 from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
 from fractal_tasks_core.tasks._zarr_utils import (
+    _get_matching_ref_cycle_path_heuristic,
+)
+from fractal_tasks_core.tasks._zarr_utils import (
     _split_well_path_image_path,
 )
+from fractal_tasks_core.tasks._zarr_utils import _update_well_metadata
 from fractal_tasks_core.utils import _get_table_path_dict
 
 logger = logging.getLogger(__name__)
@@ -91,7 +95,7 @@ def apply_registration_to_image(
         f"Using {overwrite_input=}"
     )
 
-    well_url, _ = _split_well_path_image_path(zarr_url)
+    well_url, old_img_path = _split_well_path_image_path(zarr_url)
     new_zarr_url = f"{well_url}/{zarr_url.split('/')[-1]}_registered"
     # Get the zarr_url for the reference cycle
     acq_dict = load_NgffWellMeta(well_url).get_acquisition_paths()
@@ -100,7 +104,18 @@ def apply_registration_to_image(
             f"{reference_acquisition=} was not one of the available "
             f"acquisitions in {acq_dict=} for well {well_url}"
         )
-    reference_zarr_url = f"{well_url}/{acq_dict[reference_acquisition]}"
+    elif len(acq_dict[reference_acquisition]) > 1:
+        ref_path = _get_matching_ref_cycle_path_heuristic(
+            acq_dict[reference_acquisition], old_img_path
+        )
+        logger.warning(
+            "Running registration when there are multiple images of the same "
+            "acquisition in a well. Using a heuristic to match the reference "
+            f"cycle. Using {ref_path} as the reference image."
+        )
+    else:
+        ref_path = acq_dict[reference_acquisition][0]
+    reference_zarr_url = f"{well_url}/{ref_path}"
 
     ROI_table_ref = ad.read_zarr(
         f"{reference_zarr_url}/tables/{registered_roi_table}"
@@ -230,6 +245,13 @@ def apply_registration_to_image(
     else:
         image_list_updates = dict(
             image_list_updates=[dict(zarr_url=new_zarr_url, origin=zarr_url)]
+        )
+        # Update the metadata of the the well
+        well_url, new_img_path = _split_well_path_image_path(new_zarr_url)
+        _update_well_metadata(
+            well_url=well_url,
+            old_image_path=old_img_path,
+            new_image_path=new_img_path,
         )
 
     return image_list_updates

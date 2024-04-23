@@ -6,9 +6,14 @@
 * Rename tasks for increase clarity (\#671 & \#706)
 * Provide new dev tooling to create Fractal manifest for new task API (\#671)
 * Add Pydantic models for OME-NGFF HCS Plate validation (\#671)
+* Breaking changes in core library:
+    * In `get_acquisition_paths` helper function of `NgffWellMeta`:
+        The dictionary now contains a list of paths as values, not single paths.
+        The NotImplementedError for multiple images with the same acquisition was removed.
+    * The `utils.get_table_path_dict` helper function was made private & changed its input parameters:
+        It's now `_get_table_path_dict(zarr_url: str)`
 * Dependencies:
     * Add `filelock` (\#718).
-
 
 # 0.14.3
 
