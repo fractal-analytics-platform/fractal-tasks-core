@@ -44,9 +44,9 @@ def init_group_by_well_for_multiplexing(
         zarr_dir: path of the directory where the new OME-Zarrs will be
             created. Not used by this task.
             (standard argument for Fractal tasks, managed by Fractal server).
-        reference_acquisition: Which cycle to register against. Uses the
+        reference_acquisition: Which acquisition to register against. Uses the
             OME-NGFF HCS well metadata acquisition keys to find the reference
-            cycle.
+            acquisition.
     """
     logger.info(
         f"Running `init_group_by_well_for_multiplexing` for {zarr_urls=}"
@@ -56,12 +56,12 @@ def init_group_by_well_for_multiplexing(
     # Create the parallelization list
     parallelization_list = []
     for key, image_group in image_groups.items():
-        # Assert that all image groups have the reference cycle present
+        # Assert that all image groups have the reference acquisition present
         if reference_acquisition not in image_group.keys():
             raise ValueError(
                 f"Registration with {reference_acquisition=} can only work if "
-                "all wells have the reference cycle present. It was not found"
-                f"for well {key}."
+                "all wells have the reference acquisition present. It was not "
+                f"found for well {key}."
             )
 
         # Create a parallelization list entry for each image group

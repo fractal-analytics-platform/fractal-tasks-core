@@ -117,15 +117,16 @@ def _split_base_suffix(input: str) -> tuple[str, str]:
     return base, suffix
 
 
-def _get_matching_ref_cycle_path_heuristic(
+def _get_matching_ref_acquisition_path_heuristic(
     path_list: list[str], path: str
 ) -> str:
     """
     Pick the best match from path_list to a given path
 
-    This is a workaround to find the reference registration cycle when there
-    are multiple OME-Zarrs with the same acquisition identifier in the well
-    metadata and we need to find which one is the reference for a given path.
+    This is a workaround to find the reference registration acquisition when
+    there are multiple OME-Zarrs with the same acquisition identifier in the
+    well metadata and we need to find which one is the reference for a given
+    path.
 
     Args:
         path_list: List of paths to OME-Zarr images in the well metadata. For
@@ -160,7 +161,7 @@ def _get_matching_ref_cycle_path_heuristic(
 
     # If no match is found, return the first entry in the list
     logger.warning(
-        "No heuristic reference cycle match found, defaulting to first option "
-        f"{sorted_path_list[0]}."
+        "No heuristic reference acquisition match found, defaulting to first "
+        f"option {sorted_path_list[0]}."
     )
     return sorted_path_list[0]
