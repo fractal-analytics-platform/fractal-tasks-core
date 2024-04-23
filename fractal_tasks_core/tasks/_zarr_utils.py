@@ -139,18 +139,21 @@ def _get_matching_ref_cycle_path_heuristic(
         path if applicable. For example, '0_illum_corr' with the example
         inputs above.
     """
+
     # Extract the base number and suffix from the input path
     base, suffix = _split_base_suffix(path)
 
     # Sort path_list
     sorted_path_list = sorted(path_list)
 
-    # Iterate over each path in the list to find the best match with the same
-    # base
+    # Never return the input `path`
+    if path in sorted_path_list:
+        sorted_path_list.remove(path)
+
+    # First matching rule: a path with the same suffix
     for p in sorted_path_list:
         # Split the list path into base and suffix
         p_base, p_suffix = _split_base_suffix(p)
-
         # If suffices match, it's the match.
         if p_suffix == suffix:
             return p

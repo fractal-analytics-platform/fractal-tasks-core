@@ -188,6 +188,7 @@ HEURISTIC_CASES = [
     (["0", "0_illum_corr", "0_registered"], "1_illum_corr", "0_illum_corr"),
     (["0", "1", "2", "3"], "0_cycle2", "0"),
     (["1", "0", "2", "3"], "0_cycle2", "0"),
+    (["0", "1", "2", "3"], "3", "0"),
 ]
 
 
