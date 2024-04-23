@@ -1,9 +1,12 @@
 import copy
+import logging
 
 import zarr
 from filelock import FileLock
 
 from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
+
+logger = logging.getLogger(__name__)
 
 
 def _copy_hcs_ome_zarr_metadata(
@@ -102,3 +105,62 @@ def _split_well_path_image_path(zarr_url: str) -> tuple[str, str]:
     well_path = "/".join(zarr_url.split("/")[:-1])
     img_path = zarr_url.split("/")[-1]
     return well_path, img_path
+
+
+def _split_base_suffix(input: str) -> tuple[str, str]:
+    parts = input.split("_")
+    base = parts[0]
+    if len(parts) > 1:
+        suffix = "_".join(parts[1:])
+    else:
+        suffix = ""
+    return base, suffix
+
+
+def _get_matching_ref_cycle_path_heuristic(
+    path_list: list[str], path: str
+) -> str:
+    """
+    Pick the best match from path_list to a given path
+
+    This is a workaround to find the reference registration cycle when there
+    are multiple OME-Zarrs with the same acquisition identifier in the well
+    metadata and we need to find which one is the reference for a given path.
+
+    Args:
+        path_list: List of paths to OME-Zarr images in the well metadata. For
+            example: ['0', '0_illum_corr']
+        path: A given path for which we want to find the reference image. For
+            example, '1_illum_corr'
+
+    Returns:
+        The best matching reference path. If no direct match is found, it
+        returns the most similar one based on suffix hierarchy or the base
+        path if applicable. For example, '0_illum_corr' with the example
+        inputs above.
+    """
+
+    # Extract the base number and suffix from the input path
+    base, suffix = _split_base_suffix(path)
+
+    # Sort path_list
+    sorted_path_list = sorted(path_list)
+
+    # Never return the input `path`
+    if path in sorted_path_list:
+        sorted_path_list.remove(path)
+
+    # First matching rule: a path with the same suffix
+    for p in sorted_path_list:
+        # Split the list path into base and suffix
+        p_base, p_suffix = _split_base_suffix(p)
+        # If suffices match, it's the match.
+        if p_suffix == suffix:
+            return p
+
+    # If no match is found, return the first entry in the list
+    logger.warning(
+        "No heuristic reference cycle match found, defaulting to first option "
+        f"{sorted_path_list[0]}."
+    )
+    return sorted_path_list[0]
