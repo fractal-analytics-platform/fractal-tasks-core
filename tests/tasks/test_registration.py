@@ -282,7 +282,7 @@ def test_multiplexing_registration(
         image_based_registration_hcs_init(
             zarr_urls=zarr_urls_2D,
             zarr_dir=zarr_dir,
-            reference_cycle=2,
+            reference_acquisition=2,
         )
 
     parallelization_list = image_based_registration_hcs_init(
@@ -324,7 +324,7 @@ def test_multiplexing_registration(
     parallelization_list_well = init_group_by_well_for_multiplexing(
         zarr_urls=zarr_urls_2D,
         zarr_dir=zarr_dir,
-        reference_cycle=0,
+        reference_acquisition=0,
     )["parallelization_list"]
     debug(parallelization_list_well)
     well_paral_list = {

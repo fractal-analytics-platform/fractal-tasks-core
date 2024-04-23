@@ -987,8 +987,8 @@
             "type": "string",
             "description": "path of the directory where the new OME-Zarrs will be created. Not used by this task. (standard argument for Fractal tasks, managed by Fractal server)."
           },
-          "reference_cycle": {
-            "title": "Reference Cycle",
+          "reference_acquisition": {
+            "title": "Reference Acquisition",
             "default": 0,
             "type": "integer",
             "description": "Which cycle to register against. Needs to match the acquisition metadata in the OME-Zarr image."
@@ -1087,8 +1087,8 @@
             "type": "string",
             "description": "path of the directory where the new OME-Zarrs will be created. Not used by this task. (standard argument for Fractal tasks, managed by Fractal server)."
           },
-          "reference_cycle": {
-            "title": "Reference Cycle",
+          "reference_acquisition": {
+            "title": "Reference Acquisition",
             "default": 0,
             "type": "integer",
             "description": "Which cycle to register against. Uses the OME-NGFF HCS well metadata acquisition keys to find the reference cycle."
@@ -1181,17 +1181,17 @@
             "type": "string",
             "description": "Name of the ROI table which has been registered and will be applied to mask and shift the images. Examples: `registered_FOV_ROI_table` => loop over the field of views, `registered_well_ROI_table` => process the whole well as one image."
           },
-          "reference_cycle": {
-            "title": "Reference Cycle",
+          "reference_acquisition": {
+            "title": "Reference Acquisition",
             "default": 0,
             "type": "integer",
-            "description": "Which cycle to register against. Uses the OME-NGFF HCS well metadata acquisition keys to find the reference cycle."
+            "description": "Missing description"
           },
           "overwrite_input": {
             "title": "Overwrite Input",
             "default": true,
             "type": "boolean",
-            "description": "Whether the old image data should be replaced with the newly registered image data. Currently only implemented for `overwrite_input=True`."
+            "description": "Missing description"
           }
         },
         "required": [
@@ -1200,7 +1200,7 @@
         ],
         "additionalProperties": false
       },
-      "docs_info": "## apply_registration_to_image\nApply registration to images by using a registered ROI table\n\nThis task consists of 4 parts:\n\n1. Mask all regions in images that are not available in the\nregistered ROI table and store each cycle aligned to the\nreference_cycle (by looping over ROIs).\n2. Do the same for all label images.\n3. Copy all tables from the non-aligned image to the aligned image\n(currently only works well if the only tables are well & FOV ROI tables\n(registered and original). Not implemented for measurement tables and\nother ROI tables).\n4. Clean up: Delete the old, non-aligned image and rename the new,\naligned image to take over its place.\n",
+      "docs_info": "## apply_registration_to_image\nApply registration to images by using a registered ROI table\n\nThis task consists of 4 parts:\n\n1. Mask all regions in images that are not available in the\nregistered ROI table and store each cycle aligned to the\nreference_acquisition (by looping over ROIs).\n2. Do the same for all label images.\n3. Copy all tables from the non-aligned image to the aligned image\n(currently only works well if the only tables are well & FOV ROI tables\n(registered and original). Not implemented for measurement tables and\nother ROI tables).\n4. Clean up: Delete the old, non-aligned image and rename the new,\naligned image to take over its place.\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {

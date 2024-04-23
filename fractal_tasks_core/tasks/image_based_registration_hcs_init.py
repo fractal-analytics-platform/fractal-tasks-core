@@ -31,7 +31,7 @@ def image_based_registration_hcs_init(
     zarr_urls: list[str],
     zarr_dir: str,
     # Core parameters
-    reference_cycle: int = 0,
+    reference_acquisition: int = 0,
 ) -> dict[str, list[dict[str, Any]]]:
     """
     Initialized calculate registration task
@@ -51,8 +51,8 @@ def image_based_registration_hcs_init(
         zarr_dir: path of the directory where the new OME-Zarrs will be
             created. Not used by this task.
             (standard argument for Fractal tasks, managed by Fractal server).
-        reference_cycle: Which cycle to register against. Needs to match the
-            acquisition metadata in the OME-Zarr image.
+        reference_acquisition: Which cycle to register against. Needs to match
+            the acquisition metadata in the OME-Zarr image.
 
     Returns:
         task_output: Dictionary for Fractal server that contains a
@@ -67,17 +67,17 @@ def image_based_registration_hcs_init(
     parallelization_list = []
     for key, image_group in image_groups.items():
         # Assert that all image groups have the reference cycle present
-        if reference_cycle not in image_group.keys():
+        if reference_acquisition not in image_group.keys():
             raise ValueError(
-                f"Registration with {reference_cycle=} can only work if all"
-                "wells have the reference cycle present. It was not found"
+                f"Registration with {reference_acquisition=} can only work if "
+                "all wells have the reference cycle present. It was not found"
                 f"for well {key}."
             )
         # Add all zarr_urls except the reference cycle to the
         # parallelization list
         for acquisition, zarr_url in image_group.items():
-            if acquisition != reference_cycle:
-                reference_zarr_url = image_group[reference_cycle]
+            if acquisition != reference_acquisition:
+                reference_zarr_url = image_group[reference_acquisition]
                 parallelization_list.append(
                     dict(
                         zarr_url=zarr_url,

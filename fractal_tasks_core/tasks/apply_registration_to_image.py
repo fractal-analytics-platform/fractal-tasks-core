@@ -50,7 +50,7 @@ def apply_registration_to_image(
     zarr_url: str,
     # Core parameters
     registered_roi_table: str,
-    reference_cycle: int = 0,
+    reference_acquisition: int = 0,
     overwrite_input: bool = True,
 ):
     """
@@ -60,7 +60,7 @@ def apply_registration_to_image(
 
     1. Mask all regions in images that are not available in the
     registered ROI table and store each cycle aligned to the
-    reference_cycle (by looping over ROIs).
+    reference_acquisition (by looping over ROIs).
     2. Do the same for all label images.
     3. Copy all tables from the non-aligned image to the aligned image
     (currently only works well if the only tables are well & FOV ROI tables
@@ -77,7 +77,7 @@ def apply_registration_to_image(
             Examples: `registered_FOV_ROI_table` => loop over the field of
             views, `registered_well_ROI_table` => process the whole well as
             one image.
-        reference_cycle: Which cycle to register against. Uses the OME-NGFF
+    reference_acquisition: Which cycle to register against. Uses the OME-NGFF
             HCS well metadata acquisition keys to find the reference cycle.
         overwrite_input: Whether the old image data should be replaced with the
             newly registered image data. Currently only implemented for
@@ -87,7 +87,7 @@ def apply_registration_to_image(
     logger.info(zarr_url)
     logger.info(
         f"Running `apply_registration_to_image` on {zarr_url=}, "
-        f"{registered_roi_table=} and {reference_cycle=}. "
+        f"{registered_roi_table=} and {reference_acquisition=}. "
         f"Using {overwrite_input=}"
     )
 
@@ -95,12 +95,12 @@ def apply_registration_to_image(
     new_zarr_url = f"{well_url}/{zarr_url.split('/')[-1]}_registered"
     # Get the zarr_url for the reference cycle
     acq_dict = load_NgffWellMeta(well_url).get_acquisition_paths()
-    if reference_cycle not in acq_dict:
+    if reference_acquisition not in acq_dict:
         raise ValueError(
-            f"{reference_cycle=} was not one of the available acquisitions in "
-            f"{acq_dict=} for well {well_url}"
+            f"{reference_acquisition=} was not one of the available "
+            f"acquisitions in {acq_dict=} for well {well_url}"
         )
-    reference_zarr_url = f"{well_url}/{acq_dict[reference_cycle]}"
+    reference_zarr_url = f"{well_url}/{acq_dict[reference_acquisition]}"
 
     ROI_table_ref = ad.read_zarr(
         f"{reference_zarr_url}/tables/{registered_roi_table}"

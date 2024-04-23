@@ -92,7 +92,7 @@ def find_registration_consensus(
         )
         curr_ROI_table_attrs = curr_ROI_table_group.attrs.asdict()
 
-        # For reference_cycle acquisition, handle the fact that it doesn't
+        # For reference_acquisition, handle the fact that it doesn't
         # have the shifts
         if acq_zarr_url == zarr_url:
             curr_ROI_table = add_zero_translation_columns(curr_ROI_table)
