@@ -139,7 +139,7 @@ cases](#roi-tables-use-cases) section):
 * `x_micrometer_original` and `y_micrometer_original`, which are a copy of
   `x_micrometer` and `y_micrometer` taken before applying some transformation;
 * `translation_x`, `translation_y` and `translation_z`, which are used during
-  registration of multiplexing cycles;
+  registration of multiplexing acquisitions;
 * `label`, which is used to link a ROI to a label (either for
   [masking ROI tables](#masking-roi-tables) or for
   [feature tables](#feature-tables)).
@@ -295,7 +295,7 @@ ROI tables are also used and updated during image processing, e.g as in:
   columns `x_micrometer_original` and `y_micrometer_original` to store the values
   before the transformation.
 * The FOV ROI table is also used to store information on the registration of
-  multiplexing cycles, via the `translation_x`, `translation_y` and
+  multiplexing acquisitions, via the `translation_x`, `translation_y` and
   `translation_z` optional columns.
 * Several tasks in `fractal-tasks-core` take an existing ROI table as an input
   and then loop over the ROIs defined in the table. This makes the task more

@@ -168,7 +168,7 @@ def check_well_channel_labels(*, well_zarr_path: str) -> None:
         well_zarr_path: path to an OME-NGFF well zarr group.
     """
 
-    # Iterate over all images (multiplexing cycles, multi-FOVs, ...)
+    # Iterate over all images (multiplexing acquisitions, multi-FOVs, ...)
     group = zarr.open_group(well_zarr_path, mode="r+")
     image_paths = [image["path"] for image in group.attrs["well"]["images"]]
     list_of_channel_lists = []

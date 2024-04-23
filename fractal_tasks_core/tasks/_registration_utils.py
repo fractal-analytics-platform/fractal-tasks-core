@@ -139,7 +139,7 @@ def add_zero_translation_columns(ad_table: ad.AnnData):
     if ad_table.var.index.isin(columns).any().any():
         raise ValueError(
             "The roi table already contains translation columns. Did you "
-            "enter a wrong reference cycle?"
+            "enter a wrong reference acquisition?"
         )
     df = pd.DataFrame(np.zeros([len(ad_table), 3]), columns=columns)
     df.index = ad_table.obs.index
@@ -192,7 +192,7 @@ def apply_registration_to_single_ROI_table(
             columns are translation_z, translation_y, translation_x
     Returns:
         ROI table where all ROIs are registered to the smallest common area
-        across all cycles.
+        across all acquisitions.
     """
     roi_table = copy.deepcopy(roi_table)
     rois = roi_table.obs.index
