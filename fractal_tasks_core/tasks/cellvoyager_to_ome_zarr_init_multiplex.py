@@ -69,9 +69,9 @@ def cellvoyager_to_ome_zarr_init_multiplex(
     """
     Create OME-NGFF structure and metadata to host a multiplexing dataset.
 
-    This task takes a set of image folders (i.e. different acquisition cycles)
-    and build the internal structure and metadata of a OME-NGFF zarr group,
-    without actually loading/writing the image data.
+    This task takes a set of image folders (i.e. different multiplexing
+    acquisitions) and build the internal structure and metadata of a OME-NGFF
+    zarr group, without actually loading/writing the image data.
 
     Each element in input_paths should be treated as a different acquisition.
 
@@ -505,8 +505,8 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                 table_attrs={"type": "roi_table"},
             )
 
-    # Check that the different images (e.g. different cycles) in the each well
-    # have unique labels
+    # Check that the different images (e.g. different acquisitions) in the each
+    # well have unique labels
     for well_path in zarrurls["well"]:
         check_well_channel_labels(
             well_zarr_path=str(Path(zarr_dir) / well_path)
