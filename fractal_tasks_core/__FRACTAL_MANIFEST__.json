@@ -191,12 +191,6 @@
             "$ref": "#/definitions/InitArgsCellVoyager",
             "title": "Init_Args",
             "description": "Intialization arguments provided by `create_cellvoyager_ome_zarr_init`."
-          },
-          "overwrite": {
-            "title": "Overwrite",
-            "default": false,
-            "type": "boolean",
-            "description": "If `True`, overwrite the task output."
           }
         },
         "required": [
@@ -247,7 +241,7 @@
           }
         }
       },
-      "docs_info": "## cellvoyager_to_ome_zarr_init\nCreate a OME-NGFF zarr folder, without reading/writing image data.\n\nFind plates (for each folder in input_paths):\n\n- glob image files,\n- parse metadata from image filename to identify plates,\n- identify populated channels.\n\nCreate a zarr folder (for each plate):\n\n- parse mlf metadata,\n- identify wells and field of view (FOV),\n- create FOV ZARR,\n- verify that channels are uniform (i.e., same channels).\n## cellvoyager_to_ome_zarr_compute\nConvert Yokogawa output (png, tif) to zarr file.\n\nThis task is typically run after Create OME-Zarr or\nCreate OME-Zarr Multiplexing and populates the empty OME-Zarr files that\nwere prepared.\n",
+      "docs_info": "## cellvoyager_to_ome_zarr_init\nCreate a OME-NGFF zarr folder, without reading/writing image data.\n\nFind plates (for each folder in input_paths):\n\n- glob image files,\n- parse metadata from image filename to identify plates,\n- identify populated channels.\n\nCreate a zarr folder (for each plate):\n\n- parse mlf metadata,\n- identify wells and field of view (FOV),\n- create FOV ZARR,\n- verify that channels are uniform (i.e., same channels).\n## cellvoyager_to_ome_zarr_compute\nConvert Yokogawa output (png, tif) to zarr file.\n\nThis task is run after an init task (typically\n`cellvoyager_to_ome_zarr_init` or\n`cellvoyager_to_ome_zarr_init_multiplex`), and it populates the empty\nOME-Zarr files that were prepared.\n\nNote that the current task always overwrites existing data. To avoid this\nbehavior, set the `overwrite` argument of the init task to `False`.\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {
@@ -458,12 +452,6 @@
             "$ref": "#/definitions/InitArgsCellVoyager",
             "title": "Init_Args",
             "description": "Intialization arguments provided by `create_cellvoyager_ome_zarr_init`."
-          },
-          "overwrite": {
-            "title": "Overwrite",
-            "default": false,
-            "type": "boolean",
-            "description": "If `True`, overwrite the task output."
           }
         },
         "required": [
@@ -514,7 +502,7 @@
           }
         }
       },
-      "docs_info": "## cellvoyager_to_ome_zarr_init_multiplex\nCreate OME-NGFF structure and metadata to host a multiplexing dataset.\n\nThis task takes a set of image folders (i.e. different multiplexing\nacquisitions) and build the internal structure and metadata of a OME-NGFF\nzarr group, without actually loading/writing the image data.\n\nEach element in input_paths should be treated as a different acquisition.\n## cellvoyager_to_ome_zarr_compute\nConvert Yokogawa output (png, tif) to zarr file.\n\nThis task is typically run after Create OME-Zarr or\nCreate OME-Zarr Multiplexing and populates the empty OME-Zarr files that\nwere prepared.\n",
+      "docs_info": "## cellvoyager_to_ome_zarr_init_multiplex\nCreate OME-NGFF structure and metadata to host a multiplexing dataset.\n\nThis task takes a set of image folders (i.e. different multiplexing\nacquisitions) and build the internal structure and metadata of a OME-NGFF\nzarr group, without actually loading/writing the image data.\n\nEach element in input_paths should be treated as a different acquisition.\n## cellvoyager_to_ome_zarr_compute\nConvert Yokogawa output (png, tif) to zarr file.\n\nThis task is run after an init task (typically\n`cellvoyager_to_ome_zarr_init` or\n`cellvoyager_to_ome_zarr_init_multiplex`), and it populates the empty\nOME-Zarr files that were prepared.\n\nNote that the current task always overwrites existing data. To avoid this\nbehavior, set the `overwrite` argument of the init task to `False`.\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {

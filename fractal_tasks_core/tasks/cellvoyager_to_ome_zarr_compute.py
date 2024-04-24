@@ -61,22 +61,23 @@ def cellvoyager_to_ome_zarr_compute(
     # Fractal parameters
     zarr_url: str,
     init_args: InitArgsCellVoyager,
-    # Advanced parameters
-    overwrite: bool = False,
 ):
     """
     Convert Yokogawa output (png, tif) to zarr file.
 
-    This task is typically run after Create OME-Zarr or
-    Create OME-Zarr Multiplexing and populates the empty OME-Zarr files that
-    were prepared.
+    This task is run after an init task (typically
+    `cellvoyager_to_ome_zarr_init` or
+    `cellvoyager_to_ome_zarr_init_multiplex`), and it populates the empty
+    OME-Zarr files that were prepared.
+
+    Note that the current task always overwrites existing data. To avoid this
+    behavior, set the `overwrite` argument of the init task to `False`.
 
     Args:
         zarr_url: Path or url to the individual OME-Zarr image to be processed.
             (standard argument for Fractal tasks, managed by Fractal server).
         init_args: Intialization arguments provided by
             `create_cellvoyager_ome_zarr_init`.
-        overwrite: If `True`, overwrite the task output.
     """
 
     # Read attributes from NGFF metadata
@@ -137,14 +138,13 @@ def cellvoyager_to_ome_zarr_compute(
             chunks=chunksize,
             dtype=sample.dtype,
             store=zarr.storage.FSStore(zarr_url + "/0"),
-            overwrite=overwrite,
+            overwrite=True,
             dimension_separator="/",
         )
     except ContainsArrayError as e:
         error_msg = (
-            f"Cannot create a zarr group at '{zarr_url}/0', "
-            f"with {overwrite=} (original error: {str(e)}).\n"
-            "Hint: try setting overwrite=True."
+            f"Cannot create a zarr group at '{zarr_url}/0' "
+            f"(original error: {str(e)}).\n"
         )
         logger.error(error_msg)
         raise OverwriteNotAllowedError(error_msg)
@@ -195,7 +195,7 @@ def cellvoyager_to_ome_zarr_compute(
     # pyramid of coarser levels
     build_pyramid(
         zarrurl=zarr_url,
-        overwrite=overwrite,
+        overwrite=True,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
         chunksize=chunksize,
