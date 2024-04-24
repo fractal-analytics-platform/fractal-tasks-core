@@ -1,10 +1,13 @@
 import copy
 import logging
 
+import anndata as ad
 import zarr
 from filelock import FileLock
 
 from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
+from fractal_tasks_core.tables import write_table
+from fractal_tasks_core.tables.v1 import get_tables_list_v1
 
 logger = logging.getLogger(__name__)
 
@@ -165,3 +168,48 @@ def _get_matching_ref_acquisition_path_heuristic(
         f"option {sorted_path_list[0]}."
     )
     return sorted_path_list[0]
+
+
+def _copy_tables_from_zarr_url(
+    origin_zarr_url: str,
+    target_zarr_url: str,
+    table_type: str = None,
+    overwrite: bool = True,
+) -> None:
+    """
+    Copies all ROI tables from one Zarr into a new Zarr
+
+    Args:
+        origin_zarr_url: url of the OME-Zarr image that contains tables.
+            e.g. /path/to/my_plate.zarr/B/03/0
+        target_zarr_url: url of the new OME-Zarr image where tables are copied
+            to. e.g. /path/to/my_plate.zarr/B/03/0_illum_corr
+        table_type: Filter for specific table types that should be copied.
+        overwrite: Whether existing tables of the same name in the
+            target_zarr_url should be overwritten.
+    """
+    table_list = get_tables_list_v1(
+        zarr_url=origin_zarr_url, table_type=table_type
+    )
+
+    if table_list:
+        logger.info(
+            f"Copying the tables {table_list} from {origin_zarr_url} to "
+            f"{target_zarr_url}."
+        )
+        new_image_group = zarr.group(target_zarr_url)
+
+        for table in table_list:
+            logger.info(f"Copying table: {table}")
+            # Get the relevant metadata of the Zarr table & add it
+            table_url = f"{origin_zarr_url}/tables/{table}"
+            old_table_group = zarr.open_group(table_url, mode="r")
+            # Write the Zarr table
+            curr_table = ad.read_zarr(table_url)
+            write_table(
+                new_image_group,
+                table,
+                curr_table,
+                table_attrs=old_table_group.attrs.asdict(),
+                overwrite=overwrite,
+            )
