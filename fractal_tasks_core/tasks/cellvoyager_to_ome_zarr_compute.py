@@ -19,7 +19,6 @@ import zarr
 from anndata import read_zarr
 from dask.array.image import imread
 from pydantic.decorator import validate_arguments
-from zarr.errors import ContainsArrayError
 
 from fractal_tasks_core.cellvoyager.filenames import (
     glob_with_multiple_patterns,
@@ -34,7 +33,6 @@ from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
 from fractal_tasks_core.tasks.io_models import InitArgsCellVoyager
-from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 
 
 logger = logging.getLogger(__name__)
@@ -132,22 +130,14 @@ def cellvoyager_to_ome_zarr_compute(
 
     # Initialize zarr
     chunksize = (1, 1, sample.shape[1], sample.shape[2])
-    try:
-        canvas_zarr = zarr.create(
-            shape=(len(wavelength_ids), max_z, max_y, max_x),
-            chunks=chunksize,
-            dtype=sample.dtype,
-            store=zarr.storage.FSStore(zarr_url + "/0"),
-            overwrite=True,
-            dimension_separator="/",
-        )
-    except ContainsArrayError as e:
-        error_msg = (
-            f"Cannot create a zarr group at '{zarr_url}/0' "
-            f"(original error: {str(e)}).\n"
-        )
-        logger.error(error_msg)
-        raise OverwriteNotAllowedError(error_msg)
+    canvas_zarr = zarr.create(
+        shape=(len(wavelength_ids), max_z, max_y, max_x),
+        chunks=chunksize,
+        dtype=sample.dtype,
+        store=zarr.storage.FSStore(zarr_url + "/0"),
+        overwrite=True,
+        dimension_separator="/",
+    )
 
     # Loop over channels
     for i_c, wavelength_id in enumerate(wavelength_ids):
