@@ -163,34 +163,6 @@ def test_yokogawa_to_ome_zarr(
     )["parallelization_list"]
     debug(parallelization_list)
 
-    # Re-run (with overwrite=False) and fail
-    with pytest.raises(OverwriteNotAllowedError):
-        cellvoyager_to_ome_zarr_init(
-            zarr_urls=[],
-            zarr_dir=str(output_path),
-            image_dirs=[str(img_path)],
-            allowed_channels=allowed_channels,
-            num_levels=num_levels,
-            coarsening_xy=coarsening_xy,
-            metadata_table_file=metadata_table_file,
-            image_extension="png",
-            overwrite=False,
-        )
-
-    # Re-run (with overwrite=True)
-    parallelization_list = cellvoyager_to_ome_zarr_init(
-        zarr_urls=[],
-        zarr_dir=str(output_path),
-        image_dirs=[str(img_path)],
-        allowed_channels=allowed_channels,
-        num_levels=num_levels,
-        coarsening_xy=coarsening_xy,
-        metadata_table_file=metadata_table_file,
-        image_extension="png",
-        overwrite=True,
-    )["parallelization_list"]
-    debug(parallelization_list)
-
     image_list_updates = []
     # Yokogawa to zarr
     for image in parallelization_list:
@@ -217,13 +189,6 @@ def test_yokogawa_to_ome_zarr(
 
     assert image_list_updates[0] == expected_image_list_update
 
-    # Re-run
-    for image in parallelization_list:
-        cellvoyager_to_ome_zarr_compute(
-            zarr_url=image["zarr_url"],
-            init_args=image["init_args"],
-        )
-
     # OME-NGFF JSON validation
     image_zarr = Path(parallelization_list[0]["zarr_url"])
     well_zarr = image_zarr.parent
@@ -241,6 +206,39 @@ def test_yokogawa_to_ome_zarr(
         ).attrs.asdict()
         assert table_attrs["type"] == "roi_table"
         assert table_attrs["fractal_table_version"] == "1"
+
+    # Re-run (with overwrite=True for the init task)
+    parallelization_list = cellvoyager_to_ome_zarr_init(
+        zarr_urls=[],
+        zarr_dir=str(output_path),
+        image_dirs=[str(img_path)],
+        allowed_channels=allowed_channels,
+        num_levels=num_levels,
+        coarsening_xy=coarsening_xy,
+        metadata_table_file=metadata_table_file,
+        image_extension="png",
+        overwrite=True,
+    )["parallelization_list"]
+
+    for image in parallelization_list:
+        cellvoyager_to_ome_zarr_compute(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+        )
+
+    # Re-run (with overwrite=False for the init task) and fail
+    with pytest.raises(OverwriteNotAllowedError):
+        cellvoyager_to_ome_zarr_init(
+            zarr_urls=[],
+            zarr_dir=str(output_path),
+            image_dirs=[str(img_path)],
+            allowed_channels=allowed_channels,
+            num_levels=num_levels,
+            coarsening_xy=coarsening_xy,
+            metadata_table_file=metadata_table_file,
+            image_extension="png",
+            overwrite=False,
+        )
 
 
 def test_MIP(
