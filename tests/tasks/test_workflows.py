@@ -217,22 +217,12 @@ def test_yokogawa_to_ome_zarr(
 
     assert image_list_updates[0] == expected_image_list_update
 
-    # Re-run (with overwrite=True)
+    # Re-run
     for image in parallelization_list:
         cellvoyager_to_ome_zarr_compute(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
-            overwrite=True,
         )
-
-    # Re-run (with overwrite=False)
-    for image in parallelization_list:
-        with pytest.raises(OverwriteNotAllowedError):
-            cellvoyager_to_ome_zarr_compute(
-                zarr_url=image["zarr_url"],
-                init_args=image["init_args"],
-                overwrite=False,
-            )
 
     # OME-NGFF JSON validation
     image_zarr = Path(parallelization_list[0]["zarr_url"])
