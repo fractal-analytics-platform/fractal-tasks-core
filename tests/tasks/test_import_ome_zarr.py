@@ -3,6 +3,7 @@ import zarr
 from devtools import debug
 
 from .._zenodo_ome_zarrs import prepare_3D_zarr
+from fractal_tasks_core.tables.v1 import get_tables_list_v1
 from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
     copy_ome_zarr_hcs_plate,
 )
@@ -102,7 +103,7 @@ def test_import_ome_zarr_well(tmp_path, zenodo_zarr):
             {
                 "zarr_url": zarr_urls[0],
                 "attributes": {
-                    "well": "plate.zarr/B/03",
+                    "well": "B03",
                 },
                 "types": {
                     "is_3D": True,
@@ -206,6 +207,62 @@ def test_import_ome_zarr_image_wrong_channels(tmp_path, zenodo_zarr):
         )
     debug(e.value)
     assert "Channels-number mismatch" in str(e.value)
+
+
+def test_import_ome_zarr_plate_no_ROI_tables(tmp_path, zenodo_zarr):
+
+    # Prepare an on-disk OME-Zarr at the plate level
+    zarr_dir = str(tmp_path)
+    prepare_3D_zarr(zarr_dir, zenodo_zarr, remove_tables=True)
+    zarr_name = "plate.zarr"
+
+    # Run import_ome_zarr
+    image_list_changes = import_ome_zarr(
+        zarr_urls=[],
+        zarr_dir=zarr_dir,
+        zarr_name=zarr_name,
+        add_image_ROI_table=False,
+        add_grid_ROI_table=False,
+    )
+    debug(image_list_changes)
+    zarr_urls = [
+        x["zarr_url"] for x in image_list_changes["image_list_updates"]
+    ]
+
+    expected_image_list_changes = {
+        "image_list_updates": [
+            {
+                "zarr_url": zarr_urls[0],
+                "attributes": {
+                    "plate": "plate.zarr",
+                    "well": "B03",
+                },
+                "types": {
+                    "is_3D": True,
+                },
+            },
+        ],
+    }
+    assert expected_image_list_changes == image_list_changes
+
+    # Check that no tables were created
+    assert not get_tables_list_v1(zarr_urls[0])
+
+    # Run copy_ome_zarr and maximum_intensity_projection
+    # to verify that they run without ROI tables
+    parallelization_list = copy_ome_zarr_hcs_plate(
+        zarr_urls=zarr_urls,
+        zarr_dir="tmp_out",
+        overwrite=True,
+    )["parallelization_list"]
+    debug(parallelization_list)
+
+    for image in parallelization_list:
+        maximum_intensity_projection(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+            overwrite=True,
+        )
 
 
 # @pytest.mark.skip

@@ -65,8 +65,6 @@ def _process_single_image(
     image_meta = NgffImageMeta(**image_group.attrs.asdict())
 
     # Preliminary checks
-    if not (add_image_ROI_table or add_grid_ROI_table):
-        return
     if add_grid_ROI_table and (grid_YX_shape is None):
         raise ValueError(
             f"_process_single_image called with {add_grid_ROI_table=}, "
@@ -263,6 +261,7 @@ def import_ome_zarr(
         for image in root_group.attrs["well"]["images"]:
             image_path = image["path"]
             zarr_url = f"{zarr_path}/{image_path}"
+            well_name = "".join(zarr_path.split("/")[-2:])
             types = _process_single_image(
                 zarr_url,
                 add_image_ROI_table,
@@ -275,7 +274,7 @@ def import_ome_zarr(
                 dict(
                     zarr_url=zarr_url,
                     attributes=dict(
-                        well=zarr_name,
+                        well=well_name,
                     ),
                     types=types,
                 )
