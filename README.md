@@ -22,7 +22,7 @@
 | fractal\_tasks\_core/roi/v1\_checks.py                                    |       37 |        0 |       18 |        0 |    100% |           |
 | fractal\_tasks\_core/roi/v1\_overlaps.py                                  |      145 |        5 |       50 |        6 |     94% |72, 132, 173, 255, 266, 383->390 |
 | fractal\_tasks\_core/tables/\_\_init\_\_.py                               |       17 |        0 |        4 |        0 |    100% |           |
-| fractal\_tasks\_core/tables/v1.py                                         |      120 |        6 |       62 |        7 |     91% |33->32, 51->50, 110->113, 290, 315->310, 317-324 |
+| fractal\_tasks\_core/tables/v1.py                                         |      120 |        5 |       62 |        6 |     92% |33->32, 51->50, 110->113, 315->310, 317-324 |
 | fractal\_tasks\_core/tasks/\_\_init\_\_.py                                |        0 |        0 |        0 |        0 |    100% |           |
 | fractal\_tasks\_core/tasks/\_registration\_utils.py                       |       69 |        2 |       24 |        2 |     96% |   53, 200 |
 | fractal\_tasks\_core/tasks/\_utils.py                                     |       29 |        5 |        8 |        1 |     78% |33-35, 68-71 |
@@ -38,7 +38,7 @@
 | fractal\_tasks\_core/tasks/find\_registration\_consensus.py               |       48 |        4 |       18 |        5 |     86% |42->41, 77->79, 107, 119, 167-169 |
 | fractal\_tasks\_core/tasks/illumination\_correction.py                    |       95 |        7 |       28 |        6 |     89% |62, 83-87, 96->95, 195, 211, 288-290 |
 | fractal\_tasks\_core/tasks/image\_based\_registration\_hcs\_init.py       |       22 |        2 |       12 |        2 |     88% |28->27, 93-95 |
-| fractal\_tasks\_core/tasks/import\_ome\_zarr.py                           |       97 |       10 |       36 |       11 |     84% |69, 71, 83->94, 94->109, 109->156, 113-122, 157->160, 158->160, 165->164, 215, 283->305, 311-313 |
+| fractal\_tasks\_core/tasks/import\_ome\_zarr.py                           |       96 |        9 |       34 |        8 |     87% |69, 107->154, 111-120, 155->158, 156->158, 163->162, 213, 282->304, 310-312 |
 | fractal\_tasks\_core/tasks/init\_group\_by\_well\_for\_multiplexing.py    |       23 |        3 |       12 |        3 |     83% |27->26, 61, 86-88 |
 | fractal\_tasks\_core/tasks/io\_models.py                                  |       52 |        0 |       12 |        3 |     95% |123->122, 150->149, 162->161 |
 | fractal\_tasks\_core/tasks/maximum\_intensity\_projection.py              |       64 |        6 |       10 |        3 |     88% |39->38, 151-164, 187-189 |
@@ -46,7 +46,7 @@
 | fractal\_tasks\_core/upscale\_array.py                                    |       74 |        7 |       48 |        6 |     88% |63, 91, 96->100, 113, 128, 192-197 |
 | fractal\_tasks\_core/utils.py                                             |       68 |        2 |       28 |        5 |     93% |71, 139->147, 140->139, 176->179, 181 |
 | fractal\_tasks\_core/zarr\_utils.py                                       |       33 |        0 |        6 |        1 |     97% |    81->85 |
-|                                                                 **TOTAL** | **3213** |  **212** | **1056** |  **167** | **91%** |           |
+|                                                                 **TOTAL** | **3212** |  **210** | **1054** |  **163** | **91%** |           |
 
 
 ## Setup coverage badge
