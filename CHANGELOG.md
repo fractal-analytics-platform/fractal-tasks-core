@@ -3,7 +3,6 @@
 # [WIP] 1.0.0
 
 * Update all tasks to use the new Fractal API from Fractal server 2.0 (\#671)
-* Rename tasks for increase clarity (\#671 & \#706)
 * Provide new dev tooling to create Fractal manifest for new task API (\#671)
 * Add Pydantic models for OME-NGFF HCS Plate validation (\#671)
 * Breaking changes in core library:
@@ -12,6 +11,13 @@
         The NotImplementedError for multiple images with the same acquisition was removed.
     * The `utils.get_table_path_dict` helper function was made private & changed its input parameters:
         It's now `_get_table_path_dict(zarr_url: str)`
+* Breaking changes in task sub-package:
+    * Rename tasks for increase clarity (\#671 & \#706).
+    * Changed registration tasks flow: Now 2 Compound tasks, 1 Parallel task (\#671).
+    * Changed parameter names in registration tasks: acquisition instead of cycle (\#719).
+    * Changed parameter names & defaults in illumination correction task: (\#671).
+        * Now uses `illumination_profiles` instead of `dict_corr`.
+        * Changes default of background subtraction from 110 to 0.
 * Dependencies:
     * Add `filelock` (\#718).
 
@@ -24,7 +30,7 @@
 
 * Add custom normalization options to the Cellpose task (\#650)
 * Add more options to the Cellpose task to control model behavior (\#650)
-* For Cellpose task, switch to using Enums for `model_type` (see issue #401)
+* For Cellpose task, switch to using Enums for `model_type` (see issue \#401)
 
 # 0.14.1
 
