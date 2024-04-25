@@ -241,6 +241,71 @@ def test_yokogawa_to_ome_zarr(
         )
 
 
+def test_2D_cellvoyager_to_ome_zarr(
+    tmp_path: Path,
+    zenodo_images: str,
+):
+    # Init
+    output_path = tmp_path / "output"
+
+    # Create zarr structure
+    parallelization_list = cellvoyager_to_ome_zarr_init(
+        zarr_urls=[],
+        zarr_dir=str(output_path),
+        image_dirs=[zenodo_images],
+        allowed_channels=allowed_channels,
+        num_levels=num_levels,
+        coarsening_xy=coarsening_xy,
+        image_glob_patterns=["*Z01*"],
+        image_extension="png",
+    )["parallelization_list"]
+    debug(parallelization_list)
+
+    image_list_updates = []
+    # Yokogawa to zarr
+    for image in parallelization_list:
+        image_list_updates += cellvoyager_to_ome_zarr_compute(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+        )["image_list_updates"]
+    debug(image_list_updates)
+
+    # Validate image_list_updates contents
+    expected_image_list_update = {
+        "zarr_url": (
+            f"{output_path}/20200812-CardiomyocyteDifferentiation14"
+            "-Cycle1.zarr/B/03/0/"
+        ),
+        "attributes": {
+            "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
+            "well": "B03",
+        },
+        "types": {
+            "is_3D": False,
+        },
+    }
+
+    assert image_list_updates[0] == expected_image_list_update
+
+    # OME-NGFF JSON validation
+    image_zarr = Path(parallelization_list[0]["zarr_url"])
+    well_zarr = image_zarr.parent
+    plate_zarr = image_zarr.parents[2]
+    validate_schema(path=str(image_zarr), type="image")
+    validate_schema(path=str(well_zarr), type="well")
+    validate_schema(path=str(plate_zarr), type="plate")
+
+    check_file_number(zarr_path=image_zarr)
+
+    # Test presence and attributes of FOV/well ROI tables
+    for table_name in ["FOV_ROI_table", "well_ROI_table"]:
+        table_attrs = zarr.open_group(
+            image_zarr / f"tables/{table_name}", mode="r"
+        ).attrs.asdict()
+        assert table_attrs["type"] == "roi_table"
+        assert table_attrs["fractal_table_version"] == "1"
+
+
 def test_MIP(
     tmp_path: Path,
     zenodo_zarr: list[str],
