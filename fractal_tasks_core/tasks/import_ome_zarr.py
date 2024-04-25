@@ -65,8 +65,6 @@ def _process_single_image(
     image_meta = NgffImageMeta(**image_group.attrs.asdict())
 
     # Preliminary checks
-    if not (add_image_ROI_table or add_grid_ROI_table):
-        return
     if add_grid_ROI_table and (grid_YX_shape is None):
         raise ValueError(
             f"_process_single_image called with {add_grid_ROI_table=}, "
