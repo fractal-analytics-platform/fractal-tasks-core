@@ -68,6 +68,7 @@ def generate_row_col_split(wells: list[str]) -> list[(str, str)]:
             row = well_core[0] + well_suffix[0]
             col = well_core[1:] + well_suffix[1]
             well_rows_columns.append((row, col))
+        well_rows_columns = sorted(well_rows_columns)
     else:
         raise NotImplementedError(
             f"Processing wells like {wells[0]} has not been implemented. "
