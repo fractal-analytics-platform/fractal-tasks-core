@@ -1,5 +1,8 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# Unreleased
+* Add support for converting 1536 well plates in cellvoyager converters(\#715)
+
 # [WIP] 1.0.0
 
 * Update all tasks to use the new Fractal API from Fractal server 2.0 (#671)
