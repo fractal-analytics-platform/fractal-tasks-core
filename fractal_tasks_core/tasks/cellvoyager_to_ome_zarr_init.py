@@ -328,10 +328,6 @@ def cellvoyager_to_ome_zarr_init(
                     f"Found: {well_wavelength_ids}.\n"
                 )
 
-        # FIXME: Generalize to handle other splits of wells?
-        from devtools import debug
-
-        debug(wells)
         well_rows_columns = generate_row_col_split(wells)
 
         row_list = [
@@ -513,9 +509,7 @@ def generate_row_col_split(wells: list[str]):
             f"Processing wells like {wells[0]} has not been implemented. "
             "This converter only handles wells like B03 or B03.a1"
         )
-    from devtools import debug
 
-    debug(well_rows_columns)
     return well_rows_columns
 
 
