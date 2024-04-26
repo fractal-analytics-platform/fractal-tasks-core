@@ -82,11 +82,8 @@ def test_1536_ome_zarr_conversion(tmp_path: Path, syn_1536_images: str):
         parallelization_list["parallelization_list"][0]["zarr_url"]
     )
     well_zarr = image_zarr.parent
+    plate_zarr = image_zarr.parents[2]
 
     validate_schema(path=str(image_zarr), type="image")
     validate_schema(path=str(well_zarr), type="well")
-    # FIXME: Plate validation would currently fail because wells are not
-    # supposed to contain non-alphanumeric characters according to the spec
-    # => . would be an issue.
-    # plate_zarr = image_zarr.parents[2]
-    # validate_schema(path=str(plate_zarr), type="plate")
+    validate_schema(path=str(plate_zarr), type="plate")

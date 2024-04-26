@@ -328,9 +328,12 @@ def cellvoyager_to_ome_zarr_init(
                     f"Found: {well_wavelength_ids}.\n"
                 )
 
-        well_rows_columns = [
-            ind for ind in sorted([(n[0], n[1:]) for n in wells])
-        ]
+        # FIXME: Generalize to handle other splits of wells?
+        from devtools import debug
+
+        debug(wells)
+        well_rows_columns = generate_row_col_split(wells)
+
         row_list = [
             well_row_column[0] for well_row_column in well_rows_columns
         ]
@@ -367,7 +370,7 @@ def cellvoyager_to_ome_zarr_init(
                     "init_args": InitArgsCellVoyager(
                         image_dir=in_path,
                         plate_prefix=plate_prefix,
-                        well_ID=f"{row}{column}",
+                        well_ID=get_filename_well_id(row, column),
                         image_extension=image_extension,
                         image_glob_patterns=image_glob_patterns,
                     ).dict(),
@@ -441,7 +444,7 @@ def cellvoyager_to_ome_zarr_init(
             NgffImageMeta(**group_image.attrs)
 
             # Prepare AnnData tables for FOV/well ROIs
-            well_id = row + column
+            well_id = get_filename_well_id(row, column)
             FOV_ROIs_table = prepare_FOV_ROI_table(site_metadata.loc[well_id])
             well_ROIs_table = prepare_well_ROI_table(
                 site_metadata.loc[well_id]
@@ -464,6 +467,56 @@ def cellvoyager_to_ome_zarr_init(
             )
 
     return dict(parallelization_list=parallelization_list)
+
+
+def get_filename_well_id(row: str, col: str):
+    """
+    Generates the well_id as extracted from the filename from row & col
+    """
+    if len(row) == 1:
+        return row + col
+    elif len(row) == 2:
+        return f"{row[0]}{col[:2]}.{row[1]}{col[2]}"
+    else:
+        raise NotImplementedError(
+            f"Processing wells with {row=} & {col=} has not been implemented. "
+            "This converter only handles wells like B03 or B03.a1"
+        )
+
+
+def generate_row_col_split(wells: list[str]):
+    """
+    Splits well name into rows & columns
+
+    This function handles different patterns of well names: Classical wells in
+    their format like B03 (row B, column 03) typically found in 96 & 384 well
+    plates from the cellvoyager microscopes. And 1536 well plates with wells
+    like A01.a1 (row Aa, column 011).
+
+    Args:
+        wells: list of well names
+    """
+    if len(wells[0]) == 3:
+        well_rows_columns = [
+            ind for ind in sorted([(n[0], n[1:]) for n in wells])
+        ]
+    elif len(wells[0]) == 6:
+        well_rows_columns = []
+        for well in wells:
+            well_core = well.split(".")[0]
+            well_suffix = well.split(".")[1]
+            row = well_core[0] + well_suffix[0]
+            col = well_core[1:] + well_suffix[1]
+            well_rows_columns.append((row, col))
+    else:
+        raise NotImplementedError(
+            f"Processing wells like {wells[0]} has not been implemented. "
+            "This converter only handles wells like B03 or B03.a1"
+        )
+    from devtools import debug
+
+    debug(well_rows_columns)
+    return well_rows_columns
 
 
 if __name__ == "__main__":
