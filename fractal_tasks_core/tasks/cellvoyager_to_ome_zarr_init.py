@@ -27,6 +27,8 @@ from fractal_tasks_core.cellvoyager.filenames import parse_filename
 from fractal_tasks_core.cellvoyager.metadata import (
     parse_yokogawa_metadata,
 )
+from fractal_tasks_core.cellvoyager.wells import generate_row_col_split
+from fractal_tasks_core.cellvoyager.wells import get_filename_well_id
 from fractal_tasks_core.channels import check_unique_wavelength_ids
 from fractal_tasks_core.channels import define_omero_channels
 from fractal_tasks_core.channels import OmeroChannel
@@ -463,54 +465,6 @@ def cellvoyager_to_ome_zarr_init(
             )
 
     return dict(parallelization_list=parallelization_list)
-
-
-def get_filename_well_id(row: str, col: str):
-    """
-    Generates the well_id as extracted from the filename from row & col
-    """
-    if len(row) == 1:
-        return row + col
-    elif len(row) == 2:
-        return f"{row[0]}{col[:2]}.{row[1]}{col[2]}"
-    else:
-        raise NotImplementedError(
-            f"Processing wells with {row=} & {col=} has not been implemented. "
-            "This converter only handles wells like B03 or B03.a1"
-        )
-
-
-def generate_row_col_split(wells: list[str]):
-    """
-    Splits well name into rows & columns
-
-    This function handles different patterns of well names: Classical wells in
-    their format like B03 (row B, column 03) typically found in 96 & 384 well
-    plates from the cellvoyager microscopes. And 1536 well plates with wells
-    like A01.a1 (row Aa, column 011).
-
-    Args:
-        wells: list of well names
-    """
-    if len(wells[0]) == 3:
-        well_rows_columns = [
-            ind for ind in sorted([(n[0], n[1:]) for n in wells])
-        ]
-    elif len(wells[0]) == 6:
-        well_rows_columns = []
-        for well in wells:
-            well_core = well.split(".")[0]
-            well_suffix = well.split(".")[1]
-            row = well_core[0] + well_suffix[0]
-            col = well_core[1:] + well_suffix[1]
-            well_rows_columns.append((row, col))
-    else:
-        raise NotImplementedError(
-            f"Processing wells like {wells[0]} has not been implemented. "
-            "This converter only handles wells like B03 or B03.a1"
-        )
-
-    return well_rows_columns
 
 
 if __name__ == "__main__":
