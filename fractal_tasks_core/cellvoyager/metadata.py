@@ -185,7 +185,7 @@ def read_mrf_file(mrf_path: str) -> [pd.DataFrame, int]:
     mrf_frame = pd.DataFrame(columns=mrf_columns)
 
     mrf_xml = ElementTree.parse(mrf_path).getroot()
-    # fixme: get bts:ColumnCount="48" bts:RowCount="32"
+
     # Read mrf file
     ns = {"bts": "http://www.yokogawa.co.jp/BTS/BTSSchema/1.0"}
     # Fetch RowCount and ColumnCount
