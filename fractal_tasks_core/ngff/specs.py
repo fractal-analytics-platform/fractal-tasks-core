@@ -344,7 +344,7 @@ class NgffWellMeta(BaseModel):
 
     well: Optional[Well] = None
 
-    def get_acquisition_paths(self) -> dict[int, str]:
+    def get_acquisition_paths(self) -> dict[int, list[str]]:
         """
         Create mapping from acquisition indices to corresponding paths.
 
@@ -352,14 +352,13 @@ class NgffWellMeta(BaseModel):
         well.
 
         Returns:
-            Dictionary with `(acquisition index: image path)` key/value pairs.
+            Dictionary with `(acquisition index: [image_path])` key/value
+            pairs.
 
         Raises:
             ValueError:
                 If an element of `self.well.images` has no `acquisition`
                     attribute.
-            NotImplementedError:
-                If acquisitions are not unique.
         """
         acquisition_dict = {}
         for image in self.well.images:
@@ -368,13 +367,9 @@ class NgffWellMeta(BaseModel):
                     "Cannot get acquisition paths for Zarr files without "
                     "'acquisition' metadata at the well level"
                 )
-            if image.acquisition in acquisition_dict:
-                raise NotImplementedError(
-                    "The `NgffWellMeta.get_acquisition_paths` method (in "
-                    "fractal-tasks-core) does not support wells with "
-                    "multiple images of the same acquisition."
-                )
-            acquisition_dict[image.acquisition] = image.path
+            if image.acquisition not in acquisition_dict:
+                acquisition_dict[image.acquisition] = []
+            acquisition_dict[image.acquisition].append(image.path)
         return acquisition_dict
 
 

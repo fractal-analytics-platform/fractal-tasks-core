@@ -7,6 +7,7 @@ import anndata as ad
 import dask.array as da
 import numpy as np
 import pytest
+from devtools import debug
 from pytest import LogCaptureFixture
 from pytest import MonkeyPatch
 
@@ -15,6 +16,7 @@ from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
 from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
+from fractal_tasks_core.tables.v1 import get_tables_list_v1
 from fractal_tasks_core.tasks._registration_utils import (
     _split_well_path_image_path,
 )
@@ -67,6 +69,9 @@ def test_illumination_correction(
         ROIs, level=0, full_res_pxl_sizes_zyx=pixels
     )
     num_FOVs = len(list_indices)
+
+    # Get existing tables before illumination correction
+    tables = get_tables_list_v1(zarr_url)
 
     # Prepared expected number of calls
     expected_tot_calls_correct = num_channels * num_FOVs
@@ -136,3 +141,9 @@ def test_illumination_correction(
         assert well_paths == ["0"]
     else:
         assert well_paths == ["0", "0" + suffix]
+
+    # Assert that the image has the same tables after illumination correction
+    # as before
+    debug(tables)
+    new_tables = get_tables_list_v1(new_zarr_url)
+    assert tables == new_tables

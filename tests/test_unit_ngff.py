@@ -184,18 +184,21 @@ def test_NgffWellMeta_get_acquisition_paths(ngffdata_path):
 
     # Fail for repeated acquisitions
     ngff_well_meta = _load_and_validate(
-        ngffdata_path / "well_acquisitions_error.json", NgffWellMeta
+        ngffdata_path / "well_non_unique_acquisitions.json", NgffWellMeta
     )
-    with pytest.raises(NotImplementedError) as e:
-        ngff_well_meta.get_acquisition_paths()
-    assert "multiple images of the same acquisition" in str(e.value)
+
+    multi_acquisitions = ngff_well_meta.get_acquisition_paths()
+    assert multi_acquisitions == {1: ["0", "0_registered"]}
 
     # Success
     ngff_well_meta = _load_and_validate(
         ngffdata_path / "well_acquisitions.json", NgffWellMeta
     )
     debug(ngff_well_meta.get_acquisition_paths())
-    assert ngff_well_meta.get_acquisition_paths() == {9: "nine", 7: "seven"}
+    assert ngff_well_meta.get_acquisition_paths() == {
+        1: ["cycle1"],
+        2: ["cycle2"],
+    }
 
 
 def test_detect_ome_ngff_type(tmp_path):

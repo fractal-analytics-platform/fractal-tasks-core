@@ -146,30 +146,30 @@ def calculate_registration_image_based(
             )
         )
 
-    # For each cycle, get the relevant info
+    # For each acquisition, get the relevant info
     # TODO: Add additional checks on ROIs?
     if (ROI_table_ref.obs.index != ROI_table_x.obs.index).all():
         raise ValueError(
             "Registration is only implemented for ROIs that match between the "
-            "cycles (e.g. well, FOV ROIs). Here, the ROIs in the reference "
-            "cycles were {ROI_table_ref.obs.index}, but the ROIs in the "
-            "alignment cycle were {ROI_table_x.obs.index}"
+            "acquisitions (e.g. well, FOV ROIs). Here, the ROIs in the "
+            f"reference acquisitions were {ROI_table_ref.obs.index}, but the "
+            f"ROIs in the alignment acquisition were {ROI_table_x.obs.index}"
         )
     # TODO: Make this less restrictive? i.e. could we also run it if different
-    # cycles have different FOVs? But then how do we know which FOVs to match?
+    # acquisitions have different FOVs? But then how do we know which FOVs to
+    # match?
     # If we relax this, downstream assumptions on matching based on order
     # in the list will break.
 
     # Read pixel sizes from zarr attributes
-    ngff_image_meta_cycle_x = load_NgffImageMeta(zarr_url)
+    ngff_image_meta_acq_x = load_NgffImageMeta(zarr_url)
     pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
-    pxl_sizes_zyx_cycle_x = ngff_image_meta_cycle_x.get_pixel_sizes_zyx(
-        level=0
-    )
+    pxl_sizes_zyx_acq_x = ngff_image_meta_acq_x.get_pixel_sizes_zyx(level=0)
 
-    if pxl_sizes_zyx != pxl_sizes_zyx_cycle_x:
+    if pxl_sizes_zyx != pxl_sizes_zyx_acq_x:
         raise ValueError(
-            "Pixel sizes need to be equal between cycles for registration"
+            "Pixel sizes need to be equal between acquisitions for "
+            "registration."
         )
 
     # Create list of indices for 3D ROIs spanning the entire Z direction
@@ -181,13 +181,13 @@ def calculate_registration_image_based(
     )
     check_valid_ROI_indices(list_indices_ref, roi_table)
 
-    list_indices_cycle_x = convert_ROI_table_to_indices(
+    list_indices_acq_x = convert_ROI_table_to_indices(
         ROI_table_x,
         level=level,
         coarsening_xy=coarsening_xy,
         full_res_pxl_sizes_zyx=pxl_sizes_zyx,
     )
-    check_valid_ROI_indices(list_indices_cycle_x, roi_table)
+    check_valid_ROI_indices(list_indices_acq_x, roi_table)
 
     num_ROIs = len(list_indices_ref)
     compute = True
@@ -202,9 +202,9 @@ def calculate_registration_image_based(
             region=convert_indices_to_regions(list_indices_ref[i_ROI]),
             compute=compute,
         )
-        img_cycle_x = load_region(
+        img_acq_x = load_region(
             data_zyx=data_alignment_zyx,
-            region=convert_indices_to_regions(list_indices_cycle_x[i_ROI]),
+            region=convert_indices_to_regions(list_indices_acq_x[i_ROI]),
             compute=compute,
         )
 
@@ -212,18 +212,18 @@ def calculate_registration_image_based(
         #  Calculate the transformation
         ##############
         # Basic version (no padding, no internal binning)
-        if img_ref.shape != img_cycle_x.shape:
+        if img_ref.shape != img_acq_x.shape:
             raise NotImplementedError(
                 "This registration is not implemented for ROIs with "
-                "different shapes between cycles"
+                "different shapes between acquisitions."
             )
         shifts = phase_cross_correlation(
-            np.squeeze(img_ref), np.squeeze(img_cycle_x)
+            np.squeeze(img_ref), np.squeeze(img_acq_x)
         )[0]
 
         # Registration based on scmultiplex, image-based
         # shifts, _, _ = calculate_shift(np.squeeze(img_ref),
-        #           np.squeeze(img_cycle_x), bin=binning, binarize=False)
+        #           np.squeeze(img_acq_x), bin=binning, binarize=False)
 
         # TODO: Make this work on label images
         # (=> different loading) etc.

@@ -36,8 +36,12 @@ from fractal_tasks_core.roi import is_standard_roi_table
 from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
 from fractal_tasks_core.tasks._zarr_utils import (
+    _get_matching_ref_acquisition_path_heuristic,
+)
+from fractal_tasks_core.tasks._zarr_utils import (
     _split_well_path_image_path,
 )
+from fractal_tasks_core.tasks._zarr_utils import _update_well_metadata
 from fractal_tasks_core.utils import _get_table_path_dict
 
 logger = logging.getLogger(__name__)
@@ -50,7 +54,7 @@ def apply_registration_to_image(
     zarr_url: str,
     # Core parameters
     registered_roi_table: str,
-    reference_cycle: int = 0,
+    reference_acquisition: int = 0,
     overwrite_input: bool = True,
 ):
     """
@@ -59,8 +63,8 @@ def apply_registration_to_image(
     This task consists of 4 parts:
 
     1. Mask all regions in images that are not available in the
-    registered ROI table and store each cycle aligned to the
-    reference_cycle (by looping over ROIs).
+    registered ROI table and store each acquisition aligned to the
+    reference_acquisition (by looping over ROIs).
     2. Do the same for all label images.
     3. Copy all tables from the non-aligned image to the aligned image
     (currently only works well if the only tables are well & FOV ROI tables
@@ -77,8 +81,9 @@ def apply_registration_to_image(
             Examples: `registered_FOV_ROI_table` => loop over the field of
             views, `registered_well_ROI_table` => process the whole well as
             one image.
-        reference_cycle: Which cycle to register against. Uses the OME-NGFF
-            HCS well metadata acquisition keys to find the reference cycle.
+        reference_acquisition: Which acquisition to register against. Uses the
+            OME-NGFF HCS well metadata acquisition keys to find the reference
+            acquisition.
         overwrite_input: Whether the old image data should be replaced with the
             newly registered image data. Currently only implemented for
             `overwrite_input=True`.
@@ -87,25 +92,36 @@ def apply_registration_to_image(
     logger.info(zarr_url)
     logger.info(
         f"Running `apply_registration_to_image` on {zarr_url=}, "
-        f"{registered_roi_table=} and {reference_cycle=}. "
+        f"{registered_roi_table=} and {reference_acquisition=}. "
         f"Using {overwrite_input=}"
     )
 
-    well_url, _ = _split_well_path_image_path(zarr_url)
+    well_url, old_img_path = _split_well_path_image_path(zarr_url)
     new_zarr_url = f"{well_url}/{zarr_url.split('/')[-1]}_registered"
-    # Get the zarr_url for the reference cycle
+    # Get the zarr_url for the reference acquisition
     acq_dict = load_NgffWellMeta(well_url).get_acquisition_paths()
-    if reference_cycle not in acq_dict:
+    if reference_acquisition not in acq_dict:
         raise ValueError(
-            f"{reference_cycle=} was not one of the available acquisitions in "
-            f"{acq_dict=} for well {well_url}"
+            f"{reference_acquisition=} was not one of the available "
+            f"acquisitions in {acq_dict=} for well {well_url}"
         )
-    reference_zarr_url = f"{well_url}/{acq_dict[reference_cycle]}"
+    elif len(acq_dict[reference_acquisition]) > 1:
+        ref_path = _get_matching_ref_acquisition_path_heuristic(
+            acq_dict[reference_acquisition], old_img_path
+        )
+        logger.warning(
+            "Running registration when there are multiple images of the same "
+            "acquisition in a well. Using a heuristic to match the reference "
+            f"acquisition. Using {ref_path} as the reference image."
+        )
+    else:
+        ref_path = acq_dict[reference_acquisition][0]
+    reference_zarr_url = f"{well_url}/{ref_path}"
 
     ROI_table_ref = ad.read_zarr(
         f"{reference_zarr_url}/tables/{registered_roi_table}"
     )
-    ROI_table_cycle = ad.read_zarr(f"{zarr_url}/tables/{registered_roi_table}")
+    ROI_table_acq = ad.read_zarr(f"{zarr_url}/tables/{registered_roi_table}")
 
     ngff_image_meta = load_NgffImageMeta(zarr_url)
     coarsening_xy = ngff_image_meta.coarsening_xy
@@ -118,7 +134,7 @@ def apply_registration_to_image(
     write_registered_zarr(
         zarr_url=zarr_url,
         new_zarr_url=new_zarr_url,
-        ROI_table=ROI_table_cycle,
+        ROI_table=ROI_table_acq,
         ROI_table_ref=ROI_table_ref,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
@@ -143,7 +159,7 @@ def apply_registration_to_image(
             write_registered_zarr(
                 zarr_url=f"{zarr_url}/labels/{label}",
                 new_zarr_url=f"{new_zarr_url}/labels/{label}",
-                ROI_table=ROI_table_cycle,
+                ROI_table=ROI_table_acq,
                 ROI_table_ref=ROI_table_ref,
                 num_levels=num_levels,
                 coarsening_xy=coarsening_xy,
@@ -152,8 +168,9 @@ def apply_registration_to_image(
 
     ####################
     # Copy tables
-    # 1. Copy all standard ROI tables from cycle 0.
-    # 2. Copy all tables that aren't standard ROI tables from the given cycle
+    # 1. Copy all standard ROI tables from the reference acquisition.
+    # 2. Copy all tables that aren't standard ROI tables from the given
+    # acquisition.
     ####################
     table_dict_reference = _get_table_path_dict(reference_zarr_url)
     table_dict_component = _get_table_path_dict(zarr_url)
@@ -170,12 +187,12 @@ def apply_registration_to_image(
                     f"{zarr_url} contained a table that is not a standard "
                     "ROI table. The `Apply Registration To Image task` is "
                     "best used before additional tables are generated. It "
-                    f"will copy the {table} from this cycle without applying "
-                    f"any transformations. This will work well if {table} "
-                    f"contains measurements. But if {table} is a custom ROI "
-                    "table coming from another task, the transformation is "
-                    "not applied and it will not match with the registered "
-                    "image anymore"
+                    f"will copy the {table} from this acquisition without "
+                    "applying any transformations. This will work well if "
+                    f"{table} contains measurements. But if {table} is a "
+                    "custom ROI table coming from another task, the "
+                    "transformation is not applied and it will not match "
+                    "with the registered image anymore."
                 )
             table_dict[table] = table_dict_component[table]
 
@@ -220,8 +237,9 @@ def apply_registration_to_image(
         logger.info(
             "Replace original zarr image with the newly created Zarr image"
         )
-        # Potential for race conditions: Every cycle reads the
-        # reference cycle, but the reference cycle also gets modified
+        # Potential for race conditions: Every acquisition reads the
+        # reference acquisition, but the reference acquisition also gets
+        # modified
         # See issue #516 for the details
         os.rename(zarr_url, f"{zarr_url}_tmp")
         os.rename(new_zarr_url, zarr_url)
@@ -230,6 +248,13 @@ def apply_registration_to_image(
     else:
         image_list_updates = dict(
             image_list_updates=[dict(zarr_url=new_zarr_url, origin=zarr_url)]
+        )
+        # Update the metadata of the the well
+        well_url, new_img_path = _split_well_path_image_path(new_zarr_url)
+        _update_well_metadata(
+            well_url=well_url,
+            old_image_path=old_img_path,
+            new_image_path=new_img_path,
         )
 
     return image_list_updates
@@ -260,7 +285,7 @@ def write_registered_zarr(
             the basis for the new OME-Zarr image.
         new_zarr_url: Path or url to the new OME-Zarr image to be written
         ROI_table: Fractal ROI table for the component
-        ROI_table_ref: Fractal ROI table for the reference cycle
+        ROI_table_ref: Fractal ROI table for the reference acquisition
         num_levels: Number of pyramid layers to be created (argument of
             `build_pyramid`).
         coarsening_xy: Coarsening factor between pyramid levels
@@ -300,7 +325,7 @@ def write_registered_zarr(
     # 1. The number of ROIs need to match
     # 2. The size of the ROIs need to match
     # (otherwise, we can't assign them to the reference regions)
-    # ROI_table_ref vs ROI_table_cycle
+    # ROI_table_ref vs ROI_table_acq
     for i, roi_indices in enumerate(list_indices):
         reference_region = convert_indices_to_regions(list_indices_ref[i])
         region = convert_indices_to_regions(roi_indices)

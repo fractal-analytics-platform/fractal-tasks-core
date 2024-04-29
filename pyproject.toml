@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fractal-tasks-core"
-version = "1.0.0a3"
+version = "1.0.0"
 description = "Core bioimage-analysis library and tasks of the Fractal analytics platform"
 authors = [
     "Joel Lüthi  <joel.luethi@fmi.ch>",
@@ -34,6 +34,7 @@ lxml = "^4.9.1"
 pydantic = "<2"
 docstring-parser = "^0.15"
 anndata = ">=0.8.0,<0.11.0"
+filelock = "3.13.*"
 
 # Optional dependencies (used in extras)
 Pillow = { version = ">=9.1.1", optional = true }
@@ -89,7 +90,7 @@ source = ["fractal_tasks_core"]
 omit = ["tests/*", "examples/*", "fractal_tasks_core/dev/*"]
 
 [tool.bumpver]
-current_version = "1.0.0a3"
+current_version = "1.0.0"
 version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true

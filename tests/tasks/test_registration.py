@@ -15,6 +15,7 @@ from pytest import MonkeyPatch
 
 from fractal_tasks_core.channels import ChannelInputModel
 from fractal_tasks_core.ngff.zarr_utils import load_NgffImageMeta
+from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
 from fractal_tasks_core.roi import (
     convert_indices_to_regions,
 )
@@ -22,6 +23,7 @@ from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
 from fractal_tasks_core.roi import load_region
+from fractal_tasks_core.tasks._zarr_utils import _split_well_path_image_path
 from fractal_tasks_core.tasks.apply_registration_to_image import (
     apply_registration_to_image,
 )
@@ -282,7 +284,7 @@ def test_multiplexing_registration(
         image_based_registration_hcs_init(
             zarr_urls=zarr_urls_2D,
             zarr_dir=zarr_dir,
-            reference_cycle=2,
+            reference_acquisition=2,
         )
 
     parallelization_list = image_based_registration_hcs_init(
@@ -324,7 +326,7 @@ def test_multiplexing_registration(
     parallelization_list_well = init_group_by_well_for_multiplexing(
         zarr_urls=zarr_urls_2D,
         zarr_dir=zarr_dir,
-        reference_cycle=0,
+        reference_acquisition=0,
     )["parallelization_list"]
     debug(parallelization_list_well)
     well_paral_list = {
@@ -372,8 +374,8 @@ def test_multiplexing_registration(
         roi_table=roi_table,
     )
 
-    # # Apply registration to image with overwrite_input and validate the
-    # # output
+    # Apply registration to image with overwrite_input and validate the
+    # output
     zarr_list = []
     for zarr_url in zarr_urls_2D:
         zarr_list.append(zarr_url)
@@ -440,6 +442,15 @@ def validate_assumptions_after_image_registration(
         with open(f"{zarr_url}/labels/.zattrs", "r") as jsonfile:
             zattrs = json.load(jsonfile)
         assert len(zattrs["labels"]) == 1
-        print(zarr_url.split("/")[-1].split("_")[0])
         label_name = f"label_{zarr_url.split('/')[-1].split('_')[0]}_A01_C01"
         assert zattrs["labels"][0] == label_name
+
+        # Check that zarr image is in well metadata
+        well_url, img_path = _split_well_path_image_path(zarr_url)
+        well_meta = load_NgffWellMeta(well_url)
+        well_img_paths = [img.path for img in well_meta.well.images]
+        assert img_path in well_img_paths
+
+        debug(well_meta.well)
+
+        # TODO: Assert correct acquisition in well metadata

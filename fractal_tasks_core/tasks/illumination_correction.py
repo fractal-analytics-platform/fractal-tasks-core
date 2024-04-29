@@ -34,6 +34,7 @@ from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
 from fractal_tasks_core.tasks._zarr_utils import _copy_hcs_ome_zarr_metadata
+from fractal_tasks_core.tasks._zarr_utils import _copy_tables_from_zarr_url
 
 logger = logging.getLogger(__name__)
 
@@ -228,6 +229,9 @@ def illumination_correction(
             dimension_separator="/",
         )
         _copy_hcs_ome_zarr_metadata(zarr_url, zarr_url_new)
+        # Copy ROI tables from the old zarr_url to keep ROI tables and other
+        # tables available in the new Zarr
+        _copy_tables_from_zarr_url(zarr_url, zarr_url_new)
 
     # Iterate over FOV ROIs
     num_ROIs = len(list_indices)

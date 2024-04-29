@@ -30,7 +30,7 @@ def init_group_by_well_for_multiplexing(
     zarr_urls: list[str],
     zarr_dir: str,
     # Core parameters
-    reference_cycle: int = 0,
+    reference_acquisition: int = 0,
 ) -> dict[str, list[str]]:
     """
     Finds images for all acquisitions per well.
@@ -44,8 +44,9 @@ def init_group_by_well_for_multiplexing(
         zarr_dir: path of the directory where the new OME-Zarrs will be
             created. Not used by this task.
             (standard argument for Fractal tasks, managed by Fractal server).
-        reference_cycle: Which cycle to register against. Uses the OME-NGFF
-            HCS well metadata acquisition keys to find the reference cycle.
+        reference_acquisition: Which acquisition to register against. Uses the
+            OME-NGFF HCS well metadata acquisition keys to find the reference
+            acquisition.
     """
     logger.info(
         f"Running `init_group_by_well_for_multiplexing` for {zarr_urls=}"
@@ -55,18 +56,18 @@ def init_group_by_well_for_multiplexing(
     # Create the parallelization list
     parallelization_list = []
     for key, image_group in image_groups.items():
-        # Assert that all image groups have the reference cycle present
-        if reference_cycle not in image_group.keys():
+        # Assert that all image groups have the reference acquisition present
+        if reference_acquisition not in image_group.keys():
             raise ValueError(
-                f"Registration with {reference_cycle=} can only work if all"
-                "wells have the reference cycle present. It was not found"
-                f"for well {key}."
+                f"Registration with {reference_acquisition=} can only work if "
+                "all wells have the reference acquisition present. It was not "
+                f"found for well {key}."
             )
 
         # Create a parallelization list entry for each image group
         zarr_url_list = []
         for acquisition, zarr_url in image_group.items():
-            if acquisition == reference_cycle:
+            if acquisition == reference_acquisition:
                 reference_zarr_url = zarr_url
 
             zarr_url_list.append(zarr_url)

@@ -53,18 +53,18 @@ def find_registration_consensus(
     Applies pre-calculated registration to ROI tables.
 
     Apply pre-calculated registration such that resulting ROIs contain
-    the consensus align region between all cycles.
+    the consensus align region between all acquisitions.
 
     Parallelization level: well
 
     Args:
         zarr_url: Path or url to the individual OME-Zarr image to be processed.
-            Refers to the zarr_url of the reference cycle.
+            Refers to the zarr_url of the reference acquisition.
             (standard argument for Fractal tasks, managed by Fractal server).
         init_args: Intialization arguments provided by
             `init_group_by_well_for_multiplexing`. It contains the
             zarr_url_list listing all the zarr_urls in the same well as the
-            zarr_url of the reference cycle that are being processed.
+            zarr_url of the reference acquisition that are being processed.
             (standard argument for Fractal tasks, managed by Fractal server).
         roi_table: Name of the ROI table over which the task loops to
             calculate the registration. Examples: `FOV_ROI_table` => loop over
@@ -92,7 +92,7 @@ def find_registration_consensus(
         )
         curr_ROI_table_attrs = curr_ROI_table_group.attrs.asdict()
 
-        # For reference_cycle acquisition, handle the fact that it doesn't
+        # For reference_acquisition, handle the fact that it doesn't
         # have the shifts
         if acq_zarr_url == zarr_url:
             curr_ROI_table = add_zero_translation_columns(curr_ROI_table)
@@ -127,7 +127,7 @@ def find_registration_consensus(
         roi_table.to_df().loc[:, translation_columns]
         for roi_table in roi_tables.values()
     ]
-    logger.info("Calculating min & max translation across cycles.")
+    logger.info("Calculating min & max translation across acquisitions.")
     max_df, min_df = calculate_min_max_across_dfs(roi_table_dfs)
     shifted_rois = {}
 
