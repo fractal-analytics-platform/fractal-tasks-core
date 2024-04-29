@@ -42,7 +42,7 @@ Currently, the following tasks are available:
 
 
 ## Installation
-This package can be installed in 2 ways:
+See [details on installation in the documentation](https://fractal-analytics-platform.github.io/fractal-tasks-core/install/). This package can be installed in 2 main ways:
 
 To use the library, just install the core package:
 
@@ -57,7 +57,7 @@ If you want to run the actual Fractal tasks, you need to install the task extra:
 pip install "fractal-tasks-core[fractal-tasks]"
 ```
 
-This installs the heavier dependencies for Cellpose & napari workflows.
+This installs the heavier dependencies like torch for Cellpose & napari for napari workflows.
 
 If you collect this package on Fractal server to run the task, make sure to add the fractal-tasks extra in the corresponding field for extras.
 
