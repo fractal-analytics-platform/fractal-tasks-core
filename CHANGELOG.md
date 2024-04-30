@@ -2,8 +2,11 @@
 
 # Unreleased
 
-* Add support for converting 1536 well plates in cellvoyager converters(\#715).
-* Make validation of NGFF Zarr attributes more strict, in tests (\#732).
+* Add support for converting 1536 well plates in cellvoyager converters (\#715).
+* Testing:
+    * Make validation of NGFF Zarr attributes more strict, in tests (\#732).
+* Development:
+    * Update poetry to 1.8.2 (\#734).
 
 # 1.0.0
 
