@@ -40,7 +40,7 @@ def get_filename_well_id(row: str, col: str) -> str:
         )
 
 
-def generate_row_col_split(wells: list[str]) -> list[(str, str)]:
+def generate_row_col_split(wells: list[str]) -> list[tuple[str, str]]:
     """
     Splits well name into rows & columns
 
