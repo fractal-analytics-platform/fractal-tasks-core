@@ -216,7 +216,7 @@ def _create_well_ids(
     plate_layout: int,
 ) -> list[str]:
     """
-    Create row_id list from XML metadata
+    Create well_id list from XML metadata
 
     Handles the conversion of Cellvoyager XML metadata into well indentifiers.
     Returns well identifiers like A01, B02 etc. for 96 & 384 well plates.
