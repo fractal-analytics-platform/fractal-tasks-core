@@ -31,7 +31,7 @@ def get_filename_well_id(row: str, col: str) -> str:
     """
     if len(row) == 1:
         return row + col
-    elif len(row) == 2:
+    elif len(row) == 2 and len(col) == 3:
         return f"{row[0]}{col[:2]}.{row[1]}{col[2]}"
     else:
         raise NotImplementedError(
