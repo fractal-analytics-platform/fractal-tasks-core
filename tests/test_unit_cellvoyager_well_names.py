@@ -77,3 +77,6 @@ def test_not_implemented_row_col_split():
     wells = ["A01.a01"]
     with pytest.raises(NotImplementedError):
         generate_row_col_split(wells)
+    wells = ["A01.a1", "A"]
+    with pytest.raises(NotImplementedError):
+        generate_row_col_split(wells)
