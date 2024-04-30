@@ -40,14 +40,41 @@ def get_filename_well_id(row: str, col: str) -> str:
         )
 
 
-def generate_row_col_split(wells: list[str]) -> list[tuple[str, str]]:
+def _extract_row_col_from_well_id(well_id: str) -> tuple[str, str]:
     """
-    Splits well name into rows & columns
+    Split well name into row & column
 
     This function handles different patterns of well names: Classical wells in
     their format like B03 (row B, column 03) typically found in 96 & 384 well
     plates from the cellvoyager microscopes. And 1536 well plates with wells
     like A01.a1 (row Aa, column 011).
+
+    Args:
+        well_id: Well name. Either formatted like `A03` (for 96 well and 384
+            well plates), or formatted like `A01.a1 (for 1536 well plates).
+    Returns:
+        Tuple of row and column names.
+    """
+    if len(well_id) == 3 and well_id.count(".") == 0:
+        return (well_id[0], well_id[1:3])
+    elif len(well_id) == 6 and well_id.count(".") == 1:
+        core, suffix = well_id.split(".")
+        row = f"{core[0]}{suffix[0]}"
+        col = f"{core[1:]}{suffix[1]}"
+        return (row, col)
+    else:
+        raise NotImplementedError(
+            f"Processing wells like {well_id} has not been implemented. "
+            "This converter only handles wells like B03 or B03.a1"
+        )
+
+
+def generate_row_col_split(wells: list[str]) -> list[tuple[str, str]]:
+    """
+    Given a list of well names, construct a sorted row&column list
+
+    This function applies `_extract_row_col_from_well_id` to each `wells`
+    element and then sorts the result.
 
     Args:
         wells: list of well names. Either formatted like [A03, B01, C03] for
@@ -56,23 +83,5 @@ def generate_row_col_split(wells: list[str]) -> list[tuple[str, str]]:
     Returns:
         well_rows_columns: List of tuples of row & col names
     """
-    if len(wells[0]) == 3:
-        well_rows_columns = [
-            ind for ind in sorted([(n[0], n[1:]) for n in wells])
-        ]
-    elif len(wells[0]) == 6:
-        well_rows_columns = []
-        for well in wells:
-            well_core = well.split(".")[0]
-            well_suffix = well.split(".")[1]
-            row = well_core[0] + well_suffix[0]
-            col = well_core[1:] + well_suffix[1]
-            well_rows_columns.append((row, col))
-        well_rows_columns = sorted(well_rows_columns)
-    else:
-        raise NotImplementedError(
-            f"Processing wells like {wells[0]} has not been implemented. "
-            "This converter only handles wells like B03 or B03.a1"
-        )
-
-    return well_rows_columns
+    well_rows_columns = [_extract_row_col_from_well_id(well) for well in wells]
+    return sorted(well_rows_columns)

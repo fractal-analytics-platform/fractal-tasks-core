@@ -70,13 +70,16 @@ def test_generate_row_col_split(wells, expected_result):
     assert generate_row_col_split(wells) == expected_result
 
 
-def test_not_implemented_row_col_split():
-    wells = ["A011"]
-    with pytest.raises(NotImplementedError):
-        generate_row_col_split(wells)
-    wells = ["A01.a01"]
-    with pytest.raises(NotImplementedError):
-        generate_row_col_split(wells)
-    wells = ["A01.a1", "A"]
+params_row_col_split_invalid = [
+    ["A011"],
+    ["A01.a01"],
+    ["A.1"],  # len=3, but too many dots
+    ["A01..1"],  # len=6, but too many dots
+    ["A01.a1", "A"],  # First element is valid, second one is not
+]
+
+
+@pytest.mark.parametrize("wells", params_row_col_split_invalid)
+def test_not_implemented_row_col_split(wells):
     with pytest.raises(NotImplementedError):
         generate_row_col_split(wells)
