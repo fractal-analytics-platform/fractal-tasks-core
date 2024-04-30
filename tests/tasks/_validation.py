@@ -36,6 +36,19 @@ def validate_schema(*, path: str, type: str):
         zattrs = json.load(fin)
     validate(instance=zattrs, schema=schema)
 
+    if type == "plate" and "plate" not in zattrs.keys():
+        raise ValueError(
+            f"Zarr attributes of {path} do not include 'plate' key"
+        )
+    elif type == "well" and "well" not in zattrs.keys():
+        raise ValueError(
+            f"Zarr attributes of {path} do not include 'well' key"
+        )
+    elif type == "image" and "multiscales" not in zattrs.keys():
+        raise ValueError(
+            f"Zarr attributes of {path} do not include 'multiscales' key"
+        )
+
 
 def check_file_number(*, zarr_path: Path, num_axes: int = 4):
     """
