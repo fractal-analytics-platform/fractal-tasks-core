@@ -29,9 +29,17 @@ def test_get_filename_well_id(row, col, expected):
     assert get_filename_well_id(row, col) == expected
 
 
-def test_not_implemented_filename_well_id():
+params_well_id_invalid = [
+    ("Aaa", "11"),  # row too long
+    ("AA", "11"),  # len(row)=2 but len(col)!=3
+    ("AA", "1111"),  # len(row)=2 but len(col)!=3
+]
+
+
+@pytest.mark.parametrize("row,col", params_well_id_invalid)
+def test_not_implemented_filename_well_id(row, col):
     with pytest.raises(NotImplementedError):
-        get_filename_well_id(row="AAC", col="01234")
+        get_filename_well_id(row=row, col=col)
 
 
 params_row_col_split = [
