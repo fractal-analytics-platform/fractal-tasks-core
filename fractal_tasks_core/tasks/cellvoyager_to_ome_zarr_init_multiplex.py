@@ -29,6 +29,8 @@ from fractal_tasks_core.cellvoyager.filenames import parse_filename
 from fractal_tasks_core.cellvoyager.metadata import (
     parse_yokogawa_metadata,
 )
+from fractal_tasks_core.cellvoyager.wells import generate_row_col_split
+from fractal_tasks_core.cellvoyager.wells import get_filename_well_id
 from fractal_tasks_core.channels import check_unique_wavelength_ids
 from fractal_tasks_core.channels import check_well_channel_labels
 from fractal_tasks_core.channels import define_omero_channels
@@ -340,9 +342,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                     f"Found: {well_wavelength_ids}.\n"
                 )
 
-        well_rows_columns = [
-            ind for ind in sorted([(n[0], n[1:]) for n in wells])
-        ]
+        well_rows_columns = generate_row_col_split(wells)
         row_list = [
             well_row_column[0] for well_row_column in well_rows_columns
         ]
@@ -378,7 +378,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                     "init_args": InitArgsCellVoyager(
                         image_dir=acquisitions[acquisition].image_dir,
                         plate_prefix=plate_prefix,
-                        well_ID=f"{row}{column}",
+                        well_ID=get_filename_well_id(row, column),
                         image_extension=image_extension,
                         image_glob_patterns=image_glob_patterns,
                         acquisition=acquisition,
@@ -483,7 +483,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
             NgffImageMeta(**group_image.attrs)
 
             # Prepare AnnData tables for FOV/well ROIs
-            well_id = row + column
+            well_id = get_filename_well_id(row, column)
             FOV_ROIs_table = prepare_FOV_ROI_table(site_metadata.loc[well_id])
             well_ROIs_table = prepare_well_ROI_table(
                 site_metadata.loc[well_id]

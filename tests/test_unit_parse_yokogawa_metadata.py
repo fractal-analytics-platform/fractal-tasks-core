@@ -19,6 +19,7 @@ import pytest
 from devtools import debug
 from pandas import Timestamp
 
+from fractal_tasks_core.cellvoyager.metadata import _create_well_ids
 from fractal_tasks_core.cellvoyager.metadata import (
     parse_yokogawa_metadata,
 )
@@ -246,3 +247,36 @@ def test_remove_overlap_when_sharing_corner(testdata_path: Path):
     assert not site_metadata.isnull().values.any()
     overlapping_FOVs = run_overlap_check(site_metadata, tol=1e-10)
     assert not overlapping_FOVs
+
+
+def test_create_well_ids_96_well():
+    row_series = pd.Series({1: 1, 2: 1, 3: 2})
+    col_series = pd.Series({1: 1, 2: 3, 3: 2})
+    plate_type = 96
+    well_ids = _create_well_ids(
+        row_series,
+        col_series,
+        plate_type=plate_type,
+    )
+    assert well_ids == ["A01", "A03", "B02"]
+
+
+def test_create_well_ids_1536_well():
+    row_series = pd.Series({1: 1, 2: 1, 3: 2, 4: 30, 5: 32, 6: 4, 7: 16})
+    col_series = pd.Series({1: 1, 2: 3, 3: 2, 4: 40, 5: 48, 6: 4, 7: 41})
+    plate_type = 1536
+    well_ids = _create_well_ids(
+        row_series,
+        col_series,
+        plate_type=plate_type,
+    )
+    expected_wells = [
+        "A01.a1",
+        "A01.a3",
+        "A01.b2",
+        "H10.b4",
+        "H12.d4",
+        "A01.d4",
+        "D11.d1",
+    ]
+    assert well_ids == expected_wells
