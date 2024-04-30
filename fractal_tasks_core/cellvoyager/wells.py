@@ -29,7 +29,7 @@ def get_filename_well_id(row: str, col: str) -> str:
         well_id: name of the well as it would appear in the original image
             file name.
     """
-    if len(row) == 1:
+    if len(row) == 1 and len(col) == 2:
         return row + col
     elif len(row) == 2 and len(col) == 3:
         return f"{row[0]}{col[:2]}.{row[1]}{col[2]}"

@@ -30,9 +30,11 @@ def test_get_filename_well_id(row, col, expected):
 
 
 params_well_id_invalid = [
-    ("Aaa", "11"),  # row too long
-    ("AA", "11"),  # len(row)=2 but len(col)!=3
-    ("AA", "1111"),  # len(row)=2 but len(col)!=3
+    ("A", "1"),  # len(row)=1 but len(col)!=2
+    ("A", "123"),  # len(row)=1 but len(col)!=2
+    ("Aa", "12"),  # len(row)=2 but len(col)!=3
+    ("Aa", "1234"),  # len(row)=2 but len(col)!=3
+    ("Aaa", "11"),  # len(row)!=1 and len(row)!=2
 ]
 
 
