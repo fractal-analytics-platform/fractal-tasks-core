@@ -313,7 +313,7 @@ def read_mlf_file(
         mlf_frame_matching = mlf_frame_raw.copy()
 
     # Create a well ID column
-    # Row & colmn are provided as int from XML metadata
+    # Row & column are provided as int from XML metadata
     mlf_frame_matching["well_id"] = _create_well_ids(
         mlf_frame_matching["Row"], mlf_frame_matching["Column"], plate_type
     )
