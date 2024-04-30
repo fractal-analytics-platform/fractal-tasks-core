@@ -142,14 +142,14 @@ def read_metadata_files(
     # https://github.com/fmi-basel/job-system-workflows/blob/00bbf34448972d27f258a2c28245dd96180e8229/src/gliberal_workflows/tasks/yokogawa_image_collection_task/versions/version_0_5.py  # noqa
     # Now modified for Fractal use
 
-    mrf_frame, plate_layout = read_mrf_file(mrf_path)
+    mrf_frame, plate_type = read_mrf_file(mrf_path)
 
     # filter_position & filter_wheel_position are parsed, but not
     # processed further. Figure out how to save them as relevant metadata for
     # use e.g. during illumination correction
 
     mlf_frame, error_count = read_mlf_file(
-        mlf_path, plate_layout, filename_patterns
+        mlf_path, plate_type, filename_patterns
     )
     # Time points are parsed as part of the mlf_frame, but currently not
     # processed further. Once we tackle time-resolved data, parse from here.
@@ -166,7 +166,7 @@ def read_mrf_file(mrf_path: str) -> [pd.DataFrame, int]:
 
     Returns:
         Parsed mrf pandas table with one row per channel imaged
-        The plate_layout: The number of wells
+        The plate_type: The number of wells
     """
 
     # Prepare mrf dataframe
@@ -191,7 +191,7 @@ def read_mrf_file(mrf_path: str) -> [pd.DataFrame, int]:
     # Fetch RowCount and ColumnCount
     row_count = int(mrf_xml.attrib[f'{{{ns["bts"]}}}RowCount'])
     column_count = int(mrf_xml.attrib[f'{{{ns["bts"]}}}ColumnCount'])
-    plate_layout = row_count * column_count
+    plate_type = row_count * column_count
 
     for channel in mrf_xml.findall("bts:MeasurementChannel", namespaces=ns):
         mrf_frame.loc[channel.get("{%s}Ch" % ns["bts"])] = [
@@ -207,13 +207,13 @@ def read_mrf_file(mrf_path: str) -> [pd.DataFrame, int]:
             channel.get("{%s}ShadingCorrectionSource" % ns["bts"]),
         ]
 
-    return mrf_frame, plate_layout
+    return mrf_frame, plate_type
 
 
 def _create_well_ids(
     row_series: pd.Series,
     col_series: pd.Series,
-    plate_layout: int,
+    plate_type: int,
 ) -> list[str]:
     """
     Create well_id list from XML metadata
@@ -222,7 +222,7 @@ def _create_well_ids(
     Returns well identifiers like A01, B02 etc. for 96 & 384 well plates.
     Returns well identifiers like A01.a1, A01.b2 etc. for 1536 well plates.
     Defaults to the processing used for 96 & 384 well plates, unless the
-    plate_layout is 1536. For 1536 well plates, the first 4x4 wells go into
+    plate_type is 1536. For 1536 well plates, the first 4x4 wells go into
     A01.a1 - A01.d4 and so on.
 
     Args:
@@ -230,14 +230,14 @@ def _create_well_ids(
             value the row position (starting at 1 for top left).
         col_series: Series with index being the index of the image and the
             value the col position (starting at 1 for top left).
-        plate_layout: Number of wells in the plate layout. Used to determine
+        plate_type: Number of wells in the plate layout. Used to determine
             whether it's a 1536 well plate or a different layout.
 
     Returns:
         list of well_ids
 
     """
-    if plate_layout == 1536:
+    if plate_type == 1536:
         # Row are built of a base letter (matching to the 96 well plate layout)
         # and a sub letter (position of the 1536 well within the 4x4 grid,
         # can be a-d) of that well
@@ -262,7 +262,7 @@ def _create_well_ids(
 
 def read_mlf_file(
     mlf_path: str,
-    plate_layout: int,
+    plate_type: int,
     filename_patterns: Optional[list[str]] = None,
 ) -> tuple[pd.DataFrame, int]:
     """
@@ -270,7 +270,7 @@ def read_mlf_file(
 
     Args:
         mlf_path: Full path to MeasurementData.mlf metadata file.
-        plate_layout: Plate layout, integer for the number of potential wells.
+        plate_type: Plate layout, integer for the number of potential wells.
         filename_patterns: List of patterns to filter the image filenames in
             the mlf metadata table. Patterns must be defined as in
             https://docs.python.org/3/library/fnmatch.html.
@@ -315,7 +315,7 @@ def read_mlf_file(
     # Create a well ID column
     # Row & colmn are provided as int from XML metadata
     mlf_frame_matching["well_id"] = _create_well_ids(
-        mlf_frame_matching["Row"], mlf_frame_matching["Column"], plate_layout
+        mlf_frame_matching["Row"], mlf_frame_matching["Column"], plate_type
     )
 
     # Flip Y axis to align to image coordinate system

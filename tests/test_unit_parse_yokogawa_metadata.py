@@ -252,11 +252,11 @@ def test_remove_overlap_when_sharing_corner(testdata_path: Path):
 def test_create_well_ids_96_well():
     row_series = pd.Series({1: 1, 2: 1, 3: 2})
     col_series = pd.Series({1: 1, 2: 3, 3: 2})
-    plate_layout = 96
+    plate_type = 96
     well_ids = _create_well_ids(
         row_series,
         col_series,
-        plate_layout=plate_layout,
+        plate_type=plate_type,
     )
     assert well_ids == ["A01", "A03", "B02"]
 
@@ -264,11 +264,11 @@ def test_create_well_ids_96_well():
 def test_create_well_ids_1536_well():
     row_series = pd.Series({1: 1, 2: 1, 3: 2, 4: 30, 5: 32, 6: 4, 7: 16})
     col_series = pd.Series({1: 1, 2: 3, 3: 2, 4: 40, 5: 48, 6: 4, 7: 41})
-    plate_layout = 1536
+    plate_type = 1536
     well_ids = _create_well_ids(
         row_series,
         col_series,
-        plate_layout=plate_layout,
+        plate_type=plate_type,
     )
     expected_wells = [
         "A01.a1",
