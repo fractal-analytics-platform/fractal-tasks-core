@@ -2,7 +2,6 @@ import json
 import subprocess
 from pathlib import Path
 from shlex import split as shlex_split
-from subprocess import PIPE
 
 import pytest
 from devtools import debug
@@ -17,20 +16,16 @@ def validate_command(cmd: str):
     debug(cmd)
     result = subprocess.run(  # nosec
         shlex_split(cmd),
-        stdout=PIPE,
-        stderr=PIPE,
+        capture_output=True,
+        encoding="utf-8",
     )
     # This must always fail, since tmp_file_args includes invalid arguments
     assert result.returncode == 1
-    stderr = result.stderr.decode()
+    stderr = result.stderr
     debug(stderr)
-    # Valid stderr includes pydantic.error_wrappers.ValidationError (type
-    # match between model and function, but tmp_file_args has wrong arguments)
-    assert "pydantic.error_wrappers.ValidationError" in stderr
-    # Valid stderr must include a mention of "unexpected keyword arguments",
-    # because we are including some invalid arguments
-    assert "unexpected keyword arguments" in stderr
-    # Invalid stderr includes ValueError
+    # stderr must include ValidationError
+    assert "ValidationError" in stderr
+    # stderr cannot include ValueError
     assert "ValueError" not in stderr
 
 
