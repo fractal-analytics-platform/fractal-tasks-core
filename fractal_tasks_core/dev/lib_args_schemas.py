@@ -16,14 +16,14 @@ import logging
 from collections import Counter
 from pathlib import Path
 from typing import Any
+from typing import Callable
 from typing import Optional
 
 from docstring_parser import parse as docparse
-from pydantic.decorator import ALT_V_ARGS
-from pydantic.decorator import ALT_V_KWARGS
-from pydantic.decorator import V_DUPLICATE_KWARGS
-from pydantic.decorator import V_POSITIONAL_ONLY_NAME
-from pydantic.decorator import ValidatedFunction
+from pydantic._internal import _generate_schema
+from pydantic._internal import _typing_extra
+from pydantic._internal._config import ConfigWrapper
+from pydantic.json_schema import GenerateJsonSchema
 
 from fractal_tasks_core.dev.lib_descriptions import (
     _get_class_attrs_descriptions,
@@ -73,58 +73,6 @@ FRACTAL_TASKS_CORE_PYDANTIC_MODELS = [
 ]
 
 
-def _remove_args_kwargs_properties(old_schema: _Schema) -> _Schema:
-    """
-    Remove `args` and `kwargs` schema properties.
-
-    Pydantic v1 automatically includes `args` and `kwargs` properties in
-    JSON Schemas generated via `ValidatedFunction(task_function,
-    config=None).model.schema()`, with some default (empty) values -- see see
-    https://github.com/pydantic/pydantic/blob/1.10.X-fixes/pydantic/decorator.py.
-
-    Verify that these properties match with their expected default values, and
-    then remove them from the schema.
-
-    Args:
-        old_schema: TBD
-    """
-    new_schema = old_schema.copy()
-    args_property = new_schema["properties"].pop("args")
-    kwargs_property = new_schema["properties"].pop("kwargs")
-    expected_args_property = {"title": "Args", "type": "array", "items": {}}
-    expected_kwargs_property = {"title": "Kwargs", "type": "object"}
-    if args_property != expected_args_property:
-        raise ValueError(
-            f"{args_property=}\ndiffers from\n{expected_args_property=}"
-        )
-    if kwargs_property != expected_kwargs_property:
-        raise ValueError(
-            f"{kwargs_property=}\ndiffers from\n"
-            f"{expected_kwargs_property=}"
-        )
-    logging.info("[_remove_args_kwargs_properties] END")
-    return new_schema
-
-
-def _remove_pydantic_internals(old_schema: _Schema) -> _Schema:
-    """
-    Remove schema properties that are only used internally by Pydantic V1.
-
-    Args:
-        old_schema: TBD
-    """
-    new_schema = old_schema.copy()
-    for key in (
-        V_POSITIONAL_ONLY_NAME,
-        V_DUPLICATE_KWARGS,
-        ALT_V_ARGS,
-        ALT_V_KWARGS,
-    ):
-        new_schema["properties"].pop(key, None)
-    logging.info("[_remove_pydantic_internals] END")
-    return new_schema
-
-
 def _remove_attributes_from_descriptions(old_schema: _Schema) -> _Schema:
     """
     Keeps only the description part of the docstrings: e.g from
@@ -144,14 +92,28 @@ def _remove_attributes_from_descriptions(old_schema: _Schema) -> _Schema:
         old_schema: TBD
     """
     new_schema = old_schema.copy()
-    if "definitions" in new_schema:
-        for name, definition in new_schema["definitions"].items():
+    if "$defs" in new_schema:
+        for name, definition in new_schema["$defs"].items():
             parsed_docstring = docparse(definition["description"])
-            new_schema["definitions"][name][
+            new_schema["$defs"][name][
                 "description"
             ] = parsed_docstring.short_description
     logging.info("[_remove_attributes_from_descriptions] END")
     return new_schema
+
+
+def _create_schema_for_function(function: Callable) -> _Schema:
+    namespace = _typing_extra.add_module_globals(function, None)
+    gen_core_schema = _generate_schema.GenerateSchema(
+        ConfigWrapper(None), namespace
+    )
+    core_schema = gen_core_schema.generate_schema(function)
+    clean_core_schema = gen_core_schema.clean_schema(core_schema)
+    gen_json_schema = GenerateJsonSchema()
+    json_schema = gen_json_schema.generate(
+        clean_core_schema, mode="validation"
+    )
+    return json_schema
 
 
 def create_schema_for_single_task(
@@ -183,10 +145,7 @@ def create_schema_for_single_task(
     _validate_function_signature(task_function)
 
     # Create and clean up schema
-    vf = ValidatedFunction(task_function, config=None)
-    schema = vf.model.schema()
-    schema = _remove_args_kwargs_properties(schema)
-    schema = _remove_pydantic_internals(schema)
+    schema = _create_schema_for_function(task_function)
     schema = _remove_attributes_from_descriptions(schema)
 
     # Include titles for custom-model-typed arguments

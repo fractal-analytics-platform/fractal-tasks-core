@@ -28,7 +28,7 @@ def create_manifest(
     package: str = "fractal_tasks_core",
     manifest_version: str = "2",
     has_args_schemas: bool = True,
-    args_schema_version: str = "pydantic_v1",
+    args_schema_version: str = "pydantic_v2",
     docs_link: Optional[str] = None,
     custom_pydantic_models: Optional[list[tuple[str, str, str]]] = None,
 ):

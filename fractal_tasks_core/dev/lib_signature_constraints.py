@@ -15,19 +15,7 @@ from inspect import signature
 from pathlib import Path
 from typing import Callable
 
-from pydantic.decorator import ALT_V_ARGS
-from pydantic.decorator import ALT_V_KWARGS
-from pydantic.decorator import V_DUPLICATE_KWARGS
-from pydantic.decorator import V_POSITIONAL_ONLY_NAME
-
-FORBIDDEN_PARAM_NAMES = (
-    "args",
-    "kwargs",
-    V_POSITIONAL_ONLY_NAME,
-    V_DUPLICATE_KWARGS,
-    ALT_V_ARGS,
-    ALT_V_KWARGS,
-)
+FORBIDDEN_PARAM_NAMES = ("args", "kwargs")
 
 
 def _extract_function(
