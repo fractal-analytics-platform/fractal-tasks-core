@@ -18,7 +18,7 @@ import anndata as ad
 import dask.array as da
 import numpy as np
 import zarr
-from pydantic.decorator import validate_arguments
+from pydantic import validate_call
 from skimage.registration import phase_cross_correlation
 
 from fractal_tasks_core.channels import get_channel_from_image_zarr
@@ -44,7 +44,7 @@ from fractal_tasks_core.tasks.io_models import InitArgsRegistration
 logger = logging.getLogger(__name__)
 
 
-@validate_arguments
+@validate_call
 def calculate_registration_image_based(
     *,
     # Fractal arguments

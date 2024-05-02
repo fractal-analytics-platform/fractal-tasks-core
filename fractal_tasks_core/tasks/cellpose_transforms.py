@@ -18,7 +18,8 @@ from typing import Optional
 import numpy as np
 from pydantic import BaseModel
 from pydantic import Field
-from pydantic import root_validator
+from pydantic import model_validator
+from typing_extensions import Self
 
 
 logger = logging.getLogger(__name__)
@@ -64,14 +65,14 @@ class CellposeCustomNormalizer(BaseModel):
     # that are stored in OME-Zarr histograms and use this pydantic model that
     # those histograms actually exist
 
-    @root_validator
-    def validate_conditions(cls, values):
+    @model_validator(mode="after")
+    def validate_conditions(self: Self) -> Self:
         # Extract values
-        type = values.get("type")
-        lower_percentile = values.get("lower_percentile")
-        upper_percentile = values.get("upper_percentile")
-        lower_bound = values.get("lower_bound")
-        upper_bound = values.get("upper_bound")
+        type = self.type
+        lower_percentile = self.lower_percentile
+        upper_percentile = self.upper_percentile
+        lower_bound = self.lower_bound
+        upper_bound = self.upper_bound
 
         # Verify that custom parameters are only provided when type="custom"
         if type != "custom":
@@ -122,7 +123,7 @@ class CellposeCustomNormalizer(BaseModel):
                 "at the same time. Hint: use only one of the two options."
             )
 
-        return values
+        return self
 
     @property
     def cellpose_normalize(self) -> bool:

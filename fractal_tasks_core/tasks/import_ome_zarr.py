@@ -17,7 +17,7 @@ from typing import Optional
 
 import dask.array as da
 import zarr
-from pydantic.decorator import validate_arguments
+from pydantic import validate_call
 
 from fractal_tasks_core.channels import update_omero_channels
 from fractal_tasks_core.ngff import detect_ome_ngff_type
@@ -159,7 +159,7 @@ def _process_single_image(
     return types
 
 
-@validate_arguments
+@validate_call
 def import_ome_zarr(
     *,
     # Fractal parameters

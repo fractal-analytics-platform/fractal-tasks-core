@@ -21,7 +21,7 @@ import anndata as ad
 import dask.array as da
 import numpy as np
 import zarr
-from pydantic.decorator import validate_arguments
+from pydantic import validate_call
 
 from fractal_tasks_core.ngff import load_NgffImageMeta
 from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
@@ -47,7 +47,7 @@ from fractal_tasks_core.utils import _get_table_path_dict
 logger = logging.getLogger(__name__)
 
 
-@validate_arguments
+@validate_call
 def apply_registration_to_image(
     *,
     # Fractal parameters

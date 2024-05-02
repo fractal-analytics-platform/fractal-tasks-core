@@ -16,7 +16,7 @@ import logging
 from typing import Any
 
 import zarr
-from pydantic.decorator import validate_arguments
+from pydantic import validate_call
 
 import fractal_tasks_core
 from fractal_tasks_core.ngff.specs import NgffPlateMeta
@@ -187,7 +187,7 @@ def _generate_plate_well_metadata(
     return plate_metadata_dicts, new_well_image_attrs, well_image_attrs
 
 
-@validate_arguments
+@validate_call
 def copy_ome_zarr_hcs_plate(
     *,
     # Fractal parameters

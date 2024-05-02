@@ -19,6 +19,8 @@ from pathlib import Path
 from typing import Callable
 from typing import Optional
 
+from pydantic import ValidationError
+
 
 class TaskParameterEncoder(JSONEncoder):
     """
@@ -76,7 +78,11 @@ def run_fractal_task(
 
     # Run task
     logger.info(f"START {task_function.__name__} task")
-    metadata_update = task_function(**pars)
+    try:
+        metadata_update = task_function(**pars)
+    except ValidationError as e:
+        logger.error("Invalid task arguments.")
+        raise e
     logger.info(f"END {task_function.__name__} task")
 
     # Write output metadata to file, with custom JSON encoder

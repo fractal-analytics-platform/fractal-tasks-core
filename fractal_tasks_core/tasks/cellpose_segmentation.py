@@ -26,7 +26,7 @@ import numpy as np
 import pandas as pd
 import zarr
 from cellpose import models
-from pydantic.decorator import validate_arguments
+from pydantic import validate_call
 
 import fractal_tasks_core
 from fractal_tasks_core.channels import ChannelInputModel
@@ -191,7 +191,7 @@ def segment_ROI(
     return mask.astype(label_dtype)
 
 
-@validate_arguments
+@validate_call
 def cellpose_segmentation(
     *,
     # Fractal parameters

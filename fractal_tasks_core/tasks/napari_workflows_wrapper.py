@@ -22,7 +22,7 @@ import numpy as np
 import pandas as pd
 import zarr
 from napari_workflows._io_yaml_v1 import load_workflow
-from pydantic.decorator import validate_arguments
+from pydantic import validate_call
 
 import fractal_tasks_core
 from fractal_tasks_core.channels import get_channel_from_image_zarr
@@ -59,7 +59,7 @@ class OutOfTaskScopeError(NotImplementedError):
     pass
 
 
-@validate_arguments
+@validate_call
 def napari_workflows_wrapper(
     *,
     # Fractal parameters

@@ -18,7 +18,7 @@ from typing import Optional
 
 import pandas as pd
 import zarr
-from pydantic.decorator import validate_arguments
+from pydantic import validate_call
 from zarr.errors import ContainsGroupError
 
 import fractal_tasks_core
@@ -52,7 +52,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@validate_arguments
+@validate_call
 def cellvoyager_to_ome_zarr_init_multiplex(
     *,
     # Fractal parameters
