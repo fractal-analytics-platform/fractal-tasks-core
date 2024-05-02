@@ -118,3 +118,43 @@ def zenodo_zarr(testdata_path: Path) -> list[str]:
             shutil.rmtree(str(folder))
         shutil.copytree(Path(zarr_full_path) / file_name, folder)
     return [str(f) for f in folders]
+
+
+@pytest.fixture(scope="session")
+def syn_1536_images(testdata_path: Path, zenodo_images: str) -> str:
+    """
+    0. Check if images are already present;
+    1. Copy images of the zenodo example to create synthetic images of a 1536
+    well plate in the `testdata_path`/data/1536_well folder;
+    2. Change the filenames to match the 1536 well convention;
+    """
+    target_folder = testdata_path / "syn_1536_images"
+    target_files = [
+        (
+            "20200812-CardiomyocyteDifferentiation14-Cycle1_B03.a1_T0001F001L"
+            "01A01Z01C01.png"
+        ),
+        (
+            "20200812-CardiomyocyteDifferentiation14-Cycle1_B03.a1_T0001F002L"
+            "01A01Z01C01.png"
+        ),
+    ]
+    files_present = [f in os.listdir(target_folder) for f in target_files]
+    if not all(files_present):
+        shutil.copy(
+            Path(zenodo_images)
+            / (
+                "20200812-CardiomyocyteDifferentiation14-Cycle1_B03_"
+                "T0001F001L01A01Z01C01.png"
+            ),
+            target_folder / target_files[0],
+        )
+        shutil.copy(
+            Path(zenodo_images)
+            / (
+                "20200812-CardiomyocyteDifferentiation14-Cycle1_B03_"
+                "T0001F002L01A01Z01C01.png"
+            ),
+            target_folder / target_files[1],
+        )
+    return str(target_folder)
