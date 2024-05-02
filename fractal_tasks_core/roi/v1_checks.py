@@ -17,7 +17,7 @@ from typing import Optional
 
 import anndata as ad
 import zarr
-from pydantic.error_wrappers import ValidationError
+from pydantic import ValidationError
 
 from fractal_tasks_core.tables.v1 import MaskingROITableAttrs
 
