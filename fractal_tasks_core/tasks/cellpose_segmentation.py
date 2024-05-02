@@ -73,6 +73,7 @@ def segment_ROI(
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
     normalize: CellposeCustomNormalizer = CellposeCustomNormalizer(),
+    normalize2: Optional[CellposeCustomNormalizer] = None,
     label_dtype: Optional[np.dtype] = None,
     augment: bool = False,
     net_avg: bool = False,
@@ -102,10 +103,14 @@ def segment_ROI(
         diameter: Expected object diameter in pixels for cellpose.
         cellprob_threshold: Cellpose model parameter.
         flow_threshold: Cellpose model parameter.
-        normalize: normalize data so 0.0=1st percentile and 1.0=99th
-            percentile of image intensities in each channel. This automatic
-            normalization can lead to issues when the image to be segmented
-            is very sparse.
+        normalize: By default, data is normalized so 0.0=1st percentile and
+            1.0=99th percentile of image intensities in each channel.
+            This automatic normalization can lead to issues when the image to
+            be segmented is very sparse. You can turn off the default
+            rescaling. With the "custom" option, you can either provide your
+            own rescaling percentiles or fixed rescaling upper and lower
+            bound integers.
+        normalize2: If provided, will normalize channel2 separately.
         label_dtype: Label images are cast into this `np.dtype`.
         augment: Whether to use cellpose augmentation to tile images with
             overlap.
@@ -139,14 +144,52 @@ def segment_ROI(
     )
 
     # Optionally perform custom normalization
-    if normalize.type == "custom":
-        x = normalized_img(
-            x,
-            lower_p=normalize.lower_percentile,
-            upper_p=normalize.upper_percentile,
-            lower_bound=normalize.lower_bound,
-            upper_bound=normalize.upper_bound,
-        )
+    # normalize channels separately, if normalize2 is provided:
+    if normalize2:
+        if len(channels) != 2:
+            raise ValueError(
+                "ERROR in normalization: channels should have length=2"
+                f" but has length={len(channels)}."
+            )
+        if 0 in channels:
+            raise ValueError(
+                "ERROR in normalization:"
+                f" 'normalize2' was provided and {channels=}."
+                " Cannot do separate normalization if channels contains '0'"
+            )
+        if (normalize.type == "default") != (normalize2.type == "default"):
+            raise ValueError(
+                "ERROR in normalization:"
+                f" {normalize.type=} and {normalize2.type=}."
+                " Either both need to be 'default', or none of them."
+            )
+        if normalize.type == "custom":
+            x[channels[0]-1:channels[0]] = normalized_img(
+                x[channels[0]-1:channels[0]],
+                lower_p=normalize.lower_percentile,
+                upper_p=normalize.upper_percentile,
+                lower_bound=normalize.lower_bound,
+                upper_bound=normalize.upper_bound,
+            )
+        if normalize2.type == "custom":
+            x[channels[1]-1:channels[1]] = normalized_img(
+                x[channels[1]-1:channels[1]],
+                lower_p=normalize2.lower_percentile,
+                upper_p=normalize2.upper_percentile,
+                lower_bound=normalize2.lower_bound,
+                upper_bound=normalize2.upper_bound,
+            )
+
+    # otherwise, use first normalize to normalize all channels:
+    else:
+        if normalize.type == "custom":
+            x = normalized_img(
+                x,
+                lower_p=normalize.lower_percentile,
+                upper_p=normalize.upper_percentile,
+                lower_bound=normalize.lower_bound,
+                upper_bound=normalize.upper_bound,
+            )
 
     # Actual labeling
     t0 = time.perf_counter()
@@ -212,6 +255,7 @@ def cellpose_segmentation(
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
     normalize: CellposeCustomNormalizer = CellposeCustomNormalizer(),
+    normalize2: Optional[CellposeCustomNormalizer] = None,
     anisotropy: Optional[float] = None,
     min_size: int = 15,
     augment: bool = False,
@@ -284,6 +328,7 @@ def cellpose_segmentation(
             rescaling. With the "custom" option, you can either provide your
             own rescaling percentiles or fixed rescaling upper and lower
             bound integers.
+        normalize2: If provided, will normalize channel2 separately.
         anisotropy: Ratio of the pixel sizes along Z and XY axis (ignored if
             the image is not three-dimensional). If `None`, it is inferred from
             the OME-NGFF metadata.
@@ -582,6 +627,7 @@ def cellpose_segmentation(
             cellprob_threshold=cellprob_threshold,
             flow_threshold=flow_threshold,
             normalize=normalize,
+            normalize2=normalize2,
             min_size=min_size,
             augment=augment,
             net_avg=net_avg,
