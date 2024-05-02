@@ -191,9 +191,9 @@ def test_args_title():
     new_schema = create_schema_for_single_task(
         cellvoyager_task["executable_non_parallel"]
     )
-    definitions = new_schema["definitions"]
+    debug(new_schema.keys())
+    definitions = new_schema["$defs"]
     omero_channel_def = definitions["OmeroChannel"]
     # Custom-model-typed attribute of custom-model-typed task argument
     window_prop = omero_channel_def["properties"]["window"]
-    debug(window_prop)
     assert window_prop["title"] == "Window"
