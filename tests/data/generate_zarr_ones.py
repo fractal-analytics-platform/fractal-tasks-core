@@ -74,7 +74,7 @@ zattrs = {
             "axes": axes,
             "datasets": [
                 {
-                    "path": level,
+                    "path": str(level),
                     cT: [
                         {
                             "type": "scale",

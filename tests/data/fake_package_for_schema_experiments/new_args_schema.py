@@ -52,6 +52,7 @@ if __name__ == "__main__":
             )
         except Exception as e:
             print(f"[{executable}] Skip. Original error:\n{str(e)}")
+            raise e
 
         manifest["task_list"][ind]["args_schema"] = schema
         print("Schema added to manifest")
