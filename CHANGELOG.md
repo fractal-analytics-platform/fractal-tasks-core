@@ -1,6 +1,9 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# Unreleased
+# 1.0.2
+* Fix bug in plate metadata in MIP task (in the copy_ome_zarr_hcs_plate init function) (\#736).
+
+# 1.0.1
 
 * Add support for converting 1536 well plates in cellvoyager converters (\#715).
 * Testing:
