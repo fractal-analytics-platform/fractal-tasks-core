@@ -163,7 +163,7 @@ def _generate_plate_well_metadata(
 
     # Fill in the plate metadata based on all available wells
     for old_plate_url in plate_metadata_dicts:
-        well_list, column_list, row_list = _generate_wells_rows_columns(
+        well_list, row_list, column_list = _generate_wells_rows_columns(
             plate_wells[old_plate_url]
         )
         plate_metadata_dicts[old_plate_url]["plate"]["columns"] = []
