@@ -785,6 +785,11 @@
             ],
             "description": "By default, data is normalized so 0.0=1st percentile and 1.0=99th percentile of image intensities in each channel. This automatic normalization can lead to issues when the image to be segmented is very sparse. You can turn off the default rescaling. With the \"custom\" option, you can either provide your own rescaling percentiles or fixed rescaling upper and lower bound integers."
           },
+          "normalize2": {
+            "$ref": "#/definitions/CellposeCustomNormalizer",
+            "title": "Normalize2",
+            "description": "If provided, will normalize channel2 separately."
+          },
           "anisotropy": {
             "title": "Anisotropy",
             "type": "number",
