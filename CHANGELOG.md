@@ -1,5 +1,7 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+* Add normalization option for second channel in cellpose_segmentation task.
+
 # 1.0.2
 * Fix bug in plate metadata in MIP task (in the copy_ome_zarr_hcs_plate init function) (\#736).
 
