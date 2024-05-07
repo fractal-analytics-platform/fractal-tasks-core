@@ -3,9 +3,9 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Coverage for fractal_tasks_core/upscale_array.py: 88%</title>
-    <link rel="icon" sizes="32x32" href="favicon_32.png">
-    <link rel="stylesheet" href="style.css" type="text/css">
-    <script src="coverage_html.js" defer></script>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
+    <link rel="stylesheet" href="style_cb_8e611ae1.css" type="text/css">
+    <script src="coverage_html_cb_da166b87.js" defer></script>
 </head>
 <body class="pyfile">
 <header>
@@ -17,7 +17,7 @@
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
             <label for="help_panel_state">
-                <img id="keyboard_icon" src="keybd_closed.png" alt="Show/hide keyboard shortcuts">
+                <img id="keyboard_icon" src="keybd_closed_cb_ce680311.png" alt="Show/hide keyboard shortcuts">
             </label>
             <div id="help_panel">
                 <p class="legend">Shortcuts on this page</p>
@@ -66,8 +66,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_dc89cbc85f94732f_utils_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.0">coverage.py v7.5.0</a>,
-            created at 2024-05-02 14:46 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.1">coverage.py v7.5.1</a>,
+            created at 2024-05-07 09:49 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -177,7 +177,7 @@
     <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t">    <span class="com"># Raise a warning if upscaling is non-homogeneous across all axis</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t">    <span class="key">if</span> <span class="nam">warn_if_inhomogeneous</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="par run show_par"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t">        <span class="key">if</span> <span class="nam">len</span><span class="op">(</span><span class="nam">set</span><span class="op">(</span><span class="nam">upscale_factors</span><span class="op">.</span><span class="nam">values</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">></span> <span class="num">1</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">96&#x202F;&#x219B;&#x202F;100</span><span class="annotate long">line 96 didn't jump to line 100, because the condition on line 96 was never false</span></span></p>
+    <p class="par run show_par"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t">        <span class="key">if</span> <span class="nam">len</span><span class="op">(</span><span class="nam">set</span><span class="op">(</span><span class="nam">upscale_factors</span><span class="op">.</span><span class="nam">values</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">></span> <span class="num">1</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">96&#x202F;&#x219B;&#x202F;100</span><span class="annotate long">line 96 didn't jump to line 100, because the condition on line 96 was always true</span></span></p>
     <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t">            <span class="nam">warnings</span><span class="op">.</span><span class="nam">warn</span><span class="op">(</span><span class="fst">f"</span><span class="op">{</span><span class="nam">info</span><span class="op">}</span><span class="fst"> (inhomogeneous)</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t">    <span class="com"># Upscale array, via np.repeat</span>&nbsp;</span><span class="r"></span></p>
@@ -189,7 +189,7 @@
     <p class="pln"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t">    <span class="com"># Check that final shape is correct</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t">    <span class="key">if</span> <span class="key">not</span> <span class="nam">upscaled_array</span><span class="op">.</span><span class="nam">shape</span> <span class="op">==</span> <span class="nam">target_shape</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="par run show_par"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t">        <span class="key">if</span> <span class="nam">pad_with_zeros</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">108&#x202F;&#x219B;&#x202F;128</span><span class="annotate long">line 108 didn't jump to line 128, because the condition on line 108 was never false</span></span></p>
+    <p class="par run show_par"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t">        <span class="key">if</span> <span class="nam">pad_with_zeros</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">108&#x202F;&#x219B;&#x202F;128</span><span class="annotate long">line 108 didn't jump to line 128, because the condition on line 108 was always true</span></span></p>
     <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t">            <span class="nam">pad_width</span> <span class="op">=</span> <span class="op">[</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t">            <span class="key">for</span> <span class="nam">ax</span> <span class="key">in</span> <span class="nam">list</span><span class="op">(</span><span class="nam">range</span><span class="op">(</span><span class="nam">len</span><span class="op">(</span><span class="nam">target_shape</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t">                <span class="nam">missing</span> <span class="op">=</span> <span class="nam">target_shape</span><span class="op">[</span><span class="nam">ax</span><span class="op">]</span> <span class="op">-</span> <span class="nam">upscaled_array</span><span class="op">.</span><span class="nam">shape</span><span class="op">[</span><span class="nam">ax</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
@@ -293,8 +293,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_dc89cbc85f94732f_utils_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.0">coverage.py v7.5.0</a>,
-            created at 2024-05-02 14:46 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.1">coverage.py v7.5.1</a>,
+            created at 2024-05-07 09:49 +0000
         </p>
     </div>
 </footer>

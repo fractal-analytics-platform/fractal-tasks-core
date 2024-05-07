@@ -3,9 +3,9 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Coverage for fractal_tasks_core/tasks/cellpose_segmentation.py: 85%</title>
-    <link rel="icon" sizes="32x32" href="favicon_32.png">
-    <link rel="stylesheet" href="style.css" type="text/css">
-    <script src="coverage_html.js" defer></script>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
+    <link rel="stylesheet" href="style_cb_8e611ae1.css" type="text/css">
+    <script src="coverage_html_cb_da166b87.js" defer></script>
 </head>
 <body class="pyfile">
 <header>
@@ -17,7 +17,7 @@
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
             <label for="help_panel_state">
-                <img id="keyboard_icon" src="keybd_closed.png" alt="Show/hide keyboard shortcuts">
+                <img id="keyboard_icon" src="keybd_closed_cb_ce680311.png" alt="Show/hide keyboard shortcuts">
             </label>
             <div id="help_panel">
                 <p class="legend">Shortcuts on this page</p>
@@ -66,8 +66,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_02c373974d9ed707_cellpose_transforms_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.0">coverage.py v7.5.0</a>,
-            created at 2024-05-02 14:46 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.1">coverage.py v7.5.1</a>,
+            created at 2024-05-07 09:49 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -505,7 +505,7 @@
     <p class="pln"><span class="n"><a id="t421" href="#t421">421</a></span><span class="t">    <span class="com"># Select 2D/3D behavior and set some parameters</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t422" href="#t422">422</a></span><span class="t">    <span class="nam">do_3D</span> <span class="op">=</span> <span class="nam">data_zyx</span><span class="op">.</span><span class="nam">shape</span><span class="op">[</span><span class="num">0</span><span class="op">]</span> <span class="op">></span> <span class="num">1</span> <span class="key">and</span> <span class="nam">len</span><span class="op">(</span><span class="nam">data_zyx</span><span class="op">.</span><span class="nam">shape</span><span class="op">)</span> <span class="op">==</span> <span class="num">3</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t423" href="#t423">423</a></span><span class="t">    <span class="key">if</span> <span class="nam">do_3D</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="par run show_par"><span class="n"><a id="t424" href="#t424">424</a></span><span class="t">        <span class="key">if</span> <span class="nam">anisotropy</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">424&#x202F;&#x219B;&#x202F;429</span><span class="annotate long">line 424 didn't jump to line 429, because the condition on line 424 was never false</span></span></p>
+    <p class="par run show_par"><span class="n"><a id="t424" href="#t424">424</a></span><span class="t">        <span class="key">if</span> <span class="nam">anisotropy</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">424&#x202F;&#x219B;&#x202F;429</span><span class="annotate long">line 424 didn't jump to line 429, because the condition on line 424 was always true</span></span></p>
     <p class="pln"><span class="n"><a id="t425" href="#t425">425</a></span><span class="t">            <span class="com"># Compute anisotropy as pixel_size_z/pixel_size_x</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t426" href="#t426">426</a></span><span class="t">            <span class="nam">anisotropy</span> <span class="op">=</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t427" href="#t427">427</a></span><span class="t">                <span class="nam">actual_res_pxl_sizes_zyx</span><span class="op">[</span><span class="num">0</span><span class="op">]</span> <span class="op">/</span> <span class="nam">actual_res_pxl_sizes_zyx</span><span class="op">[</span><span class="num">2</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
@@ -610,7 +610,7 @@
     <p class="run"><span class="n"><a id="t526" href="#t526">526</a></span><span class="t">        <span class="nam">logger</span><span class="op">.</span><span class="nam">info</span><span class="op">(</span><span class="fst">f"</span><span class="op">{</span><span class="nam">data_zyx_c2</span><span class="op">.</span><span class="nam">chunks</span><span class="op">}</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t527" href="#t527">527</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t528" href="#t528">528</a></span><span class="t">    <span class="com"># Counters for relabeling</span>&nbsp;</span><span class="r"></span></p>
-    <p class="par run show_par"><span class="n"><a id="t529" href="#t529">529</a></span><span class="t">    <span class="key">if</span> <span class="nam">relabeling</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">529&#x202F;&#x219B;&#x202F;533</span><span class="annotate long">line 529 didn't jump to line 533, because the condition on line 529 was never false</span></span></p>
+    <p class="par run show_par"><span class="n"><a id="t529" href="#t529">529</a></span><span class="t">    <span class="key">if</span> <span class="nam">relabeling</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">529&#x202F;&#x219B;&#x202F;533</span><span class="annotate long">line 529 didn't jump to line 533, because the condition on line 529 was always true</span></span></p>
     <p class="run"><span class="n"><a id="t530" href="#t530">530</a></span><span class="t">        <span class="nam">num_labels_tot</span> <span class="op">=</span> <span class="num">0</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t531" href="#t531">531</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t532" href="#t532">532</a></span><span class="t">    <span class="com"># Iterate over ROIs</span>&nbsp;</span><span class="r"></span></p>
@@ -699,7 +699,7 @@
     <p class="pln"><span class="n"><a id="t615" href="#t615">615</a></span><span class="t">        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t616" href="#t616">616</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t617" href="#t617">617</a></span><span class="t">        <span class="com"># Shift labels and update relabeling counters</span>&nbsp;</span><span class="r"></span></p>
-    <p class="par run show_par"><span class="n"><a id="t618" href="#t618">618</a></span><span class="t">        <span class="key">if</span> <span class="nam">relabeling</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">618&#x202F;&#x219B;&#x202F;634</span><span class="annotate long">line 618 didn't jump to line 634, because the condition on line 618 was never false</span></span></p>
+    <p class="par run show_par"><span class="n"><a id="t618" href="#t618">618</a></span><span class="t">        <span class="key">if</span> <span class="nam">relabeling</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">618&#x202F;&#x219B;&#x202F;634</span><span class="annotate long">line 618 didn't jump to line 634, because the condition on line 618 was always true</span></span></p>
     <p class="run"><span class="n"><a id="t619" href="#t619">619</a></span><span class="t">            <span class="nam">num_labels_roi</span> <span class="op">=</span> <span class="nam">np</span><span class="op">.</span><span class="nam">max</span><span class="op">(</span><span class="nam">new_label_img</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t620" href="#t620">620</a></span><span class="t">            <span class="nam">new_label_img</span><span class="op">[</span><span class="nam">new_label_img</span> <span class="op">></span> <span class="num">0</span><span class="op">]</span> <span class="op">+=</span> <span class="nam">num_labels_tot</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t621" href="#t621">621</a></span><span class="t">            <span class="nam">num_labels_tot</span> <span class="op">+=</span> <span class="nam">num_labels_roi</span>&nbsp;</span><span class="r"></span></p>
@@ -812,8 +812,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_02c373974d9ed707_cellpose_transforms_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.0">coverage.py v7.5.0</a>,
-            created at 2024-05-02 14:46 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.1">coverage.py v7.5.1</a>,
+            created at 2024-05-07 09:49 +0000
         </p>
     </div>
 </footer>

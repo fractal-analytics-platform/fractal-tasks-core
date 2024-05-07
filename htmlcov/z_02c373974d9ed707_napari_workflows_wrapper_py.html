@@ -3,9 +3,9 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Coverage for fractal_tasks_core/tasks/napari_workflows_wrapper.py: 90%</title>
-    <link rel="icon" sizes="32x32" href="favicon_32.png">
-    <link rel="stylesheet" href="style.css" type="text/css">
-    <script src="coverage_html.js" defer></script>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
+    <link rel="stylesheet" href="style_cb_8e611ae1.css" type="text/css">
+    <script src="coverage_html_cb_da166b87.js" defer></script>
 </head>
 <body class="pyfile">
 <header>
@@ -17,7 +17,7 @@
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
             <label for="help_panel_state">
-                <img id="keyboard_icon" src="keybd_closed.png" alt="Show/hide keyboard shortcuts">
+                <img id="keyboard_icon" src="keybd_closed_cb_ce680311.png" alt="Show/hide keyboard shortcuts">
             </label>
             <div id="help_panel">
                 <p class="legend">Shortcuts on this page</p>
@@ -66,8 +66,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_dc89cbc85f94732f_upscale_array_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.0">coverage.py v7.5.0</a>,
-            created at 2024-05-02 14:46 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.1">coverage.py v7.5.1</a>,
+            created at 2024-05-07 09:49 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -581,7 +581,7 @@
     <p class="pln"><span class="n"><a id="t497" href="#t497">497</a></span><span class="t">                        <span class="nam">return_as_3D</span><span class="op">=</span><span class="key">False</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t498" href="#t498">498</a></span><span class="t">                    <span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t499" href="#t499">499</a></span><span class="t">                <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="par run show_par"><span class="n"><a id="t500" href="#t500">500</a></span><span class="t">            <span class="key">elif</span> <span class="nam">input_type</span> <span class="op">==</span> <span class="str">"label"</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">500&#x202F;&#x219B;&#x202F;487</span><span class="annotate long">line 500 didn't jump to line 487, because the condition on line 500 was never false</span></span></p>
+    <p class="par run show_par"><span class="n"><a id="t500" href="#t500">500</a></span><span class="t">            <span class="key">elif</span> <span class="nam">input_type</span> <span class="op">==</span> <span class="str">"label"</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">500&#x202F;&#x219B;&#x202F;487</span><span class="annotate long">line 500 didn't jump to line 487, because the condition on line 500 was always true</span></span></p>
     <p class="run"><span class="n"><a id="t501" href="#t501">501</a></span><span class="t">                <span class="nam">wf</span><span class="op">.</span><span class="nam">set</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t502" href="#t502">502</a></span><span class="t">                    <span class="nam">input_name</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t503" href="#t503">503</a></span><span class="t">                    <span class="nam">load_region</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
@@ -632,7 +632,7 @@
     <p class="pln"><span class="n"><a id="t548" href="#t548">548</a></span><span class="t">            <span class="com"># Sanity check: issue warning for non-consecutive labels</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t549" href="#t549">549</a></span><span class="t">            <span class="nam">unique_labels</span> <span class="op">=</span> <span class="nam">np</span><span class="op">.</span><span class="nam">unique</span><span class="op">(</span><span class="nam">mask</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t550" href="#t550">550</a></span><span class="t">            <span class="nam">num_unique_labels_in_this_ROI</span> <span class="op">=</span> <span class="nam">len</span><span class="op">(</span><span class="nam">unique_labels</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="par run show_par"><span class="n"><a id="t551" href="#t551">551</a></span><span class="t">            <span class="key">if</span> <span class="nam">np</span><span class="op">.</span><span class="nam">min</span><span class="op">(</span><span class="nam">unique_labels</span><span class="op">)</span> <span class="op">==</span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">551&#x202F;&#x219B;&#x202F;553</span><span class="annotate long">line 551 didn't jump to line 553, because the condition on line 551 was never false</span></span></p>
+    <p class="par run show_par"><span class="n"><a id="t551" href="#t551">551</a></span><span class="t">            <span class="key">if</span> <span class="nam">np</span><span class="op">.</span><span class="nam">min</span><span class="op">(</span><span class="nam">unique_labels</span><span class="op">)</span> <span class="op">==</span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">551&#x202F;&#x219B;&#x202F;553</span><span class="annotate long">line 551 didn't jump to line 553, because the condition on line 551 was always true</span></span></p>
     <p class="run"><span class="n"><a id="t552" href="#t552">552</a></span><span class="t">                <span class="nam">num_unique_labels_in_this_ROI</span> <span class="op">-=</span> <span class="num">1</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t553" href="#t553">553</a></span><span class="t">            <span class="nam">num_labels_in_this_ROI</span> <span class="op">=</span> <span class="nam">int</span><span class="op">(</span><span class="nam">np</span><span class="op">.</span><span class="nam">max</span><span class="op">(</span><span class="nam">mask</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t554" href="#t554">554</a></span><span class="t">            <span class="key">if</span> <span class="nam">num_labels_in_this_ROI</span> <span class="op">!=</span> <span class="nam">num_unique_labels_in_this_ROI</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -728,8 +728,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_dc89cbc85f94732f_upscale_array_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.0">coverage.py v7.5.0</a>,
-            created at 2024-05-02 14:46 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.1">coverage.py v7.5.1</a>,
+            created at 2024-05-07 09:49 +0000
         </p>
     </div>
 </footer>

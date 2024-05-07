@@ -3,9 +3,9 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Coverage for fractal_tasks_core/tasks/cellpose_transforms.py: 86%</title>
-    <link rel="icon" sizes="32x32" href="favicon_32.png">
-    <link rel="stylesheet" href="style.css" type="text/css">
-    <script src="coverage_html.js" defer></script>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
+    <link rel="stylesheet" href="style_cb_8e611ae1.css" type="text/css">
+    <script src="coverage_html_cb_da166b87.js" defer></script>
 </head>
 <body class="pyfile">
 <header>
@@ -17,7 +17,7 @@
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
             <label for="help_panel_state">
-                <img id="keyboard_icon" src="keybd_closed.png" alt="Show/hide keyboard shortcuts">
+                <img id="keyboard_icon" src="keybd_closed_cb_ce680311.png" alt="Show/hide keyboard shortcuts">
             </label>
             <div id="help_panel">
                 <p class="legend">Shortcuts on this page</p>
@@ -66,8 +66,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_02c373974d9ed707_cellvoyager_to_ome_zarr_compute_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.0">coverage.py v7.5.0</a>,
-            created at 2024-05-02 14:46 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.1">coverage.py v7.5.1</a>,
+            created at 2024-05-07 09:49 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -273,7 +273,7 @@
     <p class="pln"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t">            <span class="com"># ptp can still give nan's with weird images</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t">            <span class="nam">i99</span> <span class="op">=</span> <span class="nam">np</span><span class="op">.</span><span class="nam">percentile</span><span class="op">(</span><span class="nam">img</span><span class="op">[</span><span class="nam">k</span><span class="op">]</span><span class="op">,</span> <span class="nam">upper_p</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t191" href="#t191">191</a></span><span class="t">            <span class="nam">i1</span> <span class="op">=</span> <span class="nam">np</span><span class="op">.</span><span class="nam">percentile</span><span class="op">(</span><span class="nam">img</span><span class="op">[</span><span class="nam">k</span><span class="op">]</span><span class="op">,</span> <span class="nam">lower_p</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="par run show_par"><span class="n"><a id="t192" href="#t192">192</a></span><span class="t">            <span class="key">if</span> <span class="nam">i99</span> <span class="op">-</span> <span class="nam">i1</span> <span class="op">></span> <span class="op">+</span><span class="num">1e-3</span><span class="op">:</span>  <span class="com"># np.ptp(img[k]) > 1e-3:</span>&nbsp;</span><span class="r"><span class="annotate short">192&#x202F;&#x219B;&#x202F;199</span><span class="annotate long">line 192 didn't jump to line 199, because the condition on line 192 was never false</span></span></p>
+    <p class="par run show_par"><span class="n"><a id="t192" href="#t192">192</a></span><span class="t">            <span class="key">if</span> <span class="nam">i99</span> <span class="op">-</span> <span class="nam">i1</span> <span class="op">></span> <span class="op">+</span><span class="num">1e-3</span><span class="op">:</span>  <span class="com"># np.ptp(img[k]) > 1e-3:</span>&nbsp;</span><span class="r"><span class="annotate short">192&#x202F;&#x219B;&#x202F;199</span><span class="annotate long">line 192 didn't jump to line 199, because the condition on line 192 was always true</span></span></p>
     <p class="run"><span class="n"><a id="t193" href="#t193">193</a></span><span class="t">                <span class="nam">img</span><span class="op">[</span><span class="nam">k</span><span class="op">]</span> <span class="op">=</span> <span class="nam">normalize_percentile</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t194" href="#t194">194</a></span><span class="t">                    <span class="nam">img</span><span class="op">[</span><span class="nam">k</span><span class="op">]</span><span class="op">,</span> <span class="nam">lower</span><span class="op">=</span><span class="nam">lower_p</span><span class="op">,</span> <span class="nam">upper</span><span class="op">=</span><span class="nam">upper_p</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t195" href="#t195">195</a></span><span class="t">                <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -281,8 +281,8 @@
     <p class="mis show_mis"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t">                    <span class="nam">img</span><span class="op">[</span><span class="nam">k</span><span class="op">]</span> <span class="op">=</span> <span class="op">-</span><span class="num">1</span> <span class="op">*</span> <span class="nam">img</span><span class="op">[</span><span class="nam">k</span><span class="op">]</span> <span class="op">+</span> <span class="num">1</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t">            <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t">                <span class="nam">img</span><span class="op">[</span><span class="nam">k</span><span class="op">]</span> <span class="op">=</span> <span class="num">0</span>&nbsp;</span><span class="r"></span></p>
-    <p class="par run show_par"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t">        <span class="key">elif</span> <span class="nam">lower_bound</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">200&#x202F;&#x219B;&#x202F;210</span><span class="annotate long">line 200 didn't jump to line 210, because the condition on line 200 was never false</span></span></p>
-    <p class="par run show_par"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t">            <span class="key">if</span> <span class="nam">upper_bound</span> <span class="op">-</span> <span class="nam">lower_bound</span> <span class="op">></span> <span class="op">+</span><span class="num">1e-3</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">201&#x202F;&#x219B;&#x202F;208</span><span class="annotate long">line 201 didn't jump to line 208, because the condition on line 201 was never false</span></span></p>
+    <p class="par run show_par"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t">        <span class="key">elif</span> <span class="nam">lower_bound</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">200&#x202F;&#x219B;&#x202F;210</span><span class="annotate long">line 200 didn't jump to line 210, because the condition on line 200 was always true</span></span></p>
+    <p class="par run show_par"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t">            <span class="key">if</span> <span class="nam">upper_bound</span> <span class="op">-</span> <span class="nam">lower_bound</span> <span class="op">></span> <span class="op">+</span><span class="num">1e-3</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">201&#x202F;&#x219B;&#x202F;208</span><span class="annotate long">line 201 didn't jump to line 208, because the condition on line 201 was always true</span></span></p>
     <p class="run"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t">                <span class="nam">img</span><span class="op">[</span><span class="nam">k</span><span class="op">]</span> <span class="op">=</span> <span class="nam">normalize_bounds</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t203" href="#t203">203</a></span><span class="t">                    <span class="nam">img</span><span class="op">[</span><span class="nam">k</span><span class="op">]</span><span class="op">,</span> <span class="nam">lower</span><span class="op">=</span><span class="nam">lower_bound</span><span class="op">,</span> <span class="nam">upper</span><span class="op">=</span><span class="nam">upper_bound</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t">                <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -333,8 +333,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_02c373974d9ed707_cellvoyager_to_ome_zarr_compute_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.0">coverage.py v7.5.0</a>,
-            created at 2024-05-02 14:46 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.1">coverage.py v7.5.1</a>,
+            created at 2024-05-07 09:49 +0000
         </p>
     </div>
 </footer>
