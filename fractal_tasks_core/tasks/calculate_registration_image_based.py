@@ -13,11 +13,13 @@
 Calculates translation for image-based registration
 """
 import logging
+from typing import Literal
 
 import anndata as ad
 import dask.array as da
 import numpy as np
 import zarr
+from image_registration import chi2_shift
 from pydantic.decorator import validate_arguments
 from skimage.registration import phase_cross_correlation
 
@@ -44,6 +46,43 @@ from fractal_tasks_core.tasks.io_models import InitArgsRegistration
 logger = logging.getLogger(__name__)
 
 
+def chi2_shift_out(img_ref, img_cycle_x):
+    """
+    Helper function to get the output of chi2_shift into the same format as
+    phase_cross_correlation. Calculates the shift between two images using
+    the chi2_shift method.
+
+    Args:
+        image1 (np.ndarray): First image.
+        image2 (np.ndarray): Second image.
+
+    Returns:
+        list: list of tuple of shift in y and x direction.
+    """
+    x, y, a, b = chi2_shift(np.squeeze(img_ref),
+                            np.squeeze(img_cycle_x))
+
+    '''
+    running into issues when using direct float output for fractal.
+    When rounding to integer and using integer dtype, it typically works 
+    but for some reasons fails when run over a whole 384 well plate (but
+    the well where it fails works fine when run alone). The original verison
+    works fine however. Trying to round to integer, but still use float64 
+    dtype like original version.
+    '''
+    shifts = np.array([-int(np.round(y)), -int(np.round(x))], dtype='float64')
+
+    return [shifts]
+
+
+# Dictionary mapping available registration methods to their respective
+# functions
+REG_METHODS = {
+    "phase_cross_correlation": phase_cross_correlation,
+    "chi2_shift": chi2_shift_out,
+}
+
+
 @validate_arguments
 def calculate_registration_image_based(
     *,
@@ -52,6 +91,7 @@ def calculate_registration_image_based(
     init_args: InitArgsRegistration,
     # Core parameters
     wavelength_id: str,
+    method: Literal[tuple([key for key,value in REG_METHODS.items()])],
     roi_table: str = "FOV_ROI_table",
     level: int = 2,
 ) -> None:
@@ -217,7 +257,7 @@ def calculate_registration_image_based(
                 "This registration is not implemented for ROIs with "
                 "different shapes between acquisitions."
             )
-        shifts = phase_cross_correlation(
+        shifts = REG_METHODS[method](
             np.squeeze(img_ref), np.squeeze(img_acq_x)
         )[0]
 

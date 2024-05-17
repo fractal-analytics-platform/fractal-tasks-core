@@ -1007,6 +1007,15 @@
             "type": "string",
             "description": "Wavelength that will be used for image-based registration; e.g. `A01_C01` for Yokogawa, `C01` for MD."
           },
+          "method": {
+            "title": "Method",
+            "enum": [
+              "phase_cross_correlation",
+              "chi2_shift"
+            ],
+            "type": "string",
+            "description": "Missing description"
+          },
           "roi_table": {
             "title": "Roi Table",
             "default": "FOV_ROI_table",
@@ -1023,7 +1032,8 @@
         "required": [
           "zarr_url",
           "init_args",
-          "wavelength_id"
+          "wavelength_id",
+          "method"
         ],
         "additionalProperties": false,
         "definitions": {

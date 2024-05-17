@@ -198,11 +198,13 @@ def patched_segment_ROI(
 
     return mask.astype(label_dtype)
 
-
+@pytest.mark.parametrize("method", ["phase_cross_correlation",
+                                    "chi2_shift"])
 def test_multiplexing_registration(
     zenodo_images_multiplex_shifted: list[str],
     tmp_path,
     monkeypatch: MonkeyPatch,
+    method: str,
     # Given the test data, only implemented per FOV
     roi_table="FOV_ROI_table",
 ):
@@ -309,6 +311,7 @@ def test_multiplexing_registration(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
             wavelength_id="A01_C01",
+            method=method,
             roi_table=roi_table,
         )
 
