@@ -10,6 +10,7 @@ import copy
 import anndata as ad
 import numpy as np
 import pandas as pd
+from image_registration import chi2_shift
 
 from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
 from fractal_tasks_core.tasks._zarr_utils import _split_well_path_image_path
@@ -235,3 +236,33 @@ def apply_registration_to_single_ROI_table(
             + float(min_df.loc[roi, "translation_x"])
         )
     return roi_table
+
+
+
+def chi2_shift_out(img_ref, img_cycle_x):
+    """
+    Helper function to get the output of chi2_shift into the same format as
+    phase_cross_correlation. Calculates the shift between two images using
+    the chi2_shift method.
+
+    Args:
+        img_ref (np.ndarray): First image.
+        img_cycle_x (np.ndarray): Second image.
+
+    Returns:
+        list: list of tuple of shift in y and x direction.
+    """
+    x, y, a, b = chi2_shift(np.squeeze(img_ref),
+                            np.squeeze(img_cycle_x))
+
+    '''
+    running into issues when using direct float output for fractal.
+    When rounding to integer and using integer dtype, it typically works 
+    but for some reasons fails when run over a whole 384 well plate (but
+    the well where it fails works fine when run alone). The original verison
+    works fine however. Trying to round to integer, but still use float64 
+    dtype like original version.
+    '''
+    shifts = np.array([-int(np.round(y)), -int(np.round(x))], dtype='float64')
+
+    return [shifts]

@@ -19,7 +19,6 @@ import anndata as ad
 import dask.array as da
 import numpy as np
 import zarr
-from image_registration import chi2_shift
 from pydantic.decorator import validate_arguments
 from skimage.registration import phase_cross_correlation
 
@@ -37,43 +36,12 @@ from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
 from fractal_tasks_core.tasks._registration_utils import (
     calculate_physical_shifts,
-)
-from fractal_tasks_core.tasks._registration_utils import (
     get_ROI_table_with_translation,
+    chi2_shift_out,
 )
 from fractal_tasks_core.tasks.io_models import InitArgsRegistration
 
 logger = logging.getLogger(__name__)
-
-
-def chi2_shift_out(img_ref, img_cycle_x):
-    """
-    Helper function to get the output of chi2_shift into the same format as
-    phase_cross_correlation. Calculates the shift between two images using
-    the chi2_shift method.
-
-    Args:
-        img_ref (np.ndarray): First image.
-        img_cycle_x (np.ndarray): Second image.
-
-    Returns:
-        list: list of tuple of shift in y and x direction.
-    """
-    x, y, a, b = chi2_shift(np.squeeze(img_ref),
-                            np.squeeze(img_cycle_x))
-
-    '''
-    running into issues when using direct float output for fractal.
-    When rounding to integer and using integer dtype, it typically works 
-    but for some reasons fails when run over a whole 384 well plate (but
-    the well where it fails works fine when run alone). The original verison
-    works fine however. Trying to round to integer, but still use float64 
-    dtype like original version.
-    '''
-    shifts = np.array([-int(np.round(y)), -int(np.round(x))], dtype='float64')
-
-    return [shifts]
-
 
 # Dictionary mapping available registration methods to their respective
 # functions
@@ -114,7 +82,8 @@ def calculate_registration_image_based(
         wavelength_id: Wavelength that will be used for image-based
             registration; e.g. `A01_C01` for Yokogawa, `C01` for MD.
         method: Method to use for image registration. Currently only
-            `phase_cross_correlation` and "chi2_shift" are supported.
+            `phase_cross_correlation` (scikit-image) and "chi2_shift"
+             (image_registration) are supported.
         roi_table: Name of the ROI table over which the task loops to
             calculate the registration. Examples: `FOV_ROI_table` => loop over
             the field of views, `well_ROI_table` => process the whole well as
