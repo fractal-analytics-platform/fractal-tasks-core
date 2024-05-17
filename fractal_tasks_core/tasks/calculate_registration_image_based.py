@@ -53,8 +53,8 @@ def chi2_shift_out(img_ref, img_cycle_x):
     the chi2_shift method.
 
     Args:
-        image1 (np.ndarray): First image.
-        image2 (np.ndarray): Second image.
+        img_ref (np.ndarray): First image.
+        img_cycle_x (np.ndarray): Second image.
 
     Returns:
         list: list of tuple of shift in y and x direction.
@@ -113,6 +113,8 @@ def calculate_registration_image_based(
             (standard argument for Fractal tasks, managed by Fractal server).
         wavelength_id: Wavelength that will be used for image-based
             registration; e.g. `A01_C01` for Yokogawa, `C01` for MD.
+        method: Method to use for image registration. Currently only
+            `phase_cross_correlation` and "chi2_shift" are supported.
         roi_table: Name of the ROI table over which the task loops to
             calculate the registration. Examples: `FOV_ROI_table` => loop over
             the field of views, `well_ROI_table` => process the whole well as
