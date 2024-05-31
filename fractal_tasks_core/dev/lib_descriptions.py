@@ -12,6 +12,7 @@ import ast
 import logging
 from importlib import import_module
 from pathlib import Path
+from typing import Optional
 
 from docstring_parser import parse as docparse
 
@@ -37,7 +38,10 @@ def _sanitize_description(string: str) -> str:
 
 
 def _get_function_docstring(
-    package_name: str, module_relative_path: str, function_name: str
+    package_name: str | None,
+    module_relative_path: str,
+    function_name: str,
+    verbose: bool = False,
 ) -> str:
     """
     Extract docstring from a function.
@@ -52,8 +56,18 @@ def _get_function_docstring(
         raise ValueError(f"Module {module_relative_path} must end with '.py'")
 
     # Get the function ast.FunctionDef object
-    package_path = Path(import_module(package_name).__file__).parent
-    module_path = package_path / module_relative_path
+    if package_name is not None:
+        package_path = Path(import_module(package_name).__file__).parent
+        module_path = package_path / module_relative_path
+    elif Path(module_relative_path).is_absolute():
+        module_path = Path(module_relative_path)
+    else:
+        raise ValueError()
+
+    if verbose:
+        logging.info(f"[_get_function_docstring] {function_name=}")
+        logging.info(f"[_get_function_docstring] {module_path=}")
+
     tree = ast.parse(module_path.read_text())
     _function = next(
         f
@@ -66,7 +80,10 @@ def _get_function_docstring(
 
 
 def _get_function_args_descriptions(
-    package_name: str, module_relative_path: str, function_name: str
+    package_name: Optional[str],
+    module_relative_path: str,  # FIXME: or absolute.. change name
+    function_name: str,
+    verbose: bool = False,
 ) -> dict[str, str]:
     """
     Extract argument descriptions from a function.
@@ -79,8 +96,13 @@ def _get_function_args_descriptions(
 
     # Extract docstring from ast.FunctionDef
     docstring = _get_function_docstring(
-        package_name, module_relative_path, function_name
+        package_name,
+        module_relative_path,
+        function_name,
+        verbose=verbose,
     )
+    if verbose:
+        logging.info(f"[_get_function_args_descriptions] {docstring}")
 
     # Parse docstring (via docstring_parser) and prepare output
     parsed_docstring = docparse(docstring)
@@ -134,7 +156,9 @@ def _get_class_attrs_descriptions(
     return descriptions
 
 
-def _insert_function_args_descriptions(*, schema: dict, descriptions: dict):
+def _insert_function_args_descriptions(
+    *, schema: dict, descriptions: dict, verbose: bool = False
+):
     """
     Merge the descriptions obtained via `_get_args_descriptions` into the
     properties of an existing JSON Schema.
@@ -154,6 +178,10 @@ def _insert_function_args_descriptions(*, schema: dict, descriptions: dict):
             else:
                 value["description"] = "Missing description"
             new_properties[key] = value
+            if verbose:
+                logging.info(
+                    f"[_insert_function_args_descriptions] Add {key=}, {value=}"
+                )
     new_schema["properties"] = new_properties
     logging.info("[_insert_function_args_descriptions] END")
     return new_schema

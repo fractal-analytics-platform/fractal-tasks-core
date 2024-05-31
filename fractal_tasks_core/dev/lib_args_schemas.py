@@ -16,6 +16,7 @@ import logging
 from collections import Counter
 from pathlib import Path
 from typing import Any
+from typing import Callable
 from typing import Optional
 
 from docstring_parser import parse as docparse
@@ -156,8 +157,10 @@ def _remove_attributes_from_descriptions(old_schema: _Schema) -> _Schema:
 
 def create_schema_for_single_task(
     executable: str,
-    package: str = "fractal_tasks_core",
+    package: Optional[str] = "fractal_tasks_core",
     custom_pydantic_models: Optional[list[tuple[str, str, str]]] = None,
+    task_function: Optional[Callable] = None,
+    verbose: bool = False,
 ) -> _Schema:
     """
     Main function to create a JSON Schema of task arguments
@@ -165,18 +168,21 @@ def create_schema_for_single_task(
 
     logging.info("[create_schema_for_single_task] START")
 
-    # Extract the function name. Note: this could be made more general, but for
-    # the moment we assume the function has the same name as the module)
-    function_name = Path(executable).with_suffix("").name
-    logging.info(f"[create_schema_for_single_task] {function_name=}")
-
     # Extract function from module
-    task_function = _extract_function(
-        package_name=package,
-        module_relative_path=executable,
-        function_name=function_name,
-    )
+    if task_function is None:
+        # Extract the function name. Note: this could be made more general, but for
+        # the moment we assume the function has the same name as the module)
+        function_name = Path(executable).with_suffix("").name
+        task_function = _extract_function(
+            package_name=package,
+            module_relative_path=executable,
+            function_name=function_name,
+        )
+    else:
+        # This branch is useful for testing
+        function_name = task_function.__name__
 
+    logging.info(f"[create_schema_for_single_task] {function_name=}")
     logging.info(f"[create_schema_for_single_task] {task_function=}")
 
     # Validate function signature against some custom constraints
@@ -190,16 +196,17 @@ def create_schema_for_single_task(
     schema = _remove_attributes_from_descriptions(schema)
 
     # Include titles for custom-model-typed arguments
-    schema = _include_titles(schema)
+    schema = _include_titles(schema, verbose=verbose)
 
     # Include descriptions of function arguments
     function_args_descriptions = _get_function_args_descriptions(
         package_name=package,
         module_relative_path=executable,
         function_name=function_name,
+        verbose=verbose,
     )
     schema = _insert_function_args_descriptions(
-        schema=schema, descriptions=function_args_descriptions
+        schema=schema, descriptions=function_args_descriptions, verbose=verbose
     )
 
     # Merge lists of fractal-tasks-core and user-provided Pydantic models

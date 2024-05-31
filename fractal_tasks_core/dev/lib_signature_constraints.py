@@ -33,7 +33,7 @@ FORBIDDEN_PARAM_NAMES = (
 def _extract_function(
     module_relative_path: str,
     function_name: str,
-    package_name: str = "fractal_tasks_core",
+    package_name: str | None = "fractal_tasks_core",
 ) -> Callable:
     """
     Extract function from a module with the same name.

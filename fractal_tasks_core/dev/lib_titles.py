@@ -19,7 +19,8 @@ _Schema = dict[str, Any]
 
 
 def _include_titles_for_properties(
-    properties: dict[str, dict]
+    properties: dict[str, dict],
+    verbose: bool = False,
 ) -> dict[str, dict]:
     """
     Scan through properties of a JSON Schema, and set their title when it is
@@ -40,7 +41,7 @@ def _include_titles_for_properties(
     return new_properties
 
 
-def _include_titles(schema: _Schema) -> _Schema:
+def _include_titles(schema: _Schema, verbose: bool = False) -> _Schema:
     """
     Include property titles, when missing.
 
@@ -57,13 +58,24 @@ def _include_titles(schema: _Schema) -> _Schema:
     new_schema = schema.copy()
 
     # Update first-level properties (that is, task arguments)
-    new_properties = _include_titles_for_properties(schema["properties"])
+    new_properties = _include_titles_for_properties(
+        schema["properties"], verbose=verbose
+    )
     new_schema["properties"] = new_properties
+
+    if verbose:
+        logging.info(schema)
 
     # Update properties of definitions
     if "definitions" in schema.keys():
         new_definitions = schema["definitions"].copy()
         for def_name, def_schema in new_definitions.items():
+            if "properties" not in def_schema.keys():
+                logging.info(f"properties not in {def_schema.keys()=}")
+                continue
+            if verbose:
+                logging.info(f"{def_name=}")
+                logging.info(f"{def_schema=}")
             new_properties = _include_titles_for_properties(
                 def_schema["properties"]
             )
