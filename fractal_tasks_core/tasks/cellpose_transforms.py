@@ -19,6 +19,12 @@ import numpy as np
 from pydantic import BaseModel
 from pydantic import Field
 from pydantic import root_validator
+from pydantic import validator
+
+from fractal_tasks_core.channels import ChannelInputModel
+from fractal_tasks_core.channels import ChannelNotFoundError
+from fractal_tasks_core.channels import get_channel_from_image_zarr
+from fractal_tasks_core.channels import OmeroChannel
 
 
 logger = logging.getLogger(__name__)
@@ -133,6 +139,156 @@ class CellposeCustomNormalizer(BaseModel):
         internal normalization
         """
         return self.type == "default"
+
+
+class CellposeChannel1InputModel(ChannelInputModel):
+    """
+    Channel input for cellpose with normalization options.
+
+    Attributes:
+        normalize: Validator to handle different normalization scenarios for
+            Cellpose models
+    """
+
+    normalize: CellposeCustomNormalizer
+
+    def get_omero_channel(self, zarr_url) -> OmeroChannel:
+        try:
+            return get_channel_from_image_zarr(
+                image_zarr_path=zarr_url,
+                wavelength_id=self.wavelength_id,
+                label=self.label,
+            )
+        except ChannelNotFoundError as e:
+            logger.warning(
+                f"Channel with wavelength_id: {self.wavelength_id} "
+                f"and label: {self.label} not found, exit from the task.\n"
+                f"Original error: {str(e)}"
+            )
+            return None
+
+
+class CellposeChannel2InputModel(BaseModel):
+    """
+    Channel input for secondary cellpose channel with normalization options.
+
+    The secondary channel is Optional, thus both wavelength_id and label are
+    optional to be set. The `is_set` function shows whether either value was
+    set.
+
+    Attributes:
+        wavelength_id: Unique ID for the channel wavelength, e.g. `A01_C01`.
+        label: Name of the channel.
+        normalize: Validator to handle different normalization scenarios for
+            Cellpose models
+    """
+
+    wavelength_id: Optional[str] = None
+    label: Optional[str] = None
+    normalize: CellposeCustomNormalizer
+
+    @validator("label", always=True)
+    def mutually_exclusive_channel_attributes(cls, v, values):
+        """
+        Check that only 1 of `label` or `wavelength_id` is set.
+        """
+        wavelength_id = values.get("wavelength_id")
+        label = v
+        if wavelength_id and v:
+            raise ValueError(
+                "`wavelength_id` and `label` cannot be both set "
+                f"(given {wavelength_id=} and {label=})."
+            )
+        return v
+
+    def is_set(self):
+        if self.wavelength_id or self.label:
+            return True
+        return False
+
+    def get_omero_channel(self, zarr_url) -> OmeroChannel:
+        try:
+            return get_channel_from_image_zarr(
+                image_zarr_path=zarr_url,
+                wavelength_id=self.wavelength_id,
+                label=self.label,
+            )
+        except ChannelNotFoundError as e:
+            logger.warning(
+                f"Second channel with wavelength_id: {self.wavelength_id} "
+                f"and label: {self.label} not found, exit from the task.\n"
+                f"Original error: {str(e)}"
+            )
+            return None
+
+
+def _normalize_cellpose_channels(
+    x: np.ndarray,
+    channels: list[int],
+    normalize: CellposeCustomNormalizer,
+    normalize2: CellposeCustomNormalizer,
+) -> np.ndarray:
+    """
+    Normalize a cellpose input array by channel.
+
+    Args:
+        x: 4D numpy array.
+        channels: Which channels to use. If only one channel is provided, `[0,
+            0]` should be used. If two channels are provided (the first
+            dimension of `x` has length of 2), `[1, 2]` should be used
+            (`x[0, :, :,:]` contains the membrane channel and
+            `x[1, :, :, :]` contains the nuclear channel).
+        normalize: By default, data is normalized so 0.0=1st percentile and
+            1.0=99th percentile of image intensities in each channel.
+            This automatic normalization can lead to issues when the image to
+            be segmented is very sparse. You can turn off the default
+            rescaling. With the "custom" option, you can either provide your
+            own rescaling percentiles or fixed rescaling upper and lower
+            bound integers.
+        normalize2: Normalization options for channel 2. If one channel is
+            normalized with default settings, both channels need to be
+            normalized with default settings.
+
+    """
+    # Optionally perform custom normalization
+    # normalize channels separately, if normalize2 is provided:
+    if channels == [1, 2]:
+        # If run in single channel mode, fails (specified as channel = [0, 0])
+        if (normalize.type == "default") != (normalize2.type == "default"):
+            raise ValueError(
+                "ERROR in normalization:"
+                f" {normalize.type=} and {normalize2.type=}."
+                " Either both need to be 'default', or none of them."
+            )
+        if normalize.type == "custom":
+            x[channels[0] - 1 : channels[0]] = normalized_img(
+                x[channels[0] - 1 : channels[0]],
+                lower_p=normalize.lower_percentile,
+                upper_p=normalize.upper_percentile,
+                lower_bound=normalize.lower_bound,
+                upper_bound=normalize.upper_bound,
+            )
+        if normalize2.type == "custom":
+            x[channels[1] - 1 : channels[1]] = normalized_img(
+                x[channels[1] - 1 : channels[1]],
+                lower_p=normalize2.lower_percentile,
+                upper_p=normalize2.upper_percentile,
+                lower_bound=normalize2.lower_bound,
+                upper_bound=normalize2.upper_bound,
+            )
+
+    # otherwise, use first normalize to normalize all channels:
+    else:
+        if normalize.type == "custom":
+            x = normalized_img(
+                x,
+                lower_p=normalize.lower_percentile,
+                upper_p=normalize.upper_percentile,
+                lower_bound=normalize.lower_bound,
+                upper_bound=normalize.upper_bound,
+            )
+
+    return x
 
 
 def normalized_img(

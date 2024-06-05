@@ -29,10 +29,6 @@ from cellpose import models
 from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
-from fractal_tasks_core.channels import ChannelInputModel
-from fractal_tasks_core.channels import ChannelNotFoundError
-from fractal_tasks_core.channels import get_channel_from_image_zarr
-from fractal_tasks_core.channels import OmeroChannel
 from fractal_tasks_core.labels import prepare_label_group
 from fractal_tasks_core.masked_loading import masked_loading_wrapper
 from fractal_tasks_core.ngff import load_NgffImageMeta
@@ -53,9 +49,17 @@ from fractal_tasks_core.roi import is_ROI_table_valid
 from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
 from fractal_tasks_core.tasks.cellpose_transforms import (
+    _normalize_cellpose_channels,
+)
+from fractal_tasks_core.tasks.cellpose_transforms import (
+    CellposeChannel1InputModel,
+)
+from fractal_tasks_core.tasks.cellpose_transforms import (
+    CellposeChannel2InputModel,
+)
+from fractal_tasks_core.tasks.cellpose_transforms import (
     CellposeCustomNormalizer,
 )
-from fractal_tasks_core.tasks.cellpose_transforms import normalized_img
 from fractal_tasks_core.utils import rescale_datasets
 
 logger = logging.getLogger(__name__)
@@ -110,7 +114,9 @@ def segment_ROI(
             rescaling. With the "custom" option, you can either provide your
             own rescaling percentiles or fixed rescaling upper and lower
             bound integers.
-        normalize2: If provided, will normalize channel2 separately.
+        normalize2: Normalization options for channel 2. If one channel is
+            normalized with default settings, both channels need to be
+            normalized with default settings.
         label_dtype: Label images are cast into this `np.dtype`.
         augment: Whether to use cellpose augmentation to tile images with
             overlap.
@@ -142,54 +148,7 @@ def segment_ROI(
         f" {flow_threshold=} |"
         f" {normalize.type=}"
     )
-
-    # Optionally perform custom normalization
-    # normalize channels separately, if normalize2 is provided:
-    if normalize2:
-        if len(channels) != 2:
-            raise ValueError(
-                "ERROR in normalization: channels should have length=2"
-                f" but has length={len(channels)}."
-            )
-        if 0 in channels:
-            raise ValueError(
-                "ERROR in normalization:"
-                f" 'normalize2' was provided and {channels=}."
-                " Cannot do separate normalization if channels contains '0'"
-            )
-        if (normalize.type == "default") != (normalize2.type == "default"):
-            raise ValueError(
-                "ERROR in normalization:"
-                f" {normalize.type=} and {normalize2.type=}."
-                " Either both need to be 'default', or none of them."
-            )
-        if normalize.type == "custom":
-            x[channels[0]-1:channels[0]] = normalized_img(
-                x[channels[0]-1:channels[0]],
-                lower_p=normalize.lower_percentile,
-                upper_p=normalize.upper_percentile,
-                lower_bound=normalize.lower_bound,
-                upper_bound=normalize.upper_bound,
-            )
-        if normalize2.type == "custom":
-            x[channels[1]-1:channels[1]] = normalized_img(
-                x[channels[1]-1:channels[1]],
-                lower_p=normalize2.lower_percentile,
-                upper_p=normalize2.upper_percentile,
-                lower_bound=normalize2.lower_bound,
-                upper_bound=normalize2.upper_bound,
-            )
-
-    # otherwise, use first normalize to normalize all channels:
-    else:
-        if normalize.type == "custom":
-            x = normalized_img(
-                x,
-                lower_p=normalize.lower_percentile,
-                upper_p=normalize.upper_percentile,
-                lower_bound=normalize.lower_bound,
-                upper_bound=normalize.upper_bound,
-            )
+    x = _normalize_cellpose_channels(x, channels, normalize, normalize2)
 
     # Actual labeling
     t0 = time.perf_counter()
@@ -241,8 +200,8 @@ def cellpose_segmentation(
     zarr_url: str,
     # Core parameters
     level: int,
-    channel: ChannelInputModel,
-    channel2: Optional[ChannelInputModel] = None,
+    channel: CellposeChannel1InputModel,
+    channel2: Optional[CellposeChannel2InputModel] = None,
     input_ROI_table: str = "FOV_ROI_table",
     output_ROI_table: Optional[str] = None,
     output_label_name: Optional[str] = None,
@@ -254,8 +213,6 @@ def cellpose_segmentation(
     # Advanced parameters
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
-    normalize: CellposeCustomNormalizer = CellposeCustomNormalizer(),
-    normalize2: Optional[CellposeCustomNormalizer] = None,
     anisotropy: Optional[float] = None,
     min_size: int = 15,
     augment: bool = False,
@@ -357,6 +314,12 @@ def cellpose_segmentation(
             image sizes, masks are stitched in 3D to return volume segmentation
         overwrite: If `True`, overwrite the task output.
     """
+    # Ensure channel2 is always available as a CellposeChannel2InputModel
+    # We are keeping it Optional in the input for Fractal interface reasons.
+    if channel2 is None:
+        channel2 = CellposeChannel2InputModel(
+            channel=None, normalize=CellposeCustomNormalizer()
+        )
 
     # Set input path
     logger.info(f"{zarr_url=}")
@@ -383,41 +346,24 @@ def cellpose_segmentation(
     )
 
     # Find channel index
-    try:
-        tmp_channel: OmeroChannel = get_channel_from_image_zarr(
-            image_zarr_path=zarr_url,
-            wavelength_id=channel.wavelength_id,
-            label=channel.label,
-        )
-    except ChannelNotFoundError as e:
-        logger.warning(
-            "Channel not found, exit from the task.\n"
-            f"Original error: {str(e)}"
-        )
-        return None
-    ind_channel = tmp_channel.index
+    omero_channel = channel.get_omero_channel(zarr_url)
+    if omero_channel:
+        ind_channel = omero_channel.index
+    else:
+        return
 
     # Find channel index for second channel, if one is provided
-    if channel2:
-        try:
-            tmp_channel_c2: OmeroChannel = get_channel_from_image_zarr(
-                image_zarr_path=zarr_url,
-                wavelength_id=channel2.wavelength_id,
-                label=channel2.label,
-            )
-        except ChannelNotFoundError as e:
-            logger.warning(
-                f"Second channel with wavelength_id: {channel2.wavelength_id} "
-                f"and label: {channel2.label} not found, exit from the task.\n"
-                f"Original error: {str(e)}"
-            )
-            return None
-        ind_channel_c2 = tmp_channel_c2.index
+    if channel2.is_set():
+        omero_channel_2 = channel2.get_omero_channel(zarr_url)
+        if omero_channel_2:
+            ind_channel_c2 = omero_channel_2.index
+        else:
+            return
 
     # Set channel label
     if output_label_name is None:
         try:
-            channel_label = tmp_channel.label
+            channel_label = omero_channel.label
             output_label_name = f"label_{channel_label}"
         except (KeyError, IndexError):
             output_label_name = f"label_{ind_channel}"
@@ -425,7 +371,7 @@ def cellpose_segmentation(
     # Load ZYX data
     data_zyx = da.from_zarr(f"{zarr_url}/{level}")[ind_channel]
     logger.info(f"{data_zyx.shape=}")
-    if channel2:
+    if channel2.is_set():
         data_zyx_c2 = da.from_zarr(f"{zarr_url}/{level}")[ind_channel_c2]
         logger.info(f"Second channel: {data_zyx_c2.shape=}")
 
@@ -565,7 +511,7 @@ def cellpose_segmentation(
     logger.info("Total well shape/chunks:")
     logger.info(f"{data_zyx.shape}")
     logger.info(f"{data_zyx.chunks}")
-    if channel2:
+    if channel2.is_set():
         logger.info("Dual channel input for cellpose model")
         logger.info(f"{data_zyx_c2.shape}")
         logger.info(f"{data_zyx_c2.chunks}")
@@ -592,7 +538,7 @@ def cellpose_segmentation(
         logger.info(f"Now processing ROI {i_ROI+1}/{num_ROIs}")
 
         # Prepare single-channel or dual-channel input for cellpose
-        if channel2:
+        if channel2.is_set():
             # Dual channel mode, first channel is the membrane channel
             img_1 = load_region(
                 data_zyx,
@@ -626,8 +572,8 @@ def cellpose_segmentation(
             diameter=diameter_level0 / coarsening_xy**level,
             cellprob_threshold=cellprob_threshold,
             flow_threshold=flow_threshold,
-            normalize=normalize,
-            normalize2=normalize2,
+            normalize=channel.normalize,
+            normalize2=channel2.normalize,
             min_size=min_size,
             augment=augment,
             net_avg=net_avg,

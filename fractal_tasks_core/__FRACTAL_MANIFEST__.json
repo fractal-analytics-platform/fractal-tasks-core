@@ -698,12 +698,12 @@
             "description": "Pyramid level of the image to be segmented. Choose `0` to process at full resolution."
           },
           "channel": {
-            "$ref": "#/definitions/ChannelInputModel",
+            "$ref": "#/definitions/CellposeChannel1InputModel",
             "title": "Channel",
             "description": "Primary channel for segmentation; requires either `wavelength_id` (e.g. `A01_C01`) or `label` (e.g. `DAPI`)."
           },
           "channel2": {
-            "$ref": "#/definitions/ChannelInputModel",
+            "$ref": "#/definitions/CellposeChannel2InputModel",
             "title": "Channel2",
             "description": "Second channel for segmentation (in the same format as `channel`). If specified, cellpose runs in dual channel mode. For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker."
           },
@@ -768,27 +768,6 @@
             "default": 0.4,
             "type": "number",
             "description": "Parameter of `CellposeModel.eval` method. Valid values between 0.0 and 1.0. From Cellpose documentation: \"Increase this threshold if cellpose is not returning as many ROIs as you\u2019d expect. Similarly, decrease this threshold if cellpose is returning too many ill-shaped ROIs.\""
-          },
-          "normalize": {
-            "title": "Normalize",
-            "default": {
-              "type": "default",
-              "lower_percentile": null,
-              "upper_percentile": null,
-              "lower_bound": null,
-              "upper_bound": null
-            },
-            "allOf": [
-              {
-                "$ref": "#/definitions/CellposeCustomNormalizer"
-              }
-            ],
-            "description": "By default, data is normalized so 0.0=1st percentile and 1.0=99th percentile of image intensities in each channel. This automatic normalization can lead to issues when the image to be segmented is very sparse. You can turn off the default rescaling. With the \"custom\" option, you can either provide your own rescaling percentiles or fixed rescaling upper and lower bound integers."
-          },
-          "normalize2": {
-            "$ref": "#/definitions/CellposeCustomNormalizer",
-            "title": "Normalize2",
-            "description": "If provided, will normalize channel2 separately."
           },
           "anisotropy": {
             "title": "Anisotropy",
@@ -887,23 +866,6 @@
         ],
         "additionalProperties": false,
         "definitions": {
-          "ChannelInputModel": {
-            "title": "ChannelInputModel",
-            "description": "A channel which is specified by either `wavelength_id` or `label`.",
-            "type": "object",
-            "properties": {
-              "wavelength_id": {
-                "title": "Wavelength Id",
-                "type": "string",
-                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`."
-              },
-              "label": {
-                "title": "Label",
-                "type": "string",
-                "description": "Name of the channel."
-              }
-            }
-          },
           "CellposeCustomNormalizer": {
             "title": "CellposeCustomNormalizer",
             "description": "Validator to handle different normalization scenarios for Cellpose models",
@@ -945,6 +907,50 @@
                 "description": "Explicit upper bound value to rescale the image at. Needs to be an integer, e.g. 2000. You can only specify percentiles or bounds, not both."
               }
             }
+          },
+          "CellposeChannel1InputModel": {
+            "title": "CellposeChannel1InputModel",
+            "description": "Channel input for cellpose with normalization options.",
+            "type": "object",
+            "properties": {
+              "wavelength_id": {
+                "title": "Wavelength Id",
+                "type": "string"
+              },
+              "label": {
+                "title": "Label",
+                "type": "string"
+              },
+              "normalize": {
+                "$ref": "#/definitions/CellposeCustomNormalizer",
+                "title": "Normalize"
+              }
+            },
+            "required": [
+              "normalize"
+            ]
+          },
+          "CellposeChannel2InputModel": {
+            "title": "CellposeChannel2InputModel",
+            "description": "Channel input for secondary cellpose channel with normalization options.",
+            "type": "object",
+            "properties": {
+              "wavelength_id": {
+                "title": "Wavelength Id",
+                "type": "string"
+              },
+              "label": {
+                "title": "Label",
+                "type": "string"
+              },
+              "normalize": {
+                "$ref": "#/definitions/CellposeCustomNormalizer",
+                "title": "Normalize"
+              }
+            },
+            "required": [
+              "normalize"
+            ]
           }
         }
       },
