@@ -67,6 +67,16 @@ FRACTAL_TASKS_CORE_PYDANTIC_MODELS = [
     ),
     (
         "fractal_tasks_core",
+        "tasks/cellpose_transforms.py",
+        "CellposeChannel1InputModel",
+    ),
+    (
+        "fractal_tasks_core",
+        "tasks/cellpose_transforms.py",
+        "CellposeChannel2InputModel",
+    ),
+    (
+        "fractal_tasks_core",
         "tasks/io_models.py",
         "MultiplexingAcquisition",
     ),

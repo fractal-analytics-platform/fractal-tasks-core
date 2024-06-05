@@ -700,7 +700,7 @@
           "channel": {
             "$ref": "#/definitions/CellposeChannel1InputModel",
             "title": "Channel",
-            "description": "Primary channel for segmentation; requires either `wavelength_id` (e.g. `A01_C01`) or `label` (e.g. `DAPI`)."
+            "description": "Primary channel for segmentation; requires either `wavelength_id` (e.g. `A01_C01`) or `label` (e.g. `DAPI`), but not both. Also contains normalization options. By default, data is normalized so 0.0=1st percentile and 1.0=99th percentile of image intensities in each channel. This automatic normalization can lead to issues when the image to be segmented is very sparse. You can turn off the default rescaling. With the \"custom\" option, you can either provide your own rescaling percentiles or fixed rescaling upper and lower bound integers."
           },
           "channel2": {
             "$ref": "#/definitions/CellposeChannel2InputModel",
@@ -915,15 +915,18 @@
             "properties": {
               "wavelength_id": {
                 "title": "Wavelength Id",
-                "type": "string"
+                "type": "string",
+                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`. Can only be specified if label is not set."
               },
               "label": {
                 "title": "Label",
-                "type": "string"
+                "type": "string",
+                "description": "Name of the channel. Can only be specified if wavelength_id is not set."
               },
               "normalize": {
                 "$ref": "#/definitions/CellposeCustomNormalizer",
-                "title": "Normalize"
+                "title": "Normalize",
+                "description": "Validator to handle different normalization scenarios for Cellpose models"
               }
             },
             "required": [
@@ -937,15 +940,18 @@
             "properties": {
               "wavelength_id": {
                 "title": "Wavelength Id",
-                "type": "string"
+                "type": "string",
+                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`. Can only be specified if label is not set."
               },
               "label": {
                 "title": "Label",
-                "type": "string"
+                "type": "string",
+                "description": "Name of the channel. Can only be specified if wavelength_id is not set."
               },
               "normalize": {
                 "$ref": "#/definitions/CellposeCustomNormalizer",
-                "title": "Normalize"
+                "title": "Normalize",
+                "description": "Validator to handle different normalization scenarios for Cellpose models"
               }
             },
             "required": [
@@ -1358,12 +1364,12 @@
               "wavelength_id": {
                 "title": "Wavelength Id",
                 "type": "string",
-                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`."
+                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`. Can only be specified if label is not set."
               },
               "label": {
                 "title": "Label",
                 "type": "string",
-                "description": "Name of the channel."
+                "description": "Name of the channel. Can only be specified if wavelength_id is not set."
               }
             }
           },

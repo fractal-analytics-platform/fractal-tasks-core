@@ -146,6 +146,10 @@ class CellposeChannel1InputModel(ChannelInputModel):
     Channel input for cellpose with normalization options.
 
     Attributes:
+        wavelength_id: Unique ID for the channel wavelength, e.g. `A01_C01`.
+            Can only be specified if label is not set.
+        label: Name of the channel. Can only be specified if wavelength_id is
+            not set.
         normalize: Validator to handle different normalization scenarios for
             Cellpose models
     """
@@ -178,7 +182,9 @@ class CellposeChannel2InputModel(BaseModel):
 
     Attributes:
         wavelength_id: Unique ID for the channel wavelength, e.g. `A01_C01`.
-        label: Name of the channel.
+            Can only be specified if label is not set.
+        label: Name of the channel. Can only be specified if wavelength_id is
+            not set.
         normalize: Validator to handle different normalization scenarios for
             Cellpose models
     """

@@ -238,7 +238,15 @@ def cellpose_segmentation(
         level: Pyramid level of the image to be segmented. Choose `0` to
             process at full resolution.
         channel: Primary channel for segmentation; requires either
-            `wavelength_id` (e.g. `A01_C01`) or `label` (e.g. `DAPI`).
+            `wavelength_id` (e.g. `A01_C01`) or `label` (e.g. `DAPI`), but not
+            both. Also contains normalization options. By default, data is
+            normalized so 0.0=1st percentile and 1.0=99th percentile of image
+            intensities in each channel.
+            This automatic normalization can lead to issues when the image to
+            be segmented is very sparse. You can turn off the default
+            rescaling. With the "custom" option, you can either provide your
+            own rescaling percentiles or fixed rescaling upper and lower
+            bound integers.
         channel2: Second channel for segmentation (in the same format as
             `channel`). If specified, cellpose runs in dual channel mode.
             For dual channel segmentation of cells, the first channel should
@@ -278,14 +286,6 @@ def cellpose_segmentation(
             this threshold if cellpose is not returning as many ROIs as you’d
             expect. Similarly, decrease this threshold if cellpose is returning
             too many ill-shaped ROIs."
-        normalize: By default, data is normalized so 0.0=1st percentile and
-            1.0=99th percentile of image intensities in each channel.
-            This automatic normalization can lead to issues when the image to
-            be segmented is very sparse. You can turn off the default
-            rescaling. With the "custom" option, you can either provide your
-            own rescaling percentiles or fixed rescaling upper and lower
-            bound integers.
-        normalize2: If provided, will normalize channel2 separately.
         anisotropy: Ratio of the pixel sizes along Z and XY axis (ignored if
             the image is not three-dimensional). If `None`, it is inferred from
             the OME-NGFF metadata.
