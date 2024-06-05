@@ -13,7 +13,6 @@ import pytest
 from devtools import debug
 from pytest import MonkeyPatch
 
-from fractal_tasks_core.channels import ChannelInputModel
 from fractal_tasks_core.ngff.zarr_utils import load_NgffImageMeta
 from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
 from fractal_tasks_core.roi import (
@@ -32,6 +31,12 @@ from fractal_tasks_core.tasks.calculate_registration_image_based import (
 )
 from fractal_tasks_core.tasks.cellpose_segmentation import (
     cellpose_segmentation,
+)
+from fractal_tasks_core.tasks.cellpose_transforms import (
+    CellposeChannel1InputModel,
+)
+from fractal_tasks_core.tasks.cellpose_transforms import (
+    CellposeCustomNormalizer,
 )
 from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_compute import (
     cellvoyager_to_ome_zarr_compute,
@@ -272,10 +277,13 @@ def test_multiplexing_registration(
     # Run cellpose to create a label image that needs to be handled in
     # registration
     # Per-FOV labeling
+    channel = CellposeChannel1InputModel(
+        wavelength_id="A01_C01", normalize=CellposeCustomNormalizer()
+    )
     for zarr_url in zarr_urls_2D:
         cellpose_segmentation(
             zarr_url=zarr_url,
-            channel=ChannelInputModel(wavelength_id="A01_C01"),
+            channel=channel,
             level=1,
         )
 

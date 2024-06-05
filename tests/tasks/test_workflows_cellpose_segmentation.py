@@ -32,9 +32,14 @@ from ._validation import check_file_number
 from ._validation import validate_axes_and_coordinateTransformations
 from ._validation import validate_schema
 from .lib_empty_ROI_table import _add_empty_ROI_table
-from fractal_tasks_core.channels import ChannelInputModel
 from fractal_tasks_core.tasks.cellpose_segmentation import (
     cellpose_segmentation,
+)
+from fractal_tasks_core.tasks.cellpose_transforms import (
+    CellposeChannel1InputModel,
+)
+from fractal_tasks_core.tasks.cellpose_transforms import (
+    CellposeCustomNormalizer,
 )
 from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_compute import (
     cellvoyager_to_ome_zarr_compute,
@@ -182,16 +187,24 @@ def test_failures(
             level=3,
         )
         # Attempt 1
+        channel = CellposeChannel1InputModel(
+            wavelength_id="invalid_wavelength_id",
+            normalize=CellposeCustomNormalizer(),
+        )
         cellpose_segmentation(
             **kwargs,
-            channel=ChannelInputModel(wavelength_id="invalid_wavelength_id"),
+            channel=channel,
         )
         assert "ChannelNotFoundError" in caplog.records[0].msg
 
         # Attempt 2
+        channel = CellposeChannel1InputModel(
+            label="invalid_channel_name",
+            normalize=CellposeCustomNormalizer(),
+        )
         cellpose_segmentation(
             **kwargs,
-            channel=ChannelInputModel(label="invalid_channel_name"),
+            channel=channel,
         )
         assert "ChannelNotFoundError" in caplog.records[0].msg
         assert "ChannelNotFoundError" in caplog.records[1].msg
@@ -200,9 +213,10 @@ def test_failures(
         with pytest.raises(ValueError):
             cellpose_segmentation(
                 **kwargs,
-                channel=ChannelInputModel(
+                channel=CellposeChannel1InputModel(
                     wavelength_id="A01_C01",
                     label="invalid_channel_name",
+                    normalize=CellposeCustomNormalizer(),
                 ),
             )
 
@@ -237,11 +251,15 @@ def test_workflow_with_per_FOV_labeling(
     debug(zarr_dir)
     debug(zarr_urls)
 
+    channel = CellposeChannel1InputModel(
+        wavelength_id="A01_C01", normalize=CellposeCustomNormalizer()
+    )
+
     # Per-FOV labeling
     for zarr_url in zarr_urls:
         cellpose_segmentation(
             zarr_url=zarr_url,
-            channel=ChannelInputModel(wavelength_id="A01_C01"),
+            channel=channel,
             level=3,
             relabeling=True,
             diameter_level0=80.0,
@@ -296,11 +314,17 @@ def test_workflow_with_multi_channel_input(
     debug(zarr_urls)
 
     # Per-FOV labeling
+    channel = CellposeChannel1InputModel(
+        wavelength_id="A01_C01", normalize=CellposeCustomNormalizer()
+    )
+    channel2 = CellposeChannel1InputModel(
+        wavelength_id="A01_C01", normalize=CellposeCustomNormalizer()
+    )
     for zarr_url in zarr_urls:
         cellpose_segmentation(
             zarr_url=zarr_url,
-            channel=ChannelInputModel(wavelength_id="A01_C01"),
-            channel2=ChannelInputModel(wavelength_id="A01_C01"),
+            channel=channel,
+            channel2=channel2,
             level=3,
             relabeling=True,
             diameter_level0=80.0,
@@ -345,11 +369,14 @@ def test_workflow_with_per_FOV_labeling_2D(
         remove_labels=True,
     )
 
+    channel = CellposeChannel1InputModel(
+        wavelength_id="A01_C01", normalize=CellposeCustomNormalizer()
+    )
     # Per-FOV labeling
     for zarr_url in zarr_urls:
         cellpose_segmentation(
             zarr_url=zarr_url,
-            channel=ChannelInputModel(wavelength_id="A01_C01"),
+            channel=channel,
             level=2,
             relabeling=True,
             diameter_level0=80.0,
@@ -429,11 +456,14 @@ def test_workflow_with_per_well_labeling_2D(
             overwrite=True,
         )["image_list_updates"]
 
+    channel = CellposeChannel1InputModel(
+        wavelength_id="A01_C01", normalize=CellposeCustomNormalizer()
+    )
     # Whole-well labeling
     for zarr_url in zarr_urls:
         cellpose_segmentation(
             zarr_url=zarr_url,
-            channel=ChannelInputModel(wavelength_id="A01_C01"),
+            channel=channel,
             level=2,
             input_ROI_table="well_ROI_table",
             relabeling=True,
@@ -483,11 +513,14 @@ def test_workflow_bounding_box(
     debug(zarr_dir)
     debug(zarr_urls)
 
+    channel = CellposeChannel1InputModel(
+        wavelength_id="A01_C01", normalize=CellposeCustomNormalizer()
+    )
     # Per-FOV labeling
     for zarr_url in zarr_urls:
         cellpose_segmentation(
             zarr_url=zarr_url,
-            channel=ChannelInputModel(wavelength_id="A01_C01"),
+            channel=channel,
             level=3,
             relabeling=True,
             diameter_level0=80.0,
@@ -498,7 +531,7 @@ def test_workflow_bounding_box(
     for zarr_url in zarr_urls:
         cellpose_segmentation(
             zarr_url=zarr_url,
-            channel=ChannelInputModel(wavelength_id="A01_C01"),
+            channel=channel,
             level=3,
             relabeling=True,
             diameter_level0=80.0,
@@ -511,7 +544,7 @@ def test_workflow_bounding_box(
         for zarr_url in zarr_urls:
             cellpose_segmentation(
                 zarr_url=zarr_url,
-                channel=ChannelInputModel(wavelength_id="A01_C01"),
+                channel=channel,
                 level=3,
                 relabeling=True,
                 diameter_level0=80.0,
@@ -565,10 +598,13 @@ def test_workflow_bounding_box_with_overlap(
     debug(zarr_urls)
 
     # Per-FOV labeling
+    channel = CellposeChannel1InputModel(
+        wavelength_id="A01_C01", normalize=CellposeCustomNormalizer()
+    )
     for zarr_url in zarr_urls:
         cellpose_segmentation(
             zarr_url=zarr_url,
-            channel=ChannelInputModel(wavelength_id="A01_C01"),
+            channel=channel,
             level=3,
             relabeling=True,
             diameter_level0=80.0,
@@ -604,7 +640,7 @@ def test_workflow_with_per_FOV_labeling_via_script(
     zarr_url = str(zarr_urls[0])
     task_args = dict(
         zarr_url=zarr_url,
-        channel=dict(wavelength_id="A01_C01"),
+        channel=dict(wavelength_id="A01_C01", normalize={"type": "default"}),
         level=4,
         relabeling=True,
         diameter_level0=80.0,
@@ -675,12 +711,15 @@ def test_workflow_with_per_FOV_labeling_with_empty_FOV_table(
         table_name=TABLE_NAME,
     )
 
+    channel = CellposeChannel1InputModel(
+        wavelength_id="A01_C01", normalize=CellposeCustomNormalizer()
+    )
     # Per-FOV labeling
     for zarr_url in zarr_urls:
         cellpose_segmentation(
             zarr_url=zarr_url,
             input_ROI_table=TABLE_NAME,
-            channel=ChannelInputModel(wavelength_id="A01_C01"),
+            channel=channel,
             level=3,
             relabeling=True,
             diameter_level0=80.0,
@@ -732,11 +771,14 @@ def test_CYX_input(
         make_CYX=True,
     )
 
+    channel = CellposeChannel1InputModel(
+        wavelength_id="A01_C01", normalize=CellposeCustomNormalizer()
+    )
     # Per-FOV labeling
     for zarr_url in zarr_urls:
         cellpose_segmentation(
             zarr_url=zarr_url,
-            channel=ChannelInputModel(wavelength_id="A01_C01"),
+            channel=channel,
             level=0,
             relabeling=True,
             diameter_level0=80.0,
@@ -781,10 +823,13 @@ def test_workflow_secondary_labeling(
     )
 
     # Primary segmentation (organoid)
+    channel = CellposeChannel1InputModel(
+        wavelength_id="A01_C01", normalize=CellposeCustomNormalizer()
+    )
     for zarr_url in zarr_urls:
         cellpose_segmentation(
             zarr_url=zarr_url,
-            channel=ChannelInputModel(wavelength_id="A01_C01"),
+            channel=channel,
             level=0,
             relabeling=True,
             input_ROI_table="FOV_ROI_table",
@@ -812,7 +857,7 @@ def test_workflow_secondary_labeling(
     for zarr_url in zarr_urls:
         cellpose_segmentation(
             zarr_url=zarr_url,
-            channel=ChannelInputModel(wavelength_id="A01_C01"),
+            channel=channel,
             level=0,
             relabeling=True,
             input_ROI_table="organoid_ROI_table",
@@ -857,11 +902,14 @@ def test_workflow_secondary_labeling_no_labels(
         make_CYX=False,
     )
 
+    channel = CellposeChannel1InputModel(
+        wavelength_id="A01_C01", normalize=CellposeCustomNormalizer()
+    )
     # Primary segmentation (organoid)
     for zarr_url in zarr_urls:
         cellpose_segmentation(
             zarr_url=zarr_url,
-            channel=ChannelInputModel(wavelength_id="A01_C01"),
+            channel=channel,
             level=0,
             relabeling=True,
             input_ROI_table="FOV_ROI_table",
@@ -886,7 +934,7 @@ def test_workflow_secondary_labeling_no_labels(
     for zarr_url in zarr_urls:
         cellpose_segmentation(
             zarr_url=zarr_url,
-            channel=ChannelInputModel(wavelength_id="A01_C01"),
+            channel=channel,
             level=0,
             relabeling=True,
             input_ROI_table="organoid_ROI_table",
@@ -927,11 +975,14 @@ def test_workflow_secondary_labeling_two_channels(
         make_CYX=False,
     )
 
+    channel = CellposeChannel1InputModel(
+        wavelength_id="A01_C01", normalize=CellposeCustomNormalizer()
+    )
     # Primary segmentation (organoid)
     for zarr_url in zarr_urls:
         cellpose_segmentation(
             zarr_url=zarr_url,
-            channel=ChannelInputModel(wavelength_id="A01_C01"),
+            channel=channel,
             level=0,
             relabeling=True,
             input_ROI_table="FOV_ROI_table",
@@ -959,8 +1010,8 @@ def test_workflow_secondary_labeling_two_channels(
     for zarr_url in zarr_urls:
         cellpose_segmentation(
             zarr_url=zarr_url,
-            channel=ChannelInputModel(wavelength_id="A01_C01"),
-            channel2=ChannelInputModel(wavelength_id="A01_C01"),
+            channel=channel,
+            channel2=channel,
             level=0,
             relabeling=True,
             input_ROI_table="organoid_ROI_table",
