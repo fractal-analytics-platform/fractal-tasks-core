@@ -32,12 +32,23 @@ def _include_titles_for_properties(
     Args:
         properties: TBD
     """
+    if verbose:
+        logging.info(
+            f"[_include_titles_for_properties] Original properties:\n"
+            f"{properties}"
+        )
+
     new_properties = properties.copy()
     for prop_name, prop in properties.items():
         if "title" not in prop.keys():
             new_prop = prop.copy()
             new_prop["title"] = prop_name.title()
             new_properties[prop_name] = new_prop
+    if verbose:
+        logging.info(
+            f"[_include_titles_for_properties] New properties:\n"
+            f"{new_properties}"
+        )
     return new_properties
 
 
@@ -57,6 +68,10 @@ def _include_titles(schema: _Schema, verbose: bool = False) -> _Schema:
     """
     new_schema = schema.copy()
 
+    if verbose:
+        logging.info("[_include_titles] START")
+        logging.info(f"[_include_titles] Input schema:\n{schema}")
+
     # Update first-level properties (that is, task arguments)
     new_properties = _include_titles_for_properties(
         schema["properties"], verbose=verbose
@@ -64,23 +79,28 @@ def _include_titles(schema: _Schema, verbose: bool = False) -> _Schema:
     new_schema["properties"] = new_properties
 
     if verbose:
-        logging.info(schema)
+        logging.info("[_include_titles] Titles for properties now included.")
 
     # Update properties of definitions
     if "definitions" in schema.keys():
         new_definitions = schema["definitions"].copy()
         for def_name, def_schema in new_definitions.items():
             if "properties" not in def_schema.keys():
-                logging.info(f"properties not in {def_schema.keys()=}")
-                continue
-            if verbose:
-                logging.info(f"{def_name=}")
-                logging.info(f"{def_schema=}")
-            new_properties = _include_titles_for_properties(
-                def_schema["properties"]
-            )
-            new_definitions[def_name]["properties"] = new_properties
+                if verbose:
+                    logging.info(
+                        f"Definition schema {def_name} has no 'properties' "
+                        "key. Skip."
+                    )
+            else:
+                new_properties = _include_titles_for_properties(
+                    def_schema["properties"], verbose=verbose
+                )
+                new_definitions[def_name]["properties"] = new_properties
         new_schema["definitions"] = new_definitions
 
-    logging.info("[_include_titles] END")
+    if verbose:
+        logging.info(
+            "[_include_titles] Titles for definitions properties now included."
+        )
+        logging.info("[_include_titles] END")
     return new_schema
