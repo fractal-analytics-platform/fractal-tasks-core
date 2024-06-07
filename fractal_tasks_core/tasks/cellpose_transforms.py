@@ -141,6 +141,65 @@ class CellposeCustomNormalizer(BaseModel):
         return self.type == "default"
 
 
+class CellposeModelParams(BaseModel):
+    """
+    Advanced Cellpose Model Parameters
+
+    Attributes:
+        cellprob_threshold: Parameter of `CellposeModel.eval` method. Valid
+            values between -6 to 6. From Cellpose documentation: "Decrease this
+            threshold if cellpose is not returning as many ROIs as you'd
+            expect. Similarly, increase this threshold if cellpose is returning
+            too ROIs particularly from dim areas."
+        flow_threshold: Parameter of `CellposeModel.eval` method. Valid
+            values between 0.0 and 1.0. From Cellpose documentation: "Increase
+            this threshold if cellpose is not returning as many ROIs as you'd
+            expect. Similarly, decrease this threshold if cellpose is returning
+            too many ill-shaped ROIs."
+        anisotropy: Ratio of the pixel sizes along Z and XY axis (ignored if
+            the image is not three-dimensional). If unset, it is inferred from
+            the OME-NGFF metadata.
+        min_size: Parameter of `CellposeModel` class. Minimum size of the
+            segmented objects (in pixels). Use `-1` to turn off the size
+            filter.
+        augment: Parameter of `CellposeModel` class. Whether to use cellpose
+            augmentation to tile images with overlap.
+        net_avg: Parameter of `CellposeModel` class. Whether to use cellpose
+            net averaging to run the 4 built-in networks (useful for `nuclei`,
+            `cyto` and `cyto2`, not sure it works for the others).
+        use_gpu: If `False`, always use the CPU; if `True`, use the GPU if
+            possible (as defined in `cellpose.core.use_gpu()`) and fall-back
+            to the CPU otherwise.
+        batch_size: number of 224x224 patches to run simultaneously on the GPU
+            (can make smaller or bigger depending on GPU memory usage)
+        invert: invert image pixel intensity before running network (if True,
+            image is also normalized)
+        tile: tiles image to ensure GPU/CPU memory usage limited (recommended)
+        tile_overlap: fraction of overlap of tiles when computing flows
+        resample: run dynamics at original image size (will be slower but
+            create more accurate boundaries)
+        interp: interpolate during 2D dynamics (not available in 3D)
+            (in previous versions it was False, now it defaults to True)
+        stitch_threshold: if stitch_threshold>0.0 and not do_3D and equal
+            image sizes, masks are stitched in 3D to return volume segmentation
+    """
+
+    cellprob_threshold: float = (0.0,)
+    flow_threshold: float = (0.4,)
+    anisotropy: Optional[float] = (None,)
+    min_size: int = (15,)
+    augment: bool = (False,)
+    net_avg: bool = (False,)
+    use_gpu: bool = (True,)
+    batch_size: int = (8,)
+    invert: bool = (False,)
+    tile: bool = (True,)
+    tile_overlap: float = (0.1,)
+    resample: bool = (True,)
+    interp: bool = (True,)
+    stitch_threshold: float = (0.0,)
+
+
 class CellposeChannel1InputModel(ChannelInputModel):
     """
     Channel input for cellpose with normalization options.
