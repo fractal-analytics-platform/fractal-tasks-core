@@ -1,10 +1,10 @@
 import numpy as np
 import pytest
 
-from fractal_tasks_core.tasks.cellpose_transforms import (
+from fractal_tasks_core.tasks.cellpose_utils import (
     CellposeCustomNormalizer,
 )
-from fractal_tasks_core.tasks.cellpose_transforms import (
+from fractal_tasks_core.tasks.cellpose_utils import (
     normalized_img,
 )
 

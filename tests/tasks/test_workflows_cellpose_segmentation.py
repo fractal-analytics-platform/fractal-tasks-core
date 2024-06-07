@@ -35,10 +35,10 @@ from .lib_empty_ROI_table import _add_empty_ROI_table
 from fractal_tasks_core.tasks.cellpose_segmentation import (
     cellpose_segmentation,
 )
-from fractal_tasks_core.tasks.cellpose_transforms import (
+from fractal_tasks_core.tasks.cellpose_utils import (
     CellposeChannel1InputModel,
 )
-from fractal_tasks_core.tasks.cellpose_transforms import (
+from fractal_tasks_core.tasks.cellpose_utils import (
     CellposeCustomNormalizer,
 )
 from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_compute import (

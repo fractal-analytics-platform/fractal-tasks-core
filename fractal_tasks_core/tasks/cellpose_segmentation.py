@@ -48,19 +48,19 @@ from fractal_tasks_core.roi import get_overlapping_pairs_3D
 from fractal_tasks_core.roi import is_ROI_table_valid
 from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
-from fractal_tasks_core.tasks.cellpose_transforms import (
+from fractal_tasks_core.tasks.cellpose_utils import (
     _normalize_cellpose_channels,
 )
-from fractal_tasks_core.tasks.cellpose_transforms import (
+from fractal_tasks_core.tasks.cellpose_utils import (
     CellposeChannel1InputModel,
 )
-from fractal_tasks_core.tasks.cellpose_transforms import (
+from fractal_tasks_core.tasks.cellpose_utils import (
     CellposeChannel2InputModel,
 )
-from fractal_tasks_core.tasks.cellpose_transforms import (
+from fractal_tasks_core.tasks.cellpose_utils import (
     CellposeCustomNormalizer,
 )
-from fractal_tasks_core.tasks.cellpose_transforms import (
+from fractal_tasks_core.tasks.cellpose_utils import (
     CellposeModelParams,
 )
 from fractal_tasks_core.utils import rescale_datasets

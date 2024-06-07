@@ -2,6 +2,11 @@
 
 * Add normalization option for second channel in cellpose_segmentation task.
 
+# 1.1.0
+* Refactor Cellpose Task inputs: Combine Channel inputs & channel normalization parameters (\#738).
+* Refactor Cellpose Task inputs: Group advanced Cellpose parameters into the `CellposeModelParams` model that's provided via `advanced_cellpose_model_params` (\#738).
+* Rename `task.cellpose_transforms` into `tasks.cellpose_utils` (\#738).
+
 # 1.0.2
 * Fix bug in plate metadata in MIP task (in the copy_ome_zarr_hcs_plate init function) (\#736).
 
