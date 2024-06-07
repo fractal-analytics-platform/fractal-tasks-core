@@ -11,7 +11,7 @@ from fractal_tasks_core.dev.lib_descriptions import (
 def test_get_function_args_descriptions():
     args_descriptions = _get_function_args_descriptions(
         package_name="fractal_tasks_core",
-        module_relative_path="dev/lib_signature_constraints.py",
+        module_path="dev/lib_signature_constraints.py",
         function_name="_extract_function",
     )
     debug(args_descriptions)

@@ -10,6 +10,7 @@
 # Zurich.
 import ast
 import logging
+import os
 from importlib import import_module
 from pathlib import Path
 from typing import Optional
@@ -38,34 +39,44 @@ def _sanitize_description(string: str) -> str:
 
 
 def _get_function_docstring(
+    *,
     package_name: Optional[str],
-    module_relative_path: str,
+    module_path: str,
     function_name: str,
     verbose: bool = False,
 ) -> str:
     """
     Extract docstring from a function.
 
+
     Args:
         package_name: Example `fractal_tasks_core`.
-        module_relative_path: Example `tasks/create_ome_zarr.py`.
+        module_path:
+            This must be an absolute path like `/some/module.py` (if
+            `package_name` is `None`) or a relative path like `something.py`
+            (if `package_name` is not `None`).
         function_name: Example `create_ome_zarr`.
     """
 
-    if not module_relative_path.endswith(".py"):
-        raise ValueError(f"Module {module_relative_path} must end with '.py'")
+    if not module_path.endswith(".py"):
+        raise ValueError(f"Module {module_path} must end with '.py'")
 
     # Get the function ast.FunctionDef object
     if package_name is not None:
+        if os.path.isabs(module_path):
+            raise ValueError(
+                "Error in _get_function_docstring: `package_name` is not "
+                "None but `module_path` is absolute."
+            )
         package_path = Path(import_module(package_name).__file__).parent
-        module_path = package_path / module_relative_path
-    elif Path(module_relative_path).is_absolute():
-        module_path = Path(module_relative_path)
+        module_path = package_path / module_path
     else:
-        raise ValueError(
-            "Invalid arguments for _get_function_docstring\n"
-            f"{package_name=}, {module_relative_path=}, {function_name=}"
-        )
+        if not os.path.isabs(module_path):
+            raise ValueError(
+                "Error in _get_function_docstring: `package_name` is None "
+                "but `module_path` is not absolute."
+            )
+        module_path = Path(module_path)
 
     if verbose:
         logging.info(f"[_get_function_docstring] {function_name=}")
@@ -83,8 +94,9 @@ def _get_function_docstring(
 
 
 def _get_function_args_descriptions(
+    *,
     package_name: Optional[str],
-    module_relative_path: str,  # FIXME: or absolute.. change name
+    module_path: str,
     function_name: str,
     verbose: bool = False,
 ) -> dict[str, str]:
@@ -93,15 +105,18 @@ def _get_function_args_descriptions(
 
     Args:
         package_name: Example `fractal_tasks_core`.
-        module_relative_path: Example `tasks/create_ome_zarr.py`.
+        module_path:
+            This must be an absolute path like `/some/module.py` (if
+            `package_name` is `None`) or a relative path like `something.py`
+            (if `package_name` is not `None`).
         function_name: Example `create_ome_zarr`.
     """
 
     # Extract docstring from ast.FunctionDef
     docstring = _get_function_docstring(
-        package_name,
-        module_relative_path,
-        function_name,
+        package_name=package_name,
+        module_path=module_path,
+        function_name=function_name,
         verbose=verbose,
     )
     if verbose:

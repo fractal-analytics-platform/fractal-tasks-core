@@ -237,10 +237,11 @@ def create_schema_for_single_task(
     # Include titles for custom-model-typed arguments
     schema = _include_titles(schema, verbose=verbose)
 
-    # Include descriptions of function arguments
+    # Include descriptions of function. Note: this function works both
+    # for usages 1 or 2 (see docstring).
     function_args_descriptions = _get_function_args_descriptions(
         package_name=package,
-        module_relative_path=executable,
+        module_path=executable,
         function_name=function_name,
         verbose=verbose,
     )
