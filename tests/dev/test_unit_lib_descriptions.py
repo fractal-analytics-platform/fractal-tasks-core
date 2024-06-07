@@ -16,7 +16,7 @@ def test_get_function_args_descriptions():
     )
     debug(args_descriptions)
     assert args_descriptions.keys() == set(
-        ("package_name", "module_relative_path", "function_name")
+        ("package_name", "module_relative_path", "function_name", "verbose")
     )
 
 
