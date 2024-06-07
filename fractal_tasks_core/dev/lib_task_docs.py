@@ -18,19 +18,21 @@ from fractal_tasks_core.dev.lib_descriptions import _get_function_docstring
 
 
 def _get_function_description(
-    package_name: str, module_relative_path: str, function_name: str
+    package_name: str, module_path: str, function_name: str
 ) -> str:
     """
     Extract function description from its docstring.
 
     Args:
         package_name: Example `fractal_tasks_core`.
-        module_relative_path: Example `tasks/create_ome_zarr.py`.
+        module_path: Example `tasks/create_ome_zarr.py`.
         function_name: Example `create_ome_zarr`.
     """
     # Extract docstring from ast.FunctionDef
     docstring = _get_function_docstring(
-        package_name, module_relative_path, function_name
+        package_name=package_name,
+        module_path=module_path,
+        function_name=function_name,
     )
     # Parse docstring (via docstring_parser)
     parsed_docstring = docparse(docstring)
@@ -72,7 +74,7 @@ def create_docs_info(
         # Get function description
         description = _get_function_description(
             package_name=package,
-            module_relative_path=executable,
+            module_path=executable,
             function_name=function_name,
         )
         docs_info.append(f"## {function_name}\n{description}\n")
