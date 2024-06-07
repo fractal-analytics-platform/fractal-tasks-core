@@ -174,7 +174,9 @@ def cellpose_segmentation(
     # Core parameters
     level: int,
     channel: CellposeChannel1InputModel,
-    channel2: Optional[CellposeChannel2InputModel] = None,
+    channel2: CellposeChannel2InputModel = Field(
+        default_factory=CellposeChannel2InputModel()
+    ),
     input_ROI_table: str = "FOV_ROI_table",
     output_ROI_table: Optional[str] = None,
     output_label_name: Optional[str] = None,
@@ -241,15 +243,7 @@ def cellpose_segmentation(
             that are passed to the Cellpose `model.eval` method.
         overwrite: If `True`, overwrite the task output.
     """
-    # Ensure channel2 is always available as a CellposeChannel2InputModel
-    # We are keeping it Optional in the input for Fractal interface reasons.
-    if channel2 is None:
-        channel2 = CellposeChannel2InputModel(
-            channel=None, normalize=CellposeCustomNormalizer()
-        )
-
-    # Set input path
-    logger.info(f"{zarr_url=}")
+    logger.info(f"Processing {zarr_url=}")
 
     # Preliminary checks on Cellpose model
     if pretrained_model:
