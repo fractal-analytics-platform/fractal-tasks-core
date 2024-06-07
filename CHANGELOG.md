@@ -3,16 +3,13 @@
 # Unreleased
 
 * Tasks:
-    * Add normalization option for second channel in `cellpose_segmentation` task (\#738).
+    * Refactor Cellpose Task inputs: Combine Channel inputs & channel normalization parameters (\#738).
+    * Refactor Cellpose Task inputs: Group advanced Cellpose parameters into the `CellposeModelParams` model that's provided via `advanced_cellpose_model_params` (\#738).
+    * Refactor Cellpose Task inputs: Support independent normalization of 2 input channels in the Cellpose task (\#738).
+    * Rename `task.cellpose_transforms` into `tasks.cellpose_utils` (\#738).
 * Development:
     * Support JSON-Schema generation for `Enum` task arguments (\#749).
     * Make JSON-Schema generation tools more flexible, to simplify testing (\#749).
-
-# 1.1.0
-* Refactor Cellpose Task inputs: Combine Channel inputs & channel normalization parameters (\#738).
-* Refactor Cellpose Task inputs: Group advanced Cellpose parameters into the `CellposeModelParams` model that's provided via `advanced_cellpose_model_params` (\#738).
-* Refactor Cellpose Task inputs: Support independent normalization of 2 input channels in the Cellpose task (\#738).
-* Rename `task.cellpose_transforms` into `tasks.cellpose_utils` (\#738).
 
 # 1.0.2
 
