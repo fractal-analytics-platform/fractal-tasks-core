@@ -15,9 +15,9 @@ packages = [
         "https://raw.githubusercontent.com/fmi-basel/gliberal-scMultipleX/main/src/scmultiplex/__FRACTAL_MANIFEST__.json",  # noqa
     ),
     (
-        "fractal-faim-hcs",
-        "https://github.com/jluethi/fractal-faim-hcs",
-        "https://raw.githubusercontent.com/jluethi/fractal-faim-hcs/main/src/fractal_faim_hcs/__FRACTAL_MANIFEST__.json",  # noqa
+        "fractal-faim-ipa",
+        "https://github.com/jluethi/fractal-faim-ipa",
+        "https://raw.githubusercontent.com/jluethi/fractal-faim-ipa/main/src/fractal_faim_ipa/__FRACTAL_MANIFEST__.json",  # noqa
     ),
     (
         "abbott",
