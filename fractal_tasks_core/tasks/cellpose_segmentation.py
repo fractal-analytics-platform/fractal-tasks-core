@@ -175,7 +175,7 @@ def cellpose_segmentation(
     level: int,
     channel: CellposeChannel1InputModel,
     channel2: CellposeChannel2InputModel = Field(
-        default_factory=CellposeChannel2InputModel()
+        default_factory=CellposeChannel2InputModel
     ),
     input_ROI_table: str = "FOV_ROI_table",
     output_ROI_table: Optional[str] = None,
@@ -188,7 +188,7 @@ def cellpose_segmentation(
     relabeling: bool = True,
     use_masks: bool = True,
     advanced_cellpose_model_params: CellposeModelParams = Field(
-        default_factory=CellposeModelParams()
+        default_factory=CellposeModelParams
     ),
     overwrite: bool = True,
 ) -> None:
