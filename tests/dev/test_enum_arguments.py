@@ -37,6 +37,12 @@ def task_function(
 
 
 def test_enum_argument():
+    """
+    This test only asserts that `create_schema_for_single_task` runs
+    successfully. Its goal is also to offer a quick way to experiment
+    with new task arguments and play with the generated JSON Schema,
+    without re-building the whole fractal-tasks-core manifest.
+    """
     schema = create_schema_for_single_task(
         task_function=task_function,
         executable=__file__,
