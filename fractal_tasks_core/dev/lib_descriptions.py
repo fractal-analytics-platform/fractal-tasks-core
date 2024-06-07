@@ -62,7 +62,10 @@ def _get_function_docstring(
     elif Path(module_relative_path).is_absolute():
         module_path = Path(module_relative_path)
     else:
-        raise ValueError()
+        raise ValueError(
+            "Invalid arguments for _get_function_docstring\n"
+            f"{package_name=}, {module_relative_path=}, {function_name=}"
+        )
 
     if verbose:
         logging.info(f"[_get_function_docstring] {function_name=}")
