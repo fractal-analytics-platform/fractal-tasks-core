@@ -184,20 +184,20 @@ class CellposeModelParams(BaseModel):
             image sizes, masks are stitched in 3D to return volume segmentation
     """
 
-    cellprob_threshold: float = (0.0,)
-    flow_threshold: float = (0.4,)
-    anisotropy: Optional[float] = (None,)
-    min_size: int = (15,)
-    augment: bool = (False,)
-    net_avg: bool = (False,)
-    use_gpu: bool = (True,)
-    batch_size: int = (8,)
-    invert: bool = (False,)
-    tile: bool = (True,)
-    tile_overlap: float = (0.1,)
-    resample: bool = (True,)
-    interp: bool = (True,)
-    stitch_threshold: float = (0.0,)
+    cellprob_threshold: float = 0.0
+    flow_threshold: float = 0.4
+    anisotropy: Optional[float] = None
+    min_size: int = 15
+    augment: bool = False
+    net_avg: bool = False
+    use_gpu: bool = True
+    batch_size: int = 8
+    invert: bool = False
+    tile: bool = True
+    tile_overlap: float = 0.1
+    resample: bool = True
+    interp: bool = True
+    stitch_threshold: float = 0.0
 
 
 class CellposeChannel1InputModel(ChannelInputModel):
