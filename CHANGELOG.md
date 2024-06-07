@@ -1,9 +1,16 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-* Add normalization option for second channel in cellpose_segmentation task.
+# Unreleased
+
+* Tasks:
+    * Add normalization option for second channel in `cellpose_segmentation` task (\#738).
+* Development:
+    * Support JSON-Schema generation for `Enum` task arguments (\#749).
+    * Make JSON-Schema generation tools more flexible, to simplify testing (\#749).
 
 # 1.0.2
-* Fix bug in plate metadata in MIP task (in the copy_ome_zarr_hcs_plate init function) (\#736).
+
+* Fix bug in plate metadata in MIP task (in the `copy_ome_zarr_hcs_plate` init function) (\#736).
 
 # 1.0.1
 
