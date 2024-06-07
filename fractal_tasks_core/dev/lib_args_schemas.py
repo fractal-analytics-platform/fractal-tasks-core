@@ -13,6 +13,7 @@
 Helper functions to handle JSON schemas for task arguments.
 """
 import logging
+import os
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -164,27 +165,64 @@ def create_schema_for_single_task(
 ) -> _Schema:
     """
     Main function to create a JSON Schema of task arguments
+
+    This function can be used in two ways:
+
+    1. `task_function` argument is `None`, `package` is set, and `executable`
+        is a path relative to that package.
+    2. `task_function` argument is provided, `executable` is an absolute path
+        to the function module, and `package` is `None. This is useful for
+        testing.
+
     """
 
     logging.info("[create_schema_for_single_task] START")
+    if task_function is None:
+        usage = "1"
+        # Usage 1 (standard)
+        if package is None:
+            raise ValueError(
+                "Cannot call `create_schema_for_single_task with "
+                f"{task_function=} and {package=}. Exit."
+            )
+        if os.path.isabs(executable):
+            raise ValueError(
+                "Cannot call `create_schema_for_single_task with "
+                f"{task_function=} and absolute {executable=}. Exit."
+            )
+    else:
+        usage = "2"
+        # Usage 2 (testing)
+        if package is not None:
+            raise ValueError(
+                "Cannot call `create_schema_for_single_task with "
+                f"{task_function=} and non-None {package=}. Exit."
+            )
+        if not os.path.isabs(executable):
+            raise ValueError(
+                "Cannot call `create_schema_for_single_task with "
+                f"{task_function=} and non-absolute {executable=}. Exit."
+            )
 
     # Extract function from module
-    if task_function is None:
-        # Extract the function name. Note: this could be made more general,
-        # but for the moment we assume the function has the same name as the
-        # module)
+    if usage == "1":
+        # Extract the function name (for the moment we assume the function has
+        # the same name as the module)
         function_name = Path(executable).with_suffix("").name
+        # Extract the function object
         task_function = _extract_function(
             package_name=package,
             module_relative_path=executable,
             function_name=function_name,
+            verbose=verbose,
         )
     else:
-        # This branch is useful for testing
+        # The function object is already available, extract its name
         function_name = task_function.__name__
 
-    logging.info(f"[create_schema_for_single_task] {function_name=}")
-    logging.info(f"[create_schema_for_single_task] {task_function=}")
+    if verbose:
+        logging.info(f"[create_schema_for_single_task] {function_name=}")
+        logging.info(f"[create_schema_for_single_task] {task_function=}")
 
     # Validate function signature against some custom constraints
     _validate_function_signature(task_function)
