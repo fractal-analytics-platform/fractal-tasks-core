@@ -2,10 +2,10 @@
 
 ## Setting up environment
 
-We use [poetry](https://python-poetry.org/docs) to manage the development environment and the dependencies. A simple way to install it is `pipx install poetry==1.8.2`, or you can look at the installation section [here](https://python-poetry.org/docs#installation).
+We use [poetry](https://python-poetry.org/docs) to manage both development environments and package building. A simple way to install it is `pipx install poetry==1.8.2`, or you can look at the installation section [here](https://python-poetry.org/docs#installation).
 
-Running any of
-```console
+From the repository root folder, running any of
+```bash
 # Install the core library only
 poetry install
 
@@ -15,19 +15,28 @@ poetry install -E fractal-tasks
 # Install the core library and the development/documentation dependencies
 poetry install --with dev --with docs
 ```
-will take care of installing all the dependencies in a separate environment, optionally installing also the dependencies for developement and to build the documentation.
+will take care of installing all the dependencies in a separate environment (handled by `poetry` itself), optionally installing also the dependencies for developement and to build the documentation.
 
 ## Testing
 
-We use [pytest](https://docs.pytest.org) for unit and integration testing of Fractal. If you installed the development dependencies, you may run the test suite by invoking:
-```console
+We use [pytest](https://docs.pytest.org) for unit and integration testing of Fractal. If you installed the development dependencies, you may run the test suite by invoking commands like:
+```bash
+# Run all tests
 poetry run pytest
+
+# Run all tests with a verbose mode, and stop at the first failure
+poetry run pytest -x -v
+
+# Run all tests and also print their output
+poetry run pytest -s
+
+# Ignore some tests folders
+poetry run pytest --ignore tests/tasks
 ```
 
-The tests files are in the `tests` folder of the repository, and they are also
-run through GitHub Actions; both the main _fractal_tasks_core_ tests (in
-`tests/`) and the _fractal_tasks_core.tasks_ tests (in `tests/tasks/`) are run
-with Python 3.9, 3.10 and 3.11.
+The tests files are in the `tests` folder of the repository. Its structure reflects the `fractal_tasks_core` structure, with tests for the core library in the main folder and tests for `tasks` and `dev` subpckages in their own subfolders.
+
+Tests are also run through GitHub Actions, with Python 3.9, 3.10 and 3.11. Note that within GitHub actions we run tests for both the `poetry`-installed and `pip`-installed versions of the code, which may e.g. have different versions of some dependencies (since `pip install` does not rely on the `poetry.lock` lockfile).
 
 ## Documentation
 
@@ -38,34 +47,41 @@ poetry run mkdocs serve --config-file mkdocs.yml  # serves the docs at http://12
 poetry run mkdocs build --config-file mkdocs.yml  # creates a build in the `site` folder
 ```
 
-## Mypy
+A [dedicated GitHub action](https://github.com/fractal-analytics-platform/fractal-tasks-core/blob/main/.github/workflows/documentation.yaml) takes care of building the documentation and pushing it to https://fractal-analytics-platform.github.io/fractal-tasks-core, when commits are pushed to the `main` branch.
+
+
+## Release to PyPI
+
+### Preliminary check-list
+
+1. The `main` branch is checked out.
+2. All tests are passing, for the `main` branch.
+3. `CHANGELOG.md` is up to date.
+4. If appropriate (e.g. if you added some new task arguments, or if you modified some of their descriptions), update the JSON Schemas in the manifest via:
+```bash
+poetry run python fractal_tasks_core/dev/create_manifest.py
+```
+(note that the CI will fail if you forgot to update the manifest,, but it is good to be aware of it)
+
+### Actual release
+
+1. From within the `main` branch, use a command like:
+```bash
+# Automatic bump of release number
+poetry run bumpver update --[tag-num|patch|minor] --dry
+
+# Set a specific version
+poetry run bumpver update --set-version 1.2.3 --dry
+```
+to test updating the version bump
+2. If the previous step looks good, remove the `--dry` and re-run the same command. This will commit both the edited files and the new tag, and push.
+3. Approve the new version deployment at [Publish package to PyPI](https://github.com/fractal-analytics-platform/fractal-tasks-core/actions/workflows/publish_pypi.yml) (or have it approved); the corresponding GitHub action will take care of running `poetry build` and `poetry publish` with the appropriate credentials.
+
+
+## Static type checker
 
 We do not enforce strict `mypy` compliance, but we do run it as part of [a specific GitHub Action](https://github.com/fractal-analytics-platform/fractal-tasks-core/actions/workflows/package.yml).
 You can run `mypy` locally for instance as:
 ```console
 poetry run mypy --package fractal_tasks_core --ignore-missing-imports --warn-redundant-casts --warn-unused-ignores --warn-unreachable --pretty
 ```
-
-## How to release
-
-Preliminary check-list:
-
-1. The `main` branch is checked out.
-2. You reviewed dependencies and dev dependencies and the lock file is up to date with `pyproject.toml`.
-3. The current HEAD of the main branch passes all the tests (note: make sure that you are using the poetry-installed local package).
-4. `CHANGELOG.md` is up to date.
-5. If appropriate (e.g. if you added some new task arguments, or if you modified some of their descriptions), update the JSON Schemas in the manifest via:
-```bash
-poetry run python fractal_tasks_core/dev/update_manifest.py
-```
-(note: in principle this issue is covered by tests, but it is good to be aware of it)
-
-Actual release
-
-6. Use:
-```bash
-poetry run bumpver update --[tag-num|patch|minor] --dry
-```
-to test updating the version bump
-7. If the previous step looks good, remove the `--dry` and re-run the same command. This will commit both the edited files and the new tag, and push.
-8. Approve (or have approved) the new version at [Publish package to PyPI](https://github.com/fractal-analytics-platform/fractal-tasks-core/actions/workflows/publish_pypi.yml).

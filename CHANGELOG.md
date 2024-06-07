@@ -4,6 +4,7 @@
 
 * Support JSON-Schema generation for `Enum` task arguments (\#749).
 * Make JSON-Schema generation tools more flexible, to simplify testing (\#749).
+* Update documentation (\#751).
 
 # 1.0.2
 
