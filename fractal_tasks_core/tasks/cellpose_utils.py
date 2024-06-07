@@ -213,7 +213,9 @@ class CellposeChannel1InputModel(ChannelInputModel):
             Cellpose models
     """
 
-    normalize: CellposeCustomNormalizer
+    normalize: CellposeCustomNormalizer = Field(
+        default_factory=CellposeCustomNormalizer
+    )
 
     def get_omero_channel(self, zarr_url) -> OmeroChannel:
         try:
@@ -250,7 +252,9 @@ class CellposeChannel2InputModel(BaseModel):
 
     wavelength_id: Optional[str] = None
     label: Optional[str] = None
-    normalize: CellposeCustomNormalizer
+    normalize: CellposeCustomNormalizer = Field(
+        default_factory=CellposeCustomNormalizer
+    )
 
     @validator("label", always=True)
     def mutually_exclusive_channel_attributes(cls, v, values):

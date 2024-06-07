@@ -26,6 +26,7 @@ import numpy as np
 import pandas as pd
 import zarr
 from cellpose import models
+from pydantic import Field
 from pydantic.decorator import validate_arguments
 
 import fractal_tasks_core
@@ -184,7 +185,9 @@ def cellpose_segmentation(
     pretrained_model: Optional[str] = None,
     relabeling: bool = True,
     use_masks: bool = True,
-    advanced_cellpose_model_params: CellposeModelParams = CellposeModelParams(),  # noqa: E501
+    advanced_cellpose_model_params: CellposeModelParams = Field(
+        default_factory=CellposeModelParams()
+    ),  # noqa: E501
     overwrite: bool = True,
 ) -> None:
     """

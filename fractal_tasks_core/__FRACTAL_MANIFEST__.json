@@ -770,28 +770,8 @@
             "description": "If `True`, try to use masked loading and fall back to `use_masks=False` if the ROI table is not suitable. Masked loading is relevant when only a subset of the bounding box should actually be processed (e.g. running within `organoid_ROI_table`)."
           },
           "advanced_cellpose_model_params": {
-            "title": "Advanced Cellpose Model Params",
-            "default": {
-              "cellprob_threshold": 0.0,
-              "flow_threshold": 0.4,
-              "anisotropy": null,
-              "min_size": 15,
-              "augment": false,
-              "net_avg": false,
-              "use_gpu": true,
-              "batch_size": 8,
-              "invert": false,
-              "tile": true,
-              "tile_overlap": 0.1,
-              "resample": true,
-              "interp": true,
-              "stitch_threshold": 0.0
-            },
-            "allOf": [
-              {
-                "$ref": "#/definitions/CellposeModelParams"
-              }
-            ],
+            "$ref": "#/definitions/CellposeModelParams",
+            "title": "Advanced_Cellpose_Model_Params",
             "description": "Advanced Cellpose model parameters that are passed to the Cellpose `model.eval` method."
           },
           "overwrite": {
@@ -870,10 +850,7 @@
                 "title": "Normalize",
                 "description": "Validator to handle different normalization scenarios for Cellpose models"
               }
-            },
-            "required": [
-              "normalize"
-            ]
+            }
           },
           "CellposeChannel2InputModel": {
             "title": "CellposeChannel2InputModel",
@@ -895,10 +872,7 @@
                 "title": "Normalize",
                 "description": "Validator to handle different normalization scenarios for Cellpose models"
               }
-            },
-            "required": [
-              "normalize"
-            ]
+            }
           },
           "CellposeModelParams": {
             "title": "CellposeModelParams",
