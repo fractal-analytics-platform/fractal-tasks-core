@@ -170,8 +170,9 @@ def create_schema_for_single_task(
 
     # Extract function from module
     if task_function is None:
-        # Extract the function name. Note: this could be made more general, but for
-        # the moment we assume the function has the same name as the module)
+        # Extract the function name. Note: this could be made more general,
+        # but for the moment we assume the function has the same name as the
+        # module)
         function_name = Path(executable).with_suffix("").name
         task_function = _extract_function(
             package_name=package,

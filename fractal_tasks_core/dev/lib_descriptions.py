@@ -38,7 +38,7 @@ def _sanitize_description(string: str) -> str:
 
 
 def _get_function_docstring(
-    package_name: str | None,
+    package_name: Optional[str],
     module_relative_path: str,
     function_name: str,
     verbose: bool = False,
@@ -180,7 +180,8 @@ def _insert_function_args_descriptions(
             new_properties[key] = value
             if verbose:
                 logging.info(
-                    f"[_insert_function_args_descriptions] Add {key=}, {value=}"
+                    "[_insert_function_args_descriptions] "
+                    f"Add {key=}, {value=}"
                 )
     new_schema["properties"] = new_properties
     logging.info("[_insert_function_args_descriptions] END")
