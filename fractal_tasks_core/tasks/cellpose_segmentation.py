@@ -187,7 +187,7 @@ def cellpose_segmentation(
     use_masks: bool = True,
     advanced_cellpose_model_params: CellposeModelParams = Field(
         default_factory=CellposeModelParams()
-    ),  # noqa: E501
+    ),
     overwrite: bool = True,
 ) -> None:
     """
