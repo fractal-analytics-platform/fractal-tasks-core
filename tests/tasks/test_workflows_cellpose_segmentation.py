@@ -35,10 +35,10 @@ from .lib_empty_ROI_table import _add_empty_ROI_table
 from fractal_tasks_core.tasks.cellpose_segmentation import (
     cellpose_segmentation,
 )
-from fractal_tasks_core.tasks.cellpose_transforms import (
+from fractal_tasks_core.tasks.cellpose_utils import (
     CellposeChannel1InputModel,
 )
-from fractal_tasks_core.tasks.cellpose_transforms import (
+from fractal_tasks_core.tasks.cellpose_utils import (
     CellposeCustomNormalizer,
 )
 from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_compute import (
@@ -263,9 +263,11 @@ def test_workflow_with_per_FOV_labeling(
             level=3,
             relabeling=True,
             diameter_level0=80.0,
-            augment=True,
-            net_avg=True,
-            min_size=30,
+            advanced_cellpose_model_params=dict(
+                augment=True,
+                net_avg=True,
+                min_size=30,
+            ),
         )
 
     # OME-NGFF JSON validation
@@ -644,10 +646,12 @@ def test_workflow_with_per_FOV_labeling_via_script(
         level=4,
         relabeling=True,
         diameter_level0=80.0,
-        augment=True,
-        net_avg=True,
-        min_size=30,
-        use_gpu=False,
+        advanced_cellpose_model_params=dict(
+            augment=True,
+            net_avg=True,
+            min_size=30,
+            use_gpu=False,
+        ),
     )
 
     run_options = dict(timeout=15, capture_output=True, encoding="utf-8")
@@ -723,9 +727,11 @@ def test_workflow_with_per_FOV_labeling_with_empty_FOV_table(
             level=3,
             relabeling=True,
             diameter_level0=80.0,
-            augment=True,
-            net_avg=True,
-            min_size=30,
+            advanced_cellpose_model_params=dict(
+                augment=True,
+                net_avg=True,
+                min_size=30,
+            ),
         )
 
     # OME-NGFF JSON validation
