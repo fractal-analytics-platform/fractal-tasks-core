@@ -41,7 +41,7 @@ jobs:
         run: python -m pip install pytest devtools jsonschema requests wget pooch
 
       - name: Test core library with pytest
-        run: python -m pytest tests --ignore tests/tasks
+        run: python -m pytest tests --ignore tests/tasks --ignore tests/dev
 
   tests_tasks:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
@@ -83,4 +83,4 @@ jobs:
           key: pooch-cache
 
       - name: Test tasks with pytest
-        run: python -m pytest tests tests/tasks -s --log-cli-level info
+        run: python -m pytest tests/dev tests/tasks -s --log-cli-level info

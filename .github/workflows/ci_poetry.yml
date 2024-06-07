@@ -43,7 +43,7 @@ jobs:
         run: poetry install --with dev --without docs --no-interaction
 
       - name: Test core library with pytest
-        run: poetry run coverage run -m pytest tests --ignore tests/tasks
+        run: poetry run coverage run -m pytest tests --ignore tests/tasks  --ignore tests/dev
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v3
@@ -96,7 +96,7 @@ jobs:
           key: pooch-cache
 
       - name: Test tasks with pytest
-        run: poetry run coverage run -m pytest tests/tasks -s --log-cli-level info
+        run: poetry run coverage run -m pytest tests/dev tests/tasks -s --log-cli-level info
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v3
