@@ -106,7 +106,7 @@ def segment_ROI(
             normalized with default settings, both channels need to be
             normalized with default settings.
         label_dtype: Label images are cast into this `np.dtype`.
-        advanced_cellpose_model_parameters: Advanced Cellpose model parameters
+        advanced_cellpose_model_params: Advanced Cellpose model parameters
             that are passed to the Cellpose `model.eval` method.
     """
 
