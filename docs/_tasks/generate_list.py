@@ -29,6 +29,17 @@ pkgs["fractal-helper-tasks"] = dict(
 pkgs["APx_fractal_task_collection"] = dict(
     homepage_url="https://github.com/Apricot-Therapeutics/APx_fractal_task_collection",  # noqa
     manifest_url="https://raw.githubusercontent.com/Apricot-Therapeutics/APx_fractal_task_collection/main/src/apx_fractal_task_collection/__FRACTAL_MANIFEST__.json",  # noqa
+    description=(
+        "The APx Fractal Task Collection is mainainted by Apricot "
+        "Therapeutics AG, Switzerland. This is a collection of tasks intended "
+        "to be used in combination with the Fractal Analytics Platform "
+        "maintained by the BioVisionCenter Zurich (co-founded by the "
+        "Friedrich Miescher Institute and the University of Zurich). The "
+        "tasks in this collection are focused on extending Fractal's "
+        "capabilities of processing 2D image data, with a special focus on "
+        "multiplexed 2D image data. Most tasks work with 3D image data, but "
+        "they have not specifically been developed for this scenario."
+    ),
 )
 
 
@@ -50,11 +61,11 @@ with markdown_file.open("w") as md:
         manifest = json.loads(r.content.decode("utf-8"))
         task_list = manifest["task_list"]
         md.write(f"## `{package_name}`\n")
-        md.write(f"Package: `{package_name}`\n\n")
-        md.write(f"Home page: {homepage_url}\n\n")
+        md.write(f"**Package:** `{package_name}`\n\n")
+        md.write(f"**Home page:** {homepage_url}\n\n")
         if description is not None:
-            md.write(f"Description: {description}\n\n")
-        md.write("Tasks:\n\n")
+            md.write(f"**Description:** {description}\n\n")
+        md.write("**Tasks:**\n\n")
         for task in task_list:
             name = task["name"]
             docs_link = task.get("docs_link")

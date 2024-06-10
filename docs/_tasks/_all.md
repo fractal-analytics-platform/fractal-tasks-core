@@ -1,9 +1,9 @@
 ## `fractal-tasks-core`
-Package: `fractal-tasks-core`
+**Package:** `fractal-tasks-core`
 
-Home page: https://fractal-analytics-platform.github.io/fractal-tasks-core
+**Home page:** https://fractal-analytics-platform.github.io/fractal-tasks-core
 
-Tasks:
+**Tasks:**
 
 * [Convert Cellvoyager to OME-Zarr](https://fractal-analytics-platform.github.io/fractal-tasks-core)
 * [Convert Cellvoyager Multiplexing to OME-Zarr](https://fractal-analytics-platform.github.io/fractal-tasks-core)
@@ -18,11 +18,11 @@ Tasks:
 
 
 ## `scMultiplex`
-Package: `scMultiplex`
+**Package:** `scMultiplex`
 
-Home page: https://github.com/fmi-basel/gliberal-scMultipleX
+**Home page:** https://github.com/fmi-basel/gliberal-scMultipleX
 
-Tasks:
+**Tasks:**
 
 * scMultiplex Calculate Object Linking
 * scMultiplex Calculate Linking Consensus
@@ -33,43 +33,45 @@ Tasks:
 
 
 ## `fractal-faim-ipa`
-Package: `fractal-faim-ipa`
+**Package:** `fractal-faim-ipa`
 
-Home page: https://github.com/jluethi/fractal-faim-ipa
+**Home page:** https://github.com/jluethi/fractal-faim-ipa
 
-Tasks:
+**Tasks:**
 
 * FAIM IPA OME-Zarr Converter
 
 
 ## `abbott`
-Package: `abbott`
+**Package:** `abbott`
 
-Home page: https://github.com/MaksHess/abbott
+**Home page:** https://github.com/MaksHess/abbott
 
-Tasks:
+**Tasks:**
 
 * Compute Registration Elastix
 * Apply Registration Elastix
 
 
 ## `fractal-helper-tasks`
-Package: `fractal-helper-tasks`
+**Package:** `fractal-helper-tasks`
 
-Home page: https://github.com/jluethi/fractal-helper-tasks
+**Home page:** https://github.com/jluethi/fractal-helper-tasks
 
-Tasks:
+**Tasks:**
 
 * Drop T Dimension
 * Convert 2D segmentation to 3D
 
 
 ## `APx_fractal_task_collection`
-Package: `APx_fractal_task_collection`
+**Package:** `APx_fractal_task_collection`
 
-Home page: https://github.com/Apricot-Therapeutics/APx_fractal_task_collection
+**Home page:** https://github.com/Apricot-Therapeutics/APx_fractal_task_collection
 
-Tasks:
+**Description:** The APx Fractal Task Collection is mainainted by Apricot Therapeutics AG, Switzerland. This is a collection of tasks intended to be used in combination with the Fractal Analytics Platform maintained by the BioVisionCenter Zurich (co-founded by the Friedrich Miescher Institute and the University of Zurich). The tasks in this collection are focused on extending Fractal's capabilities of processing 2D image data, with a special focus on multiplexed 2D image data. Most tasks work with 3D image data, but they have not specifically been developed for this scenario.
+
+**Tasks:**
 
 * Measure Features
 * Segment Secondary Objects
