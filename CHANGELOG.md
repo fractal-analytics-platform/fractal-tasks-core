@@ -6,6 +6,9 @@
 * Make JSON-Schema generation tools more flexible, to simplify testing (\#749).
 * Update documentation (\#751).
 
+* Documentation:
+    * Improve/extend page showing tasks from other packages (\#759).
+
 # 1.0.2
 
 * Fix bug in plate metadata in MIP task (in the copy_ome_zarr_hcs_plate init function) (\#736).
