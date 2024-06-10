@@ -42,7 +42,6 @@ with markdown_file.open("w") as md:
         homepage_url = package["homepage_url"]
         manifest_url = package["manifest_url"]
         description = package.get("description", None)
-        print(package_name)
         r = requests.get(manifest_url)
         if not r.status_code == 200:
             raise ValueError(
@@ -63,4 +62,6 @@ with markdown_file.open("w") as md:
                 md.write(f"* [{name}]({docs_link})\n")
             else:
                 md.write(f"* {name}\n")
+        num_tasks = len(task_list)
+        print(f"Processed {package_name}, found {num_tasks} tasks")
         md.write("\n\n")
