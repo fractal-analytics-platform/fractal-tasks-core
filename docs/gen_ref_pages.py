@@ -47,7 +47,7 @@ class CustomNav(Nav):
 
 logger = logging.getLogger(f"mkdocs.plugins.{__name__}")
 prefix = f"[{Path(__file__).name}]"
-logger.warning(f"{prefix} START")
+logger.info(f"{prefix} START")
 
 nav = CustomNav()
 
@@ -84,4 +84,4 @@ logger.info(f"{prefix} {summary_path=}")
 with mkdocs_gen_files.open(summary_path, "w") as nav_file:
     nav_file.writelines(nav.build_literate_nav())
 
-logger.warning(f"{prefix} END")
+logger.info(f"{prefix} END")

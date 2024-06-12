@@ -7,7 +7,7 @@ import requests
 
 logger = logging.getLogger(f"mkdocs.plugins.{__name__}")
 prefix = f"[{Path(__file__).name}]"
-logger.warning(f"{prefix} START")
+logger.info(f"{prefix} START")
 
 
 pkgs = dict()
@@ -85,4 +85,4 @@ with mkdocs_gen_files.open(markdown_file.as_posix(), "w") as md:
         )
         md.write("\n\n")
 
-logger.warning(f"{prefix} END")
+logger.info(f"{prefix} END")
