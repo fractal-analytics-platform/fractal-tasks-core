@@ -16,17 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-          cache: pip
-
-      - name: Install requests
-        run: python -m pip install requests
-
-      - name: Update other-packages task list
-        run: python docs/_tasks/generate_list.py
-
       - name: Deploy docs
         uses: mhausenblas/mkdocs-deploy-gh-pages@master
         env:
@@ -45,12 +34,6 @@ jobs:
         with:
           python-version: '3.10'
           cache: pip
-
-      - name: Install requests
-        run: python -m pip install requests
-
-      - name: Update other-packages task list
-        run: python docs/_tasks/generate_list.py
 
       - name: Install dependencies
         run: python -m pip install -r docs/doc-requirements.txt
