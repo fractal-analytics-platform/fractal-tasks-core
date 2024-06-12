@@ -71,6 +71,7 @@ plugins:
   - autorefs
   - gen-files:
       scripts:
+        - docs/_tasks/generate_task_list.py
         - docs/gen_ref_pages.py
   - literate-nav:
       nav_file: SUMMARY.md
