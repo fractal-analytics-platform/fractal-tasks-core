@@ -11,7 +11,7 @@ on:
 
 
 jobs:
-  test1:
+  build-manifest:
     runs-on: ubuntu-22.04
 
     strategy:
