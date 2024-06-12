@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from typing import Iterable
 from typing import Mapping
@@ -44,6 +45,10 @@ class CustomNav(Nav):
                 yield from cls._items(value, level + 1)
 
 
+logger = logging.getLogger(f"mkdocs.plugins.{__name__}")
+prefix = f"[{Path(__file__).name}]"
+logger.warning(f"{prefix} START")
+
 nav = CustomNav()
 
 for path in sorted(Path("fractal_tasks_core").rglob("*.py")):
@@ -74,8 +79,9 @@ for path in sorted(Path("fractal_tasks_core").rglob("*.py")):
 
     mkdocs_gen_files.set_edit_path(full_doc_path, path)
 
-
-with mkdocs_gen_files.open(
-    "reference/fractal_tasks_core/SUMMARY.md", "w"
-) as nav_file:
+summary_path = "reference/fractal_tasks_core/SUMMARY.md"
+logger.info(f"{prefix} {summary_path=}")
+with mkdocs_gen_files.open(summary_path, "w") as nav_file:
     nav_file.writelines(nav.build_literate_nav())
+
+logger.warning(f"{prefix} END")

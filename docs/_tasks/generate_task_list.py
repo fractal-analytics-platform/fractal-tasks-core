@@ -1,7 +1,13 @@
 import json
+import logging
 from pathlib import Path
 
+import mkdocs_gen_files
 import requests
+
+logger = logging.getLogger(f"mkdocs.plugins.{__name__}")
+prefix = f"[{Path(__file__).name}]"
+logger.warning(f"{prefix} START")
 
 
 pkgs = dict()
@@ -46,18 +52,18 @@ pkgs["APx_fractal_task_collection"] = dict(
 script_path = __file__
 script_dir = Path(script_path).parent
 markdown_file = script_dir / "_all.md"
-print(f"Writing output to {markdown_file}")
+logger.info(f"{prefix} Writing output to {markdown_file}")
 
-with markdown_file.open("w") as md:
+with mkdocs_gen_files.open(markdown_file.as_posix(), "w") as md:
     for package_name, package in pkgs.items():
         homepage_url = package["homepage_url"]
         manifest_url = package["manifest_url"]
         description = package.get("description", None)
         r = requests.get(manifest_url)
         if not r.status_code == 200:
-            raise ValueError(
-                f"Something wrong with the request to {manifest_url}"
-            )
+            error_msg = f"Something wrong with the request to {manifest_url}"
+            logger.error(f"{prefix} {error_msg}")
+            raise ValueError(error_msg)
         manifest = json.loads(r.content.decode("utf-8"))
         task_list = manifest["task_list"]
         md.write(f"## `{package_name}`\n")
@@ -74,5 +80,9 @@ with markdown_file.open("w") as md:
             else:
                 md.write(f"* {name}\n")
         num_tasks = len(task_list)
-        print(f"Processed {package_name}, found {num_tasks} tasks")
+        logger.info(
+            f"{prefix} Processed {package_name}, found {num_tasks} tasks"
+        )
         md.write("\n\n")
+
+logger.warning(f"{prefix} END")
