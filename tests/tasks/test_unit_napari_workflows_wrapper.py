@@ -16,9 +16,13 @@ def test_input_specs(tmp_path, testdata_path):
     """
 
     # napari-workflows
-    workflow_file = str(testdata_path / "napari_workflows/wf_5-labeling_only.yaml")
+    workflow_file = str(
+        testdata_path / "napari_workflows/wf_5-labeling_only.yaml"
+    )
     input_specs = {"asd": "asd"}
-    output_specs = {"output_label": {"type": "label", "label_name": "label_DAPI"}}
+    output_specs = {
+        "output_label": {"type": "label", "label_name": "label_DAPI"}
+    }
     zarr_url = str(tmp_path / "component")
     with pytest.raises(ValidationError):
         napari_workflows_wrapper(
@@ -40,7 +44,9 @@ def test_output_specs(tmp_path, testdata_path, caplog):
     caplog.set_level(logging.WARNING)
 
     # napari-workflows
-    workflow_file = str(testdata_path / "napari_workflows/wf_5-labeling_only.yaml")
+    workflow_file = str(
+        testdata_path / "napari_workflows/wf_5-labeling_only.yaml"
+    )
     input_specs = {
         "input_image": {
             "type": "image",

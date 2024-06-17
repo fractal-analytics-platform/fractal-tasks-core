@@ -47,13 +47,23 @@ def _extract_function(
     """
     if not module_relative_path.endswith(".py"):
         raise ValueError(f"{module_relative_path=} must end with '.py'")
-    module_relative_path_no_py = str(Path(module_relative_path).with_suffix(""))
+    module_relative_path_no_py = str(
+        Path(module_relative_path).with_suffix("")
+    )
     module_relative_path_dots = module_relative_path_no_py.replace("/", ".")
     if verbose:
-        logging.info(f"Now calling `import_module` for " f"{package_name}.{module_relative_path_dots}")
-    imported_module = import_module(f"{package_name}.{module_relative_path_dots}")
+        logging.info(
+            f"Now calling `import_module` for "
+            f"{package_name}.{module_relative_path_dots}"
+        )
+    imported_module = import_module(
+        f"{package_name}.{module_relative_path_dots}"
+    )
     if verbose:
-        logging.info(f"Now getting attribute {function_name} from " f"imported module {imported_module}.")
+        logging.info(
+            f"Now getting attribute {function_name} from "
+            f"imported module {imported_module}."
+        )
     task_function = getattr(imported_module, function_name)
     return task_function
 
@@ -74,7 +84,9 @@ def _validate_function_signature(function: Callable):
 
         # CASE 1: Check that name is not forbidden
         if param.name in FORBIDDEN_PARAM_NAMES:
-            raise ValueError(f"Function {function} has argument with name {param.name}")
+            raise ValueError(
+                f"Function {function} has argument with name {param.name}"
+            )
 
         # CASE 2: Raise an error for unions
         if str(param.annotation).startswith(("typing.Union[", "Union[")):
@@ -86,8 +98,12 @@ def _validate_function_signature(function: Callable):
 
         # CASE 4: Raise an error for optional parameter with given (non-None)
         # default, e.g. Optional[str] = "asd"
-        is_annotation_optional = str(param.annotation).startswith(("typing.Optional[", "Optional["))
-        default_given = (param.default is not None) and (param.default != inspect._empty)
+        is_annotation_optional = str(param.annotation).startswith(
+            ("typing.Optional[", "Optional[")
+        )
+        default_given = (param.default is not None) and (
+            param.default != inspect._empty
+        )
         if default_given and is_annotation_optional:
             raise ValueError("Optional parameter has non-None default value")
 

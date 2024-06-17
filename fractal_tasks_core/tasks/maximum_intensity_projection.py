@@ -129,11 +129,15 @@ def maximum_intensity_projection(
             "write it back to the new zarr file."
         )
         new_ROI_table = ad.read_zarr(f"{init_args.origin_url}/tables/{table}")
-        old_ROI_table_attrs = zarr.open_group(f"{init_args.origin_url}/tables/{table}").attrs.asdict()
+        old_ROI_table_attrs = zarr.open_group(
+            f"{init_args.origin_url}/tables/{table}"
+        ).attrs.asdict()
 
         # Convert 3D ROIs to 2D
         pxl_sizes_zyx = ngff_image.get_pixel_sizes_zyx(level=0)
-        new_ROI_table = convert_ROIs_from_3D_to_2D(new_ROI_table, pixel_size_z=pxl_sizes_zyx[0])
+        new_ROI_table = convert_ROIs_from_3D_to_2D(
+            new_ROI_table, pixel_size_z=pxl_sizes_zyx[0]
+        )
         # Write new table
         write_table(
             new_image_group,
@@ -144,9 +148,17 @@ def maximum_intensity_projection(
         )
 
     for table in non_roi_tables:
-        logger.info(f"Reading {table} from " f"{init_args.origin_url=}, and " "write it back to the new zarr file.")
-        new_non_ROI_table = ad.read_zarr(f"{init_args.origin_url}/tables/{table}")
-        old_non_ROI_table_attrs = zarr.open_group(f"{init_args.origin_url}/tables/{table}").attrs.asdict()
+        logger.info(
+            f"Reading {table} from "
+            f"{init_args.origin_url=}, and "
+            "write it back to the new zarr file."
+        )
+        new_non_ROI_table = ad.read_zarr(
+            f"{init_args.origin_url}/tables/{table}"
+        )
+        old_non_ROI_table_attrs = zarr.open_group(
+            f"{init_args.origin_url}/tables/{table}"
+        ).attrs.asdict()
 
         # Write new table
         write_table(

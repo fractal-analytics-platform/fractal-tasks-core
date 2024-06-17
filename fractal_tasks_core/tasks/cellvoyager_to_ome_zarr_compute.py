@@ -85,9 +85,13 @@ def cellvoyager_to_ome_zarr_compute(
     full_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
     logger.info(f"NGFF image has {num_levels=}")
     logger.info(f"NGFF image has {coarsening_xy=}")
-    logger.info(f"NGFF image has full-res pixel sizes {full_res_pxl_sizes_zyx}")
+    logger.info(
+        f"NGFF image has full-res pixel sizes {full_res_pxl_sizes_zyx}"
+    )
 
-    channels: list[OmeroChannel] = get_omero_channel_list(image_zarr_path=zarr_url)
+    channels: list[OmeroChannel] = get_omero_channel_list(
+        image_zarr_path=zarr_url
+    )
     wavelength_ids = [c.wavelength_id for c in channels]
 
     # Read useful information from ROI table
@@ -111,7 +115,10 @@ def cellvoyager_to_ome_zarr_compute(
     max_x = well_indices[0][5]
 
     # Load a single image, to retrieve useful information
-    patterns = [f"{init_args.plate_prefix}_{init_args.well_ID}_*." f"{init_args.image_extension}"]
+    patterns = [
+        f"{init_args.plate_prefix}_{init_args.well_ID}_*."
+        f"{init_args.image_extension}"
+    ]
     if init_args.image_glob_patterns:
         patterns.extend(init_args.image_glob_patterns)
 
@@ -136,7 +143,10 @@ def cellvoyager_to_ome_zarr_compute(
     for i_c, wavelength_id in enumerate(wavelength_ids):
         A, C = wavelength_id.split("_")
 
-        patterns = [f"{init_args.plate_prefix}_{init_args.well_ID}_*{A}*{C}*." f"{init_args.image_extension}"]
+        patterns = [
+            f"{init_args.plate_prefix}_{init_args.well_ID}_*{A}*{C}*."
+            f"{init_args.image_extension}"
+        ]
         if init_args.image_glob_patterns:
             patterns.extend(init_args.image_glob_patterns)
         filenames_set = glob_with_multiple_patterns(

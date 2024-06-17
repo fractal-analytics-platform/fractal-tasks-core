@@ -22,7 +22,6 @@ from typing import Optional
 
 from docstring_parser import parse as docparse
 from pydantic.v1.decorator import ALT_V_ARGS
-from pydantic.v1.decorator import ALT_V_ARGS
 from pydantic.v1.decorator import ALT_V_KWARGS
 from pydantic.v1.decorator import V_DUPLICATE_KWARGS
 from pydantic.v1.decorator import V_POSITIONAL_ONLY_NAME
@@ -97,9 +96,14 @@ def _remove_args_kwargs_properties(old_schema: _Schema) -> _Schema:
     expected_args_property = {"title": "Args", "type": "array", "items": {}}
     expected_kwargs_property = {"title": "Kwargs", "type": "object"}
     if args_property != expected_args_property:
-        raise ValueError(f"{args_property=}\ndiffers from\n{expected_args_property=}")
+        raise ValueError(
+            f"{args_property=}\ndiffers from\n{expected_args_property=}"
+        )
     if kwargs_property != expected_kwargs_property:
-        raise ValueError(f"{kwargs_property=}\ndiffers from\n" f"{expected_kwargs_property=}")
+        raise ValueError(
+            f"{kwargs_property=}\ndiffers from\n"
+            f"{expected_kwargs_property=}"
+        )
     logging.info("[_remove_args_kwargs_properties] END")
     return new_schema
 
@@ -145,7 +149,9 @@ def _remove_attributes_from_descriptions(old_schema: _Schema) -> _Schema:
     if "definitions" in new_schema:
         for name, definition in new_schema["definitions"].items():
             parsed_docstring = docparse(definition["description"])
-            new_schema["definitions"][name]["description"] = parsed_docstring.short_description
+            new_schema["definitions"][name][
+                "description"
+            ] = parsed_docstring.short_description
     logging.info("[_remove_attributes_from_descriptions] END")
     return new_schema
 
@@ -176,18 +182,21 @@ def create_schema_for_single_task(
         # Usage 1 (standard)
         if package is None:
             raise ValueError(
-                "Cannot call `create_schema_for_single_task with " f"{task_function=} and {package=}. Exit."
+                "Cannot call `create_schema_for_single_task with "
+                f"{task_function=} and {package=}. Exit."
             )
         if os.path.isabs(executable):
             raise ValueError(
-                "Cannot call `create_schema_for_single_task with " f"{task_function=} and absolute {executable=}. Exit."
+                "Cannot call `create_schema_for_single_task with "
+                f"{task_function=} and absolute {executable=}. Exit."
             )
     else:
         usage = "2"
         # Usage 2 (testing)
         if package is not None:
             raise ValueError(
-                "Cannot call `create_schema_for_single_task with " f"{task_function=} and non-None {package=}. Exit."
+                "Cannot call `create_schema_for_single_task with "
+                f"{task_function=} and non-None {package=}. Exit."
             )
         if not os.path.isabs(executable):
             raise ValueError(
@@ -236,7 +245,9 @@ def create_schema_for_single_task(
         function_name=function_name,
         verbose=verbose,
     )
-    schema = _insert_function_args_descriptions(schema=schema, descriptions=function_args_descriptions, verbose=verbose)
+    schema = _insert_function_args_descriptions(
+        schema=schema, descriptions=function_args_descriptions, verbose=verbose
+    )
 
     # Merge lists of fractal-tasks-core and user-provided Pydantic models
     user_provided_models = custom_pydantic_models or []
@@ -244,7 +255,11 @@ def create_schema_for_single_task(
 
     # Check that model names are unique
     pydantic_models_names = [item[2] for item in pydantic_models]
-    duplicate_class_names = [name for name, count in Counter(pydantic_models_names).items() if count > 1]
+    duplicate_class_names = [
+        name
+        for name, count in Counter(pydantic_models_names).items()
+        if count > 1
+    ]
     if duplicate_class_names:
         pydantic_models_str = "  " + "\n  ".join(map(str, pydantic_models))
         raise ValueError(

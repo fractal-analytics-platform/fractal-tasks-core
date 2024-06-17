@@ -66,7 +66,10 @@ def _process_single_image(
 
     # Preliminary checks
     if add_grid_ROI_table and (grid_YX_shape is None):
-        raise ValueError(f"_process_single_image called with {add_grid_ROI_table=}, " f"but {grid_YX_shape=}.")
+        raise ValueError(
+            f"_process_single_image called with {add_grid_ROI_table=}, "
+            f"but {grid_YX_shape=}."
+        )
 
     pixels_ZYX = image_meta.get_pixel_sizes_zyx(level=0)
 
@@ -118,12 +121,17 @@ def _process_single_image(
         logger.info(f"Existing axes: {image_meta.axes_names}")
         logger.info(f"Channel-axis index: {channel_axis_index}")
         num_channels_zarr = array.shape[channel_axis_index]
-        logger.info(f"{num_channels_zarr} channel(s) found in Zarr array " f"at {image_path}/{dataset_subpath}")
+        logger.info(
+            f"{num_channels_zarr} channel(s) found in Zarr array "
+            f"at {image_path}/{dataset_subpath}"
+        )
         # Update or create omero channels metadata
         old_omero = image_group.attrs.get("omero", {})
         old_channels = old_omero.get("channels", [])
         if len(old_channels) > 0:
-            logger.info(f"{len(old_channels)} channel(s) found in NGFF omero metadata")
+            logger.info(
+                f"{len(old_channels)} channel(s) found in NGFF omero metadata"
+            )
             if len(old_channels) != num_channels_zarr:
                 error_msg = (
                     "Channels-number mismatch: Number of channels in the "

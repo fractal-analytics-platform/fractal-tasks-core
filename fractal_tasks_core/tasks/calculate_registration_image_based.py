@@ -82,7 +82,9 @@ def calculate_registration_image_based(
 
     """
     logger.info(
-        f"Running for {zarr_url=}.\n" f"Calculating translation registration per {roi_table=} for " f"{wavelength_id=}."
+        f"Running for {zarr_url=}.\n"
+        f"Calculating translation registration per {roi_table=} for "
+        f"{wavelength_id=}."
     )
 
     init_args.reference_zarr_url = init_args.reference_zarr_url
@@ -106,13 +108,21 @@ def calculate_registration_image_based(
     channel_index_align = channel_align.index
 
     # Lazily load zarr array
-    data_reference_zyx = da.from_zarr(f"{init_args.reference_zarr_url}/{level}")[channel_index_ref]
-    data_alignment_zyx = da.from_zarr(f"{zarr_url}/{level}")[channel_index_align]
+    data_reference_zyx = da.from_zarr(
+        f"{init_args.reference_zarr_url}/{level}"
+    )[channel_index_ref]
+    data_alignment_zyx = da.from_zarr(f"{zarr_url}/{level}")[
+        channel_index_align
+    ]
 
     # Read ROIs
-    ROI_table_ref = ad.read_zarr(f"{init_args.reference_zarr_url}/tables/{roi_table}")
+    ROI_table_ref = ad.read_zarr(
+        f"{init_args.reference_zarr_url}/tables/{roi_table}"
+    )
     ROI_table_x = ad.read_zarr(f"{zarr_url}/tables/{roi_table}")
-    logger.info(f"Found {len(ROI_table_x)} ROIs in {roi_table=} to be processed.")
+    logger.info(
+        f"Found {len(ROI_table_x)} ROIs in {roi_table=} to be processed."
+    )
 
     # Check that table type of ROI_table_ref is valid. Note that
     # "ngff:region_table" and None are accepted for backwards compatibility
@@ -129,7 +139,12 @@ def calculate_registration_image_based(
     ref_table_attrs = ROI_table_ref_group.attrs.asdict()
     ref_table_type = ref_table_attrs.get("type")
     if ref_table_type not in valid_table_types:
-        raise ValueError((f"Table '{roi_table}' (with type '{ref_table_type}') is " "not a valid ROI table."))
+        raise ValueError(
+            (
+                f"Table '{roi_table}' (with type '{ref_table_type}') is "
+                "not a valid ROI table."
+            )
+        )
 
     # For each acquisition, get the relevant info
     # TODO: Add additional checks on ROIs?
@@ -152,7 +167,10 @@ def calculate_registration_image_based(
     pxl_sizes_zyx_acq_x = ngff_image_meta_acq_x.get_pixel_sizes_zyx(level=0)
 
     if pxl_sizes_zyx != pxl_sizes_zyx_acq_x:
-        raise ValueError("Pixel sizes need to be equal between acquisitions for " "registration.")
+        raise ValueError(
+            "Pixel sizes need to be equal between acquisitions for "
+            "registration."
+        )
 
     # Create list of indices for 3D ROIs spanning the entire Z direction
     list_indices_ref = convert_ROI_table_to_indices(
@@ -175,7 +193,10 @@ def calculate_registration_image_based(
     compute = True
     new_shifts = {}
     for i_ROI in range(num_ROIs):
-        logger.info(f"Now processing ROI {i_ROI+1}/{num_ROIs} " f"for channel {channel_align}.")
+        logger.info(
+            f"Now processing ROI {i_ROI+1}/{num_ROIs} "
+            f"for channel {channel_align}."
+        )
         img_ref = load_region(
             data_zyx=data_reference_zyx,
             region=convert_indices_to_regions(list_indices_ref[i_ROI]),
@@ -193,9 +214,12 @@ def calculate_registration_image_based(
         # Basic version (no padding, no internal binning)
         if img_ref.shape != img_acq_x.shape:
             raise NotImplementedError(
-                "This registration is not implemented for ROIs with " "different shapes between acquisitions."
+                "This registration is not implemented for ROIs with "
+                "different shapes between acquisitions."
             )
-        shifts = phase_cross_correlation(np.squeeze(img_ref), np.squeeze(img_acq_x))[0]
+        shifts = phase_cross_correlation(
+            np.squeeze(img_ref), np.squeeze(img_acq_x)
+        )[0]
 
         # Registration based on scmultiplex, image-based
         # shifts, _, _ = calculate_shift(np.squeeze(img_ref),

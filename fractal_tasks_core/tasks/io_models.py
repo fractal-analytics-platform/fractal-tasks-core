@@ -126,7 +126,9 @@ class NapariWorkflowsOutput(BaseModel):
         """
         _type = values.get("type")
         if (_type == "dataframe" and (not v)) or (_type != "dataframe" and v):
-            raise ValueError(f"Output item has type={_type} but table_name={v}.")
+            raise ValueError(
+                f"Output item has type={_type} but table_name={v}."
+            )
         return v
 
 
@@ -151,7 +153,9 @@ class NapariWorkflowsInput(BaseModel):
         """
         _type = values.get("type")
         if _type == "label" and not v:
-            raise ValueError(f"Input item has type={_type} but label_name={v}.")
+            raise ValueError(
+                f"Input item has type={_type} but label_name={v}."
+            )
         return v
 
     @validator("channel", always=True)

@@ -53,5 +53,9 @@ def test_task_interface(task, tmp_path):
         if value is None:
             continue
         task_path = (module_dir / value).as_posix()
-        cmd = f"python {task_path} " f"--args-json {tmp_file_args} " f"--out-json {tmp_file_metadiff}"
+        cmd = (
+            f"python {task_path} "
+            f"--args-json {tmp_file_args} "
+            f"--out-json {tmp_file_metadiff}"
+        )
         validate_command(cmd)

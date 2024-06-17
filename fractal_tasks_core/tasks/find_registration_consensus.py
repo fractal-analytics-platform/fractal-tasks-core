@@ -87,7 +87,9 @@ def find_registration_consensus(
     roi_tables_attrs = {}
     for acq_zarr_url in init_args.zarr_url_list:
         curr_ROI_table = ad.read_zarr(f"{acq_zarr_url}/tables/{roi_table}")
-        curr_ROI_table_group = zarr.open_group(f"{acq_zarr_url}/tables/{roi_table}", mode="r")
+        curr_ROI_table_group = zarr.open_group(
+            f"{acq_zarr_url}/tables/{roi_table}", mode="r"
+        )
         curr_ROI_table_attrs = curr_ROI_table_group.attrs.asdict()
 
         # For reference_acquisition, handle the fact that it doesn't
@@ -121,18 +123,26 @@ def find_registration_consensus(
                 f"{zarr_url}: {rois}"
             )
 
-    roi_table_dfs = [roi_table.to_df().loc[:, translation_columns] for roi_table in roi_tables.values()]
+    roi_table_dfs = [
+        roi_table.to_df().loc[:, translation_columns]
+        for roi_table in roi_tables.values()
+    ]
     logger.info("Calculating min & max translation across acquisitions.")
     max_df, min_df = calculate_min_max_across_dfs(roi_table_dfs)
     shifted_rois = {}
 
     # Loop over acquisitions
     for acq_zarr_url in init_args.zarr_url_list:
-        shifted_rois[acq_zarr_url] = apply_registration_to_single_ROI_table(roi_tables[acq_zarr_url], max_df, min_df)
+        shifted_rois[acq_zarr_url] = apply_registration_to_single_ROI_table(
+            roi_tables[acq_zarr_url], max_df, min_df
+        )
 
         # TODO: Drop translation columns from this table?
 
-        logger.info(f"Write the registered ROI table {new_roi_table} for " "{acq_zarr_url=}")
+        logger.info(
+            f"Write the registered ROI table {new_roi_table} for "
+            "{acq_zarr_url=}"
+        )
         # Save the shifted ROI table as a new table
         image_group = zarr.group(acq_zarr_url)
         write_table(

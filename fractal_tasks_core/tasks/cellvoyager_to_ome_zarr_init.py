@@ -160,7 +160,9 @@ def cellvoyager_to_ome_zarr_init(
                 C = filename_metadata["C"]
                 tmp_wavelength_ids.append(f"A{A}_C{C}")
             except ValueError as e:
-                logger.warning(f'Skipping "{Path(fn).name}". Original error: ' + str(e))
+                logger.warning(
+                    f'Skipping "{Path(fn).name}". Original error: ' + str(e)
+                )
         tmp_plates = sorted(list(set(tmp_plates)))
         tmp_wavelength_ids = sorted(list(set(tmp_wavelength_ids)))
 
@@ -186,7 +188,9 @@ def cellvoyager_to_ome_zarr_init(
             while new_plate in plates:
                 new_plate = f"{plate}_{ind}"
                 ind += 1
-            logger.info(f"WARNING: {plate} already exists, renaming it as {new_plate}")
+            logger.info(
+                f"WARNING: {plate} already exists, renaming it as {new_plate}"
+            )
             plates.append(new_plate)
             dict_plate_prefixes[new_plate] = dict_plate_prefixes[plate]
             plate = new_plate
@@ -198,13 +202,18 @@ def cellvoyager_to_ome_zarr_init(
             actual_wavelength_ids = tmp_wavelength_ids[:]
         else:
             if actual_wavelength_ids != tmp_wavelength_ids:
-                raise ValueError(f"ERROR\n{info}\nERROR:" f" expected channels {actual_wavelength_ids}")
+                raise ValueError(
+                    f"ERROR\n{info}\nERROR:"
+                    f" expected channels {actual_wavelength_ids}"
+                )
 
         # Update dict_plate_paths
         dict_plate_paths[plate] = image_dir
 
     # Check that all channels are in the allowed_channels
-    allowed_wavelength_ids = [channel.wavelength_id for channel in allowed_channels]
+    allowed_wavelength_ids = [
+        channel.wavelength_id for channel in allowed_channels
+    ]
     if not set(actual_wavelength_ids).issubset(set(allowed_wavelength_ids)):
         msg = "ERROR in create_ome_zarr\n"
         msg += f"actual_wavelength_ids: {actual_wavelength_ids}\n"
@@ -213,7 +222,11 @@ def cellvoyager_to_ome_zarr_init(
 
     # Create actual_channels, i.e. a list of the channel dictionaries which are
     # present
-    actual_channels = [channel for channel in allowed_channels if channel.wavelength_id in actual_wavelength_ids]
+    actual_channels = [
+        channel
+        for channel in allowed_channels
+        if channel.wavelength_id in actual_wavelength_ids
+    ]
 
     ################################################################
     # Create well/image OME-Zarr folders on disk, and prepare output
@@ -267,9 +280,13 @@ def cellvoyager_to_ome_zarr_init(
         patterns = [f"{plate_prefix}_*.{image_extension}"]
         if image_glob_patterns:
             patterns.extend(image_glob_patterns)
-        plate_images = glob_with_multiple_patterns(folder=str(in_path), patterns=patterns)
+        plate_images = glob_with_multiple_patterns(
+            folder=str(in_path), patterns=patterns
+        )
 
-        wells = [parse_filename(os.path.basename(fn))["well"] for fn in plate_images]
+        wells = [
+            parse_filename(os.path.basename(fn))["well"] for fn in plate_images
+        ]
         wells = sorted(list(set(wells)))
 
         # Verify that all wells have all channels
@@ -277,7 +294,9 @@ def cellvoyager_to_ome_zarr_init(
             patterns = [f"{plate_prefix}_{well}_*.{image_extension}"]
             if image_glob_patterns:
                 patterns.extend(image_glob_patterns)
-            well_images = glob_with_multiple_patterns(folder=str(in_path), patterns=patterns)
+            well_images = glob_with_multiple_patterns(
+                folder=str(in_path), patterns=patterns
+            )
 
             # Check number of images matches with expected one
             if metadata_table_file is None:
@@ -297,7 +316,9 @@ def cellvoyager_to_ome_zarr_init(
             for fpath in well_images:
                 try:
                     filename_metadata = parse_filename(os.path.basename(fpath))
-                    well_wavelength_ids.append(f"A{filename_metadata['A']}_C{filename_metadata['C']}")
+                    well_wavelength_ids.append(
+                        f"A{filename_metadata['A']}_C{filename_metadata['C']}"
+                    )
                 except IndexError:
                     logger.info(f"Skipping {fpath}")
             well_wavelength_ids = sorted(list(set(well_wavelength_ids)))
@@ -311,8 +332,12 @@ def cellvoyager_to_ome_zarr_init(
 
         well_rows_columns = generate_row_col_split(wells)
 
-        row_list = [well_row_column[0] for well_row_column in well_rows_columns]
-        col_list = [well_row_column[1] for well_row_column in well_rows_columns]
+        row_list = [
+            well_row_column[0] for well_row_column in well_rows_columns
+        ]
+        col_list = [
+            well_row_column[1] for well_row_column in well_rows_columns
+        ]
         row_list = sorted(list(set(row_list)))
         col_list = sorted(list(set(col_list)))
 
@@ -391,8 +416,10 @@ def cellvoyager_to_ome_zarr_init(
                                     "scale": [
                                         1,
                                         pixel_size_z,
-                                        pixel_size_y * coarsening_xy**ind_level,
-                                        pixel_size_x * coarsening_xy**ind_level,
+                                        pixel_size_y
+                                        * coarsening_xy**ind_level,
+                                        pixel_size_x
+                                        * coarsening_xy**ind_level,
                                     ],
                                 }
                             ],
@@ -406,7 +433,9 @@ def cellvoyager_to_ome_zarr_init(
                 "id": 1,  # TODO does this depend on the plate number?
                 "name": "TBD",
                 "version": __OME_NGFF_VERSION__,
-                "channels": define_omero_channels(channels=actual_channels, bit_depth=bit_depth),
+                "channels": define_omero_channels(
+                    channels=actual_channels, bit_depth=bit_depth
+                ),
             }
 
             # Validate Image attrs
@@ -415,7 +444,9 @@ def cellvoyager_to_ome_zarr_init(
             # Prepare AnnData tables for FOV/well ROIs
             well_id = get_filename_well_id(row, column)
             FOV_ROIs_table = prepare_FOV_ROI_table(site_metadata.loc[well_id])
-            well_ROIs_table = prepare_well_ROI_table(site_metadata.loc[well_id])
+            well_ROIs_table = prepare_well_ROI_table(
+                site_metadata.loc[well_id]
+            )
 
             # Write AnnData tables into the `tables` zarr group
             write_table(
