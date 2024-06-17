@@ -57,12 +57,7 @@ jobs:
     steps:
 
       - name: Print matrix-element information
-        run: |
-          echo '${{ matrix.package }}'; |
-          echo '${{ matrix.github_repo }}'; |
-          echo '${{ matrix.cmd_install }}'; |
-          echo '${{ matrix.cmd_create_manifest }}'; |
-          echo '${{ matrix.manifest_path }}';
+        run: echo '${{ matrix.package }}, ${{ matrix.github_repo }}, ${{ matrix.cmd_install }}, ${{ matrix.cmd_create_manifest }}, ${{ matrix.manifest_path }}'
 
       - name: Get package source code
         uses: actions/checkout@v4
