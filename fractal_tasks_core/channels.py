@@ -109,7 +109,9 @@ class ChannelInputModel(BaseModel):
 
     Attributes:
         wavelength_id: Unique ID for the channel wavelength, e.g. `A01_C01`.
-        label: Name of the channel.
+            Can only be specified if label is not set.
+        label: Name of the channel. Can only be specified if wavelength_id is
+            not set.
     """
 
     wavelength_id: Optional[str] = None
