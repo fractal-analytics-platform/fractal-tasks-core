@@ -9,6 +9,9 @@
 * Documentation:
     * Improve/extend page showing tasks from other packages (\#759).
 
+* JSON Schema generation:
+    * Test manifest creation for three other tasks packages (\#763).
+
 # 1.0.2
 
 * Fix bug in plate metadata in MIP task (in the copy_ome_zarr_hcs_plate init function) (\#736).
