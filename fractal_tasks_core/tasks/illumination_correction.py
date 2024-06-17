@@ -22,7 +22,7 @@ import anndata as ad
 import dask.array as da
 import numpy as np
 import zarr
-from pydantic.decorator import validate_arguments
+from pydantic.v1.decorator import validate_arguments
 from skimage.io import imread
 
 from fractal_tasks_core.channels import get_omero_channel_list
@@ -59,10 +59,7 @@ def correct(
 
     # Check shapes
     if corr_img.shape != img_stack.shape[2:] or img_stack.shape[0] != 1:
-        raise ValueError(
-            "Error in illumination_correction:\n"
-            f"{img_stack.shape=}\n{corr_img.shape=}"
-        )
+        raise ValueError("Error in illumination_correction:\n" f"{img_stack.shape=}\n{corr_img.shape=}")
 
     # Store info about dtype
     dtype = img_stack.dtype
@@ -106,7 +103,6 @@ def illumination_correction(
     # Advanced parameters
     suffix: str = "_illum_corr",
 ) -> dict[str, Any]:
-
     """
     Applies illumination correction to the images in the OME-Zarr.
 
@@ -161,14 +157,10 @@ def illumination_correction(
     full_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
     logger.info(f"NGFF image has {num_levels=}")
     logger.info(f"NGFF image has {coarsening_xy=}")
-    logger.info(
-        f"NGFF image has full-res pixel sizes {full_res_pxl_sizes_zyx}"
-    )
+    logger.info(f"NGFF image has full-res pixel sizes {full_res_pxl_sizes_zyx}")
 
     # Read channels from .zattrs
-    channels: list[OmeroChannel] = get_omero_channel_list(
-        image_zarr_path=zarr_url
-    )
+    channels: list[OmeroChannel] = get_omero_channel_list(image_zarr_path=zarr_url)
     num_channels = len(channels)
 
     # Read FOV ROIs
@@ -192,9 +184,7 @@ def illumination_correction(
             ref_img_size = img_size
         else:
             if img_size != ref_img_size:
-                raise ValueError(
-                    "ERROR: inconsistent image sizes in list_indices"
-                )
+                raise ValueError("ERROR: inconsistent image sizes in list_indices")
     img_size_y, img_size_x = img_size[:]
 
     # Assemble dictionary of matrices and check their shapes
@@ -202,16 +192,10 @@ def illumination_correction(
     for channel in channels:
         wavelength_id = channel.wavelength_id
         corrections[wavelength_id] = imread(
-            (
-                Path(illumination_profiles_folder)
-                / illumination_profiles[wavelength_id]
-            ).as_posix()
+            (Path(illumination_profiles_folder) / illumination_profiles[wavelength_id]).as_posix()
         )
         if corrections[wavelength_id].shape != (img_size_y, img_size_x):
-            raise ValueError(
-                "Error in illumination_correction, "
-                "correction matrix has wrong shape."
-            )
+            raise ValueError("Error in illumination_correction, " "correction matrix has wrong shape.")
 
     # Lazily load highest-res level from original zarr array
     data_czyx = da.from_zarr(f"{zarr_url}/0")
@@ -245,10 +229,7 @@ def illumination_correction(
                 slice(s_y, e_y),
                 slice(s_x, e_x),
             )
-            logger.info(
-                f"Now processing ROI {i_ROI+1}/{num_ROIs} "
-                f"for channel {i_c+1}/{num_channels}"
-            )
+            logger.info(f"Now processing ROI {i_ROI+1}/{num_ROIs} " f"for channel {i_c+1}/{num_channels}")
             # Execute illumination correction
             corrected_fov = correct(
                 data_czyx[region].compute(),
@@ -278,9 +259,7 @@ def illumination_correction(
     if overwrite_input:
         image_list_updates = dict(image_list_updates=[dict(zarr_url=zarr_url)])
     else:
-        image_list_updates = dict(
-            image_list_updates=[dict(zarr_url=zarr_url_new, origin=zarr_url)]
-        )
+        image_list_updates = dict(image_list_updates=[dict(zarr_url=zarr_url_new, origin=zarr_url)])
     return image_list_updates
 
 

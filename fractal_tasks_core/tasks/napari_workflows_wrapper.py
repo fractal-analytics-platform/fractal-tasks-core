@@ -22,7 +22,7 @@ import numpy as np
 import pandas as pd
 import zarr
 from napari_workflows._io_yaml_v1 import load_workflow
-from pydantic.decorator import validate_arguments
+from pydantic.v1.decorator import validate_arguments
 
 import fractal_tasks_core
 from fractal_tasks_core.channels import get_channel_from_image_zarr
@@ -141,9 +141,7 @@ def napari_workflows_wrapper(
 
     # Characterization of workflow and scope restriction
     input_types = [in_params.type for (name, in_params) in input_specs.items()]
-    output_types = [
-        out_params.type for (name, out_params) in output_specs.items()
-    ]
+    output_types = [out_params.type for (name, out_params) in output_specs.items()]
     are_inputs_all_images = set(input_types) == {"image"}
     are_outputs_all_labels = set(output_types) == {"label"}
     are_outputs_all_dataframes = set(output_types) == {"dataframe"}
@@ -151,9 +149,7 @@ def napari_workflows_wrapper(
     is_measurement_only_workflow = are_outputs_all_dataframes
     # Level-related constraint
     logger.info(f"This workflow acts at {level=}")
-    logger.info(
-        f"Is the current workflow a labeling one? {is_labeling_workflow}"
-    )
+    logger.info(f"Is the current workflow a labeling one? {is_labeling_workflow}")
     if level > 0 and not is_labeling_workflow:
         msg = (
             f"{level=}>0 is currently only accepted for labeling workflows, "
@@ -163,10 +159,7 @@ def napari_workflows_wrapper(
         raise OutOfTaskScopeError(msg)
     # Relabeling-related (soft) constraint
     if is_measurement_only_workflow and relabeling:
-        logger.warning(
-            "This is a measurement-output-only workflow, setting "
-            "relabeling=False."
-        )
+        logger.warning("This is a measurement-output-only workflow, setting " "relabeling=False.")
         relabeling = False
     if relabeling:
         max_label_for_relabeling = 0
@@ -193,22 +186,15 @@ def napari_workflows_wrapper(
     )
     check_valid_ROI_indices(list_indices, input_ROI_table)
     num_ROIs = len(list_indices)
-    logger.info(
-        f"Completed reading ROI table {input_ROI_table},"
-        f" found {num_ROIs} ROIs."
-    )
+    logger.info(f"Completed reading ROI table {input_ROI_table}," f" found {num_ROIs} ROIs.")
 
     # Input preparation: "image" type
-    image_inputs = [
-        (name, in_params)
-        for (name, in_params) in input_specs.items()
-        if in_params.type == "image"
-    ]
+    image_inputs = [(name, in_params) for (name, in_params) in input_specs.items() if in_params.type == "image"]
     input_image_arrays = {}
     if image_inputs:
         img_array = da.from_zarr(f"{zarr_url}/{level}")
         # Loop over image inputs and assign corresponding channel of the image
-        for (name, params) in image_inputs:
+        for name, params in image_inputs:
             channel = get_channel_from_image_zarr(
                 image_zarr_path=zarr_url,
                 wavelength_id=params.channel.wavelength_id,
@@ -220,74 +206,49 @@ def napari_workflows_wrapper(
             # Handle dimensions
             shape = input_image_arrays[name].shape
             if expected_dimensions == 3 and shape[0] == 1:
-                logger.warning(
-                    f"Input {name} has shape {shape} "
-                    f"but {expected_dimensions=}"
-                )
+                logger.warning(f"Input {name} has shape {shape} " f"but {expected_dimensions=}")
             if expected_dimensions == 2:
                 if len(shape) == 2:
                     # We already load the data as a 2D array
                     pass
                 elif shape[0] == 1:
-                    input_image_arrays[name] = input_image_arrays[name][
-                        0, :, :
-                    ]
+                    input_image_arrays[name] = input_image_arrays[name][0, :, :]
                 else:
-                    msg = (
-                        f"Input {name} has shape {shape} "
-                        f"but {expected_dimensions=}"
-                    )
+                    msg = f"Input {name} has shape {shape} " f"but {expected_dimensions=}"
                     logger.error(msg)
                     raise ValueError(msg)
             logger.info(f"Prepared input with {name=} and {params=}")
         logger.info(f"{input_image_arrays=}")
 
     # Input preparation: "label" type
-    label_inputs = [
-        (name, in_params)
-        for (name, in_params) in input_specs.items()
-        if in_params.type == "label"
-    ]
+    label_inputs = [(name, in_params) for (name, in_params) in input_specs.items() if in_params.type == "label"]
     if label_inputs:
         # Set target_shape for upscaling labels
         if not image_inputs:
-            logger.warning(
-                f"{len(label_inputs)=} but num_image_inputs=0. "
-                "Label array(s) will not be upscaled."
-            )
+            logger.warning(f"{len(label_inputs)=} but num_image_inputs=0. " "Label array(s) will not be upscaled.")
             upscale_labels = False
         else:
             target_shape = list(input_image_arrays.values())[0].shape
             upscale_labels = True
         # Loop over label inputs and load corresponding (upscaled) image
         input_label_arrays = {}
-        for (name, params) in label_inputs:
+        for name, params in label_inputs:
             label_name = params.label_name
-            label_array_raw = da.from_zarr(
-                f"{zarr_url}/labels/{label_name}/{level}"
-            )
+            label_array_raw = da.from_zarr(f"{zarr_url}/labels/{label_name}/{level}")
             input_label_arrays[name] = label_array_raw
 
             # Handle dimensions
             shape = input_label_arrays[name].shape
             if expected_dimensions == 3 and shape[0] == 1:
-                logger.warning(
-                    f"Input {name} has shape {shape} "
-                    f"but {expected_dimensions=}"
-                )
+                logger.warning(f"Input {name} has shape {shape} " f"but {expected_dimensions=}")
             if expected_dimensions == 2:
                 if len(shape) == 2:
                     # We already load the data as a 2D array
                     pass
                 elif shape[0] == 1:
-                    input_label_arrays[name] = input_label_arrays[name][
-                        0, :, :
-                    ]
+                    input_label_arrays[name] = input_label_arrays[name][0, :, :]
                 else:
-                    msg = (
-                        f"Input {name} has shape {shape} "
-                        f"but {expected_dimensions=}"
-                    )
+                    msg = f"Input {name} has shape {shape} " f"but {expected_dimensions=}"
                     logger.error(msg)
                     raise ValueError(msg)
 
@@ -317,17 +278,12 @@ def napari_workflows_wrapper(
         logger.info(f"{input_label_arrays=}")
 
     # Output preparation: "label" type
-    label_outputs = [
-        (name, out_params)
-        for (name, out_params) in output_specs.items()
-        if out_params.type == "label"
-    ]
+    label_outputs = [(name, out_params) for (name, out_params) in output_specs.items() if out_params.type == "label"]
     if label_outputs:
         # Preliminary scope checks
         if len(label_outputs) > 1:
             raise OutOfTaskScopeError(
-                "Multiple label outputs would break label-inputs-only "
-                f"workflows (found {len(label_outputs)=})."
+                "Multiple label outputs would break label-inputs-only " f"workflows (found {len(label_outputs)=})."
             )
         if len(label_outputs) > 1 and relabeling:
             raise OutOfTaskScopeError(
@@ -347,12 +303,8 @@ def napari_workflows_wrapper(
             reference_array = list(input_label_arrays.values())[0]
             # Re-load pixel size, matching to the correct level
             input_label_name = label_inputs[0][1].label_name
-            ngff_label_image_meta = load_NgffImageMeta(
-                f"{zarr_url}/labels/{input_label_name}"
-            )
-            full_res_pxl_sizes_zyx = ngff_label_image_meta.get_pixel_sizes_zyx(
-                level=0
-            )
+            ngff_label_image_meta = load_NgffImageMeta(f"{zarr_url}/labels/{input_label_name}")
+            full_res_pxl_sizes_zyx = ngff_label_image_meta.get_pixel_sizes_zyx(level=0)
             # Create list of indices for 3D FOVs spanning the whole Z direction
             list_indices = convert_ROI_table_to_indices(
                 ROI_table,
@@ -370,10 +322,7 @@ def napari_workflows_wrapper(
                 "are not upscaled."
             )
         else:
-            msg = (
-                "Missing image_inputs and label_inputs, we cannot assign"
-                " label output properties"
-            )
+            msg = "Missing image_inputs and label_inputs, we cannot assign" " label output properties"
             raise OutOfTaskScopeError(msg)
 
         # Extract label properties from reference_array, and make sure they are
@@ -382,10 +331,7 @@ def napari_workflows_wrapper(
         label_chunksize = reference_array.chunksize
         if len(label_shape) == 2 and len(label_chunksize) == 2:
             if expected_dimensions == 3:
-                raise ValueError(
-                    f"Something wrong: {label_shape=} but "
-                    f"{expected_dimensions=}"
-                )
+                raise ValueError(f"Something wrong: {label_shape=} but " f"{expected_dimensions=}")
             label_shape = (1, label_shape[0], label_shape[1])
             label_chunksize = (1, label_chunksize[0], label_chunksize[1])
         logger.info(f"{label_shape=}")
@@ -393,7 +339,7 @@ def napari_workflows_wrapper(
 
         # Loop over label outputs and (1) set zattrs, (2) create zarr group
         output_label_zarr_groups: dict[str, Any] = {}
-        for (name, out_params) in label_outputs:
+        for name, out_params in label_outputs:
 
             # (1a) Rescale OME-NGFF datasets (relevant for level>0)
             if not ngff_image_meta.multiscale.axes[0].name == "c":
@@ -403,9 +349,7 @@ def napari_workflows_wrapper(
                     'First axis should have name "c".'
                 )
             new_datasets = rescale_datasets(
-                datasets=[
-                    ds.dict() for ds in ngff_image_meta.multiscale.datasets
-                ],
+                datasets=[ds.dict() for ds in ngff_image_meta.multiscale.datasets],
                 coarsening_xy=coarsening_xy,
                 reference_level=level,
                 remove_channel_axis=True,
@@ -422,11 +366,7 @@ def napari_workflows_wrapper(
                     {
                         "name": label_name,
                         "version": __OME_NGFF_VERSION__,
-                        "axes": [
-                            ax.dict()
-                            for ax in ngff_image_meta.multiscale.axes
-                            if ax.type != "channel"
-                        ],
+                        "axes": [ax.dict() for ax in ngff_image_meta.multiscale.axes if ax.type != "channel"],
                         "datasets": new_datasets,
                     }
                 ],
@@ -441,10 +381,7 @@ def napari_workflows_wrapper(
                 label_attrs=label_attrs,
                 logger=logger,
             )
-            logger.info(
-                "Helper function `prepare_label_group` returned "
-                f"{label_group=}"
-            )
+            logger.info("Helper function `prepare_label_group` returned " f"{label_group=}")
 
             # (3) Create zarr group at level=0
             store = zarr.storage.FSStore(f"{zarr_url}/labels/{label_name}/0")
@@ -462,12 +399,10 @@ def napari_workflows_wrapper(
 
     # Output preparation: "dataframe" type
     dataframe_outputs = [
-        (name, out_params)
-        for (name, out_params) in output_specs.items()
-        if out_params.type == "dataframe"
+        (name, out_params) for (name, out_params) in output_specs.items() if out_params.type == "dataframe"
     ]
     output_dataframe_lists: dict[str, list] = {}
-    for (name, out_params) in dataframe_outputs:
+    for name, out_params in dataframe_outputs:
         output_dataframe_lists[name] = []
         logger.info(f"Prepared output with {name=} and {out_params=}")
         logger.info(f"{output_dataframe_lists=}")
@@ -536,10 +471,7 @@ def napari_workflows_wrapper(
 
             # Check dimensions
             if len(mask.shape) != expected_dimensions:
-                msg = (
-                    f"Output {output_name} has shape {mask.shape} "
-                    f"but {expected_dimensions=}"
-                )
+                msg = f"Output {output_name} has shape {mask.shape} " f"but {expected_dimensions=}"
                 logger.error(msg)
                 raise ValueError(msg)
             elif expected_dimensions == 2:
@@ -561,8 +493,7 @@ def napari_workflows_wrapper(
             if relabeling:
                 mask[mask > 0] += max_label_for_relabeling
                 logger.info(
-                    f'ROI {i_ROI+1}/{num_ROIs}: Relabeling "{name}" label '
-                    f"output, with {max_label_for_relabeling=}"
+                    f'ROI {i_ROI+1}/{num_ROIs}: Relabeling "{name}" label ' f"output, with {max_label_for_relabeling=}"
                 )
                 max_label_for_relabeling += num_labels_in_this_ROI
                 logger.info(
@@ -581,7 +512,7 @@ def napari_workflows_wrapper(
 
     # Output handling: "dataframe" type (for each output, concatenate ROI
     # dataframes, clean up, and store in a AnnData table on-disk)
-    for (name, out_params) in dataframe_outputs:
+    for name, out_params in dataframe_outputs:
         table_name = out_params.table_name
         # Concatenate all FOV dataframes
         list_dfs = output_dataframe_lists[name]
@@ -617,7 +548,7 @@ def napari_workflows_wrapper(
 
     # Output handling: "label" type (for each output, build and write to disk
     # pyramid of coarser levels)
-    for (name, out_params) in label_outputs:
+    for name, out_params in label_outputs:
         label_name = out_params.label_name
         build_pyramid(
             zarrurl=f"{zarr_url}/labels/{label_name}",

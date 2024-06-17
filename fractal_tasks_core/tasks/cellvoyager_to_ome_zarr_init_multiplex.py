@@ -18,7 +18,7 @@ from typing import Optional
 
 import pandas as pd
 import zarr
-from pydantic.decorator import validate_arguments
+from pydantic.v1.decorator import validate_arguments
 from zarr.errors import ContainsGroupError
 
 import fractal_tasks_core
@@ -122,19 +122,13 @@ def cellvoyager_to_ome_zarr_init_multiplex(
         # 3. Files exist.
         if set(acquisitions.keys()) != set(metadata_table_files.keys()):
             raise ValueError(
-                "Mismatch in acquisition keys between "
-                f"{acquisitions.keys()=} and "
-                f"{metadata_table_files.keys()=}"
+                "Mismatch in acquisition keys between " f"{acquisitions.keys()=} and " f"{metadata_table_files.keys()=}"
             )
         for f in metadata_table_files.values():
             if not f.endswith(".csv"):
-                raise ValueError(
-                    f"{f} (in metadata_table_file) is not a csv file."
-                )
+                raise ValueError(f"{f} (in metadata_table_file) is not a csv file.")
             if not os.path.isfile(f):
-                raise ValueError(
-                    f"{f} (in metadata_table_file) does not exist."
-                )
+                raise ValueError(f"{f} (in metadata_table_file) does not exist.")
 
     # Preliminary checks on acquisitions
     # Note that in metadata the keys of dictionary arguments should be
@@ -172,9 +166,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                 C = filename_metadata["C"]
                 actual_wavelength_ids.append(f"A{A}_C{C}")
             except ValueError as e:
-                logger.warning(
-                    f'Skipping "{Path(fn).name}". Original error: ' + str(e)
-                )
+                logger.warning(f'Skipping "{Path(fn).name}". Original error: ' + str(e))
         plates = sorted(list(set(plates)))
         actual_wavelength_ids = sorted(list(set(actual_wavelength_ids)))
 
@@ -197,17 +189,12 @@ def cellvoyager_to_ome_zarr_init_multiplex(
         if int(acquisition) > 0:
             plate = dict_acquisitions["0"]["plate"]
             logger.warning(
-                f"For {acquisition=}, we replace {original_plate=} with "
-                f"{plate=} (the one for acquisition 0)"
+                f"For {acquisition=}, we replace {original_plate=} with " f"{plate=} (the one for acquisition 0)"
             )
 
         # Check that all channels are in the allowed_channels
-        allowed_wavelength_ids = [
-            c.wavelength_id for c in acq_input.allowed_channels
-        ]
-        if not set(actual_wavelength_ids).issubset(
-            set(allowed_wavelength_ids)
-        ):
+        allowed_wavelength_ids = [c.wavelength_id for c in acq_input.allowed_channels]
+        if not set(actual_wavelength_ids).issubset(set(allowed_wavelength_ids)):
             msg = "ERROR in create_ome_zarr\n"
             msg += f"actual_wavelength_ids: {actual_wavelength_ids}\n"
             msg += f"allowed_wavelength_ids: {allowed_wavelength_ids}\n"
@@ -216,9 +203,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
         # Create actual_channels, i.e. a list of the channel dictionaries which
         # are present
         actual_channels = [
-            channel
-            for channel in acq_input.allowed_channels
-            if channel.wavelength_id in actual_wavelength_ids
+            channel for channel in acq_input.allowed_channels if channel.wavelength_id in actual_wavelength_ids
         ]
 
         logger.info(f"plate: {plate}")
@@ -229,13 +214,9 @@ def cellvoyager_to_ome_zarr_init_multiplex(
         dict_acquisitions[acquisition]["original_plate"] = original_plate
         dict_acquisitions[acquisition]["plate_prefix"] = plate_prefix
         dict_acquisitions[acquisition]["image_folder"] = acq_input.image_dir
-        dict_acquisitions[acquisition]["original_paths"] = [
-            acq_input.image_dir
-        ]
+        dict_acquisitions[acquisition]["original_paths"] = [acq_input.image_dir]
         dict_acquisitions[acquisition]["actual_channels"] = actual_channels
-        dict_acquisitions[acquisition][
-            "actual_wavelength_ids"
-        ] = actual_wavelength_ids
+        dict_acquisitions[acquisition]["actual_wavelength_ids"] = actual_wavelength_ids
 
     parallelization_list = []
     acquisitions_sorted = sorted(list(acquisitions.keys()))
@@ -248,9 +229,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
     full_zarrurl = str(Path(zarr_dir) / zarrurl)
     logger.info(f"Creating {full_zarrurl=}")
     # Call zarr.open_group wrapper, which handles overwrite=True/False
-    group_plate = open_zarr_group_with_overwrite(
-        full_zarrurl, overwrite=overwrite
-    )
+    group_plate = open_zarr_group_with_overwrite(full_zarrurl, overwrite=overwrite)
     group_plate.attrs["plate"] = {
         "acquisitions": [
             {
@@ -304,9 +283,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
             patterns=patterns,
         )
 
-        wells = [
-            parse_filename(os.path.basename(fn))["well"] for fn in plate_images
-        ]
+        wells = [parse_filename(os.path.basename(fn))["well"] for fn in plate_images]
         wells = sorted(list(set(wells)))
         logger.info(f"{wells=}")
 
@@ -331,9 +308,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                 except IndexError:
                     logger.info(f"Skipping {fpath}")
             well_wavelength_ids = sorted(list(set(well_wavelength_ids)))
-            actual_wavelength_ids = dict_acquisitions[acquisition][
-                "actual_wavelength_ids"
-            ]
+            actual_wavelength_ids = dict_acquisitions[acquisition]["actual_wavelength_ids"]
             if well_wavelength_ids != actual_wavelength_ids:
                 raise ValueError(
                     f"ERROR: well {well} in plate {plate} (prefix: "
@@ -343,12 +318,8 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                 )
 
         well_rows_columns = generate_row_col_split(wells)
-        row_list = [
-            well_row_column[0] for well_row_column in well_rows_columns
-        ]
-        col_list = [
-            well_row_column[1] for well_row_column in well_rows_columns
-        ]
+        row_list = [well_row_column[0] for well_row_column in well_rows_columns]
+        col_list = [well_row_column[1] for well_row_column in well_rows_columns]
         row_list = sorted(list(set(row_list)))
         col_list = sorted(list(set(col_list)))
 
@@ -371,10 +342,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
         for row, column in well_rows_columns:
             parallelization_list.append(
                 {
-                    "zarr_url": (
-                        f"{zarr_dir}/{plate}.zarr/{row}/{column}/"
-                        f"{acquisition}/"
-                    ),
+                    "zarr_url": (f"{zarr_dir}/{plate}.zarr/{row}/{column}/" f"{acquisition}/"),
                     "init_args": InitArgsCellVoyager(
                         image_dir=acquisitions[acquisition].image_dir,
                         plate_prefix=plate_prefix,
@@ -402,12 +370,8 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                 group_well.attrs["well"] = well_attrs
                 zarrurls["well"].append(f"{plate}.zarr/{row}/{column}")
             except ContainsGroupError:
-                group_well = zarr.open_group(
-                    f"{full_zarrurl}/{row}/{column}/", mode="r+"
-                )
-                logging.info(
-                    f"Loaded group_well from {full_zarrurl}/{row}/{column}"
-                )
+                group_well = zarr.open_group(f"{full_zarrurl}/{row}/{column}/", mode="r+")
+                logging.info(f"Loaded group_well from {full_zarrurl}/{row}/{column}")
                 current_images = group_well.attrs["well"]["images"] + [
                     {"path": f"{acquisition}", "acquisition": int(acquisition)}
                 ]
@@ -419,9 +383,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                 Well(**well_attrs)
                 group_well.attrs["well"] = well_attrs
 
-            group_image = group_well.create_group(
-                f"{acquisition}/"
-            )  # noqa: F841
+            group_image = group_well.create_group(f"{acquisition}/")  # noqa: F841
             logging.info(f"Created image group {row}/{column}/{acquisition}")
             image = f"{plate}.zarr/{row}/{column}/{acquisition}"
             zarrurls["image"].append(image)
@@ -456,10 +418,8 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                                     "scale": [
                                         1,
                                         pixel_size_z,
-                                        pixel_size_y
-                                        * coarsening_xy**ind_level,
-                                        pixel_size_x
-                                        * coarsening_xy**ind_level,
+                                        pixel_size_y * coarsening_xy**ind_level,
+                                        pixel_size_x * coarsening_xy**ind_level,
                                     ],
                                 }
                             ],
@@ -485,9 +445,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
             # Prepare AnnData tables for FOV/well ROIs
             well_id = get_filename_well_id(row, column)
             FOV_ROIs_table = prepare_FOV_ROI_table(site_metadata.loc[well_id])
-            well_ROIs_table = prepare_well_ROI_table(
-                site_metadata.loc[well_id]
-            )
+            well_ROIs_table = prepare_well_ROI_table(site_metadata.loc[well_id])
 
             # Write AnnData tables into the `tables` zarr group
             write_table(
@@ -508,9 +466,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
     # Check that the different images (e.g. different acquisitions) in the each
     # well have unique labels
     for well_path in zarrurls["well"]:
-        check_well_channel_labels(
-            well_zarr_path=str(Path(zarr_dir) / well_path)
-        )
+        check_well_channel_labels(well_zarr_path=str(Path(zarr_dir) / well_path))
 
     return dict(parallelization_list=parallelization_list)
 

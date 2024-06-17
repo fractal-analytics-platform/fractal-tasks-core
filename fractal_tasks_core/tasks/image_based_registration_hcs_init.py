@@ -15,7 +15,7 @@ Initializes the parallelization list for registration in HCS plates.
 import logging
 from typing import Any
 
-from pydantic.decorator import validate_arguments
+from pydantic.v1.decorator import validate_arguments
 
 from fractal_tasks_core.tasks._registration_utils import (
     create_well_acquisition_dict,
@@ -59,9 +59,7 @@ def image_based_registration_hcs_init(
         task_output: Dictionary for Fractal server that contains a
             parallelization list.
     """
-    logger.info(
-        f"Running `image_based_registration_hcs_init` for {zarr_urls=}"
-    )
+    logger.info(f"Running `image_based_registration_hcs_init` for {zarr_urls=}")
     image_groups = create_well_acquisition_dict(zarr_urls)
 
     # Create the parallelization list

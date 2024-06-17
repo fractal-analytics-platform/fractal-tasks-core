@@ -14,7 +14,7 @@ import zarr.hierarchy
 from anndata.experimental import write_elem
 from pydantic.v1 import BaseModel
 from pydantic.v1 import validator
-from pydantic.error_wrappers import ValidationError
+from pydantic.v1.error_wrappers import ValidationError
 
 from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 

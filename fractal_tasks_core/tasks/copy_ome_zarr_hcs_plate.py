@@ -16,7 +16,7 @@ import logging
 from typing import Any
 
 import zarr
-from pydantic.decorator import validate_arguments
+from pydantic.v1.decorator import validate_arguments
 
 import fractal_tasks_core
 from fractal_tasks_core.ngff.specs import NgffPlateMeta
@@ -153,36 +153,26 @@ def _generate_plate_well_metadata(
         # Find images of the current well with name matching the current image
         # TODO: clarify whether this list must always have length 1
         curr_well_image_list = [
-            img
-            for img in well_image_attrs[old_plate_url][well_sub_url].images
-            if img.path == curr_img_sub_url
+            img for img in well_image_attrs[old_plate_url][well_sub_url].images if img.path == curr_img_sub_url
         ]
-        new_well_image_attrs[old_plate_url][
-            well_sub_url
-        ] += curr_well_image_list
+        new_well_image_attrs[old_plate_url][well_sub_url] += curr_well_image_list
 
     # Fill in the plate metadata based on all available wells
     for old_plate_url in plate_metadata_dicts:
-        well_list, row_list, column_list = _generate_wells_rows_columns(
-            plate_wells[old_plate_url]
-        )
+        well_list, row_list, column_list = _generate_wells_rows_columns(plate_wells[old_plate_url])
         plate_metadata_dicts[old_plate_url]["plate"]["columns"] = []
         for column in column_list:
-            plate_metadata_dicts[old_plate_url]["plate"]["columns"].append(
-                {"name": column}
-            )
+            plate_metadata_dicts[old_plate_url]["plate"]["columns"].append({"name": column})
 
         plate_metadata_dicts[old_plate_url]["plate"]["rows"] = []
         for row in row_list:
-            plate_metadata_dicts[old_plate_url]["plate"]["rows"].append(
-                {"name": row}
-            )
+            plate_metadata_dicts[old_plate_url]["plate"]["rows"].append({"name": row})
         plate_metadata_dicts[old_plate_url]["plate"]["wells"] = well_list
 
         # Validate with NgffPlateMeta model
-        plate_metadata_dicts[old_plate_url] = NgffPlateMeta(
-            **plate_metadata_dicts[old_plate_url]
-        ).dict(exclude_none=True)
+        plate_metadata_dicts[old_plate_url] = NgffPlateMeta(**plate_metadata_dicts[old_plate_url]).dict(
+            exclude_none=True
+        )
 
     return plate_metadata_dicts, new_well_image_attrs, well_image_attrs
 
@@ -231,8 +221,7 @@ def copy_ome_zarr_hcs_plate(
     # Preliminary check
     if suffix is None or suffix == "":
         raise ValueError(
-            "Running copy_ome_zarr_hcs_plate without a suffix would lead to"
-            "overwriting of the existing HCS plates."
+            "Running copy_ome_zarr_hcs_plate without a suffix would lead to" "overwriting of the existing HCS plates."
         )
 
     parallelization_list = []
@@ -267,9 +256,7 @@ def copy_ome_zarr_hcs_plate(
         zarrurl_new = f"{zarr_dir}/{new_plate_name}.zarr"
         logger.info(f"{old_plate_url=}")
         logger.info(f"{zarrurl_new=}")
-        new_plate_group = open_zarr_group_with_overwrite(
-            zarrurl_new, overwrite=overwrite
-        )
+        new_plate_group = open_zarr_group_with_overwrite(zarrurl_new, overwrite=overwrite)
         new_plate_group.attrs.put(plate_attrs)
 
         # Write well groups:
@@ -277,15 +264,8 @@ def copy_ome_zarr_hcs_plate(
             new_well_group = zarr.group(f"{zarrurl_new}/{well_sub_url}")
             well_attrs = dict(
                 well=dict(
-                    images=[
-                        img.dict(exclude_none=True)
-                        for img in new_well_image_attrs[old_plate_url][
-                            well_sub_url
-                        ]
-                    ],
-                    version=well_image_attrs[old_plate_url][
-                        well_sub_url
-                    ].version,
+                    images=[img.dict(exclude_none=True) for img in new_well_image_attrs[old_plate_url][well_sub_url]],
+                    version=well_image_attrs[old_plate_url][well_sub_url].version,
                 )
             )
             new_well_group.attrs.put(well_attrs)

@@ -21,7 +21,7 @@ import anndata as ad
 import dask.array as da
 import numpy as np
 import zarr
-from pydantic.decorator import validate_arguments
+from pydantic.v1.decorator import validate_arguments
 
 from fractal_tasks_core.ngff import load_NgffImageMeta
 from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
@@ -102,13 +102,10 @@ def apply_registration_to_image(
     acq_dict = load_NgffWellMeta(well_url).get_acquisition_paths()
     if reference_acquisition not in acq_dict:
         raise ValueError(
-            f"{reference_acquisition=} was not one of the available "
-            f"acquisitions in {acq_dict=} for well {well_url}"
+            f"{reference_acquisition=} was not one of the available " f"acquisitions in {acq_dict=} for well {well_url}"
         )
     elif len(acq_dict[reference_acquisition]) > 1:
-        ref_path = _get_matching_ref_acquisition_path_heuristic(
-            acq_dict[reference_acquisition], old_img_path
-        )
+        ref_path = _get_matching_ref_acquisition_path_heuristic(acq_dict[reference_acquisition], old_img_path)
         logger.warning(
             "Running registration when there are multiple images of the same "
             "acquisition in a well. Using a heuristic to match the reference "
@@ -118,9 +115,7 @@ def apply_registration_to_image(
         ref_path = acq_dict[reference_acquisition][0]
     reference_zarr_url = f"{well_url}/{ref_path}"
 
-    ROI_table_ref = ad.read_zarr(
-        f"{reference_zarr_url}/tables/{registered_roi_table}"
-    )
+    ROI_table_ref = ad.read_zarr(f"{reference_zarr_url}/tables/{registered_roi_table}")
     ROI_table_acq = ad.read_zarr(f"{zarr_url}/tables/{registered_roi_table}")
 
     ngff_image_meta = load_NgffImageMeta(zarr_url)
@@ -209,9 +204,7 @@ def apply_registration_to_image(
             current_round = 0
             while current_round < max_retries:
                 try:
-                    old_table_group = zarr.open_group(
-                        table_dict[table], mode="r"
-                    )
+                    old_table_group = zarr.open_group(table_dict[table], mode="r")
                     current_round = max_retries
                 except zarr.errors.GroupNotFoundError:
                     logger.debug(
@@ -234,9 +227,7 @@ def apply_registration_to_image(
     # Clean up Zarr file
     ####################
     if overwrite_input:
-        logger.info(
-            "Replace original zarr image with the newly created Zarr image"
-        )
+        logger.info("Replace original zarr image with the newly created Zarr image")
         # Potential for race conditions: Every acquisition reads the
         # reference acquisition, but the reference acquisition also gets
         # modified
@@ -246,9 +237,7 @@ def apply_registration_to_image(
         shutil.rmtree(f"{zarr_url}_tmp")
         image_list_updates = dict(image_list_updates=[dict(zarr_url=zarr_url)])
     else:
-        image_list_updates = dict(
-            image_list_updates=[dict(zarr_url=new_zarr_url, origin=zarr_url)]
-        )
+        image_list_updates = dict(image_list_updates=[dict(zarr_url=new_zarr_url, origin=zarr_url)])
         # Update the metadata of the the well
         well_url, new_img_path = _split_well_path_image_path(new_zarr_url)
         _update_well_metadata(
@@ -336,32 +325,23 @@ def write_registered_zarr(
             num_channels = data_array.shape[0]
             # Loop over channels
             for ind_ch in range(num_channels):
-                idx = tuple(
-                    [slice(ind_ch, ind_ch + 1)] + list(reference_region)
-                )
-                new_array[idx] = load_region(
-                    data_zyx=data_array[ind_ch], region=region, compute=False
-                )
+                idx = tuple([slice(ind_ch, ind_ch + 1)] + list(reference_region))
+                new_array[idx] = load_region(data_zyx=data_array[ind_ch], region=region, compute=False)
         elif axes_list == ["z", "y", "x"]:
-            new_array[reference_region] = load_region(
-                data_zyx=data_array, region=region, compute=False
-            )
+            new_array[reference_region] = load_region(data_zyx=data_array, region=region, compute=False)
         elif axes_list == ["c", "y", "x"]:
             # TODO: Implement cyx case (based on looping over xy case)
             raise NotImplementedError(
-                "`write_registered_zarr` has not been implemented for "
-                f"a zarr with {axes_list=}"
+                "`write_registered_zarr` has not been implemented for " f"a zarr with {axes_list=}"
             )
         elif axes_list == ["y", "x"]:
             # TODO: Implement yx case
             raise NotImplementedError(
-                "`write_registered_zarr` has not been implemented for "
-                f"a zarr with {axes_list=}"
+                "`write_registered_zarr` has not been implemented for " f"a zarr with {axes_list=}"
             )
         else:
             raise NotImplementedError(
-                "`write_registered_zarr` has not been implemented for "
-                f"a zarr with {axes_list=}"
+                "`write_registered_zarr` has not been implemented for " f"a zarr with {axes_list=}"
             )
 
     new_array.to_zarr(

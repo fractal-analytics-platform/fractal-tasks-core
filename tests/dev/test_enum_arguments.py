@@ -2,7 +2,7 @@ import json
 from enum import Enum
 
 from devtools import debug
-from pydantic.decorator import validate_arguments
+from pydantic.v1.decorator import validate_arguments
 
 from fractal_tasks_core.dev.lib_args_schemas import (
     create_schema_for_single_task,
