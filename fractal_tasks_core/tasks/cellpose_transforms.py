@@ -16,9 +16,9 @@ from typing import Literal
 from typing import Optional
 
 import numpy as np
-from pydantic import BaseModel
-from pydantic import Field
-from pydantic import root_validator
+from pydantic.v1 import BaseModel
+from pydantic.v1 import Field
+from pydantic.v1 import root_validator
 
 
 logger = logging.getLogger(__name__)

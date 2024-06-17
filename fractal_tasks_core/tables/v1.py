@@ -2,6 +2,7 @@
 Functions and classes related to table specifications V1 (see
 https://fractal-analytics-platform.github.io/fractal-tasks-core/tables).
 """
+
 import logging
 import warnings
 from typing import Any
@@ -11,8 +12,8 @@ from typing import Optional
 import anndata as ad
 import zarr.hierarchy
 from anndata.experimental import write_elem
-from pydantic import BaseModel
-from pydantic import validator
+from pydantic.v1 import BaseModel
+from pydantic.v1 import validator
 from pydantic.error_wrappers import ValidationError
 
 from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
@@ -206,8 +207,7 @@ def _write_table_v1(
     if table_type is not None:
         if table_type_from_attrs is not None:
             logger.warning(
-                f"Setting table type to '{table_type}' (and overriding "
-                f"'{table_type_from_attrs}' attribute)."
+                f"Setting table type to '{table_type}' (and overriding " f"'{table_type_from_attrs}' attribute)."
             )
         table_attrs["type"] = table_type
     else:
@@ -266,9 +266,7 @@ def _write_table_v1(
     return table_group
 
 
-def get_tables_list_v1(
-    zarr_url: str, table_type: str = None, strict: bool = False
-) -> list[str]:
+def get_tables_list_v1(zarr_url: str, table_type: str = None, strict: bool = False) -> list[str]:
     """
     Find the list of tables in the Zarr file
 
@@ -294,9 +292,7 @@ def get_tables_list_v1(
     if not table_type:
         return all_tables
     else:
-        return _filter_tables_by_type_v1(
-            zarr_url, all_tables, table_type, strict
-        )
+        return _filter_tables_by_type_v1(zarr_url, all_tables, table_type, strict)
 
 
 def _filter_tables_by_type_v1(

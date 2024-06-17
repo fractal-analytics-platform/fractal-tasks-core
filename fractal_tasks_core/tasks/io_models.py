@@ -1,9 +1,9 @@
 from typing import Literal
 from typing import Optional
 
-from pydantic import BaseModel
-from pydantic import Field
-from pydantic import validator
+from pydantic.v1 import BaseModel
+from pydantic.v1 import Field
+from pydantic.v1 import validator
 
 from fractal_tasks_core.channels import ChannelInputModel
 from fractal_tasks_core.channels import OmeroChannel
@@ -126,9 +126,7 @@ class NapariWorkflowsOutput(BaseModel):
         """
         _type = values.get("type")
         if (_type == "dataframe" and (not v)) or (_type != "dataframe" and v):
-            raise ValueError(
-                f"Output item has type={_type} but table_name={v}."
-            )
+            raise ValueError(f"Output item has type={_type} but table_name={v}.")
         return v
 
 
@@ -153,9 +151,7 @@ class NapariWorkflowsInput(BaseModel):
         """
         _type = values.get("type")
         if _type == "label" and not v:
-            raise ValueError(
-                f"Input item has type={_type} but label_name={v}."
-            )
+            raise ValueError(f"Input item has type={_type} but label_name={v}.")
         return v
 
     @validator("channel", always=True)

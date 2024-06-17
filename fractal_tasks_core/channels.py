@@ -18,16 +18,14 @@ from typing import Optional
 from typing import Union
 
 import zarr
-from pydantic import BaseModel
-from pydantic import validator
+from pydantic.v1 import BaseModel
+from pydantic.v1 import validator
 
 from fractal_tasks_core import __OME_NGFF_VERSION__
 
 
 if __OME_NGFF_VERSION__ != "0.4":
-    NotImplementedError(
-        f"OME NGFF {__OME_NGFF_VERSION__} is not supported " "in `channels.py`"
-    )
+    NotImplementedError(f"OME NGFF {__OME_NGFF_VERSION__} is not supported " "in `channels.py`")
 
 
 class Window(BaseModel):
@@ -93,10 +91,7 @@ class OmeroChannel(BaseModel):
         allowed_characters = "abcdefABCDEF0123456789"
         for character in v:
             if character not in allowed_characters:
-                raise ValueError(
-                    "color must only include characters from "
-                    f'"{allowed_characters}" (given: "{v}")'
-                )
+                raise ValueError("color must only include characters from " f'"{allowed_characters}" (given: "{v}")')
         return v
 
 
@@ -124,13 +119,10 @@ class ChannelInputModel(BaseModel):
         label = v
         if wavelength_id and v:
             raise ValueError(
-                "`wavelength_id` and `label` cannot be both set "
-                f"(given {wavelength_id=} and {label=})."
+                "`wavelength_id` and `label` cannot be both set " f"(given {wavelength_id=} and {label=})."
             )
         if wavelength_id is None and v is None:
-            raise ValueError(
-                "`wavelength_id` and `label` cannot be both `None`"
-            )
+            raise ValueError("`wavelength_id` and `label` cannot be both `None`")
         return v
 
 
@@ -152,9 +144,7 @@ def check_unique_wavelength_ids(channels: list[OmeroChannel]):
     """
     wavelength_ids = [c.wavelength_id for c in channels]
     if len(set(wavelength_ids)) < len(wavelength_ids):
-        raise ValueError(
-            f"Non-unique wavelength_id's in {wavelength_ids}\n" f"{channels=}"
-        )
+        raise ValueError(f"Non-unique wavelength_id's in {wavelength_ids}\n" f"{channels=}")
 
 
 def check_well_channel_labels(*, well_zarr_path: str) -> None:
@@ -173,9 +163,7 @@ def check_well_channel_labels(*, well_zarr_path: str) -> None:
     image_paths = [image["path"] for image in group.attrs["well"]["images"]]
     list_of_channel_lists = []
     for image_path in image_paths:
-        channels = get_omero_channel_list(
-            image_zarr_path=f"{well_zarr_path}/{image_path}"
-        )
+        channels = get_omero_channel_list(image_zarr_path=f"{well_zarr_path}/{image_path}")
         list_of_channel_lists.append(channels[:])
 
     # For each pair of channel-labels lists, verify they do not overlap
@@ -191,10 +179,7 @@ def check_well_channel_labels(*, well_zarr_path: str) -> None:
                     "images? This could lead to non-unique channel labels, "
                     "and then could be the reason of the error"
                 )
-                raise ValueError(
-                    "Non-unique channel labels\n"
-                    f"{labels_1=}\n{labels_2=}\n{hint}"
-                )
+                raise ValueError("Non-unique channel labels\n" f"{labels_1=}\n{labels_2=}\n{hint}")
 
 
 def get_channel_from_image_zarr(
@@ -219,9 +204,7 @@ def get_channel_from_image_zarr(
         A single channel dictionary.
     """
     omero_channels = get_omero_channel_list(image_zarr_path=image_zarr_path)
-    channel = get_channel_from_list(
-        channels=omero_channels, label=label, wavelength_id=wavelength_id
-    )
+    channel = get_channel_from_list(channels=omero_channels, label=label, wavelength_id=wavelength_id)
     return channel
 
 
@@ -268,36 +251,24 @@ def get_channel_from_list(
     if label:
         if wavelength_id:
             # Both label and wavelength_id are specified
-            matching_channels = [
-                c
-                for c in channels
-                if (c.label == label and c.wavelength_id == wavelength_id)
-            ]
+            matching_channels = [c for c in channels if (c.label == label and c.wavelength_id == wavelength_id)]
         else:
             # Only label is specified
             matching_channels = [c for c in channels if c.label == label]
     else:
         if wavelength_id:
             # Only wavelength_id is specified
-            matching_channels = [
-                c for c in channels if c.wavelength_id == wavelength_id
-            ]
+            matching_channels = [c for c in channels if c.wavelength_id == wavelength_id]
         else:
             # Neither label or wavelength_id are specified
-            raise ValueError(
-                "get_channel requires at least one in {label,wavelength_id} "
-                "arguments"
-            )
+            raise ValueError("get_channel requires at least one in {label,wavelength_id} " "arguments")
 
     # Verify that there is one and only one matching channel
     if len(matching_channels) == 0:
         required_match = [f"{label=}", f"{wavelength_id=}"]
-        required_match_string = " and ".join(
-            [x for x in required_match if "None" not in x]
-        )
+        required_match_string = " and ".join([x for x in required_match if "None" not in x])
         raise ChannelNotFoundError(
-            f"ChannelNotFoundError: No channel found in {channels}"
-            f" for {required_match_string}"
+            f"ChannelNotFoundError: No channel found in {channels}" f" for {required_match_string}"
         )
     if len(matching_channels) > 1:
         raise ValueError(f"Inconsistent set of channels: {channels}")
@@ -346,9 +317,7 @@ def define_omero_channels(
             default_label = wavelength_id
             if label_prefix:
                 default_label = f"{label_prefix}_{default_label}"
-            logging.warning(
-                f"Missing label for {channel=}, using {default_label=}"
-            )
+            logging.warning(f"Missing label for {channel=}, using {default_label=}")
             channel.label = default_label
 
         # If channel.color is None, set it to a default value (use the default
@@ -369,9 +338,7 @@ def define_omero_channels(
     if len(set(labels)) < len(labels):
         raise ValueError(f"Non-unique labels in {new_channels=}")
 
-    new_channels_dictionaries = [
-        c.dict(exclude={"index"}, exclude_unset=True) for c in new_channels
-    ]
+    new_channels_dictionaries = [c.dict(exclude={"index"}, exclude_unset=True) for c in new_channels]
 
     return new_channels_dictionaries
 
@@ -401,9 +368,7 @@ def _get_new_unique_value(
     return new_value
 
 
-def update_omero_channels(
-    old_channels: list[dict[str, Any]]
-) -> list[dict[str, Any]]:
+def update_omero_channels(old_channels: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """
     Make an existing list of Omero channels Fractal-compatible
 
@@ -490,19 +455,11 @@ def update_omero_channels(
         label = old_channel.get("label")
         color = old_channel.get("color")
         wavelength_id = old_channel.get("wavelength_id")
-        old_attributes = (
-            f"Old attributes: {label=}, {wavelength_id=}, {color=}"
-        )
+        old_attributes = f"Old attributes: {label=}, {wavelength_id=}, {color=}"
         label = new_channels[ind]["label"]
         wavelength_id = new_channels[ind]["wavelength_id"]
         color = new_channels[ind]["color"]
-        new_attributes = (
-            f"New attributes: {label=}, {wavelength_id=}, {color=}"
-        )
-        logging.info(
-            "Omero channel update:\n"
-            f"    {old_attributes}\n"
-            f"    {new_attributes}"
-        )
+        new_attributes = f"New attributes: {label=}, {wavelength_id=}, {color=}"
+        logging.info("Omero channel update:\n" f"    {old_attributes}\n" f"    {new_attributes}")
 
     return new_channels

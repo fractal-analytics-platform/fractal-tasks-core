@@ -16,7 +16,7 @@ from typing import Any
 from typing import Optional
 
 import zarr.hierarchy
-from pydantic.error_wrappers import ValidationError
+from pydantic.v1.error_wrappers import ValidationError
 
 from fractal_tasks_core.ngff import NgffImageMeta
 from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError

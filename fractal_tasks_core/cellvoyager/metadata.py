@@ -48,17 +48,13 @@ def parse_yokogawa_metadata(
     mrf_str = Path(mrf_path).as_posix()
     mlf_str = Path(mlf_path).as_posix()
 
-    mrf_frame, mlf_frame, error_count = read_metadata_files(
-        mrf_str, mlf_str, filename_patterns
-    )
+    mrf_frame, mlf_frame, error_count = read_metadata_files(mrf_str, mlf_str, filename_patterns)
 
     # Aggregate information from the mlf file
     per_site_parameters = ["X", "Y"]
 
     grouping_params = ["well_id", "FieldIndex"]
-    grouped_sites = mlf_frame.loc[
-        :, grouping_params + per_site_parameters
-    ].groupby(by=grouping_params)
+    grouped_sites = mlf_frame.loc[:, grouping_params + per_site_parameters].groupby(by=grouping_params)
 
     check_group_consistency(grouped_sites, message="X & Y stage positions")
     site_metadata = grouped_sites.mean()
@@ -82,9 +78,7 @@ def parse_yokogawa_metadata(
         "vert_pixels",
         "bit_depth",
     ]
-    check_group_consistency(
-        mrf_frame.loc[:, mrf_columns], message="Image dimensions"
-    )
+    check_group_consistency(mrf_frame.loc[:, mrf_columns], message="Image dimensions")
     site_metadata["pixel_size_x"] = mrf_frame.loc[:, "horiz_pixel_dim"].max()
     site_metadata["pixel_size_y"] = mrf_frame.loc[:, "vert_pixel_dim"].max()
     site_metadata["x_pixel"] = int(mrf_frame.loc[:, "horiz_pixels"].max())
@@ -102,17 +96,13 @@ def parse_yokogawa_metadata(
     number_of_files = {}
     for this_well_id in list_of_wells:
         num_images = (mlf_frame.well_id == this_well_id).sum()
-        logger.info(
-            f"Expected number of images for well {this_well_id}: {num_images}"
-        )
+        logger.info(f"Expected number of images for well {this_well_id}: {num_images}")
         number_of_files[this_well_id] = num_images
     # Check that the sum of per-well file numbers correspond to the total
     # file number
     if not sum(number_of_files.values()) == len(mlf_frame):
         raise ValueError(
-            "Error while counting the number of image files per well.\n"
-            f"{len(mlf_frame)=}\n"
-            f"{number_of_files=}"
+            "Error while counting the number of image files per well.\n" f"{len(mlf_frame)=}\n" f"{number_of_files=}"
         )
 
     return site_metadata, number_of_files
@@ -148,9 +138,7 @@ def read_metadata_files(
     # processed further. Figure out how to save them as relevant metadata for
     # use e.g. during illumination correction
 
-    mlf_frame, error_count = read_mlf_file(
-        mlf_path, plate_type, filename_patterns
-    )
+    mlf_frame, error_count = read_mlf_file(mlf_path, plate_type, filename_patterns)
     # Time points are parsed as part of the mlf_frame, but currently not
     # processed further. Once we tackle time-resolved data, parse from here.
 
@@ -250,9 +238,7 @@ def _create_well_ids(
         col_sub = [(x - 1) % 4 + 1 for x in col_series]
         well_ids = []
         for i in range(len(row_base)):
-            well_ids.append(
-                f"{row_base[i]}{col_base[i]:02}.{row_sub[i]}{col_sub[i]}"
-            )
+            well_ids.append(f"{row_base[i]}{col_base[i]:02}.{row_sub[i]}{col_sub[i]}")
     else:
         row_str = [chr(x) for x in (row_series + 64)]
         well_ids = [f"{a}{b:02}" for a, b in zip(row_str, col_series)]
@@ -284,10 +270,7 @@ def read_mlf_file(
     mlf_frame_raw = pd.read_xml(mlf_path)
 
     # Remove all rows that do not match the given patterns
-    logger.info(
-        f"Read {mlf_path}, and apply following patterns to "
-        f"image filenames: {filename_patterns}"
-    )
+    logger.info(f"Read {mlf_path}, and apply following patterns to " f"image filenames: {filename_patterns}")
     if filename_patterns:
         filenames = mlf_frame_raw.MeasurementRecord
         keep_row = None
@@ -295,19 +278,13 @@ def read_mlf_file(
             actual_pattern = fnmatch.translate(pattern)
             new_matches = filenames.str.fullmatch(actual_pattern)
             if new_matches.sum() == 0:
-                raise ValueError(
-                    f"In {mlf_path} there is no image filename "
-                    f'matching "{actual_pattern}".'
-                )
+                raise ValueError(f"In {mlf_path} there is no image filename " f'matching "{actual_pattern}".')
             if keep_row is None:
                 keep_row = new_matches.copy()
             else:
                 keep_row = keep_row & new_matches
         if keep_row.sum() == 0:
-            raise ValueError(
-                f"In {mlf_path} there is no image filename "
-                f"matching {filename_patterns}."
-            )
+            raise ValueError(f"In {mlf_path} there is no image filename " f"matching {filename_patterns}.")
         mlf_frame_matching = mlf_frame_raw[keep_row.values].copy()
     else:
         mlf_frame_matching = mlf_frame_raw.copy()
@@ -378,31 +355,20 @@ def get_z_steps(mlf_frame: pd.DataFrame) -> pd.DataFrame:
     else:
         # Group the whole site (combine channels), because Z steps need to be
         # consistent between channels for OME-Zarr.
-        z_data = grouped_sites_z.apply(calculate_steps).groupby(
-            ["well_id", "FieldIndex"]
-        )
+        z_data = grouped_sites_z.apply(calculate_steps).groupby(["well_id", "FieldIndex"])
 
-    check_group_consistency(
-        z_data, message="Comparing Z steps between channels"
-    )
+    check_group_consistency(z_data, message="Comparing Z steps between channels")
 
     # Ensure that channels have the same number of z planes and
     # reduce it to one value.
     # Only check if there is more than one channel available
-    if any(
-        grouped_sites_z.count().groupby(["well_id", "FieldIndex"]).count() > 1
-    ):
+    if any(grouped_sites_z.count().groupby(["well_id", "FieldIndex"]).count() > 1):
         check_group_consistency(
             grouped_sites_z.count().groupby(["well_id", "FieldIndex"]),
             message="Checking number of Z steps between channels",
         )
 
-    z_steps = (
-        grouped_sites_z.count()
-        .groupby(["well_id", "FieldIndex"])
-        .mean()
-        .astype(int)
-    )
+    z_steps = grouped_sites_z.count().groupby(["well_id", "FieldIndex"]).mean().astype(int)
 
     # Combine the two dataframes
     z_frame = pd.concat([z_data.mean(), z_steps], axis=1)
@@ -422,9 +388,7 @@ def get_earliest_time_per_site(mlf_frame: pd.DataFrame) -> pd.DataFrame:
     # Because a site will contain time information for each plane
     # of each channel, we just return the earliest time infromation
     # per site.
-    return pd.to_datetime(
-        mlf_frame.groupby(["well_id", "FieldIndex"]).min()["Time"], utc=True
-    )
+    return pd.to_datetime(mlf_frame.groupby(["well_id", "FieldIndex"]).min()["Time"], utc=True)
 
 
 def check_group_consistency(grouped_df: pd.DataFrame, message: str = ""):
