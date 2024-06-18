@@ -2,7 +2,7 @@
 
 # 1.0.3 (unreleased)
 
-* Switch to transitional pydantic.v1 imports and relax pydantic requirement to `1.10.16 || >=2.6.3' (\#760).
+* Switch to transitional pydantic.v1 imports, changes pydantic requirement to `>=1.10.16' (\#760).
 * Support JSON-Schema generation for `Enum` task arguments (\#749).
 * Make JSON-Schema generation tools more flexible, to simplify testing (\#749).
 * Update documentation (\#751).
