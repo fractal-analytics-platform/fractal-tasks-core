@@ -16,10 +16,10 @@ from typing import Literal
 from typing import Optional
 
 import numpy as np
-from pydantic import BaseModel
-from pydantic import Field
-from pydantic import root_validator
-from pydantic import validator
+from pydantic.v1 import BaseModel
+from pydantic.v1 import Field
+from pydantic.v1 import root_validator
+from pydantic.v1 import validator
 
 from fractal_tasks_core.channels import ChannelInputModel
 from fractal_tasks_core.channels import ChannelNotFoundError
@@ -82,25 +82,13 @@ class CellposeCustomNormalizer(BaseModel):
         # Verify that custom parameters are only provided when type="custom"
         if type != "custom":
             if lower_percentile is not None:
-                raise ValueError(
-                    f"Type='{type}' but {lower_percentile=}. "
-                    "Hint: set type='custom'."
-                )
+                raise ValueError(f"Type='{type}' but {lower_percentile=}. " "Hint: set type='custom'.")
             if upper_percentile is not None:
-                raise ValueError(
-                    f"Type='{type}' but {upper_percentile=}. "
-                    "Hint: set type='custom'."
-                )
+                raise ValueError(f"Type='{type}' but {upper_percentile=}. " "Hint: set type='custom'.")
             if lower_bound is not None:
-                raise ValueError(
-                    f"Type='{type}' but {lower_bound=}. "
-                    "Hint: set type='custom'."
-                )
+                raise ValueError(f"Type='{type}' but {lower_bound=}. " "Hint: set type='custom'.")
             if upper_bound is not None:
-                raise ValueError(
-                    f"Type='{type}' but {upper_bound=}. "
-                    "Hint: set type='custom'."
-                )
+                raise ValueError(f"Type='{type}' but {upper_bound=}. " "Hint: set type='custom'.")
 
         # The only valid options are:
         # 1. Both percentiles are set and both bounds are unset
@@ -114,14 +102,9 @@ class CellposeCustomNormalizer(BaseModel):
             upper_bound is not None,
         )
         if len(set(are_percentiles_set)) != 1:
-            raise ValueError(
-                "Both lower_percentile and upper_percentile must be set "
-                "together."
-            )
+            raise ValueError("Both lower_percentile and upper_percentile must be set " "together.")
         if len(set(are_bounds_set)) != 1:
-            raise ValueError(
-                "Both lower_bound and upper_bound must be set together"
-            )
+            raise ValueError("Both lower_bound and upper_bound must be set together")
         if lower_percentile is not None and lower_bound is not None:
             raise ValueError(
                 "You cannot set both explicit bounds and percentile bounds "
@@ -213,9 +196,7 @@ class CellposeChannel1InputModel(ChannelInputModel):
             Cellpose models
     """
 
-    normalize: CellposeCustomNormalizer = Field(
-        default_factory=CellposeCustomNormalizer
-    )
+    normalize: CellposeCustomNormalizer = Field(default_factory=CellposeCustomNormalizer)
 
     def get_omero_channel(self, zarr_url) -> OmeroChannel:
         try:
@@ -252,9 +233,7 @@ class CellposeChannel2InputModel(BaseModel):
 
     wavelength_id: Optional[str] = None
     label: Optional[str] = None
-    normalize: CellposeCustomNormalizer = Field(
-        default_factory=CellposeCustomNormalizer
-    )
+    normalize: CellposeCustomNormalizer = Field(default_factory=CellposeCustomNormalizer)
 
     @validator("label", always=True)
     def mutually_exclusive_channel_attributes(cls, v, values):
@@ -265,8 +244,7 @@ class CellposeChannel2InputModel(BaseModel):
         label = v
         if wavelength_id and v:
             raise ValueError(
-                "`wavelength_id` and `label` cannot be both set "
-                f"(given {wavelength_id=} and {label=})."
+                "`wavelength_id` and `label` cannot be both set " f"(given {wavelength_id=} and {label=})."
             )
         return v
 
@@ -415,18 +393,14 @@ def normalized_img(
             i99 = np.percentile(img[k], upper_p)
             i1 = np.percentile(img[k], lower_p)
             if i99 - i1 > +1e-3:  # np.ptp(img[k]) > 1e-3:
-                img[k] = normalize_percentile(
-                    img[k], lower=lower_p, upper=upper_p
-                )
+                img[k] = normalize_percentile(img[k], lower=lower_p, upper=upper_p)
                 if invert:
                     img[k] = -1 * img[k] + 1
             else:
                 img[k] = 0
         elif lower_bound is not None:
             if upper_bound - lower_bound > +1e-3:
-                img[k] = normalize_bounds(
-                    img[k], lower=lower_bound, upper=upper_bound
-                )
+                img[k] = normalize_bounds(img[k], lower=lower_bound, upper=upper_bound)
                 if invert:
                     img[k] = -1 * img[k] + 1
             else:
