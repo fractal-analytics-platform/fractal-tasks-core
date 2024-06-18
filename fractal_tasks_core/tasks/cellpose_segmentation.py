@@ -174,7 +174,9 @@ def cellpose_segmentation(
     # Core parameters
     level: int,
     channel: CellposeChannel1InputModel,
-    channel2: CellposeChannel2InputModel = Field(default_factory=CellposeChannel2InputModel),
+    channel2: CellposeChannel2InputModel = Field(
+        default_factory=CellposeChannel2InputModel
+    ),
     input_ROI_table: str = "FOV_ROI_table",
     output_ROI_table: Optional[str] = None,
     output_label_name: Optional[str] = None,
@@ -185,7 +187,9 @@ def cellpose_segmentation(
     pretrained_model: Optional[str] = None,
     relabeling: bool = True,
     use_masks: bool = True,
-    advanced_cellpose_model_params: CellposeModelParams = Field(default_factory=CellposeModelParams),
+    advanced_cellpose_model_params: CellposeModelParams = Field(
+        default_factory=CellposeModelParams
+    ),
     overwrite: bool = True,
 ) -> None:
     """
@@ -254,8 +258,13 @@ def cellpose_segmentation(
     actual_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=level)
     logger.info(f"NGFF image has {num_levels=}")
     logger.info(f"NGFF image has {coarsening_xy=}")
-    logger.info(f"NGFF image has full-res pixel sizes {full_res_pxl_sizes_zyx}")
-    logger.info(f"NGFF image has level-{level} pixel sizes " f"{actual_res_pxl_sizes_zyx}")
+    logger.info(
+        f"NGFF image has full-res pixel sizes {full_res_pxl_sizes_zyx}"
+    )
+    logger.info(
+        f"NGFF image has level-{level} pixel sizes "
+        f"{actual_res_pxl_sizes_zyx}"
+    )
 
     # Find channel index
     omero_channel = channel.get_omero_channel(zarr_url)
@@ -292,9 +301,14 @@ def cellpose_segmentation(
     ROI_table = ad.read_zarr(ROI_table_path)
 
     # Perform some checks on the ROI table
-    valid_ROI_table = is_ROI_table_valid(table_path=ROI_table_path, use_masks=use_masks)
+    valid_ROI_table = is_ROI_table_valid(
+        table_path=ROI_table_path, use_masks=use_masks
+    )
     if use_masks and not valid_ROI_table:
-        logger.info(f"ROI table at {ROI_table_path} cannot be used for masked " "loading. Set use_masks=False.")
+        logger.info(
+            f"ROI table at {ROI_table_path} cannot be used for masked "
+            "loading. Set use_masks=False."
+        )
         use_masks = False
     logger.info(f"{use_masks=}")
 
@@ -321,7 +335,9 @@ def cellpose_segmentation(
     if do_3D:
         if advanced_cellpose_model_params.anisotropy is None:
             # Compute anisotropy as pixel_size_z/pixel_size_x
-            advanced_cellpose_model_params.anisotropy = actual_res_pxl_sizes_zyx[0] / actual_res_pxl_sizes_zyx[2]
+            advanced_cellpose_model_params.anisotropy = (
+                actual_res_pxl_sizes_zyx[0] / actual_res_pxl_sizes_zyx[2]
+            )
         logger.info(f"Anisotropy: {advanced_cellpose_model_params.anisotropy}")
 
     # Rescale datasets (only relevant for level>0)
@@ -347,7 +363,11 @@ def cellpose_segmentation(
             {
                 "name": output_label_name,
                 "version": __OME_NGFF_VERSION__,
-                "axes": [ax.dict() for ax in ngff_image_meta.multiscale.axes if ax.type != "channel"],
+                "axes": [
+                    ax.dict()
+                    for ax in ngff_image_meta.multiscale.axes
+                    if ax.type != "channel"
+                ],
                 "datasets": new_datasets,
             }
         ],
@@ -362,7 +382,9 @@ def cellpose_segmentation(
         logger=logger,
     )
 
-    logger.info(f"Helper function `prepare_label_group` returned {label_group=}")
+    logger.info(
+        f"Helper function `prepare_label_group` returned {label_group=}"
+    )
     logger.info(f"Output label path: {zarr_url}/labels/{output_label_name}/0")
     store = zarr.storage.FSStore(f"{zarr_url}/labels/{output_label_name}/0")
     label_dtype = np.uint32
@@ -384,12 +406,17 @@ def cellpose_segmentation(
         dimension_separator="/",
     )
 
-    logger.info(f"mask will have shape {data_zyx.shape} " f"and chunks {data_zyx.chunks}")
+    logger.info(
+        f"mask will have shape {data_zyx.shape} "
+        f"and chunks {data_zyx.chunks}"
+    )
 
     # Initialize cellpose
     gpu = advanced_cellpose_model_params.use_gpu and cellpose.core.use_gpu()
     if pretrained_model:
-        model = models.CellposeModel(gpu=gpu, pretrained_model=pretrained_model)
+        model = models.CellposeModel(
+            gpu=gpu, pretrained_model=pretrained_model
+        )
     else:
         model = models.CellposeModel(gpu=gpu, model_type=model_type)
 
@@ -500,7 +527,9 @@ def cellpose_segmentation(
             # Check that total number of labels is under control
             if num_labels_tot > np.iinfo(label_dtype).max:
                 raise ValueError(
-                    "ERROR in re-labeling:" f"Reached {num_labels_tot} labels, " f"but dtype={label_dtype}"
+                    "ERROR in re-labeling:"
+                    f"Reached {num_labels_tot} labels, "
+                    f"but dtype={label_dtype}"
                 )
 
         if output_ROI_table:
@@ -514,9 +543,13 @@ def cellpose_segmentation(
 
             overlap_list = []
             for df in bbox_dataframe_list:
-                overlap_list.extend(get_overlapping_pairs_3D(df, full_res_pxl_sizes_zyx))
+                overlap_list.extend(
+                    get_overlapping_pairs_3D(df, full_res_pxl_sizes_zyx)
+                )
             if len(overlap_list) > 0:
-                logger.warning(f"{len(overlap_list)} bounding-box pairs overlap")
+                logger.warning(
+                    f"{len(overlap_list)} bounding-box pairs overlap"
+                )
 
         # Compute and store 0-th level to disk
         da.array(new_label_img).to_zarr(
@@ -525,7 +558,10 @@ def cellpose_segmentation(
             compute=True,
         )
 
-    logger.info(f"End cellpose_segmentation task for {zarr_url}, " "now building pyramids.")
+    logger.info(
+        f"End cellpose_segmentation task for {zarr_url}, "
+        "now building pyramids."
+    )
 
     # Starting from on-disk highest-resolution data, build and write to disk a
     # pyramid of coarser levels
@@ -560,7 +596,10 @@ def cellpose_segmentation(
 
         # Write to zarr group
         image_group = zarr.group(zarr_url)
-        logger.info("Now writing bounding-box ROI table to " f"{zarr_url}/tables/{output_ROI_table}")
+        logger.info(
+            "Now writing bounding-box ROI table to "
+            f"{zarr_url}/tables/{output_ROI_table}"
+        )
         table_attrs = {
             "type": "masking_roi_table",
             "region": {"path": f"../labels/{output_label_name}"},
