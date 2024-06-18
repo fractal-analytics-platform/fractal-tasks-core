@@ -1,10 +1,16 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# 1.0.3 (unreleased)
+# Unreleased
 
-* Switch to transitional pydantic.v1 imports, changes pydantic requirement to `>=1.10.16' (\#760).
-* Support JSON-Schema generation for `Enum` task arguments (\#749).
-* Make JSON-Schema generation tools more flexible, to simplify testing (\#749).
+* Tasks:
+    * Refactor Cellpose Task inputs: Combine Channel inputs & channel normalization parameters (\#738).
+    * Refactor Cellpose Task inputs: Group advanced Cellpose parameters into the `CellposeModelParams` model that's provided via `advanced_cellpose_model_params` (\#738).
+    * Refactor Cellpose Task inputs: Support independent normalization of 2 input channels in the Cellpose task (\#738).
+    * Rename `task.cellpose_transforms` into `tasks.cellpose_utils` (\#738).
+* Development:
+    * Switch to transitional pydantic.v1 imports, changes pydantic requirement to `>=1.10.16' (\#760).
+    * Support JSON-Schema generation for `Enum` task arguments (\#749).
+    * Make JSON-Schema generation tools more flexible, to simplify testing (\#749).
 * Update documentation (\#751).
 
 * Documentation:
@@ -15,7 +21,7 @@
 
 # 1.0.2
 
-* Fix bug in plate metadata in MIP task (in the copy_ome_zarr_hcs_plate init function) (\#736).
+* Fix bug in plate metadata in MIP task (in the `copy_ome_zarr_hcs_plate` init function) (\#736).
 
 # 1.0.1
 
