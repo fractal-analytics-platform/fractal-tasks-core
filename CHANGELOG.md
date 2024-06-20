@@ -2,6 +2,11 @@
 
 # Unreleased
 
+> NOTE: Starting from this release, `fractal-tasks-core` can coexist
+> with Pydantic V1 (provided its version is `>=2.6.3`), but it still uses pydantic
+> v1 under the hood for the time being. When working with Pydantic V1, the
+> required version is `>=1.10.16`.
+
 * Tasks:
     * Refactor Cellpose Task inputs: Combine Channel inputs & channel normalization parameters (\#738).
     * Refactor Cellpose Task inputs: Group advanced Cellpose parameters into the `CellposeModelParams` model that's provided via `advanced_cellpose_model_params` (\#738).
@@ -11,11 +16,9 @@
     * Switch to transitional pydantic.v1 imports, changes pydantic requirement to `==1.10.16` or `>=2.6.3` (\#760).
     * Support JSON-Schema generation for `Enum` task arguments (\#749).
     * Make JSON-Schema generation tools more flexible, to simplify testing (\#749).
-* Update documentation (\#751).
-
 * Documentation:
+    * Update documentation (\#751).
     * Improve/extend page showing tasks from other packages (\#759).
-
 * JSON Schema generation:
     * Test manifest creation for three other tasks packages (\#763).
 
