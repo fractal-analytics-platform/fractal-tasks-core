@@ -4,7 +4,7 @@
 
 | Name                                                                      |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
 |-------------------------------------------------------------------------- | -------: | -------: | -------: | -------: | ------: | --------: |
-| fractal\_tasks\_core/\_\_init\_\_.py                                      |        5 |        0 |        0 |        0 |    100% |           |
+| fractal\_tasks\_core/\_\_init\_\_.py                                      |       14 |        1 |        2 |        1 |     88% |        16 |
 | fractal\_tasks\_core/cellvoyager/\_\_init\_\_.py                          |        0 |        0 |        0 |        0 |    100% |           |
 | fractal\_tasks\_core/cellvoyager/filenames.py                             |       51 |        1 |       20 |        1 |     97% |       148 |
 | fractal\_tasks\_core/cellvoyager/metadata.py                              |      113 |        7 |       30 |        8 |     90% |95, 112, 298, 305, 307, 347, 392->400, 443 |
@@ -37,7 +37,7 @@
 | fractal\_tasks\_core/tasks/cellvoyager\_to\_ome\_zarr\_init\_multiplex.py |      198 |       20 |       54 |       15 |     86% |56->55, 124, 131, 135, 144, 159, 190, 192, 211-214, 244, 295, 301, 318, 331-332, 338, 519-521 |
 | fractal\_tasks\_core/tasks/copy\_ome\_zarr\_hcs\_plate.py                 |      107 |        3 |       28 |        3 |     96% |191->190, 233, 297-299 |
 | fractal\_tasks\_core/tasks/find\_registration\_consensus.py               |       47 |        4 |       18 |        5 |     86% |42->41, 77->79, 107, 119, 167-169 |
-| fractal\_tasks\_core/tasks/illumination\_correction.py                    |       94 |        7 |       28 |        6 |     89% |62, 83-87, 96->95, 195, 211, 288-290 |
+| fractal\_tasks\_core/tasks/illumination\_correction.py                    |       94 |        7 |       28 |        6 |     89% |62, 83-87, 96->95, 194, 210, 287-289 |
 | fractal\_tasks\_core/tasks/image\_based\_registration\_hcs\_init.py       |       21 |        2 |       12 |        2 |     88% |28->27, 93-95 |
 | fractal\_tasks\_core/tasks/import\_ome\_zarr.py                           |       95 |        9 |       34 |        8 |     87% |69, 107->154, 111-120, 155->158, 156->158, 163->162, 213, 282->304, 310-312 |
 | fractal\_tasks\_core/tasks/init\_group\_by\_well\_for\_multiplexing.py    |       22 |        3 |       12 |        3 |     82% |27->26, 61, 86-88 |
@@ -47,7 +47,7 @@
 | fractal\_tasks\_core/upscale\_array.py                                    |       73 |        7 |       48 |        6 |     88% |63, 91, 96->100, 113, 128, 192-197 |
 | fractal\_tasks\_core/utils.py                                             |       67 |        2 |       28 |        5 |     93% |71, 139->147, 140->139, 176->179, 181 |
 | fractal\_tasks\_core/zarr\_utils.py                                       |       32 |        0 |        6 |        1 |     97% |    81->85 |
-|                                                                 **TOTAL** | **3273** |  **211** | **1084** |  **166** | **91%** |           |
+|                                                                 **TOTAL** | **3282** |  **212** | **1086** |  **167** | **91%** |           |
 
 
 ## Setup coverage badge
