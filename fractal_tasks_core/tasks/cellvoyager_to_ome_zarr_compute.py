@@ -18,7 +18,7 @@ import dask.array as da
 import zarr
 from anndata import read_zarr
 from dask.array.image import imread
-from pydantic.decorator import validate_arguments
+from pydantic.v1.decorator import validate_arguments
 
 from fractal_tasks_core.cellvoyager.filenames import (
     glob_with_multiple_patterns,

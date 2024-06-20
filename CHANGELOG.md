@@ -8,6 +8,7 @@
     * Refactor Cellpose Task inputs: Support independent normalization of 2 input channels in the Cellpose task (\#738).
     * Rename `task.cellpose_transforms` into `tasks.cellpose_utils` (\#738).
 * Development:
+    * Switch to transitional pydantic.v1 imports, changes pydantic requirement to `==1.10.16` or `>=2.6.3` (\#760).
     * Support JSON-Schema generation for `Enum` task arguments (\#749).
     * Make JSON-Schema generation tools more flexible, to simplify testing (\#749).
 * Update documentation (\#751).

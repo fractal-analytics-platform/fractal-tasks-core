@@ -1,9 +1,9 @@
 from typing import Literal
 from typing import Optional
 
-from pydantic import BaseModel
-from pydantic import Field
-from pydantic import validator
+from pydantic.v1 import BaseModel
+from pydantic.v1 import Field
+from pydantic.v1 import validator
 
 from fractal_tasks_core.channels import ChannelInputModel
 from fractal_tasks_core.channels import OmeroChannel

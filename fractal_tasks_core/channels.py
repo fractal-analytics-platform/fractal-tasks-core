@@ -18,8 +18,8 @@ from typing import Optional
 from typing import Union
 
 import zarr
-from pydantic import BaseModel
-from pydantic import validator
+from pydantic.v1 import BaseModel
+from pydantic.v1 import validator
 
 from fractal_tasks_core import __OME_NGFF_VERSION__
 

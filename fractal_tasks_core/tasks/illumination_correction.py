@@ -22,7 +22,7 @@ import anndata as ad
 import dask.array as da
 import numpy as np
 import zarr
-from pydantic.decorator import validate_arguments
+from pydantic.v1.decorator import validate_arguments
 from skimage.io import imread
 
 from fractal_tasks_core.channels import get_omero_channel_list
@@ -106,7 +106,6 @@ def illumination_correction(
     # Advanced parameters
     suffix: str = "_illum_corr",
 ) -> dict[str, Any]:
-
     """
     Applies illumination correction to the images in the OME-Zarr.
 

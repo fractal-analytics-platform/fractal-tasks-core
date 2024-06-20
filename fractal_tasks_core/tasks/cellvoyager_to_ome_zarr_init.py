@@ -17,7 +17,7 @@ from typing import Any
 from typing import Optional
 
 import pandas as pd
-from pydantic.decorator import validate_arguments
+from pydantic.v1.decorator import validate_arguments
 
 import fractal_tasks_core
 from fractal_tasks_core.cellvoyager.filenames import (

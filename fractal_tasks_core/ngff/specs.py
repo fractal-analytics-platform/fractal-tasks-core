@@ -7,9 +7,9 @@ from typing import Literal
 from typing import Optional
 from typing import Union
 
-from pydantic import BaseModel
-from pydantic import Field
-from pydantic import validator
+from pydantic.v1 import BaseModel
+from pydantic.v1 import Field
+from pydantic.v1 import validator
 
 
 logger = logging.getLogger(__name__)

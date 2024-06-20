@@ -26,8 +26,8 @@ import numpy as np
 import pandas as pd
 import zarr
 from cellpose import models
-from pydantic import Field
-from pydantic.decorator import validate_arguments
+from pydantic.v1 import Field
+from pydantic.v1.decorator import validate_arguments
 
 import fractal_tasks_core
 from fractal_tasks_core.labels import prepare_label_group

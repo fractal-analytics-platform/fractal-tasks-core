@@ -21,11 +21,11 @@ from typing import Callable
 from typing import Optional
 
 from docstring_parser import parse as docparse
-from pydantic.decorator import ALT_V_ARGS
-from pydantic.decorator import ALT_V_KWARGS
-from pydantic.decorator import V_DUPLICATE_KWARGS
-from pydantic.decorator import V_POSITIONAL_ONLY_NAME
-from pydantic.decorator import ValidatedFunction
+from pydantic.v1.decorator import ALT_V_ARGS
+from pydantic.v1.decorator import ALT_V_KWARGS
+from pydantic.v1.decorator import V_DUPLICATE_KWARGS
+from pydantic.v1.decorator import V_POSITIONAL_ONLY_NAME
+from pydantic.v1.decorator import ValidatedFunction
 
 from fractal_tasks_core.dev.lib_descriptions import (
     _get_class_attrs_descriptions,

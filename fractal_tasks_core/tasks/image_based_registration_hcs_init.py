@@ -15,7 +15,7 @@ Initializes the parallelization list for registration in HCS plates.
 import logging
 from typing import Any
 
-from pydantic.decorator import validate_arguments
+from pydantic.v1.decorator import validate_arguments
 
 from fractal_tasks_core.tasks._registration_utils import (
     create_well_acquisition_dict,

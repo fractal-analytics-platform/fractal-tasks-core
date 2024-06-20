@@ -18,7 +18,7 @@ from typing import Any
 import anndata as ad
 import dask.array as da
 import zarr
-from pydantic.decorator import validate_arguments
+from pydantic.v1.decorator import validate_arguments
 from zarr.errors import ContainsArrayError
 
 from fractal_tasks_core.ngff import load_NgffImageMeta

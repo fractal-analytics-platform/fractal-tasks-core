@@ -18,7 +18,7 @@ import anndata as ad
 import dask.array as da
 import numpy as np
 import zarr
-from pydantic.decorator import validate_arguments
+from pydantic.v1.decorator import validate_arguments
 from skimage.registration import phase_cross_correlation
 
 from fractal_tasks_core.channels import get_channel_from_image_zarr

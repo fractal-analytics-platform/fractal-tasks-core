@@ -2,7 +2,7 @@ import logging
 
 import pytest
 from devtools import debug
-from pydantic.error_wrappers import ValidationError
+from pydantic.v1.error_wrappers import ValidationError
 
 from fractal_tasks_core.tasks.napari_workflows_wrapper import (
     napari_workflows_wrapper,

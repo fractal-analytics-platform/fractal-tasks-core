@@ -18,7 +18,7 @@ from typing import Optional
 
 import pandas as pd
 import zarr
-from pydantic.decorator import validate_arguments
+from pydantic.v1.decorator import validate_arguments
 from zarr.errors import ContainsGroupError
 
 import fractal_tasks_core
