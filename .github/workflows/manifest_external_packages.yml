@@ -1,0 +1,82 @@
+name: Manifest creation (external packages)
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+  schedule:
+    - cron: "0 23 * * 3"
+
+
+jobs:
+  test-manifest-creation:
+
+    runs-on: ubuntu-22.04
+
+    strategy:
+
+      fail-fast: false  # Do not make the whole matrix fail if one element fails
+
+      matrix:
+
+        package: [skip]
+        github_repo: [skip]
+        manifest_path: [skip]
+        cmd_install: [skip]
+        cmd_create_manifest: [skip]
+
+        include:
+
+          - package: scMultipleX
+            github_repo: fmi-basel/gliberal-scMultipleX
+            manifest_path: src/scmultiplex/__FRACTAL_MANIFEST__.json
+            cmd_install: 'python -m pip install -e .[fractal-tasks]'
+            cmd_create_manifest: 'python src/scmultiplex/dev/create_manifest.py'
+
+          - package: fractal-helper-tasks
+            github_repo: jluethi/fractal-helper-tasks
+            manifest_path: src/fractal_helper_tasks/__FRACTAL_MANIFEST__.json
+            cmd_install: 'python -m pip install -e .'
+            cmd_create_manifest: 'python src/fractal_helper_tasks/dev/create_manifest.py'
+
+          - package: APx_fractal_task_collection
+            github_repo: Apricot-Therapeutics/APx_fractal_task_collection
+            manifest_path: src/apx_fractal_task_collection/__FRACTAL_MANIFEST__.json
+            cmd_install: 'python -m pip install -e .'
+            cmd_create_manifest: 'python src/apx_fractal_task_collection/dev/update_manifest.py'
+
+        exclude:
+          - package: skip
+            github_repo: skip
+            manifest_path: skip
+            cmd_install: skip
+            cmd_create_manifest: skip
+
+    steps:
+
+      - name: Print matrix-element information
+        run: echo '${{ matrix.package }}, ${{ matrix.github_repo }}, ${{ matrix.cmd_install }}, ${{ matrix.cmd_create_manifest }}, ${{ matrix.manifest_path }}'
+
+      - name: Get package source code
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ matrix.github_repo }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install package
+        run:  ${{ matrix.cmd_install }}
+
+      - name: Create manifest
+        run: ${{ matrix.cmd_create_manifest }}
+
+      - name: Run git diff for manifest
+        run: git diff ${{ matrix.manifest_path }}
+
+      - name: Check repo status
+        run: if [[ -z $(git status -s) ]]; then echo "Clean status"; else echo "Dirty status"; git status; exit 1; fi

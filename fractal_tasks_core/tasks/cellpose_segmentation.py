@@ -26,13 +26,10 @@ import numpy as np
 import pandas as pd
 import zarr
 from cellpose import models
-from pydantic.decorator import validate_arguments
+from pydantic.v1 import Field
+from pydantic.v1.decorator import validate_arguments
 
 import fractal_tasks_core
-from fractal_tasks_core.channels import ChannelInputModel
-from fractal_tasks_core.channels import ChannelNotFoundError
-from fractal_tasks_core.channels import get_channel_from_image_zarr
-from fractal_tasks_core.channels import OmeroChannel
 from fractal_tasks_core.labels import prepare_label_group
 from fractal_tasks_core.masked_loading import masked_loading_wrapper
 from fractal_tasks_core.ngff import load_NgffImageMeta
@@ -52,10 +49,21 @@ from fractal_tasks_core.roi import get_overlapping_pairs_3D
 from fractal_tasks_core.roi import is_ROI_table_valid
 from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
-from fractal_tasks_core.tasks.cellpose_transforms import (
+from fractal_tasks_core.tasks.cellpose_utils import (
+    _normalize_cellpose_channels,
+)
+from fractal_tasks_core.tasks.cellpose_utils import (
+    CellposeChannel1InputModel,
+)
+from fractal_tasks_core.tasks.cellpose_utils import (
+    CellposeChannel2InputModel,
+)
+from fractal_tasks_core.tasks.cellpose_utils import (
     CellposeCustomNormalizer,
 )
-from fractal_tasks_core.tasks.cellpose_transforms import normalized_img
+from fractal_tasks_core.tasks.cellpose_utils import (
+    CellposeModelParams,
+)
 from fractal_tasks_core.utils import rescale_datasets
 
 logger = logging.getLogger(__name__)
@@ -68,22 +76,11 @@ def segment_ROI(
     model: models.CellposeModel = None,
     do_3D: bool = True,
     channels: list[int] = [0, 0],
-    anisotropy: Optional[float] = None,
     diameter: float = 30.0,
-    cellprob_threshold: float = 0.0,
-    flow_threshold: float = 0.4,
     normalize: CellposeCustomNormalizer = CellposeCustomNormalizer(),
+    normalize2: Optional[CellposeCustomNormalizer] = None,
     label_dtype: Optional[np.dtype] = None,
-    augment: bool = False,
-    net_avg: bool = False,
-    min_size: int = 15,
-    batch_size: int = 8,
-    invert: bool = False,
-    tile: bool = True,
-    tile_overlap: float = 0.1,
-    resample: bool = True,
-    interp: bool = True,
-    stitch_threshold: float = 0.0,
+    advanced_cellpose_model_params: CellposeModelParams = CellposeModelParams(),  # noqa: E501
 ) -> np.ndarray:
     """
     Internal function that runs Cellpose segmentation for a single ROI.
@@ -98,33 +95,20 @@ def segment_ROI(
             dimension of `x` has length of 2), `[1, 2]` should be used
             (`x[0, :, :,:]` contains the membrane channel and
             `x[1, :, :, :]` contains the nuclear channel).
-        anisotropy: Set anisotropy rescaling factor for Z dimension.
         diameter: Expected object diameter in pixels for cellpose.
-        cellprob_threshold: Cellpose model parameter.
-        flow_threshold: Cellpose model parameter.
-        normalize: normalize data so 0.0=1st percentile and 1.0=99th
-            percentile of image intensities in each channel. This automatic
-            normalization can lead to issues when the image to be segmented
-            is very sparse.
+        normalize: By default, data is normalized so 0.0=1st percentile and
+            1.0=99th percentile of image intensities in each channel.
+            This automatic normalization can lead to issues when the image to
+            be segmented is very sparse. You can turn off the default
+            rescaling. With the "custom" option, you can either provide your
+            own rescaling percentiles or fixed rescaling upper and lower
+            bound integers.
+        normalize2: Normalization options for channel 2. If one channel is
+            normalized with default settings, both channels need to be
+            normalized with default settings.
         label_dtype: Label images are cast into this `np.dtype`.
-        augment: Whether to use cellpose augmentation to tile images with
-            overlap.
-        net_avg: Whether to use cellpose net averaging to run the 4 built-in
-            networks (useful for `nuclei`, `cyto` and `cyto2`, not sure it
-            works for the others).
-        min_size: Minimum size of the segmented objects.
-        batch_size: number of 224x224 patches to run simultaneously on the GPU
-            (can make smaller or bigger depending on GPU memory usage)
-        invert: invert image pixel intensity before running network (if True,
-            image is also normalized)
-        tile: tiles image to ensure GPU/CPU memory usage limited (recommended)
-        tile_overlap: fraction of overlap of tiles when computing flows
-        resample: run dynamics at original image size (will be slower but
-            create more accurate boundaries)
-        interp: interpolate during 2D dynamics (not available in 3D)
-            (in previous versions it was False, now it defaults to True)
-        stitch_threshold: if stitch_threshold>0.0 and not do_3D and equal
-            image sizes, masks are stitched in 3D to return volume segmentation
+        advanced_cellpose_model_params: Advanced Cellpose model parameters
+            that are passed to the Cellpose `model.eval` method.
     """
 
     # Write some debugging info
@@ -134,19 +118,10 @@ def segment_ROI(
         f" {do_3D=} |"
         f" {model.diam_mean=} |"
         f" {diameter=} |"
-        f" {flow_threshold=} |"
+        f" {advanced_cellpose_model_params.flow_threshold=} |"
         f" {normalize.type=}"
     )
-
-    # Optionally perform custom normalization
-    if normalize.type == "custom":
-        x = normalized_img(
-            x,
-            lower_p=normalize.lower_percentile,
-            upper_p=normalize.upper_percentile,
-            lower_bound=normalize.lower_bound,
-            upper_bound=normalize.upper_bound,
-        )
+    x = _normalize_cellpose_channels(x, channels, normalize, normalize2)
 
     # Actual labeling
     t0 = time.perf_counter()
@@ -154,21 +129,21 @@ def segment_ROI(
         x,
         channels=channels,
         do_3D=do_3D,
-        net_avg=net_avg,
-        augment=augment,
+        net_avg=advanced_cellpose_model_params.net_avg,
+        augment=advanced_cellpose_model_params.augment,
         diameter=diameter,
-        anisotropy=anisotropy,
-        cellprob_threshold=cellprob_threshold,
-        flow_threshold=flow_threshold,
+        anisotropy=advanced_cellpose_model_params.anisotropy,
+        cellprob_threshold=advanced_cellpose_model_params.cellprob_threshold,
+        flow_threshold=advanced_cellpose_model_params.flow_threshold,
         normalize=normalize.cellpose_normalize,
-        min_size=min_size,
-        batch_size=batch_size,
-        invert=invert,
-        tile=tile,
-        tile_overlap=tile_overlap,
-        resample=resample,
-        interp=interp,
-        stitch_threshold=stitch_threshold,
+        min_size=advanced_cellpose_model_params.min_size,
+        batch_size=advanced_cellpose_model_params.batch_size,
+        invert=advanced_cellpose_model_params.invert,
+        tile=advanced_cellpose_model_params.tile,
+        tile_overlap=advanced_cellpose_model_params.tile_overlap,
+        resample=advanced_cellpose_model_params.resample,
+        interp=advanced_cellpose_model_params.interp,
+        stitch_threshold=advanced_cellpose_model_params.stitch_threshold,
     )
 
     if mask.ndim == 2:
@@ -185,7 +160,7 @@ def segment_ROI(
         f" {np.max(mask)=} |"
         f" {model.diam_mean=} |"
         f" {diameter=} |"
-        f" {flow_threshold=}"
+        f" {advanced_cellpose_model_params.flow_threshold=}"
     )
 
     return mask.astype(label_dtype)
@@ -198,8 +173,10 @@ def cellpose_segmentation(
     zarr_url: str,
     # Core parameters
     level: int,
-    channel: ChannelInputModel,
-    channel2: Optional[ChannelInputModel] = None,
+    channel: CellposeChannel1InputModel,
+    channel2: CellposeChannel2InputModel = Field(
+        default_factory=CellposeChannel2InputModel
+    ),
     input_ROI_table: str = "FOV_ROI_table",
     output_ROI_table: Optional[str] = None,
     output_label_name: Optional[str] = None,
@@ -208,24 +185,11 @@ def cellpose_segmentation(
     # https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/401 # noqa E501
     model_type: Literal[tuple(models.MODEL_NAMES)] = "cyto2",
     pretrained_model: Optional[str] = None,
-    # Advanced parameters
-    cellprob_threshold: float = 0.0,
-    flow_threshold: float = 0.4,
-    normalize: CellposeCustomNormalizer = CellposeCustomNormalizer(),
-    anisotropy: Optional[float] = None,
-    min_size: int = 15,
-    augment: bool = False,
-    net_avg: bool = False,
-    use_gpu: bool = True,
-    batch_size: int = 8,
-    invert: bool = False,
-    tile: bool = True,
-    tile_overlap: float = 0.1,
-    resample: bool = True,
-    interp: bool = True,
-    stitch_threshold: float = 0.0,
-    use_masks: bool = True,
     relabeling: bool = True,
+    use_masks: bool = True,
+    advanced_cellpose_model_params: CellposeModelParams = Field(
+        default_factory=CellposeModelParams
+    ),
     overwrite: bool = True,
 ) -> None:
     """
@@ -237,7 +201,15 @@ def cellpose_segmentation(
         level: Pyramid level of the image to be segmented. Choose `0` to
             process at full resolution.
         channel: Primary channel for segmentation; requires either
-            `wavelength_id` (e.g. `A01_C01`) or `label` (e.g. `DAPI`).
+            `wavelength_id` (e.g. `A01_C01`) or `label` (e.g. `DAPI`), but not
+            both. Also contains normalization options. By default, data is
+            normalized so 0.0=1st percentile and 1.0=99th percentile of image
+            intensities in each channel.
+            This automatic normalization can lead to issues when the image to
+            be segmented is very sparse. You can turn off the default
+            rescaling. With the "custom" option, you can either provide your
+            own rescaling percentiles or fixed rescaling upper and lower
+            bound integers.
         channel2: Second channel for segmentation (in the same format as
             `channel`). If specified, cellpose runs in dual channel mode.
             For dual channel segmentation of cells, the first channel should
@@ -251,13 +223,7 @@ def cellpose_segmentation(
         output_ROI_table: If provided, a ROI table with that name is created,
             which will contain the bounding boxes of the newly segmented
             labels. ROI tables should have `ROI` in their name.
-        use_masks: If `True`, try to use masked loading and fall back to
-            `use_masks=False` if the ROI table is not suitable. Masked
-            loading is relevant when only a subset of the bounding box should
-            actually be processed (e.g. running within `organoid_ROI_table`).
         output_label_name: Name of the output label image (e.g. `"organoids"`).
-        relabeling: If `True`, apply relabeling so that label values are
-            unique for all objects in the well.
         diameter_level0: Expected diameter of the objects that should be
             segmented in pixels at level 0. Initial diameter is rescaled using
             the `level` that was selected. The rescaled value is passed as
@@ -267,54 +233,17 @@ def cellpose_segmentation(
         pretrained_model: Parameter of `CellposeModel` class (takes
             precedence over `model_type`). Allows you to specify the path of
             a custom trained cellpose model.
-        cellprob_threshold: Parameter of `CellposeModel.eval` method. Valid
-            values between -6 to 6. From Cellpose documentation: "Decrease this
-            threshold if cellpose is not returning as many ROIs as you’d
-            expect. Similarly, increase this threshold if cellpose is returning
-            too ROIs particularly from dim areas."
-        flow_threshold: Parameter of `CellposeModel.eval` method. Valid
-            values between 0.0 and 1.0. From Cellpose documentation: "Increase
-            this threshold if cellpose is not returning as many ROIs as you’d
-            expect. Similarly, decrease this threshold if cellpose is returning
-            too many ill-shaped ROIs."
-        normalize: By default, data is normalized so 0.0=1st percentile and
-            1.0=99th percentile of image intensities in each channel.
-            This automatic normalization can lead to issues when the image to
-            be segmented is very sparse. You can turn off the default
-            rescaling. With the "custom" option, you can either provide your
-            own rescaling percentiles or fixed rescaling upper and lower
-            bound integers.
-        anisotropy: Ratio of the pixel sizes along Z and XY axis (ignored if
-            the image is not three-dimensional). If `None`, it is inferred from
-            the OME-NGFF metadata.
-        min_size: Parameter of `CellposeModel` class. Minimum size of the
-            segmented objects (in pixels). Use `-1` to turn off the size
-            filter.
-        augment: Parameter of `CellposeModel` class. Whether to use cellpose
-            augmentation to tile images with overlap.
-        net_avg: Parameter of `CellposeModel` class. Whether to use cellpose
-            net averaging to run the 4 built-in networks (useful for `nuclei`,
-            `cyto` and `cyto2`, not sure it works for the others).
-        use_gpu: If `False`, always use the CPU; if `True`, use the GPU if
-            possible (as defined in `cellpose.core.use_gpu()`) and fall-back
-            to the CPU otherwise.
-        batch_size: number of 224x224 patches to run simultaneously on the GPU
-            (can make smaller or bigger depending on GPU memory usage)
-        invert: invert image pixel intensity before running network (if True,
-            image is also normalized)
-        tile: tiles image to ensure GPU/CPU memory usage limited (recommended)
-        tile_overlap: fraction of overlap of tiles when computing flows
-        resample: run dynamics at original image size (will be slower but
-            create more accurate boundaries)
-        interp: interpolate during 2D dynamics (not available in 3D)
-            (in previous versions it was False, now it defaults to True)
-        stitch_threshold: if stitch_threshold>0.0 and not do_3D and equal
-            image sizes, masks are stitched in 3D to return volume segmentation
+        relabeling: If `True`, apply relabeling so that label values are
+            unique for all objects in the well.
+        use_masks: If `True`, try to use masked loading and fall back to
+            `use_masks=False` if the ROI table is not suitable. Masked
+            loading is relevant when only a subset of the bounding box should
+            actually be processed (e.g. running within `organoid_ROI_table`).
+        advanced_cellpose_model_params: Advanced Cellpose model parameters
+            that are passed to the Cellpose `model.eval` method.
         overwrite: If `True`, overwrite the task output.
     """
-
-    # Set input path
-    logger.info(f"{zarr_url=}")
+    logger.info(f"Processing {zarr_url=}")
 
     # Preliminary checks on Cellpose model
     if pretrained_model:
@@ -338,41 +267,24 @@ def cellpose_segmentation(
     )
 
     # Find channel index
-    try:
-        tmp_channel: OmeroChannel = get_channel_from_image_zarr(
-            image_zarr_path=zarr_url,
-            wavelength_id=channel.wavelength_id,
-            label=channel.label,
-        )
-    except ChannelNotFoundError as e:
-        logger.warning(
-            "Channel not found, exit from the task.\n"
-            f"Original error: {str(e)}"
-        )
-        return None
-    ind_channel = tmp_channel.index
+    omero_channel = channel.get_omero_channel(zarr_url)
+    if omero_channel:
+        ind_channel = omero_channel.index
+    else:
+        return
 
     # Find channel index for second channel, if one is provided
-    if channel2:
-        try:
-            tmp_channel_c2: OmeroChannel = get_channel_from_image_zarr(
-                image_zarr_path=zarr_url,
-                wavelength_id=channel2.wavelength_id,
-                label=channel2.label,
-            )
-        except ChannelNotFoundError as e:
-            logger.warning(
-                f"Second channel with wavelength_id: {channel2.wavelength_id} "
-                f"and label: {channel2.label} not found, exit from the task.\n"
-                f"Original error: {str(e)}"
-            )
-            return None
-        ind_channel_c2 = tmp_channel_c2.index
+    if channel2.is_set():
+        omero_channel_2 = channel2.get_omero_channel(zarr_url)
+        if omero_channel_2:
+            ind_channel_c2 = omero_channel_2.index
+        else:
+            return
 
     # Set channel label
     if output_label_name is None:
         try:
-            channel_label = tmp_channel.label
+            channel_label = omero_channel.label
             output_label_name = f"label_{channel_label}"
         except (KeyError, IndexError):
             output_label_name = f"label_{ind_channel}"
@@ -380,7 +292,7 @@ def cellpose_segmentation(
     # Load ZYX data
     data_zyx = da.from_zarr(f"{zarr_url}/{level}")[ind_channel]
     logger.info(f"{data_zyx.shape=}")
-    if channel2:
+    if channel2.is_set():
         data_zyx_c2 = da.from_zarr(f"{zarr_url}/{level}")[ind_channel_c2]
         logger.info(f"Second channel: {data_zyx_c2.shape=}")
 
@@ -421,12 +333,12 @@ def cellpose_segmentation(
     # Select 2D/3D behavior and set some parameters
     do_3D = data_zyx.shape[0] > 1 and len(data_zyx.shape) == 3
     if do_3D:
-        if anisotropy is None:
+        if advanced_cellpose_model_params.anisotropy is None:
             # Compute anisotropy as pixel_size_z/pixel_size_x
-            anisotropy = (
+            advanced_cellpose_model_params.anisotropy = (
                 actual_res_pxl_sizes_zyx[0] / actual_res_pxl_sizes_zyx[2]
             )
-        logger.info(f"Anisotropy: {anisotropy}")
+        logger.info(f"Anisotropy: {advanced_cellpose_model_params.anisotropy}")
 
     # Rescale datasets (only relevant for level>0)
     if ngff_image_meta.axes_names[0] != "c":
@@ -500,7 +412,7 @@ def cellpose_segmentation(
     )
 
     # Initialize cellpose
-    gpu = use_gpu and cellpose.core.use_gpu()
+    gpu = advanced_cellpose_model_params.use_gpu and cellpose.core.use_gpu()
     if pretrained_model:
         model = models.CellposeModel(
             gpu=gpu, pretrained_model=pretrained_model
@@ -516,11 +428,11 @@ def cellpose_segmentation(
     logger.info(f"level: {level}")
     logger.info(f"model_type: {model_type}")
     logger.info(f"pretrained_model: {pretrained_model}")
-    logger.info(f"anisotropy: {anisotropy}")
+    logger.info(f"anisotropy: {advanced_cellpose_model_params.anisotropy}")
     logger.info("Total well shape/chunks:")
     logger.info(f"{data_zyx.shape}")
     logger.info(f"{data_zyx.chunks}")
-    if channel2:
+    if channel2.is_set():
         logger.info("Dual channel input for cellpose model")
         logger.info(f"{data_zyx_c2.shape}")
         logger.info(f"{data_zyx_c2.chunks}")
@@ -547,7 +459,7 @@ def cellpose_segmentation(
         logger.info(f"Now processing ROI {i_ROI+1}/{num_ROIs}")
 
         # Prepare single-channel or dual-channel input for cellpose
-        if channel2:
+        if channel2.is_set():
             # Dual channel mode, first channel is the membrane channel
             img_1 = load_region(
                 data_zyx,
@@ -576,22 +488,11 @@ def cellpose_segmentation(
             model=model,
             channels=channels,
             do_3D=do_3D,
-            anisotropy=anisotropy,
             label_dtype=label_dtype,
             diameter=diameter_level0 / coarsening_xy**level,
-            cellprob_threshold=cellprob_threshold,
-            flow_threshold=flow_threshold,
-            normalize=normalize,
-            min_size=min_size,
-            augment=augment,
-            net_avg=net_avg,
-            batch_size=batch_size,
-            invert=invert,
-            tile=tile,
-            tile_overlap=tile_overlap,
-            resample=resample,
-            interp=interp,
-            stitch_threshold=stitch_threshold,
+            normalize=channel.normalize,
+            normalize2=channel2.normalize,
+            advanced_cellpose_model_params=advanced_cellpose_model_params,
         )
 
         # Prepare keyword arguments for preprocessing function

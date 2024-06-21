@@ -698,12 +698,12 @@
             "description": "Pyramid level of the image to be segmented. Choose `0` to process at full resolution."
           },
           "channel": {
-            "$ref": "#/definitions/ChannelInputModel",
+            "$ref": "#/definitions/CellposeChannel1InputModel",
             "title": "Channel",
-            "description": "Primary channel for segmentation; requires either `wavelength_id` (e.g. `A01_C01`) or `label` (e.g. `DAPI`)."
+            "description": "Primary channel for segmentation; requires either `wavelength_id` (e.g. `A01_C01`) or `label` (e.g. `DAPI`), but not both. Also contains normalization options. By default, data is normalized so 0.0=1st percentile and 1.0=99th percentile of image intensities in each channel. This automatic normalization can lead to issues when the image to be segmented is very sparse. You can turn off the default rescaling. With the \"custom\" option, you can either provide your own rescaling percentiles or fixed rescaling upper and lower bound integers."
           },
           "channel2": {
-            "$ref": "#/definitions/ChannelInputModel",
+            "$ref": "#/definitions/CellposeChannel2InputModel",
             "title": "Channel2",
             "description": "Second channel for segmentation (in the same format as `channel`). If specified, cellpose runs in dual channel mode. For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker."
           },
@@ -757,104 +757,11 @@
             "type": "string",
             "description": "Parameter of `CellposeModel` class (takes precedence over `model_type`). Allows you to specify the path of a custom trained cellpose model."
           },
-          "cellprob_threshold": {
-            "title": "Cellprob Threshold",
-            "default": 0.0,
-            "type": "number",
-            "description": "Parameter of `CellposeModel.eval` method. Valid values between -6 to 6. From Cellpose documentation: \"Decrease this threshold if cellpose is not returning as many ROIs as you\u2019d expect. Similarly, increase this threshold if cellpose is returning too ROIs particularly from dim areas.\""
-          },
-          "flow_threshold": {
-            "title": "Flow Threshold",
-            "default": 0.4,
-            "type": "number",
-            "description": "Parameter of `CellposeModel.eval` method. Valid values between 0.0 and 1.0. From Cellpose documentation: \"Increase this threshold if cellpose is not returning as many ROIs as you\u2019d expect. Similarly, decrease this threshold if cellpose is returning too many ill-shaped ROIs.\""
-          },
-          "normalize": {
-            "title": "Normalize",
-            "default": {
-              "type": "default",
-              "lower_percentile": null,
-              "upper_percentile": null,
-              "lower_bound": null,
-              "upper_bound": null
-            },
-            "allOf": [
-              {
-                "$ref": "#/definitions/CellposeCustomNormalizer"
-              }
-            ],
-            "description": "By default, data is normalized so 0.0=1st percentile and 1.0=99th percentile of image intensities in each channel. This automatic normalization can lead to issues when the image to be segmented is very sparse. You can turn off the default rescaling. With the \"custom\" option, you can either provide your own rescaling percentiles or fixed rescaling upper and lower bound integers."
-          },
-          "anisotropy": {
-            "title": "Anisotropy",
-            "type": "number",
-            "description": "Ratio of the pixel sizes along Z and XY axis (ignored if the image is not three-dimensional). If `None`, it is inferred from the OME-NGFF metadata."
-          },
-          "min_size": {
-            "title": "Min Size",
-            "default": 15,
-            "type": "integer",
-            "description": "Parameter of `CellposeModel` class. Minimum size of the segmented objects (in pixels). Use `-1` to turn off the size filter."
-          },
-          "augment": {
-            "title": "Augment",
-            "default": false,
-            "type": "boolean",
-            "description": "Parameter of `CellposeModel` class. Whether to use cellpose augmentation to tile images with overlap."
-          },
-          "net_avg": {
-            "title": "Net Avg",
-            "default": false,
-            "type": "boolean",
-            "description": "Parameter of `CellposeModel` class. Whether to use cellpose net averaging to run the 4 built-in networks (useful for `nuclei`, `cyto` and `cyto2`, not sure it works for the others)."
-          },
-          "use_gpu": {
-            "title": "Use Gpu",
+          "relabeling": {
+            "title": "Relabeling",
             "default": true,
             "type": "boolean",
-            "description": "If `False`, always use the CPU; if `True`, use the GPU if possible (as defined in `cellpose.core.use_gpu()`) and fall-back to the CPU otherwise."
-          },
-          "batch_size": {
-            "title": "Batch Size",
-            "default": 8,
-            "type": "integer",
-            "description": "number of 224x224 patches to run simultaneously on the GPU (can make smaller or bigger depending on GPU memory usage)"
-          },
-          "invert": {
-            "title": "Invert",
-            "default": false,
-            "type": "boolean",
-            "description": "invert image pixel intensity before running network (if True, image is also normalized)"
-          },
-          "tile": {
-            "title": "Tile",
-            "default": true,
-            "type": "boolean",
-            "description": "tiles image to ensure GPU/CPU memory usage limited (recommended)"
-          },
-          "tile_overlap": {
-            "title": "Tile Overlap",
-            "default": 0.1,
-            "type": "number",
-            "description": "fraction of overlap of tiles when computing flows"
-          },
-          "resample": {
-            "title": "Resample",
-            "default": true,
-            "type": "boolean",
-            "description": "run dynamics at original image size (will be slower but create more accurate boundaries)"
-          },
-          "interp": {
-            "title": "Interp",
-            "default": true,
-            "type": "boolean",
-            "description": "interpolate during 2D dynamics (not available in 3D) (in previous versions it was False, now it defaults to True)"
-          },
-          "stitch_threshold": {
-            "title": "Stitch Threshold",
-            "default": 0.0,
-            "type": "number",
-            "description": "if stitch_threshold>0.0 and not do_3D and equal image sizes, masks are stitched in 3D to return volume segmentation"
+            "description": "If `True`, apply relabeling so that label values are unique for all objects in the well."
           },
           "use_masks": {
             "title": "Use Masks",
@@ -862,11 +769,10 @@
             "type": "boolean",
             "description": "If `True`, try to use masked loading and fall back to `use_masks=False` if the ROI table is not suitable. Masked loading is relevant when only a subset of the bounding box should actually be processed (e.g. running within `organoid_ROI_table`)."
           },
-          "relabeling": {
-            "title": "Relabeling",
-            "default": true,
-            "type": "boolean",
-            "description": "If `True`, apply relabeling so that label values are unique for all objects in the well."
+          "advanced_cellpose_model_params": {
+            "$ref": "#/definitions/CellposeModelParams",
+            "title": "Advanced_Cellpose_Model_Params",
+            "description": "Advanced Cellpose model parameters that are passed to the Cellpose `model.eval` method."
           },
           "overwrite": {
             "title": "Overwrite",
@@ -882,23 +788,6 @@
         ],
         "additionalProperties": false,
         "definitions": {
-          "ChannelInputModel": {
-            "title": "ChannelInputModel",
-            "description": "A channel which is specified by either `wavelength_id` or `label`.",
-            "type": "object",
-            "properties": {
-              "wavelength_id": {
-                "title": "Wavelength Id",
-                "type": "string",
-                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`."
-              },
-              "label": {
-                "title": "Label",
-                "type": "string",
-                "description": "Name of the channel."
-              }
-            }
-          },
           "CellposeCustomNormalizer": {
             "title": "CellposeCustomNormalizer",
             "description": "Validator to handle different normalization scenarios for Cellpose models",
@@ -938,6 +827,140 @@
                 "title": "Upper Bound",
                 "type": "integer",
                 "description": "Explicit upper bound value to rescale the image at. Needs to be an integer, e.g. 2000. You can only specify percentiles or bounds, not both."
+              }
+            }
+          },
+          "CellposeChannel1InputModel": {
+            "title": "CellposeChannel1InputModel",
+            "description": "Channel input for cellpose with normalization options.",
+            "type": "object",
+            "properties": {
+              "wavelength_id": {
+                "title": "Wavelength Id",
+                "type": "string",
+                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`. Can only be specified if label is not set."
+              },
+              "label": {
+                "title": "Label",
+                "type": "string",
+                "description": "Name of the channel. Can only be specified if wavelength_id is not set."
+              },
+              "normalize": {
+                "$ref": "#/definitions/CellposeCustomNormalizer",
+                "title": "Normalize",
+                "description": "Validator to handle different normalization scenarios for Cellpose models"
+              }
+            }
+          },
+          "CellposeChannel2InputModel": {
+            "title": "CellposeChannel2InputModel",
+            "description": "Channel input for secondary cellpose channel with normalization options.",
+            "type": "object",
+            "properties": {
+              "wavelength_id": {
+                "title": "Wavelength Id",
+                "type": "string",
+                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`. Can only be specified if label is not set."
+              },
+              "label": {
+                "title": "Label",
+                "type": "string",
+                "description": "Name of the channel. Can only be specified if wavelength_id is not set."
+              },
+              "normalize": {
+                "$ref": "#/definitions/CellposeCustomNormalizer",
+                "title": "Normalize",
+                "description": "Validator to handle different normalization scenarios for Cellpose models"
+              }
+            }
+          },
+          "CellposeModelParams": {
+            "title": "CellposeModelParams",
+            "description": "Advanced Cellpose Model Parameters",
+            "type": "object",
+            "properties": {
+              "cellprob_threshold": {
+                "title": "Cellprob Threshold",
+                "default": 0.0,
+                "type": "number",
+                "description": "Parameter of `CellposeModel.eval` method. Valid values between -6 to 6. From Cellpose documentation: \"Decrease this threshold if cellpose is not returning as many ROIs as you'd expect. Similarly, increase this threshold if cellpose is returning too ROIs particularly from dim areas.\""
+              },
+              "flow_threshold": {
+                "title": "Flow Threshold",
+                "default": 0.4,
+                "type": "number",
+                "description": "Parameter of `CellposeModel.eval` method. Valid values between 0.0 and 1.0. From Cellpose documentation: \"Increase this threshold if cellpose is not returning as many ROIs as you'd expect. Similarly, decrease this threshold if cellpose is returning too many ill-shaped ROIs.\""
+              },
+              "anisotropy": {
+                "title": "Anisotropy",
+                "type": "number",
+                "description": "Ratio of the pixel sizes along Z and XY axis (ignored if the image is not three-dimensional). If unset, it is inferred from the OME-NGFF metadata."
+              },
+              "min_size": {
+                "title": "Min Size",
+                "default": 15,
+                "type": "integer",
+                "description": "Parameter of `CellposeModel` class. Minimum size of the segmented objects (in pixels). Use `-1` to turn off the size filter."
+              },
+              "augment": {
+                "title": "Augment",
+                "default": false,
+                "type": "boolean",
+                "description": "Parameter of `CellposeModel` class. Whether to use cellpose augmentation to tile images with overlap."
+              },
+              "net_avg": {
+                "title": "Net Avg",
+                "default": false,
+                "type": "boolean",
+                "description": "Parameter of `CellposeModel` class. Whether to use cellpose net averaging to run the 4 built-in networks (useful for `nuclei`, `cyto` and `cyto2`, not sure it works for the others)."
+              },
+              "use_gpu": {
+                "title": "Use Gpu",
+                "default": true,
+                "type": "boolean",
+                "description": "If `False`, always use the CPU; if `True`, use the GPU if possible (as defined in `cellpose.core.use_gpu()`) and fall-back to the CPU otherwise."
+              },
+              "batch_size": {
+                "title": "Batch Size",
+                "default": 8,
+                "type": "integer",
+                "description": "number of 224x224 patches to run simultaneously on the GPU (can make smaller or bigger depending on GPU memory usage)"
+              },
+              "invert": {
+                "title": "Invert",
+                "default": false,
+                "type": "boolean",
+                "description": "invert image pixel intensity before running network (if True, image is also normalized)"
+              },
+              "tile": {
+                "title": "Tile",
+                "default": true,
+                "type": "boolean",
+                "description": "tiles image to ensure GPU/CPU memory usage limited (recommended)"
+              },
+              "tile_overlap": {
+                "title": "Tile Overlap",
+                "default": 0.1,
+                "type": "number",
+                "description": "fraction of overlap of tiles when computing flows"
+              },
+              "resample": {
+                "title": "Resample",
+                "default": true,
+                "type": "boolean",
+                "description": "run dynamics at original image size (will be slower but create more accurate boundaries)"
+              },
+              "interp": {
+                "title": "Interp",
+                "default": true,
+                "type": "boolean",
+                "description": "interpolate during 2D dynamics (not available in 3D) (in previous versions it was False, now it defaults to True)"
+              },
+              "stitch_threshold": {
+                "title": "Stitch Threshold",
+                "default": 0.0,
+                "type": "number",
+                "description": "if stitch_threshold>0.0 and not do_3D and equal image sizes, masks are stitched in 3D to return volume segmentation"
               }
             }
           }
@@ -1357,12 +1380,12 @@
               "wavelength_id": {
                 "title": "Wavelength Id",
                 "type": "string",
-                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`."
+                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`. Can only be specified if label is not set."
               },
               "label": {
                 "title": "Label",
                 "type": "string",
-                "description": "Name of the channel."
+                "description": "Name of the channel. Can only be specified if wavelength_id is not set."
               }
             }
           },

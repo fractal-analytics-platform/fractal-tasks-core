@@ -17,6 +17,7 @@ repos:
     rev: 3.9.2
     hooks:
     -   id: flake8
+        args: ["--ignore=E203,W503"]
 -   repo: https://github.com/PyCQA/bandit
     rev: '1.7.4'
     hooks:

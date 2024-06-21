@@ -17,7 +17,7 @@ from typing import Optional
 
 import anndata as ad
 import zarr
-from pydantic.decorator import validate_arguments
+from pydantic.v1.decorator import validate_arguments
 
 from fractal_tasks_core.roi import (
     are_ROI_table_columns_valid,

@@ -13,17 +13,19 @@
 Helper functions to handle JSON schemas for task arguments.
 """
 import logging
+import os
 from collections import Counter
 from pathlib import Path
 from typing import Any
+from typing import Callable
 from typing import Optional
 
 from docstring_parser import parse as docparse
-from pydantic.decorator import ALT_V_ARGS
-from pydantic.decorator import ALT_V_KWARGS
-from pydantic.decorator import V_DUPLICATE_KWARGS
-from pydantic.decorator import V_POSITIONAL_ONLY_NAME
-from pydantic.decorator import ValidatedFunction
+from pydantic.v1.decorator import ALT_V_ARGS
+from pydantic.v1.decorator import ALT_V_KWARGS
+from pydantic.v1.decorator import V_DUPLICATE_KWARGS
+from pydantic.v1.decorator import V_POSITIONAL_ONLY_NAME
+from pydantic.v1.decorator import ValidatedFunction
 
 from fractal_tasks_core.dev.lib_descriptions import (
     _get_class_attrs_descriptions,
@@ -62,8 +64,23 @@ FRACTAL_TASKS_CORE_PYDANTIC_MODELS = [
     ),
     (
         "fractal_tasks_core",
-        "tasks/cellpose_transforms.py",
+        "tasks/cellpose_utils.py",
         "CellposeCustomNormalizer",
+    ),
+    (
+        "fractal_tasks_core",
+        "tasks/cellpose_utils.py",
+        "CellposeChannel1InputModel",
+    ),
+    (
+        "fractal_tasks_core",
+        "tasks/cellpose_utils.py",
+        "CellposeChannel2InputModel",
+    ),
+    (
+        "fractal_tasks_core",
+        "tasks/cellpose_utils.py",
+        "CellposeModelParams",
     ),
     (
         "fractal_tasks_core",
@@ -156,28 +173,71 @@ def _remove_attributes_from_descriptions(old_schema: _Schema) -> _Schema:
 
 def create_schema_for_single_task(
     executable: str,
-    package: str = "fractal_tasks_core",
+    package: Optional[str] = "fractal_tasks_core",
     custom_pydantic_models: Optional[list[tuple[str, str, str]]] = None,
+    task_function: Optional[Callable] = None,
+    verbose: bool = False,
 ) -> _Schema:
     """
     Main function to create a JSON Schema of task arguments
+
+    This function can be used in two ways:
+
+    1. `task_function` argument is `None`, `package` is set, and `executable`
+        is a path relative to that package.
+    2. `task_function` argument is provided, `executable` is an absolute path
+        to the function module, and `package` is `None. This is useful for
+        testing.
+
     """
 
     logging.info("[create_schema_for_single_task] START")
-
-    # Extract the function name. Note: this could be made more general, but for
-    # the moment we assume the function has the same name as the module)
-    function_name = Path(executable).with_suffix("").name
-    logging.info(f"[create_schema_for_single_task] {function_name=}")
+    if task_function is None:
+        usage = "1"
+        # Usage 1 (standard)
+        if package is None:
+            raise ValueError(
+                "Cannot call `create_schema_for_single_task with "
+                f"{task_function=} and {package=}. Exit."
+            )
+        if os.path.isabs(executable):
+            raise ValueError(
+                "Cannot call `create_schema_for_single_task with "
+                f"{task_function=} and absolute {executable=}. Exit."
+            )
+    else:
+        usage = "2"
+        # Usage 2 (testing)
+        if package is not None:
+            raise ValueError(
+                "Cannot call `create_schema_for_single_task with "
+                f"{task_function=} and non-None {package=}. Exit."
+            )
+        if not os.path.isabs(executable):
+            raise ValueError(
+                "Cannot call `create_schema_for_single_task with "
+                f"{task_function=} and non-absolute {executable=}. Exit."
+            )
 
     # Extract function from module
-    task_function = _extract_function(
-        package_name=package,
-        module_relative_path=executable,
-        function_name=function_name,
-    )
+    if usage == "1":
+        # Extract the function name (for the moment we assume the function has
+        # the same name as the module)
+        function_name = Path(executable).with_suffix("").name
+        # Extract the function object
+        task_function = _extract_function(
+            package_name=package,
+            module_relative_path=executable,
+            function_name=function_name,
+            verbose=verbose,
+        )
+    else:
+        # The function object is already available, extract its name
+        function_name = task_function.__name__
 
-    logging.info(f"[create_schema_for_single_task] {task_function=}")
+    if verbose:
+        logging.info(f"[create_schema_for_single_task] {function_name=}")
+        logging.info(f"[create_schema_for_single_task] {task_function=}")
 
     # Validate function signature against some custom constraints
     _validate_function_signature(task_function)
@@ -190,16 +250,18 @@ def create_schema_for_single_task(
     schema = _remove_attributes_from_descriptions(schema)
 
     # Include titles for custom-model-typed arguments
-    schema = _include_titles(schema)
+    schema = _include_titles(schema, verbose=verbose)
 
-    # Include descriptions of function arguments
+    # Include descriptions of function. Note: this function works both
+    # for usages 1 or 2 (see docstring).
     function_args_descriptions = _get_function_args_descriptions(
         package_name=package,
-        module_relative_path=executable,
+        module_path=executable,
         function_name=function_name,
+        verbose=verbose,
     )
     schema = _insert_function_args_descriptions(
-        schema=schema, descriptions=function_args_descriptions
+        schema=schema, descriptions=function_args_descriptions, verbose=verbose
     )
 
     # Merge lists of fractal-tasks-core and user-provided Pydantic models

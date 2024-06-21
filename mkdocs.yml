@@ -58,7 +58,7 @@ nav:
   - Run tasks: run_tasks/
   - Task list: all_tasks.md
   - Table specs: tables.md
-  - Write a custom task: custom_task.md
+  - Write custom tasks: custom_task.md
   - Development: development.md
   - Code reference: reference/fractal_tasks_core/
   - Changelog: changelog.md
@@ -71,6 +71,7 @@ plugins:
   - autorefs
   - gen-files:
       scripts:
+        - docs/_tasks/generate_task_list.py
         - docs/gen_ref_pages.py
   - literate-nav:
       nav_file: SUMMARY.md

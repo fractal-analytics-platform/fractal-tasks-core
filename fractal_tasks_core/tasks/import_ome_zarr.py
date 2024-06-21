@@ -17,7 +17,7 @@ from typing import Optional
 
 import dask.array as da
 import zarr
-from pydantic.decorator import validate_arguments
+from pydantic.v1.decorator import validate_arguments
 
 from fractal_tasks_core.channels import update_omero_channels
 from fractal_tasks_core.ngff import detect_ome_ngff_type

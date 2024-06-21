@@ -22,7 +22,7 @@ import numpy as np
 import pandas as pd
 import zarr
 from napari_workflows._io_yaml_v1 import load_workflow
-from pydantic.decorator import validate_arguments
+from pydantic.v1.decorator import validate_arguments
 
 import fractal_tasks_core
 from fractal_tasks_core.channels import get_channel_from_image_zarr
@@ -208,7 +208,7 @@ def napari_workflows_wrapper(
     if image_inputs:
         img_array = da.from_zarr(f"{zarr_url}/{level}")
         # Loop over image inputs and assign corresponding channel of the image
-        for (name, params) in image_inputs:
+        for name, params in image_inputs:
             channel = get_channel_from_image_zarr(
                 image_zarr_path=zarr_url,
                 wavelength_id=params.channel.wavelength_id,
@@ -261,7 +261,7 @@ def napari_workflows_wrapper(
             upscale_labels = True
         # Loop over label inputs and load corresponding (upscaled) image
         input_label_arrays = {}
-        for (name, params) in label_inputs:
+        for name, params in label_inputs:
             label_name = params.label_name
             label_array_raw = da.from_zarr(
                 f"{zarr_url}/labels/{label_name}/{level}"
@@ -393,7 +393,7 @@ def napari_workflows_wrapper(
 
         # Loop over label outputs and (1) set zattrs, (2) create zarr group
         output_label_zarr_groups: dict[str, Any] = {}
-        for (name, out_params) in label_outputs:
+        for name, out_params in label_outputs:
 
             # (1a) Rescale OME-NGFF datasets (relevant for level>0)
             if not ngff_image_meta.multiscale.axes[0].name == "c":
@@ -467,7 +467,7 @@ def napari_workflows_wrapper(
         if out_params.type == "dataframe"
     ]
     output_dataframe_lists: dict[str, list] = {}
-    for (name, out_params) in dataframe_outputs:
+    for name, out_params in dataframe_outputs:
         output_dataframe_lists[name] = []
         logger.info(f"Prepared output with {name=} and {out_params=}")
         logger.info(f"{output_dataframe_lists=}")
@@ -581,7 +581,7 @@ def napari_workflows_wrapper(
 
     # Output handling: "dataframe" type (for each output, concatenate ROI
     # dataframes, clean up, and store in a AnnData table on-disk)
-    for (name, out_params) in dataframe_outputs:
+    for name, out_params in dataframe_outputs:
         table_name = out_params.table_name
         # Concatenate all FOV dataframes
         list_dfs = output_dataframe_lists[name]
@@ -617,7 +617,7 @@ def napari_workflows_wrapper(
 
     # Output handling: "label" type (for each output, build and write to disk
     # pyramid of coarser levels)
-    for (name, out_params) in label_outputs:
+    for name, out_params in label_outputs:
         label_name = out_params.label_name
         build_pyramid(
             zarrurl=f"{zarr_url}/labels/{label_name}",
