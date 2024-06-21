@@ -198,8 +198,8 @@ def patched_segment_ROI(
 
     return mask.astype(label_dtype)
 
-@pytest.mark.parametrize("method", ["phase_cross_correlation",
-                                    "chi2_shift"])
+
+@pytest.mark.parametrize("method", ["phase_cross_correlation", "chi2_shift"])
 def test_multiplexing_registration(
     zenodo_images_multiplex_shifted: list[str],
     tmp_path,

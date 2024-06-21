@@ -36,8 +36,10 @@ from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
 from fractal_tasks_core.tasks._registration_utils import (
     calculate_physical_shifts,
+)
+from fractal_tasks_core.tasks._registration_utils import chi2_shift_out
+from fractal_tasks_core.tasks._registration_utils import (
     get_ROI_table_with_translation,
-    chi2_shift_out,
 )
 from fractal_tasks_core.tasks.io_models import InitArgsRegistration
 
@@ -59,7 +61,7 @@ def calculate_registration_image_based(
     init_args: InitArgsRegistration,
     # Core parameters
     wavelength_id: str,
-    method: Literal[tuple([key for key,value in REG_METHODS.items()])],
+    method: Literal[tuple([key for key, value in REG_METHODS.items()])],
     roi_table: str = "FOV_ROI_table",
     level: int = 2,
 ) -> None:
