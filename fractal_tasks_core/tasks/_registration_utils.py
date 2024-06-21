@@ -238,7 +238,7 @@ def apply_registration_to_single_ROI_table(
     return roi_table
 
 
-def chi2_shift_out(img_ref, img_cycle_x):
+def chi2_shift_out(img_ref, img_cycle_x) -> list[np.ndarray]:
     """
     Helper function to get the output of chi2_shift into the same format as
     phase_cross_correlation. Calculates the shift between two images using
@@ -249,7 +249,7 @@ def chi2_shift_out(img_ref, img_cycle_x):
         img_cycle_x (np.ndarray): Second image.
 
     Returns:
-        list: list of tuple of shift in y and x direction.
+        List of tuple of shift in y and x direction.
     """
     x, y, a, b = chi2_shift(np.squeeze(img_ref), np.squeeze(img_cycle_x))
 
