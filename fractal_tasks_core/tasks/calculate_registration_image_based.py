@@ -61,7 +61,9 @@ def calculate_registration_image_based(
     init_args: InitArgsRegistration,
     # Core parameters
     wavelength_id: str,
-    method: Literal[tuple([key for key, value in REG_METHODS.items()])],
+    method: Literal[
+        tuple([key for key, value in REG_METHODS.items()])
+    ] = "phase_cross_correlation",
     roi_table: str = "FOV_ROI_table",
     level: int = 2,
 ) -> None:

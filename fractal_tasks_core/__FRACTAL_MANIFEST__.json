@@ -1032,6 +1032,7 @@
           },
           "method": {
             "title": "Method",
+            "default": "phase_cross_correlation",
             "enum": [
               "phase_cross_correlation",
               "chi2_shift"
@@ -1055,8 +1056,7 @@
         "required": [
           "zarr_url",
           "init_args",
-          "wavelength_id",
-          "method"
+          "wavelength_id"
         ],
         "additionalProperties": false,
         "definitions": {
