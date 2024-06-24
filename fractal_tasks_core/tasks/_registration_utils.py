@@ -276,7 +276,7 @@ def is_3D(dask_array: da.array) -> bool:
     (10, 2000, 2000) => True
 
     Args:
-        dask_array
+        dask_array: Input array to be checked
 
     Returns:
         bool on whether the array is 3D
