@@ -13,7 +13,7 @@
 Calculates translation for image-based registration
 """
 import logging
-from typing import Literal
+from enum import Enum
 
 import anndata as ad
 import dask.array as da
@@ -46,12 +46,16 @@ from fractal_tasks_core.tasks.io_models import InitArgsRegistration
 
 logger = logging.getLogger(__name__)
 
-# Dictionary mapping available registration methods to their respective
-# functions
-REG_METHODS = {
-    "phase_cross_correlation": phase_cross_correlation,
-    "chi2_shift": chi2_shift_out,
-}
+
+class RegistrationMethod(Enum):
+    PHASE_CROSS_CORRELATION = "phase_cross_correlation"
+    CHI2_SHIFT = "chi2_shift"
+
+    def register(self, img_ref, img_acq_x):
+        if self == RegistrationMethod.PHASE_CROSS_CORRELATION:
+            return phase_cross_correlation(img_ref, img_acq_x)
+        elif self == RegistrationMethod.CHI2_SHIFT:
+            return chi2_shift_out(img_ref, img_acq_x)
 
 
 @validate_arguments
@@ -62,9 +66,7 @@ def calculate_registration_image_based(
     init_args: InitArgsRegistration,
     # Core parameters
     wavelength_id: str,
-    method: Literal[
-        tuple([key for key, value in REG_METHODS.items()])
-    ] = "phase_cross_correlation",
+    method: RegistrationMethod = "phase_cross_correlation",
     roi_table: str = "FOV_ROI_table",
     level: int = 2,
 ) -> None:
@@ -238,30 +240,17 @@ def calculate_registration_image_based(
         ##############
         #  Calculate the transformation
         ##############
-        # Basic version (no padding, no internal binning)
         if img_ref.shape != img_acq_x.shape:
             raise NotImplementedError(
                 "This registration is not implemented for ROIs with "
                 "different shapes between acquisitions."
             )
-        shifts = REG_METHODS[method](
-            np.squeeze(img_ref), np.squeeze(img_acq_x)
-        )[0]
 
-        # Registration based on scmultiplex, image-based
-        # shifts, _, _ = calculate_shift(np.squeeze(img_ref),
-        #           np.squeeze(img_acq_x), bin=binning, binarize=False)
-
-        # TODO: Make this work on label images
-        # (=> different loading) etc.
+        shifts = method.register(np.squeeze(img_ref), np.squeeze(img_acq_x))[0]
 
         ##############
-        # Storing the calculated transformation ###
+        # Store the calculated transformation ###
         ##############
-        # Store the shift in ROI table
-        # TODO: Store in OME-NGFF transformations: Check SpatialData approach,
-        # per ROI storage?
-
         # Adapt ROIs for the given ROI table:
         ROI_name = ROI_table_ref.obs.index[i_ROI]
         new_shifts[ROI_name] = calculate_physical_shifts(
