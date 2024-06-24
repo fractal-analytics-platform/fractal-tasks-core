@@ -1038,7 +1038,7 @@
               "chi2_shift"
             ],
             "type": "string",
-            "description": "Method to use for image registration. Currently only `phase_cross_correlation` (scikit-image) and \"chi2_shift\" (image_registration) are supported."
+            "description": "Method to use for image registration. The available methods are `phase_cross_correlation` (scikit-image package, works for 2D & 3D) and \"chi2_shift\" (image_registration package, only works for 2D images)."
           },
           "roi_table": {
             "title": "Roi Table",

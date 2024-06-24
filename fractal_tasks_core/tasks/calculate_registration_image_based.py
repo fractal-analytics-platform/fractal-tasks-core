@@ -41,6 +41,7 @@ from fractal_tasks_core.tasks._registration_utils import chi2_shift_out
 from fractal_tasks_core.tasks._registration_utils import (
     get_ROI_table_with_translation,
 )
+from fractal_tasks_core.tasks._registration_utils import is_3D
 from fractal_tasks_core.tasks.io_models import InitArgsRegistration
 
 logger = logging.getLogger(__name__)
@@ -85,9 +86,10 @@ def calculate_registration_image_based(
             (standard argument for Fractal tasks, managed by Fractal server).
         wavelength_id: Wavelength that will be used for image-based
             registration; e.g. `A01_C01` for Yokogawa, `C01` for MD.
-        method: Method to use for image registration. Currently only
-            `phase_cross_correlation` (scikit-image) and "chi2_shift"
-             (image_registration) are supported.
+        method: Method to use for image registration. The available methods
+            are `phase_cross_correlation` (scikit-image package, works for 2D
+            & 3D) and "chi2_shift" (image_registration package, only works for
+            2D images).
         roi_table: Name of the ROI table over which the task loops to
             calculate the registration. Examples: `FOV_ROI_table` => loop over
             the field of views, `well_ROI_table` => process the whole well as
@@ -129,6 +131,16 @@ def calculate_registration_image_based(
     data_alignment_zyx = da.from_zarr(f"{zarr_url}/{level}")[
         channel_index_align
     ]
+
+    # Check if data is 3D (as not all registration methods work in 3D)
+    # TODO: Abstract this check into a higher-level Zarr loading class
+    if is_3D(data_reference_zyx):
+        if method == "chi2_shift":
+            raise ValueError(
+                "The `chi2_shift` registration method has not been "
+                "implemented for 3D images and the input image had a shape of "
+                f"{data_reference_zyx.shape}."
+            )
 
     # Read ROIs
     ROI_table_ref = ad.read_zarr(

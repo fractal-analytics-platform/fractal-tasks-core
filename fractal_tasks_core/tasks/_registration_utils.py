@@ -8,6 +8,7 @@
 import copy
 
 import anndata as ad
+import dask.array as da
 import numpy as np
 import pandas as pd
 from image_registration import chi2_shift
@@ -264,3 +265,23 @@ def chi2_shift_out(img_ref, img_cycle_x) -> list[np.ndarray]:
     shifts = np.array([-int(np.round(y)), -int(np.round(x))], dtype="float64")
 
     return [shifts]
+
+
+def is_3D(dask_array: da.array) -> bool:
+    """
+    Check if a dask array is 3D.
+
+    Treats singelton Z dimensions as 2D images.
+    (1, 2000, 2000) => False
+    (10, 2000, 2000) => True
+
+    Args:
+        dask_array
+
+    Returns:
+        bool on whether the array is 3D
+    """
+    if len(dask_array.shape) == 3 and dask_array.shape[0] > 1:
+        return True
+    else:
+        return False
