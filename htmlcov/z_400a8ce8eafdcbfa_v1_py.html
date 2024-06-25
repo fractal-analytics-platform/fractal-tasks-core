@@ -66,8 +66,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_02c373974d9ed707__registration_utils_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.3">coverage.py v7.5.3</a>,
-            created at 2024-06-20 08:08 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.4">coverage.py v7.5.4</a>,
+            created at 2024-06-25 09:37 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -191,7 +191,7 @@
     <p class="pln"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t">    <span class="com"># Set logger</span>&nbsp;</span><span class="r"></span></p>
-    <p class="par run show_par"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t">    <span class="key">if</span> <span class="nam">logger</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">110&#x202F;&#x219B;&#x202F;113</span><span class="annotate long">line 110 didn't jump to line 113, because the condition on line 110 was always true</span></span></p>
+    <p class="par run show_par"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t">    <span class="key">if</span> <span class="nam">logger</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">110&#x202F;&#x219B;&#x202F;113</span><span class="annotate long">line 110 didn't jump to line 113 because the condition on line 110 was always true</span></span></p>
     <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t">        <span class="nam">logger</span> <span class="op">=</span> <span class="nam">logging</span><span class="op">.</span><span class="nam">getLogger</span><span class="op">(</span><span class="key">None</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t">    <span class="key">if</span> <span class="nam">key</span> <span class="key">in</span> <span class="nam">set</span><span class="op">(</span><span class="nam">group</span><span class="op">.</span><span class="nam">group_keys</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -393,8 +393,8 @@
     <p class="run"><span class="n"><a id="t309" href="#t309">309</a></span><span class="t">    <span class="key">for</span> <span class="nam">table_name</span> <span class="key">in</span> <span class="nam">all_tables</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t310" href="#t310">310</a></span><span class="t">        <span class="key">with</span> <span class="nam">zarr</span><span class="op">.</span><span class="nam">open</span><span class="op">(</span><span class="nam">zarr_url</span><span class="op">,</span> <span class="nam">mode</span><span class="op">=</span><span class="str">"r"</span><span class="op">)</span><span class="op">.</span><span class="nam">tables</span><span class="op">[</span><span class="nam">table_name</span><span class="op">]</span> <span class="key">as</span> <span class="nam">table</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t311" href="#t311">311</a></span><span class="t">            <span class="nam">table_attrs</span> <span class="op">=</span> <span class="nam">table</span><span class="op">.</span><span class="nam">attrs</span><span class="op">.</span><span class="nam">asdict</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="par run show_par"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t">            <span class="key">if</span> <span class="str">"type"</span> <span class="key">in</span> <span class="nam">table_attrs</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">312&#x202F;&#x219B;&#x202F;322</span><span class="annotate long">line 312 didn't jump to line 322, because the condition on line 312 was always true</span></span></p>
-    <p class="par run show_par"><span class="n"><a id="t313" href="#t313">313</a></span><span class="t">                <span class="key">if</span> <span class="nam">table_type</span> <span class="op">==</span> <span class="str">"ROIs"</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">313&#x202F;&#x219B;&#x202F;317</span><span class="annotate long">line 313 didn't jump to line 317, because the condition on line 313 was always true</span></span></p>
+    <p class="par run show_par"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t">            <span class="key">if</span> <span class="str">"type"</span> <span class="key">in</span> <span class="nam">table_attrs</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">312&#x202F;&#x219B;&#x202F;322</span><span class="annotate long">line 312 didn't jump to line 322 because the condition on line 312 was always true</span></span></p>
+    <p class="par run show_par"><span class="n"><a id="t313" href="#t313">313</a></span><span class="t">                <span class="key">if</span> <span class="nam">table_type</span> <span class="op">==</span> <span class="str">"ROIs"</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">313&#x202F;&#x219B;&#x202F;317</span><span class="annotate long">line 313 didn't jump to line 317 because the condition on line 313 was always true</span></span></p>
     <p class="run"><span class="n"><a id="t314" href="#t314">314</a></span><span class="t">                    <span class="nam">roi_table_types</span> <span class="op">=</span> <span class="op">[</span><span class="str">"roi_table"</span><span class="op">,</span> <span class="str">"masking_roi_table"</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="par run show_par"><span class="n"><a id="t315" href="#t315">315</a></span><span class="t">                    <span class="key">if</span> <span class="nam">table_attrs</span><span class="op">[</span><span class="str">"type"</span><span class="op">]</span> <span class="key">in</span> <span class="nam">roi_table_types</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">315&#x202F;&#x219B;&#x202F;310</span><span class="annotate long">line 315 didn't jump to line 310</span></span></p>
     <p class="run"><span class="n"><a id="t316" href="#t316">316</a></span><span class="t">                        <span class="nam">tables_list</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">table_name</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -415,8 +415,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_02c373974d9ed707__registration_utils_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.3">coverage.py v7.5.3</a>,
-            created at 2024-06-20 08:08 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.4">coverage.py v7.5.4</a>,
+            created at 2024-06-25 09:37 +0000
         </p>
     </div>
 </footer>
