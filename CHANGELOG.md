@@ -3,7 +3,7 @@
 # Unreleased
 
 > NOTE: Starting from this release, `fractal-tasks-core` can coexist
-> with Pydantic V1 (provided its version is `>=2.6.3`), but it still uses pydantic
+> with Pydantic V2 but it still uses pydantic
 > v1 under the hood for the time being. When working with Pydantic V1, the
 > required version is `>=1.10.16`.
 
