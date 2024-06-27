@@ -4,7 +4,7 @@
 
 | Name                                                                      |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
 |-------------------------------------------------------------------------- | -------: | -------: | -------: | -------: | ------: | --------: |
-| fractal\_tasks\_core/\_\_init\_\_.py                                      |       14 |        1 |        2 |        1 |     88% |        16 |
+| fractal\_tasks\_core/\_\_init\_\_.py                                      |        5 |        0 |        0 |        0 |    100% |           |
 | fractal\_tasks\_core/cellvoyager/\_\_init\_\_.py                          |        0 |        0 |        0 |        0 |    100% |           |
 | fractal\_tasks\_core/cellvoyager/filenames.py                             |       51 |        1 |       20 |        1 |     97% |       148 |
 | fractal\_tasks\_core/cellvoyager/metadata.py                              |      113 |        7 |       30 |        8 |     90% |95, 112, 298, 305, 307, 347, 392->400, 443 |
@@ -47,7 +47,7 @@
 | fractal\_tasks\_core/upscale\_array.py                                    |       73 |        7 |       48 |        6 |     88% |63, 91, 96->100, 113, 128, 192-197 |
 | fractal\_tasks\_core/utils.py                                             |       67 |        2 |       28 |        5 |     93% |71, 139->147, 140->139, 176->179, 181 |
 | fractal\_tasks\_core/zarr\_utils.py                                       |       32 |        0 |        6 |        1 |     97% |    81->85 |
-|                                                                 **TOTAL** | **3282** |  **212** | **1086** |  **167** | **91%** |           |
+|                                                                 **TOTAL** | **3273** |  **211** | **1084** |  **166** | **91%** |           |
 
 
 ## Setup coverage badge
