@@ -1,4 +1,5 @@
 import anndata as ad
+import dask.array as da
 import numpy as np
 import pandas as pd
 import pytest
@@ -13,6 +14,7 @@ from fractal_tasks_core.tasks._registration_utils import (
 from fractal_tasks_core.tasks._registration_utils import (
     calculate_min_max_across_dfs,
 )
+from fractal_tasks_core.tasks._registration_utils import is_3D
 from fractal_tasks_core.tasks.calculate_registration_image_based import (
     calculate_physical_shifts,
 )
@@ -305,3 +307,16 @@ def test_failure_apply_registration_to_single_ROI_table(
     )
     with pytest.raises(ValueError):
         apply_registration_to_single_ROI_table(adata_table, max_df, min_df)
+
+
+@pytest.mark.parametrize(
+    "shape, result",
+    [
+        [(10, 20, 20), True],
+        [(1, 20, 20), False],
+        [(20, 20), False],
+    ],
+)
+def test_is_3D(shape, result):
+    array = da.ones(shape)
+    assert is_3D(array) == result

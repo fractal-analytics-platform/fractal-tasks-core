@@ -176,6 +176,33 @@ expected_registered_table = {
     ]
 }
 
+expected_registered_table_3d = {
+    "FOV_ROI_table": [
+        pd.DataFrame(
+            {
+                "x_micrometer": [32.5, 448.5],
+                "y_micrometer": [7.8, 7.8],
+                "z_micrometer": [0.0, 0.0],
+                "len_x_micrometer": [383.5, 383.5],
+                "len_y_micrometer": [343.2, 343.2],
+                "len_z_micrometer": [2.0, 2.0],
+            },
+            index=["FOV_1", "FOV_2"],
+        ).rename_axis("FieldIndex"),
+        pd.DataFrame(
+            {
+                "x_micrometer": [0.0, 416.0],
+                "y_micrometer": [0, 0],
+                "z_micrometer": [0.0, 0.0],
+                "len_x_micrometer": [383.5, 383.5],
+                "len_y_micrometer": [343.2, 343.2],
+                "len_z_micrometer": [2.0, 2.0],
+            },
+            index=["FOV_1", "FOV_2"],
+        ).rename_axis("FieldIndex"),
+    ]
+}
+
 
 def patched_segment_ROI(
     x, do_3D=True, label_dtype=None, well_id=None, **kwargs
@@ -204,14 +231,18 @@ def patched_segment_ROI(
     return mask.astype(label_dtype)
 
 
+@pytest.mark.parametrize("method", ["phase_cross_correlation", "chi2_shift"])
 def test_multiplexing_registration(
     zenodo_images_multiplex_shifted: list[str],
     tmp_path,
     monkeypatch: MonkeyPatch,
+    method: str,
     # Given the test data, only implemented per FOV
     roi_table="FOV_ROI_table",
 ):
-
+    """
+    Test a registration workflow with 2D images
+    """
     zarr_dir = str(tmp_path / "registration_output/")
     num_levels = 3
 
@@ -317,6 +348,7 @@ def test_multiplexing_registration(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
             wavelength_id="A01_C01",
+            method=method,
             roi_table=roi_table,
         )
 
@@ -399,6 +431,157 @@ def test_multiplexing_registration(
         zarr_list=zarr_list,
         roi_table=roi_table,
     )
+
+
+@pytest.mark.parametrize("method", ["phase_cross_correlation", "chi2_shift"])
+def test_multiplexing_registration_3d(
+    zenodo_images_multiplex_shifted: list[str],
+    tmp_path,
+    monkeypatch: MonkeyPatch,
+    method: str,
+    # Given the test data, only implemented per FOV
+    roi_table="FOV_ROI_table",
+):
+    """
+    Test a registration workflow with 3D images
+    """
+
+    zarr_dir = str(tmp_path / "registration_output/")
+    num_levels = 3
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
+        patched_segment_ROI,
+    )
+
+    acquisitions = {
+        "0": MultiplexingAcquisition(
+            image_dir=zenodo_images_multiplex_shifted[0],
+            allowed_channels=single_cycle_allowed_channels_no_label,
+        ),
+        "1": MultiplexingAcquisition(
+            image_dir=zenodo_images_multiplex_shifted[1],
+            allowed_channels=single_cycle_allowed_channels_no_label,
+        ),
+    }
+
+    # # Create zarr structure
+    parallelization_list = cellvoyager_to_ome_zarr_init_multiplex(
+        zarr_urls=[],
+        zarr_dir=zarr_dir,
+        acquisitions=acquisitions,
+        num_levels=num_levels,
+        coarsening_xy=2,
+        image_extension="png",
+        metadata_table_files=None,
+    )["parallelization_list"]
+    debug(parallelization_list)
+
+    # # Convert to OME-Zarr
+    image_list_updates = []
+    for image in parallelization_list:
+        image_list_updates += cellvoyager_to_ome_zarr_compute(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+        )["image_list_updates"]
+    debug(image_list_updates)
+
+    zarr_urls_3D = [image["zarr_url"] for image in image_list_updates]
+    debug(zarr_urls_3D)
+
+    # Run cellpose to create a label image that needs to be handled in
+    # registration
+    # Per-FOV labeling
+    channel = CellposeChannel1InputModel(
+        wavelength_id="A01_C01", normalize=CellposeCustomNormalizer()
+    )
+    for zarr_url in zarr_urls_3D:
+        cellpose_segmentation(
+            zarr_url=zarr_url,
+            channel=channel,
+            level=1,
+        )
+
+    parallelization_list = image_based_registration_hcs_init(
+        zarr_urls=zarr_urls_3D,
+        zarr_dir=zarr_dir,
+    )["parallelization_list"]
+    debug(parallelization_list)
+
+    expected_par_list = [
+        {
+            "zarr_url": zarr_urls_3D[1],
+            "init_args": {
+                "reference_zarr_url": zarr_urls_3D[0],
+            },
+        },
+    ]
+    assert expected_par_list == parallelization_list
+    debug(zarr_urls_3D)
+
+    for image in parallelization_list:
+        if method == "chi2_shift":
+            with pytest.raises(ValueError):
+                calculate_registration_image_based(
+                    zarr_url=image["zarr_url"],
+                    init_args=image["init_args"],
+                    wavelength_id="A01_C01",
+                    method=method,
+                    roi_table=roi_table,
+                )
+            pytest.skip(
+                "If chi2_shift method was used, don't test after triggering "
+                "the ValueError"
+            )
+        else:
+            calculate_registration_image_based(
+                zarr_url=image["zarr_url"],
+                init_args=image["init_args"],
+                wavelength_id="A01_C01",
+                method=method,
+                roi_table=roi_table,
+            )
+
+    # Check the table for the second acquisition
+    # (the image of the second cycle)
+    curr_table = ad.read_zarr(
+        f"{parallelization_list[0]['zarr_url']}/tables/{roi_table}"
+    )
+    assert curr_table.shape == (2, 11)
+    np.testing.assert_almost_equal(
+        curr_table.X[0, 8:11], np.array(expected_shift[roi_table]), decimal=5
+    )
+
+    # Initialize consensus finding
+    parallelization_list_well = init_group_by_well_for_multiplexing(
+        zarr_urls=zarr_urls_3D,
+        zarr_dir=zarr_dir,
+        reference_acquisition=0,
+    )["parallelization_list"]
+    debug(parallelization_list_well)
+    well_paral_list = {
+        "zarr_url": zarr_urls_3D[0],
+        "init_args": {"zarr_url_list": [zarr_urls_3D[0], zarr_urls_3D[1]]},
+    }
+    assert parallelization_list_well[0] == well_paral_list
+
+    for image in parallelization_list_well:
+        find_registration_consensus(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+            roi_table=roi_table,
+        )
+
+    # Validate the aligned tables
+    for i, zarr_url in enumerate(zarr_urls_3D):
+        registered_table = ad.read_zarr(
+            f"{zarr_url}/tables/registered_{roi_table}"
+        )
+        pd.testing.assert_frame_equal(
+            registered_table.to_df()[registered_columns].astype("float32"),
+            expected_registered_table_3d[roi_table][i].astype("float32"),
+            check_column_type=False,
+        )
 
 
 def validate_assumptions_after_image_registration(
