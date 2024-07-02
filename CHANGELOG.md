@@ -18,7 +18,7 @@
     * Make JSON-Schema generation tools more flexible, to simplify testing (\#749).
 * Documentation:
     * Update documentation (\#751).
-    * Improve/extend page showing tasks from other packages (\#759).
+    * Improve/extend page showing tasks from other packages (\#759, \#777).
 * JSON Schema generation:
     * Test manifest creation for three other tasks packages (\#763).
 
