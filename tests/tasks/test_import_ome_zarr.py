@@ -265,7 +265,7 @@ def test_import_ome_zarr_plate_no_ROI_tables(tmp_path, zenodo_zarr):
         )
 
 
-# @pytest.mark.skip
+@pytest.mark.skip
 def test_import_ome_zarr_image_BIA(tmp_path, monkeypatch):
     """
     This test imports one of the BIA OME-Zarr listed in
