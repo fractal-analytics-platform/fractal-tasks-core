@@ -312,7 +312,7 @@ def test_MIP(
 ):
 
     # Init
-    zarr_path = tmp_path / "tmp_out/"
+    zarr_path = tmp_path / "tmp_out"
     debug(zarr_path)
 
     # Load zarr array from zenodo
@@ -399,6 +399,14 @@ def test_MIP(
         ).attrs.asdict()
         assert table_attrs["type"] == "roi_table"
         assert table_attrs["fractal_table_version"] == "1"
+
+    # Check correct zarr metadata for row folder (issue #780): Checks that
+    # the one well expected to be in the Zarr plate is discoverable by the
+    # Zarr API
+    plate_zarr_group = zarr.open(plate_zarr)
+    assert len(plate_zarr_group) == 1
+    row_zarr_group = zarr.open(plate_zarr / "B")
+    assert len(row_zarr_group) == 1
 
 
 def test_MIP_subset_of_images(
