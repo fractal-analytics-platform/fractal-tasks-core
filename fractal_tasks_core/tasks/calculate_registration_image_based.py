@@ -13,6 +13,7 @@
 Calculates translation for image-based registration
 """
 import logging
+from enum import Enum
 
 import anndata as ad
 import dask.array as da
@@ -36,12 +37,25 @@ from fractal_tasks_core.tables import write_table
 from fractal_tasks_core.tasks._registration_utils import (
     calculate_physical_shifts,
 )
+from fractal_tasks_core.tasks._registration_utils import chi2_shift_out
 from fractal_tasks_core.tasks._registration_utils import (
     get_ROI_table_with_translation,
 )
+from fractal_tasks_core.tasks._registration_utils import is_3D
 from fractal_tasks_core.tasks.io_models import InitArgsRegistration
 
 logger = logging.getLogger(__name__)
+
+
+class RegistrationMethod(Enum):
+    PHASE_CROSS_CORRELATION = "phase_cross_correlation"
+    CHI2_SHIFT = "chi2_shift"
+
+    def register(self, img_ref, img_acq_x):
+        if self == RegistrationMethod.PHASE_CROSS_CORRELATION:
+            return phase_cross_correlation(img_ref, img_acq_x)
+        elif self == RegistrationMethod.CHI2_SHIFT:
+            return chi2_shift_out(img_ref, img_acq_x)
 
 
 @validate_arguments
@@ -52,6 +66,7 @@ def calculate_registration_image_based(
     init_args: InitArgsRegistration,
     # Core parameters
     wavelength_id: str,
+    method: RegistrationMethod = "phase_cross_correlation",
     roi_table: str = "FOV_ROI_table",
     level: int = 2,
 ) -> None:
@@ -73,6 +88,10 @@ def calculate_registration_image_based(
             (standard argument for Fractal tasks, managed by Fractal server).
         wavelength_id: Wavelength that will be used for image-based
             registration; e.g. `A01_C01` for Yokogawa, `C01` for MD.
+        method: Method to use for image registration. The available methods
+            are `phase_cross_correlation` (scikit-image package, works for 2D
+            & 3D) and "chi2_shift" (image_registration package, only works for
+            2D images).
         roi_table: Name of the ROI table over which the task loops to
             calculate the registration. Examples: `FOV_ROI_table` => loop over
             the field of views, `well_ROI_table` => process the whole well as
@@ -114,6 +133,16 @@ def calculate_registration_image_based(
     data_alignment_zyx = da.from_zarr(f"{zarr_url}/{level}")[
         channel_index_align
     ]
+
+    # Check if data is 3D (as not all registration methods work in 3D)
+    # TODO: Abstract this check into a higher-level Zarr loading class
+    if is_3D(data_reference_zyx):
+        if method == "chi2_shift":
+            raise ValueError(
+                "The `chi2_shift` registration method has not been "
+                "implemented for 3D images and the input image had a shape of "
+                f"{data_reference_zyx.shape}."
+            )
 
     # Read ROIs
     ROI_table_ref = ad.read_zarr(
@@ -211,30 +240,17 @@ def calculate_registration_image_based(
         ##############
         #  Calculate the transformation
         ##############
-        # Basic version (no padding, no internal binning)
         if img_ref.shape != img_acq_x.shape:
             raise NotImplementedError(
                 "This registration is not implemented for ROIs with "
                 "different shapes between acquisitions."
             )
-        shifts = phase_cross_correlation(
-            np.squeeze(img_ref), np.squeeze(img_acq_x)
-        )[0]
 
-        # Registration based on scmultiplex, image-based
-        # shifts, _, _ = calculate_shift(np.squeeze(img_ref),
-        #           np.squeeze(img_acq_x), bin=binning, binarize=False)
-
-        # TODO: Make this work on label images
-        # (=> different loading) etc.
+        shifts = method.register(np.squeeze(img_ref), np.squeeze(img_acq_x))[0]
 
         ##############
-        # Storing the calculated transformation ###
+        # Store the calculated transformation ###
         ##############
-        # Store the shift in ROI table
-        # TODO: Store in OME-NGFF transformations: Check SpatialData approach,
-        # per ROI storage?
-
         # Adapt ROIs for the given ROI table:
         ROI_name = ROI_table_ref.obs.index[i_ROI]
         new_shifts[ROI_name] = calculate_physical_shifts(

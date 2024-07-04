@@ -1030,6 +1030,16 @@
             "type": "string",
             "description": "Wavelength that will be used for image-based registration; e.g. `A01_C01` for Yokogawa, `C01` for MD."
           },
+          "method": {
+            "default": "phase_cross_correlation",
+            "allOf": [
+              {
+                "$ref": "#/definitions/RegistrationMethod"
+              }
+            ],
+            "title": "Method",
+            "description": "Method to use for image registration. The available methods are `phase_cross_correlation` (scikit-image package, works for 2D & 3D) and \"chi2_shift\" (image_registration package, only works for 2D images)."
+          },
           "roi_table": {
             "title": "Roi Table",
             "default": "FOV_ROI_table",
@@ -1062,6 +1072,14 @@
             },
             "required": [
               "reference_zarr_url"
+            ]
+          },
+          "RegistrationMethod": {
+            "title": "RegistrationMethod",
+            "description": "An enumeration.",
+            "enum": [
+              "phase_cross_correlation",
+              "chi2_shift"
             ]
           }
         }

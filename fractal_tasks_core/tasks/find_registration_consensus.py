@@ -150,6 +150,7 @@ def find_registration_consensus(
             new_roi_table,
             shifted_rois[acq_zarr_url],
             table_attrs=roi_tables_attrs[acq_zarr_url],
+            overwrite=True,
         )
 
     # TODO: Optionally apply registration to other tables as well?
