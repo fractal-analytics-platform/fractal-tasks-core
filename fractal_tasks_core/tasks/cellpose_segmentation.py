@@ -541,13 +541,12 @@ def cellpose_segmentation(
 
             bbox_dataframe_list.append(bbox_df)
 
-            overlap_list = []
-            for df in bbox_dataframe_list:
-                overlap_list.extend(
-                    get_overlapping_pairs_3D(df, full_res_pxl_sizes_zyx)
-                )
+            overlap_list = get_overlapping_pairs_3D(
+                bbox_df, full_res_pxl_sizes_zyx
+            )
             if len(overlap_list) > 0:
                 logger.warning(
+                    f"ROI {indices} has "
                     f"{len(overlap_list)} bounding-box pairs overlap"
                 )
 

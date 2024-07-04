@@ -47,6 +47,14 @@ pkgs["APx_fractal_task_collection"] = dict(
         "they have not specifically been developed for this scenario."
     ),
 )
+pkgs["operio-fractal"] = dict(
+    homepage_url="https://github.com/leukemia-kispi/operetta-compose",
+    manifest_url="https://raw.githubusercontent.com/leukemia-kispi/operetta-compose/main/src/operetta_compose/__FRACTAL_MANIFEST__.json",  # noqa
+    description=(
+        "Fractal tasks for the Opera/Operetta "
+        "microscope and drug response profiling."
+    ),
+)
 
 
 script_path = __file__
