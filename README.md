@@ -35,7 +35,7 @@
 | fractal\_tasks\_core/tasks/cellvoyager\_to\_ome\_zarr\_compute.py         |       78 |        4 |       20 |        4 |     92% |57->56, 111, 158, 222-224 |
 | fractal\_tasks\_core/tasks/cellvoyager\_to\_ome\_zarr\_init.py            |      164 |       25 |       54 |       11 |     82% |53->52, 126, 128, 179, 186-196, 204-205, 218-221, 275, 306, 322-323, 326, 471-473 |
 | fractal\_tasks\_core/tasks/cellvoyager\_to\_ome\_zarr\_init\_multiplex.py |      198 |       20 |       54 |       15 |     86% |56->55, 124, 131, 135, 144, 159, 190, 192, 211-214, 244, 295, 301, 318, 331-332, 338, 519-521 |
-| fractal\_tasks\_core/tasks/copy\_ome\_zarr\_hcs\_plate.py                 |      107 |        3 |       28 |        3 |     96% |191->190, 233, 297-299 |
+| fractal\_tasks\_core/tasks/copy\_ome\_zarr\_hcs\_plate.py                 |      106 |        3 |       28 |        3 |     96% |190->189, 232, 296-298 |
 | fractal\_tasks\_core/tasks/find\_registration\_consensus.py               |       47 |        4 |       18 |        5 |     86% |42->41, 77->79, 107, 119, 168-170 |
 | fractal\_tasks\_core/tasks/illumination\_correction.py                    |       94 |        7 |       28 |        6 |     89% |62, 83-87, 96->95, 194, 210, 287-289 |
 | fractal\_tasks\_core/tasks/image\_based\_registration\_hcs\_init.py       |       21 |        2 |       12 |        2 |     88% |28->27, 93-95 |
@@ -47,7 +47,7 @@
 | fractal\_tasks\_core/upscale\_array.py                                    |       73 |        7 |       48 |        6 |     88% |63, 91, 96->100, 113, 128, 192-197 |
 | fractal\_tasks\_core/utils.py                                             |       67 |        2 |       28 |        5 |     93% |71, 139->147, 140->139, 176->179, 181 |
 | fractal\_tasks\_core/zarr\_utils.py                                       |       32 |        0 |        6 |        1 |     97% |    81->85 |
-|                                                                 **TOTAL** | **3296** |  **212** | **1092** |  **168** | **91%** |           |
+|                                                                 **TOTAL** | **3295** |  **212** | **1092** |  **168** | **91%** |           |
 
 
 ## Setup coverage badge
