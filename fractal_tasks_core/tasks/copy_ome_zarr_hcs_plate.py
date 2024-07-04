@@ -15,7 +15,6 @@ Task that copies the structure of an OME-NGFF zarr array to a new one.
 import logging
 from typing import Any
 
-import zarr
 from pydantic.v1.decorator import validate_arguments
 
 import fractal_tasks_core
@@ -274,7 +273,7 @@ def copy_ome_zarr_hcs_plate(
 
         # Write well groups:
         for well_sub_url in new_well_image_attrs[old_plate_url]:
-            new_well_group = zarr.group(f"{zarrurl_new}/{well_sub_url}")
+            new_well_group = new_plate_group.create_group(f"{well_sub_url}")
             well_attrs = dict(
                 well=dict(
                     images=[
