@@ -446,7 +446,7 @@ class Plate(BaseModel):
     See https://ngff.openmicroscopy.org/0.4/#plate-md.
     """
 
-    acquisitions: list[AcquisitionInPlate]
+    acquisitions: Optional[list[AcquisitionInPlate]]
     columns: list[ColumnInPlate]
     field_count: Optional[int]
     name: Optional[str]
