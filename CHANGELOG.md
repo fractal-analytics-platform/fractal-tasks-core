@@ -1,6 +1,6 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# Unreleased
+# 1.1.0
 
 > NOTE: Starting from this release, `fractal-tasks-core` can coexist
 > with Pydantic V2 but it still uses pydantic
