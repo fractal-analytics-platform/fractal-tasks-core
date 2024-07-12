@@ -653,10 +653,6 @@ def test_cellpose_within_masked_bb_with_overlap(
         patched_cellpose_eval,
     )
 
-    # Setup caplog fixture, see
-    # https://docs.pytest.org/en/stable/how-to/logging.html#caplog-fixture
-    caplog.set_level(logging.WARNING)
-
     # Use pre-made 3D zarr
     zarr_dir = tmp_path / "tmp_out/"
     zarr_urls = prepare_3D_zarr(str(zarr_dir), zenodo_zarr)
@@ -716,6 +712,16 @@ def test_cellpose_within_masked_bb_with_overlap(
     # issue, because we set the background to 0 in the input image. But the
     # mock testing ignores the input
     # assert np.max(secondary_segmentation) == 4
+
+    # Ensure that labels stay in correct proportions => relabeling doesn't do
+    # reassignment
+    label1 = np.sum(secondary_segmentation == 1)
+    label3 = np.sum(secondary_segmentation == 3)
+    label5 = np.sum(secondary_segmentation == 5)
+    label7 = np.sum(secondary_segmentation == 7)
+    assert label1 == label3
+    assert label1 == label5
+    assert label1 == label7
 
 
 def test_workflow_with_per_FOV_labeling_via_script(
