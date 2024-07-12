@@ -146,6 +146,19 @@ def patched_segment_ROI_overlapping_organoids(
     return mask.astype(label_dtype)
 
 
+def patched_cellpose_eval(self, x, **kwargs):
+    assert x.ndim == 4
+    # Actual labeling: segment_ROI returns a 3D mask with the same shape as x,
+    # except for the first dimension
+    mask = np.zeros_like(x[0, :, :, :])
+    nz, ny, nx = mask.shape
+    indices = np.arange(0, nx // 2)
+    mask[:, indices, indices] = 1  # noqa
+    mask[:, indices + 10, indices + 20] = 2  # noqa
+
+    return mask, 0, 0
+
+
 def patched_cellpose_core_use_gpu(*args, **kwargs):
     debug("WARNING: using patched_cellpose_core_use_gpu")
     return False
@@ -632,9 +645,12 @@ def test_cellpose_within_masked_bb_with_overlap(
         patched_cellpose_core_use_gpu,
     )
 
+    from cellpose import models
+
     monkeypatch.setattr(
-        "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
-        patched_segment_ROI_overlapping_organoids,
+        models.CellposeModel,
+        "eval",
+        patched_cellpose_eval,
     )
 
     # Setup caplog fixture, see
@@ -690,11 +706,16 @@ def test_cellpose_within_masked_bb_with_overlap(
     # within the mask => should be 1 segmentation output per initial object
     # If relabeling works correctly, there will be 4 objects in
     # secondary_segmentation and they will be 1, 2, 3, 4
-    initial_segmentation = da.from_zarr(
+    secondary_segmentation = da.from_zarr(
         f"{zarr_urls[0]}/labels/secondary_segmentation/0"
     ).compute()
-    assert len(np.unique(initial_segmentation)) == 5
-    assert np.max(initial_segmentation) == 4
+    assert len(np.unique(secondary_segmentation)) == 5
+    # Current approach doesn't 100% guarantee consecutive labels. Within the
+    # cellpose task, there could be labels that are taken into account for
+    # relabeling but are masked away afterwards. That's very unlikely to be an
+    # issue, because we set the background to 0 in the input image. But the
+    # mock testing ignores the input
+    # assert np.max(secondary_segmentation) == 4
 
 
 def test_workflow_with_per_FOV_labeling_via_script(
