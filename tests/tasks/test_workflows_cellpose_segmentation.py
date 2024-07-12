@@ -616,6 +616,87 @@ def test_workflow_bounding_box_with_overlap(
         assert "bounding-box pairs overlap" in caplog.text
 
 
+def test_cellpose_within_masked_bb_with_overlap(
+    tmp_path: Path,
+    zenodo_zarr: list[str],
+    caplog: pytest.LogCaptureFixture,
+    monkeypatch: MonkeyPatch,
+):
+    """
+    Test to address #785: Segmenting objects within a masking ROI table and
+    ensuring that the relabeling works well with the masking.
+    """
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
+        patched_cellpose_core_use_gpu,
+    )
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
+        patched_segment_ROI_overlapping_organoids,
+    )
+
+    # Setup caplog fixture, see
+    # https://docs.pytest.org/en/stable/how-to/logging.html#caplog-fixture
+    caplog.set_level(logging.WARNING)
+
+    # Use pre-made 3D zarr
+    zarr_dir = tmp_path / "tmp_out/"
+    zarr_urls = prepare_3D_zarr(str(zarr_dir), zenodo_zarr)
+    debug(zarr_dir)
+    debug(zarr_urls)
+
+    # Per-FOV labeling
+    channel = CellposeChannel1InputModel(
+        wavelength_id="A01_C01", normalize=CellposeCustomNormalizer()
+    )
+    for zarr_url in zarr_urls:
+        cellpose_segmentation(
+            zarr_url=zarr_url,
+            channel=channel,
+            level=3,
+            relabeling=True,
+            diameter_level0=80.0,
+            output_label_name="initial_segmentation",
+            output_ROI_table="bbox_table",
+        )
+
+    # Assert that 4 unique labels + background are present in the
+    # initial_segmentation
+    import dask.array as da
+
+    initial_segmentation = da.from_zarr(
+        f"{zarr_urls[0]}/labels/initial_segmentation/0"
+    ).compute()
+    assert len(np.unique(initial_segmentation)) == 5
+    assert np.max(initial_segmentation) == 4
+
+    # Segment objects within the bbox_table masked, ensure the relabeling
+    # happens correctly
+    for zarr_url in zarr_urls:
+        cellpose_segmentation(
+            zarr_url=zarr_url,
+            channel=channel,
+            level=3,
+            relabeling=True,
+            diameter_level0=80.0,
+            input_ROI_table="bbox_table",
+            output_label_name="secondary_segmentation",
+            output_ROI_table="secondary_ROI_table",
+        )
+    # Check labels in secondary_segmentation: Verify correctness
+    # Our monkeypatched segmentation returns 2 labels, only 1 of which is
+    # within the mask => should be 1 segmentation output per initial object
+    # If relabeling works correctly, there will be 4 objects in
+    # secondary_segmentation and they will be 1, 2, 3, 4
+    initial_segmentation = da.from_zarr(
+        f"{zarr_urls[0]}/labels/secondary_segmentation/0"
+    ).compute()
+    assert len(np.unique(initial_segmentation)) == 5
+    assert np.max(initial_segmentation) == 4
+
+
 def test_workflow_with_per_FOV_labeling_via_script(
     tmp_path: Path,
     zenodo_zarr: list[str],
