@@ -16,6 +16,7 @@ import json
 import logging
 from importlib import import_module
 from pathlib import Path
+from typing import Literal
 from typing import Optional
 
 from fractal_tasks_core.dev.lib_args_schemas import (
@@ -24,11 +25,26 @@ from fractal_tasks_core.dev.lib_args_schemas import (
 from fractal_tasks_core.dev.lib_task_docs import create_docs_info
 
 
+def check_args_schema_version(args_schema_version: Optional[str]) -> str:
+    if args_schema_version is None:
+        import pydantic
+
+        if pydantic.__version__.startswith("1"):
+            args_schema_version = "pydantic_v1"
+        elif pydantic.__version__.startswith("2"):
+            args_schema_version = "pydantic_v2"
+        else:
+            raise ValueError(f"Unsupported {pydantic.__version__=}")
+    elif args_schema_version not in ["pydantic_v1", "pydantic_v2"]:
+        raise ValueError(f"Unsupported {args_schema_version=}")
+    return args_schema_version
+
+
 def create_manifest(
     package: str = "fractal_tasks_core",
     manifest_version: str = "2",
     has_args_schemas: bool = True,
-    args_schema_version: str = "pydantic_v1",
+    args_schema_version: Literal["pydantic_v1", "pydantic_v2", None] = None,
     docs_link: Optional[str] = None,
     custom_pydantic_models: Optional[list[tuple[str, str, str]]] = None,
 ):
@@ -65,6 +81,9 @@ def create_manifest(
         raise NotImplementedError(f"{manifest_version=} is not supported")
 
     logging.info("Start generating a new manifest")
+
+    args_schema_version = check_args_schema_version(args_schema_version)
+    logging.info(f"{args_schema_version=}")
 
     # Prepare an empty manifest
     manifest = dict(
@@ -116,6 +135,7 @@ def create_manifest(
                         executable,
                         package=package,
                         custom_pydantic_models=custom_pydantic_models,
+                        args_schema_version=args_schema_version,
                     )
                     logging.info(f"[{executable}] END (new schema)")
                     task_dict[f"args_schema_{kind}"] = schema
