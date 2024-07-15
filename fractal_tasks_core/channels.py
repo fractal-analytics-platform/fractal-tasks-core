@@ -15,11 +15,13 @@ import logging
 from copy import deepcopy
 from typing import Any
 from typing import Optional
+from typing import Self
 from typing import Union
 
 import zarr
-from pydantic.v1 import BaseModel
-from pydantic.v1 import validator
+from pydantic import BaseModel
+from pydantic import field_validator
+from pydantic import model_validator
 
 from fractal_tasks_core import __OME_NGFF_VERSION__
 
@@ -80,8 +82,9 @@ class OmeroChannel(BaseModel):
     coefficient: int = 1
     inverted: bool = False
 
-    @validator("color", always=True)
-    def valid_hex_color(cls, v, values):
+    @field_validator("color", mode="after")
+    @classmethod
+    def valid_hex_color(cls, v: Optional[str]) -> Optional[str]:
         """
         Check that `color` is made of exactly six elements which are letters
         (a-f or A-F) or digits (0-9).
@@ -117,23 +120,24 @@ class ChannelInputModel(BaseModel):
     wavelength_id: Optional[str] = None
     label: Optional[str] = None
 
-    @validator("label", always=True)
-    def mutually_exclusive_channel_attributes(cls, v, values):
+    @model_validator(mode="after")
+    def mutually_exclusive_channel_attributes(self: Self) -> Self:
         """
         Check that either `label` or `wavelength_id` is set.
         """
-        wavelength_id = values.get("wavelength_id")
-        label = v
-        if wavelength_id and v:
+        wavelength_id = self.wavelength_id
+        label = self.label
+
+        if wavelength_id and label:
             raise ValueError(
                 "`wavelength_id` and `label` cannot be both set "
                 f"(given {wavelength_id=} and {label=})."
             )
-        if wavelength_id is None and v is None:
+        if wavelength_id is None and label is None:
             raise ValueError(
                 "`wavelength_id` and `label` cannot be both `None`"
             )
-        return v
+        return self
 
 
 class ChannelNotFoundError(ValueError):
