@@ -38,7 +38,6 @@ def create_schema_for_single_task(
             create_schema_for_single_task_pydantic_v1,
         )
 
-        print("START WITH PYDANTIC V1")
         schema = create_schema_for_single_task_pydantic_v1(
             executable=executable,
             package=package,
@@ -50,8 +49,6 @@ def create_schema_for_single_task(
         from fractal_tasks_core.dev.lib_args_schemas_pydantic_v2 import (
             create_schema_for_single_task_pydantic_v2,
         )
-
-        print("START WITH PYDANTIC V2")
 
         schema = create_schema_for_single_task_pydantic_v2(
             executable=executable,
