@@ -52,8 +52,8 @@ class RegistrationMethod(Enum):
     RegistrationMethod Enum class
 
     Attributes:
-        PHASE_CROSS_CORRELATION: `phase_cross_correlation`
-        CHI2_SHIFT: `chi2_shift`
+        PHASE_CROSS_CORRELATION: phase cross correlation based on scikit-image.
+        CHI2_SHIFT: chi2 shift based on image-registration library.
     """
 
     PHASE_CROSS_CORRELATION = "phase_cross_correlation"
@@ -74,7 +74,7 @@ def calculate_registration_image_based(
     init_args: InitArgsRegistration,
     # Core parameters
     wavelength_id: str,
-    method: RegistrationMethod = "phase_cross_correlation",
+    method: RegistrationMethod = RegistrationMethod.PHASE_CROSS_CORRELATION,
     roi_table: str = "FOV_ROI_table",
     level: int = 2,
 ) -> None:
