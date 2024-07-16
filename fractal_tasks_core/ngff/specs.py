@@ -5,14 +5,25 @@ fractal-tasks-core.
 import logging
 from typing import Literal
 from typing import Optional
+from typing import TypeVar
 from typing import Union
 
-from pydantic.v1 import BaseModel
-from pydantic.v1 import Field
-from pydantic.v1 import validator
+from pydantic import BaseModel
+from pydantic import Field
+from pydantic import field_validator
 
 
 logger = logging.getLogger(__name__)
+
+
+T = TypeVar("T")
+
+
+def unique_items_validator(values: list[T]) -> list[T]:
+    for ind, value in enumerate(values, start=1):
+        if value in values[ind:]:
+            raise ValueError(f"Non-unique values in {values}.")
+    return values
 
 
 class Window(BaseModel):
@@ -76,7 +87,7 @@ class ScaleCoordinateTransformation(BaseModel):
     """
 
     type: Literal["scale"]
-    scale: list[float] = Field(..., min_items=2)
+    scale: list[float] = Field(..., min_length=2)
 
 
 class TranslationCoordinateTransformation(BaseModel):
@@ -90,7 +101,7 @@ class TranslationCoordinateTransformation(BaseModel):
     """
 
     type: Literal["translation"]
-    translation: list[float] = Field(..., min_items=2)
+    translation: list[float] = Field(..., min_length=2)
 
 
 class Dataset(BaseModel):
@@ -105,7 +116,7 @@ class Dataset(BaseModel):
         Union[
             ScaleCoordinateTransformation, TranslationCoordinateTransformation
         ]
-    ] = Field(..., min_items=1)
+    ] = Field(..., min_length=1)
 
     @property
     def scale_transformation(self) -> ScaleCoordinateTransformation:
@@ -139,9 +150,9 @@ class Multiscale(BaseModel):
     """
 
     name: Optional[str] = None
-    datasets: list[Dataset] = Field(..., min_items=1)
+    datasets: list[Dataset] = Field(..., min_length=1)
     version: Optional[str] = None
-    axes: list[Axis] = Field(..., max_items=5, min_items=2, unique_items=True)
+    axes: list[Axis] = Field(..., max_length=5, min_length=2)
     coordinateTransformations: Optional[
         list[
             Union[
@@ -150,13 +161,19 @@ class Multiscale(BaseModel):
             ]
         ]
     ] = None
+    _check_unique = field_validator("axes")(unique_items_validator)
 
-    @validator("coordinateTransformations", always=True)
-    def _no_global_coordinateTransformations(cls, v):
+    @field_validator("coordinateTransformations", mode="after")
+    @classmethod
+    def _no_global_coordinateTransformations(
+        cls, v: Optional[list]
+    ) -> Optional[list]:
         """
         Fail if Multiscale has a (global) coordinateTransformations attribute.
         """
-        if v is not None:
+        if v is None:
+            return v
+        else:
             raise NotImplementedError(
                 "Global coordinateTransformations at the multiscales "
                 "level are not currently supported in the fractal-tasks-core "
@@ -174,10 +191,10 @@ class NgffImageMeta(BaseModel):
     multiscales: list[Multiscale] = Field(
         ...,
         description="The multiscale datasets for this image",
-        min_items=1,
-        unique_items=True,
+        min_length=1,
     )
     omero: Optional[Omero] = None
+    _check_unique = field_validator("multiscales")(unique_items_validator)
 
     @property
     def multiscale(self) -> Multiscale:
@@ -325,14 +342,12 @@ class Well(BaseModel):
     """
 
     images: list[ImageInWell] = Field(
-        ...,
-        description="The images included in this well",
-        min_items=1,
-        unique_items=True,
+        ..., description="The images included in this well", min_length=1
     )
     version: Optional[str] = Field(
         None, description="The version of the specification"
     )
+    _check_unique = field_validator("images")(unique_items_validator)
 
 
 class NgffWellMeta(BaseModel):

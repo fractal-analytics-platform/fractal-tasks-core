@@ -17,7 +17,7 @@ from typing import Any
 from typing import Optional
 
 import pandas as pd
-from pydantic.v1.decorator import validate_arguments
+from pydantic import validate_call
 
 import fractal_tasks_core
 from fractal_tasks_core.cellvoyager.filenames import (
@@ -49,7 +49,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@validate_arguments
+@validate_call
 def cellvoyager_to_ome_zarr_init(
     *,
     # Fractal parameters
