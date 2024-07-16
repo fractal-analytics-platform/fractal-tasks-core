@@ -15,13 +15,13 @@ import logging
 from copy import deepcopy
 from typing import Any
 from typing import Optional
-from typing import Self
 from typing import Union
 
 import zarr
 from pydantic import BaseModel
 from pydantic import field_validator
 from pydantic import model_validator
+from typing_extensions import Self
 
 from fractal_tasks_core import __OME_NGFF_VERSION__
 
