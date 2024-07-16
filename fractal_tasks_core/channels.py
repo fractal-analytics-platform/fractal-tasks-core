@@ -45,8 +45,8 @@ class Window(BaseModel):
         end: Upper-bound rescaling value for visualization.
     """
 
-    min: Optional[int]
-    max: Optional[int]
+    min: Optional[int] = None
+    max: Optional[int] = None
     start: int
     end: int
 
@@ -71,13 +71,13 @@ class OmeroChannel(BaseModel):
     # Custom
 
     wavelength_id: str
-    index: Optional[int]
+    index: Optional[int] = None
 
     # From OME-NGFF v0.4 transitional metadata
 
-    label: Optional[str]
-    window: Optional[Window]
-    color: Optional[str]
+    label: Optional[str] = None
+    window: Optional[Window] = None
+    color: Optional[str] = None
     active: bool = True
     coefficient: int = 1
     inverted: bool = False
