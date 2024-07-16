@@ -5,9 +5,13 @@
 * Tasks:
     * Fix issue with masked ROI & relabeling in Cellpose task (\#785).
     * Fix issue with masking ROI label types in masked_loading_wrapper for Cellpose task (\#785).
+    * Fix issue with masking ROI label types in `masked_loading_wrapper` for Cellpose task (\#785).
+    * Enable workaround to support yx images in Cellpose task (\#789).
+    * Fix error handling in `calculate_registration_image_based` (\#799).
+    * Fix minor issues with call-signature and type hints in `calculate_registration_image_based` (\#799).
+
 * Development:
     * Switch all core models to pydantic v2 (\#790).
-    * Enable workaround to support yx images in Cellpose task (\#789).
 
 # 1.1.0
 
@@ -23,7 +27,7 @@
     * Rename `task.cellpose_transforms` into `tasks.cellpose_utils` (\#738).
     * Fix wrong repeated overlap checks for bounding-boxes in Cellpose task (\#778).
     * Fix minor MIP issues related to plate metadata and expecting acquisition metadata in all NGFF plates(\#781).
-    * Add chi2_shift option to Calculate Registration (image-based) task(\#741).
+    * Add `chi2_shift` option to Calculate Registration (image-based) task(\#741).
 * Development:
     * Switch to transitional pydantic.v1 imports, changes pydantic requirement to `==1.10.16` or `>=2.6.3` (\#760).
     * Support JSON-Schema generation for `Enum` task arguments (\#749).
