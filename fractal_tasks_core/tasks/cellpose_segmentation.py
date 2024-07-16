@@ -73,6 +73,7 @@ __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
 def segment_ROI(
     x: np.ndarray,
+    num_labels_tot: dict[str, int],
     model: models.CellposeModel = None,
     do_3D: bool = True,
     channels: list[int] = [0, 0],
@@ -80,6 +81,7 @@ def segment_ROI(
     normalize: CellposeCustomNormalizer = CellposeCustomNormalizer(),
     normalize2: Optional[CellposeCustomNormalizer] = None,
     label_dtype: Optional[np.dtype] = None,
+    relabeling: bool = True,
     advanced_cellpose_model_params: CellposeModelParams = CellposeModelParams(),  # noqa: E501
 ) -> np.ndarray:
     """
@@ -87,6 +89,10 @@ def segment_ROI(
 
     Args:
         x: 4D numpy array.
+        num_labels_tot: Number of labels already in total image. Used for
+            relabeling purposes. Using a dict to have a mutable object that
+            can be edited from within the function without having to be passed
+            back through the masked_loading_wrapper.
         model: An instance of `models.CellposeModel`.
         do_3D: If `True`, cellpose runs in 3D mode: runs on xy, xz & yz planes,
             then averages the flows.
@@ -107,6 +113,7 @@ def segment_ROI(
             normalized with default settings, both channels need to be
             normalized with default settings.
         label_dtype: Label images are cast into this `np.dtype`.
+        relabeling: Whether relabeling based on num_labels_tot is performed.
         advanced_cellpose_model_params: Advanced Cellpose model parameters
             that are passed to the Cellpose `model.eval` method.
     """
@@ -162,6 +169,23 @@ def segment_ROI(
         f" {diameter=} |"
         f" {advanced_cellpose_model_params.flow_threshold=}"
     )
+
+    # Shift labels and update relabeling counters
+    if relabeling:
+        num_labels_roi = np.max(mask)
+        mask[mask > 0] += num_labels_tot["num_labels_tot"]
+        num_labels_tot["num_labels_tot"] += num_labels_roi
+
+        # Write some logs
+        logger.info(f"ROI had {num_labels_roi=}, {num_labels_tot=}")
+
+        # Check that total number of labels is under control
+        if num_labels_tot["num_labels_tot"] > np.iinfo(label_dtype).max:
+            raise ValueError(
+                "ERROR in re-labeling:"
+                f"Reached {num_labels_tot} labels, "
+                f"but dtype={label_dtype}"
+            )
 
     return mask.astype(label_dtype)
 
@@ -438,8 +462,7 @@ def cellpose_segmentation(
         logger.info(f"{data_zyx_c2.chunks}")
 
     # Counters for relabeling
-    if relabeling:
-        num_labels_tot = 0
+    num_labels_tot = {"num_labels_tot": 0}
 
     # Iterate over ROIs
     num_ROIs = len(list_indices)
@@ -485,6 +508,7 @@ def cellpose_segmentation(
 
         # Prepare keyword arguments for segment_ROI function
         kwargs_segment_ROI = dict(
+            num_labels_tot=num_labels_tot,
             model=model,
             channels=channels,
             do_3D=do_3D,
@@ -492,6 +516,7 @@ def cellpose_segmentation(
             diameter=diameter_level0 / coarsening_xy**level,
             normalize=channel.normalize,
             normalize2=channel2.normalize,
+            relabeling=relabeling,
             advanced_cellpose_model_params=advanced_cellpose_model_params,
         )
 
@@ -514,23 +539,6 @@ def cellpose_segmentation(
             use_masks=use_masks,
             preprocessing_kwargs=preprocessing_kwargs,
         )
-
-        # Shift labels and update relabeling counters
-        if relabeling:
-            num_labels_roi = np.max(new_label_img)
-            new_label_img[new_label_img > 0] += num_labels_tot
-            num_labels_tot += num_labels_roi
-
-            # Write some logs
-            logger.info(f"ROI {indices}, {num_labels_roi=}, {num_labels_tot=}")
-
-            # Check that total number of labels is under control
-            if num_labels_tot > np.iinfo(label_dtype).max:
-                raise ValueError(
-                    "ERROR in re-labeling:"
-                    f"Reached {num_labels_tot} labels, "
-                    f"but dtype={label_dtype}"
-                )
 
         if output_ROI_table:
             bbox_df = array_to_bounding_box_table(
