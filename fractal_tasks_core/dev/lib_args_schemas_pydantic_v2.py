@@ -149,7 +149,8 @@ class GenerateJsonSchemaC(GenerateJsonSchema):
     def get_flattened_anyof(
         self, schemas: list[JsonSchemaValue]
     ) -> JsonSchemaValue:
-        # Inspired by https://github.com/vitalik/django-ninja/issues/842#issuecomment-2059014537
+        # Inspired by
+        # https://github.com/vitalik/django-ninja/issues/842#issuecomment-2059014537
         original_json_schema_value = super().get_flattened_anyof(schemas)
         members = original_json_schema_value.get("anyOf")
         debug("C", original_json_schema_value)
@@ -169,7 +170,8 @@ class GenerateJsonSchemaD(GenerateJsonSchema):
     def get_flattened_anyof(
         self, schemas: list[JsonSchemaValue]
     ) -> JsonSchemaValue:
-        # Inspired by https://github.com/vitalik/django-ninja/issues/842#issuecomment-2059014537
+        # Inspired by
+        # https://github.com/vitalik/django-ninja/issues/842#issuecomment-2059014537
         null_schema = {"type": "null"}
         if null_schema in schemas:
             debug("D drop null_schema before calling `get_flattened_anyof`")
