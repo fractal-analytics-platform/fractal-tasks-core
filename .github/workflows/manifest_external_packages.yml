@@ -89,6 +89,9 @@ jobs:
       - name: Create manifest
         run: ${{ matrix.cmd_create_manifest }}
 
+      - name: Setup friendly diff style
+        run: echo "*.json diff=json" >> ~/.gitattributes && git config diff.json.textconv "jq --sort-keys '.' \$1"
+
       - name: Run git diff for manifest
         run: git diff ${{ matrix.manifest_path }}
 
