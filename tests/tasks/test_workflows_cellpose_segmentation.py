@@ -146,6 +146,19 @@ def patched_segment_ROI_overlapping_organoids(
     return mask.astype(label_dtype)
 
 
+def patched_cellpose_eval(self, x, **kwargs):
+    assert x.ndim == 4
+    # Actual labeling: segment_ROI returns a 3D mask with the same shape as x,
+    # except for the first dimension
+    mask = np.zeros_like(x[0, :, :, :])
+    nz, ny, nx = mask.shape
+    indices = np.arange(0, nx // 2)
+    mask[:, indices, indices] = 1  # noqa
+    mask[:, indices + 10, indices + 20] = 2  # noqa
+
+    return mask, 0, 0
+
+
 def patched_cellpose_core_use_gpu(*args, **kwargs):
     debug("WARNING: using patched_cellpose_core_use_gpu")
     return False
@@ -614,6 +627,101 @@ def test_workflow_bounding_box_with_overlap(
         )
         debug(caplog.text)
         assert "bounding-box pairs overlap" in caplog.text
+
+
+def test_cellpose_within_masked_bb_with_overlap(
+    tmp_path: Path,
+    zenodo_zarr: list[str],
+    caplog: pytest.LogCaptureFixture,
+    monkeypatch: MonkeyPatch,
+):
+    """
+    Test to address #785: Segmenting objects within a masking ROI table and
+    ensuring that the relabeling works well with the masking.
+    """
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
+        patched_cellpose_core_use_gpu,
+    )
+
+    from cellpose import models
+
+    monkeypatch.setattr(
+        models.CellposeModel,
+        "eval",
+        patched_cellpose_eval,
+    )
+
+    # Use pre-made 3D zarr
+    zarr_dir = tmp_path / "tmp_out/"
+    zarr_urls = prepare_3D_zarr(str(zarr_dir), zenodo_zarr)
+    debug(zarr_dir)
+    debug(zarr_urls)
+
+    # Per-FOV labeling
+    channel = CellposeChannel1InputModel(
+        wavelength_id="A01_C01", normalize=CellposeCustomNormalizer()
+    )
+    for zarr_url in zarr_urls:
+        cellpose_segmentation(
+            zarr_url=zarr_url,
+            channel=channel,
+            level=3,
+            relabeling=True,
+            diameter_level0=80.0,
+            output_label_name="initial_segmentation",
+            output_ROI_table="bbox_table",
+        )
+
+    # Assert that 4 unique labels + background are present in the
+    # initial_segmentation
+    import dask.array as da
+
+    initial_segmentation = da.from_zarr(
+        f"{zarr_urls[0]}/labels/initial_segmentation/0"
+    ).compute()
+    assert len(np.unique(initial_segmentation)) == 5
+    assert np.max(initial_segmentation) == 4
+
+    # Segment objects within the bbox_table masked, ensure the relabeling
+    # happens correctly
+    for zarr_url in zarr_urls:
+        cellpose_segmentation(
+            zarr_url=zarr_url,
+            channel=channel,
+            level=3,
+            relabeling=True,
+            diameter_level0=80.0,
+            input_ROI_table="bbox_table",
+            output_label_name="secondary_segmentation",
+            output_ROI_table="secondary_ROI_table",
+        )
+    # Check labels in secondary_segmentation: Verify correctness
+    # Our monkeypatched segmentation returns 2 labels, only 1 of which is
+    # within the mask => should be 1 segmentation output per initial object
+    # If relabeling works correctly, there will be 4 objects in
+    # secondary_segmentation and they will be 1, 2, 3, 4
+    secondary_segmentation = da.from_zarr(
+        f"{zarr_urls[0]}/labels/secondary_segmentation/0"
+    ).compute()
+    assert len(np.unique(secondary_segmentation)) == 5
+    # Current approach doesn't 100% guarantee consecutive labels. Within the
+    # cellpose task, there could be labels that are taken into account for
+    # relabeling but are masked away afterwards. That's very unlikely to be an
+    # issue, because we set the background to 0 in the input image. But the
+    # mock testing ignores the input
+    # assert np.max(secondary_segmentation) == 4
+
+    # Ensure that labels stay in correct proportions => relabeling doesn't do
+    # reassignment
+    label1 = np.sum(secondary_segmentation == 1)
+    label3 = np.sum(secondary_segmentation == 3)
+    label5 = np.sum(secondary_segmentation == 5)
+    label7 = np.sum(secondary_segmentation == 7)
+    assert label1 == label3
+    assert label1 == label5
+    assert label1 == label7
 
 
 def test_workflow_with_per_FOV_labeling_via_script(
