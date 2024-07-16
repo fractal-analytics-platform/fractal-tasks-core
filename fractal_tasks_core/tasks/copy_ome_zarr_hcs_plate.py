@@ -181,7 +181,7 @@ def _generate_plate_well_metadata(
         # Validate with NgffPlateMeta model
         plate_metadata_dicts[old_plate_url] = NgffPlateMeta(
             **plate_metadata_dicts[old_plate_url]
-        ).dict(exclude_none=True)
+        ).model_dump(exclude_none=True)
 
     return plate_metadata_dicts, new_well_image_attrs, well_image_attrs
 
@@ -277,7 +277,7 @@ def copy_ome_zarr_hcs_plate(
             well_attrs = dict(
                 well=dict(
                     images=[
-                        img.dict(exclude_none=True)
+                        img.model_dump(exclude_none=True)
                         for img in new_well_image_attrs[old_plate_url][
                             well_sub_url
                         ]

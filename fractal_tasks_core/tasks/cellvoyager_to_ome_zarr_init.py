@@ -371,7 +371,7 @@ def cellvoyager_to_ome_zarr_init(
                         well_ID=get_filename_well_id(row, column),
                         image_extension=image_extension,
                         image_glob_patterns=image_glob_patterns,
-                    ).dict(),
+                    ).model_dump(),
                 }
             )
             group_well = group_plate.create_group(f"{row}/{column}/")
