@@ -25,6 +25,9 @@ from fractal_tasks_core.dev.lib_args_schemas import (
 from fractal_tasks_core.dev.lib_task_docs import create_docs_info
 
 
+logging.basicConfig(level=logging.INFO)
+
+
 def check_args_schema_version(args_schema_version: Optional[str]) -> str:
     if args_schema_version is None:
         import pydantic
