@@ -461,10 +461,10 @@ class Plate(BaseModel):
     See https://ngff.openmicroscopy.org/0.4/#plate-md.
     """
 
-    acquisitions: Optional[list[AcquisitionInPlate]]
+    acquisitions: Optional[list[AcquisitionInPlate]] = None
     columns: list[ColumnInPlate]
-    field_count: Optional[int]
-    name: Optional[str]
+    field_count: Optional[int] = None
+    name: Optional[str] = None
     rows: list[RowInPlate]
     # version will become required in 0.5
     version: Optional[str] = Field(
