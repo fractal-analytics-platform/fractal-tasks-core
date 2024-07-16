@@ -48,6 +48,14 @@ logger = logging.getLogger(__name__)
 
 
 class RegistrationMethod(Enum):
+    """
+    RegistrationMethod Enum class
+
+    Attributes:
+        PHASE_CROSS_CORRELATION: `phase_cross_correlation`
+        CHI2_SHIFT: `chi2_shift`
+    """
+
     PHASE_CROSS_CORRELATION = "phase_cross_correlation"
     CHI2_SHIFT = "chi2_shift"
 
