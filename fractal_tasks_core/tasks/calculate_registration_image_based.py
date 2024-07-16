@@ -52,8 +52,10 @@ class RegistrationMethod(Enum):
     RegistrationMethod Enum class
 
     Attributes:
-        PHASE_CROSS_CORRELATION: phase cross correlation based on scikit-image.
-        CHI2_SHIFT: chi2 shift based on image-registration library.
+        PHASE_CROSS_CORRELATION: phase cross correlation based on scikit-image
+          (works with 2D & 3D images).
+        CHI2_SHIFT: chi2 shift based on image-registration library
+        (only works with 2D images).
     """
 
     PHASE_CROSS_CORRELATION = "phase_cross_correlation"
