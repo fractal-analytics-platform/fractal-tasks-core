@@ -341,7 +341,7 @@ def define_omero_channels(
             can be written to OMERO metadata.
     """
 
-    new_channels = [c.copy(deep=True) for c in channels]
+    new_channels = [c.model_copy(deep=True) for c in channels]
     default_colors = ["00FFFF", "FF00FF", "FFFF00"]
 
     for channel in new_channels:
