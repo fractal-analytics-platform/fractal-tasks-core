@@ -5,6 +5,7 @@
 * Tasks:
     * Fix issue with masked ROI & relabeling in Cellpose task (\#785).
     * Fix issue with masking ROI label types in masked_loading_wrapper for Cellpose task (\#785).
+    * Enable workaround to support yx images in Cellpose task (\#789).
 
 # 1.1.0
 
