@@ -314,11 +314,21 @@ def cellpose_segmentation(
             output_label_name = f"label_{ind_channel}"
 
     # Load ZYX data
-    data_zyx = da.from_zarr(f"{zarr_url}/{level}")[ind_channel]
+    # Workaround for #788: Only load channel index when there is a channel
+    # dimension
+    if ngff_image_meta.axes_names[0] != "c":
+        data_zyx = da.from_zarr(f"{zarr_url}/{level}")
+        if channel2.is_set():
+            raise ValueError(
+                "Dual channel input was specified for an OME-Zarr image "
+                "without a channel axis"
+            )
+    else:
+        data_zyx = da.from_zarr(f"{zarr_url}/{level}")[ind_channel]
+        if channel2.is_set():
+            data_zyx_c2 = da.from_zarr(f"{zarr_url}/{level}")[ind_channel_c2]
+            logger.info(f"Second channel: {data_zyx_c2.shape=}")
     logger.info(f"{data_zyx.shape=}")
-    if channel2.is_set():
-        data_zyx_c2 = da.from_zarr(f"{zarr_url}/{level}")[ind_channel_c2]
-        logger.info(f"Second channel: {data_zyx_c2.shape=}")
 
     # Read ROI table
     ROI_table_path = f"{zarr_url}/tables/{input_ROI_table}"
@@ -365,18 +375,21 @@ def cellpose_segmentation(
         logger.info(f"Anisotropy: {advanced_cellpose_model_params.anisotropy}")
 
     # Rescale datasets (only relevant for level>0)
+    # Workaround for #788
     if ngff_image_meta.axes_names[0] != "c":
-        raise ValueError(
-            "Cannot set `remove_channel_axis=True` for multiscale "
-            f"metadata with axes={ngff_image_meta.axes_names}. "
-            'First axis should have name "c".'
+        new_datasets = rescale_datasets(
+            datasets=[ds.dict() for ds in ngff_image_meta.datasets],
+            coarsening_xy=coarsening_xy,
+            reference_level=level,
+            remove_channel_axis=False,
         )
-    new_datasets = rescale_datasets(
-        datasets=[ds.dict() for ds in ngff_image_meta.datasets],
-        coarsening_xy=coarsening_xy,
-        reference_level=level,
-        remove_channel_axis=True,
-    )
+    else:
+        new_datasets = rescale_datasets(
+            datasets=[ds.dict() for ds in ngff_image_meta.datasets],
+            coarsening_xy=coarsening_xy,
+            reference_level=level,
+            remove_channel_axis=True,
+        )
 
     label_attrs = {
         "image-label": {
