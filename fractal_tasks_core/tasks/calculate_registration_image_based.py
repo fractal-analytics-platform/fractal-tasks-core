@@ -145,11 +145,11 @@ def calculate_registration_image_based(
     # Check if data is 3D (as not all registration methods work in 3D)
     # TODO: Abstract this check into a higher-level Zarr loading class
     if is_3D(data_reference_zyx):
-        if method == "chi2_shift":
+        if method == RegistrationMethod(RegistrationMethod.CHI2_SHIFT):
             raise ValueError(
-                "The `chi2_shift` registration method has not been "
-                "implemented for 3D images and the input image had a shape of "
-                f"{data_reference_zyx.shape}."
+                f"The `{RegistrationMethod.CHI2_SHIFT}` registration method "
+                "has not been implemented for 3D images and the input image "
+                f"had a shape of {data_reference_zyx.shape}."
             )
 
     # Read ROIs
