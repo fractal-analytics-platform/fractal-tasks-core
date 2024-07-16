@@ -14,12 +14,12 @@ Helper functions for image normalization in
 import logging
 from typing import Literal
 from typing import Optional
-from typing import Self
 
 import numpy as np
 from pydantic import BaseModel
 from pydantic import Field
 from pydantic import model_validator
+from typing_extensions import Self
 
 from fractal_tasks_core.channels import ChannelInputModel
 from fractal_tasks_core.channels import ChannelNotFoundError
