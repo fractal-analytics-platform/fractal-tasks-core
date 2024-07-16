@@ -22,7 +22,7 @@ import numpy as np
 import pandas as pd
 import zarr
 from napari_workflows._io_yaml_v1 import load_workflow
-from pydantic.v1.decorator import validate_arguments
+from pydantic import validate_call
 
 import fractal_tasks_core
 from fractal_tasks_core.channels import get_channel_from_image_zarr
@@ -59,7 +59,7 @@ class OutOfTaskScopeError(NotImplementedError):
     pass
 
 
-@validate_arguments
+@validate_call
 def napari_workflows_wrapper(
     *,
     # Fractal parameters
@@ -394,7 +394,6 @@ def napari_workflows_wrapper(
         # Loop over label outputs and (1) set zattrs, (2) create zarr group
         output_label_zarr_groups: dict[str, Any] = {}
         for name, out_params in label_outputs:
-
             # (1a) Rescale OME-NGFF datasets (relevant for level>0)
             if not ngff_image_meta.multiscale.axes[0].name == "c":
                 raise ValueError(

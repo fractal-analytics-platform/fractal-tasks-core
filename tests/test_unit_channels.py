@@ -52,7 +52,7 @@ def test_check_well_channel_labels(tmp_path):
                 channels=[
                     OmeroChannel(
                         wavelength_id="id_1", label="non_unique_label"
-                    ).dict(),
+                    ).model_dump(),
                 ]
             )
         )
@@ -63,7 +63,7 @@ def test_check_well_channel_labels(tmp_path):
                 channels=[
                     OmeroChannel(
                         wavelength_id="id_1", label="non_unique_label"
-                    ).dict(),
+                    ).model_dump(),
                 ]
             )
         )
@@ -78,7 +78,6 @@ def test_check_well_channel_labels(tmp_path):
 
 
 def test_get_channel_from_list(testdata_path: Path):
-
     # Read JSON data and cast into `OmeroChannel`s
     with (testdata_path / "omero/channels_list.json").open("r") as f:
         omero_channels_dict = json.load(f)
@@ -227,7 +226,6 @@ def test_color_validator():
     ],
 )
 def test_update_omero_channels(old_channels):
-
     # Update partial metadata
     print()
     print(f"OLD: {old_channels}")

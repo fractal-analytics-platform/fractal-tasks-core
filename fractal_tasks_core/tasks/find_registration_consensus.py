@@ -17,7 +17,7 @@ from typing import Optional
 
 import anndata as ad
 import zarr
-from pydantic.v1.decorator import validate_arguments
+from pydantic import validate_call
 
 from fractal_tasks_core.roi import (
     are_ROI_table_columns_valid,
@@ -38,7 +38,7 @@ from fractal_tasks_core.tasks.io_models import InitArgsRegistrationConsensus
 logger = logging.getLogger(__name__)
 
 
-@validate_arguments
+@validate_call
 def find_registration_consensus(
     *,
     # Fractal parameters

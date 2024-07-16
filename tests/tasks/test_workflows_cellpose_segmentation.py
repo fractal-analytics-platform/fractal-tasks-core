@@ -39,6 +39,9 @@ from fractal_tasks_core.tasks.cellpose_utils import (
     CellposeChannel1InputModel,
 )
 from fractal_tasks_core.tasks.cellpose_utils import (
+    CellposeChannel2InputModel,
+)
+from fractal_tasks_core.tasks.cellpose_utils import (
     CellposeCustomNormalizer,
 )
 from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_compute import (
@@ -126,7 +129,6 @@ def patched_segment_ROI_no_labels(
 def patched_segment_ROI_overlapping_organoids(
     x, label_dtype=None, well_id=None, **kwargs
 ):
-
     import logging
 
     logger = logging.getLogger("cellpose_segmentation.py")
@@ -170,7 +172,6 @@ def test_failures(
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
-
     monkeypatch.setattr(
         "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
         patched_cellpose_core_use_gpu,
@@ -240,7 +241,6 @@ def test_workflow_with_per_FOV_labeling(
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
-
     monkeypatch.setattr(
         "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
         patched_cellpose_core_use_gpu,
@@ -332,7 +332,7 @@ def test_workflow_with_multi_channel_input(
     channel = CellposeChannel1InputModel(
         wavelength_id="A01_C01", normalize=CellposeCustomNormalizer()
     )
-    channel2 = CellposeChannel1InputModel(
+    channel2 = CellposeChannel2InputModel(
         wavelength_id="A01_C01", normalize=CellposeCustomNormalizer()
     )
     for zarr_url in zarr_urls:
@@ -364,7 +364,6 @@ def test_workflow_with_per_FOV_labeling_2D(
     zenodo_zarr: list[str],
     monkeypatch: MonkeyPatch,
 ):
-
     monkeypatch.setattr(
         "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
         patched_cellpose_core_use_gpu,
@@ -414,7 +413,6 @@ def test_workflow_with_per_well_labeling_2D(
     zenodo_images: str,
     monkeypatch: MonkeyPatch,
 ):
-
     monkeypatch.setattr(
         "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
         patched_cellpose_core_use_gpu,
@@ -506,7 +504,6 @@ def test_workflow_bounding_box(
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
-
     monkeypatch.setattr(
         "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
         patched_cellpose_core_use_gpu,
@@ -591,7 +588,6 @@ def test_workflow_bounding_box_with_overlap(
     caplog: pytest.LogCaptureFixture,
     monkeypatch: MonkeyPatch,
 ):
-
     monkeypatch.setattr(
         "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
         patched_cellpose_core_use_gpu,
@@ -783,21 +779,21 @@ def test_workflow_with_per_FOV_labeling_via_script(
     with args_path.open("w") as f:
         json.dump(this_task_args, f, indent=2)
     res = subprocess.run(shlex.split(command), **run_options)  # type: ignore
-    print(res.stdout)
-    print(res.stderr)
+    debug(res.stdout)
+    debug(res.stderr)
     # If this check fails after updating the cellpose version, you'll likely
     # need to update the manifest to include a changed set of available models
     # See https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/401 # noqa E501
     error_msg = (
-        "unexpected value; permitted: 'cyto', 'nuclei', "
-        "'tissuenet', 'livecell', 'cyto2', 'general', 'CP', 'CPx', "
-        "'TN1', 'TN2', 'TN3', 'LC1', 'LC2', 'LC3', 'LC4' "
-        f"(type=value_error.const; given={INVALID_MODEL_TYPE}; "
-        "permitted=('cyto', 'nuclei', 'tissuenet', 'livecell', "
-        "'cyto2', 'general', 'CP', 'CPx', 'TN1', 'TN2', 'TN3', "
-        "'LC1', 'LC2', 'LC3', 'LC4'))"
+        "Input should be 'cyto', 'nuclei', 'tissuenet', 'livecell', "
+        "'cyto2', 'general', 'CP', 'CPx', 'TN1', 'TN2', 'TN3', 'LC1', "
+        "'LC2', 'LC3' or 'LC4' [type=literal_error, "
+        f"input_value='{INVALID_MODEL_TYPE}', input_type=str]"
     )
+    print(res.stderr)
+    print(error_msg)
     assert error_msg in res.stderr
+    # assert error_msg in res.stderr
     assert "urllib.error.HTTPError" not in res.stdout
     assert "urllib.error.HTTPError" not in res.stderr
 
@@ -916,7 +912,6 @@ def test_workflow_secondary_labeling(
     zenodo_zarr: list[str],
     monkeypatch: MonkeyPatch,
 ):
-
     monkeypatch.setattr(
         "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
         patched_cellpose_core_use_gpu,
@@ -1121,11 +1116,15 @@ def test_workflow_secondary_labeling_two_channels(
     debug(zarr_urls[0])
 
     # Secondary segmentation (nuclei)
+    channel2 = CellposeChannel2InputModel(
+        wavelength_id=channel.wavelength_id, normalize=channel.normalize
+    )
+
     for zarr_url in zarr_urls:
         cellpose_segmentation(
             zarr_url=zarr_url,
             channel=channel,
-            channel2=channel,
+            channel2=channel2,
             level=0,
             relabeling=True,
             input_ROI_table="organoid_ROI_table",

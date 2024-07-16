@@ -51,7 +51,6 @@ def run_command(cmd: str):
 
 
 def test_workflow_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: str):
-
     # Init
     img_path = zenodo_images
     zarr_dir = str(tmp_path / "tmp_out/")

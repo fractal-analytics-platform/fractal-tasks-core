@@ -5,6 +5,8 @@
 * Tasks:
     * Fix issue with masked ROI & relabeling in Cellpose task (\#785).
     * Fix issue with masking ROI label types in masked_loading_wrapper for Cellpose task (\#785).
+* Development:
+    * Switch all core models to pydantic v2 (\#790).
 
 # 1.1.0
 

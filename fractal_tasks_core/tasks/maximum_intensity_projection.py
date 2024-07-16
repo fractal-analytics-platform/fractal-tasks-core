@@ -18,7 +18,7 @@ from typing import Any
 import anndata as ad
 import dask.array as da
 import zarr
-from pydantic.v1.decorator import validate_arguments
+from pydantic import validate_call
 from zarr.errors import ContainsArrayError
 
 from fractal_tasks_core.ngff import load_NgffImageMeta
@@ -35,7 +35,7 @@ from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 logger = logging.getLogger(__name__)
 
 
-@validate_arguments
+@validate_call
 def maximum_intensity_projection(
     *,
     # Fractal parameters
@@ -183,7 +183,6 @@ def maximum_intensity_projection(
 
 
 if __name__ == "__main__":
-
     from fractal_tasks_core.tasks._utils import run_fractal_task
 
     run_fractal_task(

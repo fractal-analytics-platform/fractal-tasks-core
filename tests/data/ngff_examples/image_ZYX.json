@@ -20,7 +20,7 @@
             ],
             "datasets": [
                 {
-                    "path": 0,
+                    "path": "0",
                     "coordinateTransformations": [
                         {
                             "type": "scale",
@@ -33,7 +33,7 @@
                     ]
                 },
                 {
-                    "path": 1,
+                    "path": "1",
                     "coordinateTransformations": [
                         {
                             "type": "scale",
@@ -46,7 +46,7 @@
                     ]
                 },
                 {
-                    "path": 2,
+                    "path": "2",
                     "coordinateTransformations": [
                         {
                             "type": "scale",
@@ -59,7 +59,7 @@
                     ]
                 },
                 {
-                    "path": 3,
+                    "path": "3",
                     "coordinateTransformations": [
                         {
                             "type": "scale",
@@ -72,7 +72,7 @@
                     ]
                 },
                 {
-                    "path": 4,
+                    "path": "4",
                     "coordinateTransformations": [
                         {
                             "type": "scale",
