@@ -1,5 +1,11 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# Unreleased
+
+* Tasks:
+    * Fix issue with masked ROI & relabeling in Cellpose task (\#785).
+    * Fix issue with masking ROI label types in masked_loading_wrapper for Cellpose task (\#785).
+
 # 1.1.0
 
 > NOTE: Starting from this release, `fractal-tasks-core` can coexist
