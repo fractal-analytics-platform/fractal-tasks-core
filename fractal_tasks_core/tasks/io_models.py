@@ -59,8 +59,8 @@ class InitArgsCellVoyager(BaseModel):
     plate_prefix: str
     well_ID: str
     image_extension: str
-    image_glob_patterns: Optional[list[str]]
-    acquisition: Optional[int]
+    image_glob_patterns: Optional[list[str]] = None
+    acquisition: Optional[int] = None
 
 
 class InitArgsIllumination(BaseModel):
@@ -147,8 +147,8 @@ class NapariWorkflowsInput(BaseModel):
     """
 
     type: Literal["image", "label"]
-    label_name: Optional[str]
-    channel: Optional[ChannelInputModel]
+    label_name: Optional[str] = None
+    channel: Optional[ChannelInputModel] = None
 
     @model_validator(mode="after")
     def label_name_is_present(self: Self) -> Self:
@@ -157,7 +157,7 @@ class NapariWorkflowsInput(BaseModel):
         """
         label_name = self.label_name
         _type = self.type
-        if _type == "label" and not label_name:
+        if _type == "label" and label_name is None:
             raise ValueError(
                 f"Input item has type={_type} but label_name={label_name}."
             )
@@ -170,7 +170,7 @@ class NapariWorkflowsInput(BaseModel):
         """
         _type = self.type
         channel = self.channel
-        if _type == "image" and not channel:
+        if _type == "image" and channel is None:
             raise ValueError(
                 f"Input item has type={_type} but channel={channel}."
             )
