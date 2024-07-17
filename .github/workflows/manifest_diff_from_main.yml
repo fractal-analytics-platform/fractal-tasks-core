@@ -21,5 +21,8 @@ jobs:
       - name: Setup friendly diff style
         run: echo "*.json diff=json" >> .gitattributes && git config diff.json.textconv "jq --sort-keys '.' \$1"
 
+      - name: Get main branch
+        run: git fetch origin/main
+
       - name: Run git diff for manifest
         run: git diff origin/main fractal_tasks_core/__FRACTAL_MANIFEST__.json
