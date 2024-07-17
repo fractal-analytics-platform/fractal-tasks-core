@@ -86,7 +86,7 @@ def create_manifest(
     logging.info("Start generating a new manifest")
 
     args_schema_version = check_args_schema_version(args_schema_version)
-    logging.info(f"{args_schema_version=}")
+    logging.warning(f"{args_schema_version=}")
 
     # Prepare an empty manifest
     manifest = dict(
