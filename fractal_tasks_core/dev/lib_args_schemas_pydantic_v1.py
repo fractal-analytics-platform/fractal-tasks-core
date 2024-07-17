@@ -48,47 +48,6 @@ from fractal_tasks_core.dev.lib_titles import _include_titles
 
 _Schema = dict[str, Any]
 
-FRACTAL_TASKS_CORE_PYDANTIC_MODELS = [
-    ("fractal_tasks_core", "channels.py", "OmeroChannel"),
-    ("fractal_tasks_core", "channels.py", "Window"),
-    ("fractal_tasks_core", "channels.py", "ChannelInputModel"),
-    (
-        "fractal_tasks_core",
-        "tasks/io_models.py",
-        "NapariWorkflowsInput",
-    ),
-    (
-        "fractal_tasks_core",
-        "tasks/io_models.py",
-        "NapariWorkflowsOutput",
-    ),
-    (
-        "fractal_tasks_core",
-        "tasks/cellpose_utils.py",
-        "CellposeCustomNormalizer",
-    ),
-    (
-        "fractal_tasks_core",
-        "tasks/cellpose_utils.py",
-        "CellposeChannel1InputModel",
-    ),
-    (
-        "fractal_tasks_core",
-        "tasks/cellpose_utils.py",
-        "CellposeChannel2InputModel",
-    ),
-    (
-        "fractal_tasks_core",
-        "tasks/cellpose_utils.py",
-        "CellposeModelParams",
-    ),
-    (
-        "fractal_tasks_core",
-        "tasks/io_models.py",
-        "MultiplexingAcquisition",
-    ),
-]
-
 
 def _remove_args_kwargs_properties(old_schema: _Schema) -> _Schema:
     """
@@ -269,7 +228,7 @@ def create_schema_for_single_task_pydantic_v1(
 
     # Merge lists of fractal-tasks-core and user-provided Pydantic models
     user_provided_models = custom_pydantic_models or []
-    pydantic_models = FRACTAL_TASKS_CORE_PYDANTIC_MODELS + user_provided_models
+    pydantic_models = user_provided_models
 
     # Check that model names are unique
     pydantic_models_names = [item[2] for item in pydantic_models]
