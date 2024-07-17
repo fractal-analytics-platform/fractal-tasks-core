@@ -190,6 +190,8 @@ def create_schema_for_single_task_pydantic_v1(
         testing.
     """
 
+    DEFINITIONS_KEY = "definitions"
+
     logging.info("[create_schema_for_single_task] START")
     if task_function is None:
         usage = "1"
@@ -249,7 +251,9 @@ def create_schema_for_single_task_pydantic_v1(
     schema = _remove_attributes_from_descriptions(schema)
 
     # Include titles for custom-model-typed arguments
-    schema = _include_titles(schema, verbose=verbose)
+    schema = _include_titles(
+        schema, definitions_key=DEFINITIONS_KEY, verbose=verbose
+    )
 
     # Include descriptions of function. Note: this function works both
     # for usages 1 or 2 (see docstring).
@@ -292,6 +296,7 @@ def create_schema_for_single_task_pydantic_v1(
             schema=schema,
             class_name=class_name,
             descriptions=attrs_descriptions,
+            definition_key=DEFINITIONS_KEY,
         )
 
     logging.info("[create_schema_for_single_task] END")
