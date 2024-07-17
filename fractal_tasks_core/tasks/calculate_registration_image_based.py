@@ -48,6 +48,16 @@ logger = logging.getLogger(__name__)
 
 
 class RegistrationMethod(Enum):
+    """
+    RegistrationMethod Enum class
+
+    Attributes:
+        PHASE_CROSS_CORRELATION: phase cross correlation based on scikit-image
+            (works with 2D & 3D images).
+        CHI2_SHIFT: chi2 shift based on image-registration library
+            (only works with 2D images).
+    """
+
     PHASE_CROSS_CORRELATION = "phase_cross_correlation"
     CHI2_SHIFT = "chi2_shift"
 
@@ -66,7 +76,7 @@ def calculate_registration_image_based(
     init_args: InitArgsRegistration,
     # Core parameters
     wavelength_id: str,
-    method: RegistrationMethod = "phase_cross_correlation",
+    method: RegistrationMethod = RegistrationMethod.PHASE_CROSS_CORRELATION,
     roi_table: str = "FOV_ROI_table",
     level: int = 2,
 ) -> None:
@@ -137,11 +147,11 @@ def calculate_registration_image_based(
     # Check if data is 3D (as not all registration methods work in 3D)
     # TODO: Abstract this check into a higher-level Zarr loading class
     if is_3D(data_reference_zyx):
-        if method == "chi2_shift":
+        if method == RegistrationMethod(RegistrationMethod.CHI2_SHIFT):
             raise ValueError(
-                "The `chi2_shift` registration method has not been "
-                "implemented for 3D images and the input image had a shape of "
-                f"{data_reference_zyx.shape}."
+                f"The `{RegistrationMethod.CHI2_SHIFT}` registration method "
+                "has not been implemented for 3D images and the input image "
+                f"had a shape of {data_reference_zyx.shape}."
             )
 
     # Read ROIs
