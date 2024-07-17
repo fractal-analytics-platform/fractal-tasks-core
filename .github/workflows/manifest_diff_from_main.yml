@@ -22,4 +22,4 @@ jobs:
         run: echo "*.json diff=json" >> .gitattributes && git config diff.json.textconv "jq --sort-keys '.' \$1"
 
       - name: Run git diff for manifest
-        run: git diff main fractal_tasks_core/__FRACTAL_MANIFEST__.json
+        run: git diff origin/main fractal_tasks_core/__FRACTAL_MANIFEST__.json
