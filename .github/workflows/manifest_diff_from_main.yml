@@ -1,0 +1,25 @@
+name: Manifest diff with main (work in progress)
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+
+jobs:
+  test-manifest-diff-vs-main:
+
+    runs-on: ubuntu-22.04
+
+    steps:
+
+      - name: Get package source code
+        uses: actions/checkout@v4
+
+      - name: Setup friendly diff style
+        run: echo "*.json diff=json" >> .gitattributes && git config diff.json.textconv "jq --sort-keys '.' \$1"
+
+      - name: Run git diff for manifest
+        run: git diff main fractal_tasks_core/__FRACTAL_MANIFEST__.json
