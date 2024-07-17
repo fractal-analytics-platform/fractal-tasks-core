@@ -372,7 +372,7 @@ def cellpose_segmentation(
             'First axis should have name "c".'
         )
     new_datasets = rescale_datasets(
-        datasets=[ds.model_dump() for ds in ngff_image_meta.datasets],
+        datasets=[ds.dict() for ds in ngff_image_meta.datasets],
         coarsening_xy=coarsening_xy,
         reference_level=level,
         remove_channel_axis=True,
@@ -388,7 +388,7 @@ def cellpose_segmentation(
                 "name": output_label_name,
                 "version": __OME_NGFF_VERSION__,
                 "axes": [
-                    ax.model_dump()
+                    ax.dict()
                     for ax in ngff_image_meta.multiscale.axes
                     if ax.type != "channel"
                 ],
