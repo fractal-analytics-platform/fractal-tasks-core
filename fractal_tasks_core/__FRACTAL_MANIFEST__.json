@@ -20,41 +20,50 @@
             "properties": {
               "wavelength_id": {
                 "title": "Wavelength Id",
-                "type": "string"
+                "type": "string",
+                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`."
               },
               "index": {
                 "title": "Index",
-                "type": "integer"
+                "type": "integer",
+                "description": "Do not change. For internal use only."
               },
               "label": {
                 "title": "Label",
-                "type": "string"
+                "type": "string",
+                "description": "Name of the channel."
               },
               "window": {
                 "allOf": [
                   {
                     "$ref": "#/$defs/Window"
                   }
-                ]
+                ],
+                "title": "Window",
+                "description": "Optional `Window` object to set default display settings for napari."
               },
               "color": {
                 "title": "Color",
-                "type": "string"
+                "type": "string",
+                "description": "Optional hex colormap to display the channel in napari (it must be of length 6, e.g. `00FFFF`)."
               },
               "active": {
                 "default": true,
                 "title": "Active",
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Should this channel be shown in the viewer?"
               },
               "coefficient": {
                 "default": 1,
                 "title": "Coefficient",
-                "type": "integer"
+                "type": "integer",
+                "description": "Do not change. Omero-channel attribute."
               },
               "inverted": {
                 "default": false,
                 "title": "Inverted",
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Do not change. Omero-channel attribute."
               }
             },
             "required": [
@@ -68,19 +77,23 @@
             "properties": {
               "min": {
                 "title": "Min",
-                "type": "integer"
+                "type": "integer",
+                "description": "Do not change. It will be set to `0` by default."
               },
               "max": {
                 "title": "Max",
-                "type": "integer"
+                "type": "integer",
+                "description": "Do not change. It will be set according to bit-depth of the images by default (e.g. 65535 for 16 bit images)."
               },
               "start": {
                 "title": "Start",
-                "type": "integer"
+                "type": "integer",
+                "description": "Lower-bound rescaling value for visualization."
               },
               "end": {
                 "title": "End",
-                "type": "integer"
+                "type": "integer",
+                "description": "Upper-bound rescaling value for visualization."
               }
             },
             "required": [
@@ -254,14 +267,16 @@
             "properties": {
               "image_dir": {
                 "title": "Image Dir",
-                "type": "string"
+                "type": "string",
+                "description": "Path to the folder that contains the Cellvoyager image files for that acquisition and the MeasurementData & MeasurementDetail metadata files."
               },
               "allowed_channels": {
                 "items": {
                   "$ref": "#/$defs/OmeroChannel"
                 },
                 "title": "Allowed Channels",
-                "type": "array"
+                "type": "array",
+                "description": "A list of `OmeroChannel` objects, where each channel must include the `wavelength_id` attribute and where the `wavelength_id` values must be unique across the list."
               }
             },
             "required": [
@@ -276,41 +291,50 @@
             "properties": {
               "wavelength_id": {
                 "title": "Wavelength Id",
-                "type": "string"
+                "type": "string",
+                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`."
               },
               "index": {
                 "title": "Index",
-                "type": "integer"
+                "type": "integer",
+                "description": "Do not change. For internal use only."
               },
               "label": {
                 "title": "Label",
-                "type": "string"
+                "type": "string",
+                "description": "Name of the channel."
               },
               "window": {
                 "allOf": [
                   {
                     "$ref": "#/$defs/Window"
                   }
-                ]
+                ],
+                "title": "Window",
+                "description": "Optional `Window` object to set default display settings for napari."
               },
               "color": {
                 "title": "Color",
-                "type": "string"
+                "type": "string",
+                "description": "Optional hex colormap to display the channel in napari (it must be of length 6, e.g. `00FFFF`)."
               },
               "active": {
                 "default": true,
                 "title": "Active",
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Should this channel be shown in the viewer?"
               },
               "coefficient": {
                 "default": 1,
                 "title": "Coefficient",
-                "type": "integer"
+                "type": "integer",
+                "description": "Do not change. Omero-channel attribute."
               },
               "inverted": {
                 "default": false,
                 "title": "Inverted",
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Do not change. Omero-channel attribute."
               }
             },
             "required": [
@@ -324,19 +348,23 @@
             "properties": {
               "min": {
                 "title": "Min",
-                "type": "integer"
+                "type": "integer",
+                "description": "Do not change. It will be set to `0` by default."
               },
               "max": {
                 "title": "Max",
-                "type": "integer"
+                "type": "integer",
+                "description": "Do not change. It will be set according to bit-depth of the images by default (e.g. 65535 for 16 bit images)."
               },
               "start": {
                 "title": "Start",
-                "type": "integer"
+                "type": "integer",
+                "description": "Lower-bound rescaling value for visualization."
               },
               "end": {
                 "title": "End",
-                "type": "integer"
+                "type": "integer",
+                "description": "Upper-bound rescaling value for visualization."
               }
             },
             "required": [
@@ -670,14 +698,18 @@
             "properties": {
               "wavelength_id": {
                 "title": "Wavelength Id",
-                "type": "string"
+                "type": "string",
+                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`. Can only be specified if label is not set."
               },
               "label": {
                 "title": "Label",
-                "type": "string"
+                "type": "string",
+                "description": "Name of the channel. Can only be specified if wavelength_id is not set."
               },
               "normalize": {
-                "$ref": "#/$defs/CellposeCustomNormalizer"
+                "$ref": "#/$defs/CellposeCustomNormalizer",
+                "title": "Normalize",
+                "description": "Validator to handle different normalization scenarios for Cellpose models"
               }
             },
             "title": "CellposeChannel1InputModel",
@@ -688,14 +720,18 @@
             "properties": {
               "wavelength_id": {
                 "title": "Wavelength Id",
-                "type": "string"
+                "type": "string",
+                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`. Can only be specified if label is not set."
               },
               "label": {
                 "title": "Label",
-                "type": "string"
+                "type": "string",
+                "description": "Name of the channel. Can only be specified if wavelength_id is not set."
               },
               "normalize": {
-                "$ref": "#/$defs/CellposeCustomNormalizer"
+                "$ref": "#/$defs/CellposeCustomNormalizer",
+                "title": "Normalize",
+                "description": "Validator to handle different normalization scenarios for Cellpose models"
               }
             },
             "title": "CellposeChannel2InputModel",
@@ -712,27 +748,32 @@
                   "no_normalization"
                 ],
                 "title": "Type",
-                "type": "string"
+                "type": "string",
+                "description": "One of `default` (Cellpose default normalization), `custom` (using the other custom parameters) or `no_normalization`."
               },
               "lower_percentile": {
                 "maximum": 100.0,
                 "minimum": 0.0,
                 "title": "Lower Percentile",
-                "type": "number"
+                "type": "number",
+                "description": "Specify a custom lower-bound percentile for rescaling as a float value between 0 and 100. Set to 1 to run the same as default). You can only specify percentiles or bounds, not both."
               },
               "upper_percentile": {
                 "maximum": 100.0,
                 "minimum": 0.0,
                 "title": "Upper Percentile",
-                "type": "number"
+                "type": "number",
+                "description": "Specify a custom upper-bound percentile for rescaling as a float value between 0 and 100. Set to 99 to run the same as default, set to e.g. 99.99 if the default rescaling was too harsh. You can only specify percentiles or bounds, not both."
               },
               "lower_bound": {
                 "title": "Lower Bound",
-                "type": "integer"
+                "type": "integer",
+                "description": "Explicit lower bound value to rescale the image at. Needs to be an integer, e.g. 100. You can only specify percentiles or bounds, not both."
               },
               "upper_bound": {
                 "title": "Upper Bound",
-                "type": "integer"
+                "type": "integer",
+                "description": "Explicit upper bound value to rescale the image at. Needs to be an integer, e.g. 2000. You can only specify percentiles or bounds, not both."
               }
             },
             "title": "CellposeCustomNormalizer",
@@ -744,71 +785,85 @@
               "cellprob_threshold": {
                 "default": 0.0,
                 "title": "Cellprob Threshold",
-                "type": "number"
+                "type": "number",
+                "description": "Parameter of `CellposeModel.eval` method. Valid values between -6 to 6. From Cellpose documentation: \"Decrease this threshold if cellpose is not returning as many ROIs as you'd expect. Similarly, increase this threshold if cellpose is returning too ROIs particularly from dim areas.\""
               },
               "flow_threshold": {
                 "default": 0.4,
                 "title": "Flow Threshold",
-                "type": "number"
+                "type": "number",
+                "description": "Parameter of `CellposeModel.eval` method. Valid values between 0.0 and 1.0. From Cellpose documentation: \"Increase this threshold if cellpose is not returning as many ROIs as you'd expect. Similarly, decrease this threshold if cellpose is returning too many ill-shaped ROIs.\""
               },
               "anisotropy": {
                 "title": "Anisotropy",
-                "type": "number"
+                "type": "number",
+                "description": "Ratio of the pixel sizes along Z and XY axis (ignored if the image is not three-dimensional). If unset, it is inferred from the OME-NGFF metadata."
               },
               "min_size": {
                 "default": 15,
                 "title": "Min Size",
-                "type": "integer"
+                "type": "integer",
+                "description": "Parameter of `CellposeModel` class. Minimum size of the segmented objects (in pixels). Use `-1` to turn off the size filter."
               },
               "augment": {
                 "default": false,
                 "title": "Augment",
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Parameter of `CellposeModel` class. Whether to use cellpose augmentation to tile images with overlap."
               },
               "net_avg": {
                 "default": false,
                 "title": "Net Avg",
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Parameter of `CellposeModel` class. Whether to use cellpose net averaging to run the 4 built-in networks (useful for `nuclei`, `cyto` and `cyto2`, not sure it works for the others)."
               },
               "use_gpu": {
                 "default": true,
                 "title": "Use Gpu",
-                "type": "boolean"
+                "type": "boolean",
+                "description": "If `False`, always use the CPU; if `True`, use the GPU if possible (as defined in `cellpose.core.use_gpu()`) and fall-back to the CPU otherwise."
               },
               "batch_size": {
                 "default": 8,
                 "title": "Batch Size",
-                "type": "integer"
+                "type": "integer",
+                "description": "number of 224x224 patches to run simultaneously on the GPU (can make smaller or bigger depending on GPU memory usage)"
               },
               "invert": {
                 "default": false,
                 "title": "Invert",
-                "type": "boolean"
+                "type": "boolean",
+                "description": "invert image pixel intensity before running network (if True, image is also normalized)"
               },
               "tile": {
                 "default": true,
                 "title": "Tile",
-                "type": "boolean"
+                "type": "boolean",
+                "description": "tiles image to ensure GPU/CPU memory usage limited (recommended)"
               },
               "tile_overlap": {
                 "default": 0.1,
                 "title": "Tile Overlap",
-                "type": "number"
+                "type": "number",
+                "description": "fraction of overlap of tiles when computing flows"
               },
               "resample": {
                 "default": true,
                 "title": "Resample",
-                "type": "boolean"
+                "type": "boolean",
+                "description": "run dynamics at original image size (will be slower but create more accurate boundaries)"
               },
               "interp": {
                 "default": true,
                 "title": "Interp",
-                "type": "boolean"
+                "type": "boolean",
+                "description": "interpolate during 2D dynamics (not available in 3D) (in previous versions it was False, now it defaults to True)"
               },
               "stitch_threshold": {
                 "default": 0.0,
                 "title": "Stitch Threshold",
-                "type": "number"
+                "type": "number",
+                "description": "if stitch_threshold>0.0 and not do_3D and equal image sizes, masks are stitched in 3D to return volume segmentation"
               }
             },
             "title": "CellposeModelParams",
@@ -1272,11 +1327,13 @@
             "properties": {
               "wavelength_id": {
                 "title": "Wavelength Id",
-                "type": "string"
+                "type": "string",
+                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`. Can only be specified if label is not set."
               },
               "label": {
                 "title": "Label",
-                "type": "string"
+                "type": "string",
+                "description": "Name of the channel. Can only be specified if wavelength_id is not set."
               }
             },
             "title": "ChannelInputModel",
@@ -1291,18 +1348,22 @@
                   "label"
                 ],
                 "title": "Type",
-                "type": "string"
+                "type": "string",
+                "description": "Input type (either `image` or `label`)."
               },
               "label_name": {
                 "title": "Label Name",
-                "type": "string"
+                "type": "string",
+                "description": "Label name (for label inputs only)."
               },
               "channel": {
                 "allOf": [
                   {
                     "$ref": "#/$defs/ChannelInputModel"
                   }
-                ]
+                ],
+                "title": "Channel",
+                "description": "`ChannelInputModel` object (for image inputs only)."
               }
             },
             "required": [
@@ -1320,15 +1381,18 @@
                   "dataframe"
                 ],
                 "title": "Type",
-                "type": "string"
+                "type": "string",
+                "description": "Output type (either `label` or `dataframe`)."
               },
               "label_name": {
                 "title": "Label Name",
-                "type": "string"
+                "type": "string",
+                "description": "Label name (for label outputs, it is used as the name of the label; for dataframe outputs, it is used to fill the `region[\"path\"]` field)."
               },
               "table_name": {
                 "title": "Table Name",
-                "type": "string"
+                "type": "string",
+                "description": "Table name (for dataframe outputs only)."
               }
             },
             "required": [
