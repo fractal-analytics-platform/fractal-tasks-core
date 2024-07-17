@@ -380,7 +380,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                         image_extension=image_extension,
                         image_glob_patterns=image_glob_patterns,
                         acquisition=acquisition,
-                    ).dict(),
+                    ).model_dump(),
                 }
             )
             try:

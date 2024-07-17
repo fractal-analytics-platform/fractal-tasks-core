@@ -63,7 +63,7 @@ def maximum_intensity_projection(
     ngff_image = load_NgffImageMeta(init_args.origin_url)
     # Currently not using the validation models due to wavelength_id issue
     # See #681 for discussion
-    # new_attrs = ngff_image.dict(exclude_none=True)
+    # new_attrs = ngff_image.model_dump(exclude_none=True)
     # Current way to get the necessary metadata for MIP
     group = zarr.open_group(init_args.origin_url, mode="r")
     new_attrs = group.attrs.asdict()

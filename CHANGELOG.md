@@ -4,12 +4,10 @@
 
 * Tasks:
     * Fix issue with masked ROI & relabeling in Cellpose task (\#785).
-    * Fix issue with masking ROI label types in masked_loading_wrapper for Cellpose task (\#785).
     * Fix issue with masking ROI label types in `masked_loading_wrapper` for Cellpose task (\#785).
     * Enable workaround to support yx images in Cellpose task (\#789).
     * Fix error handling in `calculate_registration_image_based` (\#799).
     * Fix minor issues with call-signature and type hints in `calculate_registration_image_based` (\#799).
-
 * Development:
     * Switch all core models to pydantic v2 (\#790).
 

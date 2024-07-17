@@ -341,7 +341,7 @@ def define_omero_channels(
             can be written to OMERO metadata.
     """
 
-    new_channels = [c.copy(deep=True) for c in channels]
+    new_channels = [c.model_copy(deep=True) for c in channels]
     default_colors = ["00FFFF", "FF00FF", "FFFF00"]
 
     for channel in new_channels:
@@ -376,7 +376,8 @@ def define_omero_channels(
         raise ValueError(f"Non-unique labels in {new_channels=}")
 
     new_channels_dictionaries = [
-        c.dict(exclude={"index"}, exclude_unset=True) for c in new_channels
+        c.model_dump(exclude={"index"}, exclude_unset=True)
+        for c in new_channels
     ]
 
     return new_channels_dictionaries

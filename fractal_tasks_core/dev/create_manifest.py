@@ -111,7 +111,7 @@ def create_manifest(
     # to manifest["task_list"]
     for task_obj in TASK_LIST:
         # Convert Pydantic object to dictionary
-        task_dict = task_obj.dict(
+        task_dict = task_obj.model_dump(
             exclude={"meta_init", "executable_init", "meta", "executable"},
             exclude_unset=True,
         )
