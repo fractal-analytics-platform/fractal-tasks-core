@@ -378,14 +378,14 @@ def cellpose_segmentation(
     # Workaround for #788
     if ngff_image_meta.axes_names[0] != "c":
         new_datasets = rescale_datasets(
-            datasets=[ds.dict() for ds in ngff_image_meta.datasets],
+            datasets=[ds.model_dump() for ds in ngff_image_meta.datasets],
             coarsening_xy=coarsening_xy,
             reference_level=level,
             remove_channel_axis=False,
         )
     else:
         new_datasets = rescale_datasets(
-            datasets=[ds.dict() for ds in ngff_image_meta.datasets],
+            datasets=[ds.model_dump() for ds in ngff_image_meta.datasets],
             coarsening_xy=coarsening_xy,
             reference_level=level,
             remove_channel_axis=True,
