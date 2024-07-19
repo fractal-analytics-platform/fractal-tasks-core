@@ -52,7 +52,11 @@ def _include_titles_for_properties(
     return new_properties
 
 
-def _include_titles(schema: _Schema, verbose: bool = False) -> _Schema:
+def _include_titles(
+    schema: _Schema,
+    definitions_key: str,
+    verbose: bool = False,
+) -> _Schema:
     """
     Include property titles, when missing.
 
@@ -65,6 +69,9 @@ def _include_titles(schema: _Schema, verbose: bool = False) -> _Schema:
 
     Args:
         schema: TBD
+        definitions_key: Either `"definitions"` (for Pydantic V1) or
+            `"$defs"` (for Pydantic V2)
+        verbose:
     """
     new_schema = schema.copy()
 
@@ -82,8 +89,8 @@ def _include_titles(schema: _Schema, verbose: bool = False) -> _Schema:
         logging.info("[_include_titles] Titles for properties now included.")
 
     # Update properties of definitions
-    if "definitions" in schema.keys():
-        new_definitions = schema["definitions"].copy()
+    if definitions_key in schema.keys():
+        new_definitions = schema[definitions_key].copy()
         for def_name, def_schema in new_definitions.items():
             if "properties" not in def_schema.keys():
                 if verbose:
@@ -96,7 +103,7 @@ def _include_titles(schema: _Schema, verbose: bool = False) -> _Schema:
                     def_schema["properties"], verbose=verbose
                 )
                 new_definitions[def_name]["properties"] = new_properties
-        new_schema["definitions"] = new_definitions
+        new_schema[definitions_key] = new_definitions
 
     if verbose:
         logging.info(

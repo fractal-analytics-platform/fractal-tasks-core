@@ -15,17 +15,20 @@ Helper functions to handle JSON schemas for task arguments.
 import logging
 import os
 from collections import Counter
+from copy import deepcopy
 from pathlib import Path
 from typing import Any
 from typing import Callable
 from typing import Optional
 
+from devtools import debug
 from docstring_parser import parse as docparse
-from pydantic.v1.decorator import ALT_V_ARGS
-from pydantic.v1.decorator import ALT_V_KWARGS
-from pydantic.v1.decorator import V_DUPLICATE_KWARGS
-from pydantic.v1.decorator import V_POSITIONAL_ONLY_NAME
-from pydantic.v1.decorator import ValidatedFunction
+from pydantic._internal import _generate_schema
+from pydantic._internal import _typing_extra
+from pydantic._internal._config import ConfigWrapper
+from pydantic.json_schema import GenerateJsonSchema
+from pydantic.json_schema import JsonSchemaValue
+from pydantic_core.core_schema import WithDefaultSchema
 
 from fractal_tasks_core.dev.lib_descriptions import (
     _get_class_attrs_descriptions,
@@ -47,6 +50,7 @@ from fractal_tasks_core.dev.lib_titles import _include_titles
 
 
 _Schema = dict[str, Any]
+
 
 FRACTAL_TASKS_CORE_PYDANTIC_MODELS = [
     ("fractal_tasks_core", "channels.py", "OmeroChannel"),
@@ -90,58 +94,6 @@ FRACTAL_TASKS_CORE_PYDANTIC_MODELS = [
 ]
 
 
-def _remove_args_kwargs_properties(old_schema: _Schema) -> _Schema:
-    """
-    Remove `args` and `kwargs` schema properties.
-
-    Pydantic v1 automatically includes `args` and `kwargs` properties in
-    JSON Schemas generated via `ValidatedFunction(task_function,
-    config=None).model.schema()`, with some default (empty) values -- see see
-    https://github.com/pydantic/pydantic/blob/1.10.X-fixes/pydantic/decorator.py.
-
-    Verify that these properties match with their expected default values, and
-    then remove them from the schema.
-
-    Args:
-        old_schema: TBD
-    """
-    new_schema = old_schema.copy()
-    args_property = new_schema["properties"].pop("args")
-    kwargs_property = new_schema["properties"].pop("kwargs")
-    expected_args_property = {"title": "Args", "type": "array", "items": {}}
-    expected_kwargs_property = {"title": "Kwargs", "type": "object"}
-    if args_property != expected_args_property:
-        raise ValueError(
-            f"{args_property=}\ndiffers from\n{expected_args_property=}"
-        )
-    if kwargs_property != expected_kwargs_property:
-        raise ValueError(
-            f"{kwargs_property=}\ndiffers from\n"
-            f"{expected_kwargs_property=}"
-        )
-    logging.info("[_remove_args_kwargs_properties] END")
-    return new_schema
-
-
-def _remove_pydantic_internals(old_schema: _Schema) -> _Schema:
-    """
-    Remove schema properties that are only used internally by Pydantic V1.
-
-    Args:
-        old_schema: TBD
-    """
-    new_schema = old_schema.copy()
-    for key in (
-        V_POSITIONAL_ONLY_NAME,
-        V_DUPLICATE_KWARGS,
-        ALT_V_ARGS,
-        ALT_V_KWARGS,
-    ):
-        new_schema["properties"].pop(key, None)
-    logging.info("[_remove_pydantic_internals] END")
-    return new_schema
-
-
 def _remove_attributes_from_descriptions(old_schema: _Schema) -> _Schema:
     """
     Keeps only the description part of the docstrings: e.g from
@@ -161,14 +113,112 @@ def _remove_attributes_from_descriptions(old_schema: _Schema) -> _Schema:
         old_schema: TBD
     """
     new_schema = old_schema.copy()
-    if "definitions" in new_schema:
-        for name, definition in new_schema["definitions"].items():
-            parsed_docstring = docparse(definition["description"])
-            new_schema["definitions"][name][
-                "description"
-            ] = parsed_docstring.short_description
+    if "$defs" in new_schema:
+        for name, definition in new_schema["$defs"].items():
+            if "description" in definition.keys():
+                parsed_docstring = docparse(definition["description"])
+                new_schema["$defs"][name][
+                    "description"
+                ] = parsed_docstring.short_description
+            elif "title" in definition.keys():
+                title = definition["title"]
+                new_schema["$defs"][name][
+                    "description"
+                ] = f"Missing description for {title}."
+            else:
+                new_schema["$defs"][name][
+                    "description"
+                ] = "Missing description"
     logging.info("[_remove_attributes_from_descriptions] END")
     return new_schema
+
+
+class GenerateJsonSchemaA(GenerateJsonSchema):
+    def nullable_schema(self, schema):
+        null_schema = {"type": "null"}
+        inner_json_schema = self.generate_inner(schema["schema"])
+        if inner_json_schema == null_schema:
+            return null_schema
+        else:
+            debug("A: Skip calling `get_flattened_anyof` method")
+            return inner_json_schema
+
+
+class GenerateJsonSchemaB(GenerateJsonSchemaA):
+    def default_schema(self, schema: WithDefaultSchema) -> JsonSchemaValue:
+        original_json_schema = super().default_schema(schema)
+        new_json_schema = deepcopy(original_json_schema)
+        default = new_json_schema.get("default", None)
+        if default is None:
+            debug("B: Pop None default")
+            new_json_schema.pop("default")
+        return new_json_schema
+
+
+class GenerateJsonSchemaC(GenerateJsonSchema):
+    def get_flattened_anyof(
+        self, schemas: list[JsonSchemaValue]
+    ) -> JsonSchemaValue:
+        # Inspired by
+        # https://github.com/vitalik/django-ninja/issues/842#issuecomment-2059014537
+        original_json_schema_value = super().get_flattened_anyof(schemas)
+        members = original_json_schema_value.get("anyOf")
+        debug("C", original_json_schema_value)
+        if (
+            members is not None
+            and len(members) == 2
+            and {"type": "null"} in members
+        ):
+            new_json_schema_value = {"type": [t["type"] for t in members]}
+            debug("C", new_json_schema_value)
+            return new_json_schema_value
+        else:
+            return original_json_schema_value
+
+
+class GenerateJsonSchemaD(GenerateJsonSchema):
+    def get_flattened_anyof(
+        self, schemas: list[JsonSchemaValue]
+    ) -> JsonSchemaValue:
+        # Inspired by
+        # https://github.com/vitalik/django-ninja/issues/842#issuecomment-2059014537
+        null_schema = {"type": "null"}
+        if null_schema in schemas:
+            debug("D drop null_schema before calling `get_flattened_anyof`")
+            schemas.pop(schemas.index(null_schema))
+        return super().get_flattened_anyof(schemas)
+
+
+class GenerateJsonSchemaE(GenerateJsonSchemaD):
+    def default_schema(self, schema: WithDefaultSchema) -> JsonSchemaValue:
+        json_schema = super().default_schema(schema)
+        debug("E", json_schema)
+        if "default" in json_schema.keys() and json_schema["default"] is None:
+            debug("E: Pop None default")
+            json_schema.pop("default")
+        return json_schema
+
+
+CustomGenerateJsonSchema = GenerateJsonSchema
+CustomGenerateJsonSchema = GenerateJsonSchemaA
+CustomGenerateJsonSchema = GenerateJsonSchemaB
+CustomGenerateJsonSchema = GenerateJsonSchemaC
+CustomGenerateJsonSchema = GenerateJsonSchemaD
+CustomGenerateJsonSchema = GenerateJsonSchemaE
+
+
+def _create_schema_for_function(function: Callable) -> _Schema:
+    namespace = _typing_extra.add_module_globals(function, None)
+    gen_core_schema = _generate_schema.GenerateSchema(
+        ConfigWrapper(None), namespace
+    )
+    core_schema = gen_core_schema.generate_schema(function)
+    clean_core_schema = gen_core_schema.clean_schema(core_schema)
+    gen_json_schema = CustomGenerateJsonSchema()
+    json_schema = gen_json_schema.generate(
+        clean_core_schema, mode="validation"
+    )
+    return json_schema
 
 
 def create_schema_for_single_task(
@@ -188,8 +238,9 @@ def create_schema_for_single_task(
     2. `task_function` argument is provided, `executable` is an absolute path
         to the function module, and `package` is `None. This is useful for
         testing.
-
     """
+
+    DEFINITIONS_KEY = "$defs"
 
     logging.info("[create_schema_for_single_task] START")
     if task_function is None:
@@ -243,14 +294,23 @@ def create_schema_for_single_task(
     _validate_function_signature(task_function)
 
     # Create and clean up schema
-    vf = ValidatedFunction(task_function, config=None)
-    schema = vf.model.schema()
-    schema = _remove_args_kwargs_properties(schema)
-    schema = _remove_pydantic_internals(schema)
+    schema = _create_schema_for_function(task_function)
     schema = _remove_attributes_from_descriptions(schema)
 
     # Include titles for custom-model-typed arguments
-    schema = _include_titles(schema, verbose=verbose)
+    schema = _include_titles(
+        schema, definitions_key=DEFINITIONS_KEY, verbose=verbose
+    )
+
+    # Include main title
+    if schema.get("title") is None:
+
+        def to_camel_case(snake_str):
+            return "".join(
+                x.capitalize() for x in snake_str.lower().split("_")
+            )
+
+        schema["title"] = to_camel_case(task_function.__name__)
 
     # Include descriptions of function. Note: this function works both
     # for usages 1 or 2 (see docstring).
@@ -260,8 +320,9 @@ def create_schema_for_single_task(
         function_name=function_name,
         verbose=verbose,
     )
+
     schema = _insert_function_args_descriptions(
-        schema=schema, descriptions=function_args_descriptions, verbose=verbose
+        schema=schema, descriptions=function_args_descriptions
     )
 
     # Merge lists of fractal-tasks-core and user-provided Pydantic models
@@ -293,6 +354,7 @@ def create_schema_for_single_task(
             schema=schema,
             class_name=class_name,
             descriptions=attrs_descriptions,
+            definition_key=DEFINITIONS_KEY,
         )
 
     logging.info("[create_schema_for_single_task] END")

@@ -1,5 +1,12 @@
-from pydantic.v1 import BaseModel
+from pydantic import BaseModel
 
 
 class CustomModel(BaseModel):
+    """
+    Short description
+
+    Attributes:
+        x: Description of `x`
+    """
+
     x: int

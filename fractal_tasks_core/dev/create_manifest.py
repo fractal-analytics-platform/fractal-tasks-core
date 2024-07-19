@@ -24,11 +24,16 @@ from fractal_tasks_core.dev.lib_args_schemas import (
 from fractal_tasks_core.dev.lib_task_docs import create_docs_info
 
 
+logging.basicConfig(level=logging.INFO)
+
+
+ARGS_SCHEMA_VERSION = "pydantic_v2"
+
+
 def create_manifest(
     package: str = "fractal_tasks_core",
     manifest_version: str = "2",
     has_args_schemas: bool = True,
-    args_schema_version: str = "pydantic_v1",
     docs_link: Optional[str] = None,
     custom_pydantic_models: Optional[list[tuple[str, str, str]]] = None,
 ):
@@ -52,9 +57,6 @@ def create_manifest(
         manifest_version: Only `"2"` is supported.
         has_args_schemas:
             Whether to autogenerate JSON Schemas for task arguments.
-        args_schema_version:
-            Only `"pydantic_v1"` is currently supported in `fractal-server`
-            and `fractal-web`.
         custom_pydantic_models:
             Custom models to be included when building JSON Schemas for task
             arguments.
@@ -73,7 +75,7 @@ def create_manifest(
         has_args_schemas=has_args_schemas,
     )
     if has_args_schemas:
-        manifest["args_schema_version"] = args_schema_version
+        manifest["args_schema_version"] = ARGS_SCHEMA_VERSION
 
     # Prepare a default value of docs_link
     if package == "fractal_tasks_core" and docs_link is None:

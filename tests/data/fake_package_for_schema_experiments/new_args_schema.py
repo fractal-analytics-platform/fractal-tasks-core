@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
     # Set global properties of manifest
     manifest["has_args_schemas"] = True
-    manifest["args_schema_version"] = "pydantic_v1"
+    manifest["args_schema_version"] = "pydantic_v2"
 
     # Loop over tasks and set args schemas
     task_list = manifest["task_list"]
