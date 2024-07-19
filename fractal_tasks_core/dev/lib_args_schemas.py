@@ -115,10 +115,20 @@ def _remove_attributes_from_descriptions(old_schema: _Schema) -> _Schema:
     new_schema = old_schema.copy()
     if "$defs" in new_schema:
         for name, definition in new_schema["$defs"].items():
-            parsed_docstring = docparse(definition["description"])
-            new_schema["$defs"][name][
-                "description"
-            ] = parsed_docstring.short_description
+            if "description" in definition.keys():
+                parsed_docstring = docparse(definition["description"])
+                new_schema["$defs"][name][
+                    "description"
+                ] = parsed_docstring.short_description
+            elif "title" in definition.keys():
+                title = definition["title"]
+                new_schema["$defs"][name][
+                    "description"
+                ] = f"Missing description for {title}."
+            else:
+                new_schema["$defs"][name][
+                    "description"
+                ] = "Missing description"
     logging.info("[_remove_attributes_from_descriptions] END")
     return new_schema
 
