@@ -57,9 +57,6 @@ def create_manifest(
         manifest_version: Only `"2"` is supported.
         has_args_schemas:
             Whether to autogenerate JSON Schemas for task arguments.
-        args_schema_version:
-            Only `"pydantic_v1"` is currently supported in `fractal-server`
-            and `fractal-web`.
         custom_pydantic_models:
             Custom models to be included when building JSON Schemas for task
             arguments.
