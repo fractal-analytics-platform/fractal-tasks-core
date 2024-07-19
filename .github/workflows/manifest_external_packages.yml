@@ -75,7 +75,7 @@ jobs:
       - name: Install package
         run:  ${{ matrix.cmd_install }}
 
-      - name: Get fractal-tasks-core
+      - name: Get current branch of `fractal-tasks-core`
         uses: actions/checkout@v4
         with:
           path: fractal-tasks-core
@@ -83,7 +83,7 @@ jobs:
       - name: Install current fractal-tasks-core (this may fail)
         run: python -m pip install -e ./fractal-tasks-core
 
-      - name: DEBUG install devtools
+      - name: Install devtools (FIXME: remove after we remove it from JSON-Schema tools)
         run: python -m pip install devtools
 
       - name: Create manifest
