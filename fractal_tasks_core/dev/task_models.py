@@ -18,7 +18,7 @@ fractal-server v2.
 from typing import Any
 from typing import Optional
 
-from pydantic import BaseModel  # FIXME: make this flexible for Pydantic v1/v2
+from pydantic import BaseModel
 
 
 class _BaseTask(BaseModel):
