@@ -41,7 +41,7 @@ class CompoundTask(_BaseTask):
     """
 
     executable_init: str
-    meta_init: Optional[dict[str, Any]]
+    meta_init: Optional[dict[str, Any]] = None
 
     @property
     def executable_non_parallel(self) -> str:
