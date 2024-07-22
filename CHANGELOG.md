@@ -1,6 +1,6 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# Unreleased
+# 1.1.1
 
 * Tasks:
     * Fix issue with masked ROI & relabeling in Cellpose task (\#786).
