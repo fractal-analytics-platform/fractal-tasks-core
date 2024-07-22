@@ -1,5 +1,15 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# 1.2.0 (unreleased)
+
+* Core-library and tasks:
+    * Switch all core models to Pydantic V2 (\#793).
+* JSON Schema generation tools:
+    * Move JSON-Schema tools to Pydantic V2 (\#793).
+* Testing:
+    * Remove dependency on `pytest-pretty` (\#793).
+    * Update `manifest_external_packages.yml` GitHub Action so that it installs the current `fractal-tasks-core` (\#793).
+
 # 1.1.1
 
 * Tasks:
@@ -8,13 +18,6 @@
     * Enable workaround to support yx images in Cellpose task (\#789).
     * Fix error handling in `calculate_registration_image_based` (\#799).
     * Fix minor issues with call-signature and type hints in `calculate_registration_image_based` (\#799).
-* Core-library and tasks:
-    * Switch all core models to Pydantic V2 (\#793).
-* JSON Schema generation tools:
-    * Move JSON-Schema tools to Pydantic V2 (\#793).
-* Testing:
-    * Remove dependency on `pytest-pretty` (\#793).
-    * Update `manifest_external_packages.yml` GitHub Action so that it installs the current `fractal-tasks-core` (\#793).
 
 # 1.1.0
 
