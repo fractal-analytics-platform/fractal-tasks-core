@@ -89,9 +89,6 @@ jobs:
       - name: Install current fractal-tasks-core (this may fail)
         run: python -m pip install -e ./fractal-tasks-core[fractal-tasks]
 
-      - name: Install devtools FIXME remove after we remove it from JSON-Schema tools
-        run: python -m pip install devtools
-
       - name: Create manifest
         run: ${{ matrix.cmd_create_manifest }}
 

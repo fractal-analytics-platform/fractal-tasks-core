@@ -21,7 +21,6 @@ from typing import Any
 from typing import Callable
 from typing import Optional
 
-from devtools import debug
 from docstring_parser import parse as docparse
 from pydantic._internal import _generate_schema
 from pydantic._internal import _typing_extra
@@ -140,7 +139,7 @@ class GenerateJsonSchemaA(GenerateJsonSchema):
         if inner_json_schema == null_schema:
             return null_schema
         else:
-            debug("A: Skip calling `get_flattened_anyof` method")
+            logging.info("A: Skip calling `get_flattened_anyof` method")
             return inner_json_schema
 
 
@@ -150,7 +149,7 @@ class GenerateJsonSchemaB(GenerateJsonSchemaA):
         new_json_schema = deepcopy(original_json_schema)
         default = new_json_schema.get("default", None)
         if default is None:
-            debug("B: Pop None default")
+            logging.info("B: Pop None default")
             new_json_schema.pop("default")
         return new_json_schema
 
@@ -163,14 +162,14 @@ class GenerateJsonSchemaC(GenerateJsonSchema):
         # https://github.com/vitalik/django-ninja/issues/842#issuecomment-2059014537
         original_json_schema_value = super().get_flattened_anyof(schemas)
         members = original_json_schema_value.get("anyOf")
-        debug("C", original_json_schema_value)
+        logging.info("C", original_json_schema_value)
         if (
             members is not None
             and len(members) == 2
             and {"type": "null"} in members
         ):
             new_json_schema_value = {"type": [t["type"] for t in members]}
-            debug("C", new_json_schema_value)
+            logging.info("C", new_json_schema_value)
             return new_json_schema_value
         else:
             return original_json_schema_value
@@ -184,7 +183,9 @@ class GenerateJsonSchemaD(GenerateJsonSchema):
         # https://github.com/vitalik/django-ninja/issues/842#issuecomment-2059014537
         null_schema = {"type": "null"}
         if null_schema in schemas:
-            debug("D drop null_schema before calling `get_flattened_anyof`")
+            logging.info(
+                "D drop null_schema before calling `get_flattened_anyof`"
+            )
             schemas.pop(schemas.index(null_schema))
         return super().get_flattened_anyof(schemas)
 
@@ -192,9 +193,9 @@ class GenerateJsonSchemaD(GenerateJsonSchema):
 class GenerateJsonSchemaE(GenerateJsonSchemaD):
     def default_schema(self, schema: WithDefaultSchema) -> JsonSchemaValue:
         json_schema = super().default_schema(schema)
-        debug("E", json_schema)
+        logging.info("E", json_schema)
         if "default" in json_schema.keys() and json_schema["default"] is None:
-            debug("E: Pop None default")
+            logging.info("E: Pop None default")
             json_schema.pop("default")
         return json_schema
 
