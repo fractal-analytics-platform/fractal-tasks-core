@@ -77,8 +77,11 @@ def test_Multiscale(ngffdata_path):
     with pytest.raises(NotImplementedError):
         _load_and_validate(ngffdata_path / "multiscale_error.json", Multiscale)
 
-    # Success
+    # Success with no global `coordinateTransformations`
     _load_and_validate(ngffdata_path / "multiscale.json", Multiscale)
+
+    # Success with `None` global `coordinateTransformations`
+    _load_and_validate(ngffdata_path / "multiscale_with_none.json", Multiscale)
 
 
 def test_NgffImageMeta(ngffdata_path):
