@@ -95,7 +95,7 @@ jobs:
         run: python -m pip install -e ./fractal-tasks-core
 
       - name: Install custom additional dependencies (see issue 803)
-        if: ${{ matrix.custom_dependencies }} != ''
+        if: ${{ matrix.custom_dependencies != '' }}
         run: python -m pip install ${{ matrix.custom_dependencies }}
 
       - name: Create manifest
