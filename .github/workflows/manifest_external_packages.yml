@@ -98,5 +98,8 @@ jobs:
       - name: Run git diff for manifest
         run: git diff ${{ matrix.manifest_path }}
 
+      - name: Clean up before checking repo status
+        run: rm -rf fractal-tasks-core .gitattributes
+
       - name: Check repo status
         run: if [[ -z $(git status -s) ]]; then echo "Clean status"; else echo "Dirty status"; git status; exit 1; fi
