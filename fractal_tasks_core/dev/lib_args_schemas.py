@@ -15,7 +15,6 @@ Helper functions to handle JSON schemas for task arguments.
 import logging
 import os
 from collections import Counter
-from copy import deepcopy
 from pathlib import Path
 from typing import Any
 from typing import Callable
@@ -25,9 +24,6 @@ from docstring_parser import parse as docparse
 from pydantic._internal import _generate_schema
 from pydantic._internal import _typing_extra
 from pydantic._internal._config import ConfigWrapper
-from pydantic.json_schema import GenerateJsonSchema
-from pydantic.json_schema import JsonSchemaValue
-from pydantic_core.core_schema import WithDefaultSchema
 
 from fractal_tasks_core.dev.lib_descriptions import (
     _get_class_attrs_descriptions,
@@ -40,6 +36,9 @@ from fractal_tasks_core.dev.lib_descriptions import (
 )
 from fractal_tasks_core.dev.lib_descriptions import (
     _insert_function_args_descriptions,
+)
+from fractal_tasks_core.dev.lib_pydantic_generatejsonschema import (
+    CustomGenerateJsonSchema,
 )
 from fractal_tasks_core.dev.lib_signature_constraints import _extract_function
 from fractal_tasks_core.dev.lib_signature_constraints import (
@@ -130,82 +129,6 @@ def _remove_attributes_from_descriptions(old_schema: _Schema) -> _Schema:
                 ] = "Missing description"
     logging.info("[_remove_attributes_from_descriptions] END")
     return new_schema
-
-
-class GenerateJsonSchemaA(GenerateJsonSchema):
-    def nullable_schema(self, schema):
-        null_schema = {"type": "null"}
-        inner_json_schema = self.generate_inner(schema["schema"])
-        if inner_json_schema == null_schema:
-            return null_schema
-        else:
-            logging.info("A: Skip calling `get_flattened_anyof` method")
-            return inner_json_schema
-
-
-class GenerateJsonSchemaB(GenerateJsonSchemaA):
-    def default_schema(self, schema: WithDefaultSchema) -> JsonSchemaValue:
-        original_json_schema = super().default_schema(schema)
-        new_json_schema = deepcopy(original_json_schema)
-        default = new_json_schema.get("default", None)
-        if default is None:
-            logging.info("B: Pop None default")
-            new_json_schema.pop("default")
-        return new_json_schema
-
-
-class GenerateJsonSchemaC(GenerateJsonSchema):
-    def get_flattened_anyof(
-        self, schemas: list[JsonSchemaValue]
-    ) -> JsonSchemaValue:
-        # Inspired by
-        # https://github.com/vitalik/django-ninja/issues/842#issuecomment-2059014537
-        original_json_schema_value = super().get_flattened_anyof(schemas)
-        members = original_json_schema_value.get("anyOf")
-        logging.info("C", original_json_schema_value)
-        if (
-            members is not None
-            and len(members) == 2
-            and {"type": "null"} in members
-        ):
-            new_json_schema_value = {"type": [t["type"] for t in members]}
-            logging.info("C", new_json_schema_value)
-            return new_json_schema_value
-        else:
-            return original_json_schema_value
-
-
-class GenerateJsonSchemaD(GenerateJsonSchema):
-    def get_flattened_anyof(
-        self, schemas: list[JsonSchemaValue]
-    ) -> JsonSchemaValue:
-        # Inspired by
-        # https://github.com/vitalik/django-ninja/issues/842#issuecomment-2059014537
-        null_schema = {"type": "null"}
-        if null_schema in schemas:
-            logging.info(
-                "D drop null_schema before calling `get_flattened_anyof`"
-            )
-            schemas.pop(schemas.index(null_schema))
-        return super().get_flattened_anyof(schemas)
-
-
-class GenerateJsonSchemaE(GenerateJsonSchemaD):
-    def default_schema(self, schema: WithDefaultSchema) -> JsonSchemaValue:
-        json_schema = super().default_schema(schema)
-        logging.info("E", json_schema)
-        if "default" in json_schema.keys() and json_schema["default"] is None:
-            logging.info("E: Pop None default")
-            json_schema.pop("default")
-        return json_schema
-
-
-CustomGenerateJsonSchema = GenerateJsonSchema
-CustomGenerateJsonSchema = GenerateJsonSchemaA
-CustomGenerateJsonSchema = GenerateJsonSchemaB
-CustomGenerateJsonSchema = GenerateJsonSchemaC
-CustomGenerateJsonSchema = GenerateJsonSchemaD
-CustomGenerateJsonSchema = GenerateJsonSchemaE
 
 
 def _create_schema_for_function(function: Callable) -> _Schema:
