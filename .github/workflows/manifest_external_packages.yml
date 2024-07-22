@@ -44,7 +44,7 @@ jobs:
           - package: APx_fractal_task_collection
             github_repo: Apricot-Therapeutics/APx_fractal_task_collection
             manifest_path: src/apx_fractal_task_collection/__FRACTAL_MANIFEST__.json
-            cmd_install: 'python -m pip install -e .'
+            cmd_install: 'git switch pydantic_v2 && python -m pip install -e .'
             cmd_create_manifest: 'python src/apx_fractal_task_collection/dev/update_manifest.py'
 
         exclude:
