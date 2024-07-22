@@ -31,6 +31,8 @@ def test_optional_argument():
     supporting the `anyOf` pattern for nullable attributes. This test verifies
     that the type of nullable properties is not `anyOf`, and that they are not
     required.
+
+    Note: future versions of fractal-tasks-core may change this behavior.
     """
     schema = create_schema_for_single_task(
         task_function=validate_call(task_function),
