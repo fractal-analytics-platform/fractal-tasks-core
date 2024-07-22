@@ -73,9 +73,16 @@ def test_Dataset(ngffdata_path):
 
 
 def test_Multiscale(ngffdata_path):
+
     # Fail due to global coordinateTransformation
     with pytest.raises(NotImplementedError):
         _load_and_validate(ngffdata_path / "multiscale_error.json", Multiscale)
+
+    # Fail due to non-unique axis
+    with pytest.raises(ValueError):
+        _load_and_validate(
+            ngffdata_path / "multiscale_non_unique_axis.json", Multiscale
+        )
 
     # Success with no global `coordinateTransformations`
     _load_and_validate(ngffdata_path / "multiscale.json", Multiscale)
