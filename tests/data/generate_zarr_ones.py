@@ -147,8 +147,6 @@ FOV_ROI_table = prepare_FOV_ROI_table(df)
 print(FOV_ROI_table.to_df())
 
 image_group = zarr.group(f"{zarrurl}{component}")
-# group_tables = zarr.group(f"{zarrurl}{component}/tables")
-# write_elem(group_tables, "FOV_ROI_table", FOV_ROI_table)
 write_table(
     image_group,
     "FOV_ROI_table",
