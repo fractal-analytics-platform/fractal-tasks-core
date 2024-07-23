@@ -2,7 +2,7 @@ import json
 from enum import Enum
 
 from devtools import debug
-from pydantic.v1.decorator import validate_arguments
+from pydantic import validate_call
 
 from fractal_tasks_core.dev.lib_args_schemas import (
     create_schema_for_single_task,
@@ -21,7 +21,7 @@ ColorB = Enum(
 )
 
 
-@validate_arguments
+@validate_call
 def task_function(
     arg_A: ColorA,
     arg_B: ColorB,
