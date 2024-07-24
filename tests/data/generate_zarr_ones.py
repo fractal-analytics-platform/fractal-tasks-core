@@ -6,9 +6,9 @@ import dask.array as da
 import numpy as np
 import pandas as pd
 import zarr
-from anndata._io.specs import write_elem
 
 from fractal_tasks_core.roi import prepare_FOV_ROI_table
+from fractal_tasks_core.tables import write_table
 
 
 num_C = 2
@@ -74,7 +74,7 @@ zattrs = {
             "axes": axes,
             "datasets": [
                 {
-                    "path": level,
+                    "path": str(level),
                     cT: [
                         {
                             "type": "scale",
@@ -146,5 +146,11 @@ df["bit_depth"] = [16.0, 16.0]
 FOV_ROI_table = prepare_FOV_ROI_table(df)
 print(FOV_ROI_table.to_df())
 
-group_tables = zarr.group(f"{zarrurl}{component}/tables")
-write_elem(group_tables, "FOV_ROI_table", FOV_ROI_table)
+image_group = zarr.group(f"{zarrurl}{component}")
+write_table(
+    image_group,
+    "FOV_ROI_table",
+    FOV_ROI_table,
+    overwrite=True,
+    table_attrs=dict(fractal_table_version="1", type="roi_table"),
+)

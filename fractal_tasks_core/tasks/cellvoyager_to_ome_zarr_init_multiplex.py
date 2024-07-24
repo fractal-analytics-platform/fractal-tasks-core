@@ -18,7 +18,7 @@ from typing import Optional
 
 import pandas as pd
 import zarr
-from pydantic.v1.decorator import validate_arguments
+from pydantic import validate_call
 from zarr.errors import ContainsGroupError
 
 import fractal_tasks_core
@@ -52,7 +52,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@validate_arguments
+@validate_call
 def cellvoyager_to_ome_zarr_init_multiplex(
     *,
     # Fractal parameters
@@ -115,7 +115,6 @@ def cellvoyager_to_ome_zarr_init_multiplex(
     """
 
     if metadata_table_files:
-
         # Checks on the dict:
         # 1. Acquisitions in acquisitions dict and metadata_table_files match
         # 2. Files end with ".csv"
@@ -268,7 +267,6 @@ def cellvoyager_to_ome_zarr_init_multiplex(
     logging.info(f"{acquisitions_sorted=}")
 
     for acquisition in acquisitions_sorted:
-
         # Define plate zarr
         image_folder = dict_acquisitions[acquisition]["image_folder"]
         logger.info(f"Looking at {image_folder=}")
@@ -382,7 +380,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                         image_extension=image_extension,
                         image_glob_patterns=image_glob_patterns,
                         acquisition=acquisition,
-                    ).dict(),
+                    ).model_dump(),
                 }
             )
             try:

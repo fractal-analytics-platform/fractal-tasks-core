@@ -18,7 +18,7 @@ from typing import Any
 import anndata as ad
 import dask.array as da
 import zarr
-from pydantic.v1.decorator import validate_arguments
+from pydantic import validate_call
 from zarr.errors import ContainsArrayError
 
 from fractal_tasks_core.ngff import load_NgffImageMeta
@@ -35,7 +35,7 @@ from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 logger = logging.getLogger(__name__)
 
 
-@validate_arguments
+@validate_call
 def maximum_intensity_projection(
     *,
     # Fractal parameters
@@ -63,7 +63,7 @@ def maximum_intensity_projection(
     ngff_image = load_NgffImageMeta(init_args.origin_url)
     # Currently not using the validation models due to wavelength_id issue
     # See #681 for discussion
-    # new_attrs = ngff_image.dict(exclude_none=True)
+    # new_attrs = ngff_image.model_dump(exclude_none=True)
     # Current way to get the necessary metadata for MIP
     group = zarr.open_group(init_args.origin_url, mode="r")
     new_attrs = group.attrs.asdict()
@@ -183,7 +183,6 @@ def maximum_intensity_projection(
 
 
 if __name__ == "__main__":
-
     from fractal_tasks_core.tasks._utils import run_fractal_task
 
     run_fractal_task(

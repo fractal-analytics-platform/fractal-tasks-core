@@ -1,5 +1,4 @@
 import json
-from enum import Enum
 
 from devtools import debug
 from pydantic import validate_call
@@ -9,34 +8,18 @@ from fractal_tasks_core.dev.lib_args_schemas import (
 )
 
 
-class ColorA(Enum):
-    RED = "this-is-red"
-    GREEN = "this-is-green"
-
-
-ColorB = Enum(
-    "ColorB",
-    {"RED": "this-is-red", "GREEN": "this-is-green"},
-    type=str,
-)
-
-
 @validate_call
-def task_function(
-    arg_A: ColorA,
-    arg_B: ColorB,
-):
+def task_function(arg_A: tuple[int, int] = (1, 1)):
     """
     Short task description
 
     Args:
         arg_A: Description of arg_A.
-        arg_B: Description of arg_B.
     """
     pass
 
 
-def test_enum_argument():
+def test_tuple_argument():
     """
     This test only asserts that `create_schema_for_single_task` runs
     successfully. Its goal is also to offer a quick way to experiment

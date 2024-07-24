@@ -1,9 +1,10 @@
 from typing import Literal
 from typing import Optional
 
-from pydantic.v1 import BaseModel
-from pydantic.v1 import Field
-from pydantic.v1 import validator
+from pydantic import BaseModel
+from pydantic import Field
+from pydantic import model_validator
+from typing_extensions import Self
 
 from fractal_tasks_core.channels import ChannelInputModel
 from fractal_tasks_core.channels import OmeroChannel
@@ -58,8 +59,8 @@ class InitArgsCellVoyager(BaseModel):
     plate_prefix: str
     well_ID: str
     image_extension: str
-    image_glob_patterns: Optional[list[str]]
-    acquisition: Optional[int]
+    image_glob_patterns: Optional[list[str]] = None
+    acquisition: Optional[int] = None
 
 
 class InitArgsIllumination(BaseModel):
@@ -119,17 +120,20 @@ class NapariWorkflowsOutput(BaseModel):
     label_name: str
     table_name: Optional[str] = None
 
-    @validator("table_name", always=True)
-    def table_name_only_for_dataframe_type(cls, v, values):
+    @model_validator(mode="after")
+    def table_name_only_for_dataframe_type(self: Self) -> Self:
         """
         Check that table_name is set only for dataframe outputs.
         """
-        _type = values.get("type")
-        if (_type == "dataframe" and (not v)) or (_type != "dataframe" and v):
+        _type = self.type
+        _table_name = self.table_name
+        if (_type == "dataframe" and (not _table_name)) or (
+            _type != "dataframe" and _table_name
+        ):
             raise ValueError(
-                f"Output item has type={_type} but table_name={v}."
+                f"Output item has type={_type} but table_name={_table_name}."
             )
-        return v
+        return self
 
 
 class NapariWorkflowsInput(BaseModel):
@@ -143,27 +147,31 @@ class NapariWorkflowsInput(BaseModel):
     """
 
     type: Literal["image", "label"]
-    label_name: Optional[str]
-    channel: Optional[ChannelInputModel]
+    label_name: Optional[str] = None
+    channel: Optional[ChannelInputModel] = None
 
-    @validator("label_name", always=True)
-    def label_name_is_present(cls, v, values):
+    @model_validator(mode="after")
+    def label_name_is_present(self: Self) -> Self:
         """
         Check that label inputs have `label_name` set.
         """
-        _type = values.get("type")
-        if _type == "label" and not v:
+        label_name = self.label_name
+        _type = self.type
+        if _type == "label" and label_name is None:
             raise ValueError(
-                f"Input item has type={_type} but label_name={v}."
+                f"Input item has type={_type} but label_name={label_name}."
             )
-        return v
+        return self
 
-    @validator("channel", always=True)
-    def channel_is_present(cls, v, values):
+    @model_validator(mode="after")
+    def channel_is_present(self: Self) -> Self:
         """
         Check that image inputs have `channel` set.
         """
-        _type = values.get("type")
-        if _type == "image" and not v:
-            raise ValueError(f"Input item has type={_type} but channel={v}.")
-        return v
+        _type = self.type
+        channel = self.channel
+        if _type == "image" and channel is None:
+            raise ValueError(
+                f"Input item has type={_type} but channel={channel}."
+            )
+        return self

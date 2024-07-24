@@ -19,7 +19,7 @@ import anndata as ad
 import dask.array as da
 import numpy as np
 import zarr
-from pydantic.v1.decorator import validate_arguments
+from pydantic import validate_call
 from skimage.registration import phase_cross_correlation
 
 from fractal_tasks_core.channels import get_channel_from_image_zarr
@@ -68,7 +68,7 @@ class RegistrationMethod(Enum):
             return chi2_shift_out(img_ref, img_acq_x)
 
 
-@validate_arguments
+@validate_call
 def calculate_registration_image_based(
     *,
     # Fractal arguments

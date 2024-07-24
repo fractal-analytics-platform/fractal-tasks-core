@@ -26,8 +26,8 @@ import numpy as np
 import pandas as pd
 import zarr
 from cellpose import models
-from pydantic.v1 import Field
-from pydantic.v1.decorator import validate_arguments
+from pydantic import Field
+from pydantic import validate_call
 
 import fractal_tasks_core
 from fractal_tasks_core.labels import prepare_label_group
@@ -190,7 +190,7 @@ def segment_ROI(
     return mask.astype(label_dtype)
 
 
-@validate_arguments
+@validate_call
 def cellpose_segmentation(
     *,
     # Fractal parameters
@@ -378,14 +378,14 @@ def cellpose_segmentation(
     # Workaround for #788
     if ngff_image_meta.axes_names[0] != "c":
         new_datasets = rescale_datasets(
-            datasets=[ds.dict() for ds in ngff_image_meta.datasets],
+            datasets=[ds.model_dump() for ds in ngff_image_meta.datasets],
             coarsening_xy=coarsening_xy,
             reference_level=level,
             remove_channel_axis=False,
         )
     else:
         new_datasets = rescale_datasets(
-            datasets=[ds.dict() for ds in ngff_image_meta.datasets],
+            datasets=[ds.model_dump() for ds in ngff_image_meta.datasets],
             coarsening_xy=coarsening_xy,
             reference_level=level,
             remove_channel_axis=True,

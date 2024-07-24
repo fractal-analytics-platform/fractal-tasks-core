@@ -16,10 +16,10 @@ from typing import Literal
 from typing import Optional
 
 import numpy as np
-from pydantic.v1 import BaseModel
-from pydantic.v1 import Field
-from pydantic.v1 import root_validator
-from pydantic.v1 import validator
+from pydantic import BaseModel
+from pydantic import Field
+from pydantic import model_validator
+from typing_extensions import Self
 
 from fractal_tasks_core.channels import ChannelInputModel
 from fractal_tasks_core.channels import ChannelNotFoundError
@@ -70,14 +70,14 @@ class CellposeCustomNormalizer(BaseModel):
     # that are stored in OME-Zarr histograms and use this pydantic model that
     # those histograms actually exist
 
-    @root_validator
-    def validate_conditions(cls, values):
+    @model_validator(mode="after")
+    def validate_conditions(self: Self) -> Self:
         # Extract values
-        type = values.get("type")
-        lower_percentile = values.get("lower_percentile")
-        upper_percentile = values.get("upper_percentile")
-        lower_bound = values.get("lower_bound")
-        upper_bound = values.get("upper_bound")
+        type = self.type
+        lower_percentile = self.lower_percentile
+        upper_percentile = self.upper_percentile
+        lower_bound = self.lower_bound
+        upper_bound = self.upper_bound
 
         # Verify that custom parameters are only provided when type="custom"
         if type != "custom":
@@ -128,7 +128,7 @@ class CellposeCustomNormalizer(BaseModel):
                 "at the same time. Hint: use only one of the two options."
             )
 
-        return values
+        return self
 
     @property
     def cellpose_normalize(self) -> bool:
@@ -256,19 +256,19 @@ class CellposeChannel2InputModel(BaseModel):
         default_factory=CellposeCustomNormalizer
     )
 
-    @validator("label", always=True)
-    def mutually_exclusive_channel_attributes(cls, v, values):
+    @model_validator(mode="after")
+    def mutually_exclusive_channel_attributes(self: Self) -> Self:
         """
         Check that only 1 of `label` or `wavelength_id` is set.
         """
-        wavelength_id = values.get("wavelength_id")
-        label = v
-        if wavelength_id and v:
+        wavelength_id = self.wavelength_id
+        label = self.label
+        if (wavelength_id is not None) and (label is not None):
             raise ValueError(
                 "`wavelength_id` and `label` cannot be both set "
                 f"(given {wavelength_id=} and {label=})."
             )
-        return v
+        return self
 
     def is_set(self):
         if self.wavelength_id or self.label:

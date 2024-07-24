@@ -1,5 +1,3 @@
-{
-    "multiscales": [
         {
             "axes": [
                 {
@@ -7,9 +5,8 @@
                     "type": "channel"
                 },
                 {
-                    "name": "z",
-                    "type": "space",
-                    "unit": "micrometer"
+                    "name": "c",
+                    "type": "channel"
                 },
                 {
                     "name": "y",
@@ -32,7 +29,7 @@
                                 1.0,
                                 1.0,
                                 0.1625,
-                                0.000000000000000000000001
+                                0.1625
                             ]
                         }
                     ]
@@ -40,5 +37,3 @@
             ],
             "version": "0.4"
         }
-    ]
-}

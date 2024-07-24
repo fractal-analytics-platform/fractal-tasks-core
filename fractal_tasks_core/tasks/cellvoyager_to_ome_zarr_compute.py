@@ -18,7 +18,7 @@ import dask.array as da
 import zarr
 from anndata import read_zarr
 from dask.array.image import imread
-from pydantic.v1.decorator import validate_arguments
+from pydantic import validate_call
 
 from fractal_tasks_core.cellvoyager.filenames import (
     glob_with_multiple_patterns,
@@ -53,7 +53,7 @@ def sort_fun(filename: str) -> list[int]:
     return [site, z_index]
 
 
-@validate_arguments
+@validate_call
 def cellvoyager_to_ome_zarr_compute(
     *,
     # Fractal parameters

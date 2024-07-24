@@ -15,7 +15,7 @@ Task that copies the structure of an OME-NGFF zarr array to a new one.
 import logging
 from typing import Any
 
-from pydantic.v1.decorator import validate_arguments
+from pydantic import validate_call
 
 import fractal_tasks_core
 from fractal_tasks_core.ngff.specs import NgffPlateMeta
@@ -181,12 +181,12 @@ def _generate_plate_well_metadata(
         # Validate with NgffPlateMeta model
         plate_metadata_dicts[old_plate_url] = NgffPlateMeta(
             **plate_metadata_dicts[old_plate_url]
-        ).dict(exclude_none=True)
+        ).model_dump(exclude_none=True)
 
     return plate_metadata_dicts, new_well_image_attrs, well_image_attrs
 
 
-@validate_arguments
+@validate_call
 def copy_ome_zarr_hcs_plate(
     *,
     # Fractal parameters
@@ -277,7 +277,7 @@ def copy_ome_zarr_hcs_plate(
             well_attrs = dict(
                 well=dict(
                     images=[
-                        img.dict(exclude_none=True)
+                        img.model_dump(exclude_none=True)
                         for img in new_well_image_attrs[old_plate_url][
                             well_sub_url
                         ]

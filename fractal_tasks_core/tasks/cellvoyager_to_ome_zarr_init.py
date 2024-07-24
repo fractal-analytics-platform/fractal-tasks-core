@@ -17,7 +17,7 @@ from typing import Any
 from typing import Optional
 
 import pandas as pd
-from pydantic.v1.decorator import validate_arguments
+from pydantic import validate_call
 
 import fractal_tasks_core
 from fractal_tasks_core.cellvoyager.filenames import (
@@ -49,7 +49,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@validate_arguments
+@validate_call
 def cellvoyager_to_ome_zarr_init(
     *,
     # Fractal parameters
@@ -371,7 +371,7 @@ def cellvoyager_to_ome_zarr_init(
                         well_ID=get_filename_well_id(row, column),
                         image_extension=image_extension,
                         image_glob_patterns=image_glob_patterns,
-                    ).dict(),
+                    ).model_dump(),
                 }
             )
             group_well = group_plate.create_group(f"{row}/{column}/")

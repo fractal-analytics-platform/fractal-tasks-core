@@ -18,8 +18,10 @@ from typing import Optional
 from typing import Union
 
 import zarr
-from pydantic.v1 import BaseModel
-from pydantic.v1 import validator
+from pydantic import BaseModel
+from pydantic import field_validator
+from pydantic import model_validator
+from typing_extensions import Self
 
 from fractal_tasks_core import __OME_NGFF_VERSION__
 
@@ -43,8 +45,8 @@ class Window(BaseModel):
         end: Upper-bound rescaling value for visualization.
     """
 
-    min: Optional[int]
-    max: Optional[int]
+    min: Optional[int] = None
+    max: Optional[int] = None
     start: int
     end: int
 
@@ -69,19 +71,20 @@ class OmeroChannel(BaseModel):
     # Custom
 
     wavelength_id: str
-    index: Optional[int]
+    index: Optional[int] = None
 
     # From OME-NGFF v0.4 transitional metadata
 
-    label: Optional[str]
-    window: Optional[Window]
-    color: Optional[str]
+    label: Optional[str] = None
+    window: Optional[Window] = None
+    color: Optional[str] = None
     active: bool = True
     coefficient: int = 1
     inverted: bool = False
 
-    @validator("color", always=True)
-    def valid_hex_color(cls, v, values):
+    @field_validator("color", mode="after")
+    @classmethod
+    def valid_hex_color(cls, v: Optional[str]) -> Optional[str]:
         """
         Check that `color` is made of exactly six elements which are letters
         (a-f or A-F) or digits (0-9).
@@ -117,23 +120,24 @@ class ChannelInputModel(BaseModel):
     wavelength_id: Optional[str] = None
     label: Optional[str] = None
 
-    @validator("label", always=True)
-    def mutually_exclusive_channel_attributes(cls, v, values):
+    @model_validator(mode="after")
+    def mutually_exclusive_channel_attributes(self: Self) -> Self:
         """
         Check that either `label` or `wavelength_id` is set.
         """
-        wavelength_id = values.get("wavelength_id")
-        label = v
-        if wavelength_id and v:
+        wavelength_id = self.wavelength_id
+        label = self.label
+
+        if wavelength_id and label:
             raise ValueError(
                 "`wavelength_id` and `label` cannot be both set "
                 f"(given {wavelength_id=} and {label=})."
             )
-        if wavelength_id is None and v is None:
+        if wavelength_id is None and label is None:
             raise ValueError(
                 "`wavelength_id` and `label` cannot be both `None`"
             )
-        return v
+        return self
 
 
 class ChannelNotFoundError(ValueError):
@@ -337,7 +341,7 @@ def define_omero_channels(
             can be written to OMERO metadata.
     """
 
-    new_channels = [c.copy(deep=True) for c in channels]
+    new_channels = [c.model_copy(deep=True) for c in channels]
     default_colors = ["00FFFF", "FF00FF", "FFFF00"]
 
     for channel in new_channels:
@@ -372,7 +376,8 @@ def define_omero_channels(
         raise ValueError(f"Non-unique labels in {new_channels=}")
 
     new_channels_dictionaries = [
-        c.dict(exclude={"index"}, exclude_unset=True) for c in new_channels
+        c.model_dump(exclude={"index"}, exclude_unset=True)
+        for c in new_channels
     ]
 
     return new_channels_dictionaries

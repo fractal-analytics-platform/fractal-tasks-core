@@ -87,7 +87,7 @@ if __name__ == "__main__":
     # Check global properties of manifest
     if not manifest["has_args_schemas"]:
         raise ValueError(f'{manifest["has_args_schemas"]=}')
-    if manifest["args_schema_version"] != "pydantic_v1":
+    if manifest["args_schema_version"] != "pydantic_v2":
         raise ValueError(f'{manifest["args_schema_version"]=}')
 
     # Loop over tasks

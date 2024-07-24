@@ -26,10 +26,10 @@ def validate_command(cmd: str):
     debug(stderr)
     # Valid stderr includes pydantic.v1.error_wrappers.ValidationError (type
     # match between model and function, but tmp_file_args has wrong arguments)
-    assert "pydantic.v1.error_wrappers.ValidationError" in stderr
-    # Valid stderr must include a mention of "unexpected keyword arguments",
+    assert "ValidationError" in stderr
+    # Valid stderr must include a mention of "Unexpected keyword argument",
     # because we are including some invalid arguments
-    assert "unexpected keyword arguments" in stderr
+    assert "Unexpected keyword argument" in stderr
     # Invalid stderr includes ValueError
     assert "ValueError" not in stderr
 
@@ -41,7 +41,6 @@ with (module_dir / "__FRACTAL_MANIFEST__.json").open("r") as fin:
 
 @pytest.mark.parametrize("task", manifest_dict["task_list"])
 def test_task_interface(task, tmp_path):
-
     tmp_file_args = str(tmp_path / "args.json")
     tmp_file_metadiff = str(tmp_path / "metadiff.json")
     with open(tmp_file_args, "w") as fout:

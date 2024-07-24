@@ -1,10 +1,20 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# 1.2.0 (unreleased)
+
+* Core-library and tasks:
+    * Switch all core models to Pydantic V2 (\#793).
+* JSON Schema generation tools:
+    * Move JSON-Schema tools to Pydantic V2 (\#793).
+* Testing:
+    * Remove dependency on `pytest-pretty` (\#793).
+    * Update `manifest_external_packages.yml` GitHub Action so that it installs the current `fractal-tasks-core` (\#793).
+
 # 1.1.1
 
 * Tasks:
-    * Fix issue with masked ROI & relabeling in Cellpose task (\#785).
-    * Fix issue with masking ROI label types in `masked_loading_wrapper` for Cellpose task (\#785).
+    * Fix issue with masked ROI & relabeling in Cellpose task (\#786).
+    * Fix issue with masking ROI label types in `masked_loading_wrapper` for Cellpose task (\#786).
     * Enable workaround to support yx images in Cellpose task (\#789).
     * Fix error handling in `calculate_registration_image_based` (\#799).
     * Fix minor issues with call-signature and type hints in `calculate_registration_image_based` (\#799).
@@ -22,8 +32,8 @@
     * Refactor Cellpose Task inputs: Support independent normalization of 2 input channels in the Cellpose task (\#738).
     * Rename `task.cellpose_transforms` into `tasks.cellpose_utils` (\#738).
     * Fix wrong repeated overlap checks for bounding-boxes in Cellpose task (\#778).
-    * Fix minor MIP issues related to plate metadata and expecting acquisition metadata in all NGFF plates(\#781).
-    * Add `chi2_shift` option to Calculate Registration (image-based) task(\#741).
+    * Fix minor MIP issues related to plate metadata and expecting acquisition metadata in all NGFF plates (\#781).
+    * Add `chi2_shift` option to Calculate Registration (image-based) task (\#741).
 * Development:
     * Switch to transitional pydantic.v1 imports, changes pydantic requirement to `==1.10.16` or `>=2.6.3` (\#760).
     * Support JSON-Schema generation for `Enum` task arguments (\#749).
@@ -35,6 +45,8 @@
     * Test manifest creation for three other tasks packages (\#763).
 * NGFF subpackage
     * Fix Plate model to correspond better to 0.4.0 NGFF spec: Now makes acquisition metadata optional (\#781).
+* Dependencies:
+    * Add `image_registration` within `fractal-tasks` extra (\#741).
 
 # 1.0.2
 

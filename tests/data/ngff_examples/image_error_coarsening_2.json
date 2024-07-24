@@ -24,7 +24,7 @@
             ],
             "datasets": [
                 {
-                    "path": 0,
+                    "path": "0",
                     "coordinateTransformations": [
                         {
                             "type": "scale",
@@ -38,7 +38,7 @@
                     ]
                 },
                 {
-                    "path": 1,
+                    "path": "1",
                     "coordinateTransformations": [
                         {
                             "type": "scale",
@@ -52,7 +52,7 @@
                     ]
                 },
                 {
-                    "path": 2,
+                    "path": "2",
                     "coordinateTransformations": [
                         {
                             "type": "scale",

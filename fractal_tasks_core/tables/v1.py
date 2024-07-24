@@ -11,9 +11,9 @@ from typing import Optional
 import anndata as ad
 import zarr.hierarchy
 from anndata.experimental import write_elem
-from pydantic.v1 import BaseModel
-from pydantic.v1 import validator
-from pydantic.v1.error_wrappers import ValidationError
+from pydantic import BaseModel
+from pydantic import field_validator
+from pydantic import ValidationError
 
 from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 
@@ -29,7 +29,8 @@ class MaskingROITableAttrs(BaseModel):
     region: _RegionType
     instance_key: str
 
-    @validator("type", always=True)
+    @field_validator("type")
+    @classmethod
     def warning_for_old_table_type(cls, v):
         if v == "ngff:region_table":
             warning_msg = (
@@ -47,7 +48,8 @@ class FeatureTableAttrs(BaseModel):
     region: _RegionType
     instance_key: str
 
-    @validator("type", always=True)
+    @field_validator("type")
+    @classmethod
     def warning_for_old_table_type(cls, v):
         if v == "ngff:region_table":
             warning_msg = (

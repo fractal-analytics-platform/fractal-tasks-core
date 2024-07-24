@@ -18,7 +18,7 @@ fractal-server v2.
 from typing import Any
 from typing import Optional
 
-from pydantic.v1 import BaseModel
+from pydantic import BaseModel
 
 
 class _BaseTask(BaseModel):
@@ -28,9 +28,9 @@ class _BaseTask(BaseModel):
 
     name: str
     executable: str
-    meta: Optional[dict[str, Any]]
-    input_types: Optional[dict[str, bool]]
-    output_types: Optional[dict[str, bool]]
+    meta: Optional[dict[str, Any]] = None
+    input_types: Optional[dict[str, bool]] = None
+    output_types: Optional[dict[str, bool]] = None
 
 
 class CompoundTask(_BaseTask):
@@ -41,7 +41,7 @@ class CompoundTask(_BaseTask):
     """
 
     executable_init: str
-    meta_init: Optional[dict[str, Any]]
+    meta_init: Optional[dict[str, Any]] = None
 
     @property
     def executable_non_parallel(self) -> str:

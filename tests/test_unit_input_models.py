@@ -11,7 +11,6 @@ from fractal_tasks_core.tasks.io_models import (
 
 
 def test_Channel():
-
     # Valid
 
     c = ChannelInputModel(wavelength_id="wavelength_id")
@@ -36,7 +35,6 @@ def test_Channel():
 
 
 def test_NapariWorkflowsInput():
-
     # Invalid
 
     with pytest.raises(ValueError) as e:
@@ -65,7 +63,6 @@ def test_NapariWorkflowsInput():
 
 
 def test_NapariWorkflowsOutput():
-
     # Invalid
 
     with pytest.raises(ValueError) as e:

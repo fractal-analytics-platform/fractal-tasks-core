@@ -65,7 +65,6 @@ def _update_well_metadata(
     """
     lock = FileLock(f"{well_url}/.zattrs.lock")
     with lock.acquire(timeout=timeout):
-
         well_meta = load_NgffWellMeta(well_url)
         existing_well_images = [image.path for image in well_meta.well.images]
         if new_image_path in existing_well_images:
@@ -94,7 +93,7 @@ def _update_well_metadata(
         )
 
         well_group = zarr.group(well_url)
-        well_group.attrs.put(well_meta.dict(exclude_none=True))
+        well_group.attrs.put(well_meta.model_dump(exclude_none=True))
 
     # One could catch the timeout with a try except Timeout. But what to do
     # with it?

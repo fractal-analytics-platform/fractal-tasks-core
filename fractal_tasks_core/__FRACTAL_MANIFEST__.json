@@ -14,88 +14,66 @@
         "mem": 4000
       },
       "args_schema_non_parallel": {
-        "title": "CellvoyagerToOmeZarrInit",
-        "type": "object",
-        "properties": {
-          "zarr_urls": {
-            "title": "Zarr Urls",
-            "type": "array",
-            "items": {
-              "type": "string"
+        "$defs": {
+          "OmeroChannel": {
+            "description": "Custom class for Omero channels, based on OME-NGFF v0.4.",
+            "properties": {
+              "wavelength_id": {
+                "title": "Wavelength Id",
+                "type": "string",
+                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`."
+              },
+              "index": {
+                "title": "Index",
+                "type": "integer",
+                "description": "Do not change. For internal use only."
+              },
+              "label": {
+                "title": "Label",
+                "type": "string",
+                "description": "Name of the channel."
+              },
+              "window": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/Window"
+                  }
+                ],
+                "title": "Window",
+                "description": "Optional `Window` object to set default display settings for napari."
+              },
+              "color": {
+                "title": "Color",
+                "type": "string",
+                "description": "Optional hex colormap to display the channel in napari (it must be of length 6, e.g. `00FFFF`)."
+              },
+              "active": {
+                "default": true,
+                "title": "Active",
+                "type": "boolean",
+                "description": "Should this channel be shown in the viewer?"
+              },
+              "coefficient": {
+                "default": 1,
+                "title": "Coefficient",
+                "type": "integer",
+                "description": "Do not change. Omero-channel attribute."
+              },
+              "inverted": {
+                "default": false,
+                "title": "Inverted",
+                "type": "boolean",
+                "description": "Do not change. Omero-channel attribute."
+              }
             },
-            "description": "List of paths or urls to the individual OME-Zarr image to be processed. Not used by the converter task. (standard argument for Fractal tasks, managed by Fractal server)."
+            "required": [
+              "wavelength_id"
+            ],
+            "title": "OmeroChannel",
+            "type": "object"
           },
-          "zarr_dir": {
-            "title": "Zarr Dir",
-            "type": "string",
-            "description": "path of the directory where the new OME-Zarrs will be created. (standard argument for Fractal tasks, managed by Fractal server)."
-          },
-          "image_dirs": {
-            "title": "Image Dirs",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "list of paths to the folders that contains the Cellvoyager image files. Each entry is a path to a folder that contains the image files themselves for a multiwell plate and the MeasurementData & MeasurementDetail metadata files."
-          },
-          "allowed_channels": {
-            "title": "Allowed Channels",
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/OmeroChannel"
-            },
-            "description": "A list of `OmeroChannel` s, where each channel must include the `wavelength_id` attribute and where the `wavelength_id` values must be unique across the list."
-          },
-          "image_glob_patterns": {
-            "title": "Image Glob Patterns",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "If specified, only parse images with filenames that match with all these patterns. Patterns must be defined as in https://docs.python.org/3/library/fnmatch.html, Example: `image_glob_pattern=[\"*_B03_*\"]` => only process well B03 `image_glob_pattern=[\"*_C09_*\", \"*F016*\", \"*Z[0-5][0-9]C*\"]` => only process well C09, field of view 16 and Z planes 0-59."
-          },
-          "num_levels": {
-            "title": "Num Levels",
-            "default": 5,
-            "type": "integer",
-            "description": "Number of resolution-pyramid levels. If set to `5`, there will be the full-resolution level and 4 levels of downsampled images."
-          },
-          "coarsening_xy": {
-            "title": "Coarsening Xy",
-            "default": 2,
-            "type": "integer",
-            "description": "Linear coarsening factor between subsequent levels. If set to `2`, level 1 is 2x downsampled, level 2 is 4x downsampled etc."
-          },
-          "image_extension": {
-            "title": "Image Extension",
-            "default": "tif",
-            "type": "string",
-            "description": "Filename extension of images (e.g. `\"tif\"` or `\"png\"`)"
-          },
-          "metadata_table_file": {
-            "title": "Metadata Table File",
-            "type": "string",
-            "description": "If `None`, parse Yokogawa metadata from mrf/mlf files in the input_path folder; else, the full path to a csv file containing the parsed metadata table."
-          },
-          "overwrite": {
-            "title": "Overwrite",
-            "default": false,
-            "type": "boolean",
-            "description": "If `True`, overwrite the task output."
-          }
-        },
-        "required": [
-          "zarr_urls",
-          "zarr_dir",
-          "image_dirs",
-          "allowed_channels"
-        ],
-        "additionalProperties": false,
-        "definitions": {
           "Window": {
-            "title": "Window",
             "description": "Custom class for Omero-channel window, based on OME-NGFF v0.4.",
-            "type": "object",
             "properties": {
               "min": {
                 "title": "Min",
@@ -121,88 +99,93 @@
             "required": [
               "start",
               "end"
-            ]
-          },
-          "OmeroChannel": {
-            "title": "OmeroChannel",
-            "description": "Custom class for Omero channels, based on OME-NGFF v0.4.",
-            "type": "object",
-            "properties": {
-              "wavelength_id": {
-                "title": "Wavelength Id",
-                "type": "string",
-                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`."
-              },
-              "index": {
-                "title": "Index",
-                "type": "integer",
-                "description": "Do not change. For internal use only."
-              },
-              "label": {
-                "title": "Label",
-                "type": "string",
-                "description": "Name of the channel."
-              },
-              "window": {
-                "$ref": "#/definitions/Window",
-                "title": "Window",
-                "description": "Optional `Window` object to set default display settings for napari."
-              },
-              "color": {
-                "title": "Color",
-                "type": "string",
-                "description": "Optional hex colormap to display the channel in napari (it must be of length 6, e.g. `00FFFF`)."
-              },
-              "active": {
-                "title": "Active",
-                "default": true,
-                "type": "boolean",
-                "description": "Should this channel be shown in the viewer?"
-              },
-              "coefficient": {
-                "title": "Coefficient",
-                "default": 1,
-                "type": "integer",
-                "description": "Do not change. Omero-channel attribute."
-              },
-              "inverted": {
-                "title": "Inverted",
-                "default": false,
-                "type": "boolean",
-                "description": "Do not change. Omero-channel attribute."
-              }
-            },
-            "required": [
-              "wavelength_id"
-            ]
+            ],
+            "title": "Window",
+            "type": "object"
           }
-        }
-      },
-      "args_schema_parallel": {
-        "title": "CellvoyagerToOmeZarrCompute",
-        "type": "object",
+        },
+        "additionalProperties": false,
         "properties": {
-          "zarr_url": {
-            "title": "Zarr Url",
-            "type": "string",
-            "description": "Path or url to the individual OME-Zarr image to be processed. (standard argument for Fractal tasks, managed by Fractal server)."
+          "zarr_urls": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Zarr Urls",
+            "type": "array",
+            "description": "List of paths or urls to the individual OME-Zarr image to be processed. Not used by the converter task. (standard argument for Fractal tasks, managed by Fractal server)."
           },
-          "init_args": {
-            "$ref": "#/definitions/InitArgsCellVoyager",
-            "title": "Init_Args",
-            "description": "Intialization arguments provided by `create_cellvoyager_ome_zarr_init`."
+          "zarr_dir": {
+            "title": "Zarr Dir",
+            "type": "string",
+            "description": "path of the directory where the new OME-Zarrs will be created. (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "image_dirs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Image Dirs",
+            "type": "array",
+            "description": "list of paths to the folders that contains the Cellvoyager image files. Each entry is a path to a folder that contains the image files themselves for a multiwell plate and the MeasurementData & MeasurementDetail metadata files."
+          },
+          "allowed_channels": {
+            "items": {
+              "$ref": "#/$defs/OmeroChannel"
+            },
+            "title": "Allowed Channels",
+            "type": "array",
+            "description": "A list of `OmeroChannel` s, where each channel must include the `wavelength_id` attribute and where the `wavelength_id` values must be unique across the list."
+          },
+          "image_glob_patterns": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Image Glob Patterns",
+            "type": "array",
+            "description": "If specified, only parse images with filenames that match with all these patterns. Patterns must be defined as in https://docs.python.org/3/library/fnmatch.html, Example: `image_glob_pattern=[\"*_B03_*\"]` => only process well B03 `image_glob_pattern=[\"*_C09_*\", \"*F016*\", \"*Z[0-5][0-9]C*\"]` => only process well C09, field of view 16 and Z planes 0-59."
+          },
+          "num_levels": {
+            "default": 5,
+            "title": "Num Levels",
+            "type": "integer",
+            "description": "Number of resolution-pyramid levels. If set to `5`, there will be the full-resolution level and 4 levels of downsampled images."
+          },
+          "coarsening_xy": {
+            "default": 2,
+            "title": "Coarsening Xy",
+            "type": "integer",
+            "description": "Linear coarsening factor between subsequent levels. If set to `2`, level 1 is 2x downsampled, level 2 is 4x downsampled etc."
+          },
+          "image_extension": {
+            "default": "tif",
+            "title": "Image Extension",
+            "type": "string",
+            "description": "Filename extension of images (e.g. `\"tif\"` or `\"png\"`)"
+          },
+          "metadata_table_file": {
+            "title": "Metadata Table File",
+            "type": "string",
+            "description": "If `None`, parse Yokogawa metadata from mrf/mlf files in the input_path folder; else, the full path to a csv file containing the parsed metadata table."
+          },
+          "overwrite": {
+            "default": false,
+            "title": "Overwrite",
+            "type": "boolean",
+            "description": "If `True`, overwrite the task output."
           }
         },
         "required": [
-          "zarr_url",
-          "init_args"
+          "zarr_urls",
+          "zarr_dir",
+          "image_dirs",
+          "allowed_channels"
         ],
-        "additionalProperties": false,
-        "definitions": {
+        "type": "object",
+        "title": "CellvoyagerToOmeZarrInit"
+      },
+      "args_schema_parallel": {
+        "$defs": {
           "InitArgsCellVoyager": {
-            "title": "InitArgsCellVoyager",
             "description": "Arguments to be passed from cellvoyager converter init to compute",
-            "type": "object",
             "properties": {
               "image_dir": {
                 "title": "Image Dir",
@@ -221,11 +204,11 @@
                 "type": "string"
               },
               "image_glob_patterns": {
-                "title": "Image Glob Patterns",
-                "type": "array",
                 "items": {
                   "type": "string"
-                }
+                },
+                "title": "Image Glob Patterns",
+                "type": "array"
               },
               "acquisition": {
                 "title": "Acquisition",
@@ -237,9 +220,30 @@
               "plate_prefix",
               "well_ID",
               "image_extension"
-            ]
+            ],
+            "title": "InitArgsCellVoyager",
+            "type": "object"
           }
-        }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "zarr_url": {
+            "title": "Zarr Url",
+            "type": "string",
+            "description": "Path or url to the individual OME-Zarr image to be processed. (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "init_args": {
+            "$ref": "#/$defs/InitArgsCellVoyager",
+            "title": "Init Args",
+            "description": "Intialization arguments provided by `create_cellvoyager_ome_zarr_init`."
+          }
+        },
+        "required": [
+          "zarr_url",
+          "init_args"
+        ],
+        "type": "object",
+        "title": "CellvoyagerToOmeZarrCompute"
       },
       "docs_info": "## cellvoyager_to_ome_zarr_init\nCreate a OME-NGFF zarr folder, without reading/writing image data.\n\nFind plates (for each folder in input_paths):\n\n- glob image files,\n- parse metadata from image filename to identify plates,\n- identify populated channels.\n\nCreate a zarr folder (for each plate):\n\n- parse mlf metadata,\n- identify wells and field of view (FOV),\n- create FOV ZARR,\n- verify that channels are uniform (i.e., same channels).\n## cellvoyager_to_ome_zarr_compute\nConvert Yokogawa output (png, tif) to zarr file.\n\nThis task is run after an init task (typically\n`cellvoyager_to_ome_zarr_init` or\n`cellvoyager_to_ome_zarr_init_multiplex`), and it populates the empty\nOME-Zarr files that were prepared.\n\nNote that the current task always overwrites existing data. To avoid this\nbehavior, set the `overwrite` argument of the init task to `False`.\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
@@ -257,82 +261,90 @@
         "mem": 4000
       },
       "args_schema_non_parallel": {
-        "title": "CellvoyagerToOmeZarrInitMultiplex",
-        "type": "object",
-        "properties": {
-          "zarr_urls": {
-            "title": "Zarr Urls",
-            "type": "array",
-            "items": {
-              "type": "string"
+        "$defs": {
+          "MultiplexingAcquisition": {
+            "description": "Input class for Multiplexing Cellvoyager converter",
+            "properties": {
+              "image_dir": {
+                "title": "Image Dir",
+                "type": "string",
+                "description": "Path to the folder that contains the Cellvoyager image files for that acquisition and the MeasurementData & MeasurementDetail metadata files."
+              },
+              "allowed_channels": {
+                "items": {
+                  "$ref": "#/$defs/OmeroChannel"
+                },
+                "title": "Allowed Channels",
+                "type": "array",
+                "description": "A list of `OmeroChannel` objects, where each channel must include the `wavelength_id` attribute and where the `wavelength_id` values must be unique across the list."
+              }
             },
-            "description": "List of paths or urls to the individual OME-Zarr image to be processed. Not used by the converter task. (standard argument for Fractal tasks, managed by Fractal server)."
+            "required": [
+              "image_dir",
+              "allowed_channels"
+            ],
+            "title": "MultiplexingAcquisition",
+            "type": "object"
           },
-          "zarr_dir": {
-            "title": "Zarr Dir",
-            "type": "string",
-            "description": "path of the directory where the new OME-Zarrs will be created. (standard argument for Fractal tasks, managed by Fractal server)."
-          },
-          "acquisitions": {
-            "title": "Acquisitions",
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/definitions/MultiplexingAcquisition"
+          "OmeroChannel": {
+            "description": "Custom class for Omero channels, based on OME-NGFF v0.4.",
+            "properties": {
+              "wavelength_id": {
+                "title": "Wavelength Id",
+                "type": "string",
+                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`."
+              },
+              "index": {
+                "title": "Index",
+                "type": "integer",
+                "description": "Do not change. For internal use only."
+              },
+              "label": {
+                "title": "Label",
+                "type": "string",
+                "description": "Name of the channel."
+              },
+              "window": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/Window"
+                  }
+                ],
+                "title": "Window",
+                "description": "Optional `Window` object to set default display settings for napari."
+              },
+              "color": {
+                "title": "Color",
+                "type": "string",
+                "description": "Optional hex colormap to display the channel in napari (it must be of length 6, e.g. `00FFFF`)."
+              },
+              "active": {
+                "default": true,
+                "title": "Active",
+                "type": "boolean",
+                "description": "Should this channel be shown in the viewer?"
+              },
+              "coefficient": {
+                "default": 1,
+                "title": "Coefficient",
+                "type": "integer",
+                "description": "Do not change. Omero-channel attribute."
+              },
+              "inverted": {
+                "default": false,
+                "title": "Inverted",
+                "type": "boolean",
+                "description": "Do not change. Omero-channel attribute."
+              }
             },
-            "description": "dictionary of acquisitions. Each key is the acquisition identifier (normally 0, 1, 2, 3 etc.). Each item defines the acquisition by providing the image_dir and the allowed_channels."
+            "required": [
+              "wavelength_id"
+            ],
+            "title": "OmeroChannel",
+            "type": "object"
           },
-          "image_glob_patterns": {
-            "title": "Image Glob Patterns",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "If specified, only parse images with filenames that match with all these patterns. Patterns must be defined as in https://docs.python.org/3/library/fnmatch.html, Example: `image_glob_pattern=[\"*_B03_*\"]` => only process well B03 `image_glob_pattern=[\"*_C09_*\", \"*F016*\", \"*Z[0-5][0-9]C*\"]` => only process well C09, field of view 16 and Z planes 0-59."
-          },
-          "num_levels": {
-            "title": "Num Levels",
-            "default": 5,
-            "type": "integer",
-            "description": "Number of resolution-pyramid levels. If set to `5`, there will be the full-resolution level and 4 levels of downsampled images."
-          },
-          "coarsening_xy": {
-            "title": "Coarsening Xy",
-            "default": 2,
-            "type": "integer",
-            "description": "Linear coarsening factor between subsequent levels. If set to `2`, level 1 is 2x downsampled, level 2 is 4x downsampled etc."
-          },
-          "image_extension": {
-            "title": "Image Extension",
-            "default": "tif",
-            "type": "string",
-            "description": "Filename extension of images (e.g. `\"tif\"` or `\"png\"`)."
-          },
-          "metadata_table_files": {
-            "title": "Metadata Table Files",
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            },
-            "description": "If `None`, parse Yokogawa metadata from mrf/mlf files in the input_path folder; else, a dictionary of key-value pairs like `(acquisition, path)` with `acquisition` a string like the key of the `acquisitions` dict and `path` pointing to a csv file containing the parsed metadata table."
-          },
-          "overwrite": {
-            "title": "Overwrite",
-            "default": false,
-            "type": "boolean",
-            "description": "If `True`, overwrite the task output."
-          }
-        },
-        "required": [
-          "zarr_urls",
-          "zarr_dir",
-          "acquisitions"
-        ],
-        "additionalProperties": false,
-        "definitions": {
           "Window": {
-            "title": "Window",
             "description": "Custom class for Omero-channel window, based on OME-NGFF v0.4.",
-            "type": "object",
             "properties": {
               "min": {
                 "title": "Min",
@@ -358,112 +370,87 @@
             "required": [
               "start",
               "end"
-            ]
-          },
-          "OmeroChannel": {
-            "title": "OmeroChannel",
-            "description": "Custom class for Omero channels, based on OME-NGFF v0.4.",
-            "type": "object",
-            "properties": {
-              "wavelength_id": {
-                "title": "Wavelength Id",
-                "type": "string",
-                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`."
-              },
-              "index": {
-                "title": "Index",
-                "type": "integer",
-                "description": "Do not change. For internal use only."
-              },
-              "label": {
-                "title": "Label",
-                "type": "string",
-                "description": "Name of the channel."
-              },
-              "window": {
-                "$ref": "#/definitions/Window",
-                "title": "Window",
-                "description": "Optional `Window` object to set default display settings for napari."
-              },
-              "color": {
-                "title": "Color",
-                "type": "string",
-                "description": "Optional hex colormap to display the channel in napari (it must be of length 6, e.g. `00FFFF`)."
-              },
-              "active": {
-                "title": "Active",
-                "default": true,
-                "type": "boolean",
-                "description": "Should this channel be shown in the viewer?"
-              },
-              "coefficient": {
-                "title": "Coefficient",
-                "default": 1,
-                "type": "integer",
-                "description": "Do not change. Omero-channel attribute."
-              },
-              "inverted": {
-                "title": "Inverted",
-                "default": false,
-                "type": "boolean",
-                "description": "Do not change. Omero-channel attribute."
-              }
-            },
-            "required": [
-              "wavelength_id"
-            ]
-          },
-          "MultiplexingAcquisition": {
-            "title": "MultiplexingAcquisition",
-            "description": "Input class for Multiplexing Cellvoyager converter",
-            "type": "object",
-            "properties": {
-              "image_dir": {
-                "title": "Image Dir",
-                "type": "string",
-                "description": "Path to the folder that contains the Cellvoyager image files for that acquisition and the MeasurementData & MeasurementDetail metadata files."
-              },
-              "allowed_channels": {
-                "title": "Allowed Channels",
-                "type": "array",
-                "items": {
-                  "$ref": "#/definitions/OmeroChannel"
-                },
-                "description": "A list of `OmeroChannel` objects, where each channel must include the `wavelength_id` attribute and where the `wavelength_id` values must be unique across the list."
-              }
-            },
-            "required": [
-              "image_dir",
-              "allowed_channels"
-            ]
+            ],
+            "title": "Window",
+            "type": "object"
           }
-        }
-      },
-      "args_schema_parallel": {
-        "title": "CellvoyagerToOmeZarrCompute",
-        "type": "object",
+        },
+        "additionalProperties": false,
         "properties": {
-          "zarr_url": {
-            "title": "Zarr Url",
-            "type": "string",
-            "description": "Path or url to the individual OME-Zarr image to be processed. (standard argument for Fractal tasks, managed by Fractal server)."
+          "zarr_urls": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Zarr Urls",
+            "type": "array",
+            "description": "List of paths or urls to the individual OME-Zarr image to be processed. Not used by the converter task. (standard argument for Fractal tasks, managed by Fractal server)."
           },
-          "init_args": {
-            "$ref": "#/definitions/InitArgsCellVoyager",
-            "title": "Init_Args",
-            "description": "Intialization arguments provided by `create_cellvoyager_ome_zarr_init`."
+          "zarr_dir": {
+            "title": "Zarr Dir",
+            "type": "string",
+            "description": "path of the directory where the new OME-Zarrs will be created. (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "acquisitions": {
+            "additionalProperties": {
+              "$ref": "#/$defs/MultiplexingAcquisition"
+            },
+            "title": "Acquisitions",
+            "type": "object",
+            "description": "dictionary of acquisitions. Each key is the acquisition identifier (normally 0, 1, 2, 3 etc.). Each item defines the acquisition by providing the image_dir and the allowed_channels."
+          },
+          "image_glob_patterns": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Image Glob Patterns",
+            "type": "array",
+            "description": "If specified, only parse images with filenames that match with all these patterns. Patterns must be defined as in https://docs.python.org/3/library/fnmatch.html, Example: `image_glob_pattern=[\"*_B03_*\"]` => only process well B03 `image_glob_pattern=[\"*_C09_*\", \"*F016*\", \"*Z[0-5][0-9]C*\"]` => only process well C09, field of view 16 and Z planes 0-59."
+          },
+          "num_levels": {
+            "default": 5,
+            "title": "Num Levels",
+            "type": "integer",
+            "description": "Number of resolution-pyramid levels. If set to `5`, there will be the full-resolution level and 4 levels of downsampled images."
+          },
+          "coarsening_xy": {
+            "default": 2,
+            "title": "Coarsening Xy",
+            "type": "integer",
+            "description": "Linear coarsening factor between subsequent levels. If set to `2`, level 1 is 2x downsampled, level 2 is 4x downsampled etc."
+          },
+          "image_extension": {
+            "default": "tif",
+            "title": "Image Extension",
+            "type": "string",
+            "description": "Filename extension of images (e.g. `\"tif\"` or `\"png\"`)."
+          },
+          "metadata_table_files": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Metadata Table Files",
+            "type": "object",
+            "description": "If `None`, parse Yokogawa metadata from mrf/mlf files in the input_path folder; else, a dictionary of key-value pairs like `(acquisition, path)` with `acquisition` a string like the key of the `acquisitions` dict and `path` pointing to a csv file containing the parsed metadata table."
+          },
+          "overwrite": {
+            "default": false,
+            "title": "Overwrite",
+            "type": "boolean",
+            "description": "If `True`, overwrite the task output."
           }
         },
         "required": [
-          "zarr_url",
-          "init_args"
+          "zarr_urls",
+          "zarr_dir",
+          "acquisitions"
         ],
-        "additionalProperties": false,
-        "definitions": {
+        "type": "object",
+        "title": "CellvoyagerToOmeZarrInitMultiplex"
+      },
+      "args_schema_parallel": {
+        "$defs": {
           "InitArgsCellVoyager": {
-            "title": "InitArgsCellVoyager",
             "description": "Arguments to be passed from cellvoyager converter init to compute",
-            "type": "object",
             "properties": {
               "image_dir": {
                 "title": "Image Dir",
@@ -482,11 +469,11 @@
                 "type": "string"
               },
               "image_glob_patterns": {
-                "title": "Image Glob Patterns",
-                "type": "array",
                 "items": {
                   "type": "string"
-                }
+                },
+                "title": "Image Glob Patterns",
+                "type": "array"
               },
               "acquisition": {
                 "title": "Acquisition",
@@ -498,9 +485,30 @@
               "plate_prefix",
               "well_ID",
               "image_extension"
-            ]
+            ],
+            "title": "InitArgsCellVoyager",
+            "type": "object"
           }
-        }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "zarr_url": {
+            "title": "Zarr Url",
+            "type": "string",
+            "description": "Path or url to the individual OME-Zarr image to be processed. (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "init_args": {
+            "$ref": "#/$defs/InitArgsCellVoyager",
+            "title": "Init Args",
+            "description": "Intialization arguments provided by `create_cellvoyager_ome_zarr_init`."
+          }
+        },
+        "required": [
+          "zarr_url",
+          "init_args"
+        ],
+        "type": "object",
+        "title": "CellvoyagerToOmeZarrCompute"
       },
       "docs_info": "## cellvoyager_to_ome_zarr_init_multiplex\nCreate OME-NGFF structure and metadata to host a multiplexing dataset.\n\nThis task takes a set of image folders (i.e. different multiplexing\nacquisitions) and build the internal structure and metadata of a OME-NGFF\nzarr group, without actually loading/writing the image data.\n\nEach element in input_paths should be treated as a different acquisition.\n## cellvoyager_to_ome_zarr_compute\nConvert Yokogawa output (png, tif) to zarr file.\n\nThis task is run after an init task (typically\n`cellvoyager_to_ome_zarr_init` or\n`cellvoyager_to_ome_zarr_init_multiplex`), and it populates the empty\nOME-Zarr files that were prepared.\n\nNote that the current task always overwrites existing data. To avoid this\nbehavior, set the `overwrite` argument of the init task to `False`.\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
@@ -524,15 +532,14 @@
         "mem": 4000
       },
       "args_schema_non_parallel": {
-        "title": "CopyOmeZarrHcsPlate",
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "zarr_urls": {
-            "title": "Zarr Urls",
-            "type": "array",
             "items": {
               "type": "string"
             },
+            "title": "Zarr Urls",
+            "type": "array",
             "description": "List of paths or urls to the individual OME-Zarr image to be processed. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "zarr_dir": {
@@ -541,14 +548,14 @@
             "description": "path of the directory where the new OME-Zarrs will be created. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "suffix": {
-            "title": "Suffix",
             "default": "mip",
+            "title": "Suffix",
             "type": "string",
             "description": "The suffix that is used to transform `plate.zarr` into `plate_suffix.zarr`. Note that `None` is not currently supported."
           },
           "overwrite": {
-            "title": "Overwrite",
             "default": false,
+            "title": "Overwrite",
             "type": "boolean",
             "description": "If `True`, overwrite the task output."
           }
@@ -557,39 +564,13 @@
           "zarr_urls",
           "zarr_dir"
         ],
-        "additionalProperties": false
+        "type": "object",
+        "title": "CopyOmeZarrHcsPlate"
       },
       "args_schema_parallel": {
-        "title": "MaximumIntensityProjection",
-        "type": "object",
-        "properties": {
-          "zarr_url": {
-            "title": "Zarr Url",
-            "type": "string",
-            "description": "Path or url to the individual OME-Zarr image to be processed. (standard argument for Fractal tasks, managed by Fractal server)."
-          },
-          "init_args": {
-            "$ref": "#/definitions/InitArgsMIP",
-            "title": "Init_Args",
-            "description": "Intialization arguments provided by `create_cellvoyager_ome_zarr_init`."
-          },
-          "overwrite": {
-            "title": "Overwrite",
-            "default": false,
-            "type": "boolean",
-            "description": "If `True`, overwrite the task output."
-          }
-        },
-        "required": [
-          "zarr_url",
-          "init_args"
-        ],
-        "additionalProperties": false,
-        "definitions": {
+        "$defs": {
           "InitArgsMIP": {
-            "title": "InitArgsMIP",
             "description": "Init Args for MIP task.",
-            "type": "object",
             "properties": {
               "origin_url": {
                 "title": "Origin Url",
@@ -598,9 +579,36 @@
             },
             "required": [
               "origin_url"
-            ]
+            ],
+            "title": "InitArgsMIP",
+            "type": "object"
           }
-        }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "zarr_url": {
+            "title": "Zarr Url",
+            "type": "string",
+            "description": "Path or url to the individual OME-Zarr image to be processed. (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "init_args": {
+            "$ref": "#/$defs/InitArgsMIP",
+            "title": "Init Args",
+            "description": "Intialization arguments provided by `create_cellvoyager_ome_zarr_init`."
+          },
+          "overwrite": {
+            "default": false,
+            "title": "Overwrite",
+            "type": "boolean",
+            "description": "If `True`, overwrite the task output."
+          }
+        },
+        "required": [
+          "zarr_url",
+          "init_args"
+        ],
+        "type": "object",
+        "title": "MaximumIntensityProjection"
       },
       "docs_info": "## copy_ome_zarr_hcs_plate\nDuplicate the OME-Zarr HCS structure for a set of zarr_urls.\n\nThis task only processes the zarr images in the zarr_urls, not all the\nimages in the plate. It copies all the  plate & well structure, but none\nof the image metadata or the actual image data:\n\n- For each plate, create a new OME-Zarr HCS plate with the attributes for\n    all the images in zarr_urls\n- For each well (in each plate), create a new zarr subgroup with the\n   same attributes as the original one.\n\nNote: this task makes use of methods from the `Attributes` class, see\nhttps://zarr.readthedocs.io/en/stable/api/attrs.html.\n## maximum_intensity_projection\nPerform maximum-intensity projection along Z axis.\n\nNote: this task stores the output in a new zarr file.\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
@@ -619,8 +627,7 @@
         "mem": 4000
       },
       "args_schema_parallel": {
-        "title": "IlluminationCorrection",
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "zarr_url": {
             "title": "Zarr Url",
@@ -633,34 +640,34 @@
             "description": "Path of folder of illumination profiles."
           },
           "illumination_profiles": {
-            "title": "Illumination Profiles",
-            "type": "object",
             "additionalProperties": {
               "type": "string"
             },
+            "title": "Illumination Profiles",
+            "type": "object",
             "description": "Dictionary where keys match the `wavelength_id` attributes of existing channels (e.g. `A01_C01` ) and values are the filenames of the corresponding illumination profiles."
           },
           "background": {
-            "title": "Background",
             "default": 0,
+            "title": "Background",
             "type": "integer",
             "description": "Background value that is subtracted from the image before the illumination correction is applied. Set it to `0` if you don't want any background subtraction."
           },
           "input_ROI_table": {
-            "title": "Input Roi Table",
             "default": "FOV_ROI_table",
+            "title": "Input Roi Table",
             "type": "string",
             "description": "Name of the ROI table that contains the information about the location of the individual field of views (FOVs) to which the illumination correction shall be applied. Defaults to \"FOV_ROI_table\", the default name Fractal converters give the ROI tables that list all FOVs separately. If you generated your OME-Zarr with a different converter and used Import OME-Zarr to generate the ROI tables, `image_ROI_table` is the right choice if you only have 1 FOV per Zarr image and `grid_ROI_table` if you have multiple FOVs per Zarr image and set the right grid options during import."
           },
           "overwrite_input": {
-            "title": "Overwrite Input",
             "default": true,
+            "title": "Overwrite Input",
             "type": "boolean",
             "description": "If `True`, the results of this task will overwrite the input image data. If false, a new image is generated and the illumination corrected data is saved there."
           },
           "suffix": {
-            "title": "Suffix",
             "default": "_illum_corr",
+            "title": "Suffix",
             "type": "string",
             "description": "What suffix to append to the illumination corrected images. Only relevant if `overwrite_input=False`."
           }
@@ -670,7 +677,8 @@
           "illumination_profiles_folder",
           "illumination_profiles"
         ],
-        "additionalProperties": false
+        "type": "object",
+        "title": "IlluminationCorrection"
       },
       "docs_info": "## illumination_correction\nApplies illumination correction to the images in the OME-Zarr.\n\nAssumes that the illumination correction profiles were generated before\nseparately and that the same background subtraction was used during\ncalculation of the illumination correction (otherwise, it will not work\nwell & the correction may only be partial).\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
@@ -684,8 +692,185 @@
         "needs_gpu": true
       },
       "args_schema_parallel": {
-        "title": "CellposeSegmentation",
-        "type": "object",
+        "$defs": {
+          "CellposeChannel1InputModel": {
+            "description": "Channel input for cellpose with normalization options.",
+            "properties": {
+              "wavelength_id": {
+                "title": "Wavelength Id",
+                "type": "string",
+                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`. Can only be specified if label is not set."
+              },
+              "label": {
+                "title": "Label",
+                "type": "string",
+                "description": "Name of the channel. Can only be specified if wavelength_id is not set."
+              },
+              "normalize": {
+                "$ref": "#/$defs/CellposeCustomNormalizer",
+                "title": "Normalize",
+                "description": "Validator to handle different normalization scenarios for Cellpose models"
+              }
+            },
+            "title": "CellposeChannel1InputModel",
+            "type": "object"
+          },
+          "CellposeChannel2InputModel": {
+            "description": "Channel input for secondary cellpose channel with normalization options.",
+            "properties": {
+              "wavelength_id": {
+                "title": "Wavelength Id",
+                "type": "string",
+                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`. Can only be specified if label is not set."
+              },
+              "label": {
+                "title": "Label",
+                "type": "string",
+                "description": "Name of the channel. Can only be specified if wavelength_id is not set."
+              },
+              "normalize": {
+                "$ref": "#/$defs/CellposeCustomNormalizer",
+                "title": "Normalize",
+                "description": "Validator to handle different normalization scenarios for Cellpose models"
+              }
+            },
+            "title": "CellposeChannel2InputModel",
+            "type": "object"
+          },
+          "CellposeCustomNormalizer": {
+            "description": "Validator to handle different normalization scenarios for Cellpose models",
+            "properties": {
+              "type": {
+                "default": "default",
+                "enum": [
+                  "default",
+                  "custom",
+                  "no_normalization"
+                ],
+                "title": "Type",
+                "type": "string",
+                "description": "One of `default` (Cellpose default normalization), `custom` (using the other custom parameters) or `no_normalization`."
+              },
+              "lower_percentile": {
+                "maximum": 100.0,
+                "minimum": 0.0,
+                "title": "Lower Percentile",
+                "type": "number",
+                "description": "Specify a custom lower-bound percentile for rescaling as a float value between 0 and 100. Set to 1 to run the same as default). You can only specify percentiles or bounds, not both."
+              },
+              "upper_percentile": {
+                "maximum": 100.0,
+                "minimum": 0.0,
+                "title": "Upper Percentile",
+                "type": "number",
+                "description": "Specify a custom upper-bound percentile for rescaling as a float value between 0 and 100. Set to 99 to run the same as default, set to e.g. 99.99 if the default rescaling was too harsh. You can only specify percentiles or bounds, not both."
+              },
+              "lower_bound": {
+                "title": "Lower Bound",
+                "type": "integer",
+                "description": "Explicit lower bound value to rescale the image at. Needs to be an integer, e.g. 100. You can only specify percentiles or bounds, not both."
+              },
+              "upper_bound": {
+                "title": "Upper Bound",
+                "type": "integer",
+                "description": "Explicit upper bound value to rescale the image at. Needs to be an integer, e.g. 2000. You can only specify percentiles or bounds, not both."
+              }
+            },
+            "title": "CellposeCustomNormalizer",
+            "type": "object"
+          },
+          "CellposeModelParams": {
+            "description": "Advanced Cellpose Model Parameters",
+            "properties": {
+              "cellprob_threshold": {
+                "default": 0.0,
+                "title": "Cellprob Threshold",
+                "type": "number",
+                "description": "Parameter of `CellposeModel.eval` method. Valid values between -6 to 6. From Cellpose documentation: \"Decrease this threshold if cellpose is not returning as many ROIs as you'd expect. Similarly, increase this threshold if cellpose is returning too ROIs particularly from dim areas.\""
+              },
+              "flow_threshold": {
+                "default": 0.4,
+                "title": "Flow Threshold",
+                "type": "number",
+                "description": "Parameter of `CellposeModel.eval` method. Valid values between 0.0 and 1.0. From Cellpose documentation: \"Increase this threshold if cellpose is not returning as many ROIs as you'd expect. Similarly, decrease this threshold if cellpose is returning too many ill-shaped ROIs.\""
+              },
+              "anisotropy": {
+                "title": "Anisotropy",
+                "type": "number",
+                "description": "Ratio of the pixel sizes along Z and XY axis (ignored if the image is not three-dimensional). If unset, it is inferred from the OME-NGFF metadata."
+              },
+              "min_size": {
+                "default": 15,
+                "title": "Min Size",
+                "type": "integer",
+                "description": "Parameter of `CellposeModel` class. Minimum size of the segmented objects (in pixels). Use `-1` to turn off the size filter."
+              },
+              "augment": {
+                "default": false,
+                "title": "Augment",
+                "type": "boolean",
+                "description": "Parameter of `CellposeModel` class. Whether to use cellpose augmentation to tile images with overlap."
+              },
+              "net_avg": {
+                "default": false,
+                "title": "Net Avg",
+                "type": "boolean",
+                "description": "Parameter of `CellposeModel` class. Whether to use cellpose net averaging to run the 4 built-in networks (useful for `nuclei`, `cyto` and `cyto2`, not sure it works for the others)."
+              },
+              "use_gpu": {
+                "default": true,
+                "title": "Use Gpu",
+                "type": "boolean",
+                "description": "If `False`, always use the CPU; if `True`, use the GPU if possible (as defined in `cellpose.core.use_gpu()`) and fall-back to the CPU otherwise."
+              },
+              "batch_size": {
+                "default": 8,
+                "title": "Batch Size",
+                "type": "integer",
+                "description": "number of 224x224 patches to run simultaneously on the GPU (can make smaller or bigger depending on GPU memory usage)"
+              },
+              "invert": {
+                "default": false,
+                "title": "Invert",
+                "type": "boolean",
+                "description": "invert image pixel intensity before running network (if True, image is also normalized)"
+              },
+              "tile": {
+                "default": true,
+                "title": "Tile",
+                "type": "boolean",
+                "description": "tiles image to ensure GPU/CPU memory usage limited (recommended)"
+              },
+              "tile_overlap": {
+                "default": 0.1,
+                "title": "Tile Overlap",
+                "type": "number",
+                "description": "fraction of overlap of tiles when computing flows"
+              },
+              "resample": {
+                "default": true,
+                "title": "Resample",
+                "type": "boolean",
+                "description": "run dynamics at original image size (will be slower but create more accurate boundaries)"
+              },
+              "interp": {
+                "default": true,
+                "title": "Interp",
+                "type": "boolean",
+                "description": "interpolate during 2D dynamics (not available in 3D) (in previous versions it was False, now it defaults to True)"
+              },
+              "stitch_threshold": {
+                "default": 0.0,
+                "title": "Stitch Threshold",
+                "type": "number",
+                "description": "if stitch_threshold>0.0 and not do_3D and equal image sizes, masks are stitched in 3D to return volume segmentation"
+              }
+            },
+            "title": "CellposeModelParams",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
         "properties": {
           "zarr_url": {
             "title": "Zarr Url",
@@ -698,18 +883,18 @@
             "description": "Pyramid level of the image to be segmented. Choose `0` to process at full resolution."
           },
           "channel": {
-            "$ref": "#/definitions/CellposeChannel1InputModel",
+            "$ref": "#/$defs/CellposeChannel1InputModel",
             "title": "Channel",
             "description": "Primary channel for segmentation; requires either `wavelength_id` (e.g. `A01_C01`) or `label` (e.g. `DAPI`), but not both. Also contains normalization options. By default, data is normalized so 0.0=1st percentile and 1.0=99th percentile of image intensities in each channel. This automatic normalization can lead to issues when the image to be segmented is very sparse. You can turn off the default rescaling. With the \"custom\" option, you can either provide your own rescaling percentiles or fixed rescaling upper and lower bound integers."
           },
           "channel2": {
-            "$ref": "#/definitions/CellposeChannel2InputModel",
+            "$ref": "#/$defs/CellposeChannel2InputModel",
             "title": "Channel2",
             "description": "Second channel for segmentation (in the same format as `channel`). If specified, cellpose runs in dual channel mode. For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker."
           },
           "input_ROI_table": {
-            "title": "Input Roi Table",
             "default": "FOV_ROI_table",
+            "title": "Input Roi Table",
             "type": "string",
             "description": "Name of the ROI table over which the task loops to apply Cellpose segmentation. Examples: `FOV_ROI_table` => loop over the field of views, `organoid_ROI_table` => loop over the organoid ROI table (generated by another task), `well_ROI_table` => process the whole well as one image."
           },
@@ -724,13 +909,12 @@
             "description": "Name of the output label image (e.g. `\"organoids\"`)."
           },
           "diameter_level0": {
-            "title": "Diameter Level0",
             "default": 30.0,
+            "title": "Diameter Level0",
             "type": "number",
             "description": "Expected diameter of the objects that should be segmented in pixels at level 0. Initial diameter is rescaled using the `level` that was selected. The rescaled value is passed as the diameter to the `CellposeModel.eval` method."
           },
           "model_type": {
-            "title": "Model Type",
             "default": "cyto2",
             "enum": [
               "cyto",
@@ -749,6 +933,7 @@
               "LC3",
               "LC4"
             ],
+            "title": "Model Type",
             "type": "string",
             "description": "Parameter of `CellposeModel` class. Defines which model should be used. Typical choices are `nuclei`, `cyto`, `cyto2`, etc."
           },
@@ -758,25 +943,25 @@
             "description": "Parameter of `CellposeModel` class (takes precedence over `model_type`). Allows you to specify the path of a custom trained cellpose model."
           },
           "relabeling": {
-            "title": "Relabeling",
             "default": true,
+            "title": "Relabeling",
             "type": "boolean",
             "description": "If `True`, apply relabeling so that label values are unique for all objects in the well."
           },
           "use_masks": {
-            "title": "Use Masks",
             "default": true,
+            "title": "Use Masks",
             "type": "boolean",
             "description": "If `True`, try to use masked loading and fall back to `use_masks=False` if the ROI table is not suitable. Masked loading is relevant when only a subset of the bounding box should actually be processed (e.g. running within `organoid_ROI_table`)."
           },
           "advanced_cellpose_model_params": {
-            "$ref": "#/definitions/CellposeModelParams",
-            "title": "Advanced_Cellpose_Model_Params",
+            "$ref": "#/$defs/CellposeModelParams",
+            "title": "Advanced Cellpose Model Params",
             "description": "Advanced Cellpose model parameters that are passed to the Cellpose `model.eval` method."
           },
           "overwrite": {
-            "title": "Overwrite",
             "default": true,
+            "title": "Overwrite",
             "type": "boolean",
             "description": "If `True`, overwrite the task output."
           }
@@ -786,185 +971,8 @@
           "level",
           "channel"
         ],
-        "additionalProperties": false,
-        "definitions": {
-          "CellposeCustomNormalizer": {
-            "title": "CellposeCustomNormalizer",
-            "description": "Validator to handle different normalization scenarios for Cellpose models",
-            "type": "object",
-            "properties": {
-              "type": {
-                "title": "Type",
-                "default": "default",
-                "enum": [
-                  "default",
-                  "custom",
-                  "no_normalization"
-                ],
-                "type": "string",
-                "description": "One of `default` (Cellpose default normalization), `custom` (using the other custom parameters) or `no_normalization`."
-              },
-              "lower_percentile": {
-                "title": "Lower Percentile",
-                "minimum": 0,
-                "maximum": 100,
-                "type": "number",
-                "description": "Specify a custom lower-bound percentile for rescaling as a float value between 0 and 100. Set to 1 to run the same as default). You can only specify percentiles or bounds, not both."
-              },
-              "upper_percentile": {
-                "title": "Upper Percentile",
-                "minimum": 0,
-                "maximum": 100,
-                "type": "number",
-                "description": "Specify a custom upper-bound percentile for rescaling as a float value between 0 and 100. Set to 99 to run the same as default, set to e.g. 99.99 if the default rescaling was too harsh. You can only specify percentiles or bounds, not both."
-              },
-              "lower_bound": {
-                "title": "Lower Bound",
-                "type": "integer",
-                "description": "Explicit lower bound value to rescale the image at. Needs to be an integer, e.g. 100. You can only specify percentiles or bounds, not both."
-              },
-              "upper_bound": {
-                "title": "Upper Bound",
-                "type": "integer",
-                "description": "Explicit upper bound value to rescale the image at. Needs to be an integer, e.g. 2000. You can only specify percentiles or bounds, not both."
-              }
-            }
-          },
-          "CellposeChannel1InputModel": {
-            "title": "CellposeChannel1InputModel",
-            "description": "Channel input for cellpose with normalization options.",
-            "type": "object",
-            "properties": {
-              "wavelength_id": {
-                "title": "Wavelength Id",
-                "type": "string",
-                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`. Can only be specified if label is not set."
-              },
-              "label": {
-                "title": "Label",
-                "type": "string",
-                "description": "Name of the channel. Can only be specified if wavelength_id is not set."
-              },
-              "normalize": {
-                "$ref": "#/definitions/CellposeCustomNormalizer",
-                "title": "Normalize",
-                "description": "Validator to handle different normalization scenarios for Cellpose models"
-              }
-            }
-          },
-          "CellposeChannel2InputModel": {
-            "title": "CellposeChannel2InputModel",
-            "description": "Channel input for secondary cellpose channel with normalization options.",
-            "type": "object",
-            "properties": {
-              "wavelength_id": {
-                "title": "Wavelength Id",
-                "type": "string",
-                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`. Can only be specified if label is not set."
-              },
-              "label": {
-                "title": "Label",
-                "type": "string",
-                "description": "Name of the channel. Can only be specified if wavelength_id is not set."
-              },
-              "normalize": {
-                "$ref": "#/definitions/CellposeCustomNormalizer",
-                "title": "Normalize",
-                "description": "Validator to handle different normalization scenarios for Cellpose models"
-              }
-            }
-          },
-          "CellposeModelParams": {
-            "title": "CellposeModelParams",
-            "description": "Advanced Cellpose Model Parameters",
-            "type": "object",
-            "properties": {
-              "cellprob_threshold": {
-                "title": "Cellprob Threshold",
-                "default": 0.0,
-                "type": "number",
-                "description": "Parameter of `CellposeModel.eval` method. Valid values between -6 to 6. From Cellpose documentation: \"Decrease this threshold if cellpose is not returning as many ROIs as you'd expect. Similarly, increase this threshold if cellpose is returning too ROIs particularly from dim areas.\""
-              },
-              "flow_threshold": {
-                "title": "Flow Threshold",
-                "default": 0.4,
-                "type": "number",
-                "description": "Parameter of `CellposeModel.eval` method. Valid values between 0.0 and 1.0. From Cellpose documentation: \"Increase this threshold if cellpose is not returning as many ROIs as you'd expect. Similarly, decrease this threshold if cellpose is returning too many ill-shaped ROIs.\""
-              },
-              "anisotropy": {
-                "title": "Anisotropy",
-                "type": "number",
-                "description": "Ratio of the pixel sizes along Z and XY axis (ignored if the image is not three-dimensional). If unset, it is inferred from the OME-NGFF metadata."
-              },
-              "min_size": {
-                "title": "Min Size",
-                "default": 15,
-                "type": "integer",
-                "description": "Parameter of `CellposeModel` class. Minimum size of the segmented objects (in pixels). Use `-1` to turn off the size filter."
-              },
-              "augment": {
-                "title": "Augment",
-                "default": false,
-                "type": "boolean",
-                "description": "Parameter of `CellposeModel` class. Whether to use cellpose augmentation to tile images with overlap."
-              },
-              "net_avg": {
-                "title": "Net Avg",
-                "default": false,
-                "type": "boolean",
-                "description": "Parameter of `CellposeModel` class. Whether to use cellpose net averaging to run the 4 built-in networks (useful for `nuclei`, `cyto` and `cyto2`, not sure it works for the others)."
-              },
-              "use_gpu": {
-                "title": "Use Gpu",
-                "default": true,
-                "type": "boolean",
-                "description": "If `False`, always use the CPU; if `True`, use the GPU if possible (as defined in `cellpose.core.use_gpu()`) and fall-back to the CPU otherwise."
-              },
-              "batch_size": {
-                "title": "Batch Size",
-                "default": 8,
-                "type": "integer",
-                "description": "number of 224x224 patches to run simultaneously on the GPU (can make smaller or bigger depending on GPU memory usage)"
-              },
-              "invert": {
-                "title": "Invert",
-                "default": false,
-                "type": "boolean",
-                "description": "invert image pixel intensity before running network (if True, image is also normalized)"
-              },
-              "tile": {
-                "title": "Tile",
-                "default": true,
-                "type": "boolean",
-                "description": "tiles image to ensure GPU/CPU memory usage limited (recommended)"
-              },
-              "tile_overlap": {
-                "title": "Tile Overlap",
-                "default": 0.1,
-                "type": "number",
-                "description": "fraction of overlap of tiles when computing flows"
-              },
-              "resample": {
-                "title": "Resample",
-                "default": true,
-                "type": "boolean",
-                "description": "run dynamics at original image size (will be slower but create more accurate boundaries)"
-              },
-              "interp": {
-                "title": "Interp",
-                "default": true,
-                "type": "boolean",
-                "description": "interpolate during 2D dynamics (not available in 3D) (in previous versions it was False, now it defaults to True)"
-              },
-              "stitch_threshold": {
-                "title": "Stitch Threshold",
-                "default": 0.0,
-                "type": "number",
-                "description": "if stitch_threshold>0.0 and not do_3D and equal image sizes, masks are stitched in 3D to return volume segmentation"
-              }
-            }
-          }
-        }
+        "type": "object",
+        "title": "CellposeSegmentation"
       },
       "docs_info": "## cellpose_segmentation\nRun cellpose segmentation on the ROIs of a single OME-Zarr image.\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
@@ -982,15 +990,14 @@
         "mem": 8000
       },
       "args_schema_non_parallel": {
-        "title": "ImageBasedRegistrationHcsInit",
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "zarr_urls": {
-            "title": "Zarr Urls",
-            "type": "array",
             "items": {
               "type": "string"
             },
+            "title": "Zarr Urls",
+            "type": "array",
             "description": "List of paths or urls to the individual OME-Zarr image to be processed. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "zarr_dir": {
@@ -999,8 +1006,8 @@
             "description": "path of the directory where the new OME-Zarrs will be created. Not used by this task. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "reference_acquisition": {
-            "title": "Reference Acquisition",
             "default": 0,
+            "title": "Reference Acquisition",
             "type": "integer",
             "description": "Which acquisition to register against. Needs to match the acquisition metadata in the OME-Zarr image."
           }
@@ -1009,11 +1016,36 @@
           "zarr_urls",
           "zarr_dir"
         ],
-        "additionalProperties": false
+        "type": "object",
+        "title": "ImageBasedRegistrationHcsInit"
       },
       "args_schema_parallel": {
-        "title": "CalculateRegistrationImageBased",
-        "type": "object",
+        "$defs": {
+          "InitArgsRegistration": {
+            "description": "Registration init args.",
+            "properties": {
+              "reference_zarr_url": {
+                "title": "Reference Zarr Url",
+                "type": "string"
+              }
+            },
+            "required": [
+              "reference_zarr_url"
+            ],
+            "title": "InitArgsRegistration",
+            "type": "object"
+          },
+          "RegistrationMethod": {
+            "description": "RegistrationMethod Enum class",
+            "enum": [
+              "phase_cross_correlation",
+              "chi2_shift"
+            ],
+            "title": "RegistrationMethod",
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
         "properties": {
           "zarr_url": {
             "title": "Zarr Url",
@@ -1021,8 +1053,8 @@
             "description": "Path or url to the individual OME-Zarr image to be processed. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "init_args": {
-            "$ref": "#/definitions/InitArgsRegistration",
-            "title": "Init_Args",
+            "$ref": "#/$defs/InitArgsRegistration",
+            "title": "Init Args",
             "description": "Intialization arguments provided by `image_based_registration_hcs_init`. They contain the reference_zarr_url that is used for registration. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "wavelength_id": {
@@ -1031,24 +1063,24 @@
             "description": "Wavelength that will be used for image-based registration; e.g. `A01_C01` for Yokogawa, `C01` for MD."
           },
           "method": {
-            "default": "phase_cross_correlation",
             "allOf": [
               {
-                "$ref": "#/definitions/RegistrationMethod"
+                "$ref": "#/$defs/RegistrationMethod"
               }
             ],
+            "default": "phase_cross_correlation",
             "title": "Method",
             "description": "Method to use for image registration. The available methods are `phase_cross_correlation` (scikit-image package, works for 2D & 3D) and \"chi2_shift\" (image_registration package, only works for 2D images)."
           },
           "roi_table": {
-            "title": "Roi Table",
             "default": "FOV_ROI_table",
+            "title": "Roi Table",
             "type": "string",
             "description": "Name of the ROI table over which the task loops to calculate the registration. Examples: `FOV_ROI_table` => loop over the field of views, `well_ROI_table` => process the whole well as one image."
           },
           "level": {
-            "title": "Level",
             "default": 2,
+            "title": "Level",
             "type": "integer",
             "description": "Pyramid level of the image to be used for registration. Choose `0` to process at full resolution."
           }
@@ -1058,31 +1090,8 @@
           "init_args",
           "wavelength_id"
         ],
-        "additionalProperties": false,
-        "definitions": {
-          "InitArgsRegistration": {
-            "title": "InitArgsRegistration",
-            "description": "Registration init args.",
-            "type": "object",
-            "properties": {
-              "reference_zarr_url": {
-                "title": "Reference Zarr Url",
-                "type": "string"
-              }
-            },
-            "required": [
-              "reference_zarr_url"
-            ]
-          },
-          "RegistrationMethod": {
-            "title": "RegistrationMethod",
-            "description": "RegistrationMethod Enum class",
-            "enum": [
-              "phase_cross_correlation",
-              "chi2_shift"
-            ]
-          }
-        }
+        "type": "object",
+        "title": "CalculateRegistrationImageBased"
       },
       "docs_info": "## image_based_registration_hcs_init\nInitialized calculate registration task\n\nThis task prepares a parallelization list of all zarr_urls that need to be\nused to calculate the registration between acquisitions (all zarr_urls\nexcept the reference acquisition vs. the reference acquisition).\nThis task only works for HCS OME-Zarrs for 2 reasons: Only HCS OME-Zarrs\ncurrently have defined acquisition metadata to determine reference\nacquisitions. And we have only implemented the grouping of images for\nHCS OME-Zarrs by well (with the assumption that every well just has 1\nimage per acqusition).\n## calculate_registration_image_based\nCalculate registration based on images\n\nThis task consists of 3 parts:\n\n1. Loading the images of a given ROI (=> loop over ROIs)\n2. Calculating the transformation for that ROI\n3. Storing the calculated transformation in the ROI table\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
@@ -1100,15 +1109,14 @@
         "mem": 1000
       },
       "args_schema_non_parallel": {
-        "title": "InitGroupByWellForMultiplexing",
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "zarr_urls": {
-            "title": "Zarr Urls",
-            "type": "array",
             "items": {
               "type": "string"
             },
+            "title": "Zarr Urls",
+            "type": "array",
             "description": "List of paths or urls to the individual OME-Zarr image to be processed. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "zarr_dir": {
@@ -1117,8 +1125,8 @@
             "description": "path of the directory where the new OME-Zarrs will be created. Not used by this task. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "reference_acquisition": {
-            "title": "Reference Acquisition",
             "default": 0,
+            "title": "Reference Acquisition",
             "type": "integer",
             "description": "Which acquisition to register against. Uses the OME-NGFF HCS well metadata acquisition keys to find the reference acquisition."
           }
@@ -1127,11 +1135,30 @@
           "zarr_urls",
           "zarr_dir"
         ],
-        "additionalProperties": false
+        "type": "object",
+        "title": "InitGroupByWellForMultiplexing"
       },
       "args_schema_parallel": {
-        "title": "FindRegistrationConsensus",
-        "type": "object",
+        "$defs": {
+          "InitArgsRegistrationConsensus": {
+            "description": "Registration consensus init args.",
+            "properties": {
+              "zarr_url_list": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Zarr Url List",
+                "type": "array"
+              }
+            },
+            "required": [
+              "zarr_url_list"
+            ],
+            "title": "InitArgsRegistrationConsensus",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
         "properties": {
           "zarr_url": {
             "title": "Zarr Url",
@@ -1139,13 +1166,13 @@
             "description": "Path or url to the individual OME-Zarr image to be processed. Refers to the zarr_url of the reference acquisition. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "init_args": {
-            "$ref": "#/definitions/InitArgsRegistrationConsensus",
-            "title": "Init_Args",
+            "$ref": "#/$defs/InitArgsRegistrationConsensus",
+            "title": "Init Args",
             "description": "Intialization arguments provided by `init_group_by_well_for_multiplexing`. It contains the zarr_url_list listing all the zarr_urls in the same well as the zarr_url of the reference acquisition that are being processed. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "roi_table": {
-            "title": "Roi Table",
             "default": "FOV_ROI_table",
+            "title": "Roi Table",
             "type": "string",
             "description": "Name of the ROI table over which the task loops to calculate the registration. Examples: `FOV_ROI_table` => loop over the field of views, `well_ROI_table` => process the whole well as one image."
           },
@@ -1159,26 +1186,8 @@
           "zarr_url",
           "init_args"
         ],
-        "additionalProperties": false,
-        "definitions": {
-          "InitArgsRegistrationConsensus": {
-            "title": "InitArgsRegistrationConsensus",
-            "description": "Registration consensus init args.",
-            "type": "object",
-            "properties": {
-              "zarr_url_list": {
-                "title": "Zarr Url List",
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            },
-            "required": [
-              "zarr_url_list"
-            ]
-          }
-        }
+        "type": "object",
+        "title": "FindRegistrationConsensus"
       },
       "docs_info": "## init_group_by_well_for_multiplexing\nFinds images for all acquisitions per well.\n\nReturns the parallelization_list to run `find_registration_consensus`.\n## find_registration_consensus\nApplies pre-calculated registration to ROI tables.\n\nApply pre-calculated registration such that resulting ROIs contain\nthe consensus align region between all acquisitions.\n\nParallelization level: well\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
@@ -1197,8 +1206,7 @@
         "mem": 4000
       },
       "args_schema_parallel": {
-        "title": "ApplyRegistrationToImage",
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "zarr_url": {
             "title": "Zarr Url",
@@ -1211,14 +1219,14 @@
             "description": "Name of the ROI table which has been registered and will be applied to mask and shift the images. Examples: `registered_FOV_ROI_table` => loop over the field of views, `registered_well_ROI_table` => process the whole well as one image."
           },
           "reference_acquisition": {
-            "title": "Reference Acquisition",
             "default": 0,
+            "title": "Reference Acquisition",
             "type": "integer",
             "description": "Which acquisition to register against. Uses the OME-NGFF HCS well metadata acquisition keys to find the reference acquisition."
           },
           "overwrite_input": {
-            "title": "Overwrite Input",
             "default": true,
+            "title": "Overwrite Input",
             "type": "boolean",
             "description": "Whether the old image data should be replaced with the newly registered image data. Currently only implemented for `overwrite_input=True`."
           }
@@ -1227,7 +1235,8 @@
           "zarr_url",
           "registered_roi_table"
         ],
-        "additionalProperties": false
+        "type": "object",
+        "title": "ApplyRegistrationToImage"
       },
       "docs_info": "## apply_registration_to_image\nApply registration to images by using a registered ROI table\n\nThis task consists of 4 parts:\n\n1. Mask all regions in images that are not available in the\nregistered ROI table and store each acquisition aligned to the\nreference_acquisition (by looping over ROIs).\n2. Do the same for all label images.\n3. Copy all tables from the non-aligned image to the aligned image\n(currently only works well if the only tables are well & FOV ROI tables\n(registered and original). Not implemented for measurement tables and\nother ROI tables).\n4. Clean up: Delete the old, non-aligned image and rename the new,\naligned image to take over its place.\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
@@ -1236,15 +1245,14 @@
       "name": "Import OME-Zarr",
       "executable_non_parallel": "tasks/import_ome_zarr.py",
       "args_schema_non_parallel": {
-        "title": "ImportOmeZarr",
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "zarr_urls": {
-            "title": "Zarr Urls",
-            "type": "array",
             "items": {
               "type": "string"
             },
+            "title": "Zarr Urls",
+            "type": "array",
             "description": "List of paths or urls to the individual OME-Zarr image to be processed. Not used. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "zarr_dir": {
@@ -1258,38 +1266,38 @@
             "description": "The OME-Zarr name, without its parent folder. The parent folder is provided by zarr_dir; e.g. `zarr_name=\"array.zarr\"`, if the OME-Zarr path is in `/zarr_dir/array.zarr`."
           },
           "update_omero_metadata": {
-            "title": "Update Omero Metadata",
             "default": true,
+            "title": "Update Omero Metadata",
             "type": "boolean",
             "description": "Whether to update Omero-channels metadata, to make them Fractal-compatible."
           },
           "add_image_ROI_table": {
-            "title": "Add Image Roi Table",
             "default": true,
+            "title": "Add Image Roi Table",
             "type": "boolean",
             "description": "Whether to add a `image_ROI_table` table to each image, with a single ROI covering the whole image."
           },
           "add_grid_ROI_table": {
-            "title": "Add Grid Roi Table",
             "default": true,
+            "title": "Add Grid Roi Table",
             "type": "boolean",
             "description": "Whether to add a `grid_ROI_table` table to each image, with the image split into a rectangular grid of ROIs."
           },
           "grid_y_shape": {
-            "title": "Grid Y Shape",
             "default": 2,
+            "title": "Grid Y Shape",
             "type": "integer",
             "description": "Y shape of the ROI grid in `grid_ROI_table`."
           },
           "grid_x_shape": {
-            "title": "Grid X Shape",
             "default": 2,
+            "title": "Grid X Shape",
             "type": "integer",
             "description": "X shape of the ROI grid in `grid_ROI_table`."
           },
           "overwrite": {
-            "title": "Overwrite",
             "default": false,
+            "title": "Overwrite",
             "type": "boolean",
             "description": "Whether new ROI tables (added when `add_image_ROI_table` and/or `add_grid_ROI_table` are `True`) can overwite existing ones."
           }
@@ -1299,7 +1307,8 @@
           "zarr_dir",
           "zarr_name"
         ],
-        "additionalProperties": false
+        "type": "object",
+        "title": "ImportOmeZarr"
       },
       "docs_info": "## import_ome_zarr\nImport a single OME-Zarr into Fractal.\n\nThe single OME-Zarr can be a full OME-Zarr HCS plate or an individual\nOME-Zarr image. The image needs to be in the zarr_dir as specified by the\ndataset. The current version of this task:\n\n1. Creates the appropriate components-related metadata, needed for\n   processing an existing OME-Zarr through Fractal.\n2. Optionally adds new ROI tables to the existing OME-Zarr.\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
@@ -1312,78 +1321,9 @@
         "mem": 32000
       },
       "args_schema_parallel": {
-        "title": "NapariWorkflowsWrapper",
-        "type": "object",
-        "properties": {
-          "zarr_url": {
-            "title": "Zarr Url",
-            "type": "string",
-            "description": "Path or url to the individual OME-Zarr image to be processed. (standard argument for Fractal tasks, managed by Fractal server)."
-          },
-          "workflow_file": {
-            "title": "Workflow File",
-            "type": "string",
-            "description": "Absolute path to napari-workflows YAML file"
-          },
-          "input_specs": {
-            "title": "Input Specs",
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/definitions/NapariWorkflowsInput"
-            },
-            "description": "A dictionary of `NapariWorkflowsInput` values."
-          },
-          "output_specs": {
-            "title": "Output Specs",
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/definitions/NapariWorkflowsOutput"
-            },
-            "description": "A dictionary of `NapariWorkflowsOutput` values."
-          },
-          "input_ROI_table": {
-            "title": "Input Roi Table",
-            "default": "FOV_ROI_table",
-            "type": "string",
-            "description": "Name of the ROI table over which the task loops to apply napari workflows. Examples: `FOV_ROI_table` => loop over the field of views; `organoid_ROI_table` => loop over the organoid ROI table (generated by another task); `well_ROI_table` => process the whole well as one image."
-          },
-          "level": {
-            "title": "Level",
-            "default": 0,
-            "type": "integer",
-            "description": "Pyramid level of the image to be used as input for napari-workflows. Choose `0` to process at full resolution. Levels > 0 are currently only supported for workflows that only have intensity images as input and only produce a label images as output."
-          },
-          "relabeling": {
-            "title": "Relabeling",
-            "default": true,
-            "type": "boolean",
-            "description": "If `True`, apply relabeling so that label values are unique across all ROIs in the well."
-          },
-          "expected_dimensions": {
-            "title": "Expected Dimensions",
-            "default": 3,
-            "type": "integer",
-            "description": "Expected dimensions (either `2` or `3`). Useful when loading 2D images that are stored in a 3D array with shape `(1, size_x, size_y)` [which is the default way Fractal stores 2D images], but you want to make sure the napari workflow gets a 2D array to process. Also useful to set to `2` when loading a 2D OME-Zarr that is saved as `(size_x, size_y)`."
-          },
-          "overwrite": {
-            "title": "Overwrite",
-            "default": true,
-            "type": "boolean",
-            "description": "If `True`, overwrite the task output."
-          }
-        },
-        "required": [
-          "zarr_url",
-          "workflow_file",
-          "input_specs",
-          "output_specs"
-        ],
-        "additionalProperties": false,
-        "definitions": {
+        "$defs": {
           "ChannelInputModel": {
-            "title": "ChannelInputModel",
             "description": "A channel which is specified by either `wavelength_id` or `label`.",
-            "type": "object",
             "properties": {
               "wavelength_id": {
                 "title": "Wavelength Id",
@@ -1395,19 +1335,19 @@
                 "type": "string",
                 "description": "Name of the channel. Can only be specified if wavelength_id is not set."
               }
-            }
+            },
+            "title": "ChannelInputModel",
+            "type": "object"
           },
           "NapariWorkflowsInput": {
-            "title": "NapariWorkflowsInput",
             "description": "A value of the `input_specs` argument in `napari_workflows_wrapper`.",
-            "type": "object",
             "properties": {
               "type": {
-                "title": "Type",
                 "enum": [
                   "image",
                   "label"
                 ],
+                "title": "Type",
                 "type": "string",
                 "description": "Input type (either `image` or `label`)."
               },
@@ -1417,26 +1357,30 @@
                 "description": "Label name (for label inputs only)."
               },
               "channel": {
-                "$ref": "#/definitions/ChannelInputModel",
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/ChannelInputModel"
+                  }
+                ],
                 "title": "Channel",
                 "description": "`ChannelInputModel` object (for image inputs only)."
               }
             },
             "required": [
               "type"
-            ]
+            ],
+            "title": "NapariWorkflowsInput",
+            "type": "object"
           },
           "NapariWorkflowsOutput": {
-            "title": "NapariWorkflowsOutput",
             "description": "A value of the `output_specs` argument in `napari_workflows_wrapper`.",
-            "type": "object",
             "properties": {
               "type": {
-                "title": "Type",
                 "enum": [
                   "label",
                   "dataframe"
                 ],
+                "title": "Type",
                 "type": "string",
                 "description": "Output type (either `label` or `dataframe`)."
               },
@@ -1454,14 +1398,83 @@
             "required": [
               "type",
               "label_name"
-            ]
+            ],
+            "title": "NapariWorkflowsOutput",
+            "type": "object"
           }
-        }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "zarr_url": {
+            "title": "Zarr Url",
+            "type": "string",
+            "description": "Path or url to the individual OME-Zarr image to be processed. (standard argument for Fractal tasks, managed by Fractal server)."
+          },
+          "workflow_file": {
+            "title": "Workflow File",
+            "type": "string",
+            "description": "Absolute path to napari-workflows YAML file"
+          },
+          "input_specs": {
+            "additionalProperties": {
+              "$ref": "#/$defs/NapariWorkflowsInput"
+            },
+            "title": "Input Specs",
+            "type": "object",
+            "description": "A dictionary of `NapariWorkflowsInput` values."
+          },
+          "output_specs": {
+            "additionalProperties": {
+              "$ref": "#/$defs/NapariWorkflowsOutput"
+            },
+            "title": "Output Specs",
+            "type": "object",
+            "description": "A dictionary of `NapariWorkflowsOutput` values."
+          },
+          "input_ROI_table": {
+            "default": "FOV_ROI_table",
+            "title": "Input Roi Table",
+            "type": "string",
+            "description": "Name of the ROI table over which the task loops to apply napari workflows. Examples: `FOV_ROI_table` => loop over the field of views; `organoid_ROI_table` => loop over the organoid ROI table (generated by another task); `well_ROI_table` => process the whole well as one image."
+          },
+          "level": {
+            "default": 0,
+            "title": "Level",
+            "type": "integer",
+            "description": "Pyramid level of the image to be used as input for napari-workflows. Choose `0` to process at full resolution. Levels > 0 are currently only supported for workflows that only have intensity images as input and only produce a label images as output."
+          },
+          "relabeling": {
+            "default": true,
+            "title": "Relabeling",
+            "type": "boolean",
+            "description": "If `True`, apply relabeling so that label values are unique across all ROIs in the well."
+          },
+          "expected_dimensions": {
+            "default": 3,
+            "title": "Expected Dimensions",
+            "type": "integer",
+            "description": "Expected dimensions (either `2` or `3`). Useful when loading 2D images that are stored in a 3D array with shape `(1, size_x, size_y)` [which is the default way Fractal stores 2D images], but you want to make sure the napari workflow gets a 2D array to process. Also useful to set to `2` when loading a 2D OME-Zarr that is saved as `(size_x, size_y)`."
+          },
+          "overwrite": {
+            "default": true,
+            "title": "Overwrite",
+            "type": "boolean",
+            "description": "If `True`, overwrite the task output."
+          }
+        },
+        "required": [
+          "zarr_url",
+          "workflow_file",
+          "input_specs",
+          "output_specs"
+        ],
+        "type": "object",
+        "title": "NapariWorkflowsWrapper"
       },
       "docs_info": "## napari_workflows_wrapper\nRun a napari-workflow on the ROIs of a single OME-NGFF image.\n\nThis task takes images and labels and runs a napari-workflow on them that\ncan produce a label and tables as output.\n\nExamples of allowed entries for `input_specs` and `output_specs`:\n\n```\ninput_specs = {\n    \"in_1\": {\"type\": \"image\", \"channel\": {\"wavelength_id\": \"A01_C02\"}},\n    \"in_2\": {\"type\": \"image\", \"channel\": {\"label\": \"DAPI\"}},\n    \"in_3\": {\"type\": \"label\", \"label_name\": \"label_DAPI\"},\n}\n\noutput_specs = {\n    \"out_1\": {\"type\": \"label\", \"label_name\": \"label_DAPI_new\"},\n    \"out_2\": {\"type\": \"dataframe\", \"table_name\": \"measurements\"},\n}\n```\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     }
   ],
   "has_args_schemas": true,
-  "args_schema_version": "pydantic_v1"
+  "args_schema_version": "pydantic_v2"
 }

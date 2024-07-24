@@ -207,7 +207,11 @@ def _insert_function_args_descriptions(
 
 
 def _insert_class_attrs_descriptions(
-    *, schema: dict, class_name: str, descriptions: dict
+    *,
+    schema: dict,
+    class_name: str,
+    descriptions: dict,
+    definition_key: str,
 ):
     """
     Merge the descriptions obtained via `_get_attributes_models_descriptions`
@@ -217,14 +221,16 @@ def _insert_class_attrs_descriptions(
         schema: TBD
         class_name: TBD
         descriptions: TBD
+        definitions_key: Either `"definitions"` (for Pydantic V1) or
+            `"$defs"` (for Pydantic V2)
     """
     new_schema = schema.copy()
-    if "definitions" not in schema:
+    if definition_key not in schema:
         return new_schema
     else:
-        new_definitions = schema["definitions"].copy()
+        new_definitions = schema[definition_key].copy()
     # Loop over existing definitions
-    for name, definition in schema["definitions"].items():
+    for name, definition in schema[definition_key].items():
         if name == class_name:
             for prop in definition["properties"]:
                 if "description" in new_definitions[name]["properties"][prop]:
@@ -235,6 +241,6 @@ def _insert_class_attrs_descriptions(
                     new_definitions[name]["properties"][prop][
                         "description"
                     ] = descriptions[prop]
-    new_schema["definitions"] = new_definitions
+    new_schema[definition_key] = new_definitions
     logging.info("[_insert_class_attrs_descriptions] END")
     return new_schema
