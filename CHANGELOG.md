@@ -1,6 +1,6 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# 1.2.0 (unreleased)
+# 1.2.0
 
 * Core-library and tasks:
     * Switch all core models to Pydantic V2 (\#793).
