@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="z_02c373974d9ed707_cellpose_segmentation_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.0">coverage.py v7.6.0</a>,
-            created at 2024-07-22 11:35 +0000
+            created at 2024-07-24 13:16 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -103,7 +103,7 @@
     <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="key">import</span> <span class="nam">dask</span><span class="op">.</span><span class="nam">array</span> <span class="key">as</span> <span class="nam">da</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="key">import</span> <span class="nam">numpy</span> <span class="key">as</span> <span class="nam">np</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="key">import</span> <span class="nam">zarr</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="key">from</span> <span class="nam">pydantic</span><span class="op">.</span><span class="nam">v1</span><span class="op">.</span><span class="nam">decorator</span> <span class="key">import</span> <span class="nam">validate_arguments</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="key">from</span> <span class="nam">pydantic</span> <span class="key">import</span> <span class="nam">validate_call</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="key">from</span> <span class="nam">skimage</span><span class="op">.</span><span class="nam">registration</span> <span class="key">import</span> <span class="nam">phase_cross_correlation</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="key">from</span> <span class="nam">fractal_tasks_core</span><span class="op">.</span><span class="nam">channels</span> <span class="key">import</span> <span class="nam">get_channel_from_image_zarr</span>&nbsp;</span><span class="r"></span></p>
@@ -152,7 +152,7 @@
     <p class="run"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t">            <span class="key">return</span> <span class="nam">chi2_shift_out</span><span class="op">(</span><span class="nam">img_ref</span><span class="op">,</span> <span class="nam">img_acq_x</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="op">@</span><span class="nam">validate_arguments</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="op">@</span><span class="nam">validate_call</span>&nbsp;</span><span class="r"></span></p>
     <p class="par run show_par"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="key">def</span> <span class="nam">calculate_registration_image_based</span><span class="op">(</span>&nbsp;</span><span class="r"><span class="annotate short">72&#x202F;&#x219B;&#x202F;71</span><span class="annotate long">line 72 didn't jump to line 71</span></span></p>
     <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t">    <span class="op">*</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t">    <span class="com"># Fractal arguments</span>&nbsp;</span><span class="r"></span></p>
@@ -383,7 +383,7 @@
             <a class="nav" href="z_02c373974d9ed707_cellpose_segmentation_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.0">coverage.py v7.6.0</a>,
-            created at 2024-07-22 11:35 +0000
+            created at 2024-07-24 13:16 +0000
         </p>
     </div>
 </footer>
