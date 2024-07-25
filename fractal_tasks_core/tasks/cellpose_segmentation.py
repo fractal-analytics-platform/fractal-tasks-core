@@ -211,8 +211,8 @@ def cellpose_segmentation(
     pretrained_model: Optional[str] = None,
     relabeling: bool = True,
     use_masks: bool = True,
-    advanced_cellpose_model_params: CellposeModelParams = Field(
-        default_factory=CellposeModelParams
+    advanced_cellpose_model_params: CellposeModelParams = (
+        CellposeModelParams()
     ),
     overwrite: bool = True,
 ) -> None:
