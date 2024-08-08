@@ -20,6 +20,7 @@ from pathlib import Path
 
 import anndata as ad
 import numpy as np
+import pandas as pd
 import pytest
 import zarr
 from devtools import debug
@@ -718,6 +719,19 @@ def test_cellpose_within_masked_bb_with_overlap(
     assert label1 == label3
     assert label1 == label5
     assert label1 == label7
+
+    # Check the content of the output ROI table (addresses #810)
+    ROI_table = ad.read_zarr(f"{zarr_urls[0]}/tables/secondary_ROI_table")
+    obs = ROI_table.obs.astype(int)
+    # assert len(ROI_table.obs) == 6
+    # expected_rois = pd.DataFrame(
+    #     [1, 1, 3, 5, 5, 7], columns=["label"], index=obs.index
+    # )
+    assert len(ROI_table.obs) == 4
+    expected_rois = pd.DataFrame(
+        [1, 3, 5, 7], columns=["label"], index=obs.index
+    )
+    pd.testing.assert_frame_equal(obs, expected_rois)
 
 
 def test_workflow_with_per_FOV_labeling_via_script(
