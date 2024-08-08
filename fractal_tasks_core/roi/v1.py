@@ -582,7 +582,9 @@ def get_image_grid_ROIs(
     return ROI_table
 
 
-def create_roi_table_from_df_list(bbox_dataframe_list: list[pd.DataFrame]):
+def create_roi_table_from_df_list(
+    bbox_dataframe_list: list[pd.DataFrame],
+) -> ad.AnnData:
     """
     Creates an AnnData ROI table from a list of bounding-box tables
 
