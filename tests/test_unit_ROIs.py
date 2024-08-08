@@ -39,6 +39,7 @@ from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.roi import prepare_FOV_ROI_table
 from fractal_tasks_core.roi import prepare_well_ROI_table
 from fractal_tasks_core.roi import reset_origin
+from fractal_tasks_core.roi.v1 import create_roi_table_from_df_list
 
 
 PIXEL_SIZE_X = 0.1625
@@ -677,3 +678,84 @@ def test_get_image_grid_ROIs():
         ]
     )
     assert np.allclose(EXPECTED_DATA, ROI.X)
+
+
+def test_create_roi_table_from_empty_list():
+    bbox_dataframe_list = []
+    empty_roi_table = create_roi_table_from_df_list(bbox_dataframe_list)
+    assert len(empty_roi_table) == 0
+
+
+def test_create_roi_table_from_df_list():
+    data1 = {
+        "x_micrometer": [0.0, 26.0, 26.0],
+        "y_micrometer": [0.0, 26.0, 13.0],
+        "z_micrometer": [0.0, 0.0, 0.0],
+        "len_x_micrometer": [104.0, 78.0, 104.0],
+        "len_y_micrometer": [104.0, 78.0, 104.0],
+        "len_z_micrometer": [2.0, 2.0, 2.0],
+        "label": [1, 2, 3],
+    }
+    data2 = {
+        "x_micrometer": [416.0, 442.0, 442.0],
+        "y_micrometer": [0.0, 26.0, 13.0],
+        "z_micrometer": [0.0, 0.0, 0.0],
+        "len_x_micrometer": [104.0, 78.0, 104.0],
+        "len_y_micrometer": [104.0, 78.0, 104.0],
+        "len_z_micrometer": [2.0, 2.0, 2.0],
+        "label": [4, 5, 6],
+    }
+    bbox_dataframe_list = [pd.DataFrame(data1), pd.DataFrame(data2)]
+    roi_table = create_roi_table_from_df_list(bbox_dataframe_list)
+    expected_rois = pd.DataFrame(
+        [1, 2, 3, 4, 5, 6], columns=["label"], index=roi_table.obs.index
+    )
+    pd.testing.assert_frame_equal(roi_table.obs.astype(int), expected_rois)
+    output_array = np.array(
+        [
+            [0.0, 0.0, 0.0, 104.0, 104.0, 2.0],
+            [26.0, 26.0, 0.0, 78.0, 78.0, 2.0],
+            [26.0, 13.0, 0.0, 104.0, 104.0, 2.0],
+            [416.0, 0.0, 0.0, 104.0, 104.0, 2.0],
+            [442.0, 26.0, 0.0, 78.0, 78.0, 2.0],
+            [442.0, 13.0, 0.0, 104.0, 104.0, 2.0],
+        ]
+    )
+    np.testing.assert_allclose(output_array, roi_table.X)
+
+
+def test_create_roi_table_from_df_list_with_label_repeats():
+    # Test that repeating labels are handled correctly
+    data1 = {
+        "x_micrometer": [0.0, 26.0, 26.0],
+        "y_micrometer": [0.0, 26.0, 13.0],
+        "z_micrometer": [0.0, 0.0, 0.0],
+        "len_x_micrometer": [104.0, 78.0, 104.0],
+        "len_y_micrometer": [104.0, 78.0, 104.0],
+        "len_z_micrometer": [2.0, 2.0, 2.0],
+        "label": [1, 2, 3],
+    }
+    data2 = {
+        "x_micrometer": [416.0, 442.0, 442.0],
+        "y_micrometer": [0.0, 26.0, 13.0],
+        "z_micrometer": [0.0, 0.0, 0.0],
+        "len_x_micrometer": [104.0, 78.0, 104.0],
+        "len_y_micrometer": [104.0, 78.0, 104.0],
+        "len_z_micrometer": [2.0, 2.0, 2.0],
+        "label": [2, 3, 7],
+    }
+    bbox_dataframe_list = [pd.DataFrame(data1), pd.DataFrame(data2)]
+    roi_table = create_roi_table_from_df_list(bbox_dataframe_list)
+    expected_rois = pd.DataFrame(
+        [1, 2, 3, 7], columns=["label"], index=roi_table.obs.index
+    )
+    pd.testing.assert_frame_equal(roi_table.obs.astype(int), expected_rois)
+    output_array = np.array(
+        [
+            [0.0, 0.0, 0.0, 104.0, 104.0, 2.0],
+            [26.0, 26.0, 0.0, 78.0, 78.0, 2.0],
+            [26.0, 13.0, 0.0, 104.0, 104.0, 2.0],
+            [442.0, 13.0, 0.0, 104.0, 104.0, 2.0],
+        ]
+    )
+    np.testing.assert_allclose(output_array, roi_table.X)

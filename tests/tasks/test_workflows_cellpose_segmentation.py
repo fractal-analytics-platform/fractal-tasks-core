@@ -723,10 +723,6 @@ def test_cellpose_within_masked_bb_with_overlap(
     # Check the content of the output ROI table (addresses #810)
     ROI_table = ad.read_zarr(f"{zarr_urls[0]}/tables/secondary_ROI_table")
     obs = ROI_table.obs.astype(int)
-    # assert len(ROI_table.obs) == 6
-    # expected_rois = pd.DataFrame(
-    #     [1, 1, 3, 5, 5, 7], columns=["label"], index=obs.index
-    # )
     assert len(ROI_table.obs) == 4
     expected_rois = pd.DataFrame(
         [1, 3, 5, 7], columns=["label"], index=obs.index
