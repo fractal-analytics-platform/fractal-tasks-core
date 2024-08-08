@@ -1,5 +1,12 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# Unreleased
+* Core-library
+    * Add `create_roi_table_from_df_list` library function in `fractal_tasks_core.v1.roi`: It combines a list of ROI table dataframes into an AnnData ROI table and handles repeating labels (\#811).
+    * Move `create_well_acquisition_dict` & `_split_well_path_image_path` from fractal_tasks_core.tasks._registration_utils.py & fractal_tasks_core.tasks._zarr_utils into fractal_tasks_core.utils (\#811).
+* Tasks:
+    * Fixes issue 810 for Cellpose task: Avoids creating duplicated entries in ROI tables when masking ROI table input was used (\#811).
+
 # 1.2.0
 
 * Core-library and tasks:

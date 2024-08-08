@@ -23,7 +23,6 @@ import anndata as ad
 import cellpose
 import dask.array as da
 import numpy as np
-import pandas as pd
 import zarr
 from cellpose import models
 from pydantic import Field
@@ -41,7 +40,7 @@ from fractal_tasks_core.roi import check_valid_ROI_indices
 from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
-from fractal_tasks_core.roi import empty_bounding_box_table
+from fractal_tasks_core.roi import create_roi_table_from_df_list
 from fractal_tasks_core.roi import (
     find_overlaps_in_ROI_indices,
 )
@@ -207,7 +206,7 @@ def cellpose_segmentation(
     # Cellpose-related arguments
     diameter_level0: float = 30.0,
     # https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/401 # noqa E501
-    model_type: Literal[tuple(models.MODEL_NAMES)] = "cyto2",
+    model_type: Literal[tuple(models.MODEL_NAMES)] = "cyto2",  # type: ignore
     pretrained_model: Optional[str] = None,
     relabeling: bool = True,
     use_masks: bool = True,
@@ -597,22 +596,7 @@ def cellpose_segmentation(
     logger.info("End building pyramids")
 
     if output_ROI_table:
-        # Handle the case where `bbox_dataframe_list` is empty (typically
-        # because list_indices is also empty)
-        if len(bbox_dataframe_list) == 0:
-            bbox_dataframe_list = [empty_bounding_box_table()]
-        # Concatenate all ROI dataframes
-        df_well = pd.concat(bbox_dataframe_list, axis=0, ignore_index=True)
-        df_well.index = df_well.index.astype(str)
-        # Extract labels and drop them from df_well
-        labels = pd.DataFrame(df_well["label"].astype(str))
-        df_well.drop(labels=["label"], axis=1, inplace=True)
-        # Convert all to float (warning: some would be int, in principle)
-        bbox_dtype = np.float32
-        df_well = df_well.astype(bbox_dtype)
-        # Convert to anndata
-        bbox_table = ad.AnnData(df_well, dtype=bbox_dtype)
-        bbox_table.obs = labels
+        bbox_table = create_roi_table_from_df_list(bbox_dataframe_list)
 
         # Write to zarr group
         image_group = zarr.group(zarr_url)

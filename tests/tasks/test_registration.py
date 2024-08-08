@@ -22,7 +22,6 @@ from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
 from fractal_tasks_core.roi import load_region
-from fractal_tasks_core.tasks._zarr_utils import _split_well_path_image_path
 from fractal_tasks_core.tasks.apply_registration_to_image import (
     apply_registration_to_image,
 )
@@ -60,6 +59,7 @@ from fractal_tasks_core.tasks.io_models import MultiplexingAcquisition
 from fractal_tasks_core.tasks.maximum_intensity_projection import (
     maximum_intensity_projection,
 )
+from fractal_tasks_core.utils import _split_well_path_image_path
 
 
 single_cycle_allowed_channels_no_label = [

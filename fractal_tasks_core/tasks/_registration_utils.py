@@ -13,55 +13,6 @@ import numpy as np
 import pandas as pd
 from image_registration import chi2_shift
 
-from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
-from fractal_tasks_core.tasks._zarr_utils import _split_well_path_image_path
-
-
-def create_well_acquisition_dict(
-    zarr_urls: list[str],
-) -> dict[str, dict[int, str]]:
-    """
-    Parses zarr_urls & groups them by HCS wells & acquisition
-
-    Generates a dict with keys a unique description of the acquisition
-    (e.g. plate + well for HCS plates). The values are dictionaries. The keys
-    of the secondary dictionary are the acqusitions, its values the `zarr_url`
-    for a given acquisition.
-
-    Args:
-        zarr_urls: List of zarr_urls
-
-    Returns:
-        image_groups
-    """
-    image_groups = dict()
-
-    # Dict to cache well-level metadata
-    well_metadata = dict()
-    for zarr_url in zarr_urls:
-        well_path, img_sub_path = _split_well_path_image_path(zarr_url)
-        # For the first zarr_url of a well, load the well metadata and
-        # initialize the image_groups dict
-        if well_path not in image_groups:
-            well_meta = load_NgffWellMeta(well_path)
-            well_metadata[well_path] = well_meta.well
-            image_groups[well_path] = {}
-
-        # For every zarr_url, add it under the well_path & acquisition keys to
-        # the image_groups dict
-        for image in well_metadata[well_path].images:
-            if image.path == img_sub_path:
-                if image.acquisition in image_groups[well_path]:
-                    raise ValueError(
-                        "This task has not been built for OME-Zarr HCS plates"
-                        "with multiple images of the same acquisition per well"
-                        f". {image.acquisition} is the acquisition for "
-                        f"multiple images in {well_path=}."
-                    )
-
-                image_groups[well_path][image.acquisition] = zarr_url
-    return image_groups
-
 
 def calculate_physical_shifts(
     shifts: np.array,

@@ -580,3 +580,57 @@ def get_image_grid_ROIs(
         "len_z_micrometer",
     ]
     return ROI_table
+
+
+def create_roi_table_from_df_list(
+    bbox_dataframe_list: list[pd.DataFrame],
+) -> ad.AnnData:
+    """
+    Creates an AnnData ROI table from a list of bounding-box tables
+
+    This function handles empty bbox lists, ensures that it has unique entries
+    per label (and to address #810, it handles duplicate labels by only
+    keeping the first entry for each label) & converts it to an AnnData table
+    with a label column in obs.
+
+    Args:
+        bbox_dataframe_list: List of bounding box dataframes. All dataframes
+            are expected to have the same columns and they usually are:
+            x_micrometer, y_micrometer, z_micrometer, len_x_micrometer,
+            len_y_micrometer, len_z_micrometer, label. The label column is
+            required.
+
+    Returns:
+        An `AnnData` table with all the ROIs.
+    """
+    # Handle the case where `bbox_dataframe_list` is empty (typically
+    # because list_indices is also empty)
+    if len(bbox_dataframe_list) == 0:
+        bbox_dataframe_list = [empty_bounding_box_table()]
+    # Concatenate all ROI dataframes
+    df_well = pd.concat(bbox_dataframe_list, axis=0, ignore_index=True)
+
+    # Drop duplicates based on the 'label' column, keeping only the first
+    # occurrence (see #810 for details)
+    df_well = df_well.drop_duplicates(subset="label", keep="first")
+
+    # Extract labels and drop them from df_well
+    labels = pd.DataFrame(df_well["label"].astype(str)).reset_index(drop=True)
+
+    # Check that there are only unique labels. Should be ensured by check above
+    if len(labels["label"]) != len(labels["label"].unique()):
+        raise ValueError(
+            "The output ROI table contains duplicate entries for labels: "
+            f"It contains {len(labels['label'])} entries, but only "
+            f"{len(labels['label'].unique())} unique labels"
+        )
+
+    df_well.index = labels["label"]
+    df_well.drop(labels=["label"], axis=1, inplace=True)
+    # Convert all to float (warning: some would be int, in principle)
+    bbox_dtype = np.float32
+    df_well = df_well.astype(bbox_dtype)
+    # Convert to anndata
+    bbox_table = ad.AnnData(df_well)
+    bbox_table.obs = labels
+    return bbox_table
