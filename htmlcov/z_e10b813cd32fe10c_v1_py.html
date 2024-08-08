@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for fractal_tasks_core/roi/v1.py: 99%</title>
+    <title>Coverage for fractal_tasks_core/roi/v1.py: 98%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
     <link rel="stylesheet" href="style_cb_8e611ae1.css" type="text/css">
     <script src="coverage_html_cb_6fb7b396.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>fractal_tasks_core/roi/v1.py</b>:
-            <span class="pc_cov">99%</span>
+            <span class="pc_cov">98%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -55,19 +55,19 @@
             </div>
         </aside>
         <h2>
-            <span class="text">155 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">154<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">1<span class="text"> missing</span></button>
+            <span class="text">170 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">168<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">2<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
-            <button type="button" class="par run show_par button_toggle_par" value="par" data-shortcut="p" title="Toggle lines partially run">1<span class="text"> partial</span></button>
+            <button type="button" class="par run show_par button_toggle_par" value="par" data-shortcut="p" title="Toggle lines partially run">2<span class="text"> partial</span></button>
         </h2>
         <p class="text">
             <a id="prevFileLink" class="nav" href="z_e10b813cd32fe10c_load_region_py.html">&#xab; prev</a> &nbsp; &nbsp;
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_e10b813cd32fe10c_v1_checks_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.6.0">coverage.py v7.6.0</a>,
-            created at 2024-07-24 15:45 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.6.1">coverage.py v7.6.1</a>,
+            created at 2024-08-08 13:02 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -664,6 +664,60 @@
     <p class="pln"><span class="n"><a id="t580" href="#t580">580</a></span><span class="t">        <span class="str">"len_z_micrometer"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t581" href="#t581">581</a></span><span class="t">    <span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t582" href="#t582">582</a></span><span class="t">    <span class="key">return</span> <span class="nam">ROI_table</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t583" href="#t583">583</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t584" href="#t584">584</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t585" href="#t585">585</a></span><span class="t"><span class="key">def</span> <span class="nam">create_roi_table_from_df_list</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t586" href="#t586">586</a></span><span class="t">    <span class="nam">bbox_dataframe_list</span><span class="op">:</span> <span class="nam">list</span><span class="op">[</span><span class="nam">pd</span><span class="op">.</span><span class="nam">DataFrame</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t587" href="#t587">587</a></span><span class="t"><span class="op">)</span> <span class="op">-></span> <span class="nam">ad</span><span class="op">.</span><span class="nam">AnnData</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t588" href="#t588">588</a></span><span class="t">    <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t589" href="#t589">589</a></span><span class="t"><span class="str">    Creates an AnnData ROI table from a list of bounding-box tables</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t590" href="#t590">590</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t591" href="#t591">591</a></span><span class="t"><span class="str">    This function handles empty bbox lists, ensures that it has unique entries</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t592" href="#t592">592</a></span><span class="t"><span class="str">    per label (and to address #810, it handles duplicate labels by only</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t593" href="#t593">593</a></span><span class="t"><span class="str">    keeping the first entry for each label) &amp; converts it to an AnnData table</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t594" href="#t594">594</a></span><span class="t"><span class="str">    with a label column in obs.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t595" href="#t595">595</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t596" href="#t596">596</a></span><span class="t"><span class="str">    Args:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t597" href="#t597">597</a></span><span class="t"><span class="str">        bbox_dataframe_list: List of bounding box dataframes. All dataframes</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t598" href="#t598">598</a></span><span class="t"><span class="str">            are expected to have the same columns and they usually are:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t599" href="#t599">599</a></span><span class="t"><span class="str">            x_micrometer, y_micrometer, z_micrometer, len_x_micrometer,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t600" href="#t600">600</a></span><span class="t"><span class="str">            len_y_micrometer, len_z_micrometer, label. The label column is</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t601" href="#t601">601</a></span><span class="t"><span class="str">            required.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t602" href="#t602">602</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t603" href="#t603">603</a></span><span class="t"><span class="str">    Returns:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t604" href="#t604">604</a></span><span class="t"><span class="str">        An `AnnData` table with all the ROIs.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t605" href="#t605">605</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t606" href="#t606">606</a></span><span class="t">    <span class="com"># Handle the case where `bbox_dataframe_list` is empty (typically</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t607" href="#t607">607</a></span><span class="t">    <span class="com"># because list_indices is also empty)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t608" href="#t608">608</a></span><span class="t">    <span class="key">if</span> <span class="nam">len</span><span class="op">(</span><span class="nam">bbox_dataframe_list</span><span class="op">)</span> <span class="op">==</span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t609" href="#t609">609</a></span><span class="t">        <span class="nam">bbox_dataframe_list</span> <span class="op">=</span> <span class="op">[</span><span class="nam">empty_bounding_box_table</span><span class="op">(</span><span class="op">)</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t610" href="#t610">610</a></span><span class="t">    <span class="com"># Concatenate all ROI dataframes</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t611" href="#t611">611</a></span><span class="t">    <span class="nam">df_well</span> <span class="op">=</span> <span class="nam">pd</span><span class="op">.</span><span class="nam">concat</span><span class="op">(</span><span class="nam">bbox_dataframe_list</span><span class="op">,</span> <span class="nam">axis</span><span class="op">=</span><span class="num">0</span><span class="op">,</span> <span class="nam">ignore_index</span><span class="op">=</span><span class="key">True</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t612" href="#t612">612</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t613" href="#t613">613</a></span><span class="t">    <span class="com"># Drop duplicates based on the 'label' column, keeping only the first</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t614" href="#t614">614</a></span><span class="t">    <span class="com"># occurrence (see #810 for details)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t615" href="#t615">615</a></span><span class="t">    <span class="nam">df_well</span> <span class="op">=</span> <span class="nam">df_well</span><span class="op">.</span><span class="nam">drop_duplicates</span><span class="op">(</span><span class="nam">subset</span><span class="op">=</span><span class="str">"label"</span><span class="op">,</span> <span class="nam">keep</span><span class="op">=</span><span class="str">"first"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t616" href="#t616">616</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t617" href="#t617">617</a></span><span class="t">    <span class="com"># Extract labels and drop them from df_well</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t618" href="#t618">618</a></span><span class="t">    <span class="nam">labels</span> <span class="op">=</span> <span class="nam">pd</span><span class="op">.</span><span class="nam">DataFrame</span><span class="op">(</span><span class="nam">df_well</span><span class="op">[</span><span class="str">"label"</span><span class="op">]</span><span class="op">.</span><span class="nam">astype</span><span class="op">(</span><span class="nam">str</span><span class="op">)</span><span class="op">)</span><span class="op">.</span><span class="nam">reset_index</span><span class="op">(</span><span class="nam">drop</span><span class="op">=</span><span class="key">True</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t619" href="#t619">619</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t620" href="#t620">620</a></span><span class="t">    <span class="com"># Check that there are only unique labels. Should be ensured by check above</span>&nbsp;</span><span class="r"></span></p>
+    <p class="par run show_par"><span class="n"><a id="t621" href="#t621">621</a></span><span class="t">    <span class="key">if</span> <span class="nam">len</span><span class="op">(</span><span class="nam">labels</span><span class="op">[</span><span class="str">"label"</span><span class="op">]</span><span class="op">)</span> <span class="op">!=</span> <span class="nam">len</span><span class="op">(</span><span class="nam">labels</span><span class="op">[</span><span class="str">"label"</span><span class="op">]</span><span class="op">.</span><span class="nam">unique</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">621&#x202F;&#x219B;&#x202F;622</span><span class="annotate long">line 621 didn't jump to line 622 because the condition on line 621 was never true</span></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t622" href="#t622">622</a></span><span class="t">        <span class="key">raise</span> <span class="nam">ValueError</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t623" href="#t623">623</a></span><span class="t">            <span class="str">"The output ROI table contains duplicate entries for labels: "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t624" href="#t624">624</a></span><span class="t">            <span class="fst">f"</span><span class="fst">It contains </span><span class="op">{</span><span class="nam">len</span><span class="op">(</span><span class="nam">labels</span><span class="op">[</span><span class="str">'label'</span><span class="op">]</span><span class="op">)</span><span class="op">}</span><span class="fst"> entries, but only </span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t625" href="#t625">625</a></span><span class="t">            <span class="fst">f"</span><span class="op">{</span><span class="nam">len</span><span class="op">(</span><span class="nam">labels</span><span class="op">[</span><span class="str">'label'</span><span class="op">]</span><span class="op">.</span><span class="nam">unique</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">}</span><span class="fst"> unique labels</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t626" href="#t626">626</a></span><span class="t">        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t627" href="#t627">627</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t628" href="#t628">628</a></span><span class="t">    <span class="nam">df_well</span><span class="op">.</span><span class="nam">index</span> <span class="op">=</span> <span class="nam">labels</span><span class="op">[</span><span class="str">"label"</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t629" href="#t629">629</a></span><span class="t">    <span class="nam">df_well</span><span class="op">.</span><span class="nam">drop</span><span class="op">(</span><span class="nam">labels</span><span class="op">=</span><span class="op">[</span><span class="str">"label"</span><span class="op">]</span><span class="op">,</span> <span class="nam">axis</span><span class="op">=</span><span class="num">1</span><span class="op">,</span> <span class="nam">inplace</span><span class="op">=</span><span class="key">True</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t630" href="#t630">630</a></span><span class="t">    <span class="com"># Convert all to float (warning: some would be int, in principle)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t631" href="#t631">631</a></span><span class="t">    <span class="nam">bbox_dtype</span> <span class="op">=</span> <span class="nam">np</span><span class="op">.</span><span class="nam">float32</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t632" href="#t632">632</a></span><span class="t">    <span class="nam">df_well</span> <span class="op">=</span> <span class="nam">df_well</span><span class="op">.</span><span class="nam">astype</span><span class="op">(</span><span class="nam">bbox_dtype</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t633" href="#t633">633</a></span><span class="t">    <span class="com"># Convert to anndata</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t634" href="#t634">634</a></span><span class="t">    <span class="nam">bbox_table</span> <span class="op">=</span> <span class="nam">ad</span><span class="op">.</span><span class="nam">AnnData</span><span class="op">(</span><span class="nam">df_well</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t635" href="#t635">635</a></span><span class="t">    <span class="nam">bbox_table</span><span class="op">.</span><span class="nam">obs</span> <span class="op">=</span> <span class="nam">labels</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t636" href="#t636">636</a></span><span class="t">    <span class="key">return</span> <span class="nam">bbox_table</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -672,8 +726,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_e10b813cd32fe10c_v1_checks_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.6.0">coverage.py v7.6.0</a>,
-            created at 2024-07-24 15:45 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.6.1">coverage.py v7.6.1</a>,
+            created at 2024-08-08 13:02 +0000
         </p>
     </div>
 </footer>
