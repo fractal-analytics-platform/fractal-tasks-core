@@ -12,14 +12,14 @@ from filelock._error import Timeout
 from pytest import LogCaptureFixture
 
 from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
-from fractal_tasks_core.tasks._registration_utils import (
-    _split_well_path_image_path,
-)
 from fractal_tasks_core.tasks._zarr_utils import _copy_hcs_ome_zarr_metadata
 from fractal_tasks_core.tasks._zarr_utils import (
     _get_matching_ref_acquisition_path_heuristic,
 )
 from fractal_tasks_core.tasks._zarr_utils import _update_well_metadata
+from fractal_tasks_core.utils import (
+    _split_well_path_image_path,
+)
 
 
 @pytest.mark.parametrize("trailing_slash", [True, False])

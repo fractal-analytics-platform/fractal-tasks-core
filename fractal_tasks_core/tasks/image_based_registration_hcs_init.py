@@ -17,7 +17,7 @@ from typing import Any
 
 from pydantic import validate_call
 
-from fractal_tasks_core.tasks._registration_utils import (
+from fractal_tasks_core.utils import (
     create_well_acquisition_dict,
 )
 

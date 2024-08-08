@@ -8,6 +8,7 @@ from filelock import FileLock
 from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
 from fractal_tasks_core.tables import write_table
 from fractal_tasks_core.tables.v1 import get_tables_list_v1
+from fractal_tasks_core.utils import _split_well_path_image_path
 
 logger = logging.getLogger(__name__)
 
@@ -97,16 +98,6 @@ def _update_well_metadata(
 
     # One could catch the timeout with a try except Timeout. But what to do
     # with it?
-
-
-def _split_well_path_image_path(zarr_url: str) -> tuple[str, str]:
-    """
-    Returns path to well folder for HCS OME-Zarr `zarr_url`.
-    """
-    zarr_url = zarr_url.rstrip("/")
-    well_path = "/".join(zarr_url.split("/")[:-1])
-    img_path = zarr_url.split("/")[-1]
-    return well_path, img_path
 
 
 def _split_base_suffix(input: str) -> tuple[str, str]:

@@ -17,13 +17,11 @@ from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
 from fractal_tasks_core.tables.v1 import get_tables_list_v1
-from fractal_tasks_core.tasks._registration_utils import (
-    _split_well_path_image_path,
-)
 from fractal_tasks_core.tasks.illumination_correction import correct
 from fractal_tasks_core.tasks.illumination_correction import (
     illumination_correction,
 )
+from fractal_tasks_core.utils import _split_well_path_image_path
 
 
 @pytest.mark.parametrize("overwrite_input", [True, False])

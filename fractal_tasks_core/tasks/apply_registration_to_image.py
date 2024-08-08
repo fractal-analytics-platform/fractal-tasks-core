@@ -38,11 +38,11 @@ from fractal_tasks_core.tables import write_table
 from fractal_tasks_core.tasks._zarr_utils import (
     _get_matching_ref_acquisition_path_heuristic,
 )
-from fractal_tasks_core.tasks._zarr_utils import (
-    _split_well_path_image_path,
-)
 from fractal_tasks_core.tasks._zarr_utils import _update_well_metadata
 from fractal_tasks_core.utils import _get_table_path_dict
+from fractal_tasks_core.utils import (
+    _split_well_path_image_path,
+)
 
 logger = logging.getLogger(__name__)
 
