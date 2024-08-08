@@ -206,7 +206,7 @@ def cellpose_segmentation(
     # Cellpose-related arguments
     diameter_level0: float = 30.0,
     # https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/401 # noqa E501
-    model_type: Literal[tuple(models.MODEL_NAMES)] = "cyto2",
+    model_type: Literal[tuple(models.MODEL_NAMES)] = "cyto2",  # type: ignore
     pretrained_model: Optional[str] = None,
     relabeling: bool = True,
     use_masks: bool = True,
