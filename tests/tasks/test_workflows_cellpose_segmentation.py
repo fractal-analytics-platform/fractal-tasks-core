@@ -86,9 +86,15 @@ coarsening_xy = 2
 
 
 def patched_segment_ROI(
-    x, do_3D=True, label_dtype=None, well_id=None, **kwargs
+    x,
+    num_labels_tot: dict[str, int],
+    do_3D=True,
+    label_dtype=None,
+    well_id=None,
+    **kwargs,
 ):
-    # Expects x to always be a 4D image
+    # Expects x to always be a 4D image.
+    # Also uses num_labels_tot to ensure unique labels.
 
     import logging
 
@@ -101,14 +107,27 @@ def patched_segment_ROI(
     mask = np.zeros_like(x[0, :, :, :])
     nz, ny, nx = mask.shape
     if do_3D:
-        mask[:, 0 : ny // 4, 0 : nx // 4] = 1  # noqa
-        mask[:, ny // 4 : ny // 2, 0 : int(nx * 0.9)] = 2  # noqa
+        mask[:, 0 : ny // 4, 0 : nx // 4] = (
+            num_labels_tot["num_labels_tot"] + 1
+        )
+        mask[:, ny // 4 : ny // 2, 0 : int(nx * 0.9)] = (
+            num_labels_tot["num_labels_tot"] + 2
+        )
     else:
-        mask[:, 0 : ny // 4, 0 : nx // 4] = 1  # noqa
-        mask[:, 0 : ny // 2, 0 : nx // 4] = 1  # noqa
-        mask[:, 0 : ny // 4, 0 : nx // 2] = 1  # noqa
-        mask[:, int(ny * 3 / 4) : ny, int(nx * 3 / 4) : nx] = 2  # noqa
+        mask[:, 0 : ny // 4, 0 : nx // 4] = (
+            num_labels_tot["num_labels_tot"] + 1
+        )
+        mask[:, 0 : ny // 2, 0 : nx // 4] = (
+            num_labels_tot["num_labels_tot"] + 1
+        )
+        mask[:, 0 : ny // 4, 0 : nx // 2] = (
+            num_labels_tot["num_labels_tot"] + 1
+        )
+        mask[:, int(ny * 3 / 4) : ny, int(nx * 3 / 4) : nx] = (
+            num_labels_tot["num_labels_tot"] + 2
+        )
 
+    num_labels_tot["num_labels_tot"] += 2
     logger.info(f"[{well_id}][patched_segment_ROI] END")
 
     return mask.astype(label_dtype)
@@ -128,7 +147,7 @@ def patched_segment_ROI_no_labels(
 
 
 def patched_segment_ROI_overlapping_organoids(
-    x, label_dtype=None, well_id=None, **kwargs
+    x, num_labels_tot: dict[str, int], label_dtype=None, well_id=None, **kwargs
 ):
     import logging
 
@@ -141,8 +160,9 @@ def patched_segment_ROI_overlapping_organoids(
     mask = np.zeros_like(x[0, :, :, :])
     nz, ny, nx = mask.shape
     indices = np.arange(0, nx // 2)
-    mask[:, indices, indices] = 1  # noqa
-    mask[:, indices + 10, indices + 20] = 2  # noqa
+    mask[:, indices, indices] = num_labels_tot["num_labels_tot"] + 1
+    mask[:, indices + 10, indices + 20] = num_labels_tot["num_labels_tot"] + 2
+    num_labels_tot["num_labels_tot"] += 2
 
     logger.info(f"[{well_id}][patched_segment_ROI] END")
 
