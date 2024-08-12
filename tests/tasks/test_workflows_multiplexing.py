@@ -224,6 +224,92 @@ def test_multiplexing_compute(
     check_file_number(zarr_path=image_zarr_1)
 
 
+def test_multiplexing_arbitrary_acquisition_names(
+    tmp_path: Path,
+    zenodo_images_multiplex: Sequence[str],
+):
+    acquisitions = {
+        "string_6": MultiplexingAcquisition(
+            image_dir=zenodo_images_multiplex[0],
+            allowed_channels=single_cycle_allowed_channels_no_label,
+        ),
+        "12345": MultiplexingAcquisition(
+            image_dir=zenodo_images_multiplex[1],
+            allowed_channels=single_cycle_allowed_channels_no_label,
+        ),
+    }
+
+    # Init
+    zarr_dir = str(tmp_path / "tmp_out/")
+
+    # Create zarr structure
+    parallelization_list = cellvoyager_to_ome_zarr_init_multiplex(
+        zarr_urls=[],
+        zarr_dir=zarr_dir,
+        acquisitions=acquisitions,
+        num_levels=num_levels,
+        coarsening_xy=coarsening_xy,
+        image_extension="png",
+    )["parallelization_list"]
+
+    debug(parallelization_list)
+
+    # Convert to OME-Zarr
+    image_list_updates = []
+    for image in parallelization_list:
+        image_list_updates += cellvoyager_to_ome_zarr_compute(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+        )["image_list_updates"]
+    debug(image_list_updates)
+
+    # Check image_list_updates
+    # expected_image_list_update = [
+    #     {
+    #         "zarr_url": (
+    #             f"{zarr_dir}/20200812-CardiomyocyteDifferentiation14"
+    #             "-Cycle1.zarr/B/03/0/"
+    #         ),
+    #         "attributes": {
+    #             "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
+    #             "well": "B03",
+    #             "acquisition": 0,
+    #         },
+    #         "types": {
+    #             "is_3D": True,
+    #         },
+    #     },
+    #     {
+    #         "zarr_url": (
+    #             f"{zarr_dir}/20200812-CardiomyocyteDifferentiation14"
+    #             "-Cycle1.zarr/B/03/1/"
+    #         ),
+    #         "attributes": {
+    #             "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
+    #             "well": "B03",
+    #             "acquisition": 1,
+    #         },
+    #         "types": {
+    #             "is_3D": True,
+    #         },
+    #     },
+    # ]
+    # assert image_list_updates == expected_image_list_update
+
+    # # OME-NGFF JSON validation
+    # image_zarr_0 = Path(zarr_dir) / parallelization_list[0]["zarr_url"]
+    # image_zarr_1 = Path(zarr_dir) / parallelization_list[1]["zarr_url"]
+    # well_zarr = image_zarr_0.parent
+    # plate_zarr = image_zarr_0.parents[2]
+    # validate_schema(path=str(image_zarr_0), type="image")
+    # validate_schema(path=str(image_zarr_1), type="image")
+    # validate_schema(path=str(well_zarr), type="well")
+    # validate_schema(path=str(plate_zarr), type="plate")
+
+    # check_file_number(zarr_path=image_zarr_0)
+    # check_file_number(zarr_path=image_zarr_1)
+
+
 def test_multiplexing_MIP(
     tmp_path: Path, zenodo_images_multiplex: Sequence[str]
 ):
