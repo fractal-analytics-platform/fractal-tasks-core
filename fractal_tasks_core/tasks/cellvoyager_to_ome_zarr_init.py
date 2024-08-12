@@ -152,7 +152,7 @@ def cellvoyager_to_ome_zarr_init(
             exclude_patterns.extend(exclude_glob_patterns)
         input_filenames = glob_with_multiple_patterns(
             folder=image_dir,
-            inlcude_patterns=include_patterns,
+            include_patterns=include_patterns,
             exclude_patterns=exclude_patterns,
         )
 
