@@ -176,7 +176,7 @@ def test_yokogawa_to_ome_zarr(
     expected_image_list_update = {
         "zarr_url": (
             f"{output_path}/20200812-CardiomyocyteDifferentiation14"
-            "-Cycle1.zarr/B/03/0/"
+            "-Cycle1.zarr/B/03/0"
         ),
         "attributes": {
             "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
@@ -274,7 +274,7 @@ def test_2D_cellvoyager_to_ome_zarr(
     expected_image_list_update = {
         "zarr_url": (
             f"{output_path}/20200812-CardiomyocyteDifferentiation14"
-            "-Cycle1.zarr/B/03/0/"
+            "-Cycle1.zarr/B/03/0"
         ),
         "attributes": {
             "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
@@ -535,3 +535,67 @@ def test_illumination_correction(
     validate_schema(path=str(plate_zarr), type="plate")
 
     check_file_number(zarr_path=image_zarr)
+
+
+def test_yokogawa_to_ome_zarr_multiplate(
+    tmp_path: Path,
+    zenodo_images_multiplex: str,
+):
+    img_path_1, img_path_2 = zenodo_images_multiplex
+    output_path = tmp_path / "output"
+
+    # Create zarr structure
+    parallelization_list = cellvoyager_to_ome_zarr_init(
+        zarr_urls=[],
+        zarr_dir=str(output_path),
+        image_dirs=[img_path_1, img_path_2],
+        allowed_channels=allowed_channels,
+        num_levels=num_levels,
+        coarsening_xy=coarsening_xy,
+        image_extension="png",
+        overwrite=False,
+    )["parallelization_list"]
+    debug(parallelization_list)
+
+    image_list_updates = []
+    # Yokogawa to zarr
+    for image in parallelization_list:
+        image_list_updates += cellvoyager_to_ome_zarr_compute(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+        )["image_list_updates"]
+    debug(image_list_updates)
+
+    # Validate image_list_updates contents
+    expected_image_list_update = [
+        {
+            "zarr_url": (
+                f"{output_path}/20200812-CardiomyocyteDifferentiation14"
+                "-Cycle1.zarr/B/03/0"
+            ),
+            "attributes": {
+                "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
+                "well": "B03",
+            },
+            "types": {
+                "is_3D": True,
+            },
+        },
+        {
+            "zarr_url": (
+                f"{output_path}/20200812-CardiomyocyteDifferentiation14"
+                "-Cycle1_1.zarr/B/03/0"
+            ),
+            "attributes": {
+                "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1_1.zarr",  # noqa
+                "well": "B03",
+            },
+            "types": {
+                "is_3D": True,
+            },
+        },
+    ]
+    debug(image_list_updates)
+    debug(expected_image_list_update)
+
+    assert image_list_updates == expected_image_list_update

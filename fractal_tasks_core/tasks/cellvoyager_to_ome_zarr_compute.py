@@ -77,7 +77,7 @@ def cellvoyager_to_ome_zarr_compute(
         init_args: Intialization arguments provided by
             `create_cellvoyager_ome_zarr_init`.
     """
-
+    zarr_url = zarr_url.rstrip("/")
     # Read attributes from NGFF metadata
     ngff_image_meta = load_NgffImageMeta(zarr_url)
     num_levels = ngff_image_meta.num_levels
@@ -198,8 +198,12 @@ def cellvoyager_to_ome_zarr_compute(
         is_3D = True
     else:
         is_3D = False
+    # FIXME: Get plate name from zarr_url => works for duplicate plate names
+    # with suffixes
+    print(zarr_url)
+    plate_name = zarr_url.split("/")[-4]
     attributes = {
-        "plate": f"{init_args.plate_prefix}.zarr",
+        "plate": plate_name,
         "well": init_args.well_ID,
     }
     if init_args.acquisition is not None:

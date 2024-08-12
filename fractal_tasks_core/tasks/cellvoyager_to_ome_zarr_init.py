@@ -364,7 +364,7 @@ def cellvoyager_to_ome_zarr_init(
         for row, column in well_rows_columns:
             parallelization_list.append(
                 {
-                    "zarr_url": f"{zarr_dir}/{plate}.zarr/{row}/{column}/0/",
+                    "zarr_url": f"{zarr_dir}/{plate}.zarr/{row}/{column}/0",
                     "init_args": InitArgsCellVoyager(
                         image_dir=in_path,
                         plate_prefix=plate_prefix,
@@ -385,7 +385,7 @@ def cellvoyager_to_ome_zarr_init(
             Well(**well_attrs)
             group_well.attrs["well"] = well_attrs
 
-            group_image = group_well.create_group("0/")  # noqa: F841
+            group_image = group_well.create_group("0")  # noqa: F841
             group_image.attrs["multiscales"] = [
                 {
                     "version": __OME_NGFF_VERSION__,
