@@ -84,20 +84,24 @@ def parse_yokogawa_metadata(
 
     # Aggregate information from the mrf file
     mrf_columns = [
-        "horiz_pixel_dim",
-        "vert_pixel_dim",
-        "horiz_pixels",
-        "vert_pixels",
-        "bit_depth",
+        "HorizontalPixelDimension",
+        "VerticalPixelDimension",
+        "HorizontalPixels",
+        "VerticalPixels",
+        "InputBitDepth",
     ]
     check_group_consistency(
         mrf_frame.loc[:, mrf_columns], message="Image dimensions"
     )
-    site_metadata["pixel_size_x"] = mrf_frame.loc[:, "horiz_pixel_dim"].max()
-    site_metadata["pixel_size_y"] = mrf_frame.loc[:, "vert_pixel_dim"].max()
-    site_metadata["x_pixel"] = int(mrf_frame.loc[:, "horiz_pixels"].max())
-    site_metadata["y_pixel"] = int(mrf_frame.loc[:, "vert_pixels"].max())
-    site_metadata["bit_depth"] = int(mrf_frame.loc[:, "bit_depth"].max())
+    site_metadata["pixel_size_x"] = mrf_frame.loc[
+        :, "HorizontalPixelDimension"
+    ].max()
+    site_metadata["pixel_size_y"] = mrf_frame.loc[
+        :, "VerticalPixelDimension"
+    ].max()
+    site_metadata["x_pixel"] = int(mrf_frame.loc[:, "HorizontalPixels"].max())
+    site_metadata["y_pixel"] = int(mrf_frame.loc[:, "VerticalPixels"].max())
+    site_metadata["bit_depth"] = int(mrf_frame.loc[:, "InputBitDepth"].max())
 
     if error_count > 0:
         logger.info(
