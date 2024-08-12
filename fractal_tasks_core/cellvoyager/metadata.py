@@ -29,7 +29,8 @@ def parse_yokogawa_metadata(
     mrf_path: Union[str, Path],
     mlf_path: Union[str, Path],
     *,
-    filename_patterns: Optional[list[str]] = None,
+    include_patterns: Optional[list[str]] = None,
+    exclude_patterns: Optional[list[str]] = None,
 ) -> tuple[pd.DataFrame, dict[str, int]]:
     """
     Parse Yokogawa CV7000 metadata files and prepare site-level metadata.
@@ -37,9 +38,11 @@ def parse_yokogawa_metadata(
     Args:
         mrf_path: Full path to MeasurementDetail.mrf metadata file.
         mlf_path: Full path to MeasurementData.mlf metadata file.
-        filename_patterns:
-            List of patterns to filter the image filenames in the mlf metadata
-            table. Patterns must be defined as in
+        include_patterns: List of patterns to filter the image filenames in
+            the mlf metadata table. Patterns must be defined as in
+            https://docs.python.org/3/library/fnmatch.html
+        exclude_patterns: List of exclusion patterns. Any file matching any
+            of those patterns is excluded. Patterns must be defined as in
             https://docs.python.org/3/library/fnmatch.html
     """
 
@@ -57,7 +60,10 @@ def parse_yokogawa_metadata(
         )
 
     mrf_frame, mlf_frame, error_count = read_metadata_files(
-        mrf_str, mlf_str, filename_patterns
+        mrf_str,
+        mlf_str,
+        include_patterns=include_patterns,
+        exclude_patterns=exclude_patterns,
     )
 
     # Aggregate information from the mlf file
@@ -133,7 +139,8 @@ def parse_yokogawa_metadata(
 def read_metadata_files(
     mrf_path: str,
     mlf_path: str,
-    filename_patterns: Optional[list[str]] = None,
+    include_patterns: Optional[list[str]] = None,
+    exclude_patterns: Optional[list[str]] = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame, int]:
     """
     Create tables for mrf & mlf Yokogawa metadata.
@@ -141,9 +148,12 @@ def read_metadata_files(
     Args:
         mrf_path: Full path to MeasurementDetail.mrf metadata file.
         mlf_path: Full path to MeasurementData.mlf metadata file.
-        filename_patterns: List of patterns to filter the image filenames in
+        include_patterns: List of patterns to filter the image filenames in
             the mlf metadata table. Patterns must be defined as in
-            https://docs.python.org/3/library/fnmatch.html.
+            https://docs.python.org/3/library/fnmatch.html
+        exclude_patterns: List of exclusion patterns. Any file matching any
+            of those patterns is excluded. Patterns must be defined as in
+            https://docs.python.org/3/library/fnmatch.html
 
     Returns:
 
@@ -161,7 +171,10 @@ def read_metadata_files(
     # use e.g. during illumination correction
 
     mlf_frame, error_count = read_mlf_file(
-        mlf_path, plate_type, filename_patterns
+        mlf_path,
+        plate_type,
+        include_patterns=include_patterns,
+        exclude_patterns=exclude_patterns,
     )
 
     # Filter the mrf channel dataframe to only keep channels that were imaged
@@ -253,7 +266,8 @@ def _create_well_ids(
 def read_mlf_file(
     mlf_path: str,
     plate_type: int,
-    filename_patterns: Optional[list[str]] = None,
+    include_patterns: Optional[list[str]] = None,
+    exclude_patterns: Optional[list[str]] = None,
 ) -> tuple[pd.DataFrame, int]:
     """
     Process the mlf metadata file of a Cellvoyager CV7K/CV8K.
@@ -261,9 +275,12 @@ def read_mlf_file(
     Args:
         mlf_path: Full path to MeasurementData.mlf metadata file.
         plate_type: Plate layout, integer for the number of potential wells.
-        filename_patterns: List of patterns to filter the image filenames in
+        include_patterns: List of patterns to filter the image filenames in
             the mlf metadata table. Patterns must be defined as in
-            https://docs.python.org/3/library/fnmatch.html.
+            https://docs.python.org/3/library/fnmatch.html
+        exclude_patterns: List of exclusion patterns. Any file matching any
+            of those patterns is excluded. Patterns must be defined as in
+            https://docs.python.org/3/library/fnmatch.html
 
     Returns:
         mlf_frame: pd.DataFrame with relevant metadata per image
@@ -275,13 +292,17 @@ def read_mlf_file(
 
     # Remove all rows that do not match the given patterns
     logger.info(
-        f"Read {mlf_path}, and apply following patterns to "
-        f"image filenames: {filename_patterns}"
+        f"Read {mlf_path}, apply following include patterns to "
+        f"image filenames: {include_patterns} apply the following exlcude "
+        f"patterns to image filenames: {exclude_patterns}"
     )
-    if filename_patterns:
+
+    if include_patterns or exclude_patterns:
         filenames = mlf_frame_raw.MeasurementRecord
         keep_row = None
-        for pattern in filename_patterns:
+        exclude_row = None
+        # Include patterns
+        for pattern in include_patterns:
             actual_pattern = fnmatch.translate(pattern)
             new_matches = filenames.str.fullmatch(actual_pattern)
             if new_matches.sum() == 0:
@@ -293,10 +314,23 @@ def read_mlf_file(
                 keep_row = new_matches.copy()
             else:
                 keep_row = keep_row & new_matches
+        # Exclude patterns
+        for pattern in exclude_patterns:
+            actual_pattern = fnmatch.translate(pattern)
+            new_matches = filenames.str.fullmatch(actual_pattern)
+            if exclude_row is None:
+                exclude_row = new_matches.copy()
+            else:
+                exclude_row = exclude_row | new_matches
+
+        # Combine included list with exclusions
+        keep_row = keep_row & ~exclude_row
+
         if keep_row.sum() == 0:
             raise ValueError(
                 f"In {mlf_path} there is no image filename "
-                f"matching {filename_patterns}."
+                f"matching {include_patterns} but not excluded by the pattern "
+                f"{exclude_patterns}."
             )
         mlf_frame_matching = mlf_frame_raw[keep_row.values].copy()
     else:

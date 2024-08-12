@@ -135,13 +135,21 @@
             "type": "array",
             "description": "A list of `OmeroChannel` s, where each channel must include the `wavelength_id` attribute and where the `wavelength_id` values must be unique across the list."
           },
-          "image_glob_patterns": {
+          "include_glob_patterns": {
             "items": {
               "type": "string"
             },
-            "title": "Image Glob Patterns",
+            "title": "Include Glob Patterns",
             "type": "array",
-            "description": "If specified, only parse images with filenames that match with all these patterns. Patterns must be defined as in https://docs.python.org/3/library/fnmatch.html, Example: `image_glob_pattern=[\"*_B03_*\"]` => only process well B03 `image_glob_pattern=[\"*_C09_*\", \"*F016*\", \"*Z[0-5][0-9]C*\"]` => only process well C09, field of view 16 and Z planes 0-59."
+            "description": "If specified, only parse images with filenames that match with all these patterns. Patterns must be defined as in https://docs.python.org/3/library/fnmatch.html, Example: `image_glob_pattern=[\"*_B03_*\"]` => only process well B03 `image_glob_pattern=[\"*_C09_*\", \"*F016*\", \"*Z[0-5][0-9]C*\"]` => only process well C09, field of view 16 and Z planes 0-59. Can interact with exclude_glob_patterns: All included images - all excluded images gives the final list of images to process"
+          },
+          "exclude_glob_patterns": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Exclude Glob Patterns",
+            "type": "array",
+            "description": "If specified, exclude any image where the filename matches any of the exclusion patterns. Patterns are specified the same as for include_glob_patterns."
           },
           "num_levels": {
             "default": 5,
@@ -203,11 +211,18 @@
                 "title": "Image Extension",
                 "type": "string"
               },
-              "image_glob_patterns": {
+              "include_glob_patterns": {
                 "items": {
                   "type": "string"
                 },
-                "title": "Image Glob Patterns",
+                "title": "Include Glob Patterns",
+                "type": "array"
+              },
+              "exclude_glob_patterns": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Exclude Glob Patterns",
                 "type": "array"
               },
               "acquisition": {
@@ -398,13 +413,21 @@
             "type": "object",
             "description": "dictionary of acquisitions. Each key is the acquisition identifier (normally 0, 1, 2, 3 etc.). Each item defines the acquisition by providing the image_dir and the allowed_channels."
           },
-          "image_glob_patterns": {
+          "include_glob_patterns": {
             "items": {
               "type": "string"
             },
-            "title": "Image Glob Patterns",
+            "title": "Include Glob Patterns",
             "type": "array",
-            "description": "If specified, only parse images with filenames that match with all these patterns. Patterns must be defined as in https://docs.python.org/3/library/fnmatch.html, Example: `image_glob_pattern=[\"*_B03_*\"]` => only process well B03 `image_glob_pattern=[\"*_C09_*\", \"*F016*\", \"*Z[0-5][0-9]C*\"]` => only process well C09, field of view 16 and Z planes 0-59."
+            "description": "If specified, only parse images with filenames that match with all these patterns. Patterns must be defined as in https://docs.python.org/3/library/fnmatch.html, Example: `image_glob_pattern=[\"*_B03_*\"]` => only process well B03 `image_glob_pattern=[\"*_C09_*\", \"*F016*\", \"*Z[0-5][0-9]C*\"]` => only process well C09, field of view 16 and Z planes 0-59. Can interact with exclude_glob_patterns: All included images - all excluded images gives the final list of images to process"
+          },
+          "exclude_glob_patterns": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Exclude Glob Patterns",
+            "type": "array",
+            "description": "If specified, exclude any image where the filename matches any of the exclusion patterns. Patterns are specified the same as for include_glob_patterns."
           },
           "num_levels": {
             "default": 5,
@@ -468,11 +491,18 @@
                 "title": "Image Extension",
                 "type": "string"
               },
-              "image_glob_patterns": {
+              "include_glob_patterns": {
                 "items": {
                   "type": "string"
                 },
-                "title": "Image Glob Patterns",
+                "title": "Include Glob Patterns",
+                "type": "array"
+              },
+              "exclude_glob_patterns": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Exclude Glob Patterns",
                 "type": "array"
               },
               "acquisition": {

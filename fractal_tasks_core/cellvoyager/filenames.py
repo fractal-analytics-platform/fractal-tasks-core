@@ -22,19 +22,20 @@ from typing import Sequence
 def glob_with_multiple_patterns(
     *,
     folder: str,
-    patterns: Sequence[str] = None,
+    include_patterns: Sequence[str] = None,
+    exclude_patterns: Sequence[str] = None,
 ) -> set[str]:
     """
     List all the items (files and folders) in a given folder that
-    simultaneously match a series of glob patterns.
+    simultaneously match a series of glob include_patterns and do not match
+    any of the exclude_patterns.
 
     Args:
         folder: Base folder where items will be searched.
-        patterns: If specified, the list of patterns (defined as in
+        include_patterns: If specified, the list of patterns (defined as in
             https://docs.python.org/3/library/fnmatch.html) that item
             names will match with.
     """
-
     # Sanitize base-folder path
     if folder.endswith("/"):
         actual_folder = folder[:-1]
@@ -42,22 +43,40 @@ def glob_with_multiple_patterns(
         actual_folder = folder[:]
 
     # If not pattern is specified, look for *all* items in the base folder
-    if not patterns:
-        patterns = ["*"]
+    if not include_patterns:
+        include_patterns = ["*"]
+    if not exclude_patterns:
+        exclude_patterns = []
 
     # Combine multiple glob searches (via set intersection)
-    logging.info(f"[glob_with_multiple_patterns] {patterns=}")
+    logging.info(f"[glob_with_multiple_patterns] {include_patterns=}")
     items = None
-    for pattern in patterns:
+    for pattern in include_patterns:
         new_matches = glob(f"{actual_folder}/{pattern}")
         if items is None:
             items = set(new_matches)
         else:
             items = items.intersection(new_matches)
     items = items or set()
-    logging.info(f"[glob_with_multiple_patterns] Found {len(items)} items")
 
-    return items
+    # Combine all exclude patterns
+    exclude_items = set()
+    for pattern in exclude_patterns:
+        new_matches = glob(f"{actual_folder}/{pattern}")
+        if len(exclude_items) == 0:
+            exclude_items = set(new_matches)
+        else:
+            exclude_items.update(new_matches)
+    exclude_items = exclude_items or set()
+
+    # Remove exclude_items from included list
+    consensus_items = items - exclude_items
+
+    logging.info(
+        f"[glob_with_multiple_patterns] Found {len(consensus_items)} items"
+    )
+
+    return consensus_items
 
 
 def _get_plate_name(plate_prefix: str) -> str:

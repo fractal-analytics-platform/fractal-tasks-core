@@ -96,7 +96,7 @@ def test_create_ome_zarr_no_images(
     testdata_path: Path,
 ):
     """
-    For invalid image_extension or image_glob_patterns arguments,
+    For invalid image_extension or include_glob_patterns arguments,
     create_ome_zarr must fail.
     """
     with pytest.raises(ValueError):
@@ -120,7 +120,7 @@ def test_create_ome_zarr_no_images(
             coarsening_xy=coarsening_xy,
             metadata_table_file=None,
             image_extension="png",
-            image_glob_patterns=["*asdasd*"],
+            include_glob_patterns=["*asdasd*"],
         )
 
 
@@ -256,7 +256,7 @@ def test_2D_cellvoyager_to_ome_zarr(
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        image_glob_patterns=["*Z01*"],
+        include_glob_patterns=["*Z01*"],
         image_extension="png",
     )["parallelization_list"]
     debug(parallelization_list)
@@ -431,7 +431,7 @@ def test_MIP_subset_of_images(
         coarsening_xy=coarsening_xy,
         metadata_table_file=None,
         image_extension="png",
-        image_glob_patterns=["*F001*"],
+        include_glob_patterns=["*F001*"],
     )["parallelization_list"]
     debug(parallelization_list)
 

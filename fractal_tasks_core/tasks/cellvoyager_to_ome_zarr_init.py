@@ -59,7 +59,8 @@ def cellvoyager_to_ome_zarr_init(
     image_dirs: list[str],
     allowed_channels: list[OmeroChannel],
     # Advanced parameters
-    image_glob_patterns: Optional[list[str]] = None,
+    include_glob_patterns: Optional[list[str]] = None,
+    exclude_glob_patterns: Optional[list[str]] = None,
     num_levels: int = 5,
     coarsening_xy: int = 2,
     image_extension: str = "tif",
@@ -96,12 +97,17 @@ def cellvoyager_to_ome_zarr_init(
         allowed_channels: A list of `OmeroChannel` s, where each channel must
             include the `wavelength_id` attribute and where the
             `wavelength_id` values must be unique across the list.
-        image_glob_patterns: If specified, only parse images with filenames
+        include_glob_patterns: If specified, only parse images with filenames
             that match with all these patterns. Patterns must be defined as in
             https://docs.python.org/3/library/fnmatch.html, Example:
             `image_glob_pattern=["*_B03_*"]` => only process well B03
             `image_glob_pattern=["*_C09_*", "*F016*", "*Z[0-5][0-9]C*"]` =>
             only process well C09, field of view 16 and Z planes 0-59.
+            Can interact with exclude_glob_patterns: All included images - all
+            excluded images gives the final list of images to process
+        exclude_glob_patterns: If specified, exclude any image where the
+            filename matches any of the exclusion patterns. Patterns are
+            specified the same as for include_glob_patterns.
         num_levels: Number of resolution-pyramid levels. If set to `5`, there
             will be the full-resolution level and 4 levels of
             downsampled images.
@@ -138,12 +144,16 @@ def cellvoyager_to_ome_zarr_init(
 
     for image_dir in image_dirs:
         # Glob image filenames
-        patterns = [f"*.{image_extension}"]
-        if image_glob_patterns:
-            patterns.extend(image_glob_patterns)
+        include_patterns = [f"*.{image_extension}"]
+        exclude_patterns = []
+        if include_glob_patterns:
+            include_patterns.extend(include_glob_patterns)
+        if exclude_glob_patterns:
+            exclude_patterns.extend(exclude_glob_patterns)
         input_filenames = glob_with_multiple_patterns(
             folder=image_dir,
-            patterns=patterns,
+            inlcude_patterns=include_patterns,
+            exclude_patterns=exclude_patterns,
         )
 
         tmp_wavelength_ids = []
@@ -169,7 +179,8 @@ def cellvoyager_to_ome_zarr_init(
         info = (
             "Listing plates/channels:\n"
             f"Folder:   {image_dir}\n"
-            f"Patterns: {patterns}\n"
+            f"Include Patterns: {include_patterns}\n"
+            f"Exclude Patterns: {exclude_patterns}\n"
             f"Plates:   {tmp_plates}\n"
             f"Channels: {tmp_wavelength_ids}\n"
         )
@@ -252,7 +263,8 @@ def cellvoyager_to_ome_zarr_init(
             site_metadata, number_images_mlf = parse_yokogawa_metadata(
                 mrf_path,
                 mlf_path,
-                filename_patterns=image_glob_patterns,
+                include_patterns=include_glob_patterns,
+                exclude_patterns=exclude_glob_patterns,
             )
             site_metadata = remove_FOV_overlaps(site_metadata)
 
@@ -277,11 +289,13 @@ def cellvoyager_to_ome_zarr_init(
         # Identify all wells
         plate_prefix = dict_plate_prefixes[plate]
 
-        patterns = [f"{plate_prefix}_*.{image_extension}"]
-        if image_glob_patterns:
-            patterns.extend(image_glob_patterns)
+        include_patterns = [f"{plate_prefix}_*.{image_extension}"]
+        if include_glob_patterns:
+            include_patterns.extend(include_glob_patterns)
         plate_images = glob_with_multiple_patterns(
-            folder=str(in_path), patterns=patterns
+            folder=str(in_path),
+            include_patterns=include_patterns,
+            exclude_patterns=exclude_patterns,
         )
 
         wells = [
@@ -291,11 +305,13 @@ def cellvoyager_to_ome_zarr_init(
 
         # Verify that all wells have all channels
         for well in wells:
-            patterns = [f"{plate_prefix}_{well}_*.{image_extension}"]
-            if image_glob_patterns:
-                patterns.extend(image_glob_patterns)
+            include_patterns = [f"{plate_prefix}_{well}_*.{image_extension}"]
+            if include_glob_patterns:
+                include_patterns.extend(include_glob_patterns)
             well_images = glob_with_multiple_patterns(
-                folder=str(in_path), patterns=patterns
+                folder=str(in_path),
+                include_patterns=include_patterns,
+                exclude_patterns=exclude_patterns,
             )
 
             # Check number of images matches with expected one
@@ -309,7 +325,8 @@ def cellvoyager_to_ome_zarr_init(
                         f"Found {num_images_glob} files\n"
                         "Other parameters:\n"
                         f"  {image_extension=}\n"
-                        f"  {image_glob_patterns=}"
+                        f"  {include_glob_patterns=}\n"
+                        f"  {exclude_glob_patterns=}\n"
                     )
 
             well_wavelength_ids = []
@@ -370,7 +387,8 @@ def cellvoyager_to_ome_zarr_init(
                         plate_prefix=plate_prefix,
                         well_ID=get_filename_well_id(row, column),
                         image_extension=image_extension,
-                        image_glob_patterns=image_glob_patterns,
+                        include_glob_patterns=include_glob_patterns,
+                        exclude_glob_patterns=exclude_glob_patterns,
                     ).model_dump(),
                 }
             )
