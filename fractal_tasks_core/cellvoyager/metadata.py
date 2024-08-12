@@ -48,6 +48,15 @@ def parse_yokogawa_metadata(
     mrf_str = Path(mrf_path).as_posix()
     mlf_str = Path(mlf_path).as_posix()
 
+    # Ensure mrf & mlf files exist
+    if not Path(mrf_str).exists() and not Path(mlf_str).exists():
+        raise FileNotFoundError(
+            "Could not find the mlf & mrf metadata files. Expected to find "
+            "them at: \n"
+            f"{mrf_str=}\n"
+            f"{mlf_str=}"
+        )
+
     mrf_frame, mlf_frame, error_count = read_metadata_files(
         mrf_str, mlf_str, filename_patterns
     )

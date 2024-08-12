@@ -280,3 +280,11 @@ def test_create_well_ids_1536_well():
         "D11.d1",
     ]
     assert well_ids == expected_wells
+
+
+def test_missing_mlf_mrf_files():
+    with pytest.raises(FileNotFoundError):
+        parse_yokogawa_metadata(
+            mlf_path="/non/existant/path/MeasurementData.mlf",
+            mrf_path="/non/existant/path/MeasurementDetail.mrf",
+        )
