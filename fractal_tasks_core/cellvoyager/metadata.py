@@ -174,7 +174,7 @@ def read_metadata_files(
     return mrf_frame, mlf_frame, error_count
 
 
-def read_mrf_file(mrf_path):
+def read_mrf_file(mrf_path: str) -> tuple[pd.DataFrame, int]:
     """
     Parses the mrf metadata file
 
