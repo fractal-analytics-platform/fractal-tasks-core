@@ -142,10 +142,16 @@ def cellvoyager_to_ome_zarr_init_multiplex(
         if not isinstance(key, str):
             raise ValueError(f"{acquisitions=} has non-string keys")
         check_unique_wavelength_ids(values.allowed_channels)
+        try:
+            int(key)
+        except ValueError:
+            raise ValueError("Acquisition dictionary keys need to be integers")
 
     # Identify all plates and all channels, per input folders
     dict_acquisitions: dict = {}
-    for acquisition, acq_input in acquisitions.items():
+    acquisitions_sorted = sorted(list(acquisitions.keys()))
+    for acquisition in acquisitions_sorted:
+        acq_input = acquisitions[acquisition]
         dict_acquisitions[acquisition] = {}
 
         actual_wavelength_ids = []
@@ -192,12 +198,12 @@ def cellvoyager_to_ome_zarr_init_multiplex(
         original_plate = plates[0]
         plate_prefix = plate_prefixes[0]
 
-        # Replace plate with the one of acquisition 0, if needed
-        if int(acquisition) > 0:
-            plate = dict_acquisitions["0"]["plate"]
+        # Replace plate with the one of the first acquisition
+        if acquisition != acquisitions_sorted[0]:
+            plate = dict_acquisitions[acquisitions_sorted[0]]["plate"]
             logger.warning(
                 f"For {acquisition=}, we replace {original_plate=} with "
-                f"{plate=} (the one for acquisition 0)"
+                f"{plate=} (the one for acquisition {acquisitions_sorted[0]})"
             )
 
         # Check that all channels are in the allowed_channels
@@ -237,7 +243,6 @@ def cellvoyager_to_ome_zarr_init_multiplex(
         ] = actual_wavelength_ids
 
     parallelization_list = []
-    acquisitions_sorted = sorted(list(acquisitions.keys()))
     current_plates = [item["plate"] for item in dict_acquisitions.values()]
     if len(set(current_plates)) > 1:
         raise ValueError(f"{current_plates=}")
@@ -266,7 +271,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
     ################################################################
     logging.info(f"{acquisitions_sorted=}")
 
-    for acquisition in acquisitions_sorted:
+    for i, acquisition in enumerate(acquisitions_sorted):
         # Define plate zarr
         image_folder = dict_acquisitions[acquisition]["image_folder"]
         logger.info(f"Looking at {image_folder=}")
@@ -370,8 +375,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
             parallelization_list.append(
                 {
                     "zarr_url": (
-                        f"{zarr_dir}/{plate}.zarr/{row}/{column}/"
-                        f"{acquisition}/"
+                        f"{zarr_dir}/{plate}.zarr/{row}/{column}/" f"{i}"
                     ),
                     "init_args": InitArgsCellVoyager(
                         image_dir=acquisitions[acquisition].image_dir,
@@ -389,7 +393,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                 well_attrs = {
                     "images": [
                         {
-                            "path": f"{acquisition}",
+                            "path": f"{i}",
                             "acquisition": int(acquisition),
                         }
                     ],
@@ -407,7 +411,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                     f"Loaded group_well from {full_zarrurl}/{row}/{column}"
                 )
                 current_images = group_well.attrs["well"]["images"] + [
-                    {"path": f"{acquisition}", "acquisition": int(acquisition)}
+                    {"path": f"{i}", "acquisition": int(acquisition)}
                 ]
                 well_attrs = dict(
                     images=current_images,
@@ -417,11 +421,9 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                 Well(**well_attrs)
                 group_well.attrs["well"] = well_attrs
 
-            group_image = group_well.create_group(
-                f"{acquisition}/"
-            )  # noqa: F841
-            logging.info(f"Created image group {row}/{column}/{acquisition}")
-            image = f"{plate}.zarr/{row}/{column}/{acquisition}"
+            group_image = group_well.create_group(f"{i}/")  # noqa: F841
+            logging.info(f"Created image group {row}/{column}/{i}")
+            image = f"{plate}.zarr/{row}/{column}/{i}"
             zarrurls["image"].append(image)
 
             group_image.attrs["multiscales"] = [
@@ -474,7 +476,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                 "channels": define_omero_channels(
                     channels=actual_channels,
                     bit_depth=bit_depth,
-                    label_prefix=acquisition,
+                    label_prefix=i,
                 ),
             }
             # Validate Image attrs
