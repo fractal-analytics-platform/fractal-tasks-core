@@ -21,7 +21,6 @@ from typing import Union
 
 import numpy as np
 import pandas as pd
-from defusedxml import ElementTree
 
 logger = logging.getLogger(__name__)
 
@@ -160,13 +159,18 @@ def read_metadata_files(
     mlf_frame, error_count = read_mlf_file(
         mlf_path, plate_type, filename_patterns
     )
+
+    # Filter the mrf channel dataframe to only keep channels that were imaged
+    # and are included in the filters (see issue #287)
+    # FIXME: Implement
+
     # Time points are parsed as part of the mlf_frame, but currently not
     # processed further. Once we tackle time-resolved data, parse from here.
 
     return mrf_frame, mlf_frame, error_count
 
 
-def read_mrf_file(mrf_path: str) -> tuple[pd.DataFrame, int]:
+def read_mrf_file(mrf_path):
     """
     Parses the mrf metadata file
 
@@ -177,46 +181,18 @@ def read_mrf_file(mrf_path: str) -> tuple[pd.DataFrame, int]:
         Parsed mrf pandas table with one row per channel imaged
         The plate_type: The number of wells
     """
-
-    # Prepare mrf dataframe
-    mrf_columns = [
-        "channel_id",
-        "horiz_pixel_dim",
-        "vert_pixel_dim",
-        "camera_no",
-        "bit_depth",
-        "horiz_pixels",
-        "vert_pixels",
-        "filter_wheel_position",
-        "filter_position",
-        "shading_corr_src",
-    ]
-    mrf_frame = pd.DataFrame(columns=mrf_columns)
-
-    mrf_xml = ElementTree.parse(mrf_path).getroot()
-
-    # Read mrf file
+    # Define the namespaces
     ns = {"bts": "http://www.yokogawa.co.jp/BTS/BTSSchema/1.0"}
-    # Fetch RowCount and ColumnCount
-    row_count = int(mrf_xml.attrib[f'{{{ns["bts"]}}}RowCount'])
-    column_count = int(mrf_xml.attrib[f'{{{ns["bts"]}}}ColumnCount'])
+    channel_df = pd.read_xml(
+        mrf_path, xpath=".//bts:MeasurementChannel", namespaces=ns
+    )
+    meas_df = pd.read_xml(
+        mrf_path, xpath="//bts:MeasurementDetail", namespaces=ns
+    )
+    row_count = int(meas_df["RowCount"])
+    column_count = int(meas_df["ColumnCount"])
     plate_type = row_count * column_count
-
-    for channel in mrf_xml.findall("bts:MeasurementChannel", namespaces=ns):
-        mrf_frame.loc[channel.get("{%s}Ch" % ns["bts"])] = [
-            channel.get("{%s}Ch" % ns["bts"]),
-            float(channel.get("{%s}HorizontalPixelDimension" % ns["bts"])),
-            float(channel.get("{%s}VerticalPixelDimension" % ns["bts"])),
-            int(channel.get("{%s}CameraNumber" % ns["bts"])),
-            int(channel.get("{%s}InputBitDepth" % ns["bts"])),
-            int(channel.get("{%s}HorizontalPixels" % ns["bts"])),
-            int(channel.get("{%s}VerticalPixels" % ns["bts"])),
-            int(channel.get("{%s}FilterWheelPosition" % ns["bts"])),
-            int(channel.get("{%s}FilterPosition" % ns["bts"])),
-            channel.get("{%s}ShadingCorrectionSource" % ns["bts"]),
-        ]
-
-    return mrf_frame, plate_type
+    return channel_df, plate_type
 
 
 def _create_well_ids(
