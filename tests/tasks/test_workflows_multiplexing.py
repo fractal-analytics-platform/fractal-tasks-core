@@ -183,7 +183,7 @@ def test_multiplexing_compute(
         {
             "zarr_url": (
                 f"{zarr_dir}/20200812-CardiomyocyteDifferentiation14"
-                "-Cycle1.zarr/B/03/0/"
+                "-Cycle1.zarr/B/03/0"
             ),
             "attributes": {
                 "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
@@ -197,7 +197,7 @@ def test_multiplexing_compute(
         {
             "zarr_url": (
                 f"{zarr_dir}/20200812-CardiomyocyteDifferentiation14"
-                "-Cycle1.zarr/B/03/1/"
+                "-Cycle1.zarr/B/03/1"
             ),
             "attributes": {
                 "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
