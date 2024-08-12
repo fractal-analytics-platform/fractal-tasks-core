@@ -23,6 +23,7 @@ from fractal_tasks_core.cellvoyager.metadata import _create_well_ids
 from fractal_tasks_core.cellvoyager.metadata import (
     parse_yokogawa_metadata,
 )
+from fractal_tasks_core.cellvoyager.metadata import read_metadata_files
 from fractal_tasks_core.roi import remove_FOV_overlaps
 from fractal_tasks_core.roi import run_overlap_check
 
@@ -288,3 +289,20 @@ def test_missing_mlf_mrf_files():
             mlf_path="/non/existant/path/MeasurementData.mlf",
             mrf_path="/non/existant/path/MeasurementDetail.mrf",
         )
+
+
+channel_combos = [
+    (mlf_path_2, mrf_path_2, 3),
+    (mlf_path_2, mrf_path_1, 1),
+    (mlf_path_3, mrf_path_2, 1),
+]
+
+
+@pytest.mark.parametrize(
+    "mlf_path, mrf_path, expected_channels",
+    channel_combos,
+)
+def test_skipping_extra_channels(mlf_path, mrf_path, expected_channels):
+    # Adressing issue #287
+    mrf_frame, _, _ = read_metadata_files(mlf_path=mlf_path, mrf_path=mrf_path)
+    assert len(mrf_frame) == expected_channels

@@ -166,7 +166,8 @@ def read_metadata_files(
 
     # Filter the mrf channel dataframe to only keep channels that were imaged
     # and are included in the filters (see issue #287)
-    # FIXME: Implement
+    relevant_channels = mlf_frame["Ch"].unique()
+    mrf_frame = mrf_frame[mrf_frame["Ch"].isin(relevant_channels)]
 
     # Time points are parsed as part of the mlf_frame, but currently not
     # processed further. Once we tackle time-resolved data, parse from here.
