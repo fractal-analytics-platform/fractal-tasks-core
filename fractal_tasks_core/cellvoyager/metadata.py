@@ -302,26 +302,33 @@ def read_mlf_file(
         keep_row = None
         exclude_row = None
         # Include patterns
-        for pattern in include_patterns:
-            actual_pattern = fnmatch.translate(pattern)
-            new_matches = filenames.str.fullmatch(actual_pattern)
-            if new_matches.sum() == 0:
-                raise ValueError(
-                    f"In {mlf_path} there is no image filename "
-                    f'matching "{actual_pattern}".'
-                )
-            if keep_row is None:
-                keep_row = new_matches.copy()
-            else:
-                keep_row = keep_row & new_matches
+        if include_patterns:
+            for pattern in include_patterns:
+                actual_pattern = fnmatch.translate(pattern)
+                new_matches = filenames.str.fullmatch(actual_pattern)
+                if new_matches.sum() == 0:
+                    raise ValueError(
+                        f"In {mlf_path} there is no image filename "
+                        f'matching "{actual_pattern}".'
+                    )
+                if keep_row is None:
+                    keep_row = new_matches.copy()
+                else:
+                    keep_row = keep_row & new_matches
         # Exclude patterns
-        for pattern in exclude_patterns:
-            actual_pattern = fnmatch.translate(pattern)
-            new_matches = filenames.str.fullmatch(actual_pattern)
-            if exclude_row is None:
-                exclude_row = new_matches.copy()
-            else:
-                exclude_row = exclude_row | new_matches
+        if exclude_patterns:
+            for pattern in exclude_patterns:
+                actual_pattern = fnmatch.translate(pattern)
+                new_matches = filenames.str.fullmatch(actual_pattern)
+                if exclude_row is None:
+                    exclude_row = new_matches.copy()
+                else:
+                    exclude_row = exclude_row | new_matches
+        else:
+            # Create an all False df => exclude nothing
+            exclude_row = pd.Series(
+                [False] * len(keep_row), index=keep_row.index
+            )
 
         # Combine included list with exclusions
         keep_row = keep_row & ~exclude_row
