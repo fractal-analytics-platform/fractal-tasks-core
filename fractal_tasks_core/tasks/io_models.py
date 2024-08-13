@@ -50,8 +50,9 @@ class InitArgsCellVoyager(BaseModel):
             right subset of image files
         image_extension: part of the image filename needed for finding the
             right subset of image files
-        image_glob_patterns: Additional glob patterns to filter the available
-            images with
+        include_glob_patterns: Additional glob patterns to filter the available
+            images with.
+        exclude_glob_patterns: Glob patterns to exclude.
         acquisition: Acquisition metadata needed for multiplexing
     """
 
@@ -59,7 +60,8 @@ class InitArgsCellVoyager(BaseModel):
     plate_prefix: str
     well_ID: str
     image_extension: str
-    image_glob_patterns: Optional[list[str]] = None
+    include_glob_patterns: Optional[list[str]] = None
+    exclude_glob_patterns: Optional[list[str]] = None
     acquisition: Optional[int] = None
 
 

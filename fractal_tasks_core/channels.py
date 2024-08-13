@@ -334,7 +334,8 @@ def define_omero_channels(
         channels: A list of channel dictionaries (each one must include the
             `wavelength_id` key).
         bit_depth: bit depth.
-        label_prefix: TBD
+        label_prefix: Prefix to be added before the default label. Used e.g.
+            to add a prefix for the acquisition round.
 
     Returns:
         `new_channels`, a new list of consistent channel dictionaries that
@@ -350,7 +351,7 @@ def define_omero_channels(
         # If channel.label is None, set it to a default value
         if channel.label is None:
             default_label = wavelength_id
-            if label_prefix:
+            if label_prefix is not None:
                 default_label = f"{label_prefix}_{default_label}"
             logging.warning(
                 f"Missing label for {channel=}, using {default_label=}"

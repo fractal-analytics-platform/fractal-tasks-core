@@ -21,7 +21,6 @@ from typing import Union
 
 import numpy as np
 import pandas as pd
-from defusedxml import ElementTree
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +29,8 @@ def parse_yokogawa_metadata(
     mrf_path: Union[str, Path],
     mlf_path: Union[str, Path],
     *,
-    filename_patterns: Optional[list[str]] = None,
+    include_patterns: Optional[list[str]] = None,
+    exclude_patterns: Optional[list[str]] = None,
 ) -> tuple[pd.DataFrame, dict[str, int]]:
     """
     Parse Yokogawa CV7000 metadata files and prepare site-level metadata.
@@ -38,9 +38,11 @@ def parse_yokogawa_metadata(
     Args:
         mrf_path: Full path to MeasurementDetail.mrf metadata file.
         mlf_path: Full path to MeasurementData.mlf metadata file.
-        filename_patterns:
-            List of patterns to filter the image filenames in the mlf metadata
-            table. Patterns must be defined as in
+        include_patterns: List of patterns to filter the image filenames in
+            the mlf metadata table. Patterns must be defined as in
+            https://docs.python.org/3/library/fnmatch.html
+        exclude_patterns: List of exclusion patterns. Any file matching any
+            of those patterns is excluded. Patterns must be defined as in
             https://docs.python.org/3/library/fnmatch.html
     """
 
@@ -48,8 +50,20 @@ def parse_yokogawa_metadata(
     mrf_str = Path(mrf_path).as_posix()
     mlf_str = Path(mlf_path).as_posix()
 
+    # Ensure mrf & mlf files exist
+    if not Path(mrf_str).exists() and not Path(mlf_str).exists():
+        raise FileNotFoundError(
+            "Could not find the mlf & mrf metadata files. Expected to find "
+            "them at: \n"
+            f"{mrf_str=}\n"
+            f"{mlf_str=}"
+        )
+
     mrf_frame, mlf_frame, error_count = read_metadata_files(
-        mrf_str, mlf_str, filename_patterns
+        mrf_str,
+        mlf_str,
+        include_patterns=include_patterns,
+        exclude_patterns=exclude_patterns,
     )
 
     # Aggregate information from the mlf file
@@ -76,20 +90,24 @@ def parse_yokogawa_metadata(
 
     # Aggregate information from the mrf file
     mrf_columns = [
-        "horiz_pixel_dim",
-        "vert_pixel_dim",
-        "horiz_pixels",
-        "vert_pixels",
-        "bit_depth",
+        "HorizontalPixelDimension",
+        "VerticalPixelDimension",
+        "HorizontalPixels",
+        "VerticalPixels",
+        "InputBitDepth",
     ]
     check_group_consistency(
         mrf_frame.loc[:, mrf_columns], message="Image dimensions"
     )
-    site_metadata["pixel_size_x"] = mrf_frame.loc[:, "horiz_pixel_dim"].max()
-    site_metadata["pixel_size_y"] = mrf_frame.loc[:, "vert_pixel_dim"].max()
-    site_metadata["x_pixel"] = int(mrf_frame.loc[:, "horiz_pixels"].max())
-    site_metadata["y_pixel"] = int(mrf_frame.loc[:, "vert_pixels"].max())
-    site_metadata["bit_depth"] = int(mrf_frame.loc[:, "bit_depth"].max())
+    site_metadata["pixel_size_x"] = mrf_frame.loc[
+        :, "HorizontalPixelDimension"
+    ].max()
+    site_metadata["pixel_size_y"] = mrf_frame.loc[
+        :, "VerticalPixelDimension"
+    ].max()
+    site_metadata["x_pixel"] = int(mrf_frame.loc[:, "HorizontalPixels"].max())
+    site_metadata["y_pixel"] = int(mrf_frame.loc[:, "VerticalPixels"].max())
+    site_metadata["bit_depth"] = int(mrf_frame.loc[:, "InputBitDepth"].max())
 
     if error_count > 0:
         logger.info(
@@ -121,7 +139,8 @@ def parse_yokogawa_metadata(
 def read_metadata_files(
     mrf_path: str,
     mlf_path: str,
-    filename_patterns: Optional[list[str]] = None,
+    include_patterns: Optional[list[str]] = None,
+    exclude_patterns: Optional[list[str]] = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame, int]:
     """
     Create tables for mrf & mlf Yokogawa metadata.
@@ -129,9 +148,12 @@ def read_metadata_files(
     Args:
         mrf_path: Full path to MeasurementDetail.mrf metadata file.
         mlf_path: Full path to MeasurementData.mlf metadata file.
-        filename_patterns: List of patterns to filter the image filenames in
+        include_patterns: List of patterns to filter the image filenames in
             the mlf metadata table. Patterns must be defined as in
-            https://docs.python.org/3/library/fnmatch.html.
+            https://docs.python.org/3/library/fnmatch.html
+        exclude_patterns: List of exclusion patterns. Any file matching any
+            of those patterns is excluded. Patterns must be defined as in
+            https://docs.python.org/3/library/fnmatch.html
 
     Returns:
 
@@ -149,8 +171,17 @@ def read_metadata_files(
     # use e.g. during illumination correction
 
     mlf_frame, error_count = read_mlf_file(
-        mlf_path, plate_type, filename_patterns
+        mlf_path,
+        plate_type,
+        include_patterns=include_patterns,
+        exclude_patterns=exclude_patterns,
     )
+
+    # Filter the mrf channel dataframe to only keep channels that were imaged
+    # and are included in the filters (see issue #287)
+    relevant_channels = mlf_frame["Ch"].unique()
+    mrf_frame = mrf_frame[mrf_frame["Ch"].isin(relevant_channels)]
+
     # Time points are parsed as part of the mlf_frame, but currently not
     # processed further. Once we tackle time-resolved data, parse from here.
 
@@ -168,46 +199,18 @@ def read_mrf_file(mrf_path: str) -> tuple[pd.DataFrame, int]:
         Parsed mrf pandas table with one row per channel imaged
         The plate_type: The number of wells
     """
-
-    # Prepare mrf dataframe
-    mrf_columns = [
-        "channel_id",
-        "horiz_pixel_dim",
-        "vert_pixel_dim",
-        "camera_no",
-        "bit_depth",
-        "horiz_pixels",
-        "vert_pixels",
-        "filter_wheel_position",
-        "filter_position",
-        "shading_corr_src",
-    ]
-    mrf_frame = pd.DataFrame(columns=mrf_columns)
-
-    mrf_xml = ElementTree.parse(mrf_path).getroot()
-
-    # Read mrf file
+    # Define the namespaces
     ns = {"bts": "http://www.yokogawa.co.jp/BTS/BTSSchema/1.0"}
-    # Fetch RowCount and ColumnCount
-    row_count = int(mrf_xml.attrib[f'{{{ns["bts"]}}}RowCount'])
-    column_count = int(mrf_xml.attrib[f'{{{ns["bts"]}}}ColumnCount'])
+    channel_df = pd.read_xml(
+        mrf_path, xpath=".//bts:MeasurementChannel", namespaces=ns
+    )
+    meas_df = pd.read_xml(
+        mrf_path, xpath="//bts:MeasurementDetail", namespaces=ns
+    )
+    row_count = int(meas_df["RowCount"])
+    column_count = int(meas_df["ColumnCount"])
     plate_type = row_count * column_count
-
-    for channel in mrf_xml.findall("bts:MeasurementChannel", namespaces=ns):
-        mrf_frame.loc[channel.get("{%s}Ch" % ns["bts"])] = [
-            channel.get("{%s}Ch" % ns["bts"]),
-            float(channel.get("{%s}HorizontalPixelDimension" % ns["bts"])),
-            float(channel.get("{%s}VerticalPixelDimension" % ns["bts"])),
-            int(channel.get("{%s}CameraNumber" % ns["bts"])),
-            int(channel.get("{%s}InputBitDepth" % ns["bts"])),
-            int(channel.get("{%s}HorizontalPixels" % ns["bts"])),
-            int(channel.get("{%s}VerticalPixels" % ns["bts"])),
-            int(channel.get("{%s}FilterWheelPosition" % ns["bts"])),
-            int(channel.get("{%s}FilterPosition" % ns["bts"])),
-            channel.get("{%s}ShadingCorrectionSource" % ns["bts"]),
-        ]
-
-    return mrf_frame, plate_type
+    return channel_df, plate_type
 
 
 def _create_well_ids(
@@ -263,7 +266,8 @@ def _create_well_ids(
 def read_mlf_file(
     mlf_path: str,
     plate_type: int,
-    filename_patterns: Optional[list[str]] = None,
+    include_patterns: Optional[list[str]] = None,
+    exclude_patterns: Optional[list[str]] = None,
 ) -> tuple[pd.DataFrame, int]:
     """
     Process the mlf metadata file of a Cellvoyager CV7K/CV8K.
@@ -271,9 +275,12 @@ def read_mlf_file(
     Args:
         mlf_path: Full path to MeasurementData.mlf metadata file.
         plate_type: Plate layout, integer for the number of potential wells.
-        filename_patterns: List of patterns to filter the image filenames in
+        include_patterns: List of patterns to filter the image filenames in
             the mlf metadata table. Patterns must be defined as in
-            https://docs.python.org/3/library/fnmatch.html.
+            https://docs.python.org/3/library/fnmatch.html
+        exclude_patterns: List of exclusion patterns. Any file matching any
+            of those patterns is excluded. Patterns must be defined as in
+            https://docs.python.org/3/library/fnmatch.html
 
     Returns:
         mlf_frame: pd.DataFrame with relevant metadata per image
@@ -285,28 +292,53 @@ def read_mlf_file(
 
     # Remove all rows that do not match the given patterns
     logger.info(
-        f"Read {mlf_path}, and apply following patterns to "
-        f"image filenames: {filename_patterns}"
+        f"Read {mlf_path}, apply following include patterns to "
+        f"image filenames: {include_patterns} apply the following exlcude "
+        f"patterns to image filenames: {exclude_patterns}"
     )
-    if filename_patterns:
+
+    if include_patterns or exclude_patterns:
         filenames = mlf_frame_raw.MeasurementRecord
         keep_row = None
-        for pattern in filename_patterns:
-            actual_pattern = fnmatch.translate(pattern)
-            new_matches = filenames.str.fullmatch(actual_pattern)
-            if new_matches.sum() == 0:
-                raise ValueError(
-                    f"In {mlf_path} there is no image filename "
-                    f'matching "{actual_pattern}".'
-                )
-            if keep_row is None:
-                keep_row = new_matches.copy()
-            else:
-                keep_row = keep_row & new_matches
+        exclude_row = None
+        # Include patterns
+        if include_patterns:
+            for pattern in include_patterns:
+                actual_pattern = fnmatch.translate(pattern)
+                new_matches = filenames.str.fullmatch(actual_pattern)
+                if new_matches.sum() == 0:
+                    raise ValueError(
+                        f"In {mlf_path} there is no image filename "
+                        f'matching "{actual_pattern}".'
+                    )
+                if keep_row is None:
+                    keep_row = new_matches.copy()
+                else:
+                    keep_row = keep_row & new_matches
+        else:
+            # If no include pattern is specified, keep all rows
+            keep_row = pd.Series([True] * len(mlf_frame_raw))
+        # Exclude patterns
+        if exclude_patterns:
+            for pattern in exclude_patterns:
+                actual_pattern = fnmatch.translate(pattern)
+                new_matches = filenames.str.fullmatch(actual_pattern)
+                if exclude_row is None:
+                    exclude_row = new_matches.copy()
+                else:
+                    exclude_row = exclude_row | new_matches
+        else:
+            # Create an all False df => exclude nothing
+            exclude_row = pd.Series([False] * len(mlf_frame_raw))
+
+        # Combine included list with exclusions
+        keep_row = keep_row & ~exclude_row
+
         if keep_row.sum() == 0:
             raise ValueError(
                 f"In {mlf_path} there is no image filename "
-                f"matching {filename_patterns}."
+                f"matching {include_patterns} but not excluded by the pattern "
+                f"{exclude_patterns}."
             )
         mlf_frame_matching = mlf_frame_raw[keep_row.values].copy()
     else:

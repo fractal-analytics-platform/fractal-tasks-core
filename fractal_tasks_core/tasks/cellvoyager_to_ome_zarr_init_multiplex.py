@@ -61,7 +61,8 @@ def cellvoyager_to_ome_zarr_init_multiplex(
     # Core parameters
     acquisitions: dict[str, MultiplexingAcquisition],
     # Advanced parameters
-    image_glob_patterns: Optional[list[str]] = None,
+    include_glob_patterns: Optional[list[str]] = None,
+    exclude_glob_patterns: Optional[list[str]] = None,
     num_levels: int = 5,
     coarsening_xy: int = 2,
     image_extension: str = "tif",
@@ -87,12 +88,17 @@ def cellvoyager_to_ome_zarr_init_multiplex(
         acquisitions: dictionary of acquisitions. Each key is the acquisition
             identifier (normally 0, 1, 2, 3 etc.). Each item defines the
             acquisition by providing the image_dir and the allowed_channels.
-        image_glob_patterns: If specified, only parse images with filenames
+        include_glob_patterns: If specified, only parse images with filenames
             that match with all these patterns. Patterns must be defined as in
             https://docs.python.org/3/library/fnmatch.html, Example:
             `image_glob_pattern=["*_B03_*"]` => only process well B03
             `image_glob_pattern=["*_C09_*", "*F016*", "*Z[0-5][0-9]C*"]` =>
             only process well C09, field of view 16 and Z planes 0-59.
+            Can interact with exclude_glob_patterns: All included images - all
+            excluded images gives the final list of images to process
+        exclude_glob_patterns: If specified, exclude any image where the
+            filename matches any of the exclusion patterns. Patterns are
+            specified the same as for include_glob_patterns.
         num_levels: Number of resolution-pyramid levels. If set to `5`, there
             will be the full-resolution level and 4 levels of downsampled
             images.
@@ -142,10 +148,16 @@ def cellvoyager_to_ome_zarr_init_multiplex(
         if not isinstance(key, str):
             raise ValueError(f"{acquisitions=} has non-string keys")
         check_unique_wavelength_ids(values.allowed_channels)
+        try:
+            int(key)
+        except ValueError:
+            raise ValueError("Acquisition dictionary keys need to be integers")
 
     # Identify all plates and all channels, per input folders
     dict_acquisitions: dict = {}
-    for acquisition, acq_input in acquisitions.items():
+    acquisitions_sorted = sorted(list(acquisitions.keys()))
+    for acquisition in acquisitions_sorted:
+        acq_input = acquisitions[acquisition]
         dict_acquisitions[acquisition] = {}
 
         actual_wavelength_ids = []
@@ -153,12 +165,16 @@ def cellvoyager_to_ome_zarr_init_multiplex(
         plate_prefixes = []
 
         # Loop over all images
-        patterns = [f"*.{image_extension}"]
-        if image_glob_patterns:
-            patterns.extend(image_glob_patterns)
+        include_patterns = [f"*.{image_extension}"]
+        exclude_patterns = []
+        if include_glob_patterns:
+            include_patterns.extend(include_glob_patterns)
+        if exclude_glob_patterns:
+            exclude_patterns.extend(exclude_glob_patterns)
         input_filenames = glob_with_multiple_patterns(
             folder=acq_input.image_dir,
-            patterns=patterns,
+            include_patterns=include_patterns,
+            exclude_patterns=exclude_patterns,
         )
         for fn in input_filenames:
             try:
@@ -179,7 +195,8 @@ def cellvoyager_to_ome_zarr_init_multiplex(
 
         info = (
             "Listing all plates/channels:\n"
-            f"Patterns: {patterns}\n"
+            f"Include patterns: {include_patterns}\n"
+            f"Exclude patterns: {exclude_patterns}\n"
             f"Plates:   {plates}\n"
             f"Actual wavelength IDs: {actual_wavelength_ids}\n"
         )
@@ -192,12 +209,12 @@ def cellvoyager_to_ome_zarr_init_multiplex(
         original_plate = plates[0]
         plate_prefix = plate_prefixes[0]
 
-        # Replace plate with the one of acquisition 0, if needed
-        if int(acquisition) > 0:
-            plate = dict_acquisitions["0"]["plate"]
+        # Replace plate with the one of the first acquisition
+        if acquisition != acquisitions_sorted[0]:
+            plate = dict_acquisitions[acquisitions_sorted[0]]["plate"]
             logger.warning(
                 f"For {acquisition=}, we replace {original_plate=} with "
-                f"{plate=} (the one for acquisition 0)"
+                f"{plate=} (the one for acquisition {acquisitions_sorted[0]})"
             )
 
         # Check that all channels are in the allowed_channels
@@ -237,7 +254,6 @@ def cellvoyager_to_ome_zarr_init_multiplex(
         ] = actual_wavelength_ids
 
     parallelization_list = []
-    acquisitions_sorted = sorted(list(acquisitions.keys()))
     current_plates = [item["plate"] for item in dict_acquisitions.values()]
     if len(set(current_plates)) > 1:
         raise ValueError(f"{current_plates=}")
@@ -266,7 +282,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
     ################################################################
     logging.info(f"{acquisitions_sorted=}")
 
-    for acquisition in acquisitions_sorted:
+    for i, acquisition in enumerate(acquisitions_sorted):
         # Define plate zarr
         image_folder = dict_acquisitions[acquisition]["image_folder"]
         logger.info(f"Looking at {image_folder=}")
@@ -275,8 +291,11 @@ def cellvoyager_to_ome_zarr_init_multiplex(
         if metadata_table_files is None:
             mrf_path = f"{image_folder}/MeasurementDetail.mrf"
             mlf_path = f"{image_folder}/MeasurementData.mlf"
-            site_metadata, total_files = parse_yokogawa_metadata(
-                mrf_path, mlf_path, filename_patterns=image_glob_patterns
+            site_metadata, _ = parse_yokogawa_metadata(
+                mrf_path,
+                mlf_path,
+                include_patterns=include_glob_patterns,
+                exclude_patterns=exclude_glob_patterns,
             )
             site_metadata = remove_FOV_overlaps(site_metadata)
         else:
@@ -294,12 +313,13 @@ def cellvoyager_to_ome_zarr_init_multiplex(
 
         # Identify all wells
         plate_prefix = dict_acquisitions[acquisition]["plate_prefix"]
-        patterns = [f"{plate_prefix}_*.{image_extension}"]
-        if image_glob_patterns:
-            patterns.extend(image_glob_patterns)
+        include_patterns = [f"{plate_prefix}_*.{image_extension}"]
+        if include_glob_patterns:
+            include_patterns.extend(include_glob_patterns)
         plate_images = glob_with_multiple_patterns(
             folder=str(image_folder),
-            patterns=patterns,
+            include_patterns=include_patterns,
+            exclude_patterns=exclude_patterns,
         )
 
         wells = [
@@ -311,12 +331,13 @@ def cellvoyager_to_ome_zarr_init_multiplex(
         # Verify that all wells have all channels
         actual_channels = dict_acquisitions[acquisition]["actual_channels"]
         for well in wells:
-            patterns = [f"{plate_prefix}_{well}_*.{image_extension}"]
-            if image_glob_patterns:
-                patterns.extend(image_glob_patterns)
+            include_patterns = [f"{plate_prefix}_{well}_*.{image_extension}"]
+            if include_glob_patterns:
+                include_patterns.extend(include_glob_patterns)
             well_images = glob_with_multiple_patterns(
                 folder=str(image_folder),
-                patterns=patterns,
+                include_patterns=include_patterns,
+                exclude_patterns=exclude_patterns,
             )
 
             well_wavelength_ids = []
@@ -370,15 +391,15 @@ def cellvoyager_to_ome_zarr_init_multiplex(
             parallelization_list.append(
                 {
                     "zarr_url": (
-                        f"{zarr_dir}/{plate}.zarr/{row}/{column}/"
-                        f"{acquisition}/"
+                        f"{zarr_dir}/{plate}.zarr/{row}/{column}/" f"{i}"
                     ),
                     "init_args": InitArgsCellVoyager(
                         image_dir=acquisitions[acquisition].image_dir,
                         plate_prefix=plate_prefix,
                         well_ID=get_filename_well_id(row, column),
                         image_extension=image_extension,
-                        image_glob_patterns=image_glob_patterns,
+                        include_glob_patterns=include_glob_patterns,
+                        exclude_glob_patterns=exclude_glob_patterns,
                         acquisition=acquisition,
                     ).model_dump(),
                 }
@@ -389,7 +410,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                 well_attrs = {
                     "images": [
                         {
-                            "path": f"{acquisition}",
+                            "path": f"{i}",
                             "acquisition": int(acquisition),
                         }
                     ],
@@ -407,7 +428,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                     f"Loaded group_well from {full_zarrurl}/{row}/{column}"
                 )
                 current_images = group_well.attrs["well"]["images"] + [
-                    {"path": f"{acquisition}", "acquisition": int(acquisition)}
+                    {"path": f"{i}", "acquisition": int(acquisition)}
                 ]
                 well_attrs = dict(
                     images=current_images,
@@ -417,11 +438,9 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                 Well(**well_attrs)
                 group_well.attrs["well"] = well_attrs
 
-            group_image = group_well.create_group(
-                f"{acquisition}/"
-            )  # noqa: F841
-            logging.info(f"Created image group {row}/{column}/{acquisition}")
-            image = f"{plate}.zarr/{row}/{column}/{acquisition}"
+            group_image = group_well.create_group(f"{i}/")  # noqa: F841
+            logging.info(f"Created image group {row}/{column}/{i}")
+            image = f"{plate}.zarr/{row}/{column}/{i}"
             zarrurls["image"].append(image)
 
             group_image.attrs["multiscales"] = [
@@ -474,7 +493,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                 "channels": define_omero_channels(
                     channels=actual_channels,
                     bit_depth=bit_depth,
-                    label_prefix=acquisition,
+                    label_prefix=i,
                 ),
             }
             # Validate Image attrs

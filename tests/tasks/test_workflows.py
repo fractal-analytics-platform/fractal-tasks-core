@@ -15,6 +15,7 @@ import logging
 import shutil
 from pathlib import Path
 
+import anndata as ad
 import pytest
 import zarr
 from devtools import debug
@@ -96,7 +97,7 @@ def test_create_ome_zarr_no_images(
     testdata_path: Path,
 ):
     """
-    For invalid image_extension or image_glob_patterns arguments,
+    For invalid image_extension or include_glob_patterns arguments,
     create_ome_zarr must fail.
     """
     with pytest.raises(ValueError):
@@ -120,7 +121,7 @@ def test_create_ome_zarr_no_images(
             coarsening_xy=coarsening_xy,
             metadata_table_file=None,
             image_extension="png",
-            image_glob_patterns=["*asdasd*"],
+            include_glob_patterns=["*asdasd*"],
         )
 
 
@@ -176,7 +177,7 @@ def test_yokogawa_to_ome_zarr(
     expected_image_list_update = {
         "zarr_url": (
             f"{output_path}/20200812-CardiomyocyteDifferentiation14"
-            "-Cycle1.zarr/B/03/0/"
+            "-Cycle1.zarr/B/03/0"
         ),
         "attributes": {
             "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
@@ -256,7 +257,7 @@ def test_2D_cellvoyager_to_ome_zarr(
         allowed_channels=allowed_channels,
         num_levels=num_levels,
         coarsening_xy=coarsening_xy,
-        image_glob_patterns=["*Z01*"],
+        include_glob_patterns=["*Z01*"],
         image_extension="png",
     )["parallelization_list"]
     debug(parallelization_list)
@@ -274,7 +275,7 @@ def test_2D_cellvoyager_to_ome_zarr(
     expected_image_list_update = {
         "zarr_url": (
             f"{output_path}/20200812-CardiomyocyteDifferentiation14"
-            "-Cycle1.zarr/B/03/0/"
+            "-Cycle1.zarr/B/03/0"
         ),
         "attributes": {
             "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
@@ -431,7 +432,7 @@ def test_MIP_subset_of_images(
         coarsening_xy=coarsening_xy,
         metadata_table_file=None,
         image_extension="png",
-        image_glob_patterns=["*F001*"],
+        include_glob_patterns=["*F001*"],
     )["parallelization_list"]
     debug(parallelization_list)
 
@@ -535,3 +536,106 @@ def test_illumination_correction(
     validate_schema(path=str(plate_zarr), type="plate")
 
     check_file_number(zarr_path=image_zarr)
+
+
+def test_yokogawa_to_ome_zarr_multiplate(
+    tmp_path: Path,
+    zenodo_images_multiplex: str,
+):
+    img_path_1, img_path_2 = zenodo_images_multiplex
+    output_path = tmp_path / "output"
+
+    # Create zarr structure
+    parallelization_list = cellvoyager_to_ome_zarr_init(
+        zarr_urls=[],
+        zarr_dir=str(output_path),
+        image_dirs=[img_path_1, img_path_2],
+        allowed_channels=allowed_channels,
+        num_levels=num_levels,
+        coarsening_xy=coarsening_xy,
+        image_extension="png",
+        overwrite=False,
+    )["parallelization_list"]
+    debug(parallelization_list)
+
+    image_list_updates = []
+    # Yokogawa to zarr
+    for image in parallelization_list:
+        image_list_updates += cellvoyager_to_ome_zarr_compute(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+        )["image_list_updates"]
+    debug(image_list_updates)
+
+    # Validate image_list_updates contents
+    expected_image_list_update = [
+        {
+            "zarr_url": (
+                f"{output_path}/20200812-CardiomyocyteDifferentiation14"
+                "-Cycle1.zarr/B/03/0"
+            ),
+            "attributes": {
+                "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
+                "well": "B03",
+            },
+            "types": {
+                "is_3D": True,
+            },
+        },
+        {
+            "zarr_url": (
+                f"{output_path}/20200812-CardiomyocyteDifferentiation14"
+                "-Cycle1_1.zarr/B/03/0"
+            ),
+            "attributes": {
+                "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1_1.zarr",  # noqa
+                "well": "B03",
+            },
+            "types": {
+                "is_3D": True,
+            },
+        },
+    ]
+    debug(image_list_updates)
+    debug(expected_image_list_update)
+
+    assert image_list_updates == expected_image_list_update
+
+
+def test_cellvoyager_converter_exclusion_patterns(
+    tmp_path: Path,
+    zenodo_images: str,
+):
+    # Init
+    output_path = tmp_path / "output"
+    debug(output_path)
+
+    # Create zarr structure
+    parallelization_list = cellvoyager_to_ome_zarr_init(
+        zarr_urls=[],
+        zarr_dir=str(output_path),
+        image_dirs=[zenodo_images],
+        allowed_channels=allowed_channels,
+        num_levels=num_levels,
+        coarsening_xy=coarsening_xy,
+        exclude_glob_patterns=["*F002*"],
+        image_extension="png",
+    )["parallelization_list"]
+    debug(parallelization_list)
+
+    image_list_updates = []
+    # Yokogawa to zarr
+    for image in parallelization_list:
+        image_list_updates += cellvoyager_to_ome_zarr_compute(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+        )["image_list_updates"]
+    debug(image_list_updates)
+
+    # # OME-NGFF JSON validation
+    image_zarr = Path(parallelization_list[0]["zarr_url"])
+    validate_schema(path=str(image_zarr), type="image")
+
+    # Check that FOV ROI table now only has a single FOV
+    fov_roi_table = ad.read_zarr(image_zarr / "tables/FOV_ROI_table")
+    assert len(fov_roi_table) == 1

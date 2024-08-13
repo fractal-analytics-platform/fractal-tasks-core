@@ -77,7 +77,7 @@ def cellvoyager_to_ome_zarr_compute(
         init_args: Intialization arguments provided by
             `create_cellvoyager_ome_zarr_init`.
     """
-
+    zarr_url = zarr_url.rstrip("/")
     # Read attributes from NGFF metadata
     ngff_image_meta = load_NgffImageMeta(zarr_url)
     num_levels = ngff_image_meta.num_levels
@@ -115,16 +115,21 @@ def cellvoyager_to_ome_zarr_compute(
     max_x = well_indices[0][5]
 
     # Load a single image, to retrieve useful information
-    patterns = [
+    include_patterns = [
         f"{init_args.plate_prefix}_{init_args.well_ID}_*."
         f"{init_args.image_extension}"
     ]
-    if init_args.image_glob_patterns:
-        patterns.extend(init_args.image_glob_patterns)
+    if init_args.include_glob_patterns:
+        include_patterns.extend(init_args.include_glob_patterns)
+
+    exclude_patterns = []
+    if init_args.exclude_glob_patterns:
+        exclude_patterns.extend(init_args.exclude_glob_patterns)
 
     tmp_images = glob_with_multiple_patterns(
         folder=init_args.image_dir,
-        patterns=patterns,
+        include_patterns=include_patterns,
+        exclude_patterns=exclude_patterns,
     )
     sample = imread(tmp_images.pop())
 
@@ -143,15 +148,16 @@ def cellvoyager_to_ome_zarr_compute(
     for i_c, wavelength_id in enumerate(wavelength_ids):
         A, C = wavelength_id.split("_")
 
-        patterns = [
+        include_patterns = [
             f"{init_args.plate_prefix}_{init_args.well_ID}_*{A}*{C}*."
             f"{init_args.image_extension}"
         ]
-        if init_args.image_glob_patterns:
-            patterns.extend(init_args.image_glob_patterns)
+        if init_args.include_glob_patterns:
+            include_patterns.extend(init_args.include_glob_patterns)
         filenames_set = glob_with_multiple_patterns(
             folder=init_args.image_dir,
-            patterns=patterns,
+            include_patterns=include_patterns,
+            exclude_patterns=exclude_patterns,
         )
         filenames = sorted(list(filenames_set), key=sort_fun)
         if len(filenames) == 0:
@@ -159,7 +165,8 @@ def cellvoyager_to_ome_zarr_compute(
                 "Error in yokogawa_to_ome_zarr: len(filenames)=0.\n"
                 f"  image_dir: {init_args.image_dir}\n"
                 f"  wavelength_id: {wavelength_id},\n"
-                f"  patterns: {patterns}"
+                f"  patterns: {include_patterns}\n"
+                f"  exclusion patterns: {exclude_patterns}\n"
             )
         # Loop over 3D FOV ROIs
         for indices in fov_indices:
@@ -198,8 +205,12 @@ def cellvoyager_to_ome_zarr_compute(
         is_3D = True
     else:
         is_3D = False
+    # FIXME: Get plate name from zarr_url => works for duplicate plate names
+    # with suffixes
+    print(zarr_url)
+    plate_name = zarr_url.split("/")[-4]
     attributes = {
-        "plate": f"{init_args.plate_prefix}.zarr",
+        "plate": plate_name,
         "well": init_args.well_ID,
     }
     if init_args.acquisition is not None:
