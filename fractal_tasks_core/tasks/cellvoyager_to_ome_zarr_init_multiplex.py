@@ -291,7 +291,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
         if metadata_table_files is None:
             mrf_path = f"{image_folder}/MeasurementDetail.mrf"
             mlf_path = f"{image_folder}/MeasurementData.mlf"
-            site_metadata = parse_yokogawa_metadata(
+            site_metadata, _ = parse_yokogawa_metadata(
                 mrf_path,
                 mlf_path,
                 include_patterns=include_glob_patterns,
