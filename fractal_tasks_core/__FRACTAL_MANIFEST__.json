@@ -544,7 +544,7 @@
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {
-      "name": "Maximum Intensity Projection HCS Plate",
+      "name": "HCS Plate Intensity Projection",
       "input_types": {
         "is_3D": true
       },
@@ -562,6 +562,19 @@
         "mem": 4000
       },
       "args_schema_non_parallel": {
+        "$defs": {
+          "DaskProjectionMethod": {
+            "description": "Registration method selection",
+            "enum": [
+              "mip",
+              "minip",
+              "meanip",
+              "sumip"
+            ],
+            "title": "DaskProjectionMethod",
+            "type": "string"
+          }
+        },
         "additionalProperties": false,
         "properties": {
           "zarr_urls": {
@@ -577,11 +590,15 @@
             "type": "string",
             "description": "path of the directory where the new OME-Zarrs will be created. (standard argument for Fractal tasks, managed by Fractal server)."
           },
-          "suffix": {
+          "method": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/DaskProjectionMethod"
+              }
+            ],
             "default": "mip",
-            "title": "Suffix",
-            "type": "string",
-            "description": "The suffix that is used to transform `plate.zarr` into `plate_suffix.zarr`. Note that `None` is not currently supported."
+            "title": "Method",
+            "description": "Choose which method to use for intensity projection along the Z axis. MIP is the default"
           },
           "overwrite": {
             "default": false,
@@ -605,10 +622,15 @@
               "origin_url": {
                 "title": "Origin Url",
                 "type": "string"
+              },
+              "method": {
+                "title": "Method",
+                "type": "string"
               }
             },
             "required": [
-              "origin_url"
+              "origin_url",
+              "method"
             ],
             "title": "InitArgsMIP",
             "type": "object"

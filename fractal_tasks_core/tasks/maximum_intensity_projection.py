@@ -13,7 +13,6 @@
 Task for 3D->2D maximum-intensity projection.
 """
 import logging
-from enum import Enum
 from typing import Any
 
 import anndata as ad
@@ -29,28 +28,12 @@ from fractal_tasks_core.roi import (
 )
 from fractal_tasks_core.tables import write_table
 from fractal_tasks_core.tables.v1 import get_tables_list_v1
+from fractal_tasks_core.tasks.io_models import DaskProjectionMethod
 from fractal_tasks_core.tasks.io_models import InitArgsMIP
 from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 
 
 logger = logging.getLogger(__name__)
-
-
-class DaskProjectionMethod(Enum):
-    MIP = "mip"
-    MINIP = "minip"
-    MEAN = "meanip"
-    SUM = "sumip"
-
-    def apply(self, dask_array, axis=0, **kwargs):
-        # Map the Enum values to the actual Dask array methods
-        method_map = {
-            DaskProjectionMethod.MIP: dask_array.max,
-            DaskProjectionMethod.MINIP: dask_array.min,
-            DaskProjectionMethod.MEAN: dask_array.mean,
-            DaskProjectionMethod.SUM: dask_array.sum,
-        }
-        return method_map[self](axis=axis, **kwargs)
 
 
 @validate_call
@@ -59,7 +42,6 @@ def maximum_intensity_projection(
     # Fractal parameters
     zarr_url: str,
     init_args: InitArgsMIP,
-    method: DaskProjectionMethod = "mip",
     # Advanced parameters
     overwrite: bool = False,
 ) -> dict[str, Any]:
@@ -75,8 +57,10 @@ def maximum_intensity_projection(
             `create_cellvoyager_ome_zarr_init`.
         overwrite: If `True`, overwrite the task output.
     """
+    method = DaskProjectionMethod(init_args.method)
     logger.info(f"{init_args.origin_url=}")
     logger.info(f"{zarr_url=}")
+    logger.info(f"{method=}")
 
     # Read image metadata
     ngff_image = load_NgffImageMeta(init_args.origin_url)

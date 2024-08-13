@@ -31,7 +31,7 @@ TASK_LIST = [
         meta={"cpus_per_task": 1, "mem": 4000},
     ),
     CompoundTask(
-        name="Maximum Intensity Projection HCS Plate",
+        name="HCS Plate Intensity Projection",
         input_types={"is_3D": True},
         executable_init="tasks/copy_ome_zarr_hcs_plate.py",
         executable="tasks/maximum_intensity_projection.py",
