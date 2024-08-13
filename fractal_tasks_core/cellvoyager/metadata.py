@@ -315,6 +315,9 @@ def read_mlf_file(
                     keep_row = new_matches.copy()
                 else:
                     keep_row = keep_row & new_matches
+        else:
+            # If no include pattern is specified, keep all rows
+            keep_row = pd.Series([True] * len(mlf_frame_raw))
         # Exclude patterns
         if exclude_patterns:
             for pattern in exclude_patterns:
@@ -326,9 +329,7 @@ def read_mlf_file(
                     exclude_row = exclude_row | new_matches
         else:
             # Create an all False df => exclude nothing
-            exclude_row = pd.Series(
-                [False] * len(keep_row), index=keep_row.index
-            )
+            exclude_row = pd.Series([False] * len(mlf_frame_raw))
 
         # Combine included list with exclusions
         keep_row = keep_row & ~exclude_row

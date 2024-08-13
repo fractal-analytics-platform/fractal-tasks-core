@@ -15,6 +15,7 @@ import logging
 import shutil
 from pathlib import Path
 
+import anndata as ad
 import pytest
 import zarr
 from devtools import debug
@@ -599,3 +600,42 @@ def test_yokogawa_to_ome_zarr_multiplate(
     debug(expected_image_list_update)
 
     assert image_list_updates == expected_image_list_update
+
+
+def test_cellvoyager_converter_exclusion_patterns(
+    tmp_path: Path,
+    zenodo_images: str,
+):
+    # Init
+    output_path = tmp_path / "output"
+    debug(output_path)
+
+    # Create zarr structure
+    parallelization_list = cellvoyager_to_ome_zarr_init(
+        zarr_urls=[],
+        zarr_dir=str(output_path),
+        image_dirs=[zenodo_images],
+        allowed_channels=allowed_channels,
+        num_levels=num_levels,
+        coarsening_xy=coarsening_xy,
+        exclude_glob_patterns=["*F002*"],
+        image_extension="png",
+    )["parallelization_list"]
+    debug(parallelization_list)
+
+    image_list_updates = []
+    # Yokogawa to zarr
+    for image in parallelization_list:
+        image_list_updates += cellvoyager_to_ome_zarr_compute(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+        )["image_list_updates"]
+    debug(image_list_updates)
+
+    # # OME-NGFF JSON validation
+    image_zarr = Path(parallelization_list[0]["zarr_url"])
+    validate_schema(path=str(image_zarr), type="image")
+
+    # Check that FOV ROI table now only has a single FOV
+    fov_roi_table = ad.read_zarr(image_zarr / "tables/FOV_ROI_table")
+    assert len(fov_roi_table) == 1
