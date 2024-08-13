@@ -13,6 +13,7 @@
 Task for 3D->2D maximum-intensity projection.
 """
 import logging
+from enum import Enum
 from typing import Any
 
 import anndata as ad
@@ -35,12 +36,30 @@ from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 logger = logging.getLogger(__name__)
 
 
+class DaskProjectionMethod(Enum):
+    MIP = "mip"
+    MINIP = "minip"
+    MEAN = "meanip"
+    SUM = "sumip"
+
+    def apply(self, dask_array, axis=0, **kwargs):
+        # Map the Enum values to the actual Dask array methods
+        method_map = {
+            DaskProjectionMethod.MIP: dask_array.max,
+            DaskProjectionMethod.MINIP: dask_array.min,
+            DaskProjectionMethod.MEAN: dask_array.mean,
+            DaskProjectionMethod.SUM: dask_array.sum,
+        }
+        return method_map[self](axis=axis, **kwargs)
+
+
 @validate_call
 def maximum_intensity_projection(
     *,
     # Fractal parameters
     zarr_url: str,
     init_args: InitArgsMIP,
+    method: DaskProjectionMethod = "mip",
     # Advanced parameters
     overwrite: bool = False,
 ) -> dict[str, Any]:
@@ -85,8 +104,10 @@ def maximum_intensity_projection(
     accumulate_chl = []
     for ind_ch in range(num_channels):
         # Perform MIP for each channel of level 0
-        mip_yx = da.stack([da.max(data_czyx[ind_ch], axis=0)], axis=0)
-        accumulate_chl.append(mip_yx)
+        project_yx = da.stack(
+            [method.apply(data_czyx[ind_ch], axis=0)], axis=0
+        )
+        accumulate_chl.append(project_yx)
     accumulated_array = da.stack(accumulate_chl, axis=0)
 
     # Write to disk (triggering execution)
