@@ -1,5 +1,15 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# Unreleased
+* Tasks:
+    * `image_glob_patterns` are renamed to `include_glob_patterns` in Convert Cellvoyager to OME-Zarr (regular & multiplexing) (\#812).
+    * Convert Cellvoyager to OME-Zarr (regular & multiplexing) gain exclusion patterns to exclude specific patterns of images from being processed (\#812).
+    * Fix issue with arbitrary acquisition names in Convert Cellvoyager Multiplexing to OME-Zarr (\#812).
+    * In Convert Cellvoyager to OME-Zarr (regular & multiplexing), handle channels in the mrf metadata file that aren't present in the mlf metadata better (\#812).
+    * In Convert Cellvoyager to OME-Zarr, improve plate metadata for image list when multiple plates with the same plate name are processed (\#812).
+    * Catch errors for missing mlf & mrf files better in Convert Cellvoyager to OME-Zarr (regular & multiplexing) (\#812).
+    * Drop defusexml dependency for cellvoyager metadata conversion (\#812).
+
 # 1.2.1
 * Core-library
     * Add `create_roi_table_from_df_list` library function in `fractal_tasks_core.v1.roi`: It combines a list of ROI table dataframes into an AnnData ROI table and handles repeating labels (\#811).
