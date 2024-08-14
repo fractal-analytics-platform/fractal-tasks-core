@@ -598,7 +598,7 @@
             ],
             "default": "mip",
             "title": "Method",
-            "description": "Choose which method to use for intensity projection along the Z axis. MIP is the default"
+            "description": "Choose which method to use for intensity projection along the Z axis. mip is the default and performs a maximum intensity projection. minip performs a minimum intensity projection, meanip a mean intensity projection and sumip a sum intensity projection."
           },
           "overwrite": {
             "default": false,

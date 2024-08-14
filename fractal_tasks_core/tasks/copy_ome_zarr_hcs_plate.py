@@ -220,7 +220,9 @@ def copy_ome_zarr_hcs_plate(
             created.
             (standard argument for Fractal tasks, managed by Fractal server).
         method: Choose which method to use for intensity projection along the
-            Z axis. MIP is the default
+            Z axis. mip is the default and performs a maximum intensity
+            projection. minip performs a minimum intensity projection, meanip
+            a mean intensity projection and sumip a sum intensity projection.
         overwrite: If `True`, overwrite the task output.
 
     Returns:
