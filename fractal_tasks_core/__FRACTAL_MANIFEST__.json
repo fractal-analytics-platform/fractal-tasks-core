@@ -544,7 +544,7 @@
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {
-      "name": "HCS Plate Intensity Projection",
+      "name": "Project Image (HCS Plate)",
       "input_types": {
         "is_3D": true
       },
@@ -626,11 +626,16 @@
               "method": {
                 "title": "Method",
                 "type": "string"
+              },
+              "overwrite": {
+                "title": "Overwrite",
+                "type": "boolean"
               }
             },
             "required": [
               "origin_url",
-              "method"
+              "method",
+              "overwrite"
             ],
             "title": "InitArgsMIP",
             "type": "object"
@@ -647,12 +652,6 @@
             "$ref": "#/$defs/InitArgsMIP",
             "title": "Init Args",
             "description": "Intialization arguments provided by `create_cellvoyager_ome_zarr_init`."
-          },
-          "overwrite": {
-            "default": false,
-            "title": "Overwrite",
-            "type": "boolean",
-            "description": "If `True`, overwrite the task output."
           }
         },
         "required": [

@@ -241,7 +241,9 @@ def copy_ome_zarr_hcs_plate(
         new_zarr_url = f"{zarrurl_plate_new}/{well_sub_url}/{curr_img_sub_url}"
         parallelization_item = dict(
             zarr_url=new_zarr_url,
-            init_args=dict(origin_url=zarr_url, method=method.value),
+            init_args=dict(
+                origin_url=zarr_url, method=method.value, overwrite=overwrite
+            ),
         )
         InitArgsMIP(**parallelization_item["init_args"])
         parallelization_list.append(parallelization_item)

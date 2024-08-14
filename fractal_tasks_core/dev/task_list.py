@@ -31,7 +31,7 @@ TASK_LIST = [
         meta={"cpus_per_task": 1, "mem": 4000},
     ),
     CompoundTask(
-        name="HCS Plate Intensity Projection",
+        name="Project Image (HCS Plate)",
         input_types={"is_3D": True},
         executable_init="tasks/copy_ome_zarr_hcs_plate.py",
         executable="tasks/projection.py",
@@ -46,13 +46,6 @@ TASK_LIST = [
         output_types=dict(illumination_corrected=True),
         meta={"cpus_per_task": 1, "mem": 4000},
     ),
-    # CompoundTask(
-    #     name="Illumination Correction (channel parallelized)",
-    #     input_types=dict(illumination_correction=False),
-    #     executable_init="illumination_correction_init.py",
-    #     executable="illumination_correction_compute.py",
-    #     output_types=dict(illumination_correction=True),
-    # ),
     ParallelTask(
         name="Cellpose Segmentation",
         executable="tasks/cellpose_segmentation.py",

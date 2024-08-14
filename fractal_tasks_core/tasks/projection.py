@@ -42,8 +42,6 @@ def projection(
     # Fractal parameters
     zarr_url: str,
     init_args: InitArgsMIP,
-    # Advanced parameters
-    overwrite: bool = False,
 ) -> dict[str, Any]:
     """
     Perform intensity projection along Z axis with a chosen method.
@@ -55,7 +53,6 @@ def projection(
             (standard argument for Fractal tasks, managed by Fractal server).
         init_args: Intialization arguments provided by
             `create_cellvoyager_ome_zarr_init`.
-        overwrite: If `True`, overwrite the task output.
     """
     method = DaskProjectionMethod(init_args.method)
     logger.info(f"{init_args.origin_url=}")
@@ -98,14 +95,14 @@ def projection(
     try:
         accumulated_array.to_zarr(
             f"{zarr_url}/0",
-            overwrite=overwrite,
+            overwrite=init_args.overwrite,
             dimension_separator="/",
             write_empty_chunks=False,
         )
     except ContainsArrayError as e:
         error_msg = (
             f"Cannot write array to zarr group at '{zarr_url}/0', "
-            f"with {overwrite=} (original error: {str(e)}).\n"
+            f"with {init_args.overwrite=} (original error: {str(e)}).\n"
             "Hint: try setting overwrite=True."
         )
         logger.error(error_msg)
@@ -115,7 +112,7 @@ def projection(
     # pyramid of coarser levels
     build_pyramid(
         zarrurl=zarr_url,
-        overwrite=overwrite,
+        overwrite=init_args.overwrite,
         num_levels=ngff_image.num_levels,
         coarsening_xy=ngff_image.coarsening_xy,
         chunksize=(1, 1, chunksize_y, chunksize_x),
@@ -149,7 +146,7 @@ def projection(
             table,
             new_ROI_table,
             table_attrs=old_ROI_table_attrs,
-            overwrite=overwrite,
+            overwrite=init_args.overwrite,
         )
 
     for table in non_roi_tables:
@@ -171,7 +168,7 @@ def projection(
             table,
             new_non_ROI_table,
             table_attrs=old_non_ROI_table_attrs,
-            overwrite=overwrite,
+            overwrite=init_args.overwrite,
         )
 
     # Generate image_list_updates
