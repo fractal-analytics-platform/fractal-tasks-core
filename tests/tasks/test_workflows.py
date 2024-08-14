@@ -16,6 +16,7 @@ import shutil
 from pathlib import Path
 
 import anndata as ad
+import dask.array as da
 import pytest
 import zarr
 from devtools import debug
@@ -321,8 +322,7 @@ def test_MIP(
     shutil.copytree(zenodo_zarr_3D, str(zarr_path / Path(zenodo_zarr_3D).name))
 
     zarr_urls = []
-    zarr_dir = "/".join(zenodo_zarr_3D.split("/")[:-1])
-    zarr_urls = [Path(zarr_dir, "plate.zarr/B/03/0").as_posix()]
+    zarr_urls = [Path(zarr_path, "plate.zarr/B/03/0").as_posix()]
 
     parallelization_list = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
@@ -359,7 +359,7 @@ def test_MIP(
     debug(image_list_updates[0])
     expected_image_list_updates = {
         "zarr_url": (parallelization_list[0]["zarr_url"]),
-        "origin": f"{zarr_dir}/plate.zarr/B/03/0",
+        "origin": f"{zarr_path}/plate.zarr/B/03/0",
         "types": {
             "is_3D": False,
         },
@@ -410,10 +410,11 @@ def test_MIP(
     assert len(row_zarr_group) == 1
 
 
+@pytest.mark.parametrize("method", ["mip", "minip", "meanip", "sumip"])
 def test_projection_methods(
     tmp_path: Path,
     zenodo_zarr: list[str],
-    method="mip",
+    method: str,
 ):
     # Init
     zarr_path = tmp_path / "tmp_out"
@@ -424,17 +425,25 @@ def test_projection_methods(
     shutil.copytree(zenodo_zarr_3D, str(zarr_path / Path(zenodo_zarr_3D).name))
 
     zarr_urls = []
-    zarr_dir = "/".join(zenodo_zarr_3D.split("/")[:-1])
-    zarr_urls = [Path(zarr_dir, "plate.zarr/B/03/0").as_posix()]
+    zarr_urls = [Path(zarr_path, "plate.zarr/B/03/0").as_posix()]
 
     parallelization_list = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir=str(zarr_path),
+        method=method,
         overwrite=True,
     )["parallelization_list"]
-    debug(parallelization_list)
 
-    # FIXME: Check that method is correctly in parallelization list & in suffix
+    # Check that method is correctly in parallelization list & in suffix
+    expected_parallelization_list = [
+        {
+            "zarr_url": Path(
+                zarr_path, f"plate_{method}.zarr/B/03/0"
+            ).as_posix(),
+            "init_args": {"origin_url": zarr_urls[0], "method": method},
+        }
+    ]
+    assert parallelization_list == expected_parallelization_list
 
     # Run projection
     image_list_updates = []
@@ -446,7 +455,17 @@ def test_projection_methods(
         )["image_list_updates"]
 
     # Test the value of a pre-defined pixel to see if the projection worked
-    debug(image_list_updates)
+    img = da.from_zarr(f"{image_list_updates[0]['zarr_url']}/0")
+    expected_values = {
+        "mip": 493,
+        "minip": 332,
+        "meanip": 412,
+        "sumip": 825,
+    }
+
+    debug(f"{method}:{img[0, 0, 952, 735].compute()}")
+    debug(img.dtype)
+    assert img[0, 0, 952, 735].compute() == expected_values[method]
 
 
 def test_MIP_subset_of_images(
