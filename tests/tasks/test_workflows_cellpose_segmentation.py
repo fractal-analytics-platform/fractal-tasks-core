@@ -487,7 +487,6 @@ def test_workflow_with_per_well_labeling_2D(
         image_list_updates += projection(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
-            overwrite=True,
         )["image_list_updates"]
 
     channel = CellposeChannel1InputModel(

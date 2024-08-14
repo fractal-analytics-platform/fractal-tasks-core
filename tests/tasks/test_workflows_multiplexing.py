@@ -410,7 +410,6 @@ def test_multiplexing_MIP(
         image_list_updates += projection(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
-            overwrite=True,
         )["image_list_updates"]
 
     # OME-NGFF JSON validation
