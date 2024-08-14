@@ -22,8 +22,8 @@ from fractal_tasks_core.tasks.cellpose_segmentation import (
 )
 from fractal_tasks_core.tasks.copy_ome_zarr import copy_ome_zarr
 from fractal_tasks_core.tasks.create_ome_zarr import create_ome_zarr
-from fractal_tasks_core.tasks.maximum_intensity_projection import (
-    maximum_intensity_projection,
+from fractal_tasks_core.tasks.projection import (
+    projection,
 )
 from fractal_tasks_core.tasks.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 
@@ -98,7 +98,7 @@ metadata.update(metadata_update)
 
 # Make MIP
 for component in metadata["image"]:
-    metadata_update = maximum_intensity_projection(
+    metadata_update = projection(
         input_paths=[zarr_path],
         output_path=zarr_path,
         metadata=metadata,

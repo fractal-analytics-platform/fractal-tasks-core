@@ -8,8 +8,8 @@ from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
     copy_ome_zarr_hcs_plate,
 )
 from fractal_tasks_core.tasks.import_ome_zarr import import_ome_zarr
-from fractal_tasks_core.tasks.maximum_intensity_projection import (
-    maximum_intensity_projection,
+from fractal_tasks_core.tasks.projection import (
+    projection,
 )
 
 # from fractal_tasks_core.channels import ChannelInputModel
@@ -71,7 +71,7 @@ def test_import_ome_zarr_plate(tmp_path, zenodo_zarr):
     debug(parallelization_list)
 
     for image in parallelization_list:
-        maximum_intensity_projection(
+        projection(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
             overwrite=True,
@@ -258,7 +258,7 @@ def test_import_ome_zarr_plate_no_ROI_tables(tmp_path, zenodo_zarr):
     debug(parallelization_list)
 
     for image in parallelization_list:
-        maximum_intensity_projection(
+        projection(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
             overwrite=True,

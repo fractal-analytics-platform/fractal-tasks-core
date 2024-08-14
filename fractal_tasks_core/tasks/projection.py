@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 
 @validate_call
-def maximum_intensity_projection(
+def projection(
     *,
     # Fractal parameters
     zarr_url: str,
@@ -46,7 +46,7 @@ def maximum_intensity_projection(
     overwrite: bool = False,
 ) -> dict[str, Any]:
     """
-    Perform maximum-intensity projection along Z axis.
+    Perform intensity projection along Z axis with a chosen method.
 
     Note: this task stores the output in a new zarr file.
 
@@ -191,6 +191,6 @@ if __name__ == "__main__":
     from fractal_tasks_core.tasks._utils import run_fractal_task
 
     run_fractal_task(
-        task_function=maximum_intensity_projection,
+        task_function=projection,
         logger_name=logger.name,
     )

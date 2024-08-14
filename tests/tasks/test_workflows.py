@@ -34,8 +34,8 @@ from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
 from fractal_tasks_core.tasks.illumination_correction import (
     illumination_correction,
 )
-from fractal_tasks_core.tasks.maximum_intensity_projection import (
-    maximum_intensity_projection,
+from fractal_tasks_core.tasks.projection import (
+    projection,
 )
 from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 
@@ -350,7 +350,7 @@ def test_MIP(
     # MIP
     image_list_updates = []
     for image in parallelization_list:
-        image_list_updates += maximum_intensity_projection(
+        image_list_updates += projection(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
             overwrite=True,
@@ -369,7 +369,7 @@ def test_MIP(
 
     # Re-run with overwrite=True
     for image in parallelization_list:
-        maximum_intensity_projection(
+        projection(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
             overwrite=True,
@@ -378,7 +378,7 @@ def test_MIP(
     # Re-run with overwrite=False
     with pytest.raises(OverwriteNotAllowedError):
         for image in parallelization_list:
-            maximum_intensity_projection(
+            projection(
                 zarr_url=image["zarr_url"],
                 init_args=image["init_args"],
                 overwrite=False,
@@ -458,7 +458,7 @@ def test_MIP_subset_of_images(
 
     # MIP
     for image in parallelization_list:
-        maximum_intensity_projection(
+        projection(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
             overwrite=True,
