@@ -353,7 +353,6 @@ def test_MIP(
         image_list_updates += projection(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
-            overwrite=True,
         )["image_list_updates"]
 
     debug(image_list_updates[0])
@@ -372,16 +371,15 @@ def test_MIP(
         projection(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
-            overwrite=True,
         )
 
     # Re-run with overwrite=False
     with pytest.raises(OverwriteNotAllowedError):
         for image in parallelization_list:
+            image["init_args"]["overwrite"] = False
             projection(
                 zarr_url=image["zarr_url"],
                 init_args=image["init_args"],
-                overwrite=False,
             )
 
     # OME-NGFF JSON validation
@@ -440,7 +438,11 @@ def test_projection_methods(
             "zarr_url": Path(
                 zarr_path, f"plate_{method}.zarr/B/03/0"
             ).as_posix(),
-            "init_args": {"origin_url": zarr_urls[0], "method": method},
+            "init_args": {
+                "origin_url": zarr_urls[0],
+                "method": method,
+                "overwrite": True,
+            },
         }
     ]
     assert parallelization_list == expected_parallelization_list
@@ -451,7 +453,6 @@ def test_projection_methods(
         image_list_updates += projection(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
-            overwrite=True,
         )["image_list_updates"]
 
     # Test the value of a pre-defined pixel to see if the projection worked
@@ -519,7 +520,6 @@ def test_MIP_subset_of_images(
         projection(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
-            overwrite=True,
         )
 
     # OME-NGFF JSON validation

@@ -299,7 +299,6 @@ def test_multiplexing_registration(
         image_list_updates += projection(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
-            overwrite=True,
         )["image_list_updates"]
 
     zarr_urls_2D = [image["zarr_url"] for image in image_list_updates]

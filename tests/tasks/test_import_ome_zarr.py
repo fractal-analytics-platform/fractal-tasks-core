@@ -74,7 +74,6 @@ def test_import_ome_zarr_plate(tmp_path, zenodo_zarr):
         projection(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
-            overwrite=True,
         )
 
 
@@ -261,7 +260,6 @@ def test_import_ome_zarr_plate_no_ROI_tables(tmp_path, zenodo_zarr):
         projection(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
-            overwrite=True,
         )
 
 
