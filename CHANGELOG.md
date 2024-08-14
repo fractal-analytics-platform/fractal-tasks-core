@@ -11,7 +11,7 @@
     * Drop defusexml dependency for cellvoyager metadata conversion (\#812).
     * Rename `Maximum Intensity Projection HCS Plate` task to `Project Image (HCS Plate)` (\#814).
     * Expose selection of projection modes in `Project Image (HCS Plate)`: MIP, MINIP, MEANIP & SUMIP (\#814).
-    * Rename task function from `maximum_intensity_projection` to `projection` and
+    * Rename task function from `maximum_intensity_projection` to `projection` and modified parameters in `fractal_tasks_core.tasks.io_models.InitArgsMIP` (\#814).
 
 # 1.2.1
 * Core-library
