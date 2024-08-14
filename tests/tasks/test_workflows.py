@@ -410,6 +410,45 @@ def test_MIP(
     assert len(row_zarr_group) == 1
 
 
+def test_projection_methods(
+    tmp_path: Path,
+    zenodo_zarr: list[str],
+    method="mip",
+):
+    # Init
+    zarr_path = tmp_path / "tmp_out"
+    debug(zarr_path)
+
+    # Load zarr array from zenodo
+    zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
+    shutil.copytree(zenodo_zarr_3D, str(zarr_path / Path(zenodo_zarr_3D).name))
+
+    zarr_urls = []
+    zarr_dir = "/".join(zenodo_zarr_3D.split("/")[:-1])
+    zarr_urls = [Path(zarr_dir, "plate.zarr/B/03/0").as_posix()]
+
+    parallelization_list = copy_ome_zarr_hcs_plate(
+        zarr_urls=zarr_urls,
+        zarr_dir=str(zarr_path),
+        overwrite=True,
+    )["parallelization_list"]
+    debug(parallelization_list)
+
+    # FIXME: Check that method is correctly in parallelization list & in suffix
+
+    # Run projection
+    image_list_updates = []
+    for image in parallelization_list:
+        image_list_updates += projection(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+            overwrite=True,
+        )["image_list_updates"]
+
+    # Test the value of a pre-defined pixel to see if the projection worked
+    debug(image_list_updates)
+
+
 def test_MIP_subset_of_images(
     tmp_path: Path,
     zenodo_images: str,

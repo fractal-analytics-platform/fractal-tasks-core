@@ -28,8 +28,8 @@ from fractal_tasks_core.roi import (
 )
 from fractal_tasks_core.tables import write_table
 from fractal_tasks_core.tables.v1 import get_tables_list_v1
-from fractal_tasks_core.tasks.io_models import DaskProjectionMethod
 from fractal_tasks_core.tasks.io_models import InitArgsMIP
+from fractal_tasks_core.tasks.projection_utils import DaskProjectionMethod
 from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 
 

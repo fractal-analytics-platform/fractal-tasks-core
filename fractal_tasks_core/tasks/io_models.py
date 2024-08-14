@@ -1,10 +1,6 @@
-from enum import Enum
-from typing import Any
-from typing import Dict
 from typing import Literal
 from typing import Optional
 
-import dask.array as da
 from pydantic import BaseModel
 from pydantic import Field
 from pydantic import model_validator
@@ -183,54 +179,3 @@ class NapariWorkflowsInput(BaseModel):
                 f"Input item has type={_type} but channel={channel}."
             )
         return self
-
-
-class DaskProjectionMethod(Enum):
-    """
-    Registration method selection
-
-    Choose which method to use for intensity projection along the Z axis.
-
-    Attributes:
-        MIP: Maximum intensity projection
-        MINIP: Minimum intensityp projection
-        MEANIP: Mean intensity projection
-        SUMIP: Sum intensityp projection
-    """
-
-    MIP = "mip"
-    MINIP = "minip"
-    MEANIP = "meanip"
-    SUMIP = "sumip"
-
-    def apply(
-        self, dask_array: da.Array, axis: int = 0, **kwargs: Dict[str, Any]
-    ) -> da.Array:
-        """
-        Apply the selected projection method to the given Dask array.
-
-        Args:
-            dask_array (dask.array.Array): The Dask array to project.
-            axis (int): The axis along which to apply the projection.
-            **kwargs: Additional keyword arguments to pass to the projection
-                method.
-
-        Returns:
-            dask.array.Array: The resulting Dask array after applying the
-                projection.
-
-        Example:
-            >>> array = da.random.random((1000, 1000), chunks=(100, 100))
-            >>> method = DaskProjectionMethod.MAX
-            >>> result = method.apply(array, axis=0)
-            >>> computed_result = result.compute()
-            >>> print(computed_result)
-        """
-        # Map the Enum values to the actual Dask array methods
-        method_map = {
-            DaskProjectionMethod.MIP: dask_array.max,
-            DaskProjectionMethod.MINIP: dask_array.min,
-            DaskProjectionMethod.MEANIP: dask_array.mean,
-            DaskProjectionMethod.SUMIP: dask_array.sum,
-        }
-        return method_map[self](axis=axis, **kwargs)

@@ -22,8 +22,8 @@ from fractal_tasks_core.ngff.specs import NgffPlateMeta
 from fractal_tasks_core.ngff.specs import WellInPlate
 from fractal_tasks_core.ngff.zarr_utils import load_NgffPlateMeta
 from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
-from fractal_tasks_core.tasks.io_models import DaskProjectionMethod
 from fractal_tasks_core.tasks.io_models import InitArgsMIP
+from fractal_tasks_core.tasks.projection_utils import DaskProjectionMethod
 from fractal_tasks_core.zarr_utils import open_zarr_group_with_overwrite
 
 logger = logging.getLogger(__name__)
