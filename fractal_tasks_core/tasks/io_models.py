@@ -1,4 +1,6 @@
 from enum import Enum
+from typing import Any
+from typing import Dict
 from typing import Literal
 from typing import Optional
 
@@ -201,7 +203,9 @@ class DaskProjectionMethod(Enum):
     MEANIP = "meanip"
     SUMIP = "sumip"
 
-    def apply(self, dask_array: da.array, axis: int = 0, **kwargs):
+    def apply(
+        self, dask_array: da.Array, axis: int = 0, **kwargs: Dict[str, Any]
+    ) -> da.Array:
         """
         Apply the selected projection method to the given Dask array.
 
