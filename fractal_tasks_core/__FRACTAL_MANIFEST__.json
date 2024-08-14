@@ -552,7 +552,7 @@
         "is_3D": false
       },
       "executable_non_parallel": "tasks/copy_ome_zarr_hcs_plate.py",
-      "executable_parallel": "tasks/maximum_intensity_projection.py",
+      "executable_parallel": "tasks/projection.py",
       "meta_non_parallel": {
         "cpus_per_task": 1,
         "mem": 4000
@@ -660,9 +660,9 @@
           "init_args"
         ],
         "type": "object",
-        "title": "MaximumIntensityProjection"
+        "title": "Projection"
       },
-      "docs_info": "## copy_ome_zarr_hcs_plate\nDuplicate the OME-Zarr HCS structure for a set of zarr_urls.\n\nThis task only processes the zarr images in the zarr_urls, not all the\nimages in the plate. It copies all the  plate & well structure, but none\nof the image metadata or the actual image data:\n\n- For each plate, create a new OME-Zarr HCS plate with the attributes for\n    all the images in zarr_urls\n- For each well (in each plate), create a new zarr subgroup with the\n   same attributes as the original one.\n\nNote: this task makes use of methods from the `Attributes` class, see\nhttps://zarr.readthedocs.io/en/stable/api/attrs.html.\n## maximum_intensity_projection\nPerform maximum-intensity projection along Z axis.\n\nNote: this task stores the output in a new zarr file.\n",
+      "docs_info": "## copy_ome_zarr_hcs_plate\nDuplicate the OME-Zarr HCS structure for a set of zarr_urls.\n\nThis task only processes the zarr images in the zarr_urls, not all the\nimages in the plate. It copies all the  plate & well structure, but none\nof the image metadata or the actual image data:\n\n- For each plate, create a new OME-Zarr HCS plate with the attributes for\n    all the images in zarr_urls\n- For each well (in each plate), create a new zarr subgroup with the\n   same attributes as the original one.\n\nNote: this task makes use of methods from the `Attributes` class, see\nhttps://zarr.readthedocs.io/en/stable/api/attrs.html.\n## projection\nPerform intensity projection along Z axis with a chosen method.\n\nNote: this task stores the output in a new zarr file.\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {
