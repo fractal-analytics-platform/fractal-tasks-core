@@ -544,7 +544,7 @@
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {
-      "name": "Maximum Intensity Projection HCS Plate",
+      "name": "Project Image (HCS Plate)",
       "input_types": {
         "is_3D": true
       },
@@ -552,7 +552,7 @@
         "is_3D": false
       },
       "executable_non_parallel": "tasks/copy_ome_zarr_hcs_plate.py",
-      "executable_parallel": "tasks/maximum_intensity_projection.py",
+      "executable_parallel": "tasks/projection.py",
       "meta_non_parallel": {
         "cpus_per_task": 1,
         "mem": 4000
@@ -562,6 +562,19 @@
         "mem": 4000
       },
       "args_schema_non_parallel": {
+        "$defs": {
+          "DaskProjectionMethod": {
+            "description": "Registration method selection",
+            "enum": [
+              "mip",
+              "minip",
+              "meanip",
+              "sumip"
+            ],
+            "title": "DaskProjectionMethod",
+            "type": "string"
+          }
+        },
         "additionalProperties": false,
         "properties": {
           "zarr_urls": {
@@ -577,11 +590,15 @@
             "type": "string",
             "description": "path of the directory where the new OME-Zarrs will be created. (standard argument for Fractal tasks, managed by Fractal server)."
           },
-          "suffix": {
+          "method": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/DaskProjectionMethod"
+              }
+            ],
             "default": "mip",
-            "title": "Suffix",
-            "type": "string",
-            "description": "The suffix that is used to transform `plate.zarr` into `plate_suffix.zarr`. Note that `None` is not currently supported."
+            "title": "Method",
+            "description": "Choose which method to use for intensity projection along the Z axis. mip is the default and performs a maximum intensity projection. minip performs a minimum intensity projection, meanip a mean intensity projection and sumip a sum intensity projection."
           },
           "overwrite": {
             "default": false,
@@ -605,10 +622,20 @@
               "origin_url": {
                 "title": "Origin Url",
                 "type": "string"
+              },
+              "method": {
+                "title": "Method",
+                "type": "string"
+              },
+              "overwrite": {
+                "title": "Overwrite",
+                "type": "boolean"
               }
             },
             "required": [
-              "origin_url"
+              "origin_url",
+              "method",
+              "overwrite"
             ],
             "title": "InitArgsMIP",
             "type": "object"
@@ -625,12 +652,6 @@
             "$ref": "#/$defs/InitArgsMIP",
             "title": "Init Args",
             "description": "Intialization arguments provided by `create_cellvoyager_ome_zarr_init`."
-          },
-          "overwrite": {
-            "default": false,
-            "title": "Overwrite",
-            "type": "boolean",
-            "description": "If `True`, overwrite the task output."
           }
         },
         "required": [
@@ -638,9 +659,9 @@
           "init_args"
         ],
         "type": "object",
-        "title": "MaximumIntensityProjection"
+        "title": "Projection"
       },
-      "docs_info": "## copy_ome_zarr_hcs_plate\nDuplicate the OME-Zarr HCS structure for a set of zarr_urls.\n\nThis task only processes the zarr images in the zarr_urls, not all the\nimages in the plate. It copies all the  plate & well structure, but none\nof the image metadata or the actual image data:\n\n- For each plate, create a new OME-Zarr HCS plate with the attributes for\n    all the images in zarr_urls\n- For each well (in each plate), create a new zarr subgroup with the\n   same attributes as the original one.\n\nNote: this task makes use of methods from the `Attributes` class, see\nhttps://zarr.readthedocs.io/en/stable/api/attrs.html.\n## maximum_intensity_projection\nPerform maximum-intensity projection along Z axis.\n\nNote: this task stores the output in a new zarr file.\n",
+      "docs_info": "## copy_ome_zarr_hcs_plate\nDuplicate the OME-Zarr HCS structure for a set of zarr_urls.\n\nThis task only processes the zarr images in the zarr_urls, not all the\nimages in the plate. It copies all the  plate & well structure, but none\nof the image metadata or the actual image data:\n\n- For each plate, create a new OME-Zarr HCS plate with the attributes for\n    all the images in zarr_urls\n- For each well (in each plate), create a new zarr subgroup with the\n   same attributes as the original one.\n\nNote: this task makes use of methods from the `Attributes` class, see\nhttps://zarr.readthedocs.io/en/stable/api/attrs.html.\n## projection\nPerform intensity projection along Z axis with a chosen method.\n\nNote: this task stores the output in a new zarr file.\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {

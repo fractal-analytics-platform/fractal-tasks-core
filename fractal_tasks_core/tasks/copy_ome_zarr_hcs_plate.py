@@ -23,6 +23,7 @@ from fractal_tasks_core.ngff.specs import WellInPlate
 from fractal_tasks_core.ngff.zarr_utils import load_NgffPlateMeta
 from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
 from fractal_tasks_core.tasks.io_models import InitArgsMIP
+from fractal_tasks_core.tasks.projection_utils import DaskProjectionMethod
 from fractal_tasks_core.zarr_utils import open_zarr_group_with_overwrite
 
 logger = logging.getLogger(__name__)
@@ -192,8 +193,8 @@ def copy_ome_zarr_hcs_plate(
     # Fractal parameters
     zarr_urls: list[str],
     zarr_dir: str,
+    method: DaskProjectionMethod = DaskProjectionMethod.MIP,
     # Advanced parameters
-    suffix: str = "mip",
     overwrite: bool = False,
 ) -> dict[str, Any]:
     """
@@ -218,21 +219,16 @@ def copy_ome_zarr_hcs_plate(
         zarr_dir: path of the directory where the new OME-Zarrs will be
             created.
             (standard argument for Fractal tasks, managed by Fractal server).
-        suffix: The suffix that is used to transform `plate.zarr` into
-            `plate_suffix.zarr`. Note that `None` is not currently supported.
+        method: Choose which method to use for intensity projection along the
+            Z axis. mip is the default and performs a maximum intensity
+            projection. minip performs a minimum intensity projection, meanip
+            a mean intensity projection and sumip a sum intensity projection.
         overwrite: If `True`, overwrite the task output.
 
     Returns:
         A parallelization list to be used in a compute task to fill the wells
         with OME-Zarr images.
     """
-
-    # Preliminary check
-    if suffix is None or suffix == "":
-        raise ValueError(
-            "Running copy_ome_zarr_hcs_plate without a suffix would lead to"
-            "overwriting of the existing HCS plates."
-        )
 
     parallelization_list = []
 
@@ -241,13 +237,15 @@ def copy_ome_zarr_hcs_plate(
         old_plate_url = _get_plate_url_from_image_url(zarr_url)
         well_sub_url = _get_well_sub_url(zarr_url)
         old_plate_name = old_plate_url.split(".zarr")[-2].split("/")[-1]
-        new_plate_name = f"{old_plate_name}_{suffix}"
+        new_plate_name = f"{old_plate_name}_{method.value}"
         zarrurl_plate_new = f"{zarr_dir}/{new_plate_name}.zarr"
         curr_img_sub_url = _get_image_sub_url(zarr_url)
         new_zarr_url = f"{zarrurl_plate_new}/{well_sub_url}/{curr_img_sub_url}"
         parallelization_item = dict(
             zarr_url=new_zarr_url,
-            init_args=dict(origin_url=zarr_url),
+            init_args=dict(
+                origin_url=zarr_url, method=method.value, overwrite=overwrite
+            ),
         )
         InitArgsMIP(**parallelization_item["init_args"])
         parallelization_list.append(parallelization_item)
@@ -262,7 +260,7 @@ def copy_ome_zarr_hcs_plate(
     # Create the new OME-Zarr HCS plate
     for old_plate_url, plate_attrs in plate_attrs_dicts.items():
         old_plate_name = old_plate_url.split(".zarr")[-2].split("/")[-1]
-        new_plate_name = f"{old_plate_name}_{suffix}"
+        new_plate_name = f"{old_plate_name}_{method.value}"
         zarrurl_new = f"{zarr_dir}/{new_plate_name}.zarr"
         logger.info(f"{old_plate_url=}")
         logger.info(f"{zarrurl_new=}")

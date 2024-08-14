@@ -16,6 +16,7 @@ import shutil
 from pathlib import Path
 
 import anndata as ad
+import dask.array as da
 import pytest
 import zarr
 from devtools import debug
@@ -34,8 +35,8 @@ from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
 from fractal_tasks_core.tasks.illumination_correction import (
     illumination_correction,
 )
-from fractal_tasks_core.tasks.maximum_intensity_projection import (
-    maximum_intensity_projection,
+from fractal_tasks_core.tasks.projection import (
+    projection,
 )
 from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 
@@ -321,8 +322,7 @@ def test_MIP(
     shutil.copytree(zenodo_zarr_3D, str(zarr_path / Path(zenodo_zarr_3D).name))
 
     zarr_urls = []
-    zarr_dir = "/".join(zenodo_zarr_3D.split("/")[:-1])
-    zarr_urls = [Path(zarr_dir, "plate.zarr/B/03/0").as_posix()]
+    zarr_urls = [Path(zarr_path, "plate.zarr/B/03/0").as_posix()]
 
     parallelization_list = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
@@ -350,16 +350,15 @@ def test_MIP(
     # MIP
     image_list_updates = []
     for image in parallelization_list:
-        image_list_updates += maximum_intensity_projection(
+        image_list_updates += projection(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
-            overwrite=True,
         )["image_list_updates"]
 
     debug(image_list_updates[0])
     expected_image_list_updates = {
         "zarr_url": (parallelization_list[0]["zarr_url"]),
-        "origin": f"{zarr_dir}/plate.zarr/B/03/0",
+        "origin": f"{zarr_path}/plate.zarr/B/03/0",
         "types": {
             "is_3D": False,
         },
@@ -369,19 +368,18 @@ def test_MIP(
 
     # Re-run with overwrite=True
     for image in parallelization_list:
-        maximum_intensity_projection(
+        projection(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
-            overwrite=True,
         )
 
     # Re-run with overwrite=False
     with pytest.raises(OverwriteNotAllowedError):
         for image in parallelization_list:
-            maximum_intensity_projection(
+            image["init_args"]["overwrite"] = False
+            projection(
                 zarr_url=image["zarr_url"],
                 init_args=image["init_args"],
-                overwrite=False,
             )
 
     # OME-NGFF JSON validation
@@ -408,6 +406,67 @@ def test_MIP(
     assert len(plate_zarr_group) == 1
     row_zarr_group = zarr.open(plate_zarr / "B")
     assert len(row_zarr_group) == 1
+
+
+@pytest.mark.parametrize("method", ["mip", "minip", "meanip", "sumip"])
+def test_projection_methods(
+    tmp_path: Path,
+    zenodo_zarr: list[str],
+    method: str,
+):
+    # Init
+    zarr_path = tmp_path / "tmp_out"
+    debug(zarr_path)
+
+    # Load zarr array from zenodo
+    zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
+    shutil.copytree(zenodo_zarr_3D, str(zarr_path / Path(zenodo_zarr_3D).name))
+
+    zarr_urls = []
+    zarr_urls = [Path(zarr_path, "plate.zarr/B/03/0").as_posix()]
+
+    parallelization_list = copy_ome_zarr_hcs_plate(
+        zarr_urls=zarr_urls,
+        zarr_dir=str(zarr_path),
+        method=method,
+        overwrite=True,
+    )["parallelization_list"]
+
+    # Check that method is correctly in parallelization list & in suffix
+    expected_parallelization_list = [
+        {
+            "zarr_url": Path(
+                zarr_path, f"plate_{method}.zarr/B/03/0"
+            ).as_posix(),
+            "init_args": {
+                "origin_url": zarr_urls[0],
+                "method": method,
+                "overwrite": True,
+            },
+        }
+    ]
+    assert parallelization_list == expected_parallelization_list
+
+    # Run projection
+    image_list_updates = []
+    for image in parallelization_list:
+        image_list_updates += projection(
+            zarr_url=image["zarr_url"],
+            init_args=image["init_args"],
+        )["image_list_updates"]
+
+    # Test the value of a pre-defined pixel to see if the projection worked
+    img = da.from_zarr(f"{image_list_updates[0]['zarr_url']}/0")
+    expected_values = {
+        "mip": 493,
+        "minip": 332,
+        "meanip": 412,
+        "sumip": 825,
+    }
+
+    debug(f"{method}:{img[0, 0, 952, 735].compute()}")
+    debug(img.dtype)
+    assert img[0, 0, 952, 735].compute() == expected_values[method]
 
 
 def test_MIP_subset_of_images(
@@ -458,10 +517,9 @@ def test_MIP_subset_of_images(
 
     # MIP
     for image in parallelization_list:
-        maximum_intensity_projection(
+        projection(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
-            overwrite=True,
         )
 
     # OME-NGFF JSON validation

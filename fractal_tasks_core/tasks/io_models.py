@@ -84,9 +84,13 @@ class InitArgsMIP(BaseModel):
 
     Attributes:
         origin_url: Path to the zarr_url with the 3D data
+        method: Projection method to be used. See `DaskProjectionMethod`
+        overwrite: If `True`, overwrite the task output.
     """
 
     origin_url: str
+    method: str
+    overwrite: bool
 
 
 class MultiplexingAcquisition(BaseModel):

@@ -7,8 +7,8 @@ from fractal_tasks_core.channels import OmeroChannel
 from fractal_tasks_core.channels import Window
 from fractal_tasks_core.tasks.copy_ome_zarr import copy_ome_zarr
 from fractal_tasks_core.tasks.create_ome_zarr import create_ome_zarr
-from fractal_tasks_core.tasks.maximum_intensity_projection import (
-    maximum_intensity_projection,
+from fractal_tasks_core.tasks.projection import (
+    projection,
 )
 from fractal_tasks_core.tasks.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
 
@@ -91,7 +91,7 @@ debug(metadata)
 
 # MIP
 for component in metadata["image"]:
-    maximum_intensity_projection(
+    projection(
         input_paths=[zarr_path_mip],
         output_path=zarr_path_mip,
         metadata=metadata,

@@ -29,6 +29,7 @@ from fractal_tasks_core.roi import (
 from fractal_tasks_core.tables import write_table
 from fractal_tasks_core.tables.v1 import get_tables_list_v1
 from fractal_tasks_core.tasks.io_models import InitArgsMIP
+from fractal_tasks_core.tasks.projection_utils import DaskProjectionMethod
 from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 
 
@@ -36,16 +37,14 @@ logger = logging.getLogger(__name__)
 
 
 @validate_call
-def maximum_intensity_projection(
+def projection(
     *,
     # Fractal parameters
     zarr_url: str,
     init_args: InitArgsMIP,
-    # Advanced parameters
-    overwrite: bool = False,
 ) -> dict[str, Any]:
     """
-    Perform maximum-intensity projection along Z axis.
+    Perform intensity projection along Z axis with a chosen method.
 
     Note: this task stores the output in a new zarr file.
 
@@ -54,10 +53,11 @@ def maximum_intensity_projection(
             (standard argument for Fractal tasks, managed by Fractal server).
         init_args: Intialization arguments provided by
             `create_cellvoyager_ome_zarr_init`.
-        overwrite: If `True`, overwrite the task output.
     """
+    method = DaskProjectionMethod(init_args.method)
     logger.info(f"{init_args.origin_url=}")
     logger.info(f"{zarr_url=}")
+    logger.info(f"{method=}")
 
     # Read image metadata
     ngff_image = load_NgffImageMeta(init_args.origin_url)
@@ -85,22 +85,24 @@ def maximum_intensity_projection(
     accumulate_chl = []
     for ind_ch in range(num_channels):
         # Perform MIP for each channel of level 0
-        mip_yx = da.stack([da.max(data_czyx[ind_ch], axis=0)], axis=0)
-        accumulate_chl.append(mip_yx)
+        project_yx = da.stack(
+            [method.apply(data_czyx[ind_ch], axis=0)], axis=0
+        )
+        accumulate_chl.append(project_yx)
     accumulated_array = da.stack(accumulate_chl, axis=0)
 
     # Write to disk (triggering execution)
     try:
         accumulated_array.to_zarr(
             f"{zarr_url}/0",
-            overwrite=overwrite,
+            overwrite=init_args.overwrite,
             dimension_separator="/",
             write_empty_chunks=False,
         )
     except ContainsArrayError as e:
         error_msg = (
             f"Cannot write array to zarr group at '{zarr_url}/0', "
-            f"with {overwrite=} (original error: {str(e)}).\n"
+            f"with {init_args.overwrite=} (original error: {str(e)}).\n"
             "Hint: try setting overwrite=True."
         )
         logger.error(error_msg)
@@ -110,7 +112,7 @@ def maximum_intensity_projection(
     # pyramid of coarser levels
     build_pyramid(
         zarrurl=zarr_url,
-        overwrite=overwrite,
+        overwrite=init_args.overwrite,
         num_levels=ngff_image.num_levels,
         coarsening_xy=ngff_image.coarsening_xy,
         chunksize=(1, 1, chunksize_y, chunksize_x),
@@ -144,7 +146,7 @@ def maximum_intensity_projection(
             table,
             new_ROI_table,
             table_attrs=old_ROI_table_attrs,
-            overwrite=overwrite,
+            overwrite=init_args.overwrite,
         )
 
     for table in non_roi_tables:
@@ -166,7 +168,7 @@ def maximum_intensity_projection(
             table,
             new_non_ROI_table,
             table_attrs=old_non_ROI_table_attrs,
-            overwrite=overwrite,
+            overwrite=init_args.overwrite,
         )
 
     # Generate image_list_updates
@@ -186,6 +188,6 @@ if __name__ == "__main__":
     from fractal_tasks_core.tasks._utils import run_fractal_task
 
     run_fractal_task(
-        task_function=maximum_intensity_projection,
+        task_function=projection,
         logger_name=logger.name,
     )

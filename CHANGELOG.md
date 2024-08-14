@@ -1,6 +1,6 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# Unreleased
+# 1.3.0
 * Tasks:
     * `image_glob_patterns` are renamed to `include_glob_patterns` in Convert Cellvoyager to OME-Zarr (regular & multiplexing) (\#812).
     * Convert Cellvoyager to OME-Zarr (regular & multiplexing) gain exclusion patterns to exclude specific patterns of images from being processed (\#812).
@@ -9,6 +9,9 @@
     * In Convert Cellvoyager to OME-Zarr, improve plate metadata for image list when multiple plates with the same plate name are processed (\#812).
     * Catch errors for missing mlf & mrf files better in Convert Cellvoyager to OME-Zarr (regular & multiplexing) (\#812).
     * Drop defusexml dependency for cellvoyager metadata conversion (\#812).
+    * Rename `Maximum Intensity Projection HCS Plate` task to `Project Image (HCS Plate)` (\#814).
+    * Expose selection of projection modes in `Project Image (HCS Plate)`: MIP, MINIP, MEANIP & SUMIP (\#814).
+    * Rename task function from `maximum_intensity_projection` to `projection` and modified parameters in `fractal_tasks_core.tasks.io_models.InitArgsMIP` (\#814).
 
 # 1.2.1
 * Core-library

@@ -30,8 +30,8 @@ from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
     copy_ome_zarr_hcs_plate,
 )
 from fractal_tasks_core.tasks.io_models import MultiplexingAcquisition
-from fractal_tasks_core.tasks.maximum_intensity_projection import (
-    maximum_intensity_projection,
+from fractal_tasks_core.tasks.projection import (
+    projection,
 )
 from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 
@@ -407,10 +407,9 @@ def test_multiplexing_MIP(
     # MIP
     image_list_updates = []
     for image in parallelization_list:
-        image_list_updates += maximum_intensity_projection(
+        image_list_updates += projection(
             zarr_url=image["zarr_url"],
             init_args=image["init_args"],
-            overwrite=True,
         )["image_list_updates"]
 
     # OME-NGFF JSON validation
