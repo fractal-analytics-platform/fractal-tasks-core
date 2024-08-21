@@ -32,6 +32,7 @@ expected_MIP_plate_attrs = {
         "columns": [{"name": "03"}],
         "rows": [{"name": "B"}],
         "wells": [{"columnIndex": 0, "path": "B/03", "rowIndex": 0}],
+        "version": "0.4",
     }
 }
 
