@@ -221,7 +221,7 @@ def _insert_class_attrs_descriptions(
         schema: TBD
         class_name: TBD
         descriptions: TBD
-        definitions_key: Either `"definitions"` (for Pydantic V1) or
+        definition_key: Either `"definitions"` (for Pydantic V1) or
             `"$defs"` (for Pydantic V2)
     """
     new_schema = schema.copy()

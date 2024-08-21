@@ -4,6 +4,8 @@
 
 * Testing
     * Use latest version of Zenodo tiny-ome-zarr dataset (\#817).
+* Documentation:
+    * Bump `mkdocstrings` and `mkdocstrings-python` to support `griffe` v1 (\#818).
 
 # 1.3.0
 
