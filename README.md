@@ -6,17 +6,15 @@
 [![Documentation Status](https://github.com/fractal-analytics-platform/fractal-tasks-core/actions/workflows/documentation.yaml/badge.svg)](https://fractal-analytics-platform.github.io/fractal-tasks-core)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
-Fractal is a framework to process bioimaging data at scale in the OME-Zarr format and prepare the images for interactive visualization.
+[Fractal](https://fractal-analytics-platform.github.io/) is a framework developed at the [BioVisionCenter](https://www.biovisioncenter.uzh.ch/en.html) to process bioimaging data at scale in the OME-Zarr format and prepare the images for interactive visualization.
 
-![Fractal_Overview](https://fractal-analytics-platform.github.io/assets/fractal_overview.jpg)
-
-Fractal provides distributed workflows that convert TBs of image data into OME-Zarr files. The platform then processes the 3D image data by applying tasks like illumination correction, maximum intensity projection, 3D segmentation using [cellpose](https://cellpose.readthedocs.io/en/latest/) and measurements using [napari workflows](https://github.com/haesleinhuepf/napari-workflows). The resulting pyramidal OME-Zarr files enable interactive visualization in different modern viewers like MoBIE and napari.
+![Fractal_overview](https://github.com/user-attachments/assets/24d24905-ae43-4249-a6de-6ed4853b0e59)
 
 This is the **core-tasks repository**, containing the python tasks that converts Cellvoyager CV7000 & CV8000 images into OME-Zarr and process OME-Zarr files. Find more information about Fractal in general and the other repositories at the [Fractal home page](https://fractal-analytics-platform.github.io).
 
 Besides tasks, this repository contains library functions for processing OME-Zarr images. The core library parts are:
 - an NGFF sub-package to validate OME-Zarr metadata and provide convenience functions to read & write it
-- a tables sub-package to handle reading and writing of AnnData tables for ROI tables & feature tables (see [table specification](https://fractal-analytics-platform.github.io/fractal-tasks-core/tables/))
+- a tables sub-package to handle reading and writing of AnnData tables for ROI tables & feature tables (see [fractal table specification](https://fractal-analytics-platform.github.io/fractal-tasks-core/tables/))
 - a roi sub-package to handle ROI table related processing
 - a dev subpackage that handles Fractal manifest creation & other validation of tasks for Fractal server
 
@@ -31,7 +29,7 @@ See https://fractal-analytics-platform.github.io/fractal-tasks-core
 Currently, the following tasks are available:
 - Convert Cellvoyager to OME-Zarr: Task to convert Cellvoyager CV7000 & CV8000 images into OME-Zarr.
 - Convert Cellvoyager Multiplexing to OME-Zarr: Task to convert multiplexed images from Cellvoyager CV7000 & CV8000 images into OME-Zarr.
-- Maximum Intensity Projection HCS Plate: This task creates a new OME-Zarr HCS plate and puts in maximum intensity projections along the Z axis for all images.
+- Project Image (HCS Plate): This task creates a new OME-Zarr HCS plate and calculates an intensity projection along the Z axis for all images (e.g. maximum intensity projection).
 - Illumination Correction: Task to apply flatfield correction & background subtraction based on pre-calculated illumination profiles.
 - Cellpose Segmentation: This task performs image segmentation using custom or pre-trained Cellpose models and exposes many model options to be tuned by the user.
 - Napari Workflows Wrapper: Task to run existing napari workflows through Fractal to process images and labels and to generate new labels or measurement tables. Takes an arbitrary napari workflow yaml file to run.
