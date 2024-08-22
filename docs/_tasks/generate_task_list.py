@@ -14,23 +14,37 @@ pkgs = dict()
 pkgs["fractal-tasks-core"] = dict(
     homepage_url="https://fractal-analytics-platform.github.io/fractal-tasks-core",  # noqa
     manifest_url="https://raw.githubusercontent.com/fractal-analytics-platform/fractal-tasks-core/main/fractal_tasks_core/__FRACTAL_MANIFEST__.json",  # noqa
+    description=(
+        "The Fractal tasks core package is the reference implementation for "
+        "Fractal tasks. It contains tasks to convert Cellvoyager CV7000 and "
+        "CV8000 images to OME-Zarr, to make 3D projections, apply flatfield "
+        "illumination corrections, segment objects using Cellpose, run "
+        "napari workflows, calculate & apply registration and to import "
+        "OME-Zarrs into a Fractal workflow."
+    ),
 )
 
 pkgs["scMultiplex"] = dict(
     homepage_url="https://github.com/fmi-basel/gliberal-scMultipleX",
     manifest_url="https://raw.githubusercontent.com/fmi-basel/gliberal-scMultipleX/main/src/scmultiplex/__FRACTAL_MANIFEST__.json",  # noqa
+    description=(
+        "The scMultipleX package contains tasks to perform object-based "
+        "registration, multiplexed measurements, mesh generations and more."
+    ),
 )
 pkgs["fractal-faim-ipa"] = dict(
-    homepage_url="https://github.com/jluethi/fractal-faim-ipa",
+    homepage_url="https://github.com/fractal-analytics-platform/fractal-faim-ipa",  # noqa
     manifest_url="https://raw.githubusercontent.com/jluethi/fractal-faim-ipa/main/src/fractal_faim_ipa/__FRACTAL_MANIFEST__.json",  # noqa
-)
-pkgs["abbott"] = dict(
-    homepage_url="https://github.com/MaksHess/abbott",
-    manifest_url="https://raw.githubusercontent.com/MaksHess/abbott/main/src/abbott/__FRACTAL_MANIFEST__.json",  # noqa
+    description=(
+        "Provides Fractal tasks for the conversion of Molecular Devices "
+        "ImageXpress microscope to OME-Zarr. This package is based on the "
+        "faim-ipa library developed by FAIM at FMI."
+    ),
 )
 pkgs["fractal-helper-tasks"] = dict(
-    homepage_url="https://github.com/jluethi/fractal-helper-tasks",
-    manifest_url="https://raw.githubusercontent.com/jluethi/fractal-helper-tasks/main/src/fractal_helper_tasks/__FRACTAL_MANIFEST__.json",  # noqa
+    homepage_url="https://github.com/fractal-analytics-platform/fractal-helper-tasks",  # noqa
+    manifest_url="https://raw.githubusercontent.com/fractal-analytics-platform/fractal-helper-tasks/main/src/fractal_helper_tasks/__FRACTAL_MANIFEST__.json",  # noqa
+    description=("Collection of Fractal helper tasks."),
 )
 pkgs["APx_fractal_task_collection"] = dict(
     homepage_url="https://github.com/Apricot-Therapeutics/APx_fractal_task_collection",  # noqa
@@ -47,7 +61,7 @@ pkgs["APx_fractal_task_collection"] = dict(
         "they have not specifically been developed for this scenario."
     ),
 )
-pkgs["operio-fractal"] = dict(
+pkgs["operetta-compose"] = dict(
     homepage_url="https://github.com/leukemia-kispi/operetta-compose",
     manifest_url="https://raw.githubusercontent.com/leukemia-kispi/operetta-compose/main/src/operetta_compose/__FRACTAL_MANIFEST__.json",  # noqa
     description=(
@@ -55,7 +69,29 @@ pkgs["operio-fractal"] = dict(
         "microscope and drug response profiling."
     ),
 )
-
+pkgs["fractal-plantseg-tasks"] = dict(
+    homepage_url="https://github.com/fractal-analytics-platform/fractal-plantseg-tasks",  # noqa
+    manifest_url="https://raw.githubusercontent.com/fractal-analytics-platform/fractal-plantseg-tasks/main/src/plantseg_tasks/__FRACTAL_MANIFEST__.json",  # noqa
+    description=(
+        "Collection of Fractal task with the PlantSeg segmentation pipeline."
+    ),
+)
+pkgs["fractal-ome-zarr-hcs-stitching"] = dict(
+    homepage_url="https://github.com/m-albert/fractal-ome-zarr-hcs-stitching",  # noqa
+    manifest_url="https://raw.githubusercontent.com/m-albert/fractal-ome-zarr-hcs-stitching/main/src/fractal_ome_zarr_hcs_stitching/__FRACTAL_MANIFEST__.json",  # noqa
+    description=(
+        "Fractal task(s) for registering and fusing OME-Zarr HCS using "
+        "multiview-stitcher."
+    ),
+)
+pkgs["abbott"] = dict(
+    homepage_url="https://github.com/MaksHess/abbott",
+    manifest_url="https://raw.githubusercontent.com/MaksHess/abbott/main/src/abbott/__FRACTAL_MANIFEST__.json",  # noqa
+    description=(
+        "Work in progress task package to provide 3D registration methods "
+        "based on Elastix."
+    ),
+)
 
 script_path = __file__
 script_dir = Path(script_path).parent
