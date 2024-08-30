@@ -4,6 +4,7 @@
 
 * Testing
     * Use latest version of Zenodo tiny-ome-zarr dataset (\#817).
+    * Relax pip-version constraint in external-packages-manifest tests (\#825).
 * Documentation:
     * Bump `mkdocstrings` and `mkdocstrings-python` to support `griffe` v1 (\#818).
 
