@@ -5,6 +5,9 @@
 * Testing
     * Use latest version of Zenodo tiny-ome-zarr dataset (\#817).
     * Relax pip-version constraint in external-packages-manifest tests (\#825).
+    * Run pip-based CI also regularly and on-demand (\#829).
+* Dependencies:
+    * Require `stackview<=0.9.0` (\#829).
 * Documentation:
     * Bump `mkdocstrings` and `mkdocstrings-python` to support `griffe` v1 (\#818).
 
