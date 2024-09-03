@@ -44,13 +44,13 @@ jobs:
 
       - name: Test core library with pytest
         env:
-          COVERAGE_FILE: "coverage-data-${{ runner.os }}-${{ matrix.python_version }}-core"
+          COVERAGE_FILE: "coverage-data-${{ matrix.python-version }}-core"
         run: poetry run coverage run -m pytest tests --ignore tests/tasks  --ignore tests/dev
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v4
         with:
-          name: "coverage-data-${{ runner.os }}-${{ matrix.python_version }}-core"
+          name: "coverage-data-${{ matrix.python-version }}-core"
           path: "coverage-data-*"
 
   tests_tasks:
@@ -99,14 +99,14 @@ jobs:
 
       - name: Test tasks with pytest
         env:
-          COVERAGE_FILE: "coverage-data-${{ runner.os }}-${{ matrix.python_version }}-tasks"
+          COVERAGE_FILE: "coverage-data-${{ matrix.python-version }}-tasks"
 
         run: poetry run coverage run -m pytest tests/dev tests/tasks -s --log-cli-level info
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v4
         with:
-          name: "coverage-data-${{ runner.os }}-${{ matrix.python_version }}-tasks"
+          name: "coverage-data-${{ matrix.python-version }}-tasks"
           path: "coverage-data-*"
 
   coverage:
