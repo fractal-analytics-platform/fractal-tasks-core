@@ -43,13 +43,15 @@ jobs:
         run: poetry install --with dev --without docs --no-interaction
 
       - name: Test core library with pytest
+        env:
+          COVERAGE_FILE: coverage-data-core-${{ matrix.python-version }}
         run: poetry run coverage run -m pytest tests --ignore tests/tasks  --ignore tests/dev
 
       - name: Upload coverage data
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: coverage-data
-          path: ".coverage*"
+          name: coverage-data-core-${{ matrix.python-version }}
+          path: coverage-data-core-${{ matrix.python-version }}*
 
   tests_tasks:
     name: "Tasks, Python ${{ matrix.python-version }}"
@@ -96,13 +98,15 @@ jobs:
           key: pooch-cache
 
       - name: Test tasks with pytest
+        env:
+          COVERAGE_FILE: coverage-data-tasks-${{ matrix.python-version }}
         run: poetry run coverage run -m pytest tests/dev tests/tasks -s --log-cli-level info
 
       - name: Upload coverage data
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: coverage-data
-          path: ".coverage*"
+          name: coverage-data-tasks-${{ matrix.python-version }}
+          path: coverage-data-tasks-${{ matrix.python-version }}*
 
   coverage:
     name: Coverage
@@ -119,16 +123,24 @@ jobs:
         run: python -m pip install --upgrade coverage[toml]
 
       - name: Download data
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: coverage-data
+          pattern: coverage-data-*
+          merge-multiple: true
+
+      - name: Combine coverage
+        # Combines all the downloaded coverage artifacts in a single `.coverage` file,
+        # which will then be used by `py-cov-action/python-coverage-comment-action`.
+        # We added this step to replace the variable `MERGE_COVERAGE_FILES: true`
+        # in the next step, which had started to raise errors
+        # (https://github.com/fractal-analytics-platform/fractal-server/pull/1725).
+        run: coverage combine coverage-data-*
 
       - name: Add coverage comment to Pull Requests
         id: coverage_comment
         uses: py-cov-action/python-coverage-comment-action@v3
         with:
           GITHUB_TOKEN: ${{ github.token }}
-          MERGE_COVERAGE_FILES: true
           MINIMUM_GREEN: 90
           MINIMUM_ORANGE: 60
           ANNOTATE_MISSING_LINES: true
