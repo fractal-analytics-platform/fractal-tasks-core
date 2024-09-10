@@ -1,6 +1,6 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# Unreleased
+# 1.3.1
 
 * Testing
     * Use latest version of Zenodo tiny-ome-zarr dataset (\#817).
