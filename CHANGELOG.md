@@ -8,6 +8,7 @@
     * Run pip-based CI also regularly and on-demand (\#829).
     * Update GitHub actions for upload/download/coverage (\#832).
 * Dependencies:
+    * Require `pydantic<=2.8.2` (\#836).
     * Require `stackview<=0.9.0` (\#829).
 * Documentation:
     * Bump `mkdocstrings` and `mkdocstrings-python` to support `griffe` v1 (\#818).
