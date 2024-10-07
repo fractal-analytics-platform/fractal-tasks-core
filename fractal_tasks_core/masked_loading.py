@@ -109,7 +109,9 @@ def _preprocess_input(
             'In _preprocess_input, "{column_name}" '
             f" missing in {ROI_table.obs.columns=}"
         )
-    label_value = int(float(ROI_table.obs[column_name][ROI_positional_index]))
+    label_value = int(
+        float(ROI_table.obs[column_name].iloc[ROI_positional_index])
+    )
 
     # Load masking-label array (lazily)
     masking_label_path = str(

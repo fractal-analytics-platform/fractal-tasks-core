@@ -1,5 +1,13 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+* Dependencies:
+  * Relax pandas constraint to `<2`.
+  * Relax torch constraint to `<=3.0.0`.
+  * Relax numpy constraint to `<2.1.0`.
+  * Add python 3.12 to the CI matrix (\#770).
+* Chores:
+  * fix future warning when using Series.__getitem__ with positional arguments.
+
 # 1.3.1
 
 * Testing

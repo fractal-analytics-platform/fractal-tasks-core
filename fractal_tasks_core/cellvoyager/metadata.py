@@ -207,8 +207,8 @@ def read_mrf_file(mrf_path: str) -> tuple[pd.DataFrame, int]:
     meas_df = pd.read_xml(
         mrf_path, xpath="//bts:MeasurementDetail", namespaces=ns
     )
-    row_count = int(meas_df["RowCount"])
-    column_count = int(meas_df["ColumnCount"])
+    row_count = int(meas_df["RowCount"].iloc[0])
+    column_count = int(meas_df["ColumnCount"].iloc[0])
     plate_type = row_count * column_count
     return channel_df, plate_type
 
@@ -471,7 +471,7 @@ def check_group_consistency(grouped_df: pd.DataFrame, message: str = ""):
     # Check consistency in grouped df for multi-index, multi-column dataframes
     # raises an exception if there is variability
     diff_df = grouped_df.max() - grouped_df.min()
-    if not np.isclose(np.sum(np.sum(diff_df)), 0.0):
+    if not np.isclose(diff_df.to_numpy().sum(), 0.0):
         raise ValueError(
             "During metadata parsing, a consistency check failed: \n"
             f"{message}\n"

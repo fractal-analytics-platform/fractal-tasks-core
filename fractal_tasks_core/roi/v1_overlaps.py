@@ -45,9 +45,9 @@ def get_overlapping_pair(
     num_lines = len(tmp_df.index)
     for pos_ind_1 in range(num_lines):
         for pos_ind_2 in range(pos_ind_1):
-            if is_overlapping_2D(
-                tmp_df.iloc[pos_ind_1], tmp_df.iloc[pos_ind_2], tol=tol
-            ):
+            bbox_1 = tmp_df.iloc[pos_ind_1].to_numpy()
+            bbox_2 = tmp_df.iloc[pos_ind_2].to_numpy()
+            if is_overlapping_2D(bbox_1, bbox_2, tol=tol):
                 return (pos_ind_1, pos_ind_2)
     return False
 
@@ -96,9 +96,9 @@ def get_overlapping_pairs_3D(
     overlapping_list = []
     for pos_ind_1 in range(num_lines):
         for pos_ind_2 in range(pos_ind_1):
-            overlap = is_overlapping_3D(
-                new_tmp_df.iloc[pos_ind_1], new_tmp_df.iloc[pos_ind_2], tol=tol
-            )
+            bbox_1 = new_tmp_df.iloc[pos_ind_1].to_numpy()
+            bbox_2 = new_tmp_df.iloc[pos_ind_2].to_numpy()
+            overlap = is_overlapping_3D(bbox_1, bbox_2, tol=tol)
             if overlap:
                 overlapping_list.append((pos_ind_1, pos_ind_2))
     return overlapping_list
@@ -177,7 +177,6 @@ def remove_FOV_overlaps(df: pd.DataFrame):
     # Loop over wells
     wells = sorted(list(set([ind[0] for ind in df.index])))
     for well in wells:
-
         logger.info(f"removing FOV overlaps for {well=}")
         df_well = df.loc[well].copy()
 
