@@ -11,7 +11,7 @@
 | fractal\_tasks\_core/cellvoyager/wells.py                                 |       18 |        0 |        8 |        0 |    100% |           |
 | fractal\_tasks\_core/channels.py                                          |      190 |        1 |       78 |        5 |     98% |30, 85->87, 86->85, 87->86, 124->123 |
 | fractal\_tasks\_core/labels.py                                            |       39 |        0 |       14 |        0 |    100% |           |
-| fractal\_tasks\_core/masked\_loading.py                                   |       62 |        8 |       16 |        5 |     83% |92, 108, 137-144, 158, 168 |
+| fractal\_tasks\_core/masked\_loading.py                                   |       62 |        8 |       16 |        5 |     83% |92, 108, 139-146, 160, 170 |
 | fractal\_tasks\_core/ngff/\_\_init\_\_.py                                 |        6 |        0 |        0 |        0 |    100% |           |
 | fractal\_tasks\_core/ngff/specs.py                                        |      157 |        0 |       52 |       10 |     95% |122->121, 166->168, 167->166, 168->167, 200->199, 216->215, 223->222, 227->226, 234->233, 275->274 |
 | fractal\_tasks\_core/ngff/zarr\_utils.py                                  |       61 |       10 |        6 |        0 |     85% |78-83, 98-104, 108-113 |
@@ -21,7 +21,7 @@
 | fractal\_tasks\_core/roi/load\_region.py                                  |       16 |        0 |       10 |        0 |    100% |           |
 | fractal\_tasks\_core/roi/v1.py                                            |      170 |        2 |       34 |        2 |     98% |  164, 622 |
 | fractal\_tasks\_core/roi/v1\_checks.py                                    |       36 |        0 |       18 |        0 |    100% |           |
-| fractal\_tasks\_core/roi/v1\_overlaps.py                                  |      144 |        5 |       50 |        6 |     94% |72, 132, 173, 255, 266, 383->390 |
+| fractal\_tasks\_core/roi/v1\_overlaps.py                                  |      148 |        5 |       50 |        6 |     94% |72, 132, 173, 254, 265, 382->389 |
 | fractal\_tasks\_core/tables/\_\_init\_\_.py                               |       16 |        0 |        4 |        0 |    100% |           |
 | fractal\_tasks\_core/tables/v1.py                                         |      122 |        5 |       70 |       10 |     90% |32->34, 33->32, 34->33, 51->53, 52->51, 53->52, 112->115, 317->312, 319-326 |
 | fractal\_tasks\_core/tasks/\_\_init\_\_.py                                |        0 |        0 |        0 |        0 |    100% |           |
@@ -48,7 +48,7 @@
 | fractal\_tasks\_core/upscale\_array.py                                    |       73 |        7 |       48 |        6 |     88% |63, 91, 96->100, 113, 128, 192-197 |
 | fractal\_tasks\_core/utils.py                                             |       88 |        3 |       38 |        6 |     93% |73, 141->149, 142->141, 178->181, 183, 230 |
 | fractal\_tasks\_core/zarr\_utils.py                                       |       32 |        0 |        6 |        1 |     97% |    81->85 |
-|                                                                 **TOTAL** | **3397** |  **200** | **1142** |  **178** | **91%** |           |
+|                                                                 **TOTAL** | **3401** |  **200** | **1142** |  **178** | **91%** |           |
 
 
 ## Setup coverage badge
