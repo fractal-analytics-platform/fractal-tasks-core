@@ -278,10 +278,10 @@ def cellvoyager_to_ome_zarr_init(
             site_metadata.set_index(["well_id", "FieldIndex"], inplace=True)
 
         # Extract pixel sizes and bit_depth
-        pixel_size_z = site_metadata["pixel_size_z"][0]
-        pixel_size_y = site_metadata["pixel_size_y"][0]
-        pixel_size_x = site_metadata["pixel_size_x"][0]
-        bit_depth = site_metadata["bit_depth"][0]
+        pixel_size_z = site_metadata["pixel_size_z"].iloc[0]
+        pixel_size_y = site_metadata["pixel_size_y"].iloc[0]
+        pixel_size_x = site_metadata["pixel_size_x"].iloc[0]
+        bit_depth = site_metadata["bit_depth"].iloc[0]
 
         if min(pixel_size_z, pixel_size_y, pixel_size_x) < 1e-9:
             raise ValueError(pixel_size_z, pixel_size_y, pixel_size_x)

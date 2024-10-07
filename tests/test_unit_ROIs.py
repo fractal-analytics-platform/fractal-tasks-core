@@ -135,7 +135,6 @@ for pxl_sizes in list_pxl_sizes:
     "level,coarsening_xy,full_res_pxl_sizes_zyx", list_params
 )
 def test_ROI_indices_3D(level, coarsening_xy, full_res_pxl_sizes_zyx):
-
     metadata_dataframe = get_metadata_dataframe()
     adata = prepare_FOV_ROI_table(metadata_dataframe)
     assert list(adata.obs_names) == FOV_NAMES
@@ -193,7 +192,6 @@ def test_ROI_indices_3D(level, coarsening_xy, full_res_pxl_sizes_zyx):
     "level,coarsening_xy,full_res_pxl_sizes_zyx", list_params
 )
 def test_ROI_indices_2D(level, coarsening_xy, full_res_pxl_sizes_zyx):
-
     metadata_dataframe = get_metadata_dataframe()
     adata = prepare_FOV_ROI_table(metadata_dataframe)
     adata = convert_ROIs_from_3D_to_2D(adata, PIXEL_SIZE_Z)
@@ -238,7 +236,6 @@ def test_prepare_well_ROI_table(testdata_path: Path):
 
 
 def test_overlaps_in_indices():
-
     list_indices = [
         [0, 1, 100, 200, 1000, 2000],
         [0, 1, 200, 300, 1000, 2000],
@@ -478,7 +475,6 @@ EXPECTED_COLUMNS = [
 
 
 def test_is_ROI_table_valid(tmp_path):
-
     # Write valid table to a zarr group
     columns = EXPECTED_COLUMNS.copy()
     adata = ad.AnnData(np.ones((1, len(columns))))
@@ -576,9 +572,9 @@ def test_search_first_ROI(testdata_path: Path):
         )
     )
     full_res_pxl_sizes_zyx = [
-        big_df["pixel_size_z"][0],
-        big_df["pixel_size_y"][0],
-        big_df["pixel_size_x"][0],
+        big_df["pixel_size_z"].iloc[0],
+        big_df["pixel_size_y"].iloc[0],
+        big_df["pixel_size_x"].iloc[0],
     ]
 
     well_ids = big_df.well_id.unique()
