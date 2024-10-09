@@ -1123,6 +1123,18 @@
             "title": "Method",
             "description": "Method to use for image registration. The available methods are `phase_cross_correlation` (scikit-image package, works for 2D & 3D) and \"chi2_shift\" (image_registration package, only works for 2D images)."
           },
+          "lower_rescale_quantile": {
+            "default": 0.0,
+            "title": "Lower Rescale Quantile",
+            "type": "number",
+            "description": "Lower quantile for rescaling the image intensities before applying registration. Can be helpful to deal with image artifacts. Default is 0."
+          },
+          "upper_rescale_quantile": {
+            "default": 0.99,
+            "title": "Upper Rescale Quantile",
+            "type": "number",
+            "description": "Upper quantile for rescaling the image intensities before applying registration. Can be helpful to deal with image artifacts. Default is 0.99."
+          },
           "roi_table": {
             "default": "FOV_ROI_table",
             "title": "Roi Table",

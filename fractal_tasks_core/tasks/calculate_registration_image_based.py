@@ -21,6 +21,7 @@ import numpy as np
 import zarr
 from pydantic import validate_call
 from skimage.registration import phase_cross_correlation
+from skimage.exposure import rescale_intensity
 
 from fractal_tasks_core.channels import get_channel_from_image_zarr
 from fractal_tasks_core.channels import OmeroChannel
@@ -77,6 +78,8 @@ def calculate_registration_image_based(
     # Core parameters
     wavelength_id: str,
     method: RegistrationMethod = RegistrationMethod.PHASE_CROSS_CORRELATION,
+    lower_rescale_quantile: float = 0.0,
+    upper_rescale_quantile: float = 0.99,
     roi_table: str = "FOV_ROI_table",
     level: int = 2,
 ) -> None:
@@ -102,6 +105,12 @@ def calculate_registration_image_based(
             are `phase_cross_correlation` (scikit-image package, works for 2D
             & 3D) and "chi2_shift" (image_registration package, only works for
             2D images).
+        lower_rescale_quantile: Lower quantile for rescaling the image
+            intensities before applying registration. Can be helpful
+             to deal with image artifacts. Default is 0.
+        upper_rescale_quantile: Upper quantile for rescaling the image
+            intensities before applying registration. Can be helpful
+            to deal with image artifacts. Default is 0.99.
         roi_table: Name of the ROI table over which the task loops to
             calculate the registration. Examples: `FOV_ROI_table` => loop over
             the field of views, `well_ROI_table` => process the whole well as
@@ -245,6 +254,22 @@ def calculate_registration_image_based(
             data_zyx=data_alignment_zyx,
             region=convert_indices_to_regions(list_indices_acq_x[i_ROI]),
             compute=compute,
+        )
+
+        # Rescale the images
+        img_ref = rescale_intensity(
+            img_ref,
+            in_range=(
+                np.quantile(img_ref, lower_rescale_quantile),
+                np.quantile(img_ref, upper_rescale_quantile),
+            ),
+        )
+        img_acq_x = rescale_intensity(
+            img_acq_x,
+            in_range=(
+                np.quantile(img_acq_x, lower_rescale_quantile),
+                np.quantile(img_acq_x, upper_rescale_quantile),
+            ),
         )
 
         ##############
