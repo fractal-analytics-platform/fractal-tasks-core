@@ -20,8 +20,8 @@ import dask.array as da
 import numpy as np
 import zarr
 from pydantic import validate_call
-from skimage.registration import phase_cross_correlation
 from skimage.exposure import rescale_intensity
+from skimage.registration import phase_cross_correlation
 
 from fractal_tasks_core.channels import get_channel_from_image_zarr
 from fractal_tasks_core.channels import OmeroChannel
