@@ -237,6 +237,8 @@ def test_multiplexing_registration(
     tmp_path,
     monkeypatch: MonkeyPatch,
     method: str,
+    lower_rescale_quantile: float = 0.0,
+    upper_rescale_quantile: float = 0.99,
     # Given the test data, only implemented per FOV
     roi_table="FOV_ROI_table",
 ):
@@ -348,6 +350,8 @@ def test_multiplexing_registration(
             init_args=image["init_args"],
             wavelength_id="A01_C01",
             method=method,
+            lower_rescale_quantile=lower_rescale_quantile,
+            upper_rescale_quantile=upper_rescale_quantile,
             roi_table=roi_table,
         )
 
@@ -438,6 +442,8 @@ def test_multiplexing_registration_3d(
     tmp_path,
     monkeypatch: MonkeyPatch,
     method: str,
+    lower_rescale_quantile: float = 0.0,
+    upper_rescale_quantile: float = 0.99,
     # Given the test data, only implemented per FOV
     roi_table="FOV_ROI_table",
 ):
@@ -526,6 +532,8 @@ def test_multiplexing_registration_3d(
                     init_args=image["init_args"],
                     wavelength_id="A01_C01",
                     method=method,
+                    lower_rescale_quantile=lower_rescale_quantile,
+                    upper_rescale_quantile=upper_rescale_quantile,
                     roi_table=roi_table,
                 )
             pytest.skip(

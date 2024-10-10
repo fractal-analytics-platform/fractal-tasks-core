@@ -1,5 +1,8 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# 1.3.2
+* Tasks:
+    * Add percentile-based rescaling to calculate registration task to make it more robust (\#848)
 * Dependencies:
   * Relax pandas constraint to `<2`.
   * Relax torch constraint to `<=3.0.0`.
