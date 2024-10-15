@@ -84,14 +84,27 @@ pkgs["fractal-ome-zarr-hcs-stitching"] = dict(
         "multiview-stitcher."
     ),
 )
-pkgs["abbott"] = dict(
-    homepage_url="https://github.com/MaksHess/abbott",
-    manifest_url="https://raw.githubusercontent.com/MaksHess/abbott/main/src/abbott/__FRACTAL_MANIFEST__.json",  # noqa
+pkgs["fractal-lif-converters"] = dict(
+    homepage_url="https://github.com/fractal-analytics-platform/fractal-lif-converters",  # noqa
+    manifest_url="https://raw.githubusercontent.com/fractal-analytics-platform/fractal-lif-converters/refs/heads/main/src/fractal_lif_converters/__FRACTAL_MANIFEST__.json",  # noqa
+    description=("OME-Zarr converters for Leica Lif files built using bioio"),
+)
+pkgs["fractal-ilastik-tasks"] = dict(
+    homepage_url="https://github.com/fractal-analytics-platform/fractal-ilastik-tasks",  # noqa
+    manifest_url="https://raw.githubusercontent.com/fractal-analytics-platform/fractal-ilastik-tasks/refs/heads/main/src/ilastik_tasks/__FRACTAL_MANIFEST__.json",  # noqa
     description=(
-        "Work in progress task package to provide 3D registration methods "
-        "based on Elastix."
+        "Collection of Fractal task to run Headless ilastik workflows. Early "
+        "prototype version, feedback is welcome."
     ),
 )
+# pkgs["abbott"] = dict(
+#     homepage_url="https://github.com/MaksHess/abbott",
+#     manifest_url="https://raw.githubusercontent.com/MaksHess/abbott/main/src/abbott/__FRACTAL_MANIFEST__.json",  # noqa
+#     description=(
+#         "Work in progress task package to provide 3D registration methods "
+#         "based on Elastix."
+#     ),
+# )
 
 script_path = __file__
 script_dir = Path(script_path).parent
