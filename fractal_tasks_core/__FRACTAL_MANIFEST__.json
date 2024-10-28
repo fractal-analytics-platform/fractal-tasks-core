@@ -1,6 +1,5 @@
 {
   "manifest_version": "2",
-  "authors": "Name FIXME, Name FIXME, Name FIXME",
   "task_list": [
     {
       "name": "Convert Cellvoyager to OME-Zarr",
@@ -1548,5 +1547,6 @@
     }
   ],
   "has_args_schemas": true,
-  "args_schema_version": "pydantic_v2"
+  "args_schema_version": "pydantic_v2",
+  "authors": "Name FIXME, Name FIXME, Name FIXME"
 }

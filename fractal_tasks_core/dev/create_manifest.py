@@ -72,12 +72,13 @@ def create_manifest(
     # Prepare an empty manifest
     manifest = dict(
         manifest_version=manifest_version,
-        authors=authors,
         task_list=[],
         has_args_schemas=has_args_schemas,
     )
     if has_args_schemas:
         manifest["args_schema_version"] = ARGS_SCHEMA_VERSION
+    if authors is not None:
+        manifest["authors"] = authors
 
     # Prepare a default value of docs_link
     if package == "fractal_tasks_core" and docs_link is None:
