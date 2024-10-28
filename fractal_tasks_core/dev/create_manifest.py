@@ -32,6 +32,7 @@ ARGS_SCHEMA_VERSION = "pydantic_v2"
 
 def create_manifest(
     package: str = "fractal_tasks_core",
+    authors: Optional[str] = None,
     manifest_version: str = "2",
     has_args_schemas: bool = True,
     docs_link: Optional[str] = None,
@@ -71,6 +72,7 @@ def create_manifest(
     # Prepare an empty manifest
     manifest = dict(
         manifest_version=manifest_version,
+        authors=authors,
         task_list=[],
         has_args_schemas=has_args_schemas,
     )
@@ -148,4 +150,6 @@ def create_manifest(
 
 
 if __name__ == "__main__":
-    create_manifest()
+    PACKAGE = "fractal_tasks_core"
+    AUTHORS = "Name FIXME, Name FIXME, Name FIXME"
+    create_manifest(package=PACKAGE, authors=AUTHORS)

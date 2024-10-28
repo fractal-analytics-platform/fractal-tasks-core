@@ -22,6 +22,8 @@ TASK_LIST = [
         executable="tasks/cellvoyager_to_ome_zarr_compute.py",
         meta_init={"cpus_per_task": 1, "mem": 4000},
         meta={"cpus_per_task": 1, "mem": 4000},
+        category="Conversion",
+        modality="HCS",
     ),
     CompoundTask(
         name="Convert Cellvoyager Multiplexing to OME-Zarr",
@@ -29,6 +31,8 @@ TASK_LIST = [
         executable="tasks/cellvoyager_to_ome_zarr_compute.py",
         meta_init={"cpus_per_task": 1, "mem": 4000},
         meta={"cpus_per_task": 1, "mem": 4000},
+        category="Conversion",
+        modality="HCS",
     ),
     CompoundTask(
         name="Project Image (HCS Plate)",
@@ -50,6 +54,7 @@ TASK_LIST = [
         name="Cellpose Segmentation",
         executable="tasks/cellpose_segmentation.py",
         meta={"cpus_per_task": 4, "mem": 16000, "needs_gpu": True},
+        category="Segmentation",
     ),
     CompoundTask(
         name="Calculate Registration (image-based)",
@@ -57,6 +62,7 @@ TASK_LIST = [
         executable="tasks/calculate_registration_image_based.py",
         meta_init={"cpus_per_task": 1, "mem": 1000},
         meta={"cpus_per_task": 1, "mem": 8000},
+        category="Registration",
     ),
     CompoundTask(
         name="Find Registration Consensus",
@@ -64,6 +70,7 @@ TASK_LIST = [
         executable="tasks/find_registration_consensus.py",
         meta_init={"cpus_per_task": 1, "mem": 1000},
         meta={"cpus_per_task": 1, "mem": 1000},
+        category="Registration",
     ),
     ParallelTask(
         name="Apply Registration to Image",
@@ -71,6 +78,7 @@ TASK_LIST = [
         executable="tasks/apply_registration_to_image.py",
         output_types=dict(registered=True),
         meta={"cpus_per_task": 1, "mem": 4000},
+        category="Registration",
     ),
     NonParallelTask(
         name="Import OME-Zarr",
