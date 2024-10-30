@@ -30,7 +30,7 @@ extra_javascript:
 theme:
   name: "material"
   logo: 'assets/fractal_logo.png'
-  favicon: 'assets/fractal_logo.png'
+  favicon: 'assets/fractal_favicon.png'
   custom_dir: "docs/overrides"
   features:
     - content.code.annotate
