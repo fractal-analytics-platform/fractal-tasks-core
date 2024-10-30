@@ -5,42 +5,51 @@ hide:
 
 # Welcome to Fractal Tasks Core's documentation!
 
-Fractal is a framework to process high content imaging data at scale and prepare it for interactive visualization.
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/0a4d8d81-3ca8-4e5e-9c99-9a593e4c132c" alt="Fractal tasks core logo" width="400">
+</p>
+
+Fractal tasks core is the official task package for the [Fractal](https://fractal-analytics-platform.github.io/) framework. It provides essential tools for building Fractal tasks, helpful utility functions, and a collection of ready-to-use tasks for processing bioimaging data. These tasks include OME-Zarr conversion, image registration, segmentation, and measurements.
 
 > This project is under active development 🔨. If you need help or found a bug, **open an issue [here](https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/new)**.
 
-Fractal provides distributed workflows that convert TBs of image data into [OME-Zar](https://ngff.openmicroscopy.org) files.
-The platform then processes the 3D image data by applying tasks like illumination correction, maximum intensity projection, 3D segmentation using [cellpose](https://cellpose.readthedocs.io) and measurements using [napari workflows](https://github.com/haesleinhuepf/napari-workflows).
-The pyramidal OME-Zarr files enable interactive visualization in the napari viewer.
+![Fractal overview](https://github.com/user-attachments/assets/666c8797-2594-4b8e-b1d2-b43fca66d1df)
+Fractal is a framework developed at the [BioVisionCenter](https://www.biovisioncenter.uzh.ch/en.html) to process bioimaging data at scale in the OME-Zarr format and prepare the images for interactive visualization.
 
-![Fractal overview](https://user-images.githubusercontent.com/18033446/190978261-2e7b57e9-72c7-443e-9202-15d233f8416d.jpg)
+## Available Tasks
 
+This package includes the following tasks. For all available Fractal tasks, check the [task list page](all_tasks).
 
-The **fractal-tasks-core** package contains the python tasks that parse Yokogawa CV7000 images into OME-Zarr and process OME-Zarr files. Find more information about Fractal in general and the other repositories at [this link](https://fractal-analytics-platform.github.io/). All tasks are written as Python functions and are optimized for usage in Fractal workflows, but they can also be used as standalone functions to parse data or process OME-Zarr files. We heavily use regions of interest (ROIs) in our OME-Zarr files to store the positions of field of views. ROIs are saved as AnnData tables following [this spec proposal](https://github.com/ome/ngff/pull/64). We save wells as large Zarr arrays instead of a collection of arrays for each field of view (see details [here](https://github.com/ome/ngff/pull/137)).
+**Image Conversion**:
 
-Here is an example of the interactive visualization in napari using the newly-proposed async loading in [NAP4](https://github.com/napari/napari/pull/4905) and the [napari-ome-zarr plugin](https://github.com/ome/napari-ome-zarr):
+  - *Convert Cellvoyager to OME-Zarr*: Converts CV7000/CV8000 images to OME-Zarr format.
+  - *Convert Cellvoyager Multiplexing to OME-Zarr*: Converts multiplexed images from CV7000/CV8000 to OME-Zarr.
 
-![Napari plate overview](https://user-images.githubusercontent.com/18033446/190983839-afb9743f-530c-4b00-bde7-23ad62404ee8.gif)
+**Image Processing**:
 
+  - *Project Image (HCS Plate)*: Generates intensity projections (e.g., maximum intensity projection) for images in an HCS plate.
+  - *Illumination Correction*: Applies flatfield correction and background subtraction using pre-calculated illumination profiles.
 
-## Available tasks
+**Segmentation**:
 
-Currently, the following tasks are available:
+  - *Cellpose Segmentation*: Segments images using custom or pre-trained Cellpose models, with user-tunable options.
 
-* <u>Create Zarr Structure</u>: Task to generate the zarr structure based on Yokogawa metadata files
-* <u>Yokogawa to Zarr</u>: Parses the Yokogawa CV7000 image data and saves it to the Zarr file
-* <u>Illumination Correction</u>: Applies an illumination correction based on a flatfield image & subtracts a background from the image.
-* <u>Image Labeling</u> (& <u>Image Labeling Whole Well</u>): Applies a cellpose network to the image of a single ROI or the whole well. cellpose parameters can be tuned for optimal performance.
-* <u>Maximum Intensity Projection</u>: Creates a maximum intensity projection of the whole plate.
-* <u>Measurement</u>: Make some standard measurements (intensity & morphology) using napari workflows, saving results to AnnData tables.
+**Registration**:
 
-Some additional tasks are currently being worked on and some older tasks are still present in the `fractal_tasks_core` folder. See [the package page](https://fractal-analytics-platform.github.io/fractal-tasks-core/api_files/fractal_tasks_core.html) for the detailed description of all tasks.
+  - *Calculate Registration*: Computes translations for aligning images in multiplexed image analysis.
+  - *Find Registration Consensus*: Generates consensus transformations for aligning multiple acquisitions, updating ROI tables as necessary.
+  - *Apply Registration to Image*: Applies registration to images based on existing or newly created ROI tables.
 
-## Contributors
+**Measurements**:
 
-Fractal was conceived in the Liberali Lab at the Friedrich Miescher Institute for Biomedical Research and in the Pelkmans Lab at the University of Zurich by [@jluethi](https://github.com/jluethi) and [@gusqgm](https://github.com/gusqgm). The Fractal project is now developed at the [BioVisionCenter](https://www.biovisioncenter.uzh.ch/en.html) at the University of Zurich and the project lead is with [@jluethi](https://github.com/jluethi). The core development is done under contract by [eXact lab S.r.l.](https://www.exact-lab.it/).
+  - *Napari Workflows Wrapper*: Task to run existing napari workflows through Fractal to process images and labels and to generate new labels or measurement tables. Takes an arbitrary napari workflow yaml file to run.
 
-## License
+**Other Utilities**:
 
-Fractal is released according to a BSD 3-Clause License, see [LICENSE](https://github.com/fractal-analytics-platform/fractal-tasks-core/blob/
-main/LICENSE).
+  - *Import OME-Zarr*: Validates and processes existing OME-Zarr files, adding ROI tables and metadata for further processing in Fractal.
+
+## Contributors and license
+
+Fractal was conceived in the Liberali Lab at the Friedrich Miescher Institute for Biomedical Research and in the Pelkmans Lab at the University of Zurich by [@jluethi](https://github.com/jluethi) and [@gusqgm](https://github.com/gusqgm). The Fractal project is now developed at the [BioVisionCenter](https://www.biovisioncenter.uzh.ch/en.html) at the University of Zurich and the project lead is with [@jluethi](https://github.com/jluethi). The core development is done under contract by [eXact lab S.r.l.](https://www.exact-lab.it).
+
+Unless otherwise specified, Fractal components are released under the BSD 3-Clause License, and copyright is with the BioVisionCenter at the University of Zurich.
