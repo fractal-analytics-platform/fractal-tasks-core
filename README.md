@@ -1,66 +1,89 @@
-# Fractal Core Tasks
+# Fractal Tasks Core
 
 [![PyPI version](https://img.shields.io/pypi/v/fractal-tasks-core?color=gree)](https://pypi.org/project/fractal-tasks-core/)
+[![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![CI Status](https://github.com/fractal-analytics-platform/fractal-tasks-core/actions/workflows/ci_pip.yml/badge.svg)](https://github.com/fractal-analytics-platform/fractal-tasks-core/actions/workflows/ci_pip.yml)
 [![Coverage](https://raw.githubusercontent.com/fractal-analytics-platform/fractal-tasks-core/python-coverage-comment-action-data/badge.svg)](https://htmlpreview.github.io/?https://github.com/fractal-analytics-platform/fractal-tasks-core/blob/python-coverage-comment-action-data/htmlcov/index.html)
 [![Documentation Status](https://github.com/fractal-analytics-platform/fractal-tasks-core/actions/workflows/documentation.yaml/badge.svg)](https://fractal-analytics-platform.github.io/fractal-tasks-core)
-[![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+
+
+<table>
+  <tr>
+    <td align="left" style="border: none;">
+      Fractal Tasks Core is the official task package for the <a href="https://fractal-analytics-platform.github.io/">Fractal</a> framework. It offers essential tools for building and running tasks within the framework, along with a set of ready-to-use tasks for processing bioimaging data in the OME-Zarr format. Key functionalities include OME-Zarr conversion, image registration, segmentation, and measurement.
+    </td>
+    <td align="right" style="border: none;">
+      <img src="https://github.com/user-attachments/assets/0a4d8d81-3ca8-4e5e-9c99-9a593e4c132c" alt="Fractal tasks core logo" width="800">
+    </td>
+  </tr>
+</table>
+
+![Fractal_overview_small](https://github.com/user-attachments/assets/666c8797-2594-4b8e-b1d2-b43fca66d1df)
 
 [Fractal](https://fractal-analytics-platform.github.io/) is a framework developed at the [BioVisionCenter](https://www.biovisioncenter.uzh.ch/en.html) to process bioimaging data at scale in the OME-Zarr format and prepare the images for interactive visualization.
 
-![Fractal_overview](https://github.com/user-attachments/assets/24d24905-ae43-4249-a6de-6ed4853b0e59)
+## Core Library Components
+This repository includes several core sub-packages:
+- **NGFF Sub-package**: Validates OME-Zarr metadata and provides utilities for reading and writing it. 
+- **Tables Sub-package**: Handles AnnData tables for ROIs and features, including reading and writing operations. (See the [Fractal table specification](https://fractal-analytics-platform.github.io/fractal-tasks-core/tables/)).
+- **ROI Sub-package**: Manages ROI-related table processing.
+- **Dev Sub-package**: Handles Fractal manifest creation and task validation for the Fractal server.
 
-This is the **core-tasks repository**, containing the python tasks that converts Cellvoyager CV7000 & CV8000 images into OME-Zarr and process OME-Zarr files. Find more information about Fractal in general and the other repositories at the [Fractal home page](https://fractal-analytics-platform.github.io).
-
-Besides tasks, this repository contains library functions for processing OME-Zarr images. The core library parts are:
-- an NGFF sub-package to validate OME-Zarr metadata and provide convenience functions to read & write it
-- a tables sub-package to handle reading and writing of AnnData tables for ROI tables & feature tables (see [fractal table specification](https://fractal-analytics-platform.github.io/fractal-tasks-core/tables/))
-- a roi sub-package to handle ROI table related processing
-- a dev subpackage that handles Fractal manifest creation & other validation of tasks for Fractal server
+The NGFF, Tables & ROI Sub-package functionality will get replaced by functionality in [ngio](https://github.com/fractal-analytics-platform/ngio) over the coming months. 
 
 
 ## Documentation
 
 See https://fractal-analytics-platform.github.io/fractal-tasks-core
 
+## Available Tasks
 
-## Available tasks
+This package includes the following tasks:
 
-Currently, the following tasks are available:
-- Convert Cellvoyager to OME-Zarr: Task to convert Cellvoyager CV7000 & CV8000 images into OME-Zarr.
-- Convert Cellvoyager Multiplexing to OME-Zarr: Task to convert multiplexed images from Cellvoyager CV7000 & CV8000 images into OME-Zarr.
-- Project Image (HCS Plate): This task creates a new OME-Zarr HCS plate and calculates an intensity projection along the Z axis for all images (e.g. maximum intensity projection).
-- Illumination Correction: Task to apply flatfield correction & background subtraction based on pre-calculated illumination profiles.
-- Cellpose Segmentation: This task performs image segmentation using custom or pre-trained Cellpose models and exposes many model options to be tuned by the user.
-- Napari Workflows Wrapper: Task to run existing napari workflows through Fractal to process images and labels and to generate new labels or measurement tables. Takes an arbitrary napari workflow yaml file to run.
-- Calculate Registration (image-based): Registration task for multiplexed image analysis. This task calculated the translation needed to align images between multiple acquisitions.
-- Find Registration Consensus: Registration task for multiplexed image analysis. This task calculates the consensus transformation across all acquisitions to get aligned images. It creates new ROI tables for them.
-- Apply Registration to Image: Registration task for multiplexed image analysis. This task applies registration based on the ROI tables generated in `Find Registration Consensus` to existing images or it creates new, registered images.
-- Import OME-Zarr: Helper task to validate existing OME-Zarr files, handle the addition of ROI tables to existing Zarrs & to create the necessary metadata for Fractal server about an existing OME-Zarr image to allow further processing.
+- **Image Conversion**:
+  - *Convert Cellvoyager to OME-Zarr*: Converts CV7000/CV8000 images to OME-Zarr format.
+  - *Convert Cellvoyager Multiplexing to OME-Zarr*: Converts multiplexed images from CV7000/CV8000 to OME-Zarr.
+
+- **Image Processing**:
+  - *Project Image (HCS Plate)*: Generates intensity projections (e.g., maximum intensity projection) for images in an HCS plate.
+  - *Illumination Correction*: Applies flatfield correction and background subtraction using pre-calculated illumination profiles.
+
+- **Segmentation**:
+  - *Cellpose Segmentation*: Segments images using custom or pre-trained Cellpose models, with user-tunable options.
+
+- **Registration**:
+  - *Calculate Registration*: Computes translations for aligning images in multiplexed image analysis.
+  - *Find Registration Consensus*: Generates consensus transformations for aligning multiple acquisitions, updating ROI tables as necessary.
+  - *Apply Registration to Image*: Applies registration to images based on existing or newly created ROI tables.
+
+- **Measurements**:
+  - *Napari Workflows Wrapper*: Task to run existing napari workflows through Fractal to process images and labels and to generate new labels or measurement tables. Takes an arbitrary napari workflow yaml file to run.
+
+- **Other Utilities**:
+  - *Import OME-Zarr*: Validates and processes existing OME-Zarr files, adding ROI tables and metadata for further processing in Fractal.
 
 
 ## Installation
-See [details on installation in the documentation](https://fractal-analytics-platform.github.io/fractal-tasks-core/install/). This package can be installed in 2 main ways:
 
-To use the library, just install the core package:
+To install and use the library components, run:
 
 ```
 pip install fractal-tasks-core
 ```
 
-This installs the core library and allows you to use all the sub-packages for ngff metadata, tables, rois etc.
+This will install the core library, including all sub-packages for working with NGFF metadata, tables, ROIs, and more.
 
-If you want to run the actual Fractal tasks, you need to install the task extra:
+If you intend to run Fractal tasks (such as segmentation or registration), install with the additional task dependencies:
 ```
 pip install "fractal-tasks-core[fractal-tasks]"
 ```
 
-This installs the heavier dependencies like torch for Cellpose & napari for napari workflows.
+This includes larger dependencies such as Torch (for Cellpose) and Napari (for Napari workflows).
 
 If you collect this package on Fractal server to run the task, make sure to add the fractal-tasks extra in the corresponding field for extras.
 
 # Contributors and license
 
-Unless otherwise stated in each individual module, all Fractal components are released according to a BSD 3-Clause License, and Copyright is with the BioVisionCenter at the University of Zurich.
+Fractal was conceived in the Liberali Lab at the Friedrich Miescher Institute for Biomedical Research and in the Pelkmans Lab at the University of Zurich by [@jluethi](https://github.com/jluethi) and [@gusqgm](https://github.com/gusqgm). The Fractal project is now developed at the [BioVisionCenter](https://www.biovisioncenter.uzh.ch/en.html) at the University of Zurich and the project lead is with [@jluethi](https://github.com/jluethi). The core development is done under contract by [eXact lab S.r.l.](https://www.exact-lab.it).
 
-Fractal was conceived in the Liberali Lab at the Friedrich Miescher Institute for Biomedical Research and in the Pelkmans Lab at the University of Zurich by [@jluethi](https://github.com/jluethi) and [@gusqgm](https://github.com/gusqgm). The Fractal project is now developed at the BioVisionCenter at the University of Zurich and the project lead is with [@jluethi](https://github.com/jluethi). The core development is done under contract by [eXact lab S.r.l.](https://www.exact-lab.it).
+Unless otherwise specified, Fractal components are released under the BSD 3-Clause License, and copyright is with the BioVisionCenter at the University of Zurich.
