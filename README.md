@@ -1,22 +1,16 @@
 # Fractal Tasks Core
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/0a4d8d81-3ca8-4e5e-9c99-9a593e4c132c" alt="Fractal tasks core logo" width="400">
+</p>
+
 [![PyPI version](https://img.shields.io/pypi/v/fractal-tasks-core?color=gree)](https://pypi.org/project/fractal-tasks-core/)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![CI Status](https://github.com/fractal-analytics-platform/fractal-tasks-core/actions/workflows/ci_pip.yml/badge.svg)](https://github.com/fractal-analytics-platform/fractal-tasks-core/actions/workflows/ci_pip.yml)
 [![Coverage](https://raw.githubusercontent.com/fractal-analytics-platform/fractal-tasks-core/python-coverage-comment-action-data/badge.svg)](https://htmlpreview.github.io/?https://github.com/fractal-analytics-platform/fractal-tasks-core/blob/python-coverage-comment-action-data/htmlcov/index.html)
 [![Documentation Status](https://github.com/fractal-analytics-platform/fractal-tasks-core/actions/workflows/documentation.yaml/badge.svg)](https://fractal-analytics-platform.github.io/fractal-tasks-core)
 
-
-<table>
-  <tr>
-    <td align="left" style="border: none;">
-      Fractal Tasks Core is the official task package for the <a href="https://fractal-analytics-platform.github.io/">Fractal</a> framework. It offers essential tools for building and running tasks within the framework, along with a set of ready-to-use tasks for processing bioimaging data in the OME-Zarr format. Key functionalities include OME-Zarr conversion, image registration, segmentation, and measurement.
-    </td>
-    <td align="right" style="border: none;">
-      <img src="https://github.com/user-attachments/assets/0a4d8d81-3ca8-4e5e-9c99-9a593e4c132c" alt="Fractal tasks core logo" width="800">
-    </td>
-  </tr>
-</table>
+Fractal tasks core is the official task package for the [Fractal](https://fractal-analytics-platform.github.io/) framework. It provides essential tools for building Fractal tasks, helpful utility functions, and a collection of ready-to-use tasks for processing bioimaging data. These tasks include OME-Zarr conversion, image registration, segmentation, and measurements.
 
 ![Fractal_overview_small](https://github.com/user-attachments/assets/666c8797-2594-4b8e-b1d2-b43fca66d1df)
 
@@ -24,12 +18,12 @@
 
 ## Core Library Components
 This repository includes several core sub-packages:
-- **NGFF Sub-package**: Validates OME-Zarr metadata and provides utilities for reading and writing it. 
+- **NGFF Sub-package**: Validates OME-Zarr metadata and provides utilities for reading and writing it.
 - **Tables Sub-package**: Handles AnnData tables for ROIs and features, including reading and writing operations. (See the [Fractal table specification](https://fractal-analytics-platform.github.io/fractal-tasks-core/tables/)).
 - **ROI Sub-package**: Manages ROI-related table processing.
 - **Dev Sub-package**: Handles Fractal manifest creation and task validation for the Fractal server.
 
-The NGFF, Tables & ROI Sub-package functionality will get replaced by functionality in [ngio](https://github.com/fractal-analytics-platform/ngio) over the coming months. 
+The NGFF, Tables & ROI Sub-package functionality will get replaced by functionality in [ngio](https://github.com/fractal-analytics-platform/ngio) over the coming months.
 
 
 ## Documentation
