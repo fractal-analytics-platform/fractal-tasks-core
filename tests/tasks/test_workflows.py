@@ -20,6 +20,7 @@ import dask.array as da
 import pytest
 import zarr
 from devtools import debug
+from ngio.utils import NgioFileExistsError
 
 from ._validation import check_file_number
 from ._validation import validate_schema
@@ -373,8 +374,7 @@ def test_MIP(
             init_args=image["init_args"],
         )
 
-    # Re-run with overwrite=False
-    with pytest.raises(OverwriteNotAllowedError):
+    with pytest.raises(NgioFileExistsError):
         for image in parallelization_list:
             image["init_args"]["overwrite"] = False
             projection(
