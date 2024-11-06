@@ -1,7 +1,7 @@
 # Fractal Tasks Core
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/74647fbf-f014-4b29-ac65-8df339e15636" alt="Fractal tasks core logo" width="400">
+  <img src="https://raw.githubusercontent.com/fractal-analytics-platform/fractal-logos/refs/heads/main/projects/fractal_tasks_core.png" alt="Fractal tasks core logo" width="400">
 </p>
 
 [![PyPI version](https://img.shields.io/pypi/v/fractal-tasks-core?color=gree)](https://pypi.org/project/fractal-tasks-core/)

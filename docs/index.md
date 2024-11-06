@@ -6,7 +6,7 @@ hide:
 # Welcome to Fractal Tasks Core's documentation!
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/74647fbf-f014-4b29-ac65-8df339e15636" alt="Fractal tasks core logo" width="400">
+  <img src="https://raw.githubusercontent.com/fractal-analytics-platform/fractal-logos/refs/heads/main/projects/fractal_tasks_core.png" alt="Fractal tasks core logo" width="400">
 </p>
 
 Fractal tasks core is the official task package for the [Fractal](https://fractal-analytics-platform.github.io/) framework. It provides essential tools for building Fractal tasks, helpful utility functions, and a collection of ready-to-use tasks for processing bioimaging data. These tasks include OME-Zarr conversion, image registration, segmentation, and measurements.
