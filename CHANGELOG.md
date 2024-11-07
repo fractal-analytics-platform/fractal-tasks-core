@@ -1,5 +1,10 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+* Tasks:
+  * Refactor projection task to use ngio
+* Dependencies:
+  * Add ngio
+
 # 1.3.2
 * Tasks:
     * Add percentile-based rescaling to calculate registration task to make it more robust (\#848)
