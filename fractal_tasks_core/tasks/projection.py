@@ -61,7 +61,7 @@ def projection(
     on_disk_shape = orginal_image.on_disk_shape
     logger.info(f"Original shape: {on_disk_shape=}")
 
-    on_disk_z_index = orginal_image.dataset.on_disk_axes_names.index("z")
+    on_disk_z_index = orginal_image.find_axis("z")
 
     new_on_disk_shape = list(on_disk_shape)
     new_on_disk_shape[on_disk_z_index] = 1
@@ -70,16 +70,12 @@ def projection(
     pixel_size.z = 1.0
     logger.info(f"New shape: {new_on_disk_shape=}")
 
-    chunks = orginal_image.on_disk_array.chunks
-    new_chunks = list(chunks)
-    new_chunks[on_disk_z_index] = 1
-
     new_ngff_image = original_ngff_image.derive_new_image(
         store=zarr_url,
         name="MIP",
-        shape=new_on_disk_shape,
-        chunks=new_chunks,
+        on_disk_shape=new_on_disk_shape,
         pixel_sizes=pixel_size,
+        overwrite=init_args.overwrite,
     )
     new_image = new_ngff_image.get_image()
 
@@ -107,7 +103,7 @@ def projection(
             roi_list.append(roi)
 
         mip_table.set_rois(roi_list, overwrite=True)
-        mip_table.write()
+        mip_table.consolidate()
 
     # Generate image_list_updates
     image_list_update_dict = dict(

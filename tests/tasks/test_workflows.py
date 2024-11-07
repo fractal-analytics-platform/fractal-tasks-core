@@ -381,7 +381,6 @@ def test_MIP(
                 zarr_url=image["zarr_url"],
                 init_args=image["init_args"],
             )
-
     # OME-NGFF JSON validation
     image_zarr = Path(parallelization_list[0]["zarr_url"])
     debug(image_zarr)
