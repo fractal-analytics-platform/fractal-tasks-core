@@ -4,6 +4,8 @@
   * Refactor projection task to use ngio
 * Dependencies:
   * Add ngio
+* CI:
+    * Remove Python 3.9 from the CI matrix
 
 # 1.3.2
 * Tasks:
