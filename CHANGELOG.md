@@ -1,5 +1,14 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+* Tasks:
+    * Refactor projection task to use ngio
+* Dependencies:
+    * Add `ngio==0.1.0` to the dependencies
+    * Require `python >=3.10,<3.13`
+* CI:
+    * Remove Python 3.9 from the CI matrix
+
+
 # 1.3.2
 * Tasks:
     * Add percentile-based rescaling to calculate registration task to make it more robust (\#848)
