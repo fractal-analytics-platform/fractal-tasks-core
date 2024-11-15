@@ -13,31 +13,33 @@
 Task for 3D->2D maximum-intensity projection.
 """
 from __future__ import annotations
-from typing import Any, TYPE_CHECKING
+
+from typing import Any
+from typing import TYPE_CHECKING
 
 import dask.array as da
 from ngio import NgffImage
-
+from ngio.utils import ngio_logger
 from pydantic import validate_call
 
 from fractal_tasks_core.tasks.io_models import InitArgsMIP
 from fractal_tasks_core.tasks.projection_utils import DaskProjectionMethod
-from ngio.utils import ngio_logger
 
 if TYPE_CHECKING:
     from ngio.core import Image
 
 
 def _compute_new_shape(source_image: Image) -> tuple[int]:
-    """ Compute the new shape of the image after the projection. 
-    
-    The new shape is the same as the original one, except for the z-axis, which is set to 1.
+    """Compute the new shape of the image after the projection.
+
+    The new shape is the same as the original one,
+    except for the z-axis, which is set to 1.
     """
     on_disk_shape = source_image.on_disk_shape
     ngio_logger.info(f"Source {on_disk_shape=}")
 
     on_disk_z_index = source_image.dataset.on_disk_axes_names.index("z")
-    
+
     dest_on_disk_shape = list(on_disk_shape)
     dest_on_disk_shape[on_disk_z_index] = 1
     ngio_logger.info(f"Destination {dest_on_disk_shape=}")
@@ -96,8 +98,6 @@ def projection(
 
     # Process the image
     z_axis_index = orginal_image.find_axis("z")
-    assert z_axis_index is not None # This should never happen since we checked for 3D images above
-    
     source_dask = orginal_image.get_array(
         mode="dask", preserve_dimensions=True
     )
@@ -114,7 +114,7 @@ def projection(
         mip_table = new_ngff_image.tables.new(
             roi_table, table_type="roi_table", overwrite=True
         )
-        
+
         roi_list = []
         for roi in table.rois:
             roi.z_length = roi.z + 1
