@@ -24,6 +24,7 @@ TASK_LIST = [
         meta={"cpus_per_task": 1, "mem": 4000},
         category="Conversion",
         modality="HCS",
+        tags=["Yokogawa", "Cellvoyager"],
     ),
     CompoundTask(
         name="Convert Cellvoyager Multiplexing to OME-Zarr",
@@ -33,6 +34,7 @@ TASK_LIST = [
         meta={"cpus_per_task": 1, "mem": 4000},
         category="Conversion",
         modality="HCS",
+        tags=["Yokogawa", "Cellvoyager"],
     ),
     CompoundTask(
         name="Project Image (HCS Plate)",
@@ -42,6 +44,9 @@ TASK_LIST = [
         output_types={"is_3D": False},
         meta_init={"cpus_per_task": 1, "mem": 4000},
         meta={"cpus_per_task": 1, "mem": 4000},
+        category="Image Processing",
+        modality="HCS",
+        tags=["Preprocessing"],
     ),
     ParallelTask(
         name="Illumination Correction",
@@ -49,12 +54,19 @@ TASK_LIST = [
         executable="tasks/illumination_correction.py",
         output_types=dict(illumination_corrected=True),
         meta={"cpus_per_task": 1, "mem": 4000},
+        category="Image Processing",
+        tags=["Preprocessing"],
     ),
     ParallelTask(
         name="Cellpose Segmentation",
         executable="tasks/cellpose_segmentation.py",
         meta={"cpus_per_task": 4, "mem": 16000, "needs_gpu": True},
         category="Segmentation",
+        tags=[
+            "Deep Learning",
+            "Convolutional Neural Network",
+            "Instance Segmentation",
+        ],
     ),
     CompoundTask(
         name="Calculate Registration (image-based)",
@@ -63,6 +75,8 @@ TASK_LIST = [
         meta_init={"cpus_per_task": 1, "mem": 1000},
         meta={"cpus_per_task": 1, "mem": 8000},
         category="Registration",
+        modality="HCS",
+        tags=["Multiplexing"],
     ),
     CompoundTask(
         name="Find Registration Consensus",
@@ -71,6 +85,8 @@ TASK_LIST = [
         meta_init={"cpus_per_task": 1, "mem": 1000},
         meta={"cpus_per_task": 1, "mem": 1000},
         category="Registration",
+        modality="HCS",
+        tags=["Multiplexing"],
     ),
     ParallelTask(
         name="Apply Registration to Image",
@@ -79,6 +95,8 @@ TASK_LIST = [
         output_types=dict(registered=True),
         meta={"cpus_per_task": 1, "mem": 4000},
         category="Registration",
+        modality="HCS",
+        tags=["Multiplexing"],
     ),
     NonParallelTask(
         name="Import OME-Zarr",
@@ -91,5 +109,6 @@ TASK_LIST = [
             "cpus_per_task": 8,
             "mem": 32000,
         },
+        category="Measurement",
     ),
 ]
