@@ -152,5 +152,5 @@ def create_manifest(
 
 if __name__ == "__main__":
     PACKAGE = "fractal_tasks_core"
-    AUTHORS = "Name FIXME, Name FIXME, Name FIXME"
+    AUTHORS = "Fractal Core Team"
     create_manifest(package=PACKAGE, authors=AUTHORS)
