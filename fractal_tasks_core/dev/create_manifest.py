@@ -32,6 +32,7 @@ ARGS_SCHEMA_VERSION = "pydantic_v2"
 
 def create_manifest(
     package: str = "fractal_tasks_core",
+    authors: Optional[str] = None,
     manifest_version: str = "2",
     has_args_schemas: bool = True,
     docs_link: Optional[str] = None,
@@ -76,6 +77,8 @@ def create_manifest(
     )
     if has_args_schemas:
         manifest["args_schema_version"] = ARGS_SCHEMA_VERSION
+    if authors is not None:
+        manifest["authors"] = authors
 
     # Prepare a default value of docs_link
     if package == "fractal_tasks_core" and docs_link is None:
@@ -148,4 +151,6 @@ def create_manifest(
 
 
 if __name__ == "__main__":
-    create_manifest()
+    PACKAGE = "fractal_tasks_core"
+    AUTHORS = "Fractal Core Team"
+    create_manifest(package=PACKAGE, authors=AUTHORS)
