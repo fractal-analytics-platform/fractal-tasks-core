@@ -1,6 +1,11 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# 1.3.3
+
+* Add new metadata (authors, category, modality, tags) to manifest models and to tasks (\#855).
+
 # 1.3.2
+
 * Tasks:
     * Add percentile-based rescaling to calculate registration task to make it more robust (\#848)
 * Dependencies:

@@ -3,6 +3,12 @@
   "task_list": [
     {
       "name": "Convert Cellvoyager to OME-Zarr",
+      "category": "Conversion",
+      "modality": "HCS",
+      "tags": [
+        "Yokogawa",
+        "Cellvoyager"
+      ],
       "executable_non_parallel": "tasks/cellvoyager_to_ome_zarr_init.py",
       "executable_parallel": "tasks/cellvoyager_to_ome_zarr_compute.py",
       "meta_non_parallel": {
@@ -265,6 +271,12 @@
     },
     {
       "name": "Convert Cellvoyager Multiplexing to OME-Zarr",
+      "category": "Conversion",
+      "modality": "HCS",
+      "tags": [
+        "Yokogawa",
+        "Cellvoyager"
+      ],
       "executable_non_parallel": "tasks/cellvoyager_to_ome_zarr_init_multiplex.py",
       "executable_parallel": "tasks/cellvoyager_to_ome_zarr_compute.py",
       "meta_non_parallel": {
@@ -551,6 +563,11 @@
       "output_types": {
         "is_3D": false
       },
+      "category": "Image Processing",
+      "modality": "HCS",
+      "tags": [
+        "Preprocessing"
+      ],
       "executable_non_parallel": "tasks/copy_ome_zarr_hcs_plate.py",
       "executable_parallel": "tasks/projection.py",
       "meta_non_parallel": {
@@ -672,6 +689,10 @@
       "output_types": {
         "illumination_corrected": true
       },
+      "category": "Image Processing",
+      "tags": [
+        "Preprocessing"
+      ],
       "executable_parallel": "tasks/illumination_correction.py",
       "meta_parallel": {
         "cpus_per_task": 1,
@@ -736,6 +757,12 @@
     },
     {
       "name": "Cellpose Segmentation",
+      "category": "Segmentation",
+      "tags": [
+        "Deep Learning",
+        "Convolutional Neural Network",
+        "Instance Segmentation"
+      ],
       "executable_parallel": "tasks/cellpose_segmentation.py",
       "meta_parallel": {
         "cpus_per_task": 4,
@@ -1030,6 +1057,11 @@
     },
     {
       "name": "Calculate Registration (image-based)",
+      "category": "Registration",
+      "modality": "HCS",
+      "tags": [
+        "Multiplexing"
+      ],
       "executable_non_parallel": "tasks/image_based_registration_hcs_init.py",
       "executable_parallel": "tasks/calculate_registration_image_based.py",
       "meta_non_parallel": {
@@ -1161,6 +1193,11 @@
     },
     {
       "name": "Find Registration Consensus",
+      "category": "Registration",
+      "modality": "HCS",
+      "tags": [
+        "Multiplexing"
+      ],
       "executable_non_parallel": "tasks/init_group_by_well_for_multiplexing.py",
       "executable_parallel": "tasks/find_registration_consensus.py",
       "meta_non_parallel": {
@@ -1263,6 +1300,11 @@
       "output_types": {
         "registered": true
       },
+      "category": "Registration",
+      "modality": "HCS",
+      "tags": [
+        "Multiplexing"
+      ],
       "executable_parallel": "tasks/apply_registration_to_image.py",
       "meta_parallel": {
         "cpus_per_task": 1,
@@ -1378,6 +1420,7 @@
     },
     {
       "name": "Napari Workflows Wrapper",
+      "category": "Measurement",
       "executable_parallel": "tasks/napari_workflows_wrapper.py",
       "meta_parallel": {
         "cpus_per_task": 8,
@@ -1539,5 +1582,6 @@
     }
   ],
   "has_args_schemas": true,
-  "args_schema_version": "pydantic_v2"
+  "args_schema_version": "pydantic_v2",
+  "authors": "Fractal Core Team"
 }
