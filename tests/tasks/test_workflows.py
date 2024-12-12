@@ -441,6 +441,7 @@ def test_projection_methods(
                 "origin_url": zarr_urls[0],
                 "method": method,
                 "overwrite": True,
+                "new_plate_name": f"plate_{method}.zarr",
             },
         }
     ]
