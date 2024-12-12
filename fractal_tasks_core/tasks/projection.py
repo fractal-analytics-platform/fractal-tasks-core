@@ -130,6 +130,7 @@ def projection(
             dict(
                 zarr_url=zarr_url,
                 origin=init_args.origin_url,
+                attributes=dict(plate=init_args.new_plate_name),
                 types=dict(is_3D=False),
             )
         ]
