@@ -109,10 +109,12 @@ def projection(
     # Ends
 
     # Copy over the tables
-    for roi_table in original_ngff_image.tables.list(table_type="roi_table"):
-        table = original_ngff_image.tables.get_table(roi_table)
+    for roi_table_name in original_ngff_image.tables.list(
+        table_type="roi_table"
+    ):
+        table = original_ngff_image.tables.get_table(roi_table_name)
         mip_table = new_ngff_image.tables.new(
-            roi_table, table_type="roi_table", overwrite=True
+            roi_table_name, table_type="roi_table", overwrite=True
         )
 
         roi_list = []
@@ -123,7 +125,7 @@ def projection(
 
         mip_table.set_rois(roi_list, overwrite=True)
         mip_table.consolidate()
-        ngio_logger.info(f"Table {roi_table} copied.")
+        ngio_logger.info(f"Table {roi_table_name} copied.")
 
     # Generate image_list_updates
     image_list_update_dict = dict(
