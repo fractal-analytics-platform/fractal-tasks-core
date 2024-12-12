@@ -117,7 +117,8 @@ def projection(
 
         roi_list = []
         for roi in table.rois:
-            roi.z_length = roi.z + 1
+            roi.z = 0
+            roi.z_length = 1
             roi_list.append(roi)
 
         mip_table.set_rois(roi_list, overwrite=True)
