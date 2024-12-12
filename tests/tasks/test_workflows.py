@@ -363,6 +363,7 @@ def test_MIP(
         "types": {
             "is_3D": False,
         },
+        "attributes": {"plate": "plate_mip.zarr"},
     }
     debug(expected_image_list_updates)
     assert image_list_updates[0] == expected_image_list_updates
