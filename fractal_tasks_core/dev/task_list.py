@@ -25,6 +25,7 @@ TASK_LIST = [
         category="Conversion",
         modality="HCS",
         tags=["Yokogawa", "Cellvoyager"],
+        docs_info="file:task_info/convert_cellvoyager_to_ome_zarr.md",
     ),
     CompoundTask(
         name="Convert Cellvoyager Multiplexing to OME-Zarr",
@@ -35,6 +36,7 @@ TASK_LIST = [
         category="Conversion",
         modality="HCS",
         tags=["Yokogawa", "Cellvoyager"],
+        docs_info="file:task_info/convert_cellvoyager_multiplex.md",
     ),
     CompoundTask(
         name="Project Image (HCS Plate)",
@@ -47,6 +49,7 @@ TASK_LIST = [
         category="Image Processing",
         modality="HCS",
         tags=["Preprocessing"],
+        docs_info="file:task_info/projection.md",
     ),
     ParallelTask(
         name="Illumination Correction",
@@ -56,6 +59,7 @@ TASK_LIST = [
         meta={"cpus_per_task": 1, "mem": 4000},
         category="Image Processing",
         tags=["Preprocessing"],
+        docs_info="file:task_info/illumination_correction.md",
     ),
     ParallelTask(
         name="Cellpose Segmentation",
@@ -67,6 +71,7 @@ TASK_LIST = [
             "Convolutional Neural Network",
             "Instance Segmentation",
         ],
+        docs_info="file:task_info/cellpose_segmentation.md",
     ),
     CompoundTask(
         name="Calculate Registration (image-based)",
@@ -77,6 +82,7 @@ TASK_LIST = [
         category="Registration",
         modality="HCS",
         tags=["Multiplexing"],
+        docs_info="file:task_info/calculate_registration_image_based.md",
     ),
     CompoundTask(
         name="Find Registration Consensus",
@@ -87,6 +93,7 @@ TASK_LIST = [
         category="Registration",
         modality="HCS",
         tags=["Multiplexing"],
+        docs_info="file:task_info/find_registration_consensus.md",
     ),
     ParallelTask(
         name="Apply Registration to Image",
@@ -97,10 +104,12 @@ TASK_LIST = [
         category="Registration",
         modality="HCS",
         tags=["Multiplexing"],
+        docs_info="file:task_info/apply_registration_to_image.md",
     ),
     NonParallelTask(
         name="Import OME-Zarr",
         executable="tasks/import_ome_zarr.py",
+        docs_info="file:task_info/import_ome_zarr.md",
     ),
     ParallelTask(
         name="Napari Workflows Wrapper",
@@ -110,5 +119,6 @@ TASK_LIST = [
             "mem": 32000,
         },
         category="Measurement",
+        docs_info="file:task_info/napari_workflows_wrapper.md",
     ),
 ]
