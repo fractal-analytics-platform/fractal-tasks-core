@@ -24,7 +24,7 @@ TASK_LIST = [
         meta={"cpus_per_task": 1, "mem": 4000},
         category="Conversion",
         modality="HCS",
-        tags=["Yokogawa", "Cellvoyager"],
+        tags=["Yokogawa", "Cellvoyager", "2D", "3D"],
         docs_info="file:task_info/convert_cellvoyager_to_ome_zarr.md",
     ),
     CompoundTask(
@@ -35,7 +35,7 @@ TASK_LIST = [
         meta={"cpus_per_task": 1, "mem": 4000},
         category="Conversion",
         modality="HCS",
-        tags=["Yokogawa", "Cellvoyager"],
+        tags=["Yokogawa", "Cellvoyager", "2D", "3D"],
         docs_info="file:task_info/convert_cellvoyager_multiplex.md",
     ),
     CompoundTask(
@@ -48,7 +48,7 @@ TASK_LIST = [
         meta={"cpus_per_task": 1, "mem": 4000},
         category="Image Processing",
         modality="HCS",
-        tags=["Preprocessing"],
+        tags=["Preprocessing", "3D"],
         docs_info="file:task_info/projection.md",
     ),
     ParallelTask(
@@ -58,7 +58,7 @@ TASK_LIST = [
         output_types=dict(illumination_corrected=True),
         meta={"cpus_per_task": 1, "mem": 4000},
         category="Image Processing",
-        tags=["Preprocessing"],
+        tags=["Preprocessing", "2D", "3D"],
         docs_info="file:task_info/illumination_correction.md",
     ),
     ParallelTask(
@@ -70,6 +70,8 @@ TASK_LIST = [
             "Deep Learning",
             "Convolutional Neural Network",
             "Instance Segmentation",
+            "2D",
+            "3D",
         ],
         docs_info="file:task_info/cellpose_segmentation.md",
     ),
@@ -81,7 +83,7 @@ TASK_LIST = [
         meta={"cpus_per_task": 1, "mem": 8000},
         category="Registration",
         modality="HCS",
-        tags=["Multiplexing"],
+        tags=["Multiplexing", "2D", "3D"],
         docs_info="file:task_info/calculate_registration_image_based.md",
     ),
     CompoundTask(
@@ -92,7 +94,7 @@ TASK_LIST = [
         meta={"cpus_per_task": 1, "mem": 1000},
         category="Registration",
         modality="HCS",
-        tags=["Multiplexing"],
+        tags=["Multiplexing", "2D", "3D"],
         docs_info="file:task_info/find_registration_consensus.md",
     ),
     ParallelTask(
@@ -103,13 +105,14 @@ TASK_LIST = [
         meta={"cpus_per_task": 1, "mem": 4000},
         category="Registration",
         modality="HCS",
-        tags=["Multiplexing"],
+        tags=["Multiplexing", "2D", "3D"],
         docs_info="file:task_info/apply_registration_to_image.md",
     ),
     NonParallelTask(
         name="Import OME-Zarr",
         executable="tasks/import_ome_zarr.py",
         docs_info="file:task_info/import_ome_zarr.md",
+        tags=["2D", "3D"],
     ),
     ParallelTask(
         name="Napari Workflows Wrapper",
@@ -119,6 +122,7 @@ TASK_LIST = [
             "mem": 32000,
         },
         category="Measurement",
+        tags=["2D", "3D"],
         docs_info="file:task_info/napari_workflows_wrapper.md",
     ),
 ]
