@@ -91,7 +91,7 @@ jobs:
       - name: Regenerate the manifest
         run: poetry run python fractal_tasks_core/dev/create_manifest.py
       - name: Setup friendly diff style
-        run: echo "*.json diff=json" >> .gitattributes && git config diff.json.textconv "jq --sort-keys '.' \$1
+        run: echo "*.json diff=json" >> .gitattributes && git config diff.json.textconv "jq --sort-keys '.' \$1"
       - name: Run git diff for manifest
         run: git diff ./fractal_tasks_core/__FRACTAL_MANIFEST__.json
       - name: Check if manifest has changed
