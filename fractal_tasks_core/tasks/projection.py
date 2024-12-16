@@ -14,16 +14,18 @@ Task for 3D->2D maximum-intensity projection.
 """
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 import dask.array as da
 from ngio import NgffImage
 from ngio.core import Image
-from ngio.utils import ngio_logger
 from pydantic import validate_call
 
 from fractal_tasks_core.tasks.io_models import InitArgsMIP
 from fractal_tasks_core.tasks.projection_utils import DaskProjectionMethod
+
+logger = logging.getLogger(__name__)
 
 
 def _compute_new_shape(source_image: Image) -> tuple[int]:
@@ -33,13 +35,13 @@ def _compute_new_shape(source_image: Image) -> tuple[int]:
     except for the z-axis, which is set to 1.
     """
     on_disk_shape = source_image.on_disk_shape
-    ngio_logger.info(f"Source {on_disk_shape=}")
+    logger.info(f"Source {on_disk_shape=}")
 
     on_disk_z_index = source_image.dataset.on_disk_axes_names.index("z")
 
     dest_on_disk_shape = list(on_disk_shape)
     dest_on_disk_shape[on_disk_z_index] = 1
-    ngio_logger.info(f"Destination {dest_on_disk_shape=}")
+    logger.info(f"Destination {dest_on_disk_shape=}")
     return tuple(dest_on_disk_shape)
 
 
@@ -62,9 +64,9 @@ def projection(
             `create_cellvoyager_ome_zarr_init`.
     """
     method = DaskProjectionMethod(init_args.method)
-    ngio_logger.info(f"{init_args.origin_url=}")
-    ngio_logger.info(f"{zarr_url=}")
-    ngio_logger.info(f"{method=}")
+    logger.info(f"{init_args.origin_url=}")
+    logger.info(f"{zarr_url=}")
+    logger.info(f"{method=}")
 
     # Read image metadata
     original_ngff_image = NgffImage(init_args.origin_url)
@@ -81,7 +83,7 @@ def projection(
 
     dest_pixel_size = orginal_image.pixel_size
     dest_pixel_size.z = 1.0
-    ngio_logger.info(f"New shape: {dest_on_disk_shape=}")
+    logger.info(f"New shape: {dest_on_disk_shape=}")
 
     # Create the new empty image
     new_ngff_image = original_ngff_image.derive_new_image(
@@ -122,7 +124,7 @@ def projection(
 
         mip_table.set_rois(roi_list, overwrite=True)
         mip_table.consolidate()
-        ngio_logger.info(f"Table {roi_table_name} copied.")
+        logger.info(f"Table {roi_table_name} copied.")
 
     # Generate image_list_updates
     image_list_update_dict = dict(
@@ -143,5 +145,5 @@ if __name__ == "__main__":
 
     run_fractal_task(
         task_function=projection,
-        logger_name=ngio_logger.name,
+        logger_name=logger.name,
     )
