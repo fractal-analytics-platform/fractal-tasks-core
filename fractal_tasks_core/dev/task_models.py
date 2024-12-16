@@ -35,6 +35,7 @@ class _BaseTask(BaseModel):
     category: Optional[str] = None
     modality: Optional[str] = None
     tags: list[str] = Field(default_factory=list)
+    docs_info: Optional[str] = None
 
 
 class CompoundTask(_BaseTask):
