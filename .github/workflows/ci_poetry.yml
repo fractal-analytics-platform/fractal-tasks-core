@@ -87,8 +87,17 @@ jobs:
       - name: Install dependencies (including fractal-tasks extra)
         run: poetry install --with dev --without docs --no-interaction -E fractal-tasks
 
-      - name: Check manifest task metadata
-        run: poetry run python fractal_tasks_core/dev/check_manifest.py
+      - name: Regenerate the manifest
+        run: poetry run python fractal_tasks_core/dev/create_manifest.py
+
+      - name: Check if manifest has changed
+        run: |
+          if [ -n "$(git diff --exit-code ./fractal_tasks_core/__FRACTAL_MANIFEST__.json)" ]; then
+          echo "__FRACTAL_MANIFEST__.json has changed. Please run 'poetry run python fractal_tasks_core/dev/create_manifest.py' and commit the changes."
+            exit 1
+          else
+            echo "__FRACTAL_MANIFEST__.json has not changed."
+          fi
 
       - name: Cache Pooch folder
         id: cache-pooch-folder
