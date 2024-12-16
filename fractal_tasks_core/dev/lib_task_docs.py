@@ -98,9 +98,8 @@ def read_docs_info_from_file(
     where the path is relative to the folder where `task_list.py` is.
     """
     logging.info("[read_docs_info_from_file] START")
-    print(docs_info)
-    print(task_list_path)
 
+    # Preliminary checks
     if not docs_info.startswith("file:"):
         raise ValueError(f"Invalid docs_info='{docs_info}'.")
     relative_path = Path(docs_info[5:])
@@ -108,12 +107,12 @@ def read_docs_info_from_file(
         raise ValueError(
             f"Invalid docs_info='{docs_info}' (path must be relative)."
         )
+
     base_path = Path(task_list_path).parent
-
     docs_path = (base_path / relative_path).as_posix()
-
     logging.info(f"[read_docs_info_from_file] Reading docs from {docs_path}")
     with open(docs_path, "r") as f:
         docs_info = f.read()
     logging.info("[read_docs_info_from_file] END")
+
     return docs_info
