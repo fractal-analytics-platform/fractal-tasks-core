@@ -1,7 +1,7 @@
 ### Purpose
-- Executes a Napari workflow on the regions of interest (ROIs) within a single OME-NGFF image.
+- Executes a **napari workflow** on the regions of interest (ROIs) within a single OME-NGFF image.
 - Processes specified images and labels as inputs to the workflow, producing outputs such as new labels and data tables.
-- Offers flexibility in defining input and output specifications to customize the workflow for specific datasets and analysis needs.
+- Offers **flexibility in defining input and output** specifications to customize the workflow for specific datasets and analysis needs.
 
 ### Limitations
 - Currently supports only Napari workflows that utilize functions from the `napari-segment-blobs-and-things-with-membranes` module. Other Napari-compatible modules are not supported.

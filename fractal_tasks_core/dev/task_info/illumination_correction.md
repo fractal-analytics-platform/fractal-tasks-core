@@ -1,6 +1,6 @@
 ### Purpose
-- Corrects illumination in OME-Zarr images using pre-calculated flatfield profiles.
-- Optionally performs background subtraction.
+- **Corrects illumination** in OME-Zarr images using **pre-calculated flatfield profiles**.
+- Optionally performs **background subtraction**.
 
 ### Limitations
 - Requires pre-calculated flatfield profiles in TIFF format.
