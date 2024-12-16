@@ -7,8 +7,11 @@
       "modality": "HCS",
       "tags": [
         "Yokogawa",
-        "Cellvoyager"
+        "Cellvoyager",
+        "2D",
+        "3D"
       ],
+      "docs_info": "### Purpose\n- Converts 2D and 3D images from CellVoyager CV7000/8000 systems into OME-Zarr format, creating OME-Zarr HCS plates and combining all fields of view in a well into a single image.\n- Saves Fractal region-of-interest (ROI) tables for both individual fields of view and the entire well.\n- Handles overlapping fields of view by adjusting their positions to be non-overlapping while retaining the original position data as additional columns in the ROI tables.\n- Supports processing multiple plates in a single task.\n\n### Limitations\n- Currently, this task does not support time-resolved data and ignores the time fields in CellVoyager metadata.\n",
       "executable_non_parallel": "tasks/cellvoyager_to_ome_zarr_init.py",
       "executable_parallel": "tasks/cellvoyager_to_ome_zarr_compute.py",
       "meta_non_parallel": {
@@ -266,7 +269,6 @@
         "type": "object",
         "title": "CellvoyagerToOmeZarrCompute"
       },
-      "docs_info": "## cellvoyager_to_ome_zarr_init\nCreate a OME-NGFF zarr folder, without reading/writing image data.\n\nFind plates (for each folder in input_paths):\n\n- glob image files,\n- parse metadata from image filename to identify plates,\n- identify populated channels.\n\nCreate a zarr folder (for each plate):\n\n- parse mlf metadata,\n- identify wells and field of view (FOV),\n- create FOV ZARR,\n- verify that channels are uniform (i.e., same channels).\n## cellvoyager_to_ome_zarr_compute\nConvert Yokogawa output (png, tif) to zarr file.\n\nThis task is run after an init task (typically\n`cellvoyager_to_ome_zarr_init` or\n`cellvoyager_to_ome_zarr_init_multiplex`), and it populates the empty\nOME-Zarr files that were prepared.\n\nNote that the current task always overwrites existing data. To avoid this\nbehavior, set the `overwrite` argument of the init task to `False`.\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {
@@ -275,8 +277,11 @@
       "modality": "HCS",
       "tags": [
         "Yokogawa",
-        "Cellvoyager"
+        "Cellvoyager",
+        "2D",
+        "3D"
       ],
+      "docs_info": "### Purpose\n- Converts multiplexed 2D and 3D images from CellVoyager CV7000/8000 systems into OME-Zarr format, storing each acquisition as a separate OME-Zarr image in the same OME-Zarr plate.\n- Creates OME-Zarr HCS plates, combining all fields of view for each acquisition in a well into a single image.\n- Saves Fractal region-of-interest (ROI) tables for both individual fields of view and the entire well.\n- Handles overlapping fields of view by adjusting their positions to be non-overlapping, while preserving the original position data as additional columns in the ROI tables.\n\n### Limitations\n- This task currently does not support time-resolved data and ignores the time fields in CellVoyager metadata.\n",
       "executable_non_parallel": "tasks/cellvoyager_to_ome_zarr_init_multiplex.py",
       "executable_parallel": "tasks/cellvoyager_to_ome_zarr_compute.py",
       "meta_non_parallel": {
@@ -552,7 +557,6 @@
         "type": "object",
         "title": "CellvoyagerToOmeZarrCompute"
       },
-      "docs_info": "## cellvoyager_to_ome_zarr_init_multiplex\nCreate OME-NGFF structure and metadata to host a multiplexing dataset.\n\nThis task takes a set of image folders (i.e. different multiplexing\nacquisitions) and build the internal structure and metadata of a OME-NGFF\nzarr group, without actually loading/writing the image data.\n\nEach element in input_paths should be treated as a different acquisition.\n## cellvoyager_to_ome_zarr_compute\nConvert Yokogawa output (png, tif) to zarr file.\n\nThis task is run after an init task (typically\n`cellvoyager_to_ome_zarr_init` or\n`cellvoyager_to_ome_zarr_init_multiplex`), and it populates the empty\nOME-Zarr files that were prepared.\n\nNote that the current task always overwrites existing data. To avoid this\nbehavior, set the `overwrite` argument of the init task to `False`.\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {
@@ -566,8 +570,10 @@
       "category": "Image Processing",
       "modality": "HCS",
       "tags": [
-        "Preprocessing"
+        "Preprocessing",
+        "3D"
       ],
+      "docs_info": "### Purpose\n- Performs Z-axis projection of intensity images using a specified projection method.\n- Generates a new OME-Zarr HCS plate to store the projected data.\n\n### Limitations\n- Supports projections only for OME-Zarr HCS plates; other collections of OME-Zarrs are not yet supported.\n- Currently limited to data in the CZYX format.\n",
       "executable_non_parallel": "tasks/copy_ome_zarr_hcs_plate.py",
       "executable_parallel": "tasks/projection.py",
       "meta_non_parallel": {
@@ -678,7 +684,6 @@
         "type": "object",
         "title": "Projection"
       },
-      "docs_info": "## copy_ome_zarr_hcs_plate\nDuplicate the OME-Zarr HCS structure for a set of zarr_urls.\n\nThis task only processes the zarr images in the zarr_urls, not all the\nimages in the plate. It copies all the  plate & well structure, but none\nof the image metadata or the actual image data:\n\n- For each plate, create a new OME-Zarr HCS plate with the attributes for\n    all the images in zarr_urls\n- For each well (in each plate), create a new zarr subgroup with the\n   same attributes as the original one.\n\nNote: this task makes use of methods from the `Attributes` class, see\nhttps://zarr.readthedocs.io/en/stable/api/attrs.html.\n## projection\nPerform intensity projection along Z axis with a chosen method.\n\nNote: this task stores the output in a new zarr file.\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {
@@ -691,8 +696,11 @@
       },
       "category": "Image Processing",
       "tags": [
-        "Preprocessing"
+        "Preprocessing",
+        "2D",
+        "3D"
       ],
+      "docs_info": "### Purpose\n- Corrects illumination in OME-Zarr images using pre-calculated flatfield profiles.\n- Optionally performs background subtraction.\n\n### Limitations\n- Requires pre-calculated flatfield profiles in TIFF format.\n- Supports only fixed-value background subtraction; background subtraction profiles are not supported.\n",
       "executable_parallel": "tasks/illumination_correction.py",
       "meta_parallel": {
         "cpus_per_task": 1,
@@ -752,7 +760,6 @@
         "type": "object",
         "title": "IlluminationCorrection"
       },
-      "docs_info": "## illumination_correction\nApplies illumination correction to the images in the OME-Zarr.\n\nAssumes that the illumination correction profiles were generated before\nseparately and that the same background subtraction was used during\ncalculation of the illumination correction (otherwise, it will not work\nwell & the correction may only be partial).\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {
@@ -761,8 +768,11 @@
       "tags": [
         "Deep Learning",
         "Convolutional Neural Network",
-        "Instance Segmentation"
+        "Instance Segmentation",
+        "2D",
+        "3D"
       ],
+      "docs_info": "### Purpose\n- Segments images using Cellpose models.\n- Supports both built-in Cellpose models (shipped with Cellpose) and user-trained models.\n- Accepts dual image input for segmentation.\n- Can process arbitrary regions of interest (ROIs), including whole images, fields of view (FOVs), or masked outputs from prior segmentations, based on corresponding ROI tables.\n- Provides access to all advanced Cellpose parameters.\n- Allows custom rescaling options per channel, particularly useful for sparse images.\n\n### Limitations\n- Compatible only with Cellpose 2.x models; does not yet support 3.x models.\n",
       "executable_parallel": "tasks/cellpose_segmentation.py",
       "meta_parallel": {
         "cpus_per_task": 4,
@@ -1052,7 +1062,6 @@
         "type": "object",
         "title": "CellposeSegmentation"
       },
-      "docs_info": "## cellpose_segmentation\nRun cellpose segmentation on the ROIs of a single OME-Zarr image.\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {
@@ -1060,8 +1069,11 @@
       "category": "Registration",
       "modality": "HCS",
       "tags": [
-        "Multiplexing"
+        "Multiplexing",
+        "2D",
+        "3D"
       ],
+      "docs_info": "### Purpose\n- Computes image-based registration transformations for acquisitions in HCS OME-Zarr datasets.\n- Processes images grouped by well, under the assumption that each well contains one image per acquisition.\n- Calculates transformations for specified regions of interest (ROIs) and stores the results in the corresponding ROI table.\n- Typically used as the first task in a workflow, followed by `Find Registration Consensus` and optionally `Apply Registration to Image`.\n\n### Limitations\n- Supports only HCS OME-Zarr datasets, leveraging their acquisition metadata and well-based image grouping.\n- Assumes each well contains a single image per acquisition.\n",
       "executable_non_parallel": "tasks/image_based_registration_hcs_init.py",
       "executable_parallel": "tasks/calculate_registration_image_based.py",
       "meta_non_parallel": {
@@ -1188,7 +1200,6 @@
         "type": "object",
         "title": "CalculateRegistrationImageBased"
       },
-      "docs_info": "## image_based_registration_hcs_init\nInitialized calculate registration task\n\nThis task prepares a parallelization list of all zarr_urls that need to be\nused to calculate the registration between acquisitions (all zarr_urls\nexcept the reference acquisition vs. the reference acquisition).\nThis task only works for HCS OME-Zarrs for 2 reasons: Only HCS OME-Zarrs\ncurrently have defined acquisition metadata to determine reference\nacquisitions. And we have only implemented the grouping of images for\nHCS OME-Zarrs by well (with the assumption that every well just has 1\nimage per acqusition).\n## calculate_registration_image_based\nCalculate registration based on images\n\nThis task consists of 3 parts:\n\n1. Loading the images of a given ROI (=> loop over ROIs)\n2. Calculating the transformation for that ROI\n3. Storing the calculated transformation in the ROI table\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {
@@ -1196,8 +1207,11 @@
       "category": "Registration",
       "modality": "HCS",
       "tags": [
-        "Multiplexing"
+        "Multiplexing",
+        "2D",
+        "3D"
       ],
+      "docs_info": "### Purpose\n- Determines the consensus alignment region across all selected acquisitions within each well of an HCS OME-Zarr dataset.\n- Generates a new ROI table for each image, defining consensus regions that are aligned across all acquisitions.\n- Typically used as the second task in a workflow, following `Calculate Registration (image-based)` and optionally preceding `Apply Registration to Image`.\n\n### Limitations\n- Supports only HCS OME-Zarr datasets, leveraging their acquisition metadata and well-based image grouping.\n",
       "executable_non_parallel": "tasks/init_group_by_well_for_multiplexing.py",
       "executable_parallel": "tasks/find_registration_consensus.py",
       "meta_non_parallel": {
@@ -1289,7 +1303,6 @@
         "type": "object",
         "title": "FindRegistrationConsensus"
       },
-      "docs_info": "## init_group_by_well_for_multiplexing\nFinds images for all acquisitions per well.\n\nReturns the parallelization_list to run `find_registration_consensus`.\n## find_registration_consensus\nApplies pre-calculated registration to ROI tables.\n\nApply pre-calculated registration such that resulting ROIs contain\nthe consensus align region between all acquisitions.\n\nParallelization level: well\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {
@@ -1303,8 +1316,11 @@
       "category": "Registration",
       "modality": "HCS",
       "tags": [
-        "Multiplexing"
+        "Multiplexing",
+        "2D",
+        "3D"
       ],
+      "docs_info": "### Purpose\n- Applies pre-calculated registration transformations to images in an HCS OME-Zarr dataset, aligning all acquisitions to a specified reference acquisition.\n- Masks regions not included in the registered ROI table and aligns both intensity and label images.\n- Replaces the non-aligned image with the newly aligned image in the dataset if `overwrite input` is selected.\n- Typically used as the third task in a workflow, following `Calculate Registration (image-based)` and `Find Registration Consensus`.\n\n### Limitations\n- If `overwrite input` is selected, the non-aligned image is permanently deleted, which may impact workflows requiring access to the original images.\n",
       "executable_parallel": "tasks/apply_registration_to_image.py",
       "meta_parallel": {
         "cpus_per_task": 1,
@@ -1343,11 +1359,15 @@
         "type": "object",
         "title": "ApplyRegistrationToImage"
       },
-      "docs_info": "## apply_registration_to_image\nApply registration to images by using a registered ROI table\n\nThis task consists of 4 parts:\n\n1. Mask all regions in images that are not available in the\nregistered ROI table and store each acquisition aligned to the\nreference_acquisition (by looping over ROIs).\n2. Do the same for all label images.\n3. Copy all tables from the non-aligned image to the aligned image\n(currently only works well if the only tables are well & FOV ROI tables\n(registered and original). Not implemented for measurement tables and\nother ROI tables).\n4. Clean up: Delete the old, non-aligned image and rename the new,\naligned image to take over its place.\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {
       "name": "Import OME-Zarr",
+      "tags": [
+        "2D",
+        "3D"
+      ],
+      "docs_info": "### Purpose\n- Imports a single OME-Zarr dataset into the Fractal framework for further processing.\n- Supports importing either a full OME-Zarr HCS plate or an individual OME-Zarr image.\n- Ensures the OME-Zarr dataset is located in the `zarr_dir` specified by the dataset.\n- Generates the necessary image list metadata required for processing the OME-Zarr with Fractal.\n- Optionally adds new ROI tables to the existing OME-Zarr, enabling compatibility with many other tasks.\n\n### Limitations\n- Supports only OME-Zarr datasets already present in the `zarr_dir` of the corresponding dataset.\n- Assumes the input OME-Zarr is correctly structured and formatted for compatibility with the Fractal framework.\n",
       "executable_non_parallel": "tasks/import_ome_zarr.py",
       "args_schema_non_parallel": {
         "additionalProperties": false,
@@ -1415,12 +1435,16 @@
         "type": "object",
         "title": "ImportOmeZarr"
       },
-      "docs_info": "## import_ome_zarr\nImport a single OME-Zarr into Fractal.\n\nThe single OME-Zarr can be a full OME-Zarr HCS plate or an individual\nOME-Zarr image. The image needs to be in the zarr_dir as specified by the\ndataset. The current version of this task:\n\n1. Creates the appropriate components-related metadata, needed for\n   processing an existing OME-Zarr through Fractal.\n2. Optionally adds new ROI tables to the existing OME-Zarr.\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {
       "name": "Napari Workflows Wrapper",
       "category": "Measurement",
+      "tags": [
+        "2D",
+        "3D"
+      ],
+      "docs_info": "### Purpose\n- Executes a Napari workflow on the regions of interest (ROIs) within a single OME-NGFF image.\n- Processes specified images and labels as inputs to the workflow, producing outputs such as new labels and data tables.\n- Offers flexibility in defining input and output specifications to customize the workflow for specific datasets and analysis needs.\n\n### Limitations\n- Currently supports only Napari workflows that utilize functions from the `napari-segment-blobs-and-things-with-membranes` module. Other Napari-compatible modules are not supported.\n\n### Input Specifications\nNapari workflows require explicit definitions of input and output data.\nExample of valid `input_specs`:\n```json\n{\n    \"in_1\": {\"type\": \"image\", \"channel\": {\"wavelength_id\": \"A01_C02\"}},\n    \"in_2\": {\"type\": \"image\", \"channel\": {\"label\": \"DAPI\"}},\n    \"in_3\": {\"type\": \"label\", \"label_name\": \"label_DAPI\"}\n}\n```\n\nExample of valid `output_specs`:\n```json\n{\n    \"out_1\": {\"type\": \"label\", \"label_name\": \"label_DAPI_new\"},\n    \"out_2\": {\"type\": \"dataframe\", \"table_name\": \"measurements\"},\n}\n```\n",
       "executable_parallel": "tasks/napari_workflows_wrapper.py",
       "meta_parallel": {
         "cpus_per_task": 8,
@@ -1577,7 +1601,6 @@
         "type": "object",
         "title": "NapariWorkflowsWrapper"
       },
-      "docs_info": "## napari_workflows_wrapper\nRun a napari-workflow on the ROIs of a single OME-NGFF image.\n\nThis task takes images and labels and runs a napari-workflow on them that\ncan produce a label and tables as output.\n\nExamples of allowed entries for `input_specs` and `output_specs`:\n\n```\ninput_specs = {\n    \"in_1\": {\"type\": \"image\", \"channel\": {\"wavelength_id\": \"A01_C02\"}},\n    \"in_2\": {\"type\": \"image\", \"channel\": {\"label\": \"DAPI\"}},\n    \"in_3\": {\"type\": \"label\", \"label_name\": \"label_DAPI\"},\n}\n\noutput_specs = {\n    \"out_1\": {\"type\": \"label\", \"label_name\": \"label_DAPI_new\"},\n    \"out_2\": {\"type\": \"dataframe\", \"table_name\": \"measurements\"},\n}\n```\n",
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     }
   ],
