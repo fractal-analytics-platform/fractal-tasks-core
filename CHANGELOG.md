@@ -1,6 +1,6 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# 1.3.4 (unreleased)
+# 1.3.4
 
 * Manifest creation:
     * Support providing `docs_info=file:task_info/description.md` (\#876).
