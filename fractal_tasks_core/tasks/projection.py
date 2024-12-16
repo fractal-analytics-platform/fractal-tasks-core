@@ -92,6 +92,8 @@ def projection(
         on_disk_shape=dest_on_disk_shape,
         pixel_sizes=dest_pixel_size,
         overwrite=init_args.overwrite,
+        copy_labels=False,
+        copy_tables=True,
     )
     new_image = new_ngff_image.get_image()
 
@@ -108,13 +110,8 @@ def projection(
     # Ends
 
     # Copy over the tables
-    for roi_table_name in original_ngff_image.tables.list(
-        table_type="roi_table"
-    ):
-        table = original_ngff_image.tables.get_table(roi_table_name)
-        mip_table = new_ngff_image.tables.new(
-            roi_table_name, table_type="roi_table", overwrite=True
-        )
+    for roi_table_name in new_ngff_image.tables.list(table_type="roi_table"):
+        table = new_ngff_image.tables.get_table(roi_table_name)
 
         roi_list = []
         for roi in table.rois:
@@ -122,8 +119,8 @@ def projection(
             roi.z_length = 1.0
             roi_list.append(roi)
 
-        mip_table.set_rois(roi_list, overwrite=True)
-        mip_table.consolidate()
+        table.set_rois(roi_list, overwrite=True)
+        table.consolidate()
         logger.info(f"Table {roi_table_name} copied.")
 
     # Generate image_list_updates
