@@ -15,18 +15,15 @@ Task for 3D->2D maximum-intensity projection.
 from __future__ import annotations
 
 from typing import Any
-from typing import TYPE_CHECKING
 
 import dask.array as da
 from ngio import NgffImage
+from ngio.core import Image
 from ngio.utils import ngio_logger
 from pydantic import validate_call
 
 from fractal_tasks_core.tasks.io_models import InitArgsMIP
 from fractal_tasks_core.tasks.projection_utils import DaskProjectionMethod
-
-if TYPE_CHECKING:
-    from ngio.core import Image
 
 
 def _compute_new_shape(source_image: Image) -> tuple[int]:
