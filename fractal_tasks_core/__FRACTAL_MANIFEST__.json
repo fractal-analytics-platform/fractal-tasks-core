@@ -11,7 +11,7 @@
         "2D",
         "3D"
       ],
-      "docs_info": "### Purpose\n- Converts 2D and 3D images from CellVoyager CV7000/8000 systems into OME-Zarr format, creating OME-Zarr HCS plates and combining all fields of view in a well into a single image.\n- Saves Fractal region-of-interest (ROI) tables for both individual fields of view and the entire well.\n- Handles overlapping fields of view by adjusting their positions to be non-overlapping while retaining the original position data as additional columns in the ROI tables.\n- Supports processing multiple plates in a single task.\n\n### Limitations\n- Currently, this task does not support time-resolved data and ignores the time fields in CellVoyager metadata.\n TEST",
+      "docs_info": "### Purpose\n- Converts 2D and 3D images from CellVoyager CV7000/8000 systems into OME-Zarr format, creating OME-Zarr HCS plates and combining all fields of view in a well into a single image.\n- Saves Fractal region-of-interest (ROI) tables for both individual fields of view and the entire well.\n- Handles overlapping fields of view by adjusting their positions to be non-overlapping while retaining the original position data as additional columns in the ROI tables.\n- Supports processing multiple plates in a single task.\n\n### Limitations\n- Currently, this task does not support time-resolved data and ignores the time fields in CellVoyager metadata.\n",
       "executable_non_parallel": "tasks/cellvoyager_to_ome_zarr_init.py",
       "executable_parallel": "tasks/cellvoyager_to_ome_zarr_compute.py",
       "meta_non_parallel": {
