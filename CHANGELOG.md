@@ -1,5 +1,11 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# 1.3.4 (unreleased)
+
+* Manifest creation:
+    * Support providing `docs_info=file:task_info/description.md` (\#876).
+    * Deprecate `check_manifest.py` module, in favor of additional GitHub action steps (\#876).
+
 # 1.3.3
 
 * Add new metadata (authors, category, modality, tags) to manifest models and to tasks (\#855).
