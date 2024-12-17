@@ -57,7 +57,7 @@ def create_docs_info(
     executable_non_parallel: Optional[str] = None,
     executable_parallel: Optional[str] = None,
     package: str = "fractal_tasks_core",
-) -> list[str]:
+) -> str:
     """
     Return task description based on function docstring.
     """
@@ -80,4 +80,39 @@ def create_docs_info(
         docs_info.append(f"## {function_name}\n{description}\n")
     docs_info = "".join(docs_info)
     logging.info("[create_docs_info] END")
+    return docs_info
+
+
+def read_docs_info_from_file(
+    *,
+    docs_info: str,
+    task_list_path: str,
+) -> str:
+    """
+    Return task description based on the content of a file.
+
+    An example of valid argument is
+    ```
+    docs_info = "file:relative/path/info.md"
+    ```
+    where the path is relative to the folder where `task_list.py` is.
+    """
+    logging.info("[read_docs_info_from_file] START")
+
+    # Preliminary checks
+    if not docs_info.startswith("file:"):
+        raise ValueError(f"Invalid docs_info='{docs_info}'.")
+    relative_path = Path(docs_info[5:])
+    if relative_path.is_absolute():
+        raise ValueError(
+            f"Invalid docs_info='{docs_info}' (path must be relative)."
+        )
+
+    base_path = Path(task_list_path).parent
+    docs_path = (base_path / relative_path).as_posix()
+    logging.info(f"[read_docs_info_from_file] Reading docs from {docs_path}")
+    with open(docs_path, "r") as f:
+        docs_info = f.read()
+    logging.info("[read_docs_info_from_file] END")
+
     return docs_info
