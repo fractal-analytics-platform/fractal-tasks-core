@@ -22,6 +22,7 @@ from fractal_tasks_core.dev.lib_args_schemas import (
     create_schema_for_single_task,
 )
 from fractal_tasks_core.dev.lib_task_docs import create_docs_info
+from fractal_tasks_core.dev.lib_task_docs import read_docs_info_from_file
 
 
 logging.basicConfig(level=logging.INFO)
@@ -126,11 +127,19 @@ def create_manifest(
                     task_dict[f"args_schema_{kind}"] = schema
 
         # Update docs_info, based on task-function description
-        docs_info = create_docs_info(
-            executable_non_parallel=task_obj.executable_non_parallel,
-            executable_parallel=task_obj.executable_parallel,
-            package=package,
-        )
+        docs_info = task_dict.get("docs_info")
+        if docs_info is None:
+            docs_info = create_docs_info(
+                executable_non_parallel=task_obj.executable_non_parallel,
+                executable_parallel=task_obj.executable_parallel,
+                package=package,
+            )
+        elif docs_info.startswith("file:"):
+            docs_info = read_docs_info_from_file(
+                docs_info=docs_info,
+                task_list_path=task_list_module.__file__,
+            )
+
         if docs_info is not None:
             task_dict["docs_info"] = docs_info
         if docs_link is not None:
