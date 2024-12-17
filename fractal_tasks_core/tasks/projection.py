@@ -95,6 +95,7 @@ def projection(
         copy_labels=False,
         copy_tables=True,
     )
+    logger.info(f"New Projection image created - {new_ngff_image=}")
     new_image = new_ngff_image.get_image()
 
     # Process the image
@@ -121,7 +122,7 @@ def projection(
 
         table.set_rois(roi_list, overwrite=True)
         table.consolidate()
-        logger.info(f"Table {roi_table_name} copied.")
+        logger.info(f"Table {roi_table_name} Projection done")
 
     # Generate image_list_updates
     image_list_update_dict = dict(
