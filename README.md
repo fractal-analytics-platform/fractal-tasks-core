@@ -9,7 +9,7 @@
 | fractal\_tasks\_core/cellvoyager/filenames.py                             |       61 |        1 |       26 |        1 |     98% |       167 |
 | fractal\_tasks\_core/cellvoyager/metadata.py                              |      125 |        8 |       38 |        9 |     90% |113, 130, 310, 317, 329, 338, 379, 424->432, 475 |
 | fractal\_tasks\_core/cellvoyager/wells.py                                 |       18 |        0 |        8 |        0 |    100% |           |
-| fractal\_tasks\_core/channels.py                                          |      190 |        1 |       70 |        1 |     99% |        30 |
+| fractal\_tasks\_core/channels.py                                          |      190 |        1 |       70 |        2 |     99% |30, 473->475 |
 | fractal\_tasks\_core/labels.py                                            |       39 |        0 |       14 |        0 |    100% |           |
 | fractal\_tasks\_core/masked\_loading.py                                   |       62 |        8 |       16 |        5 |     83% |92, 108, 139-146, 160, 170 |
 | fractal\_tasks\_core/ngff/\_\_init\_\_.py                                 |        6 |        0 |        0 |        0 |    100% |           |
@@ -48,7 +48,7 @@
 | fractal\_tasks\_core/upscale\_array.py                                    |       73 |        7 |       48 |        6 |     88% |63, 91, 96->100, 113, 128, 192-197 |
 | fractal\_tasks\_core/utils.py                                             |       88 |        3 |       36 |        6 |     93% |73, 141->149, 142->141, 178->181, 183, 230 |
 | fractal\_tasks\_core/zarr\_utils.py                                       |       32 |        0 |        6 |        1 |     97% |    81->85 |
-|                                                                 **TOTAL** | **3404** |  **200** | **1034** |  **138** | **92%** |           |
+|                                                                 **TOTAL** | **3404** |  **200** | **1034** |  **139** | **92%** |           |
 
 
 ## Setup coverage badge
