@@ -263,8 +263,8 @@ def test_import_ome_zarr_plate_no_ROI_tables(tmp_path, zenodo_zarr):
         )
 
 
-# @pytest.mark.skip
-def test_import_ome_zarr_image_BIA(tmp_path, monkeypatch):
+@pytest.mark.skip(reason="Flaky test, see issue #878")
+def test_import_ome_zarr_image_BIA(tmp_path):
     """
     This test imports one of the BIA OME-Zarr listed in
     https://www.ebi.ac.uk/biostudies/bioimages/studies/S-BIAD843.
