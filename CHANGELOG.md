@@ -1,5 +1,10 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# Unreleased
+
+* Tests:
+    * Skip `test_import_ome_zarr_image_BIA` (\#879).
+
 # 1.3.4
 
 * Manifest creation:
