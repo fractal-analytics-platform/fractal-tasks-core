@@ -3837,13 +3837,13 @@ test = ["pytest (>=7.2)", "pytest-cov (>=4.0)"]
 
 [[package]]
 name = "ngio"
-version = "0.1.3"
+version = "0.1.4"
 description = "Next Generation file format IO"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "ngio-0.1.3-py3-none-any.whl", hash = "sha256:956121a24e45339bdc018070cb4e3502ed73478d56b21a7fbb6f14df6ee2f925"},
-    {file = "ngio-0.1.3.tar.gz", hash = "sha256:64e5b3e21f16637702f186745e5b351378a8f7c9f2d32bd874fc1d690b7d4757"},
+    {file = "ngio-0.1.4-py3-none-any.whl", hash = "sha256:9c674a2d9faa97cb8cfc90c52af96201b93ecab18b17417a0ddd7178c3966573"},
+    {file = "ngio-0.1.4.tar.gz", hash = "sha256:977396384df519cdfb487dd446521ef883fd6f3a1c282c5ef0c859d633876460"},
 ]
 
 [package.dependencies]
@@ -6979,4 +6979,4 @@ fractal-tasks = ["Pillow", "cellpose", "image_registration", "imageio-ffmpeg", "
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "8755e3321f7324d081f1b562f3b7a0667b733ce9dbd4d0f639bbf4104a35975c"
+content-hash = "7187ee3dda0e1c37a1f2265b2d0c87da25d77f62d298e01b7b13284cf799566c"
