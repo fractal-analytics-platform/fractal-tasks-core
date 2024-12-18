@@ -12,8 +12,6 @@
 """
 Task for 3D->2D maximum-intensity projection.
 """
-from __future__ import annotations
-
 import logging
 from typing import Any
 
