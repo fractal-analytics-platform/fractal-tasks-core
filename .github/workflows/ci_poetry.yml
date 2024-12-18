@@ -145,7 +145,7 @@ jobs:
         # We added this step to replace the variable `MERGE_COVERAGE_FILES: true`
         # in the next step, which had started to raise errors
         # (https://github.com/fractal-analytics-platform/fractal-server/pull/1725).
-        run: coverage combine coverage-data-*
+        run: poetry run coverage combine coverage-data-*
 
       - name: Add coverage comment to Pull Requests
         id: coverage_comment
