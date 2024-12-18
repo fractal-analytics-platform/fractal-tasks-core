@@ -67,8 +67,8 @@ jobs:
       - name: Install poetry
         run: pipx install poetry==1.8.2
 
-      - name: Configure poetry
-        run: poetry config virtualenvs.in-project true
+      # - name: Configure poetry
+      #   run: poetry config virtualenvs.path /tmp/poetry/
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
