@@ -120,7 +120,7 @@ jobs:
   coverage:
     name: Coverage
     runs-on: ubuntu-22.04
-    needs: [tests_core, tests_tasks]
+    needs: [tests_core]
     steps:
       - uses: actions/checkout@v4
 
