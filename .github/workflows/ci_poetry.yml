@@ -144,8 +144,6 @@ jobs:
         # (https://github.com/fractal-analytics-platform/fractal-server/pull/1725).
         run: poetry run coverage combine coverage-data-*
 
-      - run: rm -r .venv
-
       - name: Add coverage comment to Pull Requests
         id: coverage_comment
         uses: py-cov-action/python-coverage-comment-action@v3
