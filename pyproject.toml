@@ -104,9 +104,6 @@ source = ["fractal_tasks_core"]
 omit = ["tests/**", "examples/**", "fractal_tasks_core/dev/**", ".venv/**"]
 parallel = true
 
-[tool.coverage.paths]
-source = ["fractal_tasks_core"]
-
 
 [tool.bumpver]
 current_version = "1.3.4"
