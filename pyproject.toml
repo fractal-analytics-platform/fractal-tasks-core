@@ -102,7 +102,12 @@ parallel = true
 relative_files = true
 source = ["fractal_tasks_core"]
 omit = ["tests/**", "examples/**", "fractal_tasks_core/dev/**", ".venv/**"]
-parallel = true
+
+
+[tool.coverage.paths]
+source = ["fractal_tasks_core"]
+
+
 
 
 [tool.bumpver]
