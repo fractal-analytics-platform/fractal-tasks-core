@@ -100,7 +100,7 @@ build-backend = "poetry.core.masonry.api"
 branch = true
 parallel = true
 relative_files = true
-source = ["fractal_tasks_core/**"]
+source = ["fractal_tasks_core"]
 
 
 [tool.bumpver]
