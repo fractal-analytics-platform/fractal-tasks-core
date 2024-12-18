@@ -152,7 +152,6 @@ jobs:
         id: coverage_comment
         uses: py-cov-action/python-coverage-comment-action@v3
         with:
-          COVERAGE_PATH: fractal_tasks_core
           GITHUB_TOKEN: ${{ github.token }}
           MINIMUM_GREEN: 90
           MINIMUM_ORANGE: 60
