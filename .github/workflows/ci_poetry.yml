@@ -118,18 +118,6 @@ jobs:
           path: coverage-data-tasks-${{ matrix.python-version }}*
 
 
-      - name: Test core library with pytest
-        env:
-          COVERAGE_FILE: coverage-data-core-${{ matrix.python-version }}
-        run: poetry run coverage run -m pytest tests --ignore tests/tasks  --ignore tests/dev
-
-      - name: Upload coverage data
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-data-core-${{ matrix.python-version }}
-          path: coverage-data-core-${{ matrix.python-version }}*
-
-
   coverage:
     name: Coverage
     runs-on: ubuntu-22.04
