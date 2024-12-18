@@ -11,6 +11,8 @@
 * CI:
     * Remove Python 3.9 from the CI matrix
 * Tests:
+    * Use locked version of `coverage` in GitHub action (\#882).
+    * Bump `coverage` version from 6.5 to 7.6 (\#882).
     * Skip `test_import_ome_zarr_image_BIA` (\#879).
 
 # 1.3.4
