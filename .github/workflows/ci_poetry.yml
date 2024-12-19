@@ -34,7 +34,7 @@ jobs:
       - name: Test tasks with pytest
         env:
           COVERAGE_FILE: coverage-data-tasks-${{ matrix.python-version }}
-        run: tests/dev/test_create_schema_for_single_task.py::test_create_schema_for_single_task_usage_1 -s >>file.txt 2>&1
+        run: poetry run coverage run --debug=config,trace,pathmap -m pytest tests/dev/test_create_schema_for_single_task.py::test_create_schema_for_single_task_usage_1 -s >>file.txt 2>&1
 
       - run: grep cellpose file.txt
 
