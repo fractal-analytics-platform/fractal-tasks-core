@@ -51,19 +51,17 @@ def _extract_function(
         Path(module_relative_path).with_suffix("")
     )
     module_relative_path_dots = module_relative_path_no_py.replace("/", ".")
-    if verbose:
-        logging.info(
-            f"Now calling `import_module` for "
-            f"{package_name}.{module_relative_path_dots}"
-        )
+    logging.warning(
+        f"Now calling `import_module` for "
+        f"{package_name}.{module_relative_path_dots}"
+    )
     imported_module = import_module(
         f"{package_name}.{module_relative_path_dots}"
     )
-    if verbose:
-        logging.info(
-            f"Now getting attribute {function_name} from "
-            f"imported module {imported_module}."
-        )
+    logging.warning(
+        f"Now getting attribute {function_name} from "
+        f"imported module {imported_module}."
+    )
     task_function = getattr(imported_module, function_name)
     return task_function
 
