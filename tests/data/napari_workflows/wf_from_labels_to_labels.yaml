@@ -1,6 +1,0 @@
-!!python/object:napari_workflows._workflow.Workflow
-_tasks:
-  Result of Expand labels (scikit-image, nsbatwm): !!python/tuple
-  - !!python/name:napari_segment_blobs_and_things_with_membranes.expand_labels ''
-  - test_labels
-  - 5.0

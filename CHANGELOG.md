@@ -1,7 +1,15 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+
 # Unreleased
 
+* Tasks:
+    * Refactor projection task to use ngio
+* Dependencies:
+    * Add `ngio==0.1.4` to the dependencies
+    * Require `python >=3.10,<3.13`
+* CI:
+    * Remove Python 3.9 from the CI matrix
 * Tests:
     * Use locked version of `coverage` in GitHub action (\#882).
     * Bump `coverage` version from 6.5 to 7.6 (\#882).
@@ -12,6 +20,7 @@
 * Manifest creation:
     * Support providing `docs_info=file:task_info/description.md` (\#876).
     * Deprecate `check_manifest.py` module, in favor of additional GitHub action steps (\#876).
+
 
 # 1.3.3
 

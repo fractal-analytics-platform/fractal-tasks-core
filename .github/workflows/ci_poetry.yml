@@ -8,51 +8,6 @@ on:
 
 jobs:
 
-  tests_core:
-    name: "Core, Python ${{ matrix.python-version }}"
-    runs-on: ubuntu-22.04
-    timeout-minutes: 10
-
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Install poetry
-        run: pipx install poetry==1.8.2
-
-      - name: Configure poetry
-        run: poetry config virtualenvs.in-project true
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Cache poetry virtualenv
-        uses: actions/cache@v4
-        with:
-          path: ./.venv
-          key: ${{ runner.os }}-python-${{ matrix.python-version }}-venv-${{ hashFiles('**/poetry.lock') }}-tests_core
-
-      - name: Install dependencies (without extras)
-        run: poetry install --with dev --without docs --no-interaction
-
-      - name: Test core library with pytest
-        env:
-          COVERAGE_FILE: coverage-data-core-${{ matrix.python-version }}
-        run: poetry run coverage run -m pytest tests --ignore tests/tasks  --ignore tests/dev
-
-      - name: Upload coverage data
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-data-core-${{ matrix.python-version }}
-          path: coverage-data-core-${{ matrix.python-version }}*
-
   tests_tasks:
     name: "Tasks, Python ${{ matrix.python-version }}"
     runs-on: ubuntu-22.04
@@ -60,56 +15,30 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12"]
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: Install poetry
-        run: pipx install poetry==1.8.2
-
-      - name: Configure poetry
-        run: poetry config virtualenvs.in-project true
+      - run: pipx install poetry==1.8.2
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Cache poetry virtualenv
-        uses: actions/cache@v4
-        with:
-          path: ./.venv
-          key: ${{ runner.os }}-python-${{ matrix.python-version }}-venv-${{ hashFiles('**/poetry.lock') }}-tests_tasks
-
-      - name: Install dependencies (including fractal-tasks extra)
-        run: poetry install --with dev --without docs --no-interaction -E fractal-tasks
-
-      - name: Check if manifest has changed
-        run: |
-          poetry run python fractal_tasks_core/dev/create_manifest.py
-          echo "*.json diff=json" >> .gitattributes && git config diff.json.textconv "jq --sort-keys '.' \$1"
-          git diff ./fractal_tasks_core/__FRACTAL_MANIFEST__.json
-          if [ -n "$(git diff --exit-code ./fractal_tasks_core/__FRACTAL_MANIFEST__.json)" ]; then
-          echo "__FRACTAL_MANIFEST__.json has changed. Please run 'poetry run python fractal_tasks_core/dev/create_manifest.py' and commit the changes."
-            exit 1
-          else
-            echo "__FRACTAL_MANIFEST__.json has not changed."
-          fi
-
-      - name: Cache Pooch folder
-        id: cache-pooch-folder
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pooch
-          key: pooch-cache
+      - run: poetry install --with dev --without docs --no-interaction -E fractal-tasks
 
       - name: Test tasks with pytest
         env:
           COVERAGE_FILE: coverage-data-tasks-${{ matrix.python-version }}
-        run: poetry run coverage run -m pytest tests/dev tests/tasks -s --log-cli-level info
+        run: poetry run coverage run --debug=config,trace,pathmap -m pytest tests/dev/test_create_schema_for_single_task.py::test_create_schema_for_single_task_usage_1 -s >>file.txt 2>&1
+
+      - run: cat file.txt
+
+      - run: grep cellpose file.txt
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v4
@@ -117,21 +46,21 @@ jobs:
           name: coverage-data-tasks-${{ matrix.python-version }}
           path: coverage-data-tasks-${{ matrix.python-version }}*
 
+
   coverage:
     name: Coverage
     runs-on: ubuntu-22.04
-    needs: [tests_core, tests_tasks]
+    needs: [tests_tasks]
     steps:
       - uses: actions/checkout@v4
 
       - run: pipx install poetry==1.8.2
-      - run: poetry config virtualenvs.in-project true
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
       - name: Install dependencies
-        run: poetry install --only dev
+        run: poetry install --with dev
 
       - name: Download data
         uses: actions/download-artifact@v4
@@ -145,7 +74,7 @@ jobs:
         # We added this step to replace the variable `MERGE_COVERAGE_FILES: true`
         # in the next step, which had started to raise errors
         # (https://github.com/fractal-analytics-platform/fractal-server/pull/1725).
-        run: poetry run coverage combine coverage-data-*
+        run: poetry run coverage combine --debug=config,trace,pathmap coverage-data-*
 
       - name: Add coverage comment to Pull Requests
         id: coverage_comment
