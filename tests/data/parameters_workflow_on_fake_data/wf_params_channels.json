@@ -1,9 +1,0 @@
-{
-    "A01_C01": {
-        "label": "DAPI",
-        "color": "00FFFF",
-        "window": {
-        "start": 0,
-        "end": 700}
-    }
-}
