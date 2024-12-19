@@ -36,6 +36,8 @@ jobs:
           COVERAGE_FILE: coverage-data-tasks-${{ matrix.python-version }}
         run: poetry run coverage run --debug=config,trace,pathmap -m pytest tests/dev/test_create_schema_for_single_task.py::test_create_schema_for_single_task_usage_1 -s >>file.txt 2>&1
 
+      - run: cat file.txt
+
       - run: grep cellpose file.txt
 
       - name: Upload coverage data
