@@ -20,6 +20,7 @@ import dask.array as da
 import pytest
 import zarr
 from devtools import debug
+from ngio.utils import NgioFileExistsError
 
 from ._validation import check_file_number
 from ._validation import validate_schema
@@ -362,6 +363,7 @@ def test_MIP(
         "types": {
             "is_3D": False,
         },
+        "attributes": {"plate": "plate_mip.zarr"},
     }
     debug(expected_image_list_updates)
     assert image_list_updates[0] == expected_image_list_updates
@@ -373,15 +375,13 @@ def test_MIP(
             init_args=image["init_args"],
         )
 
-    # Re-run with overwrite=False
-    with pytest.raises(OverwriteNotAllowedError):
+    with pytest.raises(NgioFileExistsError):
         for image in parallelization_list:
             image["init_args"]["overwrite"] = False
             projection(
                 zarr_url=image["zarr_url"],
                 init_args=image["init_args"],
             )
-
     # OME-NGFF JSON validation
     image_zarr = Path(parallelization_list[0]["zarr_url"])
     debug(image_zarr)
@@ -442,6 +442,7 @@ def test_projection_methods(
                 "origin_url": zarr_urls[0],
                 "method": method,
                 "overwrite": True,
+                "new_plate_name": f"plate_{method}.zarr",
             },
         }
     ]

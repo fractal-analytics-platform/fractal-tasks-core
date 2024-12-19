@@ -15,10 +15,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-22.04, macos-latest]
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12"]
         exclude:
-          - os: macos-latest
-            python-version: '3.9'
           - os: macos-latest
             python-version: '3.10'
     name: "Core, Python ${{ matrix.python-version }}, ${{ matrix.os }}"
@@ -50,10 +48,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12"]
         exclude:
-          - os: macos-latest
-            python-version: '3.9'
           - os: macos-latest
             python-version: '3.10'
     name: "Tasks, Python ${{ matrix.python-version }}, ${{ matrix.os }}"

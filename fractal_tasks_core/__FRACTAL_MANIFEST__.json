@@ -653,12 +653,17 @@
               "overwrite": {
                 "title": "Overwrite",
                 "type": "boolean"
+              },
+              "new_plate_name": {
+                "title": "New Plate Name",
+                "type": "string"
               }
             },
             "required": [
               "origin_url",
               "method",
-              "overwrite"
+              "overwrite",
+              "new_plate_name"
             ],
             "title": "InitArgsMIP",
             "type": "object"

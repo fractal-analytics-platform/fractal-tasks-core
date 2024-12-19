@@ -36,7 +36,7 @@ poetry run pytest --ignore tests/tasks
 
 The tests files are in the `tests` folder of the repository. Its structure reflects the `fractal_tasks_core` structure, with tests for the core library in the main folder and tests for `tasks` and `dev` subpckages in their own subfolders.
 
-Tests are also run through GitHub Actions, with Python 3.9, 3.10 and 3.11. Note that within GitHub actions we run tests for both the `poetry`-installed and `pip`-installed versions of the code, which may e.g. have different versions of some dependencies (since `pip install` does not rely on the `poetry.lock` lockfile).
+Tests are also run through GitHub Actions, with Python 3.10, 3.11 and 3.12. Note that within GitHub actions we run tests for both the `poetry`-installed and `pip`-installed versions of the code, which may e.g. have different versions of some dependencies (since `pip install` does not rely on the `poetry.lock` lockfile).
 
 ## Documentation
 
