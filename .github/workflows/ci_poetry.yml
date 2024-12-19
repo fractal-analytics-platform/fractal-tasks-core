@@ -29,7 +29,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - run: poetry install --with dev --without docs --no-interaction -E fractal-tasks
+      - run: poetry install --with dev --without docs --no-interaction # -E fractal-tasks
 
       - name: Test tasks with pytest
         env:
