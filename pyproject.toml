@@ -101,7 +101,7 @@ branch = true
 parallel = true
 relative_files = true
 source = ["fractal_tasks_core"]
-omit = ["tests/*", "examples/*", "fractal_tasks_core/dev/*"]
+omit = ["tests/*", "examples/*", "fractal_tasks_core/dev/*", ".venv/*"]
 
 [tool.bumpver]
 current_version = "1.4.0"
