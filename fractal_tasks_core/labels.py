@@ -69,6 +69,8 @@ def prepare_label_group(
         Zarr group of the new label.
     """
 
+    print("test")
+
     # Set logger
     if logger is None:
         logger = logging.getLogger(None)
