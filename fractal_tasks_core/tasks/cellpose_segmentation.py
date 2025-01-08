@@ -44,7 +44,6 @@ from fractal_tasks_core.roi import create_roi_table_from_df_list
 from fractal_tasks_core.roi import (
     find_overlaps_in_ROI_indices,
 )
-from fractal_tasks_core.roi import get_overlapping_pairs_3D
 from fractal_tasks_core.roi import is_ROI_table_valid
 from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
@@ -560,15 +559,6 @@ def cellpose_segmentation(
             )
 
             bbox_dataframe_list.append(bbox_df)
-
-            overlap_list = get_overlapping_pairs_3D(
-                bbox_df, full_res_pxl_sizes_zyx
-            )
-            if len(overlap_list) > 0:
-                logger.warning(
-                    f"ROI {indices} has "
-                    f"{len(overlap_list)} bounding-box pairs overlap"
-                )
 
         # Compute and store 0-th level to disk
         da.array(new_label_img).to_zarr(
