@@ -23,6 +23,7 @@ import pandas as pd
 from fractal_tasks_core.roi._overlaps_common import _is_overlapping_3D_int
 from fractal_tasks_core.roi._overlaps_common import is_overlapping_1D
 from fractal_tasks_core.roi._overlaps_common import is_overlapping_2D
+from fractal_tasks_core.roi._overlaps_common import is_overlapping_3D
 
 
 logger = logging.getLogger(__name__)
@@ -49,6 +50,58 @@ def get_overlapping_pair(
             if is_overlapping_2D(bbox_1, bbox_2, tol=tol):
                 return (pos_ind_1, pos_ind_2)
     return False
+
+
+def get_overlapping_pairs_3D(
+    tmp_df: pd.DataFrame,
+    full_res_pxl_sizes_zyx: Sequence[float],
+):
+    """
+    Finds the indices for the all overlapping FOVs pair, in three dimensions.
+
+    Note: the returned indices are positional indices, starting from 0.
+
+    Args:
+        tmp_df: Dataframe with columns `{x,y,z}_micrometer` and
+            `len_{x,y,z}_micrometer`.
+        full_res_pxl_sizes_zyx: TBD
+    """
+
+    tol = 1e-10
+    if tol > min(full_res_pxl_sizes_zyx) / 1e3:
+        raise ValueError(f"{tol=} but {full_res_pxl_sizes_zyx=}")
+
+    new_tmp_df = tmp_df.copy()
+
+    new_tmp_df["x_micrometer_max"] = (
+        new_tmp_df["x_micrometer"] + new_tmp_df["len_x_micrometer"]
+    )
+    new_tmp_df["y_micrometer_max"] = (
+        new_tmp_df["y_micrometer"] + new_tmp_df["len_y_micrometer"]
+    )
+    new_tmp_df["z_micrometer_max"] = (
+        new_tmp_df["z_micrometer"] + new_tmp_df["len_z_micrometer"]
+    )
+    # Remove columns which are not necessary for overlap checks
+    list_columns = [
+        "len_x_micrometer",
+        "len_y_micrometer",
+        "len_z_micrometer",
+        "label",
+    ]
+    new_tmp_df.drop(labels=list_columns, axis=1, inplace=True)
+
+    # Loop over all pairs, and construct list of overlapping ones
+    num_lines = len(new_tmp_df.index)
+    overlapping_list = []
+    for pos_ind_1 in range(num_lines):
+        for pos_ind_2 in range(pos_ind_1):
+            bbox_1 = new_tmp_df.iloc[pos_ind_1].to_numpy()
+            bbox_2 = new_tmp_df.iloc[pos_ind_2].to_numpy()
+            overlap = is_overlapping_3D(bbox_1, bbox_2, tol=tol)
+            if overlap:
+                overlapping_list.append((pos_ind_1, pos_ind_2))
+    return overlapping_list
 
 
 def apply_shift_in_one_direction(

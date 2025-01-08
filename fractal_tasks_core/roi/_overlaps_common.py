@@ -62,6 +62,35 @@ def is_overlapping_2D(
     return overlap_x and overlap_y
 
 
+def is_overlapping_3D(
+    box1: Sequence[float], box2: Sequence[float], tol: float = 1e-10
+) -> bool:
+    """
+    Given two three-dimensional boxes, finds whether they overlap.
+
+    This is based on https://stackoverflow.com/a/70023212/19085332, and we
+    additionally use a finite tolerance for floating-point comparisons.
+
+    Args:
+        box1: The boundaries of the first box, written as
+            `[x_min, y_min, z_min, x_max, y_max, z_max]`.
+        box2: The boundaries of the second box, written as
+            `[x_min, y_min, z_min, x_max, y_max, z_max]`.
+        tol: Finite tolerance for floating-point comparisons.
+    """
+
+    overlap_x = is_overlapping_1D(
+        [box1[0], box1[3]], [box2[0], box2[3]], tol=tol
+    )
+    overlap_y = is_overlapping_1D(
+        [box1[1], box1[4]], [box2[1], box2[4]], tol=tol
+    )
+    overlap_z = is_overlapping_1D(
+        [box1[2], box1[5]], [box2[2], box2[5]], tol=tol
+    )
+    return overlap_x and overlap_y and overlap_z
+
+
 def _is_overlapping_1D_int(
     line1: Sequence[int],
     line2: Sequence[int],
