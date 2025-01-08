@@ -108,6 +108,7 @@ omit = [
     "*/.venv/*"]
 
 [tool.coverage.report]
+ignore_errors = true
 omit = [
     "tests/*",
     "examples/*",
