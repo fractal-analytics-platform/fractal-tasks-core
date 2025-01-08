@@ -778,12 +778,10 @@ def test_get_overlapping_pairs_3D():
         df_overlapping,
         full_res_pxl_sizes_zyx,
     )
-    print(res_overlapping)
     assert len(res_overlapping) == 1
 
     res_non_overlapping = get_overlapping_pairs_3D(
         df_non_overlapping,
         full_res_pxl_sizes_zyx,
     )
-    print(res_non_overlapping)
-    assert len(res_overlapping) == 0
+    assert len(res_non_overlapping) == 0
