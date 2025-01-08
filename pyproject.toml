@@ -107,6 +107,13 @@ omit = [
     "fractal_tasks_core/dev/*",
     "*/.venv/*"]
 
+[tool.coverage.report]
+omit = [
+    "tests/*",
+    "examples/*",
+    "fractal_tasks_core/dev/*",
+    "*/.venv/*"]
+
 [tool.bumpver]
 current_version = "1.4.0"
 version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
