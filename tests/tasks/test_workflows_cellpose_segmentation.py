@@ -602,49 +602,6 @@ def test_workflow_bounding_box(
     assert "encoding-version" in table_group.attrs.asdict().keys()
 
 
-def test_workflow_bounding_box_with_overlap(
-    tmp_path: Path,
-    zenodo_zarr: list[str],
-    caplog: pytest.LogCaptureFixture,
-    monkeypatch: MonkeyPatch,
-):
-    monkeypatch.setattr(
-        "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
-        patched_cellpose_core_use_gpu,
-    )
-
-    monkeypatch.setattr(
-        "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
-        patched_segment_ROI_overlapping_organoids,
-    )
-
-    # Setup caplog fixture, see
-    # https://docs.pytest.org/en/stable/how-to/logging.html#caplog-fixture
-    caplog.set_level(logging.WARNING)
-
-    # Use pre-made 3D zarr
-    zarr_dir = tmp_path / "tmp_out/"
-    zarr_urls = prepare_3D_zarr(str(zarr_dir), zenodo_zarr)
-    debug(zarr_dir)
-    debug(zarr_urls)
-
-    # Per-FOV labeling
-    channel = CellposeChannel1InputModel(
-        wavelength_id="A01_C01", normalize=CellposeCustomNormalizer()
-    )
-    for zarr_url in zarr_urls:
-        cellpose_segmentation(
-            zarr_url=zarr_url,
-            channel=channel,
-            level=3,
-            relabeling=True,
-            diameter_level0=80.0,
-            output_ROI_table="bbox_table",
-        )
-        debug(caplog.text)
-        assert "bounding-box pairs overlap" in caplog.text
-
-
 def test_cellpose_within_masked_bb_with_overlap(
     tmp_path: Path,
     zenodo_zarr: list[str],

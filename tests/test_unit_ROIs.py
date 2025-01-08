@@ -30,6 +30,7 @@ from fractal_tasks_core.roi import (
     find_overlaps_in_ROI_indices,
 )
 from fractal_tasks_core.roi import get_image_grid_ROIs
+from fractal_tasks_core.roi import get_overlapping_pairs_3D
 from fractal_tasks_core.roi import get_single_image_ROI
 from fractal_tasks_core.roi import is_ROI_table_valid
 from fractal_tasks_core.roi import (
@@ -755,3 +756,32 @@ def test_create_roi_table_from_df_list_with_label_repeats():
         ]
     )
     np.testing.assert_allclose(output_array, roi_table.X)
+
+
+def test_get_overlapping_pairs_3D():
+    common_columns = {
+        "y_micrometer": [0.0, 0.0],
+        "z_micrometer": [0.0, 0.0],
+        "len_x_micrometer": [1.0, 1.0],
+        "len_y_micrometer": [1.0, 1.0],
+        "len_z_micrometer": [1.0, 1.0],
+        "label": [1, 2],
+    }
+    df_overlapping = pd.DataFrame(
+        {"x_micrometer": [0.0, 0.5], **common_columns}
+    )
+    full_res_pxl_sizes_zyx = [1.0, 1.0, 1.0]
+    df_non_overlapping = pd.DataFrame(
+        {"x_micrometer": [0.0, 2.0], **common_columns}
+    )
+    res_overlapping = get_overlapping_pairs_3D(
+        df_overlapping,
+        full_res_pxl_sizes_zyx,
+    )
+    assert len(res_overlapping) == 1
+
+    res_non_overlapping = get_overlapping_pairs_3D(
+        df_non_overlapping,
+        full_res_pxl_sizes_zyx,
+    )
+    assert len(res_non_overlapping) == 0
