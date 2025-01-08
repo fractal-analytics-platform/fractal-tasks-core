@@ -78,11 +78,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Cache poetry virtualenv
-        uses: actions/cache@v4
-        with:
-          path: ./.venv
-          key: ${{ runner.os }}-python-${{ matrix.python-version }}-venv-${{ hashFiles('**/poetry.lock') }}-tests_tasks
+      # - name: Cache poetry virtualenv
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: ./.venv
+      #     key: ${{ runner.os }}-python-${{ matrix.python-version }}-venv-${{ hashFiles('**/poetry.lock') }}-tests_tasks
 
       - name: Install dependencies (including fractal-tasks extra)
         run: poetry install --with dev --without docs --no-interaction
@@ -99,12 +99,12 @@ jobs:
       #       echo "__FRACTAL_MANIFEST__.json has not changed."
       #     fi
 
-      - name: Cache Pooch folder
-        id: cache-pooch-folder
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pooch
-          key: pooch-cache
+      # - name: Cache Pooch folder
+      #   id: cache-pooch-folder
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: ~/.cache/pooch
+      #     key: pooch-cache
 
       - name: Test tasks with pytest
         env:
