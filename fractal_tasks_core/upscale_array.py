@@ -45,8 +45,6 @@ def upscale_array(
         The upscaled array, with shape `target_shape`.
     """
 
-    print("test")
-
     # Default behavior: use all axis
     if axis is None:
         axis = list(range(len(target_shape)))
