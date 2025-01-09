@@ -7,6 +7,7 @@
     * Remove overlap checking for output ROIs in Cellpose task to address performance issues (\#889).
 * Testing:
     * Fix issues with coverage report listing `.venv` Python modules for other dependencies (\#892).
+    * Add `persist-credentials: false` to all `actions/checkout@v4` GitHub Action steps (\893).
 
 # 1.4.0
 
