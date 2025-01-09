@@ -1,9 +1,12 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+
 # 1.4.1
 
 * Tasks:
     * Remove overlap checking for output ROIs in Cellpose task to address performance issues (\#889).
+* Testing:
+    * Fix issues with coverage report listing `.venv` Python modules for other dependencies (\#892).
 
 # 1.4.0
 
