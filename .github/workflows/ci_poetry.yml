@@ -125,8 +125,6 @@ jobs:
     needs: [tests_core, tests_tasks]
     steps:
       - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
 
       - run: pipx install poetry==1.8.2
       - run: poetry config virtualenvs.in-project true
