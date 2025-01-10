@@ -14,7 +14,9 @@ Construct and write pyramid of lower-resolution levels.
 """
 import logging
 import pathlib
+import zarr
 from typing import Callable
+from typing import Mapping
 from typing import Optional
 from typing import Sequence
 from typing import Union
@@ -33,6 +35,7 @@ def build_pyramid(
     coarsening_xy: int = 2,
     chunksize: Optional[Sequence[int]] = None,
     aggregation_function: Optional[Callable] = None,
+    open_array_kwargs: Optional[Mapping] = None,
 ) -> None:
 
     """
@@ -48,6 +51,7 @@ def build_pyramid(
         coarsening_xy: Linear coarsening factor between subsequent levels.
         chunksize: Shape of a single chunk.
         aggregation_function: Function to be used when downsampling.
+        open_array_kwargs: Additional arguments for zarr.open.
     """
 
     # Clean up zarrurl
@@ -100,10 +104,21 @@ def build_pyramid(
             f"{str(newlevel_rechunked)}"
         )
 
+        if open_array_kwargs is None:
+            open_array_kwargs = {}
+
+        zarrarr = zarr.open(
+            f"{zarrurl}/{ind_level}",
+            shape=newlevel_rechunked.shape,
+            chunks=newlevel_rechunked.chunksize,
+            dtype=newlevel_rechunked.dtype,
+            mode="w",
+            **open_array_kwargs,
+        )
+
         # Write zarr and store output (useful to construct next level)
         previous_level = newlevel_rechunked.to_zarr(
-            zarrurl,
-            component=f"{ind_level}",
+            zarrarr,
             overwrite=overwrite,
             compute=True,
             return_stored=True,
