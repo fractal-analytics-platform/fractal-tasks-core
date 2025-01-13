@@ -22,7 +22,7 @@ from typing import Union
 
 import dask.array as da
 import numpy as np
-import zarr
+import zarr.errors
 
 logger = logging.getLogger(__name__)
 
@@ -106,6 +106,18 @@ def build_pyramid(
 
         if open_array_kwargs is None:
             open_array_kwargs = {}
+
+        # If overwrite is false, check that the array doesn't exist yet
+        if not overwrite:
+            try:
+                zarr.open(f"{zarrurl}/{ind_level}", mode="r")
+                raise ValueError(
+                    f"While building the pyramids, pyramid level {ind_level} "
+                    "already existed, but `build_pyramid` was called with "
+                    f"{overwrite=}."
+                )
+            except zarr.errors.PathNotFoundError:
+                pass
 
         zarrarr = zarr.open(
             f"{zarrurl}/{ind_level}",
