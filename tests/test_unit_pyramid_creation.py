@@ -68,8 +68,12 @@ def test_build_pyramid(tmp_path):
     # Succeed
     zarrurl = str(tmp_path / "F.zarr")
     da.zeros(shape=(8, 8)).to_zarr(f"{zarrurl}/0")
-    build_pyramid(zarrurl=zarrurl, coarsening_xy=2, num_levels=3,
-        open_array_kwargs={"write_empty_chunks": False, "fill_value": 0})
+    build_pyramid(
+        zarrurl=zarrurl,
+        coarsening_xy=2,
+        num_levels=3,
+        open_array_kwargs={"write_empty_chunks": False, "fill_value": 0},
+    )
     level_1 = da.from_zarr(f"{zarrurl}/1")
     level_2 = da.from_zarr(f"{zarrurl}/2")
     assert level_1.shape == (4, 4)

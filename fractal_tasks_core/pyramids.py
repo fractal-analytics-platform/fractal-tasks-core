@@ -14,7 +14,6 @@ Construct and write pyramid of lower-resolution levels.
 """
 import logging
 import pathlib
-import zarr
 from typing import Callable
 from typing import Mapping
 from typing import Optional
@@ -23,6 +22,7 @@ from typing import Union
 
 import dask.array as da
 import numpy as np
+import zarr
 
 logger = logging.getLogger(__name__)
 
