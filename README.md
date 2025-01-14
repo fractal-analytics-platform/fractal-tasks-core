@@ -15,7 +15,7 @@
 | fractal\_tasks\_core/ngff/\_\_init\_\_.py                                 |        6 |        0 |        0 |        0 |    100% |           |
 | fractal\_tasks\_core/ngff/specs.py                                        |      157 |        0 |       32 |        0 |    100% |           |
 | fractal\_tasks\_core/ngff/zarr\_utils.py                                  |       61 |       10 |        6 |        0 |     85% |78-83, 98-104, 108-113 |
-| fractal\_tasks\_core/pyramids.py                                          |       32 |        0 |       10 |        0 |    100% |           |
+| fractal\_tasks\_core/pyramids.py                                          |       43 |        0 |       14 |        0 |    100% |           |
 | fractal\_tasks\_core/roi/\_\_init\_\_.py                                  |        4 |        0 |        0 |        0 |    100% |           |
 | fractal\_tasks\_core/roi/\_overlaps\_common.py                            |       21 |        0 |        0 |        0 |    100% |           |
 | fractal\_tasks\_core/roi/load\_region.py                                  |       16 |        0 |       10 |        0 |    100% |           |
@@ -48,7 +48,7 @@
 | fractal\_tasks\_core/upscale\_array.py                                    |       73 |        7 |       48 |        6 |     88% |63, 91, 96->100, 113, 128, 192-197 |
 | fractal\_tasks\_core/utils.py                                             |       88 |        3 |       36 |        6 |     93% |73, 141->149, 142->141, 178->181, 183, 230 |
 | fractal\_tasks\_core/zarr\_utils.py                                       |       32 |        0 |        6 |        1 |     97% |    81->85 |
-|                                                                 **TOTAL** | **3391** |  **208** | **1032** |  **137** | **92%** |           |
+|                                                                 **TOTAL** | **3402** |  **208** | **1036** |  **137** | **92%** |           |
 
 
 ## Setup coverage badge
