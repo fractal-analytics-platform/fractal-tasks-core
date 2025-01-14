@@ -1,5 +1,7 @@
+from typing import Dict
 from typing import Literal
 from typing import Optional
+from typing import Tuple
 
 from pydantic import BaseModel
 from pydantic import Field
@@ -183,3 +185,45 @@ class NapariWorkflowsInput(BaseModel):
                 f"Input item has type={_type} but channel={channel}."
             )
         return self
+
+
+class ChunkSizes(BaseModel):
+    t: Optional[int] = None
+    c: Optional[int] = 1
+    z: Optional[int] = 10
+    y: Optional[int] = None
+    x: Optional[int] = None
+
+    def get_chunksize(
+        self, chunksize_default: Optional[Dict[str, int]] = None
+    ) -> Tuple[int, ...]:
+        # Define the valid keys
+        valid_keys = {"t", "c", "z", "y", "x"}
+
+        # If chunksize_default is not None, check for invalid keys
+        if chunksize_default:
+            invalid_keys = set(chunksize_default.keys()) - valid_keys
+            if invalid_keys:
+                raise ValueError(
+                    f"Invalid keys in chunksize_default: {invalid_keys}. "
+                    f"Only {valid_keys} are allowed."
+                )
+
+        # Filter and use only valid keys from chunksize_default
+        chunksize = {
+            key: chunksize_default[key]
+            for key in valid_keys
+            if chunksize_default and key in chunksize_default
+        }
+
+        # Overwrite with the values from the ChunkSizes instance if they are
+        # not None
+        for key in valid_keys:
+            if getattr(self, key) is not None:
+                chunksize[key] = getattr(self, key)
+
+        # Ensure the output tuple is ordered and matches the tczyx structure
+        ordered_keys = ["t", "c", "z", "y", "x"]
+        return tuple(
+            chunksize[key] for key in ordered_keys if key in chunksize
+        )

@@ -201,6 +201,35 @@
       },
       "args_schema_parallel": {
         "$defs": {
+          "ChunkSizes": {
+            "properties": {
+              "t": {
+                "title": "T",
+                "type": "integer"
+              },
+              "c": {
+                "default": 1,
+                "title": "C",
+                "type": "integer"
+              },
+              "z": {
+                "default": 10,
+                "title": "Z",
+                "type": "integer"
+              },
+              "y": {
+                "title": "Y",
+                "type": "integer"
+              },
+              "x": {
+                "title": "X",
+                "type": "integer"
+              }
+            },
+            "title": "ChunkSizes",
+            "type": "object",
+            "description": "Missing description for ChunkSizes."
+          },
           "InitArgsCellVoyager": {
             "description": "Arguments to be passed from cellvoyager converter init to compute",
             "properties": {
@@ -260,6 +289,11 @@
             "$ref": "#/$defs/InitArgsCellVoyager",
             "title": "Init Args",
             "description": "Intialization arguments provided by `create_cellvoyager_ome_zarr_init`."
+          },
+          "chunk_sizes": {
+            "$ref": "#/$defs/ChunkSizes",
+            "title": "Chunk Sizes",
+            "description": "Used to overwrite the default chunk sizes for the OME-Zarr. By default, the task will chunk the same as the microscope field of view size, with 10 z planes per chunk. For example, that can mean c: 1, z: 10, y: 2160, x:2560"
           }
         },
         "required": [
@@ -489,6 +523,35 @@
       },
       "args_schema_parallel": {
         "$defs": {
+          "ChunkSizes": {
+            "properties": {
+              "t": {
+                "title": "T",
+                "type": "integer"
+              },
+              "c": {
+                "default": 1,
+                "title": "C",
+                "type": "integer"
+              },
+              "z": {
+                "default": 10,
+                "title": "Z",
+                "type": "integer"
+              },
+              "y": {
+                "title": "Y",
+                "type": "integer"
+              },
+              "x": {
+                "title": "X",
+                "type": "integer"
+              }
+            },
+            "title": "ChunkSizes",
+            "type": "object",
+            "description": "Missing description for ChunkSizes."
+          },
           "InitArgsCellVoyager": {
             "description": "Arguments to be passed from cellvoyager converter init to compute",
             "properties": {
@@ -548,6 +611,11 @@
             "$ref": "#/$defs/InitArgsCellVoyager",
             "title": "Init Args",
             "description": "Intialization arguments provided by `create_cellvoyager_ome_zarr_init`."
+          },
+          "chunk_sizes": {
+            "$ref": "#/$defs/ChunkSizes",
+            "title": "Chunk Sizes",
+            "description": "Used to overwrite the default chunk sizes for the OME-Zarr. By default, the task will chunk the same as the microscope field of view size, with 10 z planes per chunk. For example, that can mean c: 1, z: 10, y: 2160, x:2560"
           }
         },
         "required": [
