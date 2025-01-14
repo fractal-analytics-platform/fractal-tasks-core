@@ -202,6 +202,7 @@
       "args_schema_parallel": {
         "$defs": {
           "ChunkSizes": {
+            "description": "Chunk size settings for OME-Zarrs. ",
             "properties": {
               "t": {
                 "title": "T",
@@ -227,8 +228,7 @@
               }
             },
             "title": "ChunkSizes",
-            "type": "object",
-            "description": "Missing description for ChunkSizes."
+            "type": "object"
           },
           "InitArgsCellVoyager": {
             "description": "Arguments to be passed from cellvoyager converter init to compute",
@@ -524,6 +524,7 @@
       "args_schema_parallel": {
         "$defs": {
           "ChunkSizes": {
+            "description": "Chunk size settings for OME-Zarrs. ",
             "properties": {
               "t": {
                 "title": "T",
@@ -549,8 +550,7 @@
               }
             },
             "title": "ChunkSizes",
-            "type": "object",
-            "description": "Missing description for ChunkSizes."
+            "type": "object"
           },
           "InitArgsCellVoyager": {
             "description": "Arguments to be passed from cellvoyager converter init to compute",

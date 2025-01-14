@@ -188,6 +188,17 @@ class NapariWorkflowsInput(BaseModel):
 
 
 class ChunkSizes(BaseModel):
+    """
+    Chunk size settings for OME-Zarrs.
+
+    Attributes:
+        t: Chunk size of time axis.
+        c: Chunk size of channel axis.
+        z: Chunk size of Z axis.
+        y: Chunk size of y axis.
+        x: Chunk size of x axis.
+    """
+
     t: Optional[int] = None
     c: Optional[int] = 1
     z: Optional[int] = 10
