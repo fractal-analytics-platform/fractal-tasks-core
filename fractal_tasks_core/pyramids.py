@@ -15,12 +15,14 @@ Construct and write pyramid of lower-resolution levels.
 import logging
 import pathlib
 from typing import Callable
+from typing import Mapping
 from typing import Optional
 from typing import Sequence
 from typing import Union
 
 import dask.array as da
 import numpy as np
+import zarr.errors
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +35,7 @@ def build_pyramid(
     coarsening_xy: int = 2,
     chunksize: Optional[Sequence[int]] = None,
     aggregation_function: Optional[Callable] = None,
+    open_array_kwargs: Optional[Mapping] = None,
 ) -> None:
 
     """
@@ -48,6 +51,7 @@ def build_pyramid(
         coarsening_xy: Linear coarsening factor between subsequent levels.
         chunksize: Shape of a single chunk.
         aggregation_function: Function to be used when downsampling.
+        open_array_kwargs: Additional arguments for zarr.open.
     """
 
     # Clean up zarrurl
@@ -100,10 +104,33 @@ def build_pyramid(
             f"{str(newlevel_rechunked)}"
         )
 
+        if open_array_kwargs is None:
+            open_array_kwargs = {}
+
+        # If overwrite is false, check that the array doesn't exist yet
+        if not overwrite:
+            try:
+                zarr.open(f"{zarrurl}/{ind_level}", mode="r")
+                raise ValueError(
+                    f"While building the pyramids, pyramid level {ind_level} "
+                    "already existed, but `build_pyramid` was called with "
+                    f"{overwrite=}."
+                )
+            except zarr.errors.PathNotFoundError:
+                pass
+
+        zarrarr = zarr.open(
+            f"{zarrurl}/{ind_level}",
+            shape=newlevel_rechunked.shape,
+            chunks=newlevel_rechunked.chunksize,
+            dtype=newlevel_rechunked.dtype,
+            mode="w",
+            **open_array_kwargs,
+        )
+
         # Write zarr and store output (useful to construct next level)
         previous_level = newlevel_rechunked.to_zarr(
-            zarrurl,
-            component=f"{ind_level}",
+            zarrarr,
             overwrite=overwrite,
             compute=True,
             return_stored=True,
