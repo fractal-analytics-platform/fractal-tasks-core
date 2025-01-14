@@ -202,7 +202,7 @@
       "args_schema_parallel": {
         "$defs": {
           "ChunkSizes": {
-            "description": "Chunk size settings for OME-Zarrs. ",
+            "description": "Chunk size settings for OME-Zarrs.",
             "properties": {
               "t": {
                 "title": "T",
@@ -524,7 +524,7 @@
       "args_schema_parallel": {
         "$defs": {
           "ChunkSizes": {
-            "description": "Chunk size settings for OME-Zarrs. ",
+            "description": "Chunk size settings for OME-Zarrs.",
             "properties": {
               "t": {
                 "title": "T",
