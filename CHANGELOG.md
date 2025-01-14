@@ -5,6 +5,9 @@
 
 * Tasks:
     * Remove overlap checking for output ROIs in Cellpose task to address performance issues (\#889).
+    * Expose chunking options in Cellvoyager OME-Zarr converter & set default Z chunking to 10 (\#898).
+* Library
+    * Expose kwargs for build_pyramid (\#895).
 * Testing:
     * Fix issues with coverage report listing `.venv` Python modules for other dependencies (\#892).
     * Add `persist-credentials: false` to all `actions/checkout@v4` GitHub Action steps (\#893).
