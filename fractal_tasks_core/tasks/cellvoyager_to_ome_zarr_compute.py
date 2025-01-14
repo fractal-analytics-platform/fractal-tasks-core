@@ -18,6 +18,7 @@ import dask.array as da
 import zarr
 from anndata import read_zarr
 from dask.array.image import imread
+from pydantic import Field
 from pydantic import validate_call
 
 from fractal_tasks_core.cellvoyager.filenames import (
@@ -32,6 +33,7 @@ from fractal_tasks_core.roi import check_valid_ROI_indices
 from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
+from fractal_tasks_core.tasks.io_models import ChunkSizes
 from fractal_tasks_core.tasks.io_models import InitArgsCellVoyager
 
 
@@ -59,6 +61,7 @@ def cellvoyager_to_ome_zarr_compute(
     # Fractal parameters
     zarr_url: str,
     init_args: InitArgsCellVoyager,
+    chunk_sizes: ChunkSizes = Field(default_factory=ChunkSizes),
 ):
     """
     Convert Yokogawa output (png, tif) to zarr file.
@@ -76,6 +79,10 @@ def cellvoyager_to_ome_zarr_compute(
             (standard argument for Fractal tasks, managed by Fractal server).
         init_args: Intialization arguments provided by
             `create_cellvoyager_ome_zarr_init`.
+        chunk_sizes: Used to overwrite the default chunk sizes for the
+            OME-Zarr. By default, the task will chunk the same as the
+            microscope field of view size, with 10 z planes per chunk.
+            For example, that can mean c: 1, z: 10, y: 2160, x:2560
     """
     zarr_url = zarr_url.rstrip("/")
     # Read attributes from NGFF metadata
@@ -134,7 +141,14 @@ def cellvoyager_to_ome_zarr_compute(
     sample = imread(tmp_images.pop())
 
     # Initialize zarr
-    chunksize = (1, 1, sample.shape[1], sample.shape[2])
+    chunksize_default = {
+        "c": 1,
+        "z": 10,
+        "y": sample.shape[1],
+        "x": sample.shape[2],
+    }
+    chunksize = chunk_sizes.get_chunksize(chunksize_default=chunksize_default)
+    # chunksize["z"] =
     canvas_zarr = zarr.create(
         shape=(len(wavelength_ids), max_z, max_y, max_x),
         chunks=chunksize,
