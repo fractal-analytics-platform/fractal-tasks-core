@@ -125,6 +125,9 @@ def build_pyramid(
             chunks=newlevel_rechunked.chunksize,
             dtype=newlevel_rechunked.dtype,
             mode="w",
+            dimension_separator=open_array_kwargs.get(
+                "dimension_separator", "/"
+            ),
             **open_array_kwargs,
         )
 
@@ -135,5 +138,7 @@ def build_pyramid(
             compute=True,
             return_stored=True,
             write_empty_chunks=False,
-            dimension_separator="/",
+            dimension_separator=open_array_kwargs.get(
+                "dimension_separator", "/"
+            ),
         )
