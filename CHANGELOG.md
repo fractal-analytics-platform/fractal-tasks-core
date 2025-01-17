@@ -5,6 +5,12 @@
 * Testing
     * Add `spherical-harmonics` extra to scmultiplex, for testing manifest build (\#899).
 
+# 1.4.2
+
+* Dependencies:
+    * Relax from `0.1.4` to `>=0.1.5,<0.2.0`
+* Library
+    * Ensure build_pyramid uses directory store by default (\#902).
 
 # 1.4.1
 
