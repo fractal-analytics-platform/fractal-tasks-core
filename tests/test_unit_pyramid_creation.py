@@ -65,8 +65,20 @@ def test_build_pyramid(tmp_path):
     assert level_4.shape == (3, 3)
     assert level_5.shape == (1, 1)
 
-    # Succeed
-    zarrurl = str(tmp_path / "F.zarr")
+    # check that open_array_kwargs has an effect
+    zarrurl = tmp_path / "F.zarr"
+    da.ones(shape=(8, 8)).to_zarr(f"{zarrurl}/0")
+    build_pyramid(
+        zarrurl=zarrurl,
+        coarsening_xy=2,
+        num_levels=3,
+        open_array_kwargs={"write_empty_chunks": True},
+    )
+    # check that empty chunks are written to disk
+    assert (zarrurl / "1/0/0").exists()
+    assert (zarrurl / "2/0/0").exists()
+
+    zarrurl = tmp_path / "G.zarr"
     da.zeros(shape=(8, 8)).to_zarr(f"{zarrurl}/0")
     build_pyramid(
         zarrurl=zarrurl,
@@ -74,13 +86,9 @@ def test_build_pyramid(tmp_path):
         num_levels=3,
         open_array_kwargs={"write_empty_chunks": False, "fill_value": 0},
     )
-    level_1 = da.from_zarr(f"{zarrurl}/1")
-    level_2 = da.from_zarr(f"{zarrurl}/2")
-    assert level_1.shape == (4, 4)
-    assert level_2.shape == (2, 2)
-    # check that the empty chunks are not written to disk
-    assert not (tmp_path / "F.zarr/1/0.0").exists()
-    assert not (tmp_path / "F.zarr/2/0.0").exists()
+    # check that empty chunks are not written to disk
+    assert not (zarrurl / "1/0/0").exists()
+    assert not (zarrurl / "2/0/0").exists()
 
 
 def test_build_pyramid_overwrite(tmp_path):
