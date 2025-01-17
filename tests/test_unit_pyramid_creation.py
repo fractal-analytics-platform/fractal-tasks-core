@@ -1,5 +1,6 @@
 import dask.array as da
 import pytest
+import zarr
 from devtools import debug
 
 from fractal_tasks_core.pyramids import build_pyramid
@@ -9,7 +10,10 @@ def test_build_pyramid(tmp_path):
 
     # Fail because only 2D,3D,4D are supported / A
     zarrurl = str(tmp_path / "A.zarr")
-    da.ones(shape=(16,)).to_zarr(f"{zarrurl}/0")
+    # Specify the dimension separator as '/'
+    store = zarr.DirectoryStore(f"{zarrurl}/0", dimension_separator="/")
+    # Save the Dask array to the Zarr store
+    da.ones(shape=(16,)).to_zarr(store)
     with pytest.raises(ValueError) as e:
         build_pyramid(zarrurl=zarrurl)
     debug(e.value)
@@ -17,7 +21,9 @@ def test_build_pyramid(tmp_path):
 
     # Fail because only 2D,3D,4D are supported / B
     zarrurl = str(tmp_path / "B.zarr")
-    da.ones(shape=(2, 2, 2, 2, 2)).to_zarr(f"{zarrurl}/0")
+    # Specify the dimension separator as '/'
+    store = zarr.DirectoryStore(f"{zarrurl}/0", dimension_separator="/")
+    da.ones(shape=(2, 2, 2, 2, 2)).to_zarr(store)
     with pytest.raises(ValueError) as e:
         build_pyramid(zarrurl=zarrurl)
     debug(e.value)
@@ -25,7 +31,9 @@ def test_build_pyramid(tmp_path):
 
     # Fail because there is not enough data for coarsening
     zarrurl = str(tmp_path / "C.zarr")
-    da.ones(shape=(4, 4)).to_zarr(f"{zarrurl}/0")
+    # Specify the dimension separator as '/'
+    store = zarr.DirectoryStore(f"{zarrurl}/0", dimension_separator="/")
+    da.ones(shape=(4, 4)).to_zarr(store)
     with pytest.raises(ValueError) as e:
         build_pyramid(zarrurl=zarrurl, coarsening_xy=10)
     debug(e.value)
@@ -33,7 +41,9 @@ def test_build_pyramid(tmp_path):
 
     # Succeed
     zarrurl = str(tmp_path / "D.zarr")
-    da.ones(shape=(8, 8)).to_zarr(f"{zarrurl}/0")
+    # Specify the dimension separator as '/'
+    store = zarr.DirectoryStore(f"{zarrurl}/0", dimension_separator="/")
+    da.ones(shape=(8, 8)).to_zarr(store)
     build_pyramid(zarrurl=zarrurl, coarsening_xy=2, num_levels=3)
     level_1 = da.from_zarr(f"{zarrurl}/1")
     level_2 = da.from_zarr(f"{zarrurl}/2")
@@ -44,7 +54,9 @@ def test_build_pyramid(tmp_path):
 
     # Succeed
     zarrurl = str(tmp_path / "E.zarr")
-    da.ones(shape=(243 + 2, 243)).to_zarr(f"{zarrurl}/0")
+    # Specify the dimension separator as '/'
+    store = zarr.DirectoryStore(f"{zarrurl}/0", dimension_separator="/")
+    da.ones(shape=(243 + 2, 243)).to_zarr(store)
     build_pyramid(zarrurl=zarrurl, coarsening_xy=3, num_levels=6, chunksize=9)
     level_1 = da.from_zarr(f"{zarrurl}/1")
     level_2 = da.from_zarr(f"{zarrurl}/2")
@@ -65,28 +77,42 @@ def test_build_pyramid(tmp_path):
     assert level_4.shape == (3, 3)
     assert level_5.shape == (1, 1)
 
-    # Succeed
-    zarrurl = str(tmp_path / "F.zarr")
-    da.zeros(shape=(8, 8)).to_zarr(f"{zarrurl}/0")
+    # check that open_array_kwargs has an effect
+    zarrurl = tmp_path / "F.zarr"
+    # Specify the dimension separator as '/'
+    store = zarr.DirectoryStore(f"{zarrurl}/0", dimension_separator="/")
+    da.ones(shape=(8, 8)).to_zarr(store)
+    build_pyramid(
+        zarrurl=zarrurl,
+        coarsening_xy=2,
+        num_levels=3,
+        open_array_kwargs={"write_empty_chunks": True},
+    )
+    # check that empty chunks are written to disk
+    assert (zarrurl / "1/0/0").exists()
+    assert (zarrurl / "2/0/0").exists()
+
+    zarrurl = tmp_path / "G.zarr"
+    # Specify the dimension separator as '/'
+    store = zarr.DirectoryStore(f"{zarrurl}/0", dimension_separator="/")
+    da.zeros(shape=(8, 8)).to_zarr(store)
     build_pyramid(
         zarrurl=zarrurl,
         coarsening_xy=2,
         num_levels=3,
         open_array_kwargs={"write_empty_chunks": False, "fill_value": 0},
     )
-    level_1 = da.from_zarr(f"{zarrurl}/1")
-    level_2 = da.from_zarr(f"{zarrurl}/2")
-    assert level_1.shape == (4, 4)
-    assert level_2.shape == (2, 2)
-    # check that the empty chunks are not written to disk
-    assert not (tmp_path / "F.zarr/1/0.0").exists()
-    assert not (tmp_path / "F.zarr/2/0.0").exists()
+    # check that empty chunks are not written to disk
+    assert not (zarrurl / "1/0/0").exists()
+    assert not (zarrurl / "2/0/0").exists()
 
 
 def test_build_pyramid_overwrite(tmp_path):
     # Succeed
-    zarrurl = str(tmp_path / "D.zarr")
-    da.ones(shape=(8, 8)).to_zarr(f"{zarrurl}/0")
+    zarrurl = str(tmp_path / "K.zarr")
+    # Specify the dimension separator as '/'
+    store = zarr.DirectoryStore(f"{zarrurl}/0", dimension_separator="/")
+    da.ones(shape=(8, 8)).to_zarr(store)
     build_pyramid(zarrurl=zarrurl, coarsening_xy=2, num_levels=3)
     # Should fail because overwrite is not set
     with pytest.raises(ValueError):
