@@ -8,9 +8,9 @@
 # 1.4.2
 
 * Dependencies:
-    * Relax from `0.1.4` to `>=0.1.5,<0.2.0`
+    * Relax `ngio` from `0.1.4` to `>=0.1.5,<0.2.0` (\#900).
 * Library
-    * Ensure build_pyramid uses directory store by default (\#902).
+    * Ensure `build_pyramid` uses directory store by default (\#902).
 
 # 1.4.1
 
