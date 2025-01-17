@@ -33,7 +33,7 @@ jobs:
 
           - package: scMultipleX
             github_repo: fmi-basel/gliberal-scMultipleX
-            github_branch: add_manifest_CI
+            github_branch: main
             manifest_path: src/scmultiplex/__FRACTAL_MANIFEST__.json
             cmd_install: 'python -m pip install -e .[fractal-tasks,spherical-harmonics]'
             cmd_create_manifest: 'python src/scmultiplex/dev/create_manifest.py'
