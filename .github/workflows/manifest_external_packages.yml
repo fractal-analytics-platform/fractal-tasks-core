@@ -35,7 +35,7 @@ jobs:
             github_repo: fmi-basel/gliberal-scMultipleX
             github_branch: main
             manifest_path: src/scmultiplex/__FRACTAL_MANIFEST__.json
-            cmd_install: 'python -m pip install -e .[fractal-tasks]'
+            cmd_install: 'python -m pip install -e .[fractal-tasks,spherical-harmonics]'
             cmd_create_manifest: 'python src/scmultiplex/dev/create_manifest.py'
             custom_dependencies: 'image_registration'
 

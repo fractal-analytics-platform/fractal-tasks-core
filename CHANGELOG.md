@@ -1,10 +1,16 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# Unreleased
+
+* Testing
+    * Add `spherical-harmonics` extra to scmultiplex, for testing manifest build (\#899).
+
 # 1.4.2
+
 * Dependencies:
-    * Relax from `0.1.4` to `>=0.1.5,<0.2.0`
+    * Relax `ngio` from `0.1.4` to `>=0.1.5,<0.2.0` (\#900).
 * Library
-    * Ensure build_pyramid uses directory store by default (\#902).
+    * Ensure `build_pyramid` uses directory store by default (\#902).
 
 # 1.4.1
 
@@ -12,7 +18,7 @@
     * Remove overlap checking for output ROIs in Cellpose task to address performance issues (\#889).
     * Expose chunking options in Cellvoyager OME-Zarr converter & set default Z chunking to 10 (\#898).
 * Library
-    * Expose kwargs for build_pyramid (\#895).
+    * Expose kwargs for `build_pyramid` (\#895).
 * Testing:
     * Fix issues with coverage report listing `.venv` Python modules for other dependencies (\#892).
     * Add `persist-credentials: false` to all `actions/checkout@v4` GitHub Action steps (\#893).
