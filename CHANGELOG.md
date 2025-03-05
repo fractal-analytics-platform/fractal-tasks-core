@@ -4,6 +4,7 @@
 
 * Testing
     * Add `spherical-harmonics` extra to scmultiplex, for testing manifest build (\#899).
+    * Move manifest-creation CI to Python 3.11 (\#915).
 
 # 1.4.2
 
