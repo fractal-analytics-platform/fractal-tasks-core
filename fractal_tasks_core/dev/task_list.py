@@ -1,19 +1,10 @@
-# Copyright 2024 (C) Friedrich Miescher Institute for Biomedical Research and
-# University of Zurich
-#
-# Original authors:
-# Joel Lüthi <joel.luethi@uzh.ch>
-#
-# This file is part of Fractal and was originally developed by eXact lab S.r.l.
-# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-# Institute for Biomedical Research and Pelkmans Lab from the University of
-# Zurich.
-"""
-Fractal task list.
-"""
-from fractal_tasks_core.dev.task_models import CompoundTask
-from fractal_tasks_core.dev.task_models import NonParallelTask
-from fractal_tasks_core.dev.task_models import ParallelTask
+from fractal_x.task_models import CompoundTask
+from fractal_x.task_models import NonParallelTask
+from fractal_x.task_models import ParallelTask
+
+
+AUTHORS = "Fractal Core Team"
+DOCS_LINK = "https://fractal-analytics-platform.github.io/fractal-tasks-core"
 
 INPUT_MODELS = [
     ["fractal_tasks_core", "channels.py", "OmeroChannel"],
