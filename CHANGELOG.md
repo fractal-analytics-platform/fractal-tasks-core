@@ -1,7 +1,9 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# Unreleased
+# 1.4.3
 
+* Tasks:
+    * Update apply_registration_to_image to handle race conditions better (\#919).
 * Testing
     * Add `spherical-harmonics` extra to scmultiplex, for testing manifest build (\#899).
     * Move manifest-creation CI to Python 3.11 (\#915).
