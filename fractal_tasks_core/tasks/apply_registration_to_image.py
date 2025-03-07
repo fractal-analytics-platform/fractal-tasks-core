@@ -205,7 +205,7 @@ def apply_registration_to_image(
             # Get the relevant metadata of the Zarr table & add it
             # See issue #516 for the need for this workaround
             max_retries = 20
-            sleep_time = 5
+            sleep_time = 10
             current_round = 0
             while current_round < max_retries:
                 try:
@@ -213,15 +213,26 @@ def apply_registration_to_image(
                         table_dict[table], mode="r"
                     )
                     current_round = max_retries
-                except zarr.errors.GroupNotFoundError:
+                    curr_table = ad.read_zarr(table_dict[table])
+                    break  # Exit loop on success
+                except (
+                    zarr.errors.GroupNotFoundError,
+                    zarr.errors.PathNotFoundError,
+                ):
                     logger.debug(
                         f"Table {table} not found in attempt {current_round}. "
                         f"Waiting {sleep_time} seconds before trying again."
                     )
                     current_round += 1
                     time.sleep(sleep_time)
+            else:
+                # This runs only if the loop exits via exhaustion
+                raise RuntimeError(
+                    f"Table {table} not found after {max_retries} attempts."
+                    "Check whether this table actually exists. If it does, "
+                    "this may be a race condition issue."
+                )
             # Write the Zarr table
-            curr_table = ad.read_zarr(table_dict[table])
             write_table(
                 new_image_group,
                 table,
