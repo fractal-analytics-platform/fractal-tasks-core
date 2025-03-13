@@ -19,6 +19,8 @@ from pathlib import Path
 from typing import Callable
 from typing import Optional
 
+from typing_extensions import deprecated
+
 
 class TaskParameterEncoder(JSONEncoder):
     """
@@ -35,6 +37,7 @@ class TaskParameterEncoder(JSONEncoder):
         return JSONEncoder.default(self, value)
 
 
+@deprecated("Please move to `fractal-task-tools`")
 def run_fractal_task(
     *,
     task_function: Callable,

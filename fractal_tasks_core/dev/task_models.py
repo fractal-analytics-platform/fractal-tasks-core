@@ -20,6 +20,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 from pydantic import Field
+from typing_extensions import deprecated
 
 
 class _BaseTask(BaseModel):
@@ -38,6 +39,7 @@ class _BaseTask(BaseModel):
     docs_info: Optional[str] = None
 
 
+@deprecated("Please move to `fractal-task-tools`")
 class CompoundTask(_BaseTask):
     """
     A `CompoundTask` object must include both `executable_init` and
@@ -65,6 +67,7 @@ class CompoundTask(_BaseTask):
         return self.meta
 
 
+@deprecated("Please move to `fractal-task-tools`")
 class NonParallelTask(_BaseTask):
     """
     A `NonParallelTask` object must include the `executable` attribute, and it
@@ -88,6 +91,7 @@ class NonParallelTask(_BaseTask):
         return None
 
 
+@deprecated("Please move to `fractal-task-tools`")
 class ParallelTask(_BaseTask):
     """
     A `ParallelTask` object must include the `executable` attribute, and it may

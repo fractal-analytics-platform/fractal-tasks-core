@@ -15,10 +15,13 @@ import logging
 from pydantic.json_schema import GenerateJsonSchema
 from pydantic.json_schema import JsonSchemaValue
 from pydantic_core.core_schema import WithDefaultSchema
+from typing_extensions import deprecated
+
 
 logger = logging.getLogger("CustomGenerateJsonSchema")
 
 
+@deprecated("Please move to `fractal-task-tools`")
 class CustomGenerateJsonSchema(GenerateJsonSchema):
     def get_flattened_anyof(
         self, schemas: list[JsonSchemaValue]
