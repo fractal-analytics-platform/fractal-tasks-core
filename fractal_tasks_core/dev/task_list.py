@@ -1,6 +1,6 @@
-from fractal_x.task_models import CompoundTask
-from fractal_x.task_models import NonParallelTask
-from fractal_x.task_models import ParallelTask
+from fractal_task_tools.task_models import CompoundTask
+from fractal_task_tools.task_models import NonParallelTask
+from fractal_task_tools.task_models import ParallelTask
 
 
 AUTHORS = "Fractal Core Team"
