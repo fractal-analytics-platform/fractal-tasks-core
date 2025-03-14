@@ -15,6 +15,34 @@ from fractal_task_tools.task_models import CompoundTask
 from fractal_task_tools.task_models import NonParallelTask
 from fractal_task_tools.task_models import ParallelTask
 
+AUTHORS = "Fractal Core Team"
+DOCS_LINK = "https://fractal-analytics-platform.github.io/fractal-tasks-core"
+INPUT_MODELS = [
+    ["fractal_tasks_core", "channels.py", "OmeroChannel"],
+    ["fractal_tasks_core", "channels.py", "Window"],
+    ["fractal_tasks_core", "channels.py", "ChannelInputModel"],
+    ["fractal_tasks_core", "tasks/io_models.py", "NapariWorkflowsInput"],
+    ["fractal_tasks_core", "tasks/io_models.py", "NapariWorkflowsOutput"],
+    [
+        "fractal_tasks_core",
+        "tasks/cellpose_utils.py",
+        "CellposeCustomNormalizer",
+    ],
+    [
+        "fractal_tasks_core",
+        "tasks/cellpose_utils.py",
+        "CellposeChannel1InputModel",
+    ],
+    [
+        "fractal_tasks_core",
+        "tasks/cellpose_utils.py",
+        "CellposeChannel2InputModel",
+    ],
+    ["fractal_tasks_core", "tasks/cellpose_utils.py", "CellposeModelParams"],
+    ["fractal_tasks_core", "tasks/io_models.py", "MultiplexingAcquisition"],
+]
+
+
 TASK_LIST = [
     CompoundTask(
         name="Convert Cellvoyager to OME-Zarr",
