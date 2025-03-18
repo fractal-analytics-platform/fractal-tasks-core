@@ -1556,15 +1556,15 @@ files = [
 
 [[package]]
 name = "fractal-task-tools"
-version = "0.0.5"
+version = "0.0.7"
 description = "Shared tools for Fractal tasks"
 optional = false
 python-versions = "<3.13,>=3.10"
 groups = ["main"]
 markers = "python_version <= \"3.11\" or python_version >= \"3.12\""
 files = [
-    {file = "fractal_task_tools-0.0.5-py3-none-any.whl", hash = "sha256:25739c3ef74168ef271848d497770e697b51056dec0f2b96c9a7a85e07f0e9eb"},
-    {file = "fractal_task_tools-0.0.5.tar.gz", hash = "sha256:4fac006d8e374572cfa4f02e11f001d6b3dab21a1f72f397436c7841e29f8e32"},
+    {file = "fractal_task_tools-0.0.7-py3-none-any.whl", hash = "sha256:f23c9c7916fa5cfa33f2b45834b633bd3cbe60389a39e3f583dd212a837774b5"},
+    {file = "fractal_task_tools-0.0.7.tar.gz", hash = "sha256:f569dba9b983434ca1c88ed6a475faa35060c8c98c0e3d74fa35cc2db35f7c2c"},
 ]
 
 [package.dependencies]
@@ -7588,4 +7588,4 @@ fractal-tasks = ["Pillow", "cellpose", "image_registration", "imageio-ffmpeg", "
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.13"
-content-hash = "081dde555d8b0d8e3bfd8b4a140065cc85bf9061c5e94535cb7dc68db6d03955"
+content-hash = "16ba1e9a77df2f9ebe42a1464eb7802e9ab22bf9f224e1f645dff16938456d20"
