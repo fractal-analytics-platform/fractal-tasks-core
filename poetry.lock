@@ -1556,15 +1556,15 @@ files = [
 
 [[package]]
 name = "fractal-task-tools"
-version = "0.0.7"
+version = "0.0.8"
 description = "Shared tools for Fractal tasks"
 optional = false
 python-versions = "<3.13,>=3.10"
 groups = ["main"]
 markers = "python_version <= \"3.11\" or python_version >= \"3.12\""
 files = [
-    {file = "fractal_task_tools-0.0.7-py3-none-any.whl", hash = "sha256:f23c9c7916fa5cfa33f2b45834b633bd3cbe60389a39e3f583dd212a837774b5"},
-    {file = "fractal_task_tools-0.0.7.tar.gz", hash = "sha256:f569dba9b983434ca1c88ed6a475faa35060c8c98c0e3d74fa35cc2db35f7c2c"},
+    {file = "fractal_task_tools-0.0.8-py3-none-any.whl", hash = "sha256:8bcb23d146b85ae1c92e053e17fc71505700d3e262396e064b72b4d2dff60afe"},
+    {file = "fractal_task_tools-0.0.8.tar.gz", hash = "sha256:408e6c75c3cc7336aa28111420420dc1cfa0df26fa30e6237fc6ec62225bb3cc"},
 ]
 
 [package.dependencies]
@@ -1757,15 +1757,15 @@ dev = ["flake8", "markdown", "twine", "wheel"]
 
 [[package]]
 name = "griffe"
-version = "1.6.0"
+version = "1.6.1"
 description = "Signatures for entire Python programs. Extract the structure, the frame, the skeleton of your project, to generate API documentation or find breaking changes in your API."
 optional = false
 python-versions = ">=3.9"
 groups = ["docs"]
 markers = "python_version <= \"3.11\" or python_version >= \"3.12\""
 files = [
-    {file = "griffe-1.6.0-py3-none-any.whl", hash = "sha256:9f1dfe035d4715a244ed2050dfbceb05b1f470809ed4f6bb10ece5a7302f8dd1"},
-    {file = "griffe-1.6.0.tar.gz", hash = "sha256:eb5758088b9c73ad61c7ac014f3cdfb4c57b5c2fcbfca69996584b702aefa354"},
+    {file = "griffe-1.6.1-py3-none-any.whl", hash = "sha256:b0131670db16834f82383bcf4f788778853c9bf4dc7a1a2b708bb0808ca56a98"},
+    {file = "griffe-1.6.1.tar.gz", hash = "sha256:ff0acf706b2680f8c721412623091c891e752b2c61b7037618f7b77d06732cf5"},
 ]
 
 [package.dependencies]
@@ -7572,4 +7572,4 @@ fractal-tasks = ["Pillow", "cellpose", "image_registration", "imageio-ffmpeg", "
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.13"
-content-hash = "16ba1e9a77df2f9ebe42a1464eb7802e9ab22bf9f224e1f645dff16938456d20"
+content-hash = "28eae9aac739f8dfb2ad91ab213b702c36b3c983e98c7c806859bc1f909a1f72"
