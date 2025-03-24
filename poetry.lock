@@ -1556,15 +1556,15 @@ files = [
 
 [[package]]
 name = "fractal-task-tools"
-version = "0.0.8"
+version = "0.0.9"
 description = "Shared tools for Fractal tasks"
 optional = false
 python-versions = "<3.13,>=3.10"
 groups = ["main"]
 markers = "python_version <= \"3.11\" or python_version >= \"3.12\""
 files = [
-    {file = "fractal_task_tools-0.0.8-py3-none-any.whl", hash = "sha256:8bcb23d146b85ae1c92e053e17fc71505700d3e262396e064b72b4d2dff60afe"},
-    {file = "fractal_task_tools-0.0.8.tar.gz", hash = "sha256:408e6c75c3cc7336aa28111420420dc1cfa0df26fa30e6237fc6ec62225bb3cc"},
+    {file = "fractal_task_tools-0.0.9-py3-none-any.whl", hash = "sha256:b6098cfe66deb8ae260ae2faf31482cbf529aa8c5fb342bed6c50e620f1d20ec"},
+    {file = "fractal_task_tools-0.0.9.tar.gz", hash = "sha256:aee84b62419dabd47a83d87f369422bb2ea1160e4fcfe9d473914e491067f968"},
 ]
 
 [package.dependencies]
@@ -1572,7 +1572,7 @@ docstring-parser = "0.15"
 pydantic = ">=2.0.0,<=2.8.2"
 
 [package.extras]
-dev = ["bumpver (==2024.1130)", "coverage (>=7.6.0,<7.7.0)", "devtools (==0.12.2)", "pytest (>=8.3.0,<9.0.0)"]
+dev = ["bumpver (==2024.1130)", "coverage (>=7.6.0,<7.7.0)", "devtools (==0.12.2)", "mkdocs (==1.5.2)", "mkdocs-gen-files (==0.4.0)", "mkdocs-include-markdown-plugin (>=5.0.0,<6.0.0)", "mkdocs-literate-nav (==0.5.0)", "mkdocs-material (==9.1.21)", "mkdocs-section-index (==0.3.5)", "mkdocstrings[python] (==0.25.2)", "pytest (>=8.3.0,<9.0.0)"]
 
 [[package]]
 name = "freetype-py"
@@ -7572,4 +7572,4 @@ fractal-tasks = ["Pillow", "cellpose", "image_registration", "imageio-ffmpeg", "
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.13"
-content-hash = "28eae9aac739f8dfb2ad91ab213b702c36b3c983e98c7c806859bc1f909a1f72"
+content-hash = "07471377d441a890673a778d3d12f35c5ab988fbf66ff61d8a57bf3182b8f834"
