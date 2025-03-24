@@ -12,7 +12,8 @@
 Fractal task list.
 """
 from fractal_task_tools.task_models import CompoundTask
-from fractal_task_tools.task_models import NonParallelTask
+from fractal_task_tools.task_models import ConverterCompoundTask
+from fractal_task_tools.task_models import ConverterNonParallelTask
 from fractal_task_tools.task_models import ParallelTask
 
 AUTHORS = "Fractal Core Team"
@@ -44,7 +45,7 @@ INPUT_MODELS = [
 
 
 TASK_LIST = [
-    CompoundTask(
+    ConverterCompoundTask(
         name="Convert Cellvoyager to OME-Zarr",
         executable_init="tasks/cellvoyager_to_ome_zarr_init.py",
         executable="tasks/cellvoyager_to_ome_zarr_compute.py",
@@ -55,7 +56,7 @@ TASK_LIST = [
         tags=["Yokogawa", "Cellvoyager", "2D", "3D"],
         docs_info="file:task_info/convert_cellvoyager_to_ome_zarr.md",
     ),
-    CompoundTask(
+    ConverterCompoundTask(
         name="Convert Cellvoyager Multiplexing to OME-Zarr",
         executable_init="tasks/cellvoyager_to_ome_zarr_init_multiplex.py",
         executable="tasks/cellvoyager_to_ome_zarr_compute.py",
@@ -136,7 +137,7 @@ TASK_LIST = [
         tags=["Multiplexing", "2D", "3D"],
         docs_info="file:task_info/apply_registration_to_image.md",
     ),
-    NonParallelTask(
+    ConverterNonParallelTask(
         name="Import OME-Zarr",
         executable="tasks/import_ome_zarr.py",
         docs_info="file:task_info/import_ome_zarr.md",
