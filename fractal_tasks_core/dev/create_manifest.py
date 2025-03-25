@@ -20,6 +20,7 @@ from typing import Optional
 
 from typing_extensions import deprecated
 
+from fractal_tasks_core.dev.deprecation_message import DEPRECATION_MSG_FUN
 from fractal_tasks_core.dev.lib_args_schemas import (
     create_schema_for_single_task,
 )
@@ -32,7 +33,7 @@ logging.basicConfig(level=logging.INFO)
 ARGS_SCHEMA_VERSION = "pydantic_v2"
 
 
-@deprecated("Please move to `fractal-task-tools`")
+@deprecated(DEPRECATION_MSG_FUN)
 def create_manifest(
     package: str = "fractal_tasks_core",
     authors: Optional[str] = None,

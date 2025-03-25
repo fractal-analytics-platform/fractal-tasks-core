@@ -21,6 +21,8 @@ from typing import Optional
 
 from typing_extensions import deprecated
 
+from fractal_tasks_core.dev.deprecation_message import DEPRECATION_MSG_FUN
+
 
 class TaskParameterEncoder(JSONEncoder):
     """
@@ -37,7 +39,7 @@ class TaskParameterEncoder(JSONEncoder):
         return JSONEncoder.default(self, value)
 
 
-@deprecated("Please move to `fractal-task-tools`")
+@deprecated(DEPRECATION_MSG_FUN)
 def run_fractal_task(
     *,
     task_function: Callable,

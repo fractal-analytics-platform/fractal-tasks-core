@@ -17,11 +17,12 @@ from pydantic.json_schema import JsonSchemaValue
 from pydantic_core.core_schema import WithDefaultSchema
 from typing_extensions import deprecated
 
+from fractal_tasks_core.dev.deprecation_message import DEPRECATION_MSG_CLASS
 
 logger = logging.getLogger("CustomGenerateJsonSchema")
 
 
-@deprecated("Please move to `fractal-task-tools`")
+@deprecated(DEPRECATION_MSG_CLASS)
 class CustomGenerateJsonSchema(GenerateJsonSchema):
     def get_flattened_anyof(
         self, schemas: list[JsonSchemaValue]

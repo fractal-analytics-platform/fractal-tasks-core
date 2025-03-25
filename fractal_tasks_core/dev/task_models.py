@@ -22,6 +22,8 @@ from pydantic import BaseModel
 from pydantic import Field
 from typing_extensions import deprecated
 
+from fractal_tasks_core.dev.deprecation_message import DEPRECATION_MSG_CLASS
+
 
 class _BaseTask(BaseModel):
     class Config:
@@ -39,7 +41,7 @@ class _BaseTask(BaseModel):
     docs_info: Optional[str] = None
 
 
-@deprecated("Please move to `fractal-task-tools`")
+@deprecated(DEPRECATION_MSG_CLASS)
 class CompoundTask(_BaseTask):
     """
     A `CompoundTask` object must include both `executable_init` and
@@ -67,7 +69,7 @@ class CompoundTask(_BaseTask):
         return self.meta
 
 
-@deprecated("Please move to `fractal-task-tools`")
+@deprecated(DEPRECATION_MSG_CLASS)
 class NonParallelTask(_BaseTask):
     """
     A `NonParallelTask` object must include the `executable` attribute, and it
@@ -91,7 +93,7 @@ class NonParallelTask(_BaseTask):
         return None
 
 
-@deprecated("Please move to `fractal-task-tools`")
+@deprecated(DEPRECATION_MSG_CLASS)
 class ParallelTask(_BaseTask):
     """
     A `ParallelTask` object must include the `executable` attribute, and it may
