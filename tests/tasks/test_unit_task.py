@@ -43,7 +43,6 @@ def test_run_fractal_tasks(tmp_path, testdata_path, monkeypatch):
 
     # Write arguments to a file
     args = {}
-    args["zarr_urls"] = []
     args["image_dirs"] = [str(testdata_path / "png/")]
     args["zarr_dir"] = str(tmp_path)
     args["allowed_channels"] = [
