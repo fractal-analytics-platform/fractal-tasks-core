@@ -307,13 +307,13 @@ tests = ["pytest"]
 
 [[package]]
 name = "array-api-compat"
-version = "1.11.1"
+version = "1.11.2"
 description = "A wrapper around NumPy and other array libraries to make them compatible with the Array API standard"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "array_api_compat-1.11.1-py3-none-any.whl", hash = "sha256:cf5efc8e171a65694c8d316223edebc22161dce052e994c21a9cbb4deb3d056b"},
-    {file = "array_api_compat-1.11.1.tar.gz", hash = "sha256:9d80383f5a52a3adb09c3e0a062b0be168761e4b8d7079cfea1f7387fc2eae63"},
+    {file = "array_api_compat-1.11.2-py3-none-any.whl", hash = "sha256:b1d0059714a4153b3ae37c989e47b07418f727be5b22908dd3cf9d19bdc2c547"},
+    {file = "array_api_compat-1.11.2.tar.gz", hash = "sha256:a3b7f7b6af18f4c42e79423b1b2479798998b6a74355069d77a01a5282755b5d"},
 ]
 
 [package.extras]
@@ -408,13 +408,13 @@ typing = ["typing_extensions (>=4.0.0)"]
 
 [[package]]
 name = "astropy-iers-data"
-version = "0.2025.3.17.0.34.53"
+version = "0.2025.3.24.0.35.32"
 description = "IERS Earth Rotation and Leap Second tables for the astropy core package"
 optional = true
 python-versions = ">=3.8"
 files = [
-    {file = "astropy_iers_data-0.2025.3.17.0.34.53-py3-none-any.whl", hash = "sha256:8006784932c625121c091f7b069b3fb4d0f471f63fe5b1e740d6d8f9f75171f7"},
-    {file = "astropy_iers_data-0.2025.3.17.0.34.53.tar.gz", hash = "sha256:646f050d4af4772ac5a0181fd133a452118ca5b4485af69ebe371ff51129ea28"},
+    {file = "astropy_iers_data-0.2025.3.24.0.35.32-py3-none-any.whl", hash = "sha256:a9eb0c46a19d055dac53fdb99d91d0117ec5ccfd0033ff0ffcfcac4d4a44a677"},
+    {file = "astropy_iers_data-0.2025.3.24.0.35.32.tar.gz", hash = "sha256:4c01603b92800b5a89a2a7418b3f84d66fef3334e8e5af2ec726510db6e1b384"},
 ]
 
 [package.extras]
@@ -1064,13 +1064,13 @@ tests = ["pytest", "pytest-cov", "pytest-xdist"]
 
 [[package]]
 name = "dask"
-version = "2025.2.0"
+version = "2025.3.0"
 description = "Parallel PyData with Task Scheduling"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "dask-2025.2.0-py3-none-any.whl", hash = "sha256:f0fdeef6ceb0a06569d456c9e704f220f7f54e80f3a6ea42ab98cea6bc642b6e"},
-    {file = "dask-2025.2.0.tar.gz", hash = "sha256:89c87125d04d28141eaccc4794164ce9098163fd22d8ad943db48f8d4c815460"},
+    {file = "dask-2025.3.0-py3-none-any.whl", hash = "sha256:b5d72bb33788904a218fd7da1850238517592358ecc79c30bb5c188a71df506d"},
+    {file = "dask-2025.3.0.tar.gz", hash = "sha256:322834f44ebc24abeb564c56ccb817c97d6e7af6be71ad0ad96b78b51f2e0e85"},
 ]
 
 [package.dependencies]
@@ -1089,7 +1089,7 @@ array = ["numpy (>=1.24)"]
 complete = ["dask[array,dataframe,diagnostics,distributed]", "lz4 (>=4.3.2)", "pyarrow (>=14.0.1)"]
 dataframe = ["dask[array]", "pandas (>=2.0)", "pyarrow (>=14.0.1)"]
 diagnostics = ["bokeh (>=3.1.0)", "jinja2 (>=2.10.3)"]
-distributed = ["distributed (==2025.2.0)"]
+distributed = ["distributed (==2025.3.0)"]
 test = ["pandas[test]", "pre-commit", "pytest", "pytest-cov", "pytest-mock", "pytest-rerunfailures", "pytest-timeout", "pytest-xdist"]
 
 [[package]]
@@ -1613,13 +1613,13 @@ dev = ["flake8", "markdown", "twine", "wheel"]
 
 [[package]]
 name = "griffe"
-version = "1.6.0"
+version = "1.6.2"
 description = "Signatures for entire Python programs. Extract the structure, the frame, the skeleton of your project, to generate API documentation or find breaking changes in your API."
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "griffe-1.6.0-py3-none-any.whl", hash = "sha256:9f1dfe035d4715a244ed2050dfbceb05b1f470809ed4f6bb10ece5a7302f8dd1"},
-    {file = "griffe-1.6.0.tar.gz", hash = "sha256:eb5758088b9c73ad61c7ac014f3cdfb4c57b5c2fcbfca69996584b702aefa354"},
+    {file = "griffe-1.6.2-py3-none-any.whl", hash = "sha256:6399f7e663150e4278a312a8e8a14d2f3d7bd86e2ef2f8056a1058e38579c2ee"},
+    {file = "griffe-1.6.2.tar.gz", hash = "sha256:3a46fa7bd83280909b63c12b9a975732a927dd97809efe5b7972290b606c5d91"},
 ]
 
 [package.dependencies]
@@ -1944,13 +1944,13 @@ test = ["pytest (>=6.0)", "pytest-codspeed", "pytest-cov", "toolz"]
 
 [[package]]
 name = "iniconfig"
-version = "2.0.0"
+version = "2.1.0"
 description = "brain-dead simple config-ini parsing"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "iniconfig-2.0.0-py3-none-any.whl", hash = "sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374"},
-    {file = "iniconfig-2.0.0.tar.gz", hash = "sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3"},
+    {file = "iniconfig-2.1.0-py3-none-any.whl", hash = "sha256:9deba5723312380e77435581c6bf4935c94cbfab9b1ed33ef8d238ea168eb760"},
+    {file = "iniconfig-2.1.0.tar.gz", hash = "sha256:3abbd2e30b36733fee78f9c7f7308f2d0050e88f0087fd25c2645f63c773e1c7"},
 ]
 
 [[package]]
@@ -3049,13 +3049,13 @@ files = [
 
 [[package]]
 name = "mistune"
-version = "3.1.2"
+version = "3.1.3"
 description = "A sane and fast Markdown parser with useful plugins and renderers"
 optional = true
 python-versions = ">=3.8"
 files = [
-    {file = "mistune-3.1.2-py3-none-any.whl", hash = "sha256:4b47731332315cdca99e0ded46fc0004001c1299ff773dfb48fbe1fd226de319"},
-    {file = "mistune-3.1.2.tar.gz", hash = "sha256:733bf018ba007e8b5f2d3a9eb624034f6ee26c4ea769a98ec533ee111d504dff"},
+    {file = "mistune-3.1.3-py3-none-any.whl", hash = "sha256:1a32314113cff28aa6432e99e522677c8587fd83e3d51c29b82a52409c842bd9"},
+    {file = "mistune-3.1.3.tar.gz", hash = "sha256:a7035c21782b2becb6be62f8f25d3df81ccb4d6fa477a6525b15af06539f02a0"},
 ]
 
 [package.dependencies]
@@ -4569,19 +4569,19 @@ xarray = ["xarray"]
 
 [[package]]
 name = "platformdirs"
-version = "4.3.6"
+version = "4.3.7"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a `user data dir`."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "platformdirs-4.3.6-py3-none-any.whl", hash = "sha256:73e575e1408ab8103900836b97580d5307456908a03e92031bab39e4554cc3fb"},
-    {file = "platformdirs-4.3.6.tar.gz", hash = "sha256:357fb2acbc885b0419afd3ce3ed34564c13c9b95c89360cd9563f73aa5e2b907"},
+    {file = "platformdirs-4.3.7-py3-none-any.whl", hash = "sha256:a03875334331946f13c549dbd8f4bac7a13a50a895a0eb1e8c6a8ace80d40a94"},
+    {file = "platformdirs-4.3.7.tar.gz", hash = "sha256:eb437d586b6a0986388f0d6f74aa0cde27b48d0e3d66843640bfb6bdcdb6e351"},
 ]
 
 [package.extras]
-docs = ["furo (>=2024.8.6)", "proselint (>=0.14)", "sphinx (>=8.0.2)", "sphinx-autodoc-typehints (>=2.4)"]
-test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=8.3.2)", "pytest-cov (>=5)", "pytest-mock (>=3.14)"]
-type = ["mypy (>=1.11.2)"]
+docs = ["furo (>=2024.8.6)", "proselint (>=0.14)", "sphinx (>=8.1.3)", "sphinx-autodoc-typehints (>=3)"]
+test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=8.3.4)", "pytest-cov (>=6)", "pytest-mock (>=3.14)"]
+type = ["mypy (>=1.14.1)"]
 
 [[package]]
 name = "pluggy"
@@ -5114,13 +5114,13 @@ files = [
 
 [[package]]
 name = "pyparsing"
-version = "3.2.1"
+version = "3.2.3"
 description = "pyparsing module - Classes and methods to define and execute parsing grammars"
 optional = true
 python-versions = ">=3.9"
 files = [
-    {file = "pyparsing-3.2.1-py3-none-any.whl", hash = "sha256:506ff4f4386c4cec0590ec19e6302d3aedb992fdc02c761e90416f158dacf8e1"},
-    {file = "pyparsing-3.2.1.tar.gz", hash = "sha256:61980854fd66de3a90028d679a954d5f2623e83144b5afe5ee86f43d762e5f0a"},
+    {file = "pyparsing-3.2.3-py3-none-any.whl", hash = "sha256:a749938e02d6fd0b59b356ca504a24982314bb090c383e3cf201c95ef7e2bfcf"},
+    {file = "pyparsing-3.2.3.tar.gz", hash = "sha256:b9c13f1ab8b3b542f72e28f634bad4de758ab3ce4546e4301970ad6fa77c38be"},
 ]
 
 [package.extras]
@@ -5199,13 +5199,13 @@ dev = ["backports.zoneinfo", "black", "build", "freezegun", "mdx_truly_sane_list
 
 [[package]]
 name = "pytz"
-version = "2025.1"
+version = "2025.2"
 description = "World timezone definitions, modern and historical"
 optional = false
 python-versions = "*"
 files = [
-    {file = "pytz-2025.1-py2.py3-none-any.whl", hash = "sha256:89dd22dca55b46eac6eda23b2d72721bf1bdfef212645d81513ef5d03038de57"},
-    {file = "pytz-2025.1.tar.gz", hash = "sha256:c2db42be2a2518b28e65f9207c4d05e6ff547d1efa4086469ef855e4ab70178e"},
+    {file = "pytz-2025.2-py2.py3-none-any.whl", hash = "sha256:5ddf76296dd8c44c26eb8f4b6f35488f3ccbf6fbbd7adee0b7262d43f0ec2f00"},
+    {file = "pytz-2025.2.tar.gz", hash = "sha256:360b9e3dbb49a209c21ad61809c7fb453643e048b38924c765813546746e81c3"},
 ]
 
 [[package]]
@@ -5915,18 +5915,18 @@ win32 = ["pywin32"]
 
 [[package]]
 name = "setuptools"
-version = "76.1.0"
+version = "78.0.2"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "setuptools-76.1.0-py3-none-any.whl", hash = "sha256:34750dcb17d046929f545dec9b8349fe42bf4ba13ddffee78428aec422dbfb73"},
-    {file = "setuptools-76.1.0.tar.gz", hash = "sha256:4959b9ad482ada2ba2320c8f1a8d8481d4d8d668908a7a1b84d987375cd7f5bd"},
+    {file = "setuptools-78.0.2-py3-none-any.whl", hash = "sha256:4a612c80e1f1d71b80e4906ce730152e8dec23df439f82731d9d0b608d7b700d"},
+    {file = "setuptools-78.0.2.tar.gz", hash = "sha256:137525e6afb9022f019d6e884a319017f9bf879a0d8783985d32cbc8683cab93"},
 ]
 
 [package.extras]
 check = ["pytest-checkdocs (>=2.4)", "pytest-ruff (>=0.2.1)", "ruff (>=0.8.0)"]
-core = ["importlib_metadata (>=6)", "jaraco.collections", "jaraco.functools (>=4)", "jaraco.text (>=3.7)", "more_itertools", "more_itertools (>=8.8)", "packaging", "packaging (>=24.2)", "platformdirs (>=4.2.2)", "tomli (>=2.0.1)", "wheel (>=0.43.0)"]
+core = ["importlib_metadata (>=6)", "jaraco.functools (>=4)", "jaraco.text (>=3.7)", "more_itertools", "more_itertools (>=8.8)", "packaging (>=24.2)", "platformdirs (>=4.2.2)", "tomli (>=2.0.1)", "wheel (>=0.43.0)"]
 cover = ["pytest-cov"]
 doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "pyproject-hooks (!=1.1)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (>=1,<2)", "sphinx-reredirects", "sphinxcontrib-towncrier", "towncrier (<24.7)"]
 enabler = ["pytest-enabler (>=2.2)"]
@@ -6530,13 +6530,13 @@ files = [
 
 [[package]]
 name = "tzdata"
-version = "2025.1"
+version = "2025.2"
 description = "Provider of IANA time zone data"
 optional = false
 python-versions = ">=2"
 files = [
-    {file = "tzdata-2025.1-py2.py3-none-any.whl", hash = "sha256:7e127113816800496f027041c570f50bcd464a020098a3b6b199517772303639"},
-    {file = "tzdata-2025.1.tar.gz", hash = "sha256:24894909e88cdb28bd1636c6887801df64cb485bd593f2fd83ef29075a81d694"},
+    {file = "tzdata-2025.2-py2.py3-none-any.whl", hash = "sha256:1a403fada01ff9221ca8044d701868fa132215d84beb92242d9acd2147f667a8"},
+    {file = "tzdata-2025.2.tar.gz", hash = "sha256:b60a638fcc0daffadf82fe0f57e53d06bdec2f36c4df66280ae79bce6bd6f2b9"},
 ]
 
 [[package]]
