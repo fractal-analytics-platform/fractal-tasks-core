@@ -7572,4 +7572,4 @@ fractal-tasks = ["Pillow", "cellpose", "image_registration", "imageio-ffmpeg", "
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.13"
-content-hash = "07471377d441a890673a778d3d12f35c5ab988fbf66ff61d8a57bf3182b8f834"
+content-hash = "a2d126dbbb84729e05cd2dc28f57ccdfdca1f332e7eda06e864dac83c8db6093"
