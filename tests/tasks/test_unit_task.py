@@ -22,7 +22,7 @@ def test_create_ome_zarr(tmp_path, testdata_path):
     debug(args)
 
     dummy = cellvoyager_to_ome_zarr_init(
-        zarr_urls=[], zarr_dir=zarr_dir, image_dirs=[img_path], **args
+        zarr_dir=zarr_dir, image_dirs=[img_path], **args
     )
     debug(dummy)
 

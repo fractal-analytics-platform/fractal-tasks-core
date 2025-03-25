@@ -451,7 +451,6 @@ def test_workflow_with_per_well_labeling_2D(
 
     # Create zarr structure
     parallelization_list = cellvoyager_to_ome_zarr_init(
-        zarr_urls=[],
         zarr_dir=str(zarr_dir),
         image_dirs=[str(img_path)],
         image_extension="png",

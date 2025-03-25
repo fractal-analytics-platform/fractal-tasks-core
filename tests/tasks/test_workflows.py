@@ -83,7 +83,6 @@ def test_create_ome_zarr_fail(tmp_path: Path, zenodo_images: str):
     # Create zarr structure
     with pytest.raises(ValueError):
         _ = cellvoyager_to_ome_zarr_init(
-            zarr_urls=[],
             zarr_dir=zarr_dir,
             image_dirs=[image_dir],
             allowed_channels=tmp_allowed_channels,
@@ -104,7 +103,6 @@ def test_create_ome_zarr_no_images(
     """
     with pytest.raises(ValueError):
         cellvoyager_to_ome_zarr_init(
-            zarr_urls=[],
             zarr_dir=str(tmp_path / "output"),
             image_dirs=[zenodo_images],
             allowed_channels=allowed_channels,
@@ -115,7 +113,6 @@ def test_create_ome_zarr_no_images(
         )
     with pytest.raises(ValueError):
         cellvoyager_to_ome_zarr_init(
-            zarr_urls=[],
             zarr_dir=str(tmp_path / "output"),
             image_dirs=[zenodo_images],
             allowed_channels=allowed_channels,
@@ -155,7 +152,6 @@ def test_yokogawa_to_ome_zarr(
 
     # Create zarr structure
     parallelization_list = cellvoyager_to_ome_zarr_init(
-        zarr_urls=[],
         zarr_dir=str(output_path),
         image_dirs=[str(img_path)],
         allowed_channels=allowed_channels,
@@ -212,7 +208,6 @@ def test_yokogawa_to_ome_zarr(
 
     # Re-run (with overwrite=True for the init task)
     parallelization_list = cellvoyager_to_ome_zarr_init(
-        zarr_urls=[],
         zarr_dir=str(output_path),
         image_dirs=[str(img_path)],
         allowed_channels=allowed_channels,
@@ -232,7 +227,6 @@ def test_yokogawa_to_ome_zarr(
     # Re-run (with overwrite=False for the init task) and fail
     with pytest.raises(OverwriteNotAllowedError):
         cellvoyager_to_ome_zarr_init(
-            zarr_urls=[],
             zarr_dir=str(output_path),
             image_dirs=[str(img_path)],
             allowed_channels=allowed_channels,
@@ -253,7 +247,6 @@ def test_2D_cellvoyager_to_ome_zarr(
 
     # Create zarr structure
     parallelization_list = cellvoyager_to_ome_zarr_init(
-        zarr_urls=[],
         zarr_dir=str(output_path),
         image_dirs=[zenodo_images],
         allowed_channels=allowed_channels,
@@ -484,7 +477,6 @@ def test_MIP_subset_of_images(
 
     # Create zarr structure
     parallelization_list = cellvoyager_to_ome_zarr_init(
-        zarr_urls=[],
         zarr_dir=str(zarr_dir),
         image_dirs=[zenodo_images],
         allowed_channels=allowed_channels,
@@ -554,7 +546,6 @@ def test_illumination_correction(
 
     # Create zarr structure
     parallelization_list = cellvoyager_to_ome_zarr_init(
-        zarr_urls=[],
         zarr_dir=str(zarr_dir),
         image_dirs=[str(img_path)],
         image_extension="png",
@@ -606,7 +597,6 @@ def test_yokogawa_to_ome_zarr_multiplate(
 
     # Create zarr structure
     parallelization_list = cellvoyager_to_ome_zarr_init(
-        zarr_urls=[],
         zarr_dir=str(output_path),
         image_dirs=[img_path_1, img_path_2],
         allowed_channels=allowed_channels,
@@ -671,7 +661,6 @@ def test_cellvoyager_converter_exclusion_patterns(
 
     # Create zarr structure
     parallelization_list = cellvoyager_to_ome_zarr_init(
-        zarr_urls=[],
         zarr_dir=str(output_path),
         image_dirs=[zenodo_images],
         allowed_channels=allowed_channels,
