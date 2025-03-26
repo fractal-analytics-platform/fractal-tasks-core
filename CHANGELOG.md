@@ -1,9 +1,21 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+
+# 1.5.0 (a0 prerelease)
+
+* Tasks:
+    * Rely on `fractal-task-tools` for `run_fractal_task` wrapper (\#923).
+    * Mark existing `run_fractal_task` wrapper as deprecated (\#923).
+* Manifest generation:
+    * Rely on `fractal-task-tools` for manifest building (\#923).
+    * Mark existing tools as deprecated (\#923).
+* Dependencies:
+    * Add `fractal-task-tools==0.0.10` dependency (\#923).
+
 # 1.4.3
 
 * Tasks:
-    * Update apply_registration_to_image to handle race conditions better (\#919).
+    * Update `apply_registration_to_image` to handle race conditions better (\#919).
 * Testing
     * Add `spherical-harmonics` extra to scmultiplex, for testing manifest build (\#899).
     * Move manifest-creation CI to Python 3.11 (\#915).
