@@ -24,7 +24,9 @@ from docstring_parser import parse as docparse
 from pydantic._internal import _generate_schema
 from pydantic._internal import _typing_extra
 from pydantic._internal._config import ConfigWrapper
+from typing_extensions import deprecated
 
+from fractal_tasks_core.dev.deprecation_message import DEPRECATION_MSG_FUN
 from fractal_tasks_core.dev.lib_descriptions import (
     _get_class_attrs_descriptions,
 )
@@ -145,6 +147,7 @@ def _create_schema_for_function(function: Callable) -> _Schema:
     return json_schema
 
 
+@deprecated(DEPRECATION_MSG_FUN)
 def create_schema_for_single_task(
     executable: str,
     package: Optional[str] = "fractal_tasks_core",

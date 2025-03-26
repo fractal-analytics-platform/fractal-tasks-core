@@ -163,7 +163,6 @@ def _process_single_image(
 def import_ome_zarr(
     *,
     # Fractal parameters
-    zarr_urls: list[str],
     zarr_dir: str,
     # Core parameters
     zarr_name: str,
@@ -187,9 +186,6 @@ def import_ome_zarr(
     2. Optionally adds new ROI tables to the existing OME-Zarr.
 
     Args:
-        zarr_urls: List of paths or urls to the individual OME-Zarr image to
-            be processed. Not used.
-            (standard argument for Fractal tasks, managed by Fractal server).
         zarr_dir: path of the directory where the new OME-Zarrs will be
             created.
             (standard argument for Fractal tasks, managed by Fractal server).
@@ -207,16 +203,6 @@ def import_ome_zarr(
         overwrite: Whether new ROI tables (added when `add_image_ROI_table`
             and/or `add_grid_ROI_table` are `True`) can overwite existing ones.
     """
-
-    # Is this based on the Zarr_dir or the zarr_urls?
-    if len(zarr_urls) > 0:
-        logger.warning(
-            "Running import while there are already items from the image list "
-            "provided to the task. The following inputs were provided: "
-            f"{zarr_urls=}"
-            "This task will not process the existing images, but look for "
-            f"zarr files named {zarr_name=} in the {zarr_dir=} instead."
-        )
 
     zarr_path = f"{zarr_dir.rstrip('/')}/{zarr_name}"
     logger.info(f"Zarr path: {zarr_path}")
@@ -306,7 +292,7 @@ def import_ome_zarr(
 
 
 if __name__ == "__main__":
-    from fractal_tasks_core.tasks._utils import run_fractal_task
+    from fractal_task_tools.task_wrapper import run_fractal_task
 
     run_fractal_task(
         task_function=import_ome_zarr,

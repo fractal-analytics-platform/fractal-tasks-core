@@ -11,12 +11,41 @@
 """
 Fractal task list.
 """
-from fractal_tasks_core.dev.task_models import CompoundTask
-from fractal_tasks_core.dev.task_models import NonParallelTask
-from fractal_tasks_core.dev.task_models import ParallelTask
+from fractal_task_tools.task_models import CompoundTask
+from fractal_task_tools.task_models import ConverterCompoundTask
+from fractal_task_tools.task_models import ConverterNonParallelTask
+from fractal_task_tools.task_models import ParallelTask
+
+AUTHORS = "Fractal Core Team"
+DOCS_LINK = "https://fractal-analytics-platform.github.io/fractal-tasks-core"
+INPUT_MODELS = [
+    ["fractal_tasks_core", "channels.py", "OmeroChannel"],
+    ["fractal_tasks_core", "channels.py", "Window"],
+    ["fractal_tasks_core", "channels.py", "ChannelInputModel"],
+    ["fractal_tasks_core", "tasks/io_models.py", "NapariWorkflowsInput"],
+    ["fractal_tasks_core", "tasks/io_models.py", "NapariWorkflowsOutput"],
+    [
+        "fractal_tasks_core",
+        "tasks/cellpose_utils.py",
+        "CellposeCustomNormalizer",
+    ],
+    [
+        "fractal_tasks_core",
+        "tasks/cellpose_utils.py",
+        "CellposeChannel1InputModel",
+    ],
+    [
+        "fractal_tasks_core",
+        "tasks/cellpose_utils.py",
+        "CellposeChannel2InputModel",
+    ],
+    ["fractal_tasks_core", "tasks/cellpose_utils.py", "CellposeModelParams"],
+    ["fractal_tasks_core", "tasks/io_models.py", "MultiplexingAcquisition"],
+]
+
 
 TASK_LIST = [
-    CompoundTask(
+    ConverterCompoundTask(
         name="Convert Cellvoyager to OME-Zarr",
         executable_init="tasks/cellvoyager_to_ome_zarr_init.py",
         executable="tasks/cellvoyager_to_ome_zarr_compute.py",
@@ -27,7 +56,7 @@ TASK_LIST = [
         tags=["Yokogawa", "Cellvoyager", "2D", "3D"],
         docs_info="file:task_info/convert_cellvoyager_to_ome_zarr.md",
     ),
-    CompoundTask(
+    ConverterCompoundTask(
         name="Convert Cellvoyager Multiplexing to OME-Zarr",
         executable_init="tasks/cellvoyager_to_ome_zarr_init_multiplex.py",
         executable="tasks/cellvoyager_to_ome_zarr_compute.py",
@@ -108,7 +137,7 @@ TASK_LIST = [
         tags=["Multiplexing", "2D", "3D"],
         docs_info="file:task_info/apply_registration_to_image.md",
     ),
-    NonParallelTask(
+    ConverterNonParallelTask(
         name="Import OME-Zarr",
         executable="tasks/import_ome_zarr.py",
         docs_info="file:task_info/import_ome_zarr.md",

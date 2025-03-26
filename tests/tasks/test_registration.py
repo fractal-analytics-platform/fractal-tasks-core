@@ -266,7 +266,6 @@ def test_multiplexing_registration(
 
     # # Create zarr structure
     parallelization_list = cellvoyager_to_ome_zarr_init_multiplex(
-        zarr_urls=[],
         zarr_dir=zarr_dir,
         acquisitions=acquisitions,
         num_levels=num_levels,
@@ -472,7 +471,6 @@ def test_multiplexing_registration_3d(
 
     # # Create zarr structure
     parallelization_list = cellvoyager_to_ome_zarr_init_multiplex(
-        zarr_urls=[],
         zarr_dir=zarr_dir,
         acquisitions=acquisitions,
         num_levels=num_levels,
