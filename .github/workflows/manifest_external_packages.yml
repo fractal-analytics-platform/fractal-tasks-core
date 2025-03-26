@@ -2,9 +2,9 @@ name: Manifest creation (external packages)
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main","dev-1.5"]
   pull_request:
-    branches: ["main"]
+    branches: ["main","dev-1.5"]
   workflow_dispatch:
   schedule:
     - cron: "0 23 * * 2,3,4"
