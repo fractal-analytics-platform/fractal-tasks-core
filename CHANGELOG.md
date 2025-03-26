@@ -5,6 +5,7 @@
 
 * Tasks:
     * Rely on `fractal-task-tools` for `run_fractal_task` wrapper (\#923).
+    * Mark some existing tasks as _converter_ tasks(\#923).
     * Mark existing `run_fractal_task` wrapper as deprecated (\#923).
 * Manifest generation:
     * Rely on `fractal-task-tools` for manifest building (\#923).
