@@ -1,5 +1,10 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# 1.4.4
+
+* Testing:
+    * Fix links to ome/ngff specs
+
 # 1.4.3
 
 * Tasks:
