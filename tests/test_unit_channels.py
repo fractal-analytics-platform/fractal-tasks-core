@@ -126,10 +126,14 @@ def test_get_channel_from_list(testdata_path: Path):
 
 @pytest.fixture(scope="session")
 def omero_channel_schema():
+    
+    if __OME_NGFF_VERSION__ != "0.4":
+        raise ValueError(
+            "This test is only valid for OME-NGFF version 0.4, please update the test."
+        )
     file_path = pooch.retrieve(
         url=(
-            "https://raw.githubusercontent.com/ome/ngff/main/"
-            f"{__OME_NGFF_VERSION__}/schemas/image.schema"
+            "https://raw.githubusercontent.com/ome/ngff/7ac3430c74a66e5bcf53e41c429143172d68c0a4/schemas/image.schema"
         ),
         known_hash=None,
     )
