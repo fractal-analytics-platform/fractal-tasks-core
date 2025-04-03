@@ -3,7 +3,7 @@
 # 1.4.4
 
 * Testing:
-    * Fix links to ome/ngff specs
+    * Fix links to ome/ngff specs (\#930).
 
 # 1.4.3
 
