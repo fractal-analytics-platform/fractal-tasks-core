@@ -35,7 +35,7 @@ docstring-parser = ">=0.15.0,<=0.16.0"
 anndata = ">=0.8.0,<0.11.0"
 filelock = "3.13.*"
 ngio = ">=0.1.5,<0.2.0"
-fractal-task-tools = "0.0.10"
+fractal-task-tools = "0.0.12"
 
 # Optional dependencies (used in extras)
 Pillow = { version = ">=9.1.1", optional = true }
