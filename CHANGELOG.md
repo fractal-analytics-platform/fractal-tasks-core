@@ -4,7 +4,11 @@
 
 * Dependencies:
     * Drop support for Python 3.10 (\#932).
+<<<<<<< HEAD
     * Bump `fractal-task-tools` to `0.0.12` (\#933).
+=======
+    * Pin `numcodecs` to `<0.16` (\#932).
+>>>>>>> drop-python-3-10
 
 # 1.5.0 (a0 prerelease)
 
@@ -17,6 +21,12 @@
     * Mark existing tools as deprecated (\#923).
 * Dependencies:
     * Add `fractal-task-tools==0.0.10` dependency (\#923).
+
+
+# Unreleased
+
+* Testing:
+    * Fix links to ome/ngff specs (\#930).
 
 # 1.4.3
 

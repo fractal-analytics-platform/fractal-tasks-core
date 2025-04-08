@@ -1210,6 +1210,25 @@ files = [
 ]
 
 [[package]]
+name = "deprecated"
+version = "1.2.18"
+description = "Python @deprecated decorator to deprecate old python classes, functions or methods."
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,>=2.7"
+groups = ["main"]
+markers = "python_version == \"3.11\" or python_version >= \"3.12\""
+files = [
+    {file = "Deprecated-1.2.18-py2.py3-none-any.whl", hash = "sha256:bd5011788200372a32418f888e326a09ff80d0214bd961147cfed01b5c018eec"},
+    {file = "deprecated-1.2.18.tar.gz", hash = "sha256:422b6f6d859da6f2ef57857761bfb392480502a64c3028ca9bbe86085d72115d"},
+]
+
+[package.dependencies]
+wrapt = ">=1.10,<2"
+
+[package.extras]
+dev = ["PyTest", "PyTest-Cov", "bump2version (<1)", "setuptools", "tox"]
+
+[[package]]
 name = "devtools"
 version = "0.9.0"
 description = "Python's missing debug print command, and more."
@@ -4240,34 +4259,31 @@ numpy = ">=1.24,<2.2"
 
 [[package]]
 name = "numcodecs"
-version = "0.16.0"
+version = "0.15.1"
 description = "A Python package providing buffer compression and transformation codecs for use in data storage and communication applications."
 optional = false
 python-versions = ">=3.11"
 groups = ["main"]
 markers = "python_version == \"3.11\" or python_version >= \"3.12\""
 files = [
-    {file = "numcodecs-0.16.0-cp311-cp311-macosx_10_13_x86_64.whl", hash = "sha256:fc95417135c90a353df219c47386dd30f11003ae673a006c869ddb0264430976"},
-    {file = "numcodecs-0.16.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:27aab34e2fc4c3d2f4d504d9f5de154a822657f1950d1ed21801a0780e442a89"},
-    {file = "numcodecs-0.16.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:9924e52cae325faef4b2642f8cc1b88f79c71d97dea028357d7cc5be51f183ad"},
-    {file = "numcodecs-0.16.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d7bab983b6eca0803ba678cb1cf00c6d7dfb095ff3041671ff7286555da3c016"},
-    {file = "numcodecs-0.16.0-cp311-cp311-win_amd64.whl", hash = "sha256:6f2d0e3b7020cf564eca9b442fa136337a71b0cdb1d67467903cde0bf4cf7a4d"},
-    {file = "numcodecs-0.16.0-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:8f8c39fa0faf5c9f57270c6fd2dcbfe0549250483b80449cf97dd82eacaf627b"},
-    {file = "numcodecs-0.16.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:357360c14783b954065619da47f0e968bfbafb4c4914348864a6223f88428256"},
-    {file = "numcodecs-0.16.0-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:3f4895e6fffe3abcfbec476c7fda59d3255ac5d40d9c3e292cd6a204e75ba9c0"},
-    {file = "numcodecs-0.16.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:83b85cd0a6be21faba23b0d2d6c7ce4c1a48b5a523edf3bef4dee04aaba74a56"},
-    {file = "numcodecs-0.16.0-cp312-cp312-win_amd64.whl", hash = "sha256:9c28660642466ad6d1e2d5c6fab08c70ff58197cc94f7517e79088142b8f7731"},
-    {file = "numcodecs-0.16.0-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:a28f3f2c1aab21417bec52932d453eedb8323a07088be72edc2a440426d823ae"},
-    {file = "numcodecs-0.16.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:0f5203b86e57bc6d0dad8f0719f10404fcadeabb5f112205d4e926075a4e1388"},
-    {file = "numcodecs-0.16.0-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:881b1650938feb395b7157fd46bde683aa6cfde0616a31fe47972f1d0ea8ba37"},
-    {file = "numcodecs-0.16.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:271d07bfa230e02dec7ba93d5776b5032aecf1d4c20d52a93858e957d44ae722"},
-    {file = "numcodecs-0.16.0-cp313-cp313-win_amd64.whl", hash = "sha256:7e6f501d7ac78107d80a2f4798e81b38584929cab1d2c7c03789610b9a39826a"},
-    {file = "numcodecs-0.16.0.tar.gz", hash = "sha256:f71229a951c4991ab226df4147f3780c988d1cecf1309e388d9e57bcba827387"},
+    {file = "numcodecs-0.15.1-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:698f1d59511488b8fe215fadc1e679a4c70d894de2cca6d8bf2ab770eed34dfd"},
+    {file = "numcodecs-0.15.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:bef8c8e64fab76677324a07672b10c31861775d03fc63ed5012ca384144e4bb9"},
+    {file = "numcodecs-0.15.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:cdfaef9f5f2ed8f65858db801f1953f1007c9613ee490a1c56233cd78b505ed5"},
+    {file = "numcodecs-0.15.1-cp311-cp311-win_amd64.whl", hash = "sha256:e2547fa3a7ffc9399cfd2936aecb620a3db285f2630c86c8a678e477741a4b3c"},
+    {file = "numcodecs-0.15.1-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:b0a9d9cd29a0088220682dda4a9898321f7813ff7802be2bbb545f6e3d2f10ff"},
+    {file = "numcodecs-0.15.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:a34f0fe5e5f3b837bbedbeb98794a6d4a12eeeef8d4697b523905837900b5e1c"},
+    {file = "numcodecs-0.15.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c3a09e22140f2c691f7df26303ff8fa2dadcf26d7d0828398c0bc09b69e5efa3"},
+    {file = "numcodecs-0.15.1-cp312-cp312-win_amd64.whl", hash = "sha256:daed6066ffcf40082da847d318b5ab6123d69ceb433ba603cb87c323a541a8bc"},
+    {file = "numcodecs-0.15.1-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:e3d82b70500cf61e8d115faa0d0a76be6ecdc24a16477ee3279d711699ad85f3"},
+    {file = "numcodecs-0.15.1-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:1d471a1829ce52d3f365053a2bd1379e32e369517557c4027ddf5ac0d99c591e"},
+    {file = "numcodecs-0.15.1-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:1dfdea4a67108205edfce99c1cb6cd621343bc7abb7e16a041c966776920e7de"},
+    {file = "numcodecs-0.15.1-cp313-cp313-win_amd64.whl", hash = "sha256:a4f7bdb26f1b34423cb56d48e75821223be38040907c9b5954eeb7463e7eb03c"},
+    {file = "numcodecs-0.15.1.tar.gz", hash = "sha256:eeed77e4d6636641a2cc605fbc6078c7a8f2cc40f3dfa2b3f61e52e6091b04ff"},
 ]
 
 [package.dependencies]
+deprecated = "*"
 numpy = ">=1.24"
-typing_extensions = "*"
 
 [package.extras]
 crc32c = ["crc32c (>=2.7)"]
@@ -7268,10 +7284,10 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 name = "wrapt"
 version = "1.17.2"
 description = "Module for decorators, wrappers and monkey patching."
-optional = true
+optional = false
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "(python_version == \"3.11\" or python_version >= \"3.12\") and extra == \"fractal-tasks\""
+markers = "python_version == \"3.11\" or python_version >= \"3.12\""
 files = [
     {file = "wrapt-1.17.2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:3d57c572081fed831ad2d26fd430d565b76aa277ed1d30ff4d40670b1c0dd984"},
     {file = "wrapt-1.17.2-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:b5e251054542ae57ac7f3fba5d10bfff615b6c2fb09abeb37d2f1463f841ae22"},
@@ -7507,4 +7523,4 @@ fractal-tasks = ["Pillow", "cellpose", "image_registration", "imageio-ffmpeg", "
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.13"
-content-hash = "29db9b50db3f01f825b295150ff81c4d631e71682ae848b44dbca8142c986705"
+content-hash = "acfb968de9319a98bab7328cb4da0b497b0e9506962fb31c4e6dfaa3414fbbef"
