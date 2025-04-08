@@ -23,7 +23,7 @@ documentation = "https://fractal-analytics-platform.github.io/fractal-tasks-core
 [tool.poetry.dependencies]
 
 # Required dependencies
-python = ">=3.10,<3.13"
+python = ">=3.11,<3.13"
 dask = ">=2023.1.0"
 fsspec = "!=2023.9.0"
 zarr = ">=2.13.6,<3"
@@ -36,6 +36,7 @@ anndata = ">=0.8.0,<0.11.0"
 filelock = "3.13.*"
 ngio = ">=0.1.5,<0.2.0"
 fractal-task-tools = "0.0.10"
+numcodecs = "<0.16.0"
 
 # Optional dependencies (used in extras)
 Pillow = { version = ">=9.1.1", optional = true }

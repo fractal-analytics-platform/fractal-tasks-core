@@ -1,5 +1,10 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# 1.5.0 (a1 prerelease)
+
+* Dependencies:
+    * Drop support for Python 3.10 (\#932).
+    * Pin `numcodecs` to `<0.16` (\#932).
 
 # 1.5.0 (a0 prerelease)
 
