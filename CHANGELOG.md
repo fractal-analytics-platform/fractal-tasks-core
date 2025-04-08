@@ -4,6 +4,7 @@
 
 * Dependencies:
     * Drop support for Python 3.10 (\#932).
+    * Pin `numcodecs` to `<0.16` (\#932).
 
 # 1.5.0 (a0 prerelease)
 
