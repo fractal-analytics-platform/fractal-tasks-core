@@ -19,11 +19,15 @@ from fractal_tasks_core.roi import (
 
 
 def validate_schema(*, path: str, type: str):
-
+    if __OME_NGFF_VERSION__ != "0.4":
+        raise ValueError(
+            "This test is only valid for OME-NGFF version 0.4, "
+            "please update the test."
+        )
     file_path = pooch.retrieve(
         url=(
-            "https://raw.githubusercontent.com/ome/ngff/main/"
-            f"{__OME_NGFF_VERSION__}/schemas/{type}.schema"
+            "https://raw.githubusercontent.com/ome/ngff/"
+            f"7ac3430c74a66e5bcf53e41c429143172d68c0a4/schemas/{type}.schema"
         ),
         known_hash=None,
     )

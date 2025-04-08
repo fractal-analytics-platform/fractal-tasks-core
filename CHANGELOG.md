@@ -18,6 +18,12 @@
 * Dependencies:
     * Add `fractal-task-tools==0.0.10` dependency (\#923).
 
+
+# Unreleased
+
+* Testing:
+    * Fix links to ome/ngff specs (\#930).
+
 # 1.4.3
 
 * Tasks:
