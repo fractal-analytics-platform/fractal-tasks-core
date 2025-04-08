@@ -44,11 +44,7 @@
                 "description": "Name of the channel."
               },
               "window": {
-                "allOf": [
-                  {
-                    "$ref": "#/$defs/Window"
-                  }
-                ],
+                "$ref": "#/$defs/Window",
                 "title": "Window",
                 "description": "Optional `Window` object to set default display settings for napari."
               },
@@ -364,11 +360,7 @@
                 "description": "Name of the channel."
               },
               "window": {
-                "allOf": [
-                  {
-                    "$ref": "#/$defs/Window"
-                  }
-                ],
+                "$ref": "#/$defs/Window",
                 "title": "Window",
                 "description": "Optional `Window` object to set default display settings for napari."
               },
@@ -667,11 +659,7 @@
             "description": "path of the directory where the new OME-Zarrs will be created. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "method": {
-            "allOf": [
-              {
-                "$ref": "#/$defs/DaskProjectionMethod"
-              }
-            ],
+            "$ref": "#/$defs/DaskProjectionMethod",
             "default": "mip",
             "title": "Method",
             "description": "Choose which method to use for intensity projection along the Z axis. mip is the default and performs a maximum intensity projection. minip performs a minimum intensity projection, meanip a mean intensity projection and sumip a sum intensity projection."
@@ -900,15 +888,15 @@
                 "description": "One of `default` (Cellpose default normalization), `custom` (using the other custom parameters) or `no_normalization`."
               },
               "lower_percentile": {
-                "maximum": 100.0,
-                "minimum": 0.0,
+                "maximum": 100,
+                "minimum": 0,
                 "title": "Lower Percentile",
                 "type": "number",
                 "description": "Specify a custom lower-bound percentile for rescaling as a float value between 0 and 100. Set to 1 to run the same as default). You can only specify percentiles or bounds, not both."
               },
               "upper_percentile": {
-                "maximum": 100.0,
-                "minimum": 0.0,
+                "maximum": 100,
+                "minimum": 0,
                 "title": "Upper Percentile",
                 "type": "number",
                 "description": "Specify a custom upper-bound percentile for rescaling as a float value between 0 and 100. Set to 99 to run the same as default, set to e.g. 99.99 if the default rescaling was too harsh. You can only specify percentiles or bounds, not both."
@@ -1219,11 +1207,7 @@
             "description": "Wavelength that will be used for image-based registration; e.g. `A01_C01` for Yokogawa, `C01` for MD."
           },
           "method": {
-            "allOf": [
-              {
-                "$ref": "#/$defs/RegistrationMethod"
-              }
-            ],
+            "$ref": "#/$defs/RegistrationMethod",
             "default": "phase_cross_correlation",
             "title": "Method",
             "description": "Method to use for image registration. The available methods are `phase_cross_correlation` (scikit-image package, works for 2D & 3D) and \"chi2_shift\" (image_registration package, only works for 2D images)."
@@ -1543,11 +1527,7 @@
                 "description": "Label name (for label inputs only)."
               },
               "channel": {
-                "allOf": [
-                  {
-                    "$ref": "#/$defs/ChannelInputModel"
-                  }
-                ],
+                "$ref": "#/$defs/ChannelInputModel",
                 "title": "Channel",
                 "description": "`ChannelInputModel` object (for image inputs only)."
               }
