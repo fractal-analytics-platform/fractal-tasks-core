@@ -15,10 +15,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-22.04, macos-latest]
-        python-version: ["3.10", "3.11", "3.12"]
-        exclude:
-          - os: macos-latest
-            python-version: '3.10'
+        python-version: ["3.11", "3.12"]
+
     name: "Core, Python ${{ matrix.python-version }}, ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
@@ -49,10 +47,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python-version: ["3.10", "3.11", "3.12"]
-        exclude:
-          - os: macos-latest
-            python-version: '3.10'
+        python-version: ["3.11", "3.12"]
     name: "Tasks, Python ${{ matrix.python-version }}, ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30

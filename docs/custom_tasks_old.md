@@ -70,7 +70,7 @@ endpoints (see [Task package](#task-package)).
 Some examples of task commands may look like
 
 * `python3 /some/path/my_task.py`,
-* `/some/absolute/path/python3.10 /some/other/absolute/path/my_task.py`,
+* `/some/absolute/path/python3.11 /some/other/absolute/path/my_task.py`,
 * `/some/path/my_executable_task.py`,
 * any other executable command (not necessarily based on Python).
 
