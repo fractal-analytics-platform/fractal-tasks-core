@@ -1531,20 +1531,21 @@ files = [
 
 [[package]]
 name = "fractal-task-tools"
-version = "0.0.10"
+version = "0.0.12"
 description = "Shared tools for Fractal tasks"
 optional = false
 python-versions = "<3.13,>=3.10"
 groups = ["main"]
 markers = "python_version == \"3.11\" or python_version >= \"3.12\""
 files = [
-    {file = "fractal_task_tools-0.0.10-py3-none-any.whl", hash = "sha256:4df46b2997cfe52490fbdb2c7ab042c6ab66bd70c8a6a1c34ef4e9b553f19556"},
-    {file = "fractal_task_tools-0.0.10.tar.gz", hash = "sha256:2ecf567d40ccb6608c353cc1283e78ddc311988884925bb19fc463cedf0bca4e"},
+    {file = "fractal_task_tools-0.0.12-py3-none-any.whl", hash = "sha256:a10e8da8364d0f06cf06736cce8ab2a9eca7d8e600a3dd737812b5fe912d187c"},
+    {file = "fractal_task_tools-0.0.12.tar.gz", hash = "sha256:4e8c7886fa6b4ff7d57563063daa80e2f6dce99d4c31739d20dbd16f9719c492"},
 ]
 
 [package.dependencies]
 docstring-parser = ">=0.15,<=0.16"
-pydantic = ">=2.0.0,<=2.8.2"
+packaging = "*"
+pydantic = ">=2.0.0,<=2.11.2"
 
 [package.extras]
 dev = ["bumpver (==2024.1130)", "coverage (>=7.6.0,<7.7.0)", "devtools (==0.12.2)", "pytest (>=8.3.0,<9.0.0)"]
@@ -7522,4 +7523,4 @@ fractal-tasks = ["Pillow", "cellpose", "image_registration", "imageio-ffmpeg", "
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.13"
-content-hash = "7f7124995a116fc0730d3ca954d38a4ea90d0e932a4199f4327984e66fcec2a8"
+content-hash = "429aeca4ef97cb325cbbe64d33731b04feeb49f8bd9f4bf1c4f707bf881e42bf"
