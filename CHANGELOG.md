@@ -1,5 +1,12 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# 1.5.0 (a2 prerelease)
+* Dependencies:
+    * Bump `ngio` to `>=0.2.2,<0.3.0`.
+* Tasks:
+    * Refactor `projection` task to use the new `ngio` API.
+    * Refactor `copy_ome_zarr_plate` init task to support the upcoming flexibility.
+
 # 1.5.0 (a1 prerelease)
 
 * Dependencies:
