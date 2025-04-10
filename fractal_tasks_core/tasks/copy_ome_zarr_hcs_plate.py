@@ -66,7 +66,6 @@ def _get_plate(
     If it does not exist, or if `re_initialize_plate` is True,
         create a new plate and return it.
     """
-
     if re_initialize_plate or not Path(new_plate_url).exists():
         logger.info(f"Creating new plate: {new_plate_url}")
         new_plate_name = new_plate_url.split("/")[-1]
@@ -195,6 +194,8 @@ def copy_ome_zarr_hcs_plate(
         }
         parallelization_list.append(parallelization_item)
 
+    _get_plate.cache_clear()
+    _open_well.cache_clear()
     return dict(parallelization_list=parallelization_list)
 
 
