@@ -149,7 +149,9 @@ def copy_ome_zarr_hcs_plate(
         new_plate_url = f"{zarr_dir}/{new_plate_name}"
 
         mip_plate = _get_plate(
-            plate_url, new_plate_url, re_init_plate=re_initialize_plate
+            old_plate_url=plate_url,
+            new_plate_url=new_plate_url,
+            re_initialize_plate=re_initialize_plate,
         )
 
         well_path = f"{plate_url}/{row}/{column}"
