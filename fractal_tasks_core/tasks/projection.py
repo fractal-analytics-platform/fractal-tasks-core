@@ -95,6 +95,11 @@ def projection(
     logger.info(f"New shape: {dest_on_disk_shape=}")
 
     # Create the new empty image
+    from devtools import debug
+    from pathlib import Path
+
+    debug(zarr_url)
+    debug(Path(zarr_url).exists())
     new_ngff_image = original_ngff_image.derive_image(
         store=zarr_url,
         name="MIP",
