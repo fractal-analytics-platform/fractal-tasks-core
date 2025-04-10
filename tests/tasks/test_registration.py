@@ -290,7 +290,8 @@ def test_multiplexing_registration(
     parallelization_list = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls_3D,
         zarr_dir=zarr_dir,
-        overwrite=True,
+        overwrite_images=True,
+        re_initialize_plate=True,
     )["parallelization_list"]
     debug(parallelization_list)
 
