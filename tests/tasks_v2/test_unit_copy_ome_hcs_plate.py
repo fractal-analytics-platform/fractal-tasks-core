@@ -120,6 +120,26 @@ def test_fail_overwrite(tmp_path: Path):
         )
 
 
+def test_new_plate_name(tmp_path: Path):
+    zarr_urls = plate_2w_1a_czyx(tmp_path)
+
+    for method in ["mip", "minip", "meanip", "sumip"]:
+        p_list = copy_ome_zarr_hcs_plate(
+            zarr_urls=[zarr_urls[0]],
+            zarr_dir=str(tmp_path),
+            method=method,
+            overwrite_images=False,
+            re_initialize_plate=False,
+        )
+
+        test_new_plate_name = p_list["parallelization_list"][0]["init_args"][
+            "new_plate_name"
+        ]
+        assert (
+            test_new_plate_name == f"plate_xy_2w_1_{method}.zarr"
+        ), test_new_plate_name
+
+
 def test_fail_not_plate_url():
     with pytest.raises(ValueError):
         # Test with a non-image-in-plate URL
