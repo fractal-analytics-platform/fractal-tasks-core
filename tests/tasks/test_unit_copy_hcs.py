@@ -17,12 +17,12 @@ from pathlib import Path
 import pytest
 import zarr
 from devtools import debug
+from ngio.utils import NgioFileExistsError
 
 from ._validation import validate_schema
 from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
     copy_ome_zarr_hcs_plate,
 )
-from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 
 expected_MIP_plate_attrs = {
     "plate": {
@@ -56,7 +56,8 @@ def test_MIP(
     parallelization_list = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir="tmp_out",
-        overwrite=True,
+        overwrite_images=True,
+        re_initialize_plate=True,
     )["parallelization_list"]
     debug(parallelization_list)
 
@@ -64,16 +65,18 @@ def test_MIP(
     parallelization_list_2 = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir="tmp_out",
-        overwrite=True,
+        overwrite_images=True,
+        re_initialize_plate=True,
     )["parallelization_list"]
     assert parallelization_list_2 == parallelization_list
 
     # Run again, with overwrite=False
-    with pytest.raises(OverwriteNotAllowedError):
+    with pytest.raises(NgioFileExistsError):
         _ = copy_ome_zarr_hcs_plate(
             zarr_urls=zarr_urls,
             zarr_dir="tmp_out",
-            overwrite=False,
+            overwrite_images=False,
+            re_initialize_plate=False,
         )
 
     # OME-NGFF JSON validation for plate & well

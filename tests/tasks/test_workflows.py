@@ -321,7 +321,8 @@ def test_MIP(
     parallelization_list = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir=str(zarr_path),
-        overwrite=True,
+        overwrite_images=True,
+        re_initialize_plate=True,
     )["parallelization_list"]
     debug(parallelization_list)
 
@@ -329,17 +330,10 @@ def test_MIP(
     parallelization_list_2 = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir=str(zarr_path),
-        overwrite=True,
+        overwrite_images=True,
+        re_initialize_plate=True,
     )["parallelization_list"]
     assert parallelization_list_2 == parallelization_list
-
-    # Run again, with overwrite=False
-    with pytest.raises(OverwriteNotAllowedError):
-        _ = copy_ome_zarr_hcs_plate(
-            zarr_urls=zarr_urls,
-            zarr_dir=str(zarr_path),
-            overwrite=False,
-        )
 
     # MIP
     image_list_updates = []
@@ -422,7 +416,8 @@ def test_projection_methods(
         zarr_urls=zarr_urls,
         zarr_dir=str(zarr_path),
         method=method,
-        overwrite=True,
+        overwrite_images=True,
+        re_initialize_plate=True,
     )["parallelization_list"]
 
     # Check that method is correctly in parallelization list & in suffix
@@ -504,7 +499,8 @@ def test_MIP_subset_of_images(
     parallelization_list = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir=str(zarr_dir),
-        overwrite=True,
+        overwrite_images=True,
+        re_initialize_plate=True,
     )["parallelization_list"]
     debug(parallelization_list)
 

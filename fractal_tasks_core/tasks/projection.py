@@ -18,8 +18,8 @@ import logging
 from typing import Any
 
 import dask.array as da
-from ngio import NgffImage
-from ngio.core import Image
+from ngio import Image
+from ngio import open_ome_zarr_container
 from pydantic import validate_call
 
 from fractal_tasks_core.tasks.io_models import InitArgsMIP
@@ -28,21 +28,30 @@ from fractal_tasks_core.tasks.projection_utils import DaskProjectionMethod
 logger = logging.getLogger(__name__)
 
 
-def _compute_new_shape(source_image: Image) -> tuple[int]:
+def _compute_new_shape(source_image: Image) -> tuple[tuple[int, ...], int]:
     """Compute the new shape of the image after the projection.
 
     The new shape is the same as the original one,
     except for the z-axis, which is set to 1.
+
+    returns:
+        - new shape of the image
+        - index of the z-axis in the original image
     """
-    on_disk_shape = source_image.on_disk_shape
+    on_disk_shape = source_image.shape
     logger.info(f"Source {on_disk_shape=}")
 
-    on_disk_z_index = source_image.dataset.on_disk_axes_names.index("z")
+    on_disk_z_index = source_image.axes_mapper.get_index("z")
+    if on_disk_z_index is None:
+        raise ValueError(
+            "The input image does not contain a z-axis, "
+            "projection is only supported for 3D images with a z-axis."
+        )
 
     dest_on_disk_shape = list(on_disk_shape)
     dest_on_disk_shape[on_disk_z_index] = 1
     logger.info(f"Destination {dest_on_disk_shape=}")
-    return tuple(dest_on_disk_shape)
+    return tuple(dest_on_disk_shape), on_disk_z_index
 
 
 @validate_call
@@ -69,8 +78,8 @@ def projection(
     logger.info(f"{method=}")
 
     # Read image metadata
-    original_ngff_image = NgffImage(init_args.origin_url)
-    orginal_image = original_ngff_image.get_image()
+    original_ome_zarr = open_ome_zarr_container(init_args.origin_url)
+    orginal_image = original_ome_zarr.get_image()
 
     if orginal_image.is_2d or orginal_image.is_2d_time_series:
         raise ValueError(
@@ -79,48 +88,49 @@ def projection(
         )
 
     # Compute the new shape and pixel size
-    dest_on_disk_shape = _compute_new_shape(orginal_image)
+    dest_on_disk_shape, z_axis_index = _compute_new_shape(orginal_image)
 
     dest_pixel_size = orginal_image.pixel_size
     dest_pixel_size.z = 1.0
     logger.info(f"New shape: {dest_on_disk_shape=}")
 
     # Create the new empty image
-    new_ngff_image = original_ngff_image.derive_new_image(
+    ome_zarr_mip = original_ome_zarr.derive_image(
         store=zarr_url,
         name="MIP",
-        on_disk_shape=dest_on_disk_shape,
-        pixel_sizes=dest_pixel_size,
+        shape=dest_on_disk_shape,
+        pixel_size=dest_pixel_size,
         overwrite=init_args.overwrite,
         copy_labels=False,
         copy_tables=True,
     )
-    logger.info(f"New Projection image created - {new_ngff_image=}")
-    new_image = new_ngff_image.get_image()
+    logger.info(f"New Projection image created - {ome_zarr_mip=}")
+    proj_image = ome_zarr_mip.get_image()
 
     # Process the image
-    z_axis_index = orginal_image.find_axis("z")
-    source_dask = orginal_image.get_array(
-        mode="dask", preserve_dimensions=True
-    )
-
+    source_dask = orginal_image.get_array(mode="dask")
     dest_dask = method.apply(dask_array=source_dask, axis=z_axis_index)
     dest_dask = da.expand_dims(dest_dask, axis=z_axis_index)
-    new_image.set_array(dest_dask)
-    new_image.consolidate()
+    proj_image.set_array(dest_dask)
+    proj_image.consolidate()
     # Ends
 
-    # Copy over the tables
-    for roi_table_name in new_ngff_image.tables.list(table_type="roi_table"):
-        table = new_ngff_image.tables.get_table(roi_table_name)
+    # Edit the roi tables
+    for roi_table_name in ome_zarr_mip.list_roi_tables():
+        table = ome_zarr_mip.get_table(
+            roi_table_name, check_type="generic_roi_table"
+        )
 
         roi_list = []
-        for roi in table.rois:
+        for roi in table.rois():
             roi.z = 0.0
             roi.z_length = 1.0
             roi_list.append(roi)
 
-        table.set_rois(roi_list, overwrite=True)
+        # We should have a public API to set reset the rois
+        # or have a overwrite keyword in the add method
+        table._rois = {}
+        table.add(roi_list)
         table.consolidate()
         logger.info(f"Table {roi_table_name} Projection done")
 

@@ -1,4 +1,6 @@
 *_zenodo_*
 data/*_zenodo_*
 data/fake_multiplex*
+data/ngio_synt*
+data/ngio_zenodo*
 activate_venv.sh
