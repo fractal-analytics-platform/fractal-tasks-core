@@ -6,6 +6,8 @@
 * Tasks:
     * Refactor `projection` task to use the new `ngio` API.
     * Refactor `copy_ome_zarr_plate` init task to support the upcoming flexibility.
+* Testing:
+    * Add new (redundand) `ngio` based testing
 
 # 1.5.0 (a1 prerelease)
 
