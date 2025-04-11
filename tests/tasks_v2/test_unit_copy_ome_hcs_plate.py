@@ -5,11 +5,21 @@ from conftest import plate_1w_2a_czyx
 from conftest import plate_2w_1a_czyx
 from conftest import plate_2w_1a_zyx
 from devtools import debug
+from ngio import OmeZarrPlate
 from ngio import open_ome_zarr_plate
 
 from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
     copy_ome_zarr_hcs_plate,
 )
+
+
+def _get_plate(zarr_url: str) -> OmeZarrPlate:
+    """
+    Get the plate from the parallelization list.
+    """
+    *plate_url, _, _, _ = zarr_url.split("/")
+    plate_url = "/".join(plate_url)
+    return open_ome_zarr_plate(plate_url, parallel_safe=False, cache=True)
 
 
 @pytest.mark.parametrize(
@@ -33,17 +43,8 @@ def test_copy_hcs_plate(sample_plate_zarr_urls: list[str], tmp_path: Path):
     origin_url = image["init_args"]["origin_url"]
     assert origin_url in sample_plate_zarr_urls
 
-    *source_plate_url, _, _, _ = origin_url.split("/")
-    source_plate_url = "/".join(source_plate_url)
-    source_plate = open_ome_zarr_plate(
-        source_plate_url, parallel_safe=False, cache=True
-    )
-
-    *dest_plate_url, _, _, _ = image["zarr_url"].split("/")
-    dest_plate_url = "/".join(dest_plate_url)
-    dest_plate = open_ome_zarr_plate(
-        dest_plate_url, parallel_safe=False, cache=True
-    )
+    source_plate = _get_plate(origin_url)
+    dest_plate = _get_plate(image["zarr_url"])
 
     assert source_plate.columns == dest_plate.columns
     assert source_plate.rows == dest_plate.rows
@@ -72,11 +73,7 @@ def test_flexibility_copy_hcs(tmp_path: Path):
     )
 
     zarr_url = parallel_list_1["parallelization_list"][0]["zarr_url"]
-    *subset_plate_url, _, _, _ = zarr_url.split("/")
-    subset_plate_url = "/".join(subset_plate_url)
-    subset_plate = open_ome_zarr_plate(
-        subset_plate_url, parallel_safe=False, cache=True
-    )
+    subset_plate = _get_plate(zarr_url)
 
     # Run all
     all_dir = str(tmp_path / "all")
@@ -87,11 +84,7 @@ def test_flexibility_copy_hcs(tmp_path: Path):
         re_initialize_plate=True,
     )
     zarr_url = parallel_list_all["parallelization_list"][0]["zarr_url"]
-    *all_plate_url, _, _, _ = zarr_url.split("/")
-    all_plate_url = "/".join(all_plate_url)
-    all_plate = open_ome_zarr_plate(
-        all_plate_url, parallel_safe=False, cache=True
-    )
+    all_plate = _get_plate(zarr_url)
 
     assert subset_plate.columns == all_plate.columns
     assert subset_plate.rows == all_plate.rows
@@ -109,10 +102,12 @@ def test_fail_overwrite(tmp_path: Path):
         re_initialize_plate=False,
     )
 
+    # Run with re_initialize_plate=True
+    # Should remove all existing images
     copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir=str(tmp_path),
-        overwrite_images=True,
+        overwrite_images=False,
         re_initialize_plate=True,
     )
 

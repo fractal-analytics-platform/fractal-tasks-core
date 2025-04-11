@@ -1,3 +1,5 @@
+import os
+import shutil
 from pathlib import Path
 
 import pytest
@@ -5,9 +7,20 @@ from ngio import create_empty_ome_zarr
 from ngio import create_empty_plate
 from ngio import ImageInWellPath
 from ngio import OmeZarrPlate
+from ngio.utils import download_ome_zarr_dataset
+
+zenodo_download_dir = Path(__file__).parent.parent / "data" / "ngio_zenodo"
+os.makedirs(zenodo_download_dir, exist_ok=True)
+cardiomyocyte_tiny_source_path = download_ome_zarr_dataset(
+    "CardiomyocyteTiny", download_dir=zenodo_download_dir
+)
+
+cardiomyocyte_small_mip_source_path = download_ome_zarr_dataset(
+    "CardiomyocyteSmallMip", download_dir=zenodo_download_dir
+)
 
 
-def build_2w_1a_plate(tmp_path: Path) -> OmeZarrPlate:
+def build_2w_1a_plate(plate_path: Path) -> OmeZarrPlate:
     """
     Build a plate with 2 wells and 1 acquisition.
     """
@@ -17,7 +30,7 @@ def build_2w_1a_plate(tmp_path: Path) -> OmeZarrPlate:
         ImageInWellPath(row="B", column="02", path="0"),
     ]
 
-    store = tmp_path / "plate_xy_2w_1a.zarr"
+    store = plate_path / "plate_xy_2w_1a.zarr"
 
     plate = create_empty_plate(
         store=store,
@@ -30,7 +43,7 @@ def build_2w_1a_plate(tmp_path: Path) -> OmeZarrPlate:
     return plate
 
 
-def build_1w_2a_plate(tmp_path: Path) -> OmeZarrPlate:
+def build_1w_2a_plate(plate_path: Path) -> OmeZarrPlate:
     """
     Build a plate with 1 well and 2 acquisitions.
     """
@@ -40,7 +53,7 @@ def build_1w_2a_plate(tmp_path: Path) -> OmeZarrPlate:
         ImageInWellPath(row="A", column="01", path="1", acquisition_id=1),
     ]
 
-    store = tmp_path / "plate_xy_1w_2a.zarr"
+    store = plate_path / "plate_xy_1w_2a.zarr"
 
     plate = create_empty_plate(
         store=store,
@@ -101,7 +114,9 @@ def _sample_plate_zarr_urls(
 
     zarr_urls = []
     for image_path in plate.images_paths():
-        zarr_urls.append(str(plate._group_handler.store / image_path))
+        base_url = plate._group_handler.store
+        assert isinstance(base_url, Path)
+        zarr_urls.append(str(base_url / image_path))
     return zarr_urls
 
 
@@ -171,3 +186,42 @@ def sample_plate_zarr_urls(request, tmp_path: Path) -> list[str]:
     Fixture to create a sample plate with 2 wells and 1 acquisition.
     """
     return request.param(tmp_path)
+
+
+@pytest.fixture(scope="session")
+def sample_ome_zarr_zyx_url(testdata_path) -> Path:
+    """
+    Fixture to create a sample OME-Zarr store.
+    """
+    store = testdata_path / "ngio_synt" / "sample_ome_zarr_zyx.zarr"
+    origin_ome_zarr = create_empty_ome_zarr(
+        store=store,
+        shape=(16, 32, 32),
+        xy_pixelsize=0.1,
+        z_spacing=0.5,
+        overwrite=True,
+        axes_names="zyx",
+    )
+    table = origin_ome_zarr.build_image_roi_table("image")
+    origin_ome_zarr.add_table(
+        "well_ROI_table", table, backend="experimental_json_v1"
+    )
+    return store
+
+
+@pytest.fixture
+def cardiomyocyte_tiny_path(tmp_path: Path) -> Path:
+    dest_path = tmp_path / cardiomyocyte_tiny_source_path.stem
+    shutil.copytree(
+        cardiomyocyte_tiny_source_path, dest_path, dirs_exist_ok=True
+    )
+    return dest_path
+
+
+@pytest.fixture
+def cardiomyocyte_small_mip_path(tmp_path: Path) -> Path:
+    dest_path = tmp_path / cardiomyocyte_small_mip_source_path.stem
+    shutil.copytree(
+        cardiomyocyte_small_mip_source_path, dest_path, dirs_exist_ok=True
+    )
+    return dest_path
