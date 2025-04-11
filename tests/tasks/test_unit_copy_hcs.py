@@ -24,8 +24,6 @@ from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
     copy_ome_zarr_hcs_plate,
 )
 
-# pytestmark = pytest.mark.skip(reason="Temporarily skipping this module")
-
 expected_MIP_plate_attrs = {
     "plate": {
         "acquisitions": [
@@ -73,7 +71,6 @@ def test_MIP(
     assert parallelization_list_2 == parallelization_list
 
     # Run again, with overwrite=False
-    # TODO check with joel if this should be removed
     with pytest.raises(NgioFileExistsError):
         _ = copy_ome_zarr_hcs_plate(
             zarr_urls=zarr_urls,

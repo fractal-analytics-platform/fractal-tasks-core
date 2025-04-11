@@ -97,7 +97,7 @@ def _sample_plate_zarr_urls(
     plate_type: str = "2w_1a",
 ) -> list[str]:
     """
-    Build a sample plate with 2 wells and 1 acquisition.
+    Build a sample plate with different wells and acquisitions.
     """
 
     # Create a plate with 2 wells and 1 acquisition
