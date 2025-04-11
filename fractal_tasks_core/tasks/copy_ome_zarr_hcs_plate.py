@@ -143,15 +143,18 @@ def copy_ome_zarr_hcs_plate(
 
     # Generate parallelization list
     for zarr_url in zarr_urls:
-        zarr_urls = zarr_url.rstrip("/").split("/")
-        if len(zarr_urls) < 4:
+
+        # Check if the zarr_url is valid
+        if len(zarr_url.rstrip("/").split("/")) < 4:
             raise ValueError(
                 f"Invalid zarr_url: {zarr_url}. "
                 "The zarr_url of an image in a plate should be of the form "
                 "`/path/to/plate_name/row/column/image_path`. "
                 "The zarr_url given is too short to be valid."
             )
-        *base, plate_name, row, column, image_path = zarr_url.split("/")
+        *base, plate_name, row, column, image_path = zarr_url.rstrip(
+            "/"
+        ).split("/")
         base_dir = "/".join(base)
 
         plate_url = f"{base_dir}/{plate_name}"
