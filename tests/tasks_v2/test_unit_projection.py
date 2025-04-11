@@ -72,6 +72,42 @@ def test_projection(
     assert mip_table.get("image").z == 0
 
 
+@pytest.mark.parametrize(
+    "shape, axes",
+    [
+        ((1, 32, 32), "zyx"),
+        ((32, 32), "yx"),
+        ((4, 3, 1, 32, 32), "tczyx"),
+        ((4, 32, 32), "tyx"),
+    ],
+)
+def test_fail_non_3d_projection(shape, axes: str, tmp_path: Path) -> None:
+    """
+    Test the projection task.
+    """
+    # Create a plate with 2 wells and 1 acquisition
+    store = tmp_path / "sample_ome_zarr.zarr"
+    create_empty_ome_zarr(
+        store=store,
+        shape=shape,
+        xy_pixelsize=0.1,
+        z_spacing=0.5,
+        overwrite=False,
+        axes_names=axes,
+    )
+
+    init_mip = InitArgsMIP(
+        origin_url=str(store),
+        method="mip",
+        overwrite=False,
+        new_plate_name="new_plate.zarr",
+    )
+
+    mip_store = tmp_path / "sample_ome_zarr_mip.zarr"
+    with pytest.raises(ValueError):
+        projection(zarr_url=str(mip_store), init_args=init_mip)
+
+
 @pytest.mark.parametrize("method", ["mip", "minip", "meanip", "sumip"])
 def test_projections_methods(
     sample_ome_zarr_zyx_url: Path, tmp_path: Path, method: str
