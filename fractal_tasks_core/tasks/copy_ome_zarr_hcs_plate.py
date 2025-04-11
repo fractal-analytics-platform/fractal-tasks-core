@@ -38,7 +38,7 @@ __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 @cache
 def _open_well(well_path) -> OmeZarrWell:
     """
-    Given the absolute `plate_url` for an OME-Zarr plate,
+    Given the absolute `well_url` for an OME-Zarr plate,
         return the well object.
     """
     try:
@@ -46,7 +46,6 @@ def _open_well(well_path) -> OmeZarrWell:
             well_path, mode="r", cache=True, parallel_safe=False
         )
     except NgioFileNotFoundError:
-        # logger.error(f"Could not open well {well_path}")
         raise NgioFileNotFoundError(
             f"Could not open well {well_path}. "
             "Ensure that the path is correct and the file exists."

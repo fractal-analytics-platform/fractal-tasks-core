@@ -95,11 +95,6 @@ def projection(
     logger.info(f"New shape: {dest_on_disk_shape=}")
 
     # Create the new empty image
-    from devtools import debug
-    from pathlib import Path
-
-    debug(zarr_url)
-    debug(Path(zarr_url).exists())
     new_ngff_image = original_ngff_image.derive_image(
         store=zarr_url,
         name="MIP",
@@ -120,8 +115,7 @@ def projection(
     new_image.consolidate()
     # Ends
 
-    # Copy over the tables
-
+    # Edit the roi tables
     for roi_table_name in new_ngff_image.list_roi_tables():
         table = new_ngff_image.get_table(
             roi_table_name, check_type="generic_roi_table"
