@@ -335,16 +335,6 @@ def test_MIP(
     )["parallelization_list"]
     assert parallelization_list_2 == parallelization_list
 
-    # Run again, with overwrite=False
-    # TODO check with joel if this should be removed
-    # with pytest.raises(OverwriteNotAllowedError):
-    #    _ = copy_ome_zarr_hcs_plate(
-    #        zarr_urls=zarr_urls,
-    #        zarr_dir=str(zarr_path),
-    #        overwrite_images=False,
-    #        re_initialize_plate=False,
-    #    )
-
     # MIP
     image_list_updates = []
     for image in parallelization_list:
