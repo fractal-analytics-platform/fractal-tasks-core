@@ -78,8 +78,8 @@ def projection(
     logger.info(f"{method=}")
 
     # Read image metadata
-    original_ngff_image = open_ome_zarr_container(init_args.origin_url)
-    orginal_image = original_ngff_image.get_image()
+    original_ome_zarr = open_ome_zarr_container(init_args.origin_url)
+    orginal_image = original_ome_zarr.get_image()
 
     if orginal_image.is_2d or orginal_image.is_2d_time_series:
         raise ValueError(
@@ -95,7 +95,7 @@ def projection(
     logger.info(f"New shape: {dest_on_disk_shape=}")
 
     # Create the new empty image
-    new_ngff_image = original_ngff_image.derive_image(
+    ome_zarr_mip = original_ome_zarr.derive_image(
         store=zarr_url,
         name="MIP",
         shape=dest_on_disk_shape,
@@ -104,20 +104,20 @@ def projection(
         copy_labels=False,
         copy_tables=True,
     )
-    logger.info(f"New Projection image created - {new_ngff_image=}")
-    new_image = new_ngff_image.get_image()
+    logger.info(f"New Projection image created - {ome_zarr_mip=}")
+    proj_image = ome_zarr_mip.get_image()
 
     # Process the image
     source_dask = orginal_image.get_array(mode="dask")
     dest_dask = method.apply(dask_array=source_dask, axis=z_axis_index)
     dest_dask = da.expand_dims(dest_dask, axis=z_axis_index)
-    new_image.set_array(dest_dask)
-    new_image.consolidate()
+    proj_image.set_array(dest_dask)
+    proj_image.consolidate()
     # Ends
 
     # Edit the roi tables
-    for roi_table_name in new_ngff_image.list_roi_tables():
-        table = new_ngff_image.get_table(
+    for roi_table_name in ome_zarr_mip.list_roi_tables():
+        table = ome_zarr_mip.get_table(
             roi_table_name, check_type="generic_roi_table"
         )
 

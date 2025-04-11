@@ -120,6 +120,17 @@ def test_fail_overwrite(tmp_path: Path):
         )
 
 
+def test_fail_not_plate_url():
+    with pytest.raises(ValueError):
+        # Test with a non-image-in-plate URL
+        copy_ome_zarr_hcs_plate(
+            zarr_urls=["/tmp/plate.zarr"],
+            zarr_dir="/tmp",
+            overwrite_images=False,
+            re_initialize_plate=False,
+        )
+
+
 def test_reinit_true(tmp_path: Path):
     zarr_urls = plate_2w_1a_czyx(tmp_path)
 

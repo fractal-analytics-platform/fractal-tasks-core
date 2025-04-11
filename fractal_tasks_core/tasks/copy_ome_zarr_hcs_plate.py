@@ -53,9 +53,10 @@ def _open_well(well_path) -> OmeZarrWell:
     return well
 
 
-@cache
 def _get_plate(
-    old_plate_url: str, new_plate_url: str, re_initialize_plate: bool = False
+    current_plate_url: str,
+    proj_plate_url: str,
+    re_initialize_plate: bool = False,
 ) -> OmeZarrPlate:
     """
     Given the absolute `plate_url` for an OME-Zarr plate,
@@ -63,23 +64,23 @@ def _get_plate(
 
     If the plate already exists, return it.
     If it does not exist, or if `re_initialize_plate` is True,
-        create a new plate and return it.
+        create a proj plate and return it.
     """
-    if re_initialize_plate or not Path(new_plate_url).exists():
-        logger.info(f"Creating new plate: {new_plate_url}")
-        new_plate_name = new_plate_url.split("/")[-1]
+    if re_initialize_plate or not Path(proj_plate_url).exists():
+        logger.info(f"Creating proj plate: {proj_plate_url}")
+        proj_plate_name = proj_plate_url.split("/")[-1]
 
-        plate = open_ome_zarr_plate(old_plate_url).derive_plate(
-            new_plate_url,
-            plate_name=new_plate_name,
+        plate = open_ome_zarr_plate(current_plate_url).derive_plate(
+            proj_plate_url,
+            plate_name=proj_plate_name,
             overwrite=re_initialize_plate,
             keep_acquisitions=True,
             parallel_safe=False,
         )
-        logger.info(f"New plate created: {plate}")
+        logger.info(f"proj plate created: {plate}")
         return plate
 
-    plate = open_ome_zarr_plate(new_plate_url, parallel_safe=False)
+    plate = open_ome_zarr_plate(proj_plate_url, parallel_safe=False)
     logger.info(f"Plate already exists: {plate}")
     return plate
 
@@ -133,67 +134,88 @@ def copy_ome_zarr_hcs_plate(
     """
     parallelization_list = []
 
+    # A dictionary to store the plates and avoid re-initializing them multiple
+    # times
+    proj_plates: dict[str, OmeZarrPlate] = {}
+    # A dictionary to store the images and avoid re-initializing querying all
+    # wells multiple times
+    proj_plates_images_paths: dict[str, list[str]] = {}
+
     # Generate parallelization list
     for zarr_url in zarr_urls:
-
-        zarr_url = zarr_url.rstrip("/")
+        zarr_urls = zarr_url.rstrip("/").split("/")
+        if len(zarr_urls) < 4:
+            raise ValueError(
+                f"Invalid zarr_url: {zarr_url}. "
+                "The zarr_url of an image in a plate should be of the form "
+                "`/path/to/plate_name/row/column/image_path`. "
+                "The zarr_url given is too short to be valid."
+            )
         *base, plate_name, row, column, image_path = zarr_url.split("/")
         base_dir = "/".join(base)
 
         plate_url = f"{base_dir}/{plate_name}"
-        new_plate_name = (
+        proj_plate_name = (
             f"{plate_name}".rstrip(".zarr") + f"_{method.value}.zarr"
         )
-        new_plate_url = f"{zarr_dir}/{new_plate_name}"
+        proj_plate_url = f"{zarr_dir}/{proj_plate_name}"
 
-        mip_plate = _get_plate(
-            old_plate_url=plate_url,
-            new_plate_url=new_plate_url,
-            re_initialize_plate=re_initialize_plate,
-        )
+        if proj_plate_url not in proj_plates:
+            _proj_plate = _get_plate(
+                current_plate_url=plate_url,
+                proj_plate_url=proj_plate_url,
+                re_initialize_plate=re_initialize_plate,
+            )
+            proj_plates[proj_plate_url] = _proj_plate
+            proj_plates_images_paths[
+                proj_plate_url
+            ] = _proj_plate.images_paths()
+
+        proj_plate = proj_plates[proj_plate_url]
+        proj_plate_images_paths = proj_plates_images_paths[proj_plate_url]
 
         well_path = f"{plate_url}/{row}/{column}"
         well = _open_well(well_path)
         acquisition_id = well.get_image_acquisition_id(image_path)
 
-        mip_image_path = f"{row}/{column}/{image_path}"
+        proj_image_path = f"{row}/{column}/{image_path}"
 
-        if mip_image_path in mip_plate.images_paths():
+        if proj_image_path in proj_plate_images_paths:
             if not overwrite_images:
                 raise NgioFileExistsError(
-                    f"Image {mip_image_path} already exists in "
-                    f"{new_plate_url}. Set `overwrite_images=True` "
+                    f"Image {proj_image_path} already exists in "
+                    f"{proj_plate_url}. Set `overwrite_images=True` "
                     "to overwrite it."
                 )
             logger.info(
-                f"Image {mip_image_path} already exists in {new_plate_url}. "
+                f"Image {proj_image_path} already exists in {proj_plate_url}. "
                 "Overwriting it."
             )
 
         else:
-            mip_plate.add_image(
+            proj_plate.add_image(
                 row=row,
                 column=column,
                 image_path=image_path,
                 acquisition_id=acquisition_id,
             )
+            proj_plates_images_paths[proj_plate_url].append(proj_image_path)
 
-        new_zarr_url = f"{new_plate_url}/{mip_image_path}"
+        proj_zarr_url = f"{proj_plate_url}/{proj_image_path}"
         proj_init = InitArgsMIP(
             origin_url=zarr_url,
             method=method.value,
             # Since we checked for existence above,
             # we can safely set this to True
             overwrite=True,
-            new_plate_name=new_plate_name,
+            new_plate_name=proj_plate_name,
         )
         parallelization_item = {
-            "zarr_url": new_zarr_url,
+            "zarr_url": proj_zarr_url,
             "init_args": proj_init.model_dump(),
         }
         parallelization_list.append(parallelization_item)
 
-    _get_plate.cache_clear()
     _open_well.cache_clear()
     return dict(parallelization_list=parallelization_list)
 
