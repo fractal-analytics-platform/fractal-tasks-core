@@ -24,7 +24,6 @@ def test_projection(
     """
     Test the projection task.
     """
-    # Create a plate with 2 wells and 1 acquisition
     store = tmp_path / "sample_ome_zarr.zarr"
     origin_ome_zarr = create_empty_ome_zarr(
         store=store,
@@ -85,7 +84,6 @@ def test_fail_non_3d_projection(shape, axes: str, tmp_path: Path) -> None:
     """
     Test the projection task.
     """
-    # Create a plate with 2 wells and 1 acquisition
     store = tmp_path / "sample_ome_zarr.zarr"
     create_empty_ome_zarr(
         store=store,
