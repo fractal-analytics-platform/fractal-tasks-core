@@ -78,4 +78,4 @@ jobs:
           key: pooch-cache
 
       - name: Test tasks with pytest
-        run: python -m pytest tests/dev tests/tasks -s --log-cli-level info
+        run: python -m pytest tests/dev tests/tasks tests/tasks_v2 -s --log-cli-level info

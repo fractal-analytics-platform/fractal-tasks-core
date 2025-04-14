@@ -102,7 +102,7 @@ jobs:
       - name: Test tasks with pytest
         env:
           COVERAGE_FILE: coverage-data-tasks-${{ matrix.python-version }}
-        run: poetry run coverage run -m pytest tests/dev tests/tasks
+        run: poetry run coverage run -m pytest tests/dev tests/tasks tests/tasks_v2
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v4
