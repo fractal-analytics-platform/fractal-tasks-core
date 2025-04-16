@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Callable
 
 import pytest
 from conftest import plate_1w_2a_czyx
@@ -23,14 +24,15 @@ def _get_plate(zarr_url: str) -> OmeZarrPlate:
 
 
 @pytest.mark.parametrize(
-    "sample_plate_zarr_urls",
+    "create_plate",
     [
         plate_2w_1a_zyx,
         plate_1w_2a_czyx,
     ],
-    indirect=True,
 )
-def test_copy_hcs_plate(sample_plate_zarr_urls: list[str], tmp_path: Path):
+def test_copy_hcs_plate(create_plate: Callable, tmp_path: Path):
+    # Create a sample plate and returns a list of zarr urls
+    sample_plate_zarr_urls = create_plate(tmp_path)
     debug(sample_plate_zarr_urls)
     parallel_list = copy_ome_zarr_hcs_plate(
         zarr_urls=sample_plate_zarr_urls, zarr_dir=str(tmp_path)

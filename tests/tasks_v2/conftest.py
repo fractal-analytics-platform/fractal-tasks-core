@@ -200,14 +200,6 @@ def plate_1w_2a_czyx(tmp_path: Path) -> list[str]:
     )
 
 
-@pytest.fixture
-def sample_plate_zarr_urls(request, tmp_path: Path) -> list[str]:
-    """
-    Fixture to create a sample plate with 2 wells and 1 acquisition.
-    """
-    return request.param(tmp_path)
-
-
 @pytest.fixture(scope="session")
 def sample_ome_zarr_zyx_url(testdata_path) -> Path:
     """
