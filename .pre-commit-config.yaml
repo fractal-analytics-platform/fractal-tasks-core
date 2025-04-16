@@ -23,3 +23,10 @@ repos:
     hooks:
     - id: bandit
       args: ["-x", "tests/*"]
+-   repo: local
+    hooks:
+    - id: grep-for-devtools
+      name: Check for devtools in fractal_tasks_core
+      entry: bash -c 'for file in "$@"; do if grep -n "devtools" "$file"; then echo "$file" && exit 1; fi; done' --
+      language: system
+      files: fractal_tasks_core/
