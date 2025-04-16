@@ -1,6 +1,7 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
 # 1.5.0 (a2 prerelease)
+
 * Dependencies:
     * Bump `ngio` to `>=0.2.2,<0.3.0`.
 * Tasks:
