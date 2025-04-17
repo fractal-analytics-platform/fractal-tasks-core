@@ -39,14 +39,6 @@ jobs:
             cmd_create_manifest: 'python src/scmultiplex/dev/create_manifest.py'
             custom_dependencies: 'image_registration'
 
-          #- package: fractal-helper-tasks
-          #  github_repo: jluethi/fractal-helper-tasks
-          #  github_branch: main
-          #  manifest_path: src/fractal_helper_tasks/__FRACTAL_MANIFEST__.json
-          #  cmd_install: 'python -m pip install -e .'
-          #  cmd_create_manifest: 'python src/fractal_helper_tasks/dev/create_manifest.py'
-          #  custom_dependencies: ''
-
           - package: APx_fractal_task_collection
             github_repo: Apricot-Therapeutics/APx_fractal_task_collection
             github_branch: main
