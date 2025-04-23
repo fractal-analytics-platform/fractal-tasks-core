@@ -3,7 +3,7 @@
 # 1.5.0 (a2 prerelease)
 
 * Dependencies:
-    * Bump `ngio` to `>=0.2.3,<0.3.0`.
+    * Bump `ngio` to `>=0.2.4,<0.3.0`.
 * Tasks:
     * Refactor `projection` task to use the new `ngio` API.
     * Refactor `copy_ome_zarr_plate` init task to support the upcoming flexibility.
