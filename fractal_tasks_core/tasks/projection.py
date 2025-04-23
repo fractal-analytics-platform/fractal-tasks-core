@@ -121,16 +121,11 @@ def projection(
             roi_table_name, check_type="generic_roi_table"
         )
 
-        roi_list = []
         for roi in table.rois():
             roi.z = 0.0
             roi.z_length = 1.0
-            roi_list.append(roi)
+            table.add(roi, overwrite=True)
 
-        # We should have a public API to set reset the rois
-        # or have a overwrite keyword in the add method
-        table._rois = {}
-        table.add(roi_list)
         table.consolidate()
         logger.info(f"Table {roi_table_name} Projection done")
 
