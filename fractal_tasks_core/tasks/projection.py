@@ -125,7 +125,7 @@ def projection(
             roi.z = 0.0
             roi.z_length = 1.0
             table.add(roi, overwrite=True)
-            
+
         table.consolidate()
         logger.info(f"Table {roi_table_name} Projection done")
 
