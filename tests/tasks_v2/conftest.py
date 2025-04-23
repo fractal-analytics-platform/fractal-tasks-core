@@ -134,9 +134,9 @@ def _sample_plate_zarr_urls(
 
     zarr_urls = []
     for image_path in plate.images_paths():
-        base_url = plate._group_handler.store
-        assert isinstance(base_url, Path)
-        zarr_urls.append(str(base_url / image_path))
+        base_url = plate._group_handler.full_url
+        assert base_url is not None
+        zarr_urls.append(f"{base_url}{image_path}")
     return zarr_urls
 
 
