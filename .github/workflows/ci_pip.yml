@@ -2,9 +2,9 @@ name: CI (pip)
 
 on:
   push:
-    branches: ["main", "dev-1.5"]
+    branches: ["main"]
   pull_request:
-    branches: ["main", "dev-1.5"]
+    branches: ["main"]
   schedule:
     - cron: "0 23 * * 2"
   workflow_dispatch:
