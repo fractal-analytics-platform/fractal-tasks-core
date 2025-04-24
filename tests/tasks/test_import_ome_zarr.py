@@ -65,7 +65,7 @@ def test_import_ome_zarr_plate(tmp_path, zenodo_zarr):
     parallelization_list = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir="tmp_out",
-        overwrite_images=True,
+        overwrite=True,
         re_initialize_plate=True,
     )["parallelization_list"]
     debug(parallelization_list)
@@ -248,7 +248,7 @@ def test_import_ome_zarr_plate_no_ROI_tables(tmp_path, zenodo_zarr):
     parallelization_list = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir="tmp_out",
-        overwrite_images=True,
+        overwrite=True,
         re_initialize_plate=True,
     )["parallelization_list"]
     debug(parallelization_list)

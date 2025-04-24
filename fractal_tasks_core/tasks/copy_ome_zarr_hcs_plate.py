@@ -93,7 +93,7 @@ def copy_ome_zarr_hcs_plate(
     zarr_dir: str,
     method: DaskProjectionMethod = DaskProjectionMethod.MIP,
     # Advanced parameters
-    overwrite_images: bool = False,
+    overwrite: bool = False,
     re_initialize_plate: bool = False,
 ) -> dict[str, Any]:
     """
@@ -122,7 +122,7 @@ def copy_ome_zarr_hcs_plate(
             Z axis. mip is the default and performs a maximum intensity
             projection. minip performs a minimum intensity projection, meanip
             a mean intensity projection and sumip a sum intensity projection.
-        overwrite_images: If `True`, overwrite the MIP images if they are
+        overwrite: If `True`, overwrite the MIP images if they are
             already present in the new OME-Zarr Plate.
         re_initialize_plate: If `True`, re-initialize the plate, deleting all
             existing wells and images. If `False`, the task will only
@@ -184,10 +184,10 @@ def copy_ome_zarr_hcs_plate(
         proj_image_path = f"{row}/{column}/{image_path}"
 
         if proj_image_path in proj_plate_images_paths:
-            if not overwrite_images:
+            if not overwrite:
                 raise NgioFileExistsError(
                     f"Image {proj_image_path} already exists in "
-                    f"{proj_plate_url}. Set `overwrite_images=True` "
+                    f"{proj_plate_url}. Set `overwrite=True` "
                     "to overwrite it."
                 )
             logger.info(

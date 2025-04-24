@@ -321,7 +321,7 @@ def test_MIP(
     parallelization_list = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir=str(zarr_path),
-        overwrite_images=True,
+        overwrite=True,
         re_initialize_plate=True,
     )["parallelization_list"]
     debug(parallelization_list)
@@ -330,7 +330,7 @@ def test_MIP(
     parallelization_list_2 = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir=str(zarr_path),
-        overwrite_images=True,
+        overwrite=True,
         re_initialize_plate=True,
     )["parallelization_list"]
     assert parallelization_list_2 == parallelization_list
@@ -416,7 +416,7 @@ def test_projection_methods(
         zarr_urls=zarr_urls,
         zarr_dir=str(zarr_path),
         method=method,
-        overwrite_images=True,
+        overwrite=True,
         re_initialize_plate=True,
     )["parallelization_list"]
 
@@ -499,7 +499,7 @@ def test_MIP_subset_of_images(
     parallelization_list = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir=str(zarr_dir),
-        overwrite_images=True,
+        overwrite=True,
         re_initialize_plate=True,
     )["parallelization_list"]
     debug(parallelization_list)

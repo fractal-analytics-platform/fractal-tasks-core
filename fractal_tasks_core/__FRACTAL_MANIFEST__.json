@@ -676,9 +676,9 @@
             "title": "Method",
             "description": "Choose which method to use for intensity projection along the Z axis. mip is the default and performs a maximum intensity projection. minip performs a minimum intensity projection, meanip a mean intensity projection and sumip a sum intensity projection."
           },
-          "overwrite_images": {
+          "overwrite": {
             "default": false,
-            "title": "Overwrite Images",
+            "title": "Overwrite",
             "type": "boolean",
             "description": "If `True`, overwrite the MIP images if they are already present in the new OME-Zarr Plate."
           },

@@ -56,7 +56,7 @@ def test_MIP(
     parallelization_list = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir="tmp_out",
-        overwrite_images=True,
+        overwrite=True,
         re_initialize_plate=True,
     )["parallelization_list"]
     debug(parallelization_list)
@@ -65,7 +65,7 @@ def test_MIP(
     parallelization_list_2 = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir="tmp_out",
-        overwrite_images=True,
+        overwrite=True,
         re_initialize_plate=True,
     )["parallelization_list"]
     assert parallelization_list_2 == parallelization_list
@@ -75,7 +75,7 @@ def test_MIP(
         _ = copy_ome_zarr_hcs_plate(
             zarr_urls=zarr_urls,
             zarr_dir="tmp_out",
-            overwrite_images=False,
+            overwrite=False,
             re_initialize_plate=False,
         )
 
