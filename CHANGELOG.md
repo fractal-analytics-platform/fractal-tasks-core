@@ -1,14 +1,30 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# Unreleased
+# 1.5.0
 
+* Tasks:
+    * Refactor `projection` task to use the new `ngio` API (\#937, \#943).
+    * Refactor `copy_ome_zarr_plate` init task to support the upcoming flexibility.
+    * Rely on `fractal-task-tools` for `run_fractal_task` wrapper (\#923).
+    * Mark some existing tasks as _converter_ tasks(\#923).
+    * Mark existing `run_fractal_task` wrapper as deprecated (\#923).
+* Manifest generation:
+    * Rely on `fractal-task-tools` for manifest building (\#923).
+    * Mark existing tools as deprecated (\#923).
 * Testing:
+    * Add new (redundand) `ngio`-based testing.
     * Fix links to ome/ngff specs (\#930).
+* Dependencies:
+    * Add `fractal-task-tools==0.0.10` dependency (\#923).
+    * Bump `ngio` to `>=0.2.4,<0.3.0` (\#943).
+    * Drop support for Python 3.10 (\#932).
+    * Bump `fractal-task-tools` to `0.0.12` (\#933).
+    * Pin `numcodecs` to `<0.16` (\#932).
 
 # 1.4.3
 
 * Tasks:
-    * Update apply_registration_to_image to handle race conditions better (\#919).
+    * Update `apply_registration_to_image` to handle race conditions better (\#919).
 * Testing
     * Add `spherical-harmonics` extra to scmultiplex, for testing manifest build (\#899).
     * Move manifest-creation CI to Python 3.11 (\#915).

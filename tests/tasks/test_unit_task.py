@@ -22,7 +22,7 @@ def test_create_ome_zarr(tmp_path, testdata_path):
     debug(args)
 
     dummy = cellvoyager_to_ome_zarr_init(
-        zarr_urls=[], zarr_dir=zarr_dir, image_dirs=[img_path], **args
+        zarr_dir=zarr_dir, image_dirs=[img_path], **args
     )
     debug(dummy)
 
@@ -39,11 +39,10 @@ def test_run_fractal_tasks(tmp_path, testdata_path, monkeypatch):
     interface
     """
 
-    import fractal_tasks_core.tasks._utils
+    import fractal_task_tools.task_wrapper
 
     # Write arguments to a file
     args = {}
-    args["zarr_urls"] = []
     args["image_dirs"] = [str(testdata_path / "png/")]
     args["zarr_dir"] = str(tmp_path)
     args["allowed_channels"] = [
@@ -70,12 +69,12 @@ def test_run_fractal_tasks(tmp_path, testdata_path, monkeypatch):
             return Args()
 
     monkeypatch.setattr(
-        "fractal_tasks_core.tasks._utils.ArgumentParser",
+        "fractal_task_tools.task_wrapper.ArgumentParser",
         MockArgumentParser,
     )
 
     # Run the task
-    out = fractal_tasks_core.tasks._utils.run_fractal_task(
+    out = fractal_task_tools.task_wrapper.run_fractal_task(
         task_function=cellvoyager_to_ome_zarr_init
     )
 

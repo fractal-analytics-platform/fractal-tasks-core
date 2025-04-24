@@ -55,7 +55,6 @@ def test_1536_ome_zarr_conversion(tmp_path: Path, syn_1536_images: str):
 
     # Create zarr structure
     parallelization_list = cellvoyager_to_ome_zarr_init(
-        zarr_urls=[],
         zarr_dir=zarr_dir,
         image_dirs=[syn_1536_images],
         allowed_channels=allowed_channels,
@@ -118,7 +117,6 @@ def test_1536_multiplexing_ome_zarr_conversion(
 
     # Create zarr structure
     parallelization_list = cellvoyager_to_ome_zarr_init_multiplex(
-        zarr_urls=[],
         zarr_dir=zarr_dir,
         acquisitions={"0": acquisition_1, "1": acquisition_2},
         image_extension="png",

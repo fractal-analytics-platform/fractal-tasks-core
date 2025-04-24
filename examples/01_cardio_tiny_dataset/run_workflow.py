@@ -62,7 +62,6 @@ zarr_dir = "tmp_out"
 
 # Create zarr structure
 parallelization_list = cellvoyager_to_ome_zarr_init(
-    zarr_urls=[],
     zarr_dir=zarr_dir,
     image_dirs=[img_path],
     allowed_channels=allowed_channels,

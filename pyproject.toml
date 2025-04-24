@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fractal-tasks-core"
-version = "1.4.2"
+version = "1.5.0a2"
 description = "Core bioimage-analysis library and tasks of the Fractal analytics platform"
 authors = [
     "Joel Lüthi  <joel.luethi@fmi.ch>",
@@ -23,7 +23,7 @@ documentation = "https://fractal-analytics-platform.github.io/fractal-tasks-core
 [tool.poetry.dependencies]
 
 # Required dependencies
-python = ">=3.10,<3.13"
+python = ">=3.11,<3.13"
 dask = ">=2023.1.0"
 fsspec = "!=2023.9.0"
 zarr = ">=2.13.6,<3"
@@ -31,10 +31,12 @@ numpy = "<=2.1.0"
 pandas = ">=1.2.0"
 lxml = "^4.9.1"
 pydantic = ">2,<=2.8.2"
-docstring-parser = "^0.15"
+docstring-parser = ">=0.15.0,<=0.16.0"
 anndata = ">=0.8.0,<0.11.0"
 filelock = "3.13.*"
-ngio = ">=0.1.5,<0.2.0"
+ngio = ">=0.2.4,<0.3.0"
+fractal-task-tools = "0.0.12"
+numcodecs = "<0.16.0"
 
 # Optional dependencies (used in extras)
 Pillow = { version = ">=9.1.1", optional = true }
@@ -107,7 +109,7 @@ omit = ["tests/*", "examples/*", "fractal_tasks_core/dev/*", "*/.venv/*"]
 omit = ["tests/*", "examples/*", "fractal_tasks_core/dev/*", "*/.venv/*"]
 
 [tool.bumpver]
-current_version = "1.4.2"
+current_version = "1.5.0a2"
 version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true

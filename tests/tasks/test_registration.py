@@ -266,7 +266,6 @@ def test_multiplexing_registration(
 
     # # Create zarr structure
     parallelization_list = cellvoyager_to_ome_zarr_init_multiplex(
-        zarr_urls=[],
         zarr_dir=zarr_dir,
         acquisitions=acquisitions,
         num_levels=num_levels,
@@ -291,7 +290,8 @@ def test_multiplexing_registration(
     parallelization_list = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls_3D,
         zarr_dir=zarr_dir,
-        overwrite=True,
+        overwrite_images=True,
+        re_initialize_plate=True,
     )["parallelization_list"]
     debug(parallelization_list)
 
@@ -472,7 +472,6 @@ def test_multiplexing_registration_3d(
 
     # # Create zarr structure
     parallelization_list = cellvoyager_to_ome_zarr_init_multiplex(
-        zarr_urls=[],
         zarr_dir=zarr_dir,
         acquisitions=acquisitions,
         num_levels=num_levels,

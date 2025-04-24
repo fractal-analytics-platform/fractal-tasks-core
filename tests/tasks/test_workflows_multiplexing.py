@@ -82,7 +82,6 @@ def test_multiplexing_create_ome_zarr_fail(
     debug(zenodo_images_multiplex)
     with pytest.raises(ValueError):
         _ = cellvoyager_to_ome_zarr_init_multiplex(
-            zarr_urls=[],
             zarr_dir=zarr_dir,
             acquisitions=acquisitions,
             num_levels=num_levels,
@@ -132,7 +131,6 @@ def test_multiplexing_compute(
 
     # Create zarr structure
     parallelization_list = cellvoyager_to_ome_zarr_init_multiplex(
-        zarr_urls=[],
         zarr_dir=zarr_dir,
         acquisitions=acquisitions,
         num_levels=num_levels,
@@ -145,7 +143,6 @@ def test_multiplexing_compute(
 
     # Run again, with overwrite=True
     parallelization_list_2 = cellvoyager_to_ome_zarr_init_multiplex(
-        zarr_urls=[],
         zarr_dir=zarr_dir,
         acquisitions=acquisitions,
         num_levels=num_levels,
@@ -159,7 +156,6 @@ def test_multiplexing_compute(
     # Run again, with overwrite=False
     with pytest.raises(OverwriteNotAllowedError):
         _ = cellvoyager_to_ome_zarr_init_multiplex(
-            zarr_urls=[],
             zarr_dir=zarr_dir,
             acquisitions=acquisitions,
             num_levels=num_levels,
@@ -246,7 +242,6 @@ def test_non_int_acquisition_key(
     # Create zarr structure
     with pytest.raises(ValueError):
         cellvoyager_to_ome_zarr_init_multiplex(
-            zarr_urls=[],
             zarr_dir=zarr_dir,
             acquisitions=acquisitions,
             num_levels=num_levels,
@@ -275,7 +270,6 @@ def test_multiplexing_arbitrary_acquisition_names(
 
     # Create zarr structure
     parallelization_list = cellvoyager_to_ome_zarr_init_multiplex(
-        zarr_urls=[],
         zarr_dir=zarr_dir,
         acquisitions=acquisitions,
         num_levels=num_levels,
@@ -373,7 +367,6 @@ def test_multiplexing_MIP(
 
     # Create zarr structure
     parallelization_list = cellvoyager_to_ome_zarr_init_multiplex(
-        zarr_urls=[],
         zarr_dir=str(zarr_dir),
         acquisitions=acquisitions,
         num_levels=num_levels,
@@ -400,7 +393,8 @@ def test_multiplexing_MIP(
     parallelization_list = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir=str(zarr_dir),
-        overwrite=True,
+        overwrite_images=True,
+        re_initialize_plate=True,
     )["parallelization_list"]
     debug(parallelization_list)
 

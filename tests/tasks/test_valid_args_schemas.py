@@ -1,5 +1,4 @@
 import json
-import sys
 import typing
 from pathlib import Path
 from typing import Optional
@@ -68,15 +67,12 @@ def test_validate_function_signature():
     with pytest.raises(ValueError):
         _validate_function_signature(fun6)
 
-    # NOTE: this test is only valid for python >= 3.10
-    if (sys.version_info.major, sys.version_info.minor) >= (3, 10):
+    def fun7(x: str | int):
+        pass
 
-        def fun7(x: str | int):
-            pass
-
-        # Fail because of "|" not supported
-        with pytest.raises(ValueError):
-            _validate_function_signature(fun7)
+    # Fail because of "|" not supported
+    with pytest.raises(ValueError):
+        _validate_function_signature(fun7)
 
     def fun8(x: Union[str, None] = "asd"):
         pass

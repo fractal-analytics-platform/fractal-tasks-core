@@ -32,7 +32,6 @@ def test_import_ome_zarr_plate(tmp_path, zenodo_zarr):
 
     # Run import_ome_zarr
     image_list_changes = import_ome_zarr(
-        zarr_urls=[],
         zarr_dir=zarr_dir,
         zarr_name=zarr_name,
         grid_y_shape=3,
@@ -66,7 +65,8 @@ def test_import_ome_zarr_plate(tmp_path, zenodo_zarr):
     parallelization_list = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir="tmp_out",
-        overwrite=True,
+        overwrite_images=True,
+        re_initialize_plate=True,
     )["parallelization_list"]
     debug(parallelization_list)
 
@@ -86,7 +86,6 @@ def test_import_ome_zarr_well(tmp_path, zenodo_zarr):
 
     # Run import_ome_zarr
     image_list_changes = import_ome_zarr(
-        zarr_urls=[],
         zarr_dir=zarr_dir,
         zarr_name=zarr_name,
         grid_y_shape=3,
@@ -131,7 +130,6 @@ def test_import_ome_zarr_image(tmp_path, zenodo_zarr, reset_omero):
 
     # Run import_ome_zarr
     image_list_changes = import_ome_zarr(
-        zarr_urls=[],
         zarr_dir=zarr_dir,
         zarr_name=zarr_name,
         grid_y_shape=3,
@@ -198,7 +196,6 @@ def test_import_ome_zarr_image_wrong_channels(tmp_path, zenodo_zarr):
     # Run import_ome_zarr and catch the error
     with pytest.raises(ValueError) as e:
         _ = import_ome_zarr(
-            zarr_urls=[],
             zarr_dir=zarr_dir,
             zarr_name=zarr_name,
             grid_y_shape=3,
@@ -217,7 +214,6 @@ def test_import_ome_zarr_plate_no_ROI_tables(tmp_path, zenodo_zarr):
 
     # Run import_ome_zarr
     image_list_changes = import_ome_zarr(
-        zarr_urls=[],
         zarr_dir=zarr_dir,
         zarr_name=zarr_name,
         add_image_ROI_table=False,
@@ -252,7 +248,8 @@ def test_import_ome_zarr_plate_no_ROI_tables(tmp_path, zenodo_zarr):
     parallelization_list = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir="tmp_out",
-        overwrite=True,
+        overwrite_images=True,
+        re_initialize_plate=True,
     )["parallelization_list"]
     debug(parallelization_list)
 
@@ -297,7 +294,6 @@ def test_import_ome_zarr_image_BIA(tmp_path):
 
     # Run import_ome_zarr
     image_list_changes = import_ome_zarr(
-        zarr_urls=[],
         zarr_dir=zarr_dir,
         zarr_name=zarr_name,
         grid_y_shape=3,

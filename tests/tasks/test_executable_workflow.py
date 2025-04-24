@@ -58,7 +58,6 @@ def test_workflow_yokogawa_to_ome_zarr(tmp_path: Path, zenodo_images: str):
 
     # Create zarr structure
     args_create_zarr = dict(
-        zarr_urls=[],
         zarr_dir=zarr_dir,
         image_dirs=[img_path],
         allowed_channels=allowed_channels,
