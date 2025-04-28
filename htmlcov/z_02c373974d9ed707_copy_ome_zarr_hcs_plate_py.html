@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="z_02c373974d9ed707_find_registration_consensus_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.4">coverage.py v7.6.4</a>,
-            created at 2025-04-24 08:49 +0000
+            created at 2025-04-28 09:28 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -177,7 +177,7 @@
     <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t">    <span class="nam">zarr_dir</span><span class="op">:</span> <span class="nam">str</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t">    <span class="nam">method</span><span class="op">:</span> <span class="nam">DaskProjectionMethod</span> <span class="op">=</span> <span class="nam">DaskProjectionMethod</span><span class="op">.</span><span class="nam">MIP</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t">    <span class="com"># Advanced parameters</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t">    <span class="nam">overwrite_images</span><span class="op">:</span> <span class="nam">bool</span> <span class="op">=</span> <span class="key">False</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t">    <span class="nam">overwrite</span><span class="op">:</span> <span class="nam">bool</span> <span class="op">=</span> <span class="key">False</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t">    <span class="nam">re_initialize_plate</span><span class="op">:</span> <span class="nam">bool</span> <span class="op">=</span> <span class="key">False</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="op">)</span> <span class="op">-></span> <span class="nam">dict</span><span class="op">[</span><span class="nam">str</span><span class="op">,</span> <span class="nam">Any</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t">    <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
@@ -206,7 +206,7 @@
     <p class="pln"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="str">            Z axis. mip is the default and performs a maximum intensity</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="str">            projection. minip performs a minimum intensity projection, meanip</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="str">            a mean intensity projection and sumip a sum intensity projection.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="str">        overwrite_images: If `True`, overwrite the MIP images if they are</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="str">        overwrite: If `True`, overwrite the MIP images if they are</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="str">            already present in the new OME-Zarr Plate.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="str">        re_initialize_plate: If `True`, re-initialize the plate, deleting all</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="str">            existing wells and images. If `False`, the task will only</span>&nbsp;</span><span class="r"></span></p>
@@ -268,10 +268,10 @@
     <p class="run"><span class="n"><a id="t184" href="#t184">184</a></span><span class="t">        <span class="nam">proj_image_path</span> <span class="op">=</span> <span class="fst">f"</span><span class="op">{</span><span class="nam">row</span><span class="op">}</span><span class="fst">/</span><span class="op">{</span><span class="nam">column</span><span class="op">}</span><span class="fst">/</span><span class="op">{</span><span class="nam">image_path</span><span class="op">}</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t185" href="#t185">185</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t">        <span class="key">if</span> <span class="nam">proj_image_path</span> <span class="key">in</span> <span class="nam">proj_plate_images_paths</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="par run show_par"><span class="n"><a id="t187" href="#t187">187</a></span><span class="t">            <span class="key">if</span> <span class="key">not</span> <span class="nam">overwrite_images</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">187&#x202F;&#x219B;&#x202F;193</span><span class="annotate long">line 187 didn't jump to line 193 because the condition on line 187 was always true</span></span></p>
+    <p class="par run show_par"><span class="n"><a id="t187" href="#t187">187</a></span><span class="t">            <span class="key">if</span> <span class="key">not</span> <span class="nam">overwrite</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">187&#x202F;&#x219B;&#x202F;193</span><span class="annotate long">line 187 didn't jump to line 193 because the condition on line 187 was always true</span></span></p>
     <p class="run"><span class="n"><a id="t188" href="#t188">188</a></span><span class="t">                <span class="key">raise</span> <span class="nam">NgioFileExistsError</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t">                    <span class="fst">f"</span><span class="fst">Image </span><span class="op">{</span><span class="nam">proj_image_path</span><span class="op">}</span><span class="fst"> already exists in </span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t">                    <span class="fst">f"</span><span class="op">{</span><span class="nam">proj_plate_url</span><span class="op">}</span><span class="fst">. Set `overwrite_images=True` </span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t">                    <span class="fst">f"</span><span class="op">{</span><span class="nam">proj_plate_url</span><span class="op">}</span><span class="fst">. Set `overwrite=True` </span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t191" href="#t191">191</a></span><span class="t">                    <span class="str">"to overwrite it."</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t192" href="#t192">192</a></span><span class="t">                <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t193" href="#t193">193</a></span><span class="t">            <span class="nam">logger</span><span class="op">.</span><span class="nam">info</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
@@ -323,7 +323,7 @@
             <a class="nav" href="z_02c373974d9ed707_find_registration_consensus_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.4">coverage.py v7.6.4</a>,
-            created at 2025-04-24 08:49 +0000
+            created at 2025-04-28 09:28 +0000
         </p>
     </div>
 </footer>
