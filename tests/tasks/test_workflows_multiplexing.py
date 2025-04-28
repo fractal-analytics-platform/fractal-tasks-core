@@ -393,7 +393,7 @@ def test_multiplexing_MIP(
     parallelization_list = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir=str(zarr_dir),
-        overwrite_images=True,
+        overwrite=True,
         re_initialize_plate=True,
     )["parallelization_list"]
     debug(parallelization_list)

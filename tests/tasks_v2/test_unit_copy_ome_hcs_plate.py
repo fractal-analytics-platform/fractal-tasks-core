@@ -63,14 +63,14 @@ def test_flexibility_copy_hcs(tmp_path: Path):
     parallel_list_1 = copy_ome_zarr_hcs_plate(
         zarr_urls=[zarr_urls[0]],
         zarr_dir=subset_dir,
-        overwrite_images=True,
+        overwrite=True,
         re_initialize_plate=True,
     )
     # Subset 2
     _ = copy_ome_zarr_hcs_plate(
         zarr_urls=[zarr_urls[1]],
         zarr_dir=subset_dir,
-        overwrite_images=False,
+        overwrite=False,
         re_initialize_plate=False,
     )
 
@@ -82,7 +82,7 @@ def test_flexibility_copy_hcs(tmp_path: Path):
     parallel_list_all = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir=all_dir,
-        overwrite_images=True,
+        overwrite=True,
         re_initialize_plate=True,
     )
     zarr_url = parallel_list_all["parallelization_list"][0]["zarr_url"]
@@ -100,7 +100,7 @@ def test_fail_overwrite(tmp_path: Path):
     copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir=str(tmp_path),
-        overwrite_images=False,
+        overwrite=False,
         re_initialize_plate=False,
     )
 
@@ -109,7 +109,7 @@ def test_fail_overwrite(tmp_path: Path):
     copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir=str(tmp_path),
-        overwrite_images=False,
+        overwrite=False,
         re_initialize_plate=True,
     )
 
@@ -117,7 +117,7 @@ def test_fail_overwrite(tmp_path: Path):
         copy_ome_zarr_hcs_plate(
             zarr_urls=zarr_urls,
             zarr_dir=str(tmp_path),
-            overwrite_images=False,
+            overwrite=False,
             re_initialize_plate=False,
         )
 
@@ -130,7 +130,7 @@ def test_new_plate_name(tmp_path: Path):
             zarr_urls=[zarr_urls[0]],
             zarr_dir=str(tmp_path),
             method=method,
-            overwrite_images=False,
+            overwrite=False,
             re_initialize_plate=False,
         )
 
@@ -148,7 +148,7 @@ def test_fail_not_plate_url():
         copy_ome_zarr_hcs_plate(
             zarr_urls=["/tmp/plate.zarr"],
             zarr_dir="/tmp",
-            overwrite_images=False,
+            overwrite=False,
             re_initialize_plate=False,
         )
 
@@ -161,7 +161,7 @@ def test_reinit_true(tmp_path: Path):
     parallel_list_1 = copy_ome_zarr_hcs_plate(
         zarr_urls=[zarr_urls[0]],
         zarr_dir=str(tmp_path),
-        overwrite_images=True,
+        overwrite=True,
         re_initialize_plate=True,
     )
 
@@ -173,7 +173,7 @@ def test_reinit_true(tmp_path: Path):
     parallel_list_2 = copy_ome_zarr_hcs_plate(
         zarr_urls=[zarr_urls[1]],
         zarr_dir=str(tmp_path),
-        overwrite_images=False,
+        overwrite=False,
         re_initialize_plate=True,
     )
 

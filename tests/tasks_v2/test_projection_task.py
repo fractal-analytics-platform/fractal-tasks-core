@@ -13,7 +13,7 @@ def test_mip_task(cardiomyocyte_tiny_path: Path, tmp_path: Path) -> None:
     parallel_list = copy_ome_zarr_hcs_plate(
         zarr_urls=[image_url],
         zarr_dir=str(tmp_path / "tmp_out"),
-        overwrite_images=True,
+        overwrite=True,
         re_initialize_plate=True,
     )
 

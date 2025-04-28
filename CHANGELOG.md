@@ -3,7 +3,7 @@
 # 1.5.0
 
 * Tasks:
-    * Refactor `projection` task to use the new `ngio` API (\#937, \#943).
+    * Refactor `projection` task to use the new `ngio` API (\#937, \#943, \#944).
     * Refactor `copy_ome_zarr_plate` init task to support the upcoming flexibility.
     * Rely on `fractal-task-tools` for `run_fractal_task` wrapper (\#923).
     * Mark some existing tasks as _converter_ tasks(\#923).
