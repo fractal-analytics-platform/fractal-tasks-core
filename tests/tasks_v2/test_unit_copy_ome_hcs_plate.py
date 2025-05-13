@@ -40,7 +40,7 @@ def test_copy_hcs_plate(create_plate: Callable, tmp_path: Path):
 
     image = parallel_list["parallelization_list"][0]
     debug(image)
-    assert Path(image["zarr_url"]).exists()
+    assert Path(image["zarr_url"]).parent.exists()
 
     origin_url = image["init_args"]["origin_url"]
     assert origin_url in sample_plate_zarr_urls
@@ -166,7 +166,7 @@ def test_reinit_true(tmp_path: Path):
     )
 
     zarr_url = parallel_list_1["parallelization_list"][0]["zarr_url"]
-    assert Path(zarr_url).exists()
+    assert Path(zarr_url).parent.exists()
 
     # Subset 2 will reinitialize the plate
     # and overwrite the images
@@ -178,7 +178,7 @@ def test_reinit_true(tmp_path: Path):
     )
 
     zarr_url = parallel_list_2["parallelization_list"][0]["zarr_url"]
-    assert Path(zarr_url).exists()
+    assert Path(zarr_url).parent.exists()
 
     zarr_url = parallel_list_1["parallelization_list"][0]["zarr_url"]
-    assert not Path(zarr_url).exists(), zarr_url
+    assert not Path(zarr_url).parent.exists(), zarr_url
