@@ -29,6 +29,7 @@ expected_MIP_plate_attrs = {
         "acquisitions": [
             {"id": 0, "name": "20200812-CardiomyocyteDifferentiation14-Cycle1"}
         ],
+        "name": "plate_mip.zarr",
         "columns": [{"name": "03"}],
         "rows": [{"name": "B"}],
         "wells": [{"columnIndex": 0, "path": "B/03", "rowIndex": 0}],
