@@ -50,7 +50,7 @@
                   }
                 ],
                 "title": "Window",
-                "description": "Optional `Window` object to set default display settings for napari."
+                "description": "Optional `Window` object to set default display settings. If unset, it will be set to the full bit range of the image (e.g. 0-65535 for 16 bit images)."
               },
               "color": {
                 "title": "Color",
@@ -370,7 +370,7 @@
                   }
                 ],
                 "title": "Window",
-                "description": "Optional `Window` object to set default display settings for napari."
+                "description": "Optional `Window` object to set default display settings. If unset, it will be set to the full bit range of the image (e.g. 0-65535 for 16 bit images)."
               },
               "color": {
                 "title": "Color",
