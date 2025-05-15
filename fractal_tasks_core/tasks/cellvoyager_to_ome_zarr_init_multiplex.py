@@ -257,7 +257,10 @@ def cellvoyager_to_ome_zarr_init_multiplex(
         raise ValueError(f"{current_plates=}")
     plate = sanitize_string(current_plates[0])
 
-    zarrurl = dict_acquisitions[acquisitions_sorted[0]]["plate"] + ".zarr"
+    zarrurl = (
+        sanitize_string(dict_acquisitions[acquisitions_sorted[0]]["plate"])
+        + ".zarr"
+    )
     full_zarrurl = str(Path(zarr_dir) / zarrurl)
     logger.info(f"Creating {full_zarrurl=}")
     # Call zarr.open_group wrapper, which handles overwrite=True/False
@@ -418,6 +421,8 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                 Well(**well_attrs)
                 group_well.attrs["well"] = well_attrs
                 zarrurls["well"].append(f"{plate}.zarr/{row}/{column}")
+                print(plate)
+                print(zarrurls["well"])
             except ContainsGroupError:
                 group_well = zarr.open_group(
                     f"{full_zarrurl}/{row}/{column}/", mode="r+"

@@ -487,7 +487,7 @@ def sanitize_string(value: str) -> str:
     """
     Make string safe to be used in file/folder names.
 
-    Make the string lower-case, and replace any special character with an
+    Replace any special character with an
     underscore, where special characters are:
 
 
@@ -502,7 +502,6 @@ def sanitize_string(value: str) -> str:
     Returns:
         Sanitized value
     """
-    new_value = value.lower()
     for character in __SPECIAL_CHARACTERS__:
-        new_value = new_value.replace(character, "_")
+        new_value = value.replace(character, "_")
     return new_value
