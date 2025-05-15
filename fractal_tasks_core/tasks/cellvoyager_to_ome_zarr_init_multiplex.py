@@ -151,7 +151,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
 
     # Identify all plates and all channels, per input folders
     dict_acquisitions: dict = {}
-    acquisitions_sorted = sorted(list(acquisitions.keys()))
+    acquisitions_sorted = sorted(acquisitions.keys(), key=lambda x: int(x))
     for acquisition in acquisitions_sorted:
         acq_input = acquisitions[acquisition]
         dict_acquisitions[acquisition] = {}
