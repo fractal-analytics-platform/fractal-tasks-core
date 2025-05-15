@@ -7,9 +7,9 @@
 | fractal\_tasks\_core/\_\_init\_\_.py                                      |        5 |        0 |        0 |        0 |    100% |           |
 | fractal\_tasks\_core/cellvoyager/\_\_init\_\_.py                          |        0 |        0 |        0 |        0 |    100% |           |
 | fractal\_tasks\_core/cellvoyager/filenames.py                             |       61 |        1 |       26 |        1 |     98% |       167 |
-| fractal\_tasks\_core/cellvoyager/metadata.py                              |      125 |        8 |       38 |        9 |     90% |113, 130, 310, 317, 329, 338, 379, 424->432, 475 |
+| fractal\_tasks\_core/cellvoyager/metadata.py                              |      131 |        8 |       40 |        9 |     90% |114, 131, 311, 318, 330, 339, 380, 425->433, 476 |
 | fractal\_tasks\_core/cellvoyager/wells.py                                 |       18 |        0 |        8 |        0 |    100% |           |
-| fractal\_tasks\_core/channels.py                                          |      190 |        1 |       70 |        2 |     99% |30, 473->475 |
+| fractal\_tasks\_core/channels.py                                          |      191 |        1 |       70 |        2 |     99% |30, 483->485 |
 | fractal\_tasks\_core/labels.py                                            |       39 |        0 |       14 |        0 |    100% |           |
 | fractal\_tasks\_core/masked\_loading.py                                   |       62 |        8 |       16 |        5 |     83% |92, 108, 139-146, 160, 170 |
 | fractal\_tasks\_core/ngff/\_\_init\_\_.py                                 |        6 |        0 |        0 |        0 |    100% |           |
@@ -33,8 +33,8 @@
 | fractal\_tasks\_core/tasks/cellpose\_segmentation.py                      |      183 |       15 |       58 |       11 |     88% |156, 172->188, 182, 272-273, 304, 311-312, 318-320, 360, 368->373, 378, 452, 612-614 |
 | fractal\_tasks\_core/tasks/cellpose\_utils.py                             |      137 |       12 |       46 |        7 |     90% |267, 285-291, 406-408, 422-424, 431-435 |
 | fractal\_tasks\_core/tasks/cellvoyager\_to\_ome\_zarr\_compute.py         |       87 |        4 |       20 |        3 |     93% |118, 178, 247-249 |
-| fractal\_tasks\_core/tasks/cellvoyager\_to\_ome\_zarr\_init.py            |      167 |       17 |       54 |       10 |     88% |128, 130, 186, 196-197, 212, 225-228, 283, 318, 335-336, 339, 485-487 |
-| fractal\_tasks\_core/tasks/cellvoyager\_to\_ome\_zarr\_init\_multiplex.py |      206 |       21 |       54 |       15 |     86% |125, 132, 136, 145, 167, 169, 202, 204, 223-226, 255, 308, 314, 332, 346-347, 353, 532-534 |
+| fractal\_tasks\_core/tasks/cellvoyager\_to\_ome\_zarr\_init.py            |      169 |       17 |       54 |       10 |     88% |129, 131, 187, 197-198, 213, 226-229, 285, 320, 337-338, 341, 489-491 |
+| fractal\_tasks\_core/tasks/cellvoyager\_to\_ome\_zarr\_init\_multiplex.py |      209 |       21 |       54 |       15 |     86% |126, 133, 137, 146, 168, 170, 204, 206, 225-228, 257, 313, 319, 337, 351-352, 358, 539-541 |
 | fractal\_tasks\_core/tasks/copy\_ome\_zarr\_hcs\_plate.py                 |       71 |        5 |       14 |        2 |     92% |48-49, 193, 227-229 |
 | fractal\_tasks\_core/tasks/find\_registration\_consensus.py               |       47 |        4 |       16 |        4 |     87% |77->79, 107, 119, 168-170 |
 | fractal\_tasks\_core/tasks/illumination\_correction.py                    |       94 |        7 |       26 |        5 |     90% |62, 83-87, 194, 210, 287-289 |
@@ -48,7 +48,7 @@
 | fractal\_tasks\_core/upscale\_array.py                                    |       73 |        7 |       48 |        6 |     88% |63, 91, 96->100, 113, 128, 192-197 |
 | fractal\_tasks\_core/utils.py                                             |       88 |        3 |       36 |        6 |     93% |73, 141->149, 142->141, 178->181, 183, 230 |
 | fractal\_tasks\_core/zarr\_utils.py                                       |       32 |        0 |        6 |        1 |     97% |    81->85 |
-|                                                                 **TOTAL** | **3393** |  **242** | **1034** |  **137** | **91%** |           |
+|                                                                 **TOTAL** | **3405** |  **242** | **1036** |  **137** | **91%** |           |
 
 
 ## Setup coverage badge
