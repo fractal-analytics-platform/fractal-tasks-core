@@ -39,13 +39,13 @@ jobs:
             cmd_create_manifest: 'python src/scmultiplex/dev/create_manifest.py'
             custom_dependencies: 'image_registration'
 
-          - package: APx_fractal_task_collection
-            github_repo: Apricot-Therapeutics/APx_fractal_task_collection
-            github_branch: main
-            manifest_path: src/apx_fractal_task_collection/__FRACTAL_MANIFEST__.json
-            cmd_install: 'python -m pip install -e .'
-            cmd_create_manifest: 'python src/apx_fractal_task_collection/dev/update_manifest.py'
-            custom_dependencies: ''
+          # - package: APx_fractal_task_collection
+          #   github_repo: Apricot-Therapeutics/APx_fractal_task_collection
+          #   github_branch: main
+          #   manifest_path: src/apx_fractal_task_collection/__FRACTAL_MANIFEST__.json
+          #   cmd_install: 'python -m pip install -e .'
+          #   cmd_create_manifest: 'python src/apx_fractal_task_collection/dev/update_manifest.py'
+          #   custom_dependencies: ''
 
         exclude:
           - package: skip
