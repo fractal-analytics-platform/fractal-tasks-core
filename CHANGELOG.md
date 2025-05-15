@@ -1,5 +1,12 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# 1.5.1
+* Tasks:
+    * In `Convert Cellvoyager to OME-Zarr` & `Convert Cellvoyager Multiplexing to OME-Zarr` tasks, handle unset window start & end better (\#953).
+    * In `Convert Cellvoyager to OME-Zarr` & `Convert Cellvoyager Multiplexing to OME-Zarr` tasks, normalize plate names to avoid special characters & spaces (\#953).
+    * In `Convert Cellvoyager Multiplexing to OME-Zarr`, improve error message when no images are found (\#953).
+    * In `Convert Cellvoyager Multiplexing to OME-Zarr`, handle order of acquisitions better (\#953).
+
 # 1.5.0
 
 * Tasks:

@@ -29,6 +29,7 @@ from fractal_tasks_core.cellvoyager.filenames import parse_filename
 from fractal_tasks_core.cellvoyager.metadata import (
     parse_yokogawa_metadata,
 )
+from fractal_tasks_core.cellvoyager.metadata import sanitize_string
 from fractal_tasks_core.cellvoyager.wells import generate_row_col_split
 from fractal_tasks_core.cellvoyager.wells import get_filename_well_id
 from fractal_tasks_core.channels import check_unique_wavelength_ids
@@ -151,7 +152,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
 
     # Identify all plates and all channels, per input folders
     dict_acquisitions: dict = {}
-    acquisitions_sorted = sorted(list(acquisitions.keys()))
+    acquisitions_sorted = sorted(acquisitions.keys(), key=lambda x: int(x))
     for acquisition in acquisitions_sorted:
         acq_input = acquisitions[acquisition]
         dict_acquisitions[acquisition] = {}
@@ -191,6 +192,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
 
         info = (
             "Listing all plates/channels:\n"
+            f"Folder:   {acq_input.image_dir}\n"
             f"Include patterns: {include_patterns}\n"
             f"Exclude patterns: {exclude_patterns}\n"
             f"Plates:   {plates}\n"
@@ -253,9 +255,12 @@ def cellvoyager_to_ome_zarr_init_multiplex(
     current_plates = [item["plate"] for item in dict_acquisitions.values()]
     if len(set(current_plates)) > 1:
         raise ValueError(f"{current_plates=}")
-    plate = current_plates[0]
+    plate = sanitize_string(current_plates[0])
 
-    zarrurl = dict_acquisitions[acquisitions_sorted[0]]["plate"] + ".zarr"
+    zarrurl = (
+        sanitize_string(dict_acquisitions[acquisitions_sorted[0]]["plate"])
+        + ".zarr"
+    )
     full_zarrurl = str(Path(zarr_dir) / zarrurl)
     logger.info(f"Creating {full_zarrurl=}")
     # Call zarr.open_group wrapper, which handles overwrite=True/False
@@ -416,6 +421,8 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                 Well(**well_attrs)
                 group_well.attrs["well"] = well_attrs
                 zarrurls["well"].append(f"{plate}.zarr/{row}/{column}")
+                print(plate)
+                print(zarrurls["well"])
             except ContainsGroupError:
                 group_well = zarr.open_group(
                     f"{full_zarrurl}/{row}/{column}/", mode="r+"

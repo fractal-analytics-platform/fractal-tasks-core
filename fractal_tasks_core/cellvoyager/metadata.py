@@ -15,6 +15,7 @@ Functions to create a metadata dataframe from Yokogawa files.
 import fnmatch
 import logging
 import math
+import string
 from pathlib import Path
 from typing import Optional
 from typing import Union
@@ -477,3 +478,30 @@ def check_group_consistency(grouped_df: pd.DataFrame, message: str = ""):
             f"{message}\n"
             f"Difference dataframe: \n{diff_df}"
         )
+
+
+__SPECIAL_CHARACTERS__ = f"{string.punctuation}{string.whitespace}"
+
+
+def sanitize_string(value: str) -> str:
+    """
+    Make string safe to be used in file/folder names.
+
+    Replace any special character with an
+    underscore, where special characters are:
+
+
+        >>> string.punctuation
+        '!"#$%&\'()*+,-./:;<=>?@[\\\\]^_`{|}~'
+        >>> string.whitespace
+        ' \\t\\n\\r\\x0b\\x0c'
+
+    Args:
+        value: Input string
+
+    Returns:
+        Sanitized value
+    """
+    for character in __SPECIAL_CHARACTERS__:
+        new_value = value.replace(character, "_")
+    return new_value
