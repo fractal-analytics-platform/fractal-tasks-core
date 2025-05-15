@@ -191,6 +191,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
 
         info = (
             "Listing all plates/channels:\n"
+            f"Folder:   {acq_input.image_dir}\n"
             f"Include patterns: {include_patterns}\n"
             f"Exclude patterns: {exclude_patterns}\n"
             f"Plates:   {plates}\n"
