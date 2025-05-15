@@ -59,8 +59,9 @@ class OmeroChannel(BaseModel):
         wavelength_id: Unique ID for the channel wavelength, e.g. `A01_C01`.
         index: Do not change. For internal use only.
         label: Name of the channel.
-        window: Optional `Window` object to set default display settings for
-            napari.
+        window: Optional `Window` object to set default display settings. If 
+            unset, it will be set to the full bit range of the image 
+            (e.g. 0-65535 for 16 bit images).
         color: Optional hex colormap to display the channel in napari (it
             must be of length 6, e.g. `00FFFF`).
         active: Should this channel be shown in the viewer?
@@ -370,6 +371,15 @@ def define_omero_channels(
         if channel.window:
             channel.window.min = 0
             channel.window.max = 2**bit_depth - 1
+        else:
+            # If no channel.window is set, create a new one with full bitrange 
+            # min & max
+            channel.window = Window(
+                min=0,
+                max=2**bit_depth - 1,
+                start=0,
+                end=2**bit_depth - 1,
+            )
 
     # Check that channel labels are unique for this image
     labels = [c.label for c in new_channels]
