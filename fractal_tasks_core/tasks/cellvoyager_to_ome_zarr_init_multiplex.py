@@ -29,6 +29,7 @@ from fractal_tasks_core.cellvoyager.filenames import parse_filename
 from fractal_tasks_core.cellvoyager.metadata import (
     parse_yokogawa_metadata,
 )
+from fractal_tasks_core.cellvoyager.metadata import sanitize_string
 from fractal_tasks_core.cellvoyager.wells import generate_row_col_split
 from fractal_tasks_core.cellvoyager.wells import get_filename_well_id
 from fractal_tasks_core.channels import check_unique_wavelength_ids
@@ -254,7 +255,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
     current_plates = [item["plate"] for item in dict_acquisitions.values()]
     if len(set(current_plates)) > 1:
         raise ValueError(f"{current_plates=}")
-    plate = current_plates[0]
+    plate = sanitize_string(current_plates[0])
 
     zarrurl = dict_acquisitions[acquisitions_sorted[0]]["plate"] + ".zarr"
     full_zarrurl = str(Path(zarr_dir) / zarrurl)

@@ -27,6 +27,7 @@ from fractal_tasks_core.cellvoyager.filenames import parse_filename
 from fractal_tasks_core.cellvoyager.metadata import (
     parse_yokogawa_metadata,
 )
+from fractal_tasks_core.cellvoyager.metadata import sanitize_string
 from fractal_tasks_core.cellvoyager.wells import generate_row_col_split
 from fractal_tasks_core.cellvoyager.wells import get_filename_well_id
 from fractal_tasks_core.channels import check_unique_wavelength_ids
@@ -241,8 +242,9 @@ def cellvoyager_to_ome_zarr_init(
     parallelization_list = []
 
     for plate in plates:
+        plate_name = sanitize_string(plate)
         # Define plate zarr
-        relative_zarrurl = f"{plate}.zarr"
+        relative_zarrurl = f"{plate_name}.zarr"
         in_path = dict_plate_paths[plate]
         logger.info(f"Creating {relative_zarrurl}")
         # Call zarr.open_group wrapper, which handles overwrite=True/False
@@ -337,7 +339,7 @@ def cellvoyager_to_ome_zarr_init(
             well_wavelength_ids = sorted(list(set(well_wavelength_ids)))
             if well_wavelength_ids != actual_wavelength_ids:
                 raise ValueError(
-                    f"ERROR: well {well} in plate {plate} (prefix: "
+                    f"ERROR: well {well} in plate {plate_name} (prefix: "
                     f"{plate_prefix}) has missing channels.\n"
                     f"Expected: {actual_channels}\n"
                     f"Found: {well_wavelength_ids}.\n"
@@ -355,7 +357,7 @@ def cellvoyager_to_ome_zarr_init(
         col_list = sorted(list(set(col_list)))
 
         plate_attrs = {
-            "acquisitions": [{"id": 0, "name": plate}],
+            "acquisitions": [{"id": 0, "name": plate_name}],
             "columns": [{"name": col} for col in col_list],
             "rows": [{"name": row} for row in row_list],
             "version": __OME_NGFF_VERSION__,
@@ -377,7 +379,9 @@ def cellvoyager_to_ome_zarr_init(
         for row, column in well_rows_columns:
             parallelization_list.append(
                 {
-                    "zarr_url": f"{zarr_dir}/{plate}.zarr/{row}/{column}/0",
+                    "zarr_url": (
+                        f"{zarr_dir}/{plate_name}.zarr/{row}/{column}/0"
+                    ),
                     "init_args": InitArgsCellVoyager(
                         image_dir=in_path,
                         plate_prefix=plate_prefix,
