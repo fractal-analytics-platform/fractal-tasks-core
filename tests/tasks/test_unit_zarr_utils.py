@@ -184,6 +184,7 @@ def test_update_well_metadata_failures(
 
 HEURISTIC_CASES = [
     (["0", "0_illum_corr"], "1_illum_corr", "0_illum_corr"),
+    (["0", "0_illum_corr"], "0_illum_corr", "0_illum_corr"),
     (["0", "0_illum_corr"], "1", "0"),
     (["0", "0_illum_corr", "0_registered"], "1_illum_corr", "0_illum_corr"),
     (["0", "1", "2", "3"], "0_acq2", "0"),

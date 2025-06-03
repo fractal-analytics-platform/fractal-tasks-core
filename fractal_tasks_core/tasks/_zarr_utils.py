@@ -140,10 +140,6 @@ def _get_matching_ref_acquisition_path_heuristic(
     # Sort path_list
     sorted_path_list = sorted(path_list)
 
-    # Never return the input `path`
-    if path in sorted_path_list:
-        sorted_path_list.remove(path)
-
     # First matching rule: a path with the same suffix
     for p in sorted_path_list:
         # Split the list path into base and suffix

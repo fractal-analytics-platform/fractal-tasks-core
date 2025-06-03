@@ -1,5 +1,9 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# 1.5.3
+* Tasks:
+    * Fix the heuristic in the Apply registration task to handle the registration of the reference cycle better (\#959).
+
 # 1.5.2
 * Library
     * Update masked loading wrapper to support loading masking ROIs written by ngio (\#957).
