@@ -1,5 +1,9 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# 1.5.2
+* Library
+    * Update masked loading wrapper to support loading masking ROIs written by ngio (\#957).
+
 # 1.5.1
 * Tasks:
     * In `Convert Cellvoyager to OME-Zarr` & `Convert Cellvoyager Multiplexing to OME-Zarr` tasks, handle unset window start & end better (\#953).
