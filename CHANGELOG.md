@@ -1,5 +1,8 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# 1.2.2
+* Update masked loading wrapper to support loading masking ROIs written by ngio (\#958).
+
 # 1.2.1
 * Core-library
     * Add `create_roi_table_from_df_list` library function in `fractal_tasks_core.v1.roi`: It combines a list of ROI table dataframes into an AnnData ROI table and handles repeating labels (\#811).

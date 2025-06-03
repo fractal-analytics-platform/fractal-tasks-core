@@ -105,10 +105,14 @@ def _preprocess_input(
 
     # Check that ROI_table.obs has the right column and extract label_value
     if column_name not in ROI_table.obs.columns:
-        raise ValueError(
-            'In _preprocess_input, "{column_name}" '
-            f" missing in {ROI_table.obs.columns=}"
-        )
+        if ROI_table.obs.index.name == column_name:
+            # Workaround for new ngio table
+            ROI_table.obs[column_name] = ROI_table.obs.index
+        else:
+            raise ValueError(
+                f"In _preprocess_input, {column_name=} "
+                f" missing in {ROI_table.obs.columns=}"
+            )
     label_value = int(float(ROI_table.obs[column_name][ROI_positional_index]))
 
     # Load masking-label array (lazily)
