@@ -28,7 +28,7 @@
 | fractal\_tasks\_core/tasks/\_registration\_utils.py                       |       62 |        1 |       16 |        1 |     97% |       153 |
 | fractal\_tasks\_core/tasks/\_utils.py                                     |       31 |       31 |        4 |        0 |      0% |     14-89 |
 | fractal\_tasks\_core/tasks/\_zarr\_utils.py                               |       63 |        0 |       12 |        1 |     99% | 181->exit |
-| fractal\_tasks\_core/tasks/apply\_registration\_to\_image.py              |      128 |       18 |       40 |        8 |     81% |104, 150-151, 153->175, 181->180, 185-197, 199->247, 218-230, 360-373, 398-400 |
+| fractal\_tasks\_core/tasks/apply\_registration\_to\_image.py              |      128 |       18 |       40 |        8 |     81% |104, 150-151, 153->175, 181->180, 185-197, 199->248, 218-231, 361-374, 399-401 |
 | fractal\_tasks\_core/tasks/calculate\_registration\_image\_based.py       |       87 |        6 |       20 |        6 |     89% |68->exit, 190, 200, 218, 279, 312-314 |
 | fractal\_tasks\_core/tasks/cellpose\_segmentation.py                      |      183 |       15 |       58 |       11 |     88% |156, 172->188, 182, 272-273, 304, 311-312, 318-320, 360, 368->373, 378, 452, 612-614 |
 | fractal\_tasks\_core/tasks/cellpose\_utils.py                             |      137 |       12 |       46 |        7 |     90% |267, 285-291, 406-408, 422-424, 431-435 |
