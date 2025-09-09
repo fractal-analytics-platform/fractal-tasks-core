@@ -34,12 +34,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Cache poetry virtualenv
-        uses: actions/cache@v4
-        with:
-          path: ./.venv
-          key: ${{ runner.os }}-python-${{ matrix.python-version }}-venv-${{ hashFiles('**/poetry.lock') }}-tests_core
-
       - name: Install dependencies (without extras)
         run: poetry install --with dev --without docs --no-interaction
 
