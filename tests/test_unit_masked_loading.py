@@ -9,7 +9,6 @@ from fractal_tasks_core.masked_loading import (
 
 
 def patched_segment_ROI(img):
-
     logging.info("[patched_segment_ROI] START")
 
     # Expects x to always be a 4D image

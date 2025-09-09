@@ -7,7 +7,6 @@ from fractal_tasks_core.pyramids import build_pyramid
 
 
 def test_build_pyramid(tmp_path):
-
     # Fail because only 2D,3D,4D are supported / A
     zarrurl = str(tmp_path / "A.zarr")
     # Specify the dimension separator as '/'

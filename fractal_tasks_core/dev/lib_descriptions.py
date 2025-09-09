@@ -165,9 +165,11 @@ def _get_class_attrs_descriptions(
     docstring = ast.get_docstring(_class)
     parsed_docstring = docparse(docstring)
     descriptions = {
-        x.arg_name: _sanitize_description(x.description)
-        if x.description
-        else "Missing description"
+        x.arg_name: (
+            _sanitize_description(x.description)
+            if x.description
+            else "Missing description"
+        )
         for x in parsed_docstring.params
     }
     logging.info(f"[_get_class_attrs_descriptions] END ({class_name=})")
