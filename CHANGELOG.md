@@ -1,6 +1,10 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# Unreleased
+
 # 1.5.4
+* Tasks:
+    * Catch `FileNotFoundError` in `apply_registration_to_image` task when race conditions with the reference cycle are hit (\#971).
 * Dependencies:
     * Pin `lxml` to `<=5.4.0` (\#963).
 

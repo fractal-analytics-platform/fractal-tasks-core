@@ -218,6 +218,7 @@ def apply_registration_to_image(
                 except (
                     zarr.errors.GroupNotFoundError,
                     zarr.errors.PathNotFoundError,
+                    FileNotFoundError,
                 ):
                     logger.debug(
                         f"Table {table} not found in attempt {current_round}. "
