@@ -10,7 +10,7 @@ jobs:
 
   tests_core:
     name: "Core, Python ${{ matrix.python-version }}"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
 
     strategy:
@@ -23,22 +23,19 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
-      - name: Install poetry
-        run: pipx install poetry==1.8.2
-
-      - name: Configure poetry
-        run: poetry config virtualenvs.in-project true
-
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Cache poetry virtualenv
-        uses: actions/cache@v4
-        with:
-          path: ./.venv
-          key: ${{ runner.os }}-python-${{ matrix.python-version }}-venv-${{ hashFiles('**/poetry.lock') }}-tests_core
+      - name: Install poetry
+        run: pipx install poetry==1.8.5
+
+      - name: Configure poetry
+        run: poetry config virtualenvs.in-project true
+
+      - name: Configure python version for poetry
+        run: poetry env use python${{ matrix.python-version }}
 
       - name: Install dependencies (without extras)
         run: poetry install --with dev --without docs --no-interaction
@@ -56,7 +53,7 @@ jobs:
 
   tests_tasks:
     name: "Tasks, Python ${{ matrix.python-version }}"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
 
     strategy:
@@ -69,22 +66,19 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
-      - name: Install poetry
-        run: pipx install poetry==1.8.2
-
-      - name: Configure poetry
-        run: poetry config virtualenvs.in-project true
-
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Cache poetry virtualenv
-        uses: actions/cache@v4
-        with:
-          path: ./.venv
-          key: ${{ runner.os }}-python-${{ matrix.python-version }}-venv-${{ hashFiles('**/poetry.lock') }}-tests_tasks
+      - name: Install poetry
+        run: pipx install poetry==1.8.5
+
+      - name: Configure poetry
+        run: poetry config virtualenvs.in-project true
+
+      - name: Configure python version for poetry
+        run: poetry env use python${{ matrix.python-version }}
 
       - name: Install dependencies (including fractal-tasks extra)
         run: poetry install --with dev --without docs --no-interaction -E fractal-tasks
@@ -112,12 +106,12 @@ jobs:
 
   coverage:
     name: Coverage
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: [tests_core, tests_tasks]
     steps:
       - uses: actions/checkout@v4
 
-      - run: pipx install poetry==1.8.2
+      - run: pipx install poetry==1.8.5
       - run: poetry config virtualenvs.in-project true
       - uses: actions/setup-python@v5
         with:

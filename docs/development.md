@@ -2,7 +2,7 @@
 
 ## Setting up environment
 
-We use [poetry](https://python-poetry.org/docs) to manage both development environments and package building. A simple way to install it is `pipx install poetry==1.8.2`, or you can look at the installation section [here](https://python-poetry.org/docs#installation).
+We use [poetry](https://python-poetry.org/docs) to manage both development environments and package building. A simple way to install it is `pipx install poetry==1.8.5`, or you can look at the installation section [here](https://python-poetry.org/docs#installation).
 
 From the repository root folder, running any of
 ```bash

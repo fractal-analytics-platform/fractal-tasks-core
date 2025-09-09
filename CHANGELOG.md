@@ -3,6 +3,9 @@
 # Unreleased
 
 * Bump versions of `pre-commit` tools (\#975).
+* Testing:
+    * Update poetry to 1.8.5 (\#972).
+    * Run GHAs on ubuntu-24.04 (\#972).
 
 # 1.5.4
 * Tasks:

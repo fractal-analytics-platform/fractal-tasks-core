@@ -11,7 +11,7 @@ on:
 
 jobs:
   build_and_publish:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     environment: pypi
     steps:
 
@@ -29,8 +29,8 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: "Install poetry 1.8.2"
-        run: curl -sSL https://install.python-poetry.org | python3 - --version 1.8.2
+      - name: "Install poetry 1.8.5"
+        run: curl -sSL https://install.python-poetry.org | python3 - --version 1.8.5
 
       - name: Build package
         run: poetry build
