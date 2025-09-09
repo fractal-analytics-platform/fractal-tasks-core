@@ -23,16 +23,16 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
       - name: Install poetry
         run: pipx install poetry==1.8.5
 
       - name: Configure poetry
         run: poetry config virtualenvs.in-project true
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies (without extras)
         run: poetry install --with dev --without docs --no-interaction
@@ -63,16 +63,16 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
       - name: Install poetry
         run: pipx install poetry==1.8.5
 
       - name: Configure poetry
         run: poetry config virtualenvs.in-project true
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies (including fractal-tasks extra)
         run: poetry install --with dev --without docs --no-interaction -E fractal-tasks
