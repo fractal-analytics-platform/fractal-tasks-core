@@ -153,7 +153,6 @@ def test_write_table_validation_errors(tmp_path, caplog):
 
 
 def test_write_table_V2_not_implemented(tmp_path):
-
     zarr_path = str(tmp_path / "my_image.zarr")
     img_group = zarr.open(zarr_path, mode="w")
     table = ad.AnnData(np.ones((2, 2)))

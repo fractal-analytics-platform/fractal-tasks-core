@@ -126,7 +126,6 @@ def test_get_channel_from_list(testdata_path: Path):
 
 @pytest.fixture(scope="session")
 def omero_channel_schema():
-
     if __OME_NGFF_VERSION__ != "0.4":
         raise ValueError(
             "This test is only valid for OME-NGFF version 0.4, "

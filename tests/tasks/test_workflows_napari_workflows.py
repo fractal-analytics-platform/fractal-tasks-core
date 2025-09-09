@@ -49,7 +49,6 @@ def test_napari_workflow(
     testdata_path: Path,
     zenodo_zarr: list[str],
 ):
-
     # Init
     zarr_dir = tmp_path / "tmp_out/"
     zarr_urls = prepare_3D_zarr(str(zarr_dir), zenodo_zarr)
@@ -133,7 +132,6 @@ def test_napari_worfklow_label_input_only(
     testdata_path: Path,
     zenodo_zarr: list[str],
 ):
-
     # Prepare 3D zarr
     zarr_dir = tmp_path / "tmp_out/"
     zarr_urls = prepare_3D_zarr(str(zarr_dir), zenodo_zarr)
@@ -254,7 +252,6 @@ def test_relabeling(
     testdata_path: Path,
     zenodo_zarr: list[str],
 ):
-
     # Prepare 3D zarr
     zarr_dir = tmp_path / "tmp_out/"
     zarr_urls = prepare_3D_zarr(str(zarr_dir), zenodo_zarr)
@@ -314,7 +311,6 @@ def test_fail_if_no_relabeling(
     testdata_path: Path,
     zenodo_zarr: list[str],
 ):
-
     # Prepare 3D zarr
     zarr_dir = tmp_path / "tmp_out/"
     zarr_urls = prepare_3D_zarr(str(zarr_dir), zenodo_zarr)
@@ -368,7 +364,6 @@ def test_expected_dimensions(
     testdata_path: Path,
     zenodo_zarr: list[str],
 ):
-
     # Prepare zarr
     zarr_dir = tmp_path / "tmp_out/"
     if zarr_dimensions == 2:
@@ -513,7 +508,6 @@ def test_napari_workflow_CYX(
     testdata_path: Path,
     zenodo_zarr: list[str],
 ):
-
     # Init
     zarr_dir = tmp_path / "tmp_out/"
     zarr_urls = prepare_2D_zarr(
@@ -651,7 +645,6 @@ def test_napari_workflow_mock(
     testdata_path: Path,
     zenodo_zarr: list[str],
 ):
-
     # Init
     zarr_dir = tmp_path / "tmp_out/"
     zarr_urls = prepare_3D_zarr(str(zarr_dir), zenodo_zarr)

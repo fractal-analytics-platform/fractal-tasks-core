@@ -196,7 +196,6 @@ def test_parse_yokogawa_metadata_multiwell():
 
 
 def test_manually_removing_overlap(testdata_path):
-
     # Set paths
     mlf_path = str(
         testdata_path

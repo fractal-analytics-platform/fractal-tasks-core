@@ -37,7 +37,6 @@ def build_pyramid(
     aggregation_function: Optional[Callable] = None,
     open_array_kwargs: Optional[Mapping] = None,
 ) -> None:
-
     """
     Starting from on-disk highest-resolution data, build and write to disk a
     pyramid with `(num_levels - 1)` coarsened levels.

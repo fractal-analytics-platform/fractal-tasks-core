@@ -25,7 +25,6 @@ from fractal_tasks_core.dev.lib_args_schemas import (
 
 
 if __name__ == "__main__":
-
     # Read manifest
     manifest_path = (
         Path(my_package.__file__).parent / "__FRACTAL_MANIFEST__.json"

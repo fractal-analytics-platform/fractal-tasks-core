@@ -100,7 +100,6 @@ def test_multiplexing_compute(
     metadata_input: str,
     testdata_path: Path,
 ):
-
     # Select the kind of metadata_table_files input
     if metadata_input == "use_mrf_mlf_files":
         metadata_table_files = None
@@ -350,7 +349,6 @@ def test_multiplexing_arbitrary_acquisition_names(
 def test_multiplexing_MIP(
     tmp_path: Path, zenodo_images_multiplex: Sequence[str]
 ):
-
     # Init
     zarr_dir = tmp_path / "tmp_out/"
 

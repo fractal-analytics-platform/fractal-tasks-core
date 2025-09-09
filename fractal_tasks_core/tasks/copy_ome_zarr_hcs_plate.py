@@ -143,7 +143,6 @@ def copy_ome_zarr_hcs_plate(
 
     # Generate parallelization list
     for zarr_url in zarr_urls:
-
         # Check if the zarr_url is valid
         if len(zarr_url.rstrip("/").split("/")) < 4:
             raise ValueError(

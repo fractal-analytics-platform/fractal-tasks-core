@@ -46,7 +46,6 @@ def test_rescale_datasets(tmp_path):
 
 
 def test_get_table_path_dict(tmp_path):
-
     zarr_url = str(tmp_path / "plate.zarr/B/03/0")
     img_group = zarr.open_group(zarr_url)
 

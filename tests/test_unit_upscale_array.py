@@ -93,7 +93,6 @@ def test_incommensurable_upscaling():
 
 
 def test_convert_region_to_low_res():
-
     # Successful conversion
     highres_shape = (8,)
     lowres_shape = (4,)
