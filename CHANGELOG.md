@@ -3,6 +3,7 @@
 # Unreleased
 
 * Bump versions of `pre-commit` tools (\#975).
+* Update poetry to 1.8.5 (\#972).
 
 # 1.5.4
 * Tasks:
