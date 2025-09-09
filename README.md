@@ -35,7 +35,7 @@
 | fractal\_tasks\_core/tasks/cellvoyager\_to\_ome\_zarr\_compute.py         |       87 |        4 |       20 |        3 |     93% |118, 178, 247-249 |
 | fractal\_tasks\_core/tasks/cellvoyager\_to\_ome\_zarr\_init.py            |      169 |       17 |       54 |       10 |     88% |129, 131, 187, 197-198, 213, 226-229, 285, 320, 337-338, 341, 489-491 |
 | fractal\_tasks\_core/tasks/cellvoyager\_to\_ome\_zarr\_init\_multiplex.py |      209 |       21 |       54 |       15 |     86% |126, 133, 137, 146, 168, 170, 204, 206, 225-228, 257, 313, 319, 337, 351-352, 358, 539-541 |
-| fractal\_tasks\_core/tasks/copy\_ome\_zarr\_hcs\_plate.py                 |       71 |        5 |       14 |        2 |     92% |48-49, 193, 227-229 |
+| fractal\_tasks\_core/tasks/copy\_ome\_zarr\_hcs\_plate.py                 |       71 |        5 |       14 |        2 |     92% |48-49, 192, 226-228 |
 | fractal\_tasks\_core/tasks/find\_registration\_consensus.py               |       47 |        4 |       16 |        4 |     87% |77->79, 107, 119, 168-170 |
 | fractal\_tasks\_core/tasks/illumination\_correction.py                    |       94 |        7 |       26 |        5 |     90% |62, 83-87, 194, 210, 287-289 |
 | fractal\_tasks\_core/tasks/image\_based\_registration\_hcs\_init.py       |       21 |        2 |       10 |        1 |     90% |     93-95 |
