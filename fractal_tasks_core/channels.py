@@ -420,7 +420,7 @@ def _get_new_unique_value(
 
 
 def update_omero_channels(
-    old_channels: list[dict[str, Any]]
+    old_channels: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     """
     Make an existing list of Omero channels Fractal-compatible

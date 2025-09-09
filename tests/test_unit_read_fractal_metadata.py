@@ -27,7 +27,6 @@ def test_find_omengff_acquisition(tmp_path):
 
 
 def test_get_parameters_from_metadata(tmp_path):
-
     ACQUISITION = 99
     IMAGE_NAME = "cycle_123"
     COARSENING_XY = 2

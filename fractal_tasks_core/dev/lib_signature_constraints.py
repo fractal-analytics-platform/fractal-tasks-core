@@ -81,7 +81,6 @@ def _validate_function_signature(function: Callable):
     """
     sig = signature(function)
     for param in sig.parameters.values():
-
         # CASE 1: Check that name is not forbidden
         if param.name in FORBIDDEN_PARAM_NAMES:
             raise ValueError(

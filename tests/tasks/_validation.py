@@ -108,7 +108,6 @@ def validate_axes_and_coordinateTransformations(image_zarr: Path):
 def validate_labels_and_measurements(
     image_zarr: Path, *, label_name: str, table_name: str
 ):
-
     label_path = str(image_zarr / "labels" / label_name / "0")
     table_path = str(image_zarr / "tables" / table_name)
     debug(label_path)

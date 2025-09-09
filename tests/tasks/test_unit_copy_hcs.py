@@ -42,7 +42,6 @@ def test_MIP(
     tmp_path: Path,
     zenodo_zarr: list[str],
 ):
-
     # Init
     zarr_path = tmp_path / "tmp_out/"
 

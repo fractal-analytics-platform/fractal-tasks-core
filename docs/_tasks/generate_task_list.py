@@ -116,7 +116,7 @@ with mkdocs_gen_files.open(markdown_file.as_posix(), "w") as md:
         homepage_url = package["homepage_url"]
         manifest_url = package["manifest_url"]
         description = package.get("description", None)
-        r = requests.get(manifest_url)
+        r = requests.get(manifest_url, timeout=100)
         if not r.status_code == 200:
             error_msg = f"Something wrong with the request to {manifest_url}"
             logger.error(f"{prefix} {error_msg}")

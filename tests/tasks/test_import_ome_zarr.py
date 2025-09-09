@@ -24,7 +24,6 @@ def _check_ROI_tables(_image_path):
 
 
 def test_import_ome_zarr_plate(tmp_path, zenodo_zarr):
-
     # Prepare an on-disk OME-Zarr at the plate level
     zarr_dir = str(tmp_path)
     prepare_3D_zarr(zarr_dir, zenodo_zarr, remove_tables=True)
@@ -78,7 +77,6 @@ def test_import_ome_zarr_plate(tmp_path, zenodo_zarr):
 
 
 def test_import_ome_zarr_well(tmp_path, zenodo_zarr):
-
     # Prepare an on-disk OME-Zarr at the plate level
     zarr_dir = str(tmp_path)
     prepare_3D_zarr(zarr_dir, zenodo_zarr, remove_tables=True)
@@ -117,7 +115,6 @@ def test_import_ome_zarr_well(tmp_path, zenodo_zarr):
 
 @pytest.mark.parametrize("reset_omero", [True, False])
 def test_import_ome_zarr_image(tmp_path, zenodo_zarr, reset_omero):
-
     # Prepare an on-disk OME-Zarr at the plate level
     zarr_dir = str(tmp_path)
     prepare_3D_zarr(
@@ -206,7 +203,6 @@ def test_import_ome_zarr_image_wrong_channels(tmp_path, zenodo_zarr):
 
 
 def test_import_ome_zarr_plate_no_ROI_tables(tmp_path, zenodo_zarr):
-
     # Prepare an on-disk OME-Zarr at the plate level
     zarr_dir = str(tmp_path)
     prepare_3D_zarr(zarr_dir, zenodo_zarr, remove_tables=True)

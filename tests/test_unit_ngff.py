@@ -73,7 +73,6 @@ def test_Dataset(ngffdata_path):
 
 
 def test_Multiscale(ngffdata_path):
-
     # Fail due to global coordinateTransformation
     with pytest.raises(NotImplementedError):
         _load_and_validate(ngffdata_path / "multiscale_error.json", Multiscale)
@@ -92,7 +91,6 @@ def test_Multiscale(ngffdata_path):
 
 
 def test_NgffImageMeta(ngffdata_path):
-
     # Fail when accessing multiscale, if there are more than one
     ngff_image_meta = _load_and_validate(
         ngffdata_path / "image_error.json", NgffImageMeta
@@ -212,7 +210,6 @@ def test_NgffWellMeta_get_acquisition_paths(ngffdata_path):
 
 
 def test_detect_ome_ngff_type(tmp_path):
-
     g_plate = zarr.open(tmp_path / "plate.zarr")
     g_plate.attrs.update(plate={})
     g_well = zarr.open(tmp_path / "well.zarr")

@@ -69,7 +69,6 @@ coarsening_xy = 2
 
 @pytest.mark.xfail(reason="This would fail for a dataset with N>1 channels")
 def test_create_ome_zarr_fail(tmp_path: Path, zenodo_images: str):
-
     tmp_allowed_channels = [
         {"label": "repeated label", "wavelength_id": "A01_C01"},
         {"label": "repeated label", "wavelength_id": "A01_C02"},
@@ -134,7 +133,6 @@ def test_yokogawa_to_ome_zarr(
     testdata_path: Path,
     metadata_input: str,
 ):
-
     # Select the kind of metadata_table_file input
     if metadata_input == "use_mrf_mlf_files":
         metadata_table_file = None
@@ -306,7 +304,6 @@ def test_MIP(
     tmp_path: Path,
     zenodo_zarr: list[str],
 ):
-
     # Init
     zarr_path = tmp_path / "tmp_out"
     debug(zarr_path)
@@ -527,7 +524,6 @@ def test_illumination_correction(
     zenodo_images: str,
     caplog: pytest.LogCaptureFixture,
 ):
-
     # Setup caplog fixture, see
     # https://docs.pytest.org/en/stable/how-to/logging.html#caplog-fixture
     caplog.set_level(logging.INFO)

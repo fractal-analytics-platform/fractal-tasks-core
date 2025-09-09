@@ -2,6 +2,8 @@
 
 # Unreleased
 
+* Bump versions of `pre-commit` tools (\#975).
+
 # 1.5.4
 * Tasks:
     * Catch `FileNotFoundError` in `apply_registration_to_image` task when race conditions with the reference cycle are hit (\#971).

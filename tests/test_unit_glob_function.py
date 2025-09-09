@@ -6,7 +6,6 @@ from fractal_tasks_core.cellvoyager.filenames import (
 
 
 def test_unit_glob_with_multiple_patterns(tmp_path):
-
     NUM_FILES = 20
     NUM_FOLDERS = 5
     for ind in range(NUM_FILES):
@@ -69,7 +68,6 @@ def test_unit_glob_with_multiple_patterns(tmp_path):
 
 
 def test_unit_exclude_patterns(tmp_path):
-
     NUM_FILES = 20
     NUM_FOLDERS = 5
     for ind in range(NUM_FILES):
