@@ -9,11 +9,11 @@
 | fractal\_tasks\_core/cellvoyager/filenames.py                             |       61 |        1 |       26 |        1 |     98% |       167 |
 | fractal\_tasks\_core/cellvoyager/metadata.py                              |      131 |        8 |       40 |        9 |     90% |114, 131, 311, 318, 330, 339, 380, 425->433, 476 |
 | fractal\_tasks\_core/cellvoyager/wells.py                                 |       18 |        0 |        8 |        0 |    100% |           |
-| fractal\_tasks\_core/channels.py                                          |      191 |        1 |       70 |        2 |     99% |30, 483->485 |
+| fractal\_tasks\_core/channels.py                                          |      188 |        1 |       70 |        2 |     99% |30, 483->485 |
 | fractal\_tasks\_core/labels.py                                            |       39 |        0 |       14 |        0 |    100% |           |
 | fractal\_tasks\_core/masked\_loading.py                                   |       64 |       10 |       18 |        5 |     79% |92, 108-112, 143-150, 164, 174 |
 | fractal\_tasks\_core/ngff/\_\_init\_\_.py                                 |        6 |        0 |        0 |        0 |    100% |           |
-| fractal\_tasks\_core/ngff/specs.py                                        |      157 |        0 |       32 |        0 |    100% |           |
+| fractal\_tasks\_core/ngff/specs.py                                        |      140 |        0 |       32 |        0 |    100% |           |
 | fractal\_tasks\_core/ngff/zarr\_utils.py                                  |       61 |       15 |        6 |        0 |     78% |78-83, 96-113 |
 | fractal\_tasks\_core/pyramids.py                                          |       43 |        0 |       14 |        0 |    100% |           |
 | fractal\_tasks\_core/roi/\_\_init\_\_.py                                  |        4 |        0 |        0 |        0 |    100% |           |
@@ -23,7 +23,7 @@
 | fractal\_tasks\_core/roi/v1\_checks.py                                    |       36 |        0 |       12 |        0 |    100% |           |
 | fractal\_tasks\_core/roi/v1\_overlaps.py                                  |      148 |        5 |       50 |        6 |     94% |72, 132, 173, 254, 265, 382->389 |
 | fractal\_tasks\_core/tables/\_\_init\_\_.py                               |       16 |        0 |        4 |        0 |    100% |           |
-| fractal\_tasks\_core/tables/v1.py                                         |      122 |       16 |       52 |        2 |     83% |112->115, 299, 310-327 |
+| fractal\_tasks\_core/tables/v1.py                                         |      115 |       16 |       52 |        2 |     82% |112->115, 299, 310-327 |
 | fractal\_tasks\_core/tasks/\_\_init\_\_.py                                |        0 |        0 |        0 |        0 |    100% |           |
 | fractal\_tasks\_core/tasks/\_registration\_utils.py                       |       62 |        1 |       16 |        1 |     97% |       153 |
 | fractal\_tasks\_core/tasks/\_utils.py                                     |       31 |       31 |        4 |        0 |      0% |     14-89 |
@@ -41,14 +41,14 @@
 | fractal\_tasks\_core/tasks/image\_based\_registration\_hcs\_init.py       |       21 |        2 |       10 |        1 |     90% |     93-95 |
 | fractal\_tasks\_core/tasks/import\_ome\_zarr.py                           |       93 |        8 |       30 |        6 |     89% |69, 107->154, 111-120, 155->158, 156->158, 268->290, 295-297 |
 | fractal\_tasks\_core/tasks/init\_group\_by\_well\_for\_multiplexing.py    |       22 |        3 |       10 |        2 |     84% | 61, 86-88 |
-| fractal\_tasks\_core/tasks/io\_models.py                                  |       80 |        0 |       14 |        0 |    100% |           |
+| fractal\_tasks\_core/tasks/io\_models.py                                  |       64 |        0 |       14 |        0 |    100% |           |
 | fractal\_tasks\_core/tasks/napari\_workflows\_wrapper.py                  |      235 |       19 |       98 |       13 |     90% |137-139, 274, 281, 287-292, 297, 328, 333, 373-377, 399, 500->487, 539-544, 551->553, 633-635 |
 | fractal\_tasks\_core/tasks/projection.py                                  |       55 |        3 |       10 |        2 |     92% |46, 147-149 |
 | fractal\_tasks\_core/tasks/projection\_utils.py                           |       29 |        0 |        4 |        0 |    100% |           |
 | fractal\_tasks\_core/upscale\_array.py                                    |       73 |        7 |       48 |        6 |     88% |63, 91, 96->100, 113, 128, 192-197 |
 | fractal\_tasks\_core/utils.py                                             |       88 |        3 |       36 |        6 |     93% |73, 141->149, 142->141, 178->181, 183, 230 |
 | fractal\_tasks\_core/zarr\_utils.py                                       |       32 |        0 |        6 |        1 |     97% |    81->85 |
-|                                                                 **TOTAL** | **3405** |  **244** | **1036** |  **137** | **91%** |           |
+|                                                                 **TOTAL** | **3362** |  **244** | **1036** |  **137** | **91%** |           |
 
 
 ## Setup coverage badge
