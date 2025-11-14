@@ -24,7 +24,7 @@ documentation = "https://fractal-analytics-platform.github.io/fractal-tasks-core
 
 # Required dependencies
 python = ">=3.11,<3.13"
-dask = ">=2023.1.0"
+dask = ">=2023.1.0, <2025.11.0"
 fsspec = "!=2023.9.0"
 zarr = ">=2.13.6,<3"
 numpy = "<=2.1.0"
