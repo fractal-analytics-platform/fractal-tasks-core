@@ -3,6 +3,7 @@
 # Unreleased
 
 * Bump versions of `pre-commit` tools (\#975).
+* Bump `fractal-task-tools` version to 0.1.0 (\#990).
 * Testing:
     * Update poetry to 1.8.5 (\#972).
     * Run GHAs on ubuntu-24.04 (\#972).
