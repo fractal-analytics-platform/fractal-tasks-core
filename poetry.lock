@@ -1557,23 +1557,23 @@ files = [
 
 [[package]]
 name = "fractal-task-tools"
-version = "0.0.12"
+version = "0.1.0"
 description = "Shared tools for Fractal tasks"
 optional = false
-python-versions = "<3.13,>=3.10"
+python-versions = "<3.14,>=3.10"
 files = [
-    {file = "fractal_task_tools-0.0.12-py3-none-any.whl", hash = "sha256:a10e8da8364d0f06cf06736cce8ab2a9eca7d8e600a3dd737812b5fe912d187c"},
-    {file = "fractal_task_tools-0.0.12.tar.gz", hash = "sha256:4e8c7886fa6b4ff7d57563063daa80e2f6dce99d4c31739d20dbd16f9719c492"},
+    {file = "fractal_task_tools-0.1.0-py3-none-any.whl", hash = "sha256:4a6f1946f17de72986ebd4316fa7dc46caf31b2695826abd18da08c0eab92113"},
+    {file = "fractal_task_tools-0.1.0.tar.gz", hash = "sha256:e1fef34183174958f9bf8eaa1085f23bc1ffaf0f8de02817ed4c6b3dfc58d404"},
 ]
 
 [package.dependencies]
 docstring-parser = ">=0.15,<=0.16"
 packaging = "*"
-pydantic = ">=2.0.0,<=2.11.2"
+pydantic = ">=2.0.0,<=2.13.0"
 
 [package.extras]
-dev = ["bumpver (==2024.1130)", "coverage (>=7.6.0,<7.7.0)", "devtools (==0.12.2)", "pytest (>=8.3.0,<9.0.0)"]
-docs = ["mkdocs (>=1.6.0,<1.7.0)", "mkdocs-gen-files (>=0.5.0,<0.6.0)", "mkdocs-include-markdown-plugin (>=7.0.0,<8.0.0)", "mkdocs-literate-nav (>=0.6.2,<0.7.0)", "mkdocs-material (>=9.6.0,<9.7.0)", "mkdocs-section-index (>=0.3.9,<0.4.0)", "mkdocstrings[python] (>=0.29.0,<0.30.0)"]
+dev = ["bumpver (==2024.1130)", "coverage (>=7.6.0,<7.7.0)", "devtools (==0.12.2)", "jsonschema (>=4)", "pytest (>=8.3.0,<9.0.0)", "requests (>2.32.0,<2.33.0)"]
+docs = ["mkdocs (==1.6.1)", "mkdocs-gen-files (==0.5.0)", "mkdocs-include-markdown-plugin (==7.1.8)", "mkdocs-literate-nav (==0.6.2)", "mkdocs-material (==9.6.15)", "mkdocs-section-index (==0.3.10)", "mkdocstrings[python] (==0.30.0)"]
 
 [[package]]
 name = "freetype-py"
@@ -7875,4 +7875,4 @@ fractal-tasks = ["Pillow", "cellpose", "image_registration", "imageio-ffmpeg", "
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.13"
-content-hash = "eb7304d4d980e4953b20f1947f0dbffe1ca1dc9dae1461cb1c1f44e33369e6ec"
+content-hash = "9c8f39a434a5076342336513b038d610c758129e813ca986fe888fe36045382b"
