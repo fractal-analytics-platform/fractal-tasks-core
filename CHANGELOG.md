@@ -1,11 +1,14 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# Unreleased
+# 1.5.5
 
-* Bump versions of `pre-commit` tools (\#975).
+* Dependencies:
+    * Pin dask version to `>=2023.1.0, <2025.11.0` (\#987).
 * Testing:
     * Update poetry to 1.8.5 (\#972).
     * Run GHAs on ubuntu-24.04 (\#972).
+* Development:
+    * Bump versions of `pre-commit` tools (\#975).
 
 # 1.5.4
 * Tasks:
