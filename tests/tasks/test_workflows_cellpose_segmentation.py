@@ -1116,3 +1116,77 @@ def test_workflow_secondary_labeling_two_channels(
             use_masks=True,
             output_label_name="nuclei",
         )
+
+
+def patched_cellpose_eval_uint32(self, x, **kwargs):
+    # Cellpose returns an array of the same dtype as the input, and input
+    # typically is uint16
+    assert x.ndim == 4
+    # Actual labeling: segment_ROI returns a 3D mask with the same shape as x,
+    # except for the first dimension
+    mask = np.zeros_like(x[0, :, :, :])
+    nz, ny, nx = mask.shape
+    indices = np.arange(0, nx // 2)
+    mask[:, indices, indices] = 1  # noqa
+    mask[:, indices + 10, indices + 20] = 65533  # noqa
+
+    return mask, 0, 0
+
+
+def test_cellpose_unit16_limits(
+    tmp_path: Path,
+    zenodo_zarr: list[str],
+    caplog: pytest.LogCaptureFixture,
+    monkeypatch: MonkeyPatch,
+):
+    """
+    Test to address #994: Return a segmentation image with label value close
+    to 65535 so that relabeling strategy gets tested close to uint limit.
+    This test then runs on 2 FOVs => tests the relabeling
+    """
+
+    monkeypatch.setattr(
+        "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
+        patched_cellpose_core_use_gpu,
+    )
+
+    from cellpose import models
+
+    monkeypatch.setattr(
+        models.CellposeModel,
+        "eval",
+        patched_cellpose_eval_uint32,
+    )
+
+    # Use pre-made 3D zarr
+    zarr_dir_mip = tmp_path / "tmp_out_mip/"
+    zarr_urls = prepare_2D_zarr(
+        str(zarr_dir_mip),
+        zenodo_zarr,
+        remove_labels=True,
+    )
+
+    # Per-FOV labeling
+    channel = CellposeChannel1InputModel(
+        wavelength_id="A01_C01", normalize=CellposeCustomNormalizer()
+    )
+    for zarr_url in zarr_urls:
+        cellpose_segmentation(
+            zarr_url=zarr_url,
+            channel=channel,
+            level=3,
+            relabeling=True,
+            diameter_level0=80.0,
+            output_label_name="segmentation",
+            output_ROI_table="bbox_table",
+        )
+
+    # Assert that 4 unique labels + background are present in the
+    # segmentation
+    import dask.array as da
+
+    segmentation = da.from_zarr(
+        f"{zarr_urls[0]}/labels/segmentation/0"
+    ).compute()
+    assert len(np.unique(segmentation)) == 5
+    assert np.max(segmentation) == 131066
