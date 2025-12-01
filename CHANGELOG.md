@@ -5,12 +5,14 @@
     * Fix issue in Cellpose task: Relabeling multiple ROIs with < 65535 objects each but > 65535 objects together would fail to correctly relabel into uin32 space (thus cap max label ID to 65535) (\#995).
 
 # 1.5.5
-* Bump versions of `pre-commit` tools (\#975).
-* Bump version of `fractal-tasks-tools` to 0.1 (\#990).
-* Pin dask version (\#987).
+* Dependencies:
+    * Bump `fractal-task-tools` version to 0.1.1 (\#990).
+    * Pin dask version to `>=2023.1.0, <2025.11.0` (\#987).
 * Testing:
     * Update poetry to 1.8.5 (\#972).
     * Run GHAs on ubuntu-24.04 (\#972).
+* Development:
+    * Bump versions of `pre-commit` tools (\#975).
 
 # 1.5.4
 * Tasks:
