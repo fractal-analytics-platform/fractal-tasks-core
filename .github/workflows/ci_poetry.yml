@@ -19,6 +19,8 @@ jobs:
 
     steps:
 
+      - run: echo "XDG_CONFIG_HOME=$XDG_CONFIG_HOME"
+
       - run: df -h
       - run: du --max-depth=1 -h /opt
       - run: du --max-depth=1 -h ~
