@@ -71,7 +71,7 @@ fractal-tasks = [
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-devtools = "^0.9.0"
+devtools = "0.12.0"
 pre-commit = "^2.19.0"
 pytest = "^7.1.2"
 bumpver = "^2022.1118"
