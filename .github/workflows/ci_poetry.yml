@@ -39,7 +39,7 @@ jobs:
       - run: du --max-depth=2 -h /home/runner/.cache
       - run: du -sh $(poetry env info --path)
 
-      - run: poetry install --with dev --without docs --no-interaction -E fractal-tasks
+      - run: poetry install --with dev --without docs --no-interaction -E fractal-tasks --no-cache
 
       - run: df -h
       - run: du --max-depth=1 -h ~
