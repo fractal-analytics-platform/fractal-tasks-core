@@ -1,10 +1,14 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
 # 1.5.6
+
 * Tasks:
     * Fix issue in Cellpose task: Relabeling multiple ROIs with < 65535 objects each but > 65535 objects together would fail to correctly relabel into uin32 space (thus cap max label ID to 65535) (\#995).
+* Development:
+    * Bump version of `devtools` (\#1000).
 
 # 1.5.5
+
 * Dependencies:
     * Bump `fractal-task-tools` version to 0.1.1 (\#990).
     * Pin dask version to `>=2023.1.0, <2025.11.0` (\#987).
