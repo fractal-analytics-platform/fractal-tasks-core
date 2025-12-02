@@ -43,7 +43,6 @@ jobs:
       - run: du --max-depth=1 -h /opt
       - run: du --max-depth=1 -h /home/runner/.config
       - run: du --max-depth=1 -h /home/runner/.cache
-      - run: du --max-depth=1 -h /home/runner/.cache/pypoetry
       - run: du --max-depth=1 -h ~
       - run: du --max-depth=1 -h .
       - run: du -sh $(poetry env info --path)
