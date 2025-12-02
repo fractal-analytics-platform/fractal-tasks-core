@@ -150,6 +150,7 @@ def segment_ROI(
         interp=advanced_cellpose_model_params.interp,
         stitch_threshold=advanced_cellpose_model_params.stitch_threshold,
     )
+    mask = mask.astype(label_dtype)
 
     if mask.ndim == 2:
         # If we get a 2D image, we still return it as a 3D array
@@ -159,7 +160,7 @@ def segment_ROI(
     # Write some debugging info
     logger.info(
         "[segment_ROI] END   |"
-        f" Elapsed: {t1-t0:.3f} s |"
+        f" Elapsed: {t1-t0:.3f} s |"  # noqa
         f" {mask.shape=},"
         f" {mask.dtype=} (then {label_dtype}),"
         f" {np.max(mask)=} |"
@@ -185,7 +186,7 @@ def segment_ROI(
                 f"but dtype={label_dtype}"
             )
 
-    return mask.astype(label_dtype)
+    return mask
 
 
 @validate_call
@@ -490,7 +491,7 @@ def cellpose_segmentation(
             slice(s_y, e_y),
             slice(s_x, e_x),
         )
-        logger.info(f"Now processing ROI {i_ROI+1}/{num_ROIs}")
+        logger.info(f"Now processing ROI {i_ROI + 1}/{num_ROIs}")
 
         # Prepare single-channel or dual-channel input for cellpose
         if channel2.is_set():
