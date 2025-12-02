@@ -41,6 +41,7 @@ jobs:
       - run: du --max-depth=1 -h /opt
       - run: du --max-depth=1 -h ~
       - run: du --max-depth=1 -h .
+      - run: du -h $(poetry env info --path)
 
       - run: poetry install --with dev --without docs --no-interaction -E fractal-tasks
 
@@ -48,3 +49,4 @@ jobs:
       - run: du --max-depth=1 -h /opt
       - run: du --max-depth=1 -h ~
       - run: du --max-depth=1 -h .
+      - run: du -h $(poetry env info --path)
