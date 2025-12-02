@@ -91,6 +91,7 @@ jobs:
       - run: df -h
       - run: du -h --max-depth=2
       - run: du -h --max-depth=3 /home/runner/work/fractal-tasks-core/fractal-tasks-core/.venv/lib
+      - run: du -h --max-depth=1 ~/.cache/pip
 
       - name: Check if manifest has changed
         run: poetry run fractal-manifest check --package fractal-tasks-core
@@ -104,6 +105,7 @@ jobs:
 
       - run: df -h
       - run: du -h --max-depth=2 ~/.cache/pooch
+      - run: du -h --max-depth=1 ~/.cache/pip
 
       - name: Test tasks with pytest
         env:
