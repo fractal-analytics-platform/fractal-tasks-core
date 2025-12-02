@@ -58,7 +58,7 @@ jobs:
       - run: du -sh $(poetry env info --path)
 
       - run: echo "yes" | poetry cache clear -v --all .
-
+      - run: rm - /home/runner/.cache/pypoetry/artifacts
 
       - run: df -h
       - run: du --max-depth=1 -h /opt
