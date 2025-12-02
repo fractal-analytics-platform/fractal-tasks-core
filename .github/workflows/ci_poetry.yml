@@ -41,7 +41,7 @@ jobs:
         run: poetry install --with dev --without docs --no-interaction
 
       - name: Clean up poetry cache
-      - run: |
+        run: |
           echo "yes" | poetry cache clear --all .
           rm -r /home/runner/.cache/pypoetry/artifacts
 
@@ -89,7 +89,7 @@ jobs:
         run: poetry install --with dev --without docs --no-interaction -E fractal-tasks
 
       - name: Clean up poetry cache
-      - run: |
+        run: |
           echo "yes" | poetry cache clear --all .
           rm -r /home/runner/.cache/pypoetry/artifacts
 
