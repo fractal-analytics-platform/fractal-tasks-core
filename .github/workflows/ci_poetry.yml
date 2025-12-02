@@ -40,7 +40,10 @@ jobs:
       - name: Install dependencies (without extras)
         run: poetry install --with dev --without docs --no-interaction
 
-      - run: echo "yes" | poetry cache clear --all .
+      - name: Clean up poetry cache
+      - run: |
+          echo "yes" | poetry cache clear --all .
+          rm -r /home/runner/.cache/pypoetry/artifacts
 
       - name: Test core library with pytest
         env:
@@ -85,7 +88,10 @@ jobs:
       - name: Install dependencies (including fractal-tasks extra)
         run: poetry install --with dev --without docs --no-interaction -E fractal-tasks
 
-      - run: echo "yes" | poetry cache clear --all .
+      - name: Clean up poetry cache
+      - run: |
+          echo "yes" | poetry cache clear --all .
+          rm -r /home/runner/.cache/pypoetry/artifacts
 
       - name: Check if manifest has changed
         run: poetry run fractal-manifest check --package fractal-tasks-core
