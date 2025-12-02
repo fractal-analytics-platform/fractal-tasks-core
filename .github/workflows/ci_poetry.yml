@@ -21,11 +21,6 @@ jobs:
 
       - run: echo "XDG_CONFIG_HOME=$XDG_CONFIG_HOME"
 
-      - run: df -h
-      - run: du -sh /opt
-      - run: du --max-depth=1 -h ~
-      - run: du --max-depth=1 -h .
-
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
@@ -43,7 +38,6 @@ jobs:
       - run: du -sh /opt
       - run: du -sh /home/runner/.config
       - run: du --max-depth=2 -h /home/runner/.cache
-      - run: du --max-depth=1 -h ~
       - run: du --max-depth=1 -h .
       - run: du -sh $(poetry env info --path)
 
@@ -53,7 +47,6 @@ jobs:
       - run: du -sh /opt
       - run: du -sh /home/runner/.config
       - run: du --max-depth=2 -h /home/runner/.cache
-      - run: du --max-depth=1 -h ~
       - run: du --max-depth=1 -h .
       - run: du -sh $(poetry env info --path)
 
@@ -64,6 +57,5 @@ jobs:
       - run: du --max-depth=1 -h /opt
       - run: du --max-depth=1 -h /home/runner/.config
       - run: du --max-depth=1 -h /home/runner/.cache
-      - run: du --max-depth=1 -h ~
       - run: du --max-depth=1 -h .
       - run: du -sh $(poetry env info --path)
