@@ -35,7 +35,6 @@ jobs:
       - run: poetry env use python${{ matrix.python-version }}
 
       - run: df -h
-      - run: du -sh /opt
       - run: du -sh /home/runner/.config
       - run: du --max-depth=2 -h /home/runner/.cache
       - run: du --max-depth=1 -h .
@@ -44,7 +43,6 @@ jobs:
       - run: poetry install --with dev --without docs --no-interaction -E fractal-tasks
 
       - run: df -h
-      - run: du -sh /opt
       - run: du -sh /home/runner/.config
       - run: du --max-depth=2 -h /home/runner/.cache
       - run: du --max-depth=1 -h .
@@ -54,7 +52,6 @@ jobs:
       - run: rm -r /home/runner/.cache/pypoetry/artifacts
 
       - run: df -h
-      - run: du --max-depth=1 -h /opt
       - run: du --max-depth=1 -h /home/runner/.config
       - run: du --max-depth=1 -h /home/runner/.cache
       - run: du --max-depth=1 -h .
