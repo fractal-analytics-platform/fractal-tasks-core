@@ -59,7 +59,7 @@ jobs:
       - run: du --max-depth=1 -h .
       - run: du -sh $(poetry env info --path)
 
-      - run: echo "yes" | poetry cache clear --all .
+      - run: echo "yes" | poetry cache clear -v --all .
 
 
       - run: df -h
