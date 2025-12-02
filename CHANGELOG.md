@@ -1,5 +1,8 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+* Development:
+    * Bump version of `devtools` (\#1000).
+
 # 1.5.5
 
 * Dependencies:
