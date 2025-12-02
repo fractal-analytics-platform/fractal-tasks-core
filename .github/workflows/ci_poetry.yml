@@ -54,3 +54,13 @@ jobs:
       - run: du --max-depth=1 -h ~
       - run: du --max-depth=1 -h .
       - run: du -sh $(poetry env info --path)
+
+      - run: echo "yes" | poetry cache clear --all .
+
+
+      - run: df -h
+      - run: du --max-depth=1 -h /opt
+      - run: du --max-depth=1 -h /home/runner/.config
+      - run: du --max-depth=1 -h ~
+      - run: du --max-depth=1 -h .
+      - run: du -sh $(poetry env info --path)
