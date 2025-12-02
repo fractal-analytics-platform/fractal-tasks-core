@@ -41,7 +41,7 @@ jobs:
 
       - run: df -h
       - run: du --max-depth=1 -h /opt
-      - run: du --max-depth=1 -h /tmp
+      - run: du --max-depth=1 -h /home/runner/.config
       - run: du --max-depth=1 -h ~
       - run: du --max-depth=1 -h .
       - run: du -sh $(poetry env info --path)
@@ -50,7 +50,7 @@ jobs:
 
       - run: df -h
       - run: du --max-depth=1 -h /opt
-      - run: du --max-depth=1 -h /tmp
+      - run: du --max-depth=1 -h /home/runner/.config
       - run: du --max-depth=1 -h ~
       - run: du --max-depth=1 -h .
       - run: du -sh $(poetry env info --path)
