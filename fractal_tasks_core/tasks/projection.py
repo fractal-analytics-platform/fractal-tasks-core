@@ -117,7 +117,9 @@ def projection(
 
     # Edit the roi tables
     for roi_table_name in ome_zarr_mip.list_roi_tables():
-        table = ome_zarr_mip.get_table(roi_table_name, check_type="generic_roi_table")
+        table = ome_zarr_mip.get_table(
+            roi_table_name, check_type="generic_roi_table"
+        )
 
         for roi in table.rois():
             roi.z = 0.0
