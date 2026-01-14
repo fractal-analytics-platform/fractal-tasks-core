@@ -12,6 +12,7 @@
 """
 Task for 3D->2D maximum-intensity projection.
 """
+
 from __future__ import annotations
 
 import logging
@@ -41,7 +42,7 @@ def _compute_new_shape(source_image: Image) -> tuple[tuple[int, ...], int]:
     on_disk_shape = source_image.shape
     logger.info(f"Source {on_disk_shape=}")
 
-    on_disk_z_index = source_image.axes_mapper.get_index("z")
+    on_disk_z_index = source_image.axes_handler.get_index("z")
     if on_disk_z_index is None:
         raise ValueError(
             "The input image does not contain a z-axis, "
@@ -83,8 +84,7 @@ def projection(
 
     if orginal_image.is_2d or orginal_image.is_2d_time_series:
         raise ValueError(
-            "The input image is 2D, "
-            "projection is only supported for 3D images."
+            "The input image is 2D, projection is only supported for 3D images."
         )
 
     # Compute the new shape and pixel size
@@ -117,9 +117,7 @@ def projection(
 
     # Edit the roi tables
     for roi_table_name in ome_zarr_mip.list_roi_tables():
-        table = ome_zarr_mip.get_table(
-            roi_table_name, check_type="generic_roi_table"
-        )
+        table = ome_zarr_mip.get_table(roi_table_name, check_type="generic_roi_table")
 
         for roi in table.rois():
             roi.z = 0.0
