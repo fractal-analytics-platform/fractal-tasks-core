@@ -22,7 +22,9 @@ def test_correct_constant_background() -> None:
         [[[40, 40], [40, 40]], [[400, 400], [400, 400]]], dtype=np.uint16
     )
 
-    np.testing.assert_array_almost_equal(corrected_image, expected_corrected_image)
+    np.testing.assert_array_almost_equal(
+        corrected_image, expected_corrected_image
+    )
 
 
 def test_correct_without_background() -> None:
@@ -40,7 +42,9 @@ def test_correct_without_background() -> None:
     expected_corrected_image = np.array(
         [[[40, 40], [40, 40]], [[400, 400], [400, 400]]], dtype=np.uint16
     )
-    np.testing.assert_array_almost_equal(corrected_image, expected_corrected_image)
+    np.testing.assert_array_almost_equal(
+        corrected_image, expected_corrected_image
+    )
 
 
 def test_correct_with_background_profiles() -> None:
@@ -62,4 +66,6 @@ def test_correct_with_background_profiles() -> None:
         dtype=np.uint16,
     )
 
-    np.testing.assert_array_almost_equal(corrected_image, expected_corrected_image)
+    np.testing.assert_array_almost_equal(
+        corrected_image, expected_corrected_image
+    )

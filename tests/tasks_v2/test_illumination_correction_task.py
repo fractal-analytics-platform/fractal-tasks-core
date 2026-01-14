@@ -11,7 +11,7 @@ from fractal_tasks_core.tasks.illumination_correction import (
 
 def _check_that_images_differs(first_url: str, second_url: str) -> None:
     """
-    Compare that the first image differs from the second image and they are not empty.
+    Compare that the images differ and they are not empty.
     """
     first_ome_zarr = open_ome_zarr_container(first_url)
     first_image = first_ome_zarr.get_image()
@@ -42,7 +42,9 @@ def test_output_handled(
     # Prepare arguments for illumination_correction function
     testdata_str = testdata_path.as_posix()
 
-    illumination_profiles_folder: str = f"{testdata_str}/illumination_correction/"
+    illumination_profiles_folder: str = (
+        f"{testdata_str}/illumination_correction/"
+    )
     illumination_profiles: dict[str, str] = {
         "A01_C01": "flatfield_corr_matrix.png",
         "A01_C02": "flatfield_corr_matrix.png",
@@ -135,8 +137,12 @@ def test_wrong_wavelength_profiles(
     # Prepare arguments for illumination_correction function
     testdata_str = testdata_path.as_posix()
 
-    illumination_profiles_folder: str = f"{testdata_str}/illumination_correction/"
-    background_profiles_folder: str = f"{testdata_str}/illumination_correction/"
+    illumination_profiles_folder: str = (
+        f"{testdata_str}/illumination_correction/"
+    )
+    background_profiles_folder: str = (
+        f"{testdata_str}/illumination_correction/"
+    )
 
     # do illumination correction
     with pytest.raises(
@@ -163,7 +169,9 @@ def test_constant_background_subtraction(
     # Prepare arguments for illumination_correction function
     testdata_str = testdata_path.as_posix()
 
-    illumination_profiles_folder: str = f"{testdata_str}/illumination_correction/"
+    illumination_profiles_folder: str = (
+        f"{testdata_str}/illumination_correction/"
+    )
     illumination_profiles: dict[str, str] = {
         "A01_C01": "flatfield_corr_matrix.png",
         "A01_C02": "flatfield_corr_matrix.png",
@@ -187,7 +195,7 @@ def test_constant_background_subtraction(
         suffix="_no_background",
     )
 
-    # corrected with background subtraction should differ from corrected without
+    # corrected with background profiles should differ from corrected without
     _check_that_images_differs(
         image_url + "_with_background", image_url + "_no_background"
     )
@@ -202,13 +210,17 @@ def test_with_background_profiles(
     # Prepare arguments for illumination_correction function
     testdata_str = testdata_path.as_posix()
 
-    illumination_profiles_folder: str = f"{testdata_str}/illumination_correction/"
+    illumination_profiles_folder: str = (
+        f"{testdata_str}/illumination_correction/"
+    )
     illumination_profiles: dict[str, str] = {
         "A01_C01": "flatfield_corr_matrix.png",
         "A01_C02": "flatfield_corr_matrix.png",
         "A02_C03": "flatfield_corr_matrix.png",
     }
-    background_profiles_folder: str = f"{testdata_str}/illumination_correction/"
+    background_profiles_folder: str = (
+        f"{testdata_str}/illumination_correction/"
+    )
     background_profiles: dict[str, str] = {
         "A01_C01": "darkfield_corr_matrix.png",
         "A01_C02": "darkfield_corr_matrix.png",
@@ -250,7 +262,9 @@ def test_two_different_illumination_profiles(
     # Prepare arguments for illumination_correction function
     testdata_str = testdata_path.as_posix()
 
-    illumination_profiles_folder: str = f"{testdata_str}/illumination_correction/"
+    illumination_profiles_folder: str = (
+        f"{testdata_str}/illumination_correction/"
+    )
     illumination_profiles: dict[str, str] = {
         "A01_C01": "flatfield_corr_matrix.png",
         "A01_C02": "illum_corr_matrix.png",
@@ -280,7 +294,9 @@ def test_two_different_illumination_profiles(
         suffix="_corrected",
     )
 
-    _check_that_images_differs(image_url + "_corrected", image_url + "_corrected2")
+    _check_that_images_differs(
+        image_url + "_corrected", image_url + "_corrected2"
+    )
 
 
 def test_wrong_file_or_folder(
@@ -294,7 +310,9 @@ def test_wrong_file_or_folder(
 
     test_wrong_folder = f"{testdata_str}/non_existing_folder/"
 
-    illumination_profiles_folder: str = f"{testdata_str}/illumination_correction/"
+    illumination_profiles_folder: str = (
+        f"{testdata_str}/illumination_correction/"
+    )
     illumination_profiles: dict[str, str] = {
         "A01_C01": "flatfield_corr_matrix.png",
         "A01_C02": "flatfield_corr_matrix.png",

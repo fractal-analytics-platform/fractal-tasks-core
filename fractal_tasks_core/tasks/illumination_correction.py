@@ -17,10 +17,12 @@ import os
 import shutil
 import time
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
+from typing import Optional
 
 import numpy as np
-from ngio import ChannelSelectionModel, open_ome_zarr_container
+from ngio import ChannelSelectionModel
+from ngio import open_ome_zarr_container
 from ngio.experimental.iterators import ImageProcessingIterator
 from pydantic import validate_call
 from skimage.io import imread
