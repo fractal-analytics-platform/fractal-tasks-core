@@ -12,7 +12,6 @@
 """
 Task for 3D->2D maximum-intensity projection.
 """
-
 from __future__ import annotations
 
 import logging
@@ -84,7 +83,8 @@ def projection(
 
     if orginal_image.is_2d or orginal_image.is_2d_time_series:
         raise ValueError(
-            "The input image is 2D, projection is only supported for 3D images."
+            "The input image is 2D, "
+            "projection is only supported for 3D images."
         )
 
     # Compute the new shape and pixel size
