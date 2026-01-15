@@ -136,11 +136,11 @@ def illumination_correction(
             `illumination_profiles_folder`.
         background_profiles: Dictionary where keys match the `wavelength_id`
             attributes of existing channels (e.g.  `A01_C01` ) and values are
-            the filenames of the corresponding background profiles.
+            the filenames of the corresponding background (darkfield) profiles.
             if not provided, no background correction is applied.
         background: Background value that is subtracted from the image before
-            the illumination correction is applied. Set it to `0` if you don't
-            want any background subtraction.
+            the illumination correction is applied. If set to `0` (default),
+            no constant background subtraction is applied.
         input_ROI_table: Name of the ROI table that contains the information
             about the location of the individual field of views (FOVs) to
             which the illumination correction shall be applied. Defaults to
@@ -212,9 +212,7 @@ def illumination_correction(
         background_profiles_folder = illumination_profiles_folder
 
     # Read FOV ROIs
-    FOV_ROI_table = ome_zarr_container.get_generic_roi_table(
-        input_ROI_table
-    )
+    FOV_ROI_table = ome_zarr_container.get_generic_roi_table(input_ROI_table)
 
     logger.info(f"{FOV_ROI_table=}")
 
@@ -235,7 +233,7 @@ def illumination_correction(
             )
     if image_size is None:
         raise ValueError("No ROIs found in the provided ROI table.")
-    
+
     # Assemble dictionary of correction images and check their shapes
     illumination_corrections = {}
     for wavelength_id, profile_path in illumination_profiles.items():
@@ -282,7 +280,7 @@ def illumination_correction(
         logger.info(f"Applying illumination correction for {wavelength_id=}")
         logger.info(f"{image.wavelength_ids=}")
         channel_selection = ChannelSelectionModel(
-            mode="wavelength_id", identifier=wavelength_id 
+            mode="wavelength_id", identifier=wavelength_id
         )
         iterator = ImageProcessingIterator(
             input_image=image,
