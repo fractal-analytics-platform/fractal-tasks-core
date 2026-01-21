@@ -22,8 +22,6 @@ INPUT_MODELS = [
     ["fractal_tasks_core", "channels.py", "OmeroChannel"],
     ["fractal_tasks_core", "channels.py", "Window"],
     ["fractal_tasks_core", "channels.py", "ChannelInputModel"],
-    ["fractal_tasks_core", "tasks/io_models.py", "NapariWorkflowsInput"],
-    ["fractal_tasks_core", "tasks/io_models.py", "NapariWorkflowsOutput"],
     [
         "fractal_tasks_core",
         "tasks/cellpose_utils.py",
