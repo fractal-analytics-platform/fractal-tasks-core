@@ -4,17 +4,17 @@ from pathlib import Path
 
 import pooch
 import pytest
-from devtools import debug
 
 from ..conftest import *  # noqa
 
 ZENODO_HEADERS = {
     "User-Agent": "pooch (https://github.com/fatiando/pooch) "
-                  "(https://github.com/fractal-analytics-platform/fractal-tasks-core)",
+    "(https://github.com/fractal-analytics-platform/fractal-tasks-core)",
     "Accept": "*/*",
 }
 
 ZENODO_DOWNLOADER = pooch.HTTPDownloader(headers=ZENODO_HEADERS, timeout=120)
+
 
 @pytest.fixture(scope="session")
 def zenodo_images(testdata_path: Path) -> str:
@@ -78,7 +78,8 @@ def zenodo_images_multiplex(testdata_path: Path, zenodo_images: Path):
 def zenodo_zarr(testdata_path: Path) -> list[str]:
     """
     1. Download/unzip two Zarr containers (3D and MIP) from Zenodo, via pooch
-    2. Copy the two Zarr containers into tests/data/<DOI_slug>/{plate.zarr,plate_mip.zarr}
+    2. Copy the two Zarr containers into tests/data/<DOI_slug>/
+    {plate.zarr,plate_mip.zarr}
     """
     DOI = "10.5281/zenodo.13305156"
     DOI_slug = DOI.replace("/", "_").replace(".", "_")
@@ -90,13 +91,14 @@ def zenodo_zarr(testdata_path: Path) -> list[str]:
     record_id = "13305156"
     base_url = f"https://zenodo.org/records/{record_id}/files/"
     # If you ever see flaky 403s again, try:
-    # base_url = f"https://zenodo.org/records/{record_id}/files/?download=1"  # (not great)
-    # Better is to add ?download=1 per file via `urls=` (see below), but keep minimal for now.
+    # base_url = f"https://zenodo.org/records/{record_id}/files/?download=1"
+    # Better is to add ?download=1 per file via `urls=` (see below),
+    # but keep minimal for now.
 
     # pin checksums to avoid extra requests
     registry = {
-        "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr.zip": "md5:efc21fe8d4ea3abab76226d8c166452c",
-        "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr.zip": "md5:51809479777cafbe9ac0f9fa5636aa95",
+        "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr.zip": "md5:efc21fe8d4ea3abab76226d8c166452c",  # noqa: E501
+        "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr.zip": "md5:51809479777cafbe9ac0f9fa5636aa95",  # noqa: E501
     }
 
     POOCH = pooch.create(
@@ -122,7 +124,8 @@ def zenodo_zarr(testdata_path: Path) -> list[str]:
             processor=pooch.Unzip(extract_dir=zarr_name),
         )
 
-        # Pooch returns a list of extracted paths; derive the folder containing the .zarr
+        # Pooch returns a list of extracted paths; derive the folder
+        # containing the .zarr
         zarr_full_path = file_paths[0].split(zarr_name)[0] + zarr_name
         folder = folders[ind]
 
