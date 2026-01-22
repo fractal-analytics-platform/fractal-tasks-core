@@ -30,14 +30,14 @@ def test_mip_task(cardiomyocyte_tiny_path: Path, tmp_path: Path) -> None:
     assert Path(zarr_url).exists()
     assert Path(origin_url).exists()
     assert attributes == {
-        "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr"
+        "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1-tiny_mip.zarr"
     }
     assert types == {"is_3D": False}
 
     ome_zarr = open_ome_zarr_container(zarr_url)
 
     image = ome_zarr.get_image()
-    assert image.dimensions.get("z", strict=True) == 1
+    assert image.dimensions.get("z", default=None) == 1
     assert image.pixel_size.z == 1.0
 
     assert ome_zarr.list_tables() == ["FOV_ROI_table", "well_ROI_table"]
