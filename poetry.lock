@@ -4289,13 +4289,13 @@ test-extras = ["pytest-mpl", "pytest-randomly"]
 
 [[package]]
 name = "ngio"
-version = "0.4.7"
+version = "0.4.8"
 description = "Next Generation file format IO"
 optional = false
 python-versions = "<3.14,>=3.11"
 files = [
-    {file = "ngio-0.4.7-py3-none-any.whl", hash = "sha256:772c1a058b76951a45105b791c2f2b20036be41148385a89048ee0339dfcf83e"},
-    {file = "ngio-0.4.7.tar.gz", hash = "sha256:c7a8848e33016921f0134ef90cc4d0b7a60ba9931085bf3e2e87e277afccdfea"},
+    {file = "ngio-0.4.8-py3-none-any.whl", hash = "sha256:9df832cab4efee3ebeecc064bb3c61a3ddec4b592103220227872a667f8ce084"},
+    {file = "ngio-0.4.8.tar.gz", hash = "sha256:23bced338e70d0da311a6a5d4b7a126f08de5e1e21152a9a05e2624ba092481e"},
 ]
 
 [package.dependencies]
@@ -4308,7 +4308,7 @@ dask = [
 filelock = "*"
 numpy = "*"
 ome-zarr-models = "*"
-pandas = ">=1.2.0"
+pandas = ">=1.2.0,<3.0.0"
 pillow = "*"
 polars = "*"
 pooch = "*"
@@ -7901,4 +7901,4 @@ fractal-tasks = ["Pillow", "cellpose", "image_registration", "imageio-ffmpeg", "
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.13"
-content-hash = "a60a451426d84311fbb6b5501e3c088af7b4edfb0530b909717631924e75ef13"
+content-hash = "1b5cff29b1de9db1885a2003c361dc0143164a01948fac4ac73e8ee6b4027e63"
