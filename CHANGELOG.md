@@ -1,5 +1,11 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# 1.6.0
+* Tests
+    * Fix Zenodo data downloads in CI (\#1010).
+* Dependencies
+    * Update ngio to v0.4 (\#1007).
+
 # 1.5.6
 
 * Tasks:
