@@ -45,16 +45,19 @@ def test_output_handled(
     illumination_profiles_folder: str = (
         f"{testdata_str}/illumination_correction/"
     )
-    illumination_profiles: dict[str, str] = {
+    illumination_profiles_map: dict[str, str] = {
         "A01_C01": "flatfield_corr_matrix.png",
         "A01_C02": "flatfield_corr_matrix.png",
         "A02_C03": "flatfield_corr_matrix.png",
+    }
+    illumination_profiles = {
+        "folder": illumination_profiles_folder,
+        "profiles": illumination_profiles_map,
     }
 
     # do illumination correction
     illumination_correction(
         zarr_url=image_url,
-        illumination_profiles_folder=illumination_profiles_folder,
         illumination_profiles=illumination_profiles,
         overwrite_input=overwrite_input,
         suffix="_corrected",
@@ -73,7 +76,11 @@ def test_output_handled(
 
 
 @pytest.mark.parametrize(
-    "illumination_profiles, background_profiles, problematic_wavelength",
+    (
+        "illumination_profiles_map",
+        "background_profiles_map",
+        "problematic_wavelength",
+    ),
     [
         # only illumination profiles, one wavelength missing
         (
@@ -128,8 +135,8 @@ def test_output_handled(
 def test_wrong_wavelength_profiles(
     cardiomyocyte_small_mip_path: Path,
     testdata_path: Path,
-    illumination_profiles: dict[str, str],
-    background_profiles: dict[str, str],
+    illumination_profiles_map: dict[str, str],
+    background_profiles_map: dict[str, str],
     problematic_wavelength: str,
 ) -> None:
     image_url = str(cardiomyocyte_small_mip_path / "B" / "03" / "0")
@@ -140,9 +147,18 @@ def test_wrong_wavelength_profiles(
     illumination_profiles_folder: str = (
         f"{testdata_str}/illumination_correction/"
     )
+    illumination_profiles = {
+        "folder": illumination_profiles_folder,
+        "profiles": illumination_profiles_map,
+    }
     background_profiles_folder: str = (
         f"{testdata_str}/illumination_correction/"
     )
+    background_profiles = {
+        "folder": background_profiles_folder,
+        "profiles": background_profiles_map,
+        "model": "Profile",
+    }
 
     # do illumination correction
     with pytest.raises(
@@ -151,10 +167,8 @@ def test_wrong_wavelength_profiles(
     ):
         illumination_correction(
             zarr_url=image_url,
-            illumination_profiles_folder=illumination_profiles_folder,
             illumination_profiles=illumination_profiles,
-            background_profiles_folder=background_profiles_folder,
-            background_profiles=background_profiles,
+            background_correction={"value": background_profiles},
             overwrite_input=False,
             suffix="_corrected",
         )
@@ -172,24 +186,37 @@ def test_constant_background_subtraction(
     illumination_profiles_folder: str = (
         f"{testdata_str}/illumination_correction/"
     )
-    illumination_profiles: dict[str, str] = {
+    illumination_profiles_map: dict[str, str] = {
         "A01_C01": "flatfield_corr_matrix.png",
         "A01_C02": "flatfield_corr_matrix.png",
         "A02_C03": "flatfield_corr_matrix.png",
+    }
+    illumination_profiles = {
+        "folder": illumination_profiles_folder,
+        "profiles": illumination_profiles_map,
+    }
+
+    background_model = {
+        "value": {
+            "model": "Constant",
+            "constants": {
+                "A01_C01": 100,
+                "A01_C02": 150,
+                "A02_C03": 200,
+            },
+        },
     }
 
     # do illumination correction
     illumination_correction(
         zarr_url=image_url,
-        illumination_profiles_folder=illumination_profiles_folder,
         illumination_profiles=illumination_profiles,
-        background=10,
+        background_correction=background_model,
         overwrite_input=False,
         suffix="_with_background",
     )
     illumination_correction(
         zarr_url=image_url,
-        illumination_profiles_folder=illumination_profiles_folder,
         illumination_profiles=illumination_profiles,
         overwrite_input=False,
         suffix="_no_background",
@@ -213,7 +240,7 @@ def test_with_background_profiles(
     illumination_profiles_folder: str = (
         f"{testdata_str}/illumination_correction/"
     )
-    illumination_profiles: dict[str, str] = {
+    illumination_profiles_map: dict[str, str] = {
         "A01_C01": "flatfield_corr_matrix.png",
         "A01_C02": "flatfield_corr_matrix.png",
         "A02_C03": "flatfield_corr_matrix.png",
@@ -221,19 +248,29 @@ def test_with_background_profiles(
     background_profiles_folder: str = (
         f"{testdata_str}/illumination_correction/"
     )
-    background_profiles: dict[str, str] = {
+    background_profiles_map: dict[str, str] = {
         "A01_C01": "darkfield_corr_matrix.png",
         "A01_C02": "darkfield_corr_matrix.png",
         "A02_C03": "darkfield_corr_matrix.png",
+    }
+    illumination_profiles = {
+        "folder": illumination_profiles_folder,
+        "profiles": illumination_profiles_map,
+    }
+    background_profiles = {
+        "folder": background_profiles_folder,
+        "profiles": background_profiles_map,
+        "model": "Profile",
+    }
+    background_correction = {
+        "value": background_profiles,
     }
 
     # do illumination correction
     illumination_correction(
         zarr_url=image_url,
-        illumination_profiles_folder=illumination_profiles_folder,
         illumination_profiles=illumination_profiles,
-        background_profiles_folder=background_profiles_folder,
-        background_profiles=background_profiles,
+        background_correction=background_correction,
         overwrite_input=False,
         suffix="_with_background",
     )
@@ -241,7 +278,6 @@ def test_with_background_profiles(
     # control group with no background profiles
     illumination_correction(
         zarr_url=image_url,
-        illumination_profiles_folder=illumination_profiles_folder,
         illumination_profiles=illumination_profiles,
         overwrite_input=False,
         suffix="_no_background",
@@ -265,30 +301,36 @@ def test_two_different_illumination_profiles(
     illumination_profiles_folder: str = (
         f"{testdata_str}/illumination_correction/"
     )
-    illumination_profiles: dict[str, str] = {
+    illumination_profiles_map: dict[str, str] = {
         "A01_C01": "flatfield_corr_matrix.png",
         "A01_C02": "illum_corr_matrix.png",
         "A02_C03": "flatfield_corr_matrix.png",
+    }
+    illumination_profiles = {
+        "folder": illumination_profiles_folder,
+        "profiles": illumination_profiles_map,
     }
 
     # do illumination correction
     illumination_correction(
         zarr_url=image_url,
-        illumination_profiles_folder=illumination_profiles_folder,
         illumination_profiles=illumination_profiles,
         overwrite_input=False,
         suffix="_corrected2",
     )
 
     # control group
-    illumination_profiles_control: dict[str, str] = {
+    illumination_profiles_control_map: dict[str, str] = {
         "A01_C01": "flatfield_corr_matrix.png",
         "A01_C02": "flatfield_corr_matrix.png",
         "A02_C03": "flatfield_corr_matrix.png",
     }
+    illumination_profiles_control = {
+        "folder": illumination_profiles_folder,
+        "profiles": illumination_profiles_control_map,
+    }
     illumination_correction(
         zarr_url=image_url,
-        illumination_profiles_folder=illumination_profiles_folder,
         illumination_profiles=illumination_profiles_control,
         overwrite_input=False,
         suffix="_corrected",
@@ -308,77 +350,96 @@ def test_wrong_file_or_folder(
     # Prepare arguments for illumination_correction function
     testdata_str = testdata_path.as_posix()
 
-    test_wrong_folder = f"{testdata_str}/non_existing_folder/"
+    wrong_folder = f"{testdata_str}/non_existing_folder/"
 
     illumination_profiles_folder: str = (
         f"{testdata_str}/illumination_correction/"
     )
-    illumination_profiles: dict[str, str] = {
+    illumination_profiles_map: dict[str, str] = {
         "A01_C01": "flatfield_corr_matrix.png",
         "A01_C02": "flatfield_corr_matrix.png",
         "A02_C03": "flatfield_corr_matrix.png",
     }
-    background_profiles_folder: str = f"{testdata_str}/background_correction/"
-    background_profiles: dict[str, str] = {
+    illumination_profiles = {
+        "folder": illumination_profiles_folder,
+        "profiles": illumination_profiles_map,
+    }
+    background_profiles_folder: str = illumination_profiles_folder
+    background_profiles_map: dict[str, str] = {
         "A01_C01": "darkfield_corr_matrix.png",
         "A01_C02": "darkfield_corr_matrix.png",
         "A02_C03": "darkfield_corr_matrix.png",
     }
+    background_profiles = {
+        "folder": background_profiles_folder,
+        "profiles": background_profiles_map,
+        "model": "Profile",
+    }
 
     # test illumination folder wrong
+    illumination_profiles_wrong_folder = {
+        "folder": wrong_folder,
+        "profiles": illumination_profiles_map,
+    }
     with pytest.raises(FileNotFoundError, match="No such file"):
         illumination_correction(
             zarr_url=image_url,
-            illumination_profiles_folder=test_wrong_folder,
-            illumination_profiles=illumination_profiles,
-            background_profiles_folder=background_profiles_folder,
-            background_profiles=background_profiles,
+            illumination_profiles=illumination_profiles_wrong_folder,
+            background_correction={"value": background_profiles},
             overwrite_input=False,
             suffix="_corrected",
         )
 
     # test background folder wrong
+    background_profiles_wrong_folder = {
+        "folder": wrong_folder,
+        "profiles": background_profiles_map,
+        "model": "Profile",
+    }
     with pytest.raises(FileNotFoundError, match="No such file"):
         illumination_correction(
             zarr_url=image_url,
-            illumination_profiles_folder=illumination_profiles_folder,
             illumination_profiles=illumination_profiles,
-            background_profiles_folder=test_wrong_folder,
-            background_profiles=background_profiles,
+            background_correction={"value": background_profiles_wrong_folder},
             overwrite_input=False,
             suffix="_corrected",
         )
 
     # test illumination file wrong
-    illumination_profiles_wrong: dict[str, str] = {
+    illumination_profiles_map_wrong: dict[str, str] = {
         "A01_C01": "non_existing_file.png",
         "A01_C02": "flatfield_corr_matrix.png",
         "A02_C03": "flatfield_corr_matrix.png",
     }
+    illumination_profiles_wrong = {
+        "folder": illumination_profiles_folder,
+        "profiles": illumination_profiles_map_wrong,
+    }
     with pytest.raises(FileNotFoundError, match="No such file"):
         illumination_correction(
             zarr_url=image_url,
-            illumination_profiles_folder=illumination_profiles_folder,
             illumination_profiles=illumination_profiles_wrong,
-            background_profiles_folder=background_profiles_folder,
-            background_profiles=background_profiles,
+            background_correction={"value": background_profiles},
             overwrite_input=False,
             suffix="_corrected",
         )
 
     # test background file wrong
-    background_profiles_wrong: dict[str, str] = {
+    background_profiles_map_wrong: dict[str, str] = {
         "A01_C01": "darkfield_corr_matrix.png",
         "A01_C02": "non_existing_file.png",
         "A02_C03": "darkfield_corr_matrix.png",
     }
+    background_profiles_wrong = {
+        "folder": background_profiles_folder,
+        "profiles": background_profiles_map_wrong,
+        "model": "Profile",
+    }
     with pytest.raises(FileNotFoundError, match="No such file"):
         illumination_correction(
             zarr_url=image_url,
-            illumination_profiles_folder=illumination_profiles_folder,
             illumination_profiles=illumination_profiles,
-            background_profiles_folder=background_profiles_folder,
-            background_profiles=background_profiles_wrong,
+            background_correction={"value": background_profiles_wrong},
             overwrite_input=False,
             suffix="_corrected",
         )

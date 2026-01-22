@@ -535,6 +535,10 @@ def test_illumination_correction(
     testdata_str = testdata_path.as_posix()
     illum_params = {"A01_C01": "illum_corr_matrix.png"}
     illumination_profiles_folder = f"{testdata_str}/illumination_correction/"
+    illumination_profiles = {
+        "folder": illumination_profiles_folder,
+        "profiles": illum_params,
+    }
 
     # Create zarr structure
     parallelization_list = cellvoyager_to_ome_zarr_init(
@@ -563,8 +567,7 @@ def test_illumination_correction(
         illumination_correction(
             zarr_url=image["zarr_url"],
             overwrite_input=True,
-            illumination_profiles_folder=illumination_profiles_folder,
-            illumination_profiles=illum_params,
+            illumination_profiles=illumination_profiles,
         )
     print(caplog.text)
     caplog.clear()

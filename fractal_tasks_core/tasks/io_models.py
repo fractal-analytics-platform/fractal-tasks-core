@@ -1,3 +1,5 @@
+from collections.abc import Iterator
+from pathlib import Path
 from typing import Dict
 from typing import Literal
 from typing import Optional
@@ -238,3 +240,56 @@ class ChunkSizes(BaseModel):
         return tuple(
             chunksize[key] for key in ordered_keys if key in chunksize
         )
+
+
+class ProfileCorrectionModel(BaseModel):
+    """
+    Parameters for profile-based corrections.
+
+    Attributes:
+        model: Correction model identifier.
+        folder: Path of folder of correction profiles.
+        profiles: Dictionary where keys match the `wavelength_id`
+            attributes of existing channels (e.g.  `A01_C01` ) and values are
+            the filenames of the corresponding correction profiles.
+    """
+
+    model_config = {"title": "Correction with Profiles"}
+    model: Literal["Profile"] = "Profile"
+    folder: str
+    profiles: dict[str, str]
+
+    def items(
+        self,
+    ) -> Iterator[Tuple[str, str],]:
+        root_path = Path(self.folder)
+        for wavelength_id, profile_name in self.profiles.items():
+            yield wavelength_id, (root_path / profile_name).as_posix()
+
+
+class ConstantCorrectionModel(BaseModel):
+    """
+    Parameters for constant-based corrections.
+
+    Attributes:
+        model: Correction model identifier.
+        constants: Dictionary where keys match the `wavelength_id`
+            attributes of existing channels (e.g.  `A01_C01` ) and values are
+            the constant values to be used for correction.
+    """
+
+    model_config = {"title": "Correction with constants"}
+    model: Literal["Constant"] = "Constant"
+    constants: dict[str, int]
+
+
+class NoCorrectionModel(BaseModel):
+    """
+    Select for no correction to be applied.
+
+    Attributes:
+        model: Correction model identifier.
+    """
+
+    model_config = {"title": "No Correction"}
+    model: Literal["None"] = "None"

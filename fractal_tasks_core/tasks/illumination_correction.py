@@ -13,30 +13,34 @@
 Apply illumination correction to all fields of view.
 """
 import logging
-import os
-import shutil
 import time
-from pathlib import Path
+from typing import Annotated
 from typing import Any
-from typing import Optional
+from typing import Union
 
 import numpy as np
 from ngio import ChannelSelectionModel
 from ngio import open_ome_zarr_container
+from ngio import open_ome_zarr_well
 from ngio.experimental.iterators import ImageProcessingIterator
+from pydantic import BaseModel
+from pydantic import Field
 from pydantic import validate_call
 from skimage.io import imread
 
-from fractal_tasks_core.tasks._zarr_utils import _copy_hcs_ome_zarr_metadata
+from fractal_tasks_core.tasks.io_models import ConstantCorrectionModel
+from fractal_tasks_core.tasks.io_models import NoCorrectionModel
+from fractal_tasks_core.tasks.io_models import ProfileCorrectionModel
+from fractal_tasks_core.utils import _split_well_path_image_path
 
 logger = logging.getLogger(__name__)
 
 
 def correct(
-    img_stack: np.ndarray,
-    corr_img: np.ndarray,
-    dark_img: np.ndarray | None = None,
-    background: int = 0,
+    input_image: np.ndarray,
+    flatfield: np.ndarray,
+    darkfield: np.ndarray | None = None,
+    background_constant: int = 0,
 ):
     """
     Corrects a stack of images, using a given illumination profile (e.g. bright
@@ -54,50 +58,65 @@ def correct(
             the illumination correction is applied.
     """
 
-    logger.debug(f"Start correct, {img_stack.shape}")
+    logger.debug(f"Start correct, {input_image.shape}")
 
     # Check shapes
-    if corr_img.shape != img_stack.shape[-2:]:
+    if flatfield.shape != input_image.shape[-2:]:
         raise ValueError(
             "Error in illumination_correction:\n"
-            f"{img_stack.shape=}\n{corr_img.shape=}"
+            f"{input_image.shape=}\n{flatfield.shape=}"
         )
-    if dark_img is not None and dark_img.shape != img_stack.shape[-2:]:
+    if darkfield is not None and darkfield.shape != input_image.shape[-2:]:
         raise ValueError(
             "Error in illumination_correction:\n"
-            f"{img_stack.shape=}\n{dark_img.shape=}"
+            f"{input_image.shape=}\n{darkfield.shape=}"
         )
 
     # Store info about dtype
-    dtype = img_stack.dtype
+    dtype = input_image.dtype
     dtype_max = np.iinfo(dtype).max
 
     # Background subtraction
-    if dark_img is not None:
+    if darkfield is not None:
         logger.debug("Applying darkfield correction")
-        img_stack = img_stack.astype(np.int32) - dark_img[None, :, :]
-        img_stack[img_stack < 0] = 0
-    img_stack[img_stack <= background] = 0
-    img_stack[img_stack > background] -= background
+        input_image = input_image.astype(np.int32) - darkfield[None, :, :]
+        input_image[input_image < 0] = 0
+    input_image[input_image <= background_constant] = 0
+    input_image[input_image > background_constant] -= background_constant
 
     #  Apply the normalized correction matrix (requires a float array)
     # img_stack = img_stack.astype(np.float64)
-    img_stack = img_stack / (corr_img / np.max(corr_img))[None, :, :]
+    # TODO(PR): consider pre-normalizing the flatfield outside of this for
+    # performance improvement and remove the normalization here
+    input_image = input_image / (flatfield / np.max(flatfield))[None, :, :]
 
     # Handle edge case: corrected image may have values beyond the limit of
     # the encoding, e.g. beyond 65535 for 16bit images. This clips values
     # that surpass this limit and triggers a warning
-    if np.any(img_stack > dtype_max):
+    if np.any(input_image > dtype_max):
         logger.warning(
             "Illumination correction created values beyond the max range of "
             f"the current image type. These have been clipped to {dtype_max=}."
         )
-        img_stack[img_stack > dtype_max] = dtype_max
+        input_image[input_image > dtype_max] = dtype_max
 
     logger.debug("End correct")
 
     # Cast back to original dtype and return
-    return img_stack.astype(dtype)
+    return input_image.astype(dtype)
+
+
+class BackgroundCorrection(BaseModel):
+    """Wrapper of background correction models for better UI display."""
+
+    value: Annotated[
+        Union[
+            NoCorrectionModel,
+            ProfileCorrectionModel,
+            ConstantCorrectionModel,
+        ],
+        Field(default=NoCorrectionModel(), discriminator="model"),
+    ]
 
 
 @validate_call
@@ -106,11 +125,8 @@ def illumination_correction(
     # Fractal parameters
     zarr_url: str,
     # Core parameters
-    illumination_profiles_folder: str,
-    illumination_profiles: dict[str, str],
-    background_profiles_folder: Optional[str] = None,
-    background_profiles: Optional[dict[str, str]] = None,
-    background: int = 0,
+    illumination_profiles: ProfileCorrectionModel,
+    background_correction: BackgroundCorrection = BackgroundCorrection(),
     input_ROI_table: str = "FOV_ROI_table",
     overwrite_input: bool = True,
     # Advanced parameters
@@ -127,20 +143,9 @@ def illumination_correction(
     Args:
         zarr_url: Path or url to the individual OME-Zarr image to be processed.
             (standard argument for Fractal tasks, managed by Fractal server).
-        illumination_profiles_folder: Path of folder of illumination profiles.
-        illumination_profiles: Dictionary where keys match the `wavelength_id`
-            attributes of existing channels (e.g.  `A01_C01` ) and values are
-            the filenames of the corresponding illumination profiles.
-        background_profiles_folder: Path of folder of background profiles. If
-            not provided, it is assumed that it's the same as
-            `illumination_profiles_folder`.
-        background_profiles: Dictionary where keys match the `wavelength_id`
-            attributes of existing channels (e.g.  `A01_C01` ) and values are
-            the filenames of the corresponding background (darkfield) profiles.
-            if not provided, no background correction is applied.
-        background: Background value that is subtracted from the image before
-            the illumination correction is applied. If set to `0` (default),
-            no constant background subtraction is applied.
+        illumination_profiles: Illumination (flatfield) correction profiles.
+        background_correction: (Optional) background (darkfield) correction
+            parameters. Can be provided as profiles or as constant values.
         input_ROI_table: Name of the ROI table that contains the information
             about the location of the individual field of views (FOVs) to
             which the illumination correction shall be applied. Defaults to
@@ -160,9 +165,12 @@ def illumination_correction(
 
     # Prepare zarr urls
     zarr_url = zarr_url.rstrip("/")
-    if suffix == "":
-        raise ValueError("suffix cannot be an empty string.")
-    zarr_url_new = f"{zarr_url}{suffix}"
+    if overwrite_input:
+        zarr_url_new = zarr_url
+    else:
+        if suffix == "":
+            raise ValueError("suffix cannot be an empty string.")
+        zarr_url_new = f"{zarr_url}{suffix}"
 
     t_start = time.perf_counter()
     logger.info("Start illumination_correction")
@@ -178,9 +186,10 @@ def illumination_correction(
     logger.info(f"{image=}")
     logger.info(f"{image.wavelength_ids=}")
 
-    # Validate that illumination and background profiles cover all wavelengths
+    # Validate that provided corrections cover all wavelengths
     input_image_wavelengths = set(image.wavelength_ids)
-    illumination_wavelengths = set(illumination_profiles.keys())
+
+    illumination_wavelengths = set(illumination_profiles.profiles.keys())
     if not illumination_wavelengths.issubset(input_image_wavelengths):
         raise ValueError(
             "Illumination profiles provided for wavelengths: "
@@ -192,8 +201,12 @@ def illumination_correction(
             "No illumination profiles provided for wavelengths: "
             f"{input_image_wavelengths - illumination_wavelengths}."
         )
-    if background_profiles is not None:
-        background_wavelengths = set(background_profiles.keys())
+
+    if background_correction.value.model == "Profile":
+        background_wavelengths = set(
+            background_correction.value.profiles.keys()
+        )
+
         if not background_wavelengths.issubset(input_image_wavelengths):
             raise ValueError(
                 "Background profiles provided for wavelengths: "
@@ -205,11 +218,21 @@ def illumination_correction(
                 "No background profiles provided for wavelengths: "
                 f"{input_image_wavelengths - background_wavelengths}."
             )
-    else:
-        background_profiles = {}
-
-    if background_profiles_folder is None:
-        background_profiles_folder = illumination_profiles_folder
+    elif background_correction.value.model == "Constant":
+        background_wavelengths = set(
+            background_correction.value.constants.keys()
+        )
+        if not background_wavelengths.issubset(input_image_wavelengths):
+            raise ValueError(
+                "Background profiles provided for wavelengths: "
+                f"{background_wavelengths - input_image_wavelengths} "
+                "are not present in the input image."
+            )
+        if not input_image_wavelengths.issubset(background_wavelengths):
+            raise ValueError(
+                "No background profiles provided for wavelengths: "
+                f"{input_image_wavelengths - background_wavelengths}."
+            )
 
     # Read FOV ROIs
     FOV_ROI_table = ome_zarr_container.get_generic_roi_table(input_ROI_table)
@@ -235,11 +258,9 @@ def illumination_correction(
         raise ValueError("No ROIs found in the provided ROI table.")
 
     # Assemble dictionary of correction images and check their shapes
-    illumination_corrections = {}
+    illumination_matrices = {}
     for wavelength_id, profile_path in illumination_profiles.items():
-        correction_matrix = imread(
-            (Path(illumination_profiles_folder) / profile_path).as_posix()
-        )
+        correction_matrix = imread(profile_path)
         if correction_matrix.shape != image_size:
             raise ValueError(
                 f"The illumination {correction_matrix.shape=}"
@@ -251,29 +272,36 @@ def illumination_correction(
                 f"Illumination correction image for {wavelength_id=} "
                 "contains zero values."
             )
-        illumination_corrections[wavelength_id] = correction_matrix
+        illumination_matrices[wavelength_id] = correction_matrix
 
     # Assemble dictionary of background images and check their shapes
-    background_corrections = {}
-    for wavelength_id, profile_path in background_profiles.items():
-        correction_matrix = imread(
-            (Path(background_profiles_folder) / profile_path).as_posix()
-        )
-        if correction_matrix.shape != image_size:
-            raise ValueError(
-                f"The background (darkfield) {correction_matrix.shape=}"
-                f" is different from the input {image_size=}"
-                f" for {wavelength_id=}."
-            )
-        background_corrections[wavelength_id] = correction_matrix
+    background_matrices = {}
+    background_constants = {}
+    if background_correction.value.model == "Constant":
+        background_constants = background_correction.value.constants
+    elif background_correction.value.model == "Profile":
+        for wavelength_id, profile_path in background_correction.value.items():
+            correction_matrix = imread(profile_path)
+            if correction_matrix.shape != image_size:
+                raise ValueError(
+                    f"The background (darkfield) {correction_matrix.shape=}"
+                    f" is different from the input {image_size=}"
+                    f" for {wavelength_id=}."
+                )
+            background_matrices[wavelength_id] = correction_matrix
 
-    # Create new ome-zarr container for output
-    new_ome_zarr = ome_zarr_container.derive_image(
-        store=zarr_url_new,
-        overwrite=True,
-        copy_tables=True,
-        copy_labels=True,
-    )
+    # Prepare output ome-zarr container and image
+    if overwrite_input:
+        output_ome_zarr_container = ome_zarr_container
+    else:
+        # Create new ome-zarr container for output
+        output_ome_zarr_container = ome_zarr_container.derive_image(
+            store=zarr_url_new,
+            overwrite=True,
+            copy_tables=True,
+            copy_labels=True,
+        )
+    output_image = output_ome_zarr_container.get_image(image.path)
 
     # Start processing loop over channels
     for wavelength_id in image.wavelength_ids:
@@ -284,7 +312,7 @@ def illumination_correction(
         )
         iterator = ImageProcessingIterator(
             input_image=image,
-            output_image=new_ome_zarr.get_image(image.path),
+            output_image=output_image,
             input_channel_selection=channel_selection,
             output_channel_selection=channel_selection,
         )
@@ -294,28 +322,27 @@ def illumination_correction(
             writer(
                 correct(
                     image_data,
-                    illumination_corrections.get(wavelength_id),
-                    background_corrections.get(wavelength_id),
-                    background=background,
+                    illumination_matrices.get(wavelength_id),
+                    background_matrices.get(wavelength_id),
+                    background_constants.get(wavelength_id, 0),
                 )
             )
 
     t_end = time.perf_counter()
     logger.info(f"End illumination_correction, elapsed: {t_end - t_start}")
 
-    if overwrite_input:
-        image_list_update = dict(zarr_url=zarr_url)
-        # TODO(PR): will not work with s3:// urls, can ngio do this?
-        os.rename(zarr_url, f"{zarr_url}_tmp")
-        os.rename(zarr_url_new, zarr_url)
-        shutil.rmtree(f"{zarr_url}_tmp")
-        logger.info("Overwrote input image with illumination corrected image.")
-    else:
-        # TODO(PR): ngio cannot do this at the moment
-        _copy_hcs_ome_zarr_metadata(zarr_url, zarr_url_new)
-        image_list_update = dict(zarr_url=zarr_url_new, origin=zarr_url)
+    if not overwrite_input:
+        well_url, new_image_path = _split_well_path_image_path(zarr_url_new)
+        ome_zarr_well = open_ome_zarr_well(well_url)
+        ome_zarr_well.atomic_add_image(
+            image_path=new_image_path,
+        )
 
-    return {"image_list_updates": [image_list_update]}
+        logger.info(f"Saved illumination corrected image as {zarr_url_new}.")
+        image_list_update = dict(zarr_url=zarr_url_new, origin=zarr_url)
+        return {"image_list_updates": [image_list_update]}
+    else:
+        logger.info("Overwrote input image with illumination corrected data.")
 
 
 if __name__ == "__main__":
