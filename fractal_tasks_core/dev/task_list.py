@@ -22,8 +22,6 @@ INPUT_MODELS = [
     ["fractal_tasks_core", "channels.py", "OmeroChannel"],
     ["fractal_tasks_core", "channels.py", "Window"],
     ["fractal_tasks_core", "channels.py", "ChannelInputModel"],
-    ["fractal_tasks_core", "tasks/io_models.py", "NapariWorkflowsInput"],
-    ["fractal_tasks_core", "tasks/io_models.py", "NapariWorkflowsOutput"],
     [
         "fractal_tasks_core",
         "tasks/cellpose_utils.py",
@@ -142,16 +140,5 @@ TASK_LIST = [
         executable="tasks/import_ome_zarr.py",
         docs_info="file:task_info/import_ome_zarr.md",
         tags=["2D", "3D"],
-    ),
-    ParallelTask(
-        name="Napari Workflows Wrapper",
-        executable="tasks/napari_workflows_wrapper.py",
-        meta={
-            "cpus_per_task": 8,
-            "mem": 32000,
-        },
-        category="Measurement",
-        tags=["2D", "3D"],
-        docs_info="file:task_info/napari_workflows_wrapper.md",
     ),
 ]
