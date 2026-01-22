@@ -41,7 +41,7 @@ def _compute_new_shape(source_image: Image) -> tuple[tuple[int, ...], int]:
     on_disk_shape = source_image.shape
     logger.info(f"Source {on_disk_shape=}")
 
-    on_disk_z_index = source_image.axes_mapper.get_index("z")
+    on_disk_z_index = source_image.axes_handler.get_index("z")
     if on_disk_z_index is None:
         raise ValueError(
             "The input image does not contain a z-axis, "
