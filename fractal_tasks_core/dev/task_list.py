@@ -141,15 +141,4 @@ TASK_LIST = [
         docs_info="file:task_info/import_ome_zarr.md",
         tags=["2D", "3D"],
     ),
-    ParallelTask(
-        name="Napari Workflows Wrapper",
-        executable="tasks/napari_workflows_wrapper.py",
-        meta={
-            "cpus_per_task": 8,
-            "mem": 32000,
-        },
-        category="Measurement",
-        tags=["2D", "3D"],
-        docs_info="file:task_info/napari_workflows_wrapper.md",
-    ),
 ]
