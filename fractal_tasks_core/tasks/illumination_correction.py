@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 
 def correct(
-    input_image: np.ndarray,
+    image: np.ndarray,
     flatfield: np.ndarray,
     darkfield: np.ndarray | None = None,
     background_constant: int = 0,
@@ -51,59 +51,60 @@ def correct(
         corrected_image = (image - darkfield - background) / illumination
 
     Args:
-        img_stack: 3D numpy array (zyx)
-        corr_img: 2D numpy array (yx) with the illumination correction profile.
-        dark_img: 2D numpy array (yx) with the darkfield correction profile.
-        background: Background value that is subtracted from the image before
-            the illumination correction is applied.
+        image: 3D numpy array (zyx)
+        flatfield: 2D numpy array (yx) with the flatfield correction profile.
+            Assumed to be normalized to 1 (i.e. max value = 1).
+        darkfield: 2D numpy array (yx) with the darkfield correction profile.
+        background_constant: Background value that is subtracted from the
+            image before the illumination correction is applied.
     """
 
-    logger.debug(f"Start correct, {input_image.shape}")
+    logger.debug(f"Start correct, {image.shape}")
 
     # Check shapes
-    if flatfield.shape != input_image.shape[-2:]:
+    if flatfield.shape != image.shape[-2:]:
         raise ValueError(
             "Error in illumination_correction:\n"
-            f"{input_image.shape=}\n{flatfield.shape=}"
+            f"{image.shape=}\n{flatfield.shape=}"
         )
-    if darkfield is not None and darkfield.shape != input_image.shape[-2:]:
+    if darkfield is not None and darkfield.shape != image.shape[-2:]:
         raise ValueError(
             "Error in illumination_correction:\n"
-            f"{input_image.shape=}\n{darkfield.shape=}"
+            f"{image.shape=}\n{darkfield.shape=}"
         )
 
-    # Store info about dtype
-    dtype = input_image.dtype
+    # Store info about input dtype
+    dtype = image.dtype
     dtype_max = np.iinfo(dtype).max
 
     # Background subtraction
     if darkfield is not None:
         logger.debug("Applying darkfield correction")
-        input_image = input_image.astype(np.int32) - darkfield[None, :, :]
-        input_image[input_image < 0] = 0
-    input_image[input_image <= background_constant] = 0
-    input_image[input_image > background_constant] -= background_constant
+        image = (
+            image.astype(np.int32) - darkfield.astype(np.int32)[None, :, :]
+        ).clip(0, None)
 
-    #  Apply the normalized correction matrix (requires a float array)
-    # img_stack = img_stack.astype(np.float64)
-    # TODO(PR): consider pre-normalizing the flatfield outside of this for
-    # performance improvement and remove the normalization here
-    input_image = input_image / (flatfield / np.max(flatfield))[None, :, :]
+    if background_constant != 0:
+        logger.debug("Applying constant background correction")
+        image = (image.astype(np.int32) - background_constant).clip(0, None)
+
+    #  Apply the normalized correction matrix
+    image = image / flatfield[None, :, :]
 
     # Handle edge case: corrected image may have values beyond the limit of
     # the encoding, e.g. beyond 65535 for 16bit images. This clips values
     # that surpass this limit and triggers a warning
-    if np.any(input_image > dtype_max):
+    if np.any(image > dtype_max):
         logger.warning(
             "Illumination correction created values beyond the max range of "
             f"the current image type. These have been clipped to {dtype_max=}."
         )
-        input_image[input_image > dtype_max] = dtype_max
+        image = image.clip(0, dtype_max)
 
     logger.debug("End correct")
 
     # Cast back to original dtype and return
-    return input_image.astype(dtype)
+    return image.astype(dtype)
 
 
 class BackgroundCorrection(BaseModel):
@@ -272,6 +273,7 @@ def illumination_correction(
                 f"Illumination correction image for {wavelength_id=} "
                 "contains zero values."
             )
+        correction_matrix = correction_matrix / np.max(correction_matrix)
         illumination_matrices[wavelength_id] = correction_matrix
 
     # Assemble dictionary of background images and check their shapes
@@ -318,7 +320,7 @@ def illumination_correction(
         )
         iterator = iterator.product(FOV_ROI_table).by_zyx(strict=False)
 
-        for image_data, writer in iterator.iter_as_numpy():
+        for image_data, writer in iterator.iter_as_dask():
             writer(
                 correct(
                     image_data,

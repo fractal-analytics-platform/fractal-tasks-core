@@ -13,8 +13,8 @@ def test_correct_constant_background() -> None:
     image = image + background
 
     corrected_image = correct(
-        input_image=image,
-        flatfield=flatfield,
+        image=image,
+        flatfield=flatfield / np.max(flatfield),
         background_constant=background,
     )
 
@@ -35,8 +35,8 @@ def test_correct_without_background() -> None:
     flatfield = np.array([[1, 2], [3, 4]], dtype=np.uint16)
 
     corrected_image = correct(
-        input_image=image,
-        flatfield=flatfield,
+        image=image,
+        flatfield=flatfield / np.max(flatfield),
     )
 
     expected_corrected_image = np.array(
@@ -56,8 +56,8 @@ def test_correct_with_background_profiles() -> None:
     background_profile = np.array([[5, 20], [15, 15]], dtype=np.uint16)
 
     corrected_image = correct(
-        input_image=image,
-        flatfield=flatfield,
+        image=image,
+        flatfield=flatfield / np.max(flatfield),
         darkfield=background_profile,
     )
 
