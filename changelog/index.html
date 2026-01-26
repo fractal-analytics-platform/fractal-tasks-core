@@ -1,0 +1,2257 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../reference/fractal_tasks_core/zarr_utils/">
+      
+      
+      <link rel="icon" href="https://raw.githubusercontent.com/fractal-analytics-platform/fractal-logos/refs/heads/main/common/fractal_favicon.png">
+      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.1.21">
+    
+    
+      
+        <title>Changelog - Fractal Tasks Core</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.eebd395e.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ecc896b0.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="light-blue">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#changelog" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Fractal Tasks Core" class="md-header__button md-logo" aria-label="Fractal Tasks Core" data-md-component="logo">
+      
+  <img src="https://raw.githubusercontent.com/fractal-analytics-platform/fractal-logos/refs/heads/main/common/fractal_logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Fractal Tasks Core
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Changelog
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="light-blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+            
+              <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+              </label>
+            
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="light-blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+            
+              <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+              </label>
+            
+          
+        </form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/fractal-analytics-platform/fractal-tasks-core" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fractal-tasks-core
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Fractal Tasks Core" class="md-nav__button md-logo" aria-label="Fractal Tasks Core" data-md-component="logo">
+      
+  <img src="https://raw.githubusercontent.com/fractal-analytics-platform/fractal-logos/refs/heads/main/common/fractal_logo.png" alt="logo">
+
+    </a>
+    Fractal Tasks Core
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/fractal-analytics-platform/fractal-tasks-core" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fractal-tasks-core
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Home page
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../install/" class="md-nav__link">
+        Install
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../run_tasks/">Run tasks</a>
+          
+            <label for="__nav_3">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Run tasks
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../run_tasks/tasks_in_fractal/" class="md-nav__link">
+        Within Fractal
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../run_tasks/tasks_in_scripts/" class="md-nav__link">
+        From Python scripts
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../all_tasks/" class="md-nav__link">
+        Task list
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tables/" class="md-nav__link">
+        Table specs
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../custom_task/" class="md-nav__link">
+        Write custom tasks
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/" class="md-nav__link">
+        Development
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          Code reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Code reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_1" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/fractal_tasks_core/tasks/">tasks</a>
+          
+            <label for="__nav_8_1">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_1_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_1">
+          <span class="md-nav__icon md-icon"></span>
+          tasks
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/_registration_utils/" class="md-nav__link">
+        _registration_utils
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/_utils/" class="md-nav__link">
+        _utils
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/_zarr_utils/" class="md-nav__link">
+        _zarr_utils
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/apply_registration_to_image/" class="md-nav__link">
+        apply_registration_to_image
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/calculate_registration_image_based/" class="md-nav__link">
+        calculate_registration_image_based
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/cellpose_segmentation/" class="md-nav__link">
+        cellpose_segmentation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/cellpose_utils/" class="md-nav__link">
+        cellpose_utils
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/cellvoyager_to_ome_zarr_compute/" class="md-nav__link">
+        cellvoyager_to_ome_zarr_compute
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/cellvoyager_to_ome_zarr_init/" class="md-nav__link">
+        cellvoyager_to_ome_zarr_init
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/cellvoyager_to_ome_zarr_init_multiplex/" class="md-nav__link">
+        cellvoyager_to_ome_zarr_init_multiplex
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/copy_ome_zarr_hcs_plate/" class="md-nav__link">
+        copy_ome_zarr_hcs_plate
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/find_registration_consensus/" class="md-nav__link">
+        find_registration_consensus
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/illumination_correction/" class="md-nav__link">
+        illumination_correction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/image_based_registration_hcs_init/" class="md-nav__link">
+        image_based_registration_hcs_init
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/import_ome_zarr/" class="md-nav__link">
+        import_ome_zarr
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/init_group_by_well_for_multiplexing/" class="md-nav__link">
+        init_group_by_well_for_multiplexing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/io_models/" class="md-nav__link">
+        io_models
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/napari_workflows_wrapper/" class="md-nav__link">
+        napari_workflows_wrapper
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/projection/" class="md-nav__link">
+        projection
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tasks/projection_utils/" class="md-nav__link">
+        projection_utils
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_2" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/fractal_tasks_core/dev/">dev</a>
+          
+            <label for="__nav_8_2">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_2">
+          <span class="md-nav__icon md-icon"></span>
+          dev
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/create_manifest/" class="md-nav__link">
+        create_manifest
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/deprecation_message/" class="md-nav__link">
+        deprecation_message
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/lib_args_schemas/" class="md-nav__link">
+        lib_args_schemas
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/lib_descriptions/" class="md-nav__link">
+        lib_descriptions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/lib_pydantic_generatejsonschema/" class="md-nav__link">
+        lib_pydantic_generatejsonschema
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/lib_signature_constraints/" class="md-nav__link">
+        lib_signature_constraints
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/lib_task_docs/" class="md-nav__link">
+        lib_task_docs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/lib_titles/" class="md-nav__link">
+        lib_titles
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/task_list/" class="md-nav__link">
+        task_list
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/dev/task_models/" class="md-nav__link">
+        task_models
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/fractal_tasks_core/cellvoyager/">cellvoyager</a>
+          
+            <label for="__nav_8_3">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_3">
+          <span class="md-nav__icon md-icon"></span>
+          cellvoyager
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/cellvoyager/filenames/" class="md-nav__link">
+        filenames
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/cellvoyager/metadata/" class="md-nav__link">
+        metadata
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/cellvoyager/wells/" class="md-nav__link">
+        wells
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/channels/" class="md-nav__link">
+        channels
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/labels/" class="md-nav__link">
+        labels
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/masked_loading/" class="md-nav__link">
+        masked_loading
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_7" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/fractal_tasks_core/ngff/">ngff</a>
+          
+            <label for="__nav_8_7">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_7">
+          <span class="md-nav__icon md-icon"></span>
+          ngff
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/ngff/specs/" class="md-nav__link">
+        specs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/ngff/zarr_utils/" class="md-nav__link">
+        zarr_utils
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/pyramids/" class="md-nav__link">
+        pyramids
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_9" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/fractal_tasks_core/roi/">roi</a>
+          
+            <label for="__nav_8_9">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_9_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_9">
+          <span class="md-nav__icon md-icon"></span>
+          roi
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/roi/_overlaps_common/" class="md-nav__link">
+        _overlaps_common
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/roi/load_region/" class="md-nav__link">
+        load_region
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/roi/v1/" class="md-nav__link">
+        v1
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/roi/v1_checks/" class="md-nav__link">
+        v1_checks
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/roi/v1_overlaps/" class="md-nav__link">
+        v1_overlaps
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_10" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/fractal_tasks_core/tables/">tables</a>
+          
+            <label for="__nav_8_10">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_10_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8_10">
+          <span class="md-nav__icon md-icon"></span>
+          tables
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/tables/v1/" class="md-nav__link">
+        v1
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/upscale_array/" class="md-nav__link">
+        upscale_array
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/utils/" class="md-nav__link">
+        utils
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/fractal_tasks_core/zarr_utils/" class="md-nav__link">
+        zarr_utils
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Changelog
+      </a>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<!-- BEGIN INCLUDE ../CHANGELOG.md -->
+<p><strong>Note</strong>: Numbers like (#123) point to closed Pull Requests on the fractal-tasks-core repository.</p>
+<h1 id="160">1.6.0<a class="headerlink" href="#160" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Tests<ul>
+<li>Fix Zenodo data downloads in CI (#1010).</li>
+</ul>
+</li>
+<li>Dependencies<ul>
+<li>Update ngio to v0.4 (#1007).</li>
+</ul>
+</li>
+</ul>
+<h1 id="156">1.5.6<a class="headerlink" href="#156" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Tasks:<ul>
+<li>Fix issue in Cellpose task: Relabeling multiple ROIs with &lt; 65535 objects each but &gt; 65535 objects together would fail to correctly relabel into uin32 space (thus cap max label ID to 65535) (#995).</li>
+</ul>
+</li>
+<li>Development:<ul>
+<li>Bump version of <code>devtools</code> (#1000).</li>
+<li>Clear <code>poetry</code> cache in CI GitHub actions to mitigate disk-space issues (#1002).</li>
+</ul>
+</li>
+</ul>
+<h1 id="155">1.5.5<a class="headerlink" href="#155" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Dependencies:<ul>
+<li>Bump <code>fractal-task-tools</code> version to 0.1.1 (#990).</li>
+<li>Pin dask version to <code>&gt;=2023.1.0, &lt;2025.11.0</code> (#987).</li>
+</ul>
+</li>
+<li>Testing:<ul>
+<li>Update poetry to 1.8.5 (#972).</li>
+<li>Run GHAs on ubuntu-24.04 (#972).</li>
+</ul>
+</li>
+<li>Development:<ul>
+<li>Bump versions of <code>pre-commit</code> tools (#975).</li>
+</ul>
+</li>
+</ul>
+<h1 id="154">1.5.4<a class="headerlink" href="#154" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Tasks:<ul>
+<li>Catch <code>FileNotFoundError</code> in <code>apply_registration_to_image</code> task when race conditions with the reference cycle are hit (#971).</li>
+</ul>
+</li>
+<li>Dependencies:<ul>
+<li>Pin <code>lxml</code> to <code>&lt;=5.4.0</code> (#963).</li>
+</ul>
+</li>
+</ul>
+<h1 id="153">1.5.3<a class="headerlink" href="#153" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Tasks:<ul>
+<li>Fix the heuristic in the Apply registration task to handle the registration of the reference cycle better (#959).</li>
+</ul>
+</li>
+</ul>
+<h1 id="152">1.5.2<a class="headerlink" href="#152" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Library<ul>
+<li>Update masked loading wrapper to support loading masking ROIs written by ngio (#957).</li>
+</ul>
+</li>
+</ul>
+<h1 id="151">1.5.1<a class="headerlink" href="#151" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Tasks:<ul>
+<li>In <code>Convert Cellvoyager to OME-Zarr</code> &amp; <code>Convert Cellvoyager Multiplexing to OME-Zarr</code> tasks, handle unset window start &amp; end better (#953).</li>
+<li>In <code>Convert Cellvoyager to OME-Zarr</code> &amp; <code>Convert Cellvoyager Multiplexing to OME-Zarr</code> tasks, normalize plate names to avoid special characters &amp; spaces (#953).</li>
+<li>In <code>Convert Cellvoyager Multiplexing to OME-Zarr</code>, improve error message when no images are found (#953).</li>
+<li>In <code>Convert Cellvoyager Multiplexing to OME-Zarr</code>, handle order of acquisitions better (#953).</li>
+</ul>
+</li>
+</ul>
+<h1 id="150">1.5.0<a class="headerlink" href="#150" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Tasks:<ul>
+<li>Refactor <code>projection</code> task to use the new <code>ngio</code> API (#937, #943, #944).</li>
+<li>Refactor <code>copy_ome_zarr_plate</code> init task to support the upcoming flexibility.</li>
+<li>Rely on <code>fractal-task-tools</code> for <code>run_fractal_task</code> wrapper (#923).</li>
+<li>Mark some existing tasks as <em>converter</em> tasks(#923).</li>
+<li>Mark existing <code>run_fractal_task</code> wrapper as deprecated (#923).</li>
+</ul>
+</li>
+<li>Manifest generation:<ul>
+<li>Rely on <code>fractal-task-tools</code> for manifest building (#923).</li>
+<li>Mark existing tools as deprecated (#923).</li>
+</ul>
+</li>
+<li>Testing:<ul>
+<li>Add new (redundand) <code>ngio</code>-based testing.</li>
+<li>Fix links to ome/ngff specs (#930).</li>
+</ul>
+</li>
+<li>Dependencies:<ul>
+<li>Add <code>fractal-task-tools==0.0.10</code> dependency (#923).</li>
+<li>Bump <code>ngio</code> to <code>&gt;=0.2.4,&lt;0.3.0</code> (#943).</li>
+<li>Drop support for Python 3.10 (#932).</li>
+<li>Bump <code>fractal-task-tools</code> to <code>0.0.12</code> (#933).</li>
+<li>Pin <code>numcodecs</code> to <code>&lt;0.16</code> (#932).</li>
+</ul>
+</li>
+</ul>
+<h1 id="143">1.4.3<a class="headerlink" href="#143" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Tasks:<ul>
+<li>Update <code>apply_registration_to_image</code> to handle race conditions better (#919).</li>
+</ul>
+</li>
+<li>Testing<ul>
+<li>Add <code>spherical-harmonics</code> extra to scmultiplex, for testing manifest build (#899).</li>
+<li>Move manifest-creation CI to Python 3.11 (#915).</li>
+</ul>
+</li>
+</ul>
+<h1 id="142">1.4.2<a class="headerlink" href="#142" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Dependencies:<ul>
+<li>Relax <code>ngio</code> from <code>0.1.4</code> to <code>&gt;=0.1.5,&lt;0.2.0</code> (#900).</li>
+</ul>
+</li>
+<li>Library<ul>
+<li>Ensure <code>build_pyramid</code> uses directory store by default (#902).</li>
+</ul>
+</li>
+</ul>
+<h1 id="141">1.4.1<a class="headerlink" href="#141" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Tasks:<ul>
+<li>Remove overlap checking for output ROIs in Cellpose task to address performance issues (#889).</li>
+<li>Expose chunking options in Cellvoyager OME-Zarr converter &amp; set default Z chunking to 10 (#898).</li>
+</ul>
+</li>
+<li>Library<ul>
+<li>Expose kwargs for <code>build_pyramid</code> (#895).</li>
+</ul>
+</li>
+<li>Testing:<ul>
+<li>Fix issues with coverage report listing <code>.venv</code> Python modules for other dependencies (#892).</li>
+<li>Add <code>persist-credentials: false</code> to all <code>actions/checkout@v4</code> GitHub Action steps (#893).</li>
+</ul>
+</li>
+</ul>
+<h1 id="140">1.4.0<a class="headerlink" href="#140" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Tasks:<ul>
+<li>Refactor projection task to use ngio (#866).</li>
+</ul>
+</li>
+<li>Dependencies:<ul>
+<li>Add <code>ngio==0.1.4</code> to the dependencies</li>
+<li>Require <code>python &gt;=3.10,&lt;3.13</code></li>
+</ul>
+</li>
+<li>CI:<ul>
+<li>Remove Python 3.9 from the CI matrix</li>
+</ul>
+</li>
+<li>Tests:<ul>
+<li>Use locked version of <code>coverage</code> in GitHub action (#882).</li>
+<li>Bump <code>coverage</code> version from 6.5 to 7.6 (#882).</li>
+<li>Skip <code>test_import_ome_zarr_image_BIA</code> (#879).</li>
+</ul>
+</li>
+</ul>
+<h1 id="134">1.3.4<a class="headerlink" href="#134" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Manifest creation:<ul>
+<li>Support providing <code>docs_info=file:task_info/description.md</code> (#876).</li>
+<li>Deprecate <code>check_manifest.py</code> module, in favor of additional GitHub action steps (#876).</li>
+</ul>
+</li>
+</ul>
+<h1 id="133">1.3.3<a class="headerlink" href="#133" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Add new metadata (authors, category, modality, tags) to manifest models and to tasks (#855).</li>
+</ul>
+<h1 id="132">1.3.2<a class="headerlink" href="#132" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Tasks:<ul>
+<li>Add percentile-based rescaling to calculate registration task to make it more robust (#848)</li>
+</ul>
+</li>
+<li>Dependencies:</li>
+<li>Relax pandas constraint to <code>&lt;2</code>.</li>
+<li>Relax torch constraint to <code>&lt;=3.0.0</code>.</li>
+<li>Relax numpy constraint to <code>&lt;2.1.0</code>.</li>
+<li>Add python 3.12 to the CI matrix (#770).</li>
+<li>Chores:</li>
+<li>fix future warning when using Series.<strong>getitem</strong> with positional arguments.</li>
+</ul>
+<h1 id="131">1.3.1<a class="headerlink" href="#131" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Testing<ul>
+<li>Use latest version of Zenodo tiny-ome-zarr dataset (#817).</li>
+<li>Relax pip-version constraint in external-packages-manifest tests (#825).</li>
+<li>Run pip-based CI also regularly and on-demand (#829).</li>
+<li>Update GitHub actions for upload/download/coverage (#832).</li>
+</ul>
+</li>
+<li>Dependencies:<ul>
+<li>Require <code>pydantic&lt;=2.8.2</code> (#836).</li>
+<li>Require <code>stackview&lt;=0.9.0</code> (#829).</li>
+</ul>
+</li>
+<li>Documentation:<ul>
+<li>Bump <code>mkdocstrings</code> and <code>mkdocstrings-python</code> to support <code>griffe</code> v1 (#818).</li>
+</ul>
+</li>
+</ul>
+<h1 id="130">1.3.0<a class="headerlink" href="#130" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Tasks:<ul>
+<li><code>image_glob_patterns</code> are renamed to <code>include_glob_patterns</code> in Convert Cellvoyager to OME-Zarr (regular &amp; multiplexing) (#812).</li>
+<li>Convert Cellvoyager to OME-Zarr (regular &amp; multiplexing) gain exclusion patterns to exclude specific patterns of images from being processed (#812).</li>
+<li>Fix issue with arbitrary acquisition names in Convert Cellvoyager Multiplexing to OME-Zarr (#812).</li>
+<li>In Convert Cellvoyager to OME-Zarr (regular &amp; multiplexing), handle channels in the mrf metadata file that aren't present in the mlf metadata better (#812).</li>
+<li>In Convert Cellvoyager to OME-Zarr, improve plate metadata for image list when multiple plates with the same plate name are processed (#812).</li>
+<li>Catch errors for missing mlf &amp; mrf files better in Convert Cellvoyager to OME-Zarr (regular &amp; multiplexing) (#812).</li>
+<li>Drop defusexml dependency for cellvoyager metadata conversion (#812).</li>
+<li>Rename <code>Maximum Intensity Projection HCS Plate</code> task to <code>Project Image (HCS Plate)</code> (#814).</li>
+<li>Expose selection of projection modes in <code>Project Image (HCS Plate)</code>: MIP, MINIP, MEANIP &amp; SUMIP (#814).</li>
+<li>Rename task function from <code>maximum_intensity_projection</code> to <code>projection</code> and modified parameters in <code>fractal_tasks_core.tasks.io_models.InitArgsMIP</code> (#814).</li>
+</ul>
+</li>
+</ul>
+<h1 id="121">1.2.1<a class="headerlink" href="#121" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Core-library<ul>
+<li>Add <code>create_roi_table_from_df_list</code> library function in <code>fractal_tasks_core.v1.roi</code>: It combines a list of ROI table dataframes into an AnnData ROI table and handles repeating labels (#811).</li>
+<li>Move <code>create_well_acquisition_dict</code> &amp; <code>_split_well_path_image_path</code> from <code>fractal_tasks_core.tasks._registration_utils.py</code> &amp; <code>fractal_tasks_core.tasks._zarr_utils</code> into <code>fractal_tasks_core.utils</code> (#811).</li>
+</ul>
+</li>
+<li>Tasks:<ul>
+<li>Fixes issue 810 for Cellpose task: Avoids creating duplicated entries in ROI tables when masking ROI table input was used (#811).</li>
+</ul>
+</li>
+</ul>
+<h1 id="120">1.2.0<a class="headerlink" href="#120" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Core-library and tasks:<ul>
+<li>Switch all core models to Pydantic V2 (#793).</li>
+</ul>
+</li>
+<li>JSON Schema generation tools:<ul>
+<li>Move JSON-Schema tools to Pydantic V2 (#793).</li>
+</ul>
+</li>
+<li>Testing:<ul>
+<li>Remove dependency on <code>pytest-pretty</code> (#793).</li>
+<li>Update <code>manifest_external_packages.yml</code> GitHub Action so that it installs the current <code>fractal-tasks-core</code> (#793).</li>
+</ul>
+</li>
+</ul>
+<h1 id="111">1.1.1<a class="headerlink" href="#111" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Tasks:<ul>
+<li>Fix issue with masked ROI &amp; relabeling in Cellpose task (#786).</li>
+<li>Fix issue with masking ROI label types in <code>masked_loading_wrapper</code> for Cellpose task (#786).</li>
+<li>Enable workaround to support yx images in Cellpose task (#789).</li>
+<li>Fix error handling in <code>calculate_registration_image_based</code> (#799).</li>
+<li>Fix minor issues with call-signature and type hints in <code>calculate_registration_image_based</code> (#799).</li>
+</ul>
+</li>
+</ul>
+<h1 id="110">1.1.0<a class="headerlink" href="#110" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>NOTE: Starting from this release, <code>fractal-tasks-core</code> can coexist
+with Pydantic V2 but it still uses pydantic
+v1 under the hood for the time being. When working with Pydantic V1, the
+required version is <code>&gt;=1.10.16</code>.</p>
+</blockquote>
+<ul>
+<li>Tasks:<ul>
+<li>Refactor Cellpose Task inputs: Combine Channel inputs &amp; channel normalization parameters (#738).</li>
+<li>Refactor Cellpose Task inputs: Group advanced Cellpose parameters into the <code>CellposeModelParams</code> model that's provided via <code>advanced_cellpose_model_params</code> (#738).</li>
+<li>Refactor Cellpose Task inputs: Support independent normalization of 2 input channels in the Cellpose task (#738).</li>
+<li>Rename <code>task.cellpose_transforms</code> into <code>tasks.cellpose_utils</code> (#738).</li>
+<li>Fix wrong repeated overlap checks for bounding-boxes in Cellpose task (#778).</li>
+<li>Fix minor MIP issues related to plate metadata and expecting acquisition metadata in all NGFF plates (#781).</li>
+<li>Add <code>chi2_shift</code> option to Calculate Registration (image-based) task (#741).</li>
+</ul>
+</li>
+<li>Development:<ul>
+<li>Switch to transitional pydantic.v1 imports, changes pydantic requirement to <code>==1.10.16</code> or <code>&gt;=2.6.3</code> (#760).</li>
+<li>Support JSON-Schema generation for <code>Enum</code> task arguments (#749).</li>
+<li>Make JSON-Schema generation tools more flexible, to simplify testing (#749).</li>
+</ul>
+</li>
+<li>Documentation:<ul>
+<li>Update documentation (#751).</li>
+<li>Improve/extend page showing tasks from other packages (#759, #777).</li>
+</ul>
+</li>
+<li>JSON Schema generation:<ul>
+<li>Test manifest creation for three other tasks packages (#763).</li>
+</ul>
+</li>
+<li>NGFF subpackage<ul>
+<li>Fix Plate model to correspond better to 0.4.0 NGFF spec: Now makes acquisition metadata optional (#781).</li>
+</ul>
+</li>
+<li>Dependencies:<ul>
+<li>Add <code>image_registration</code> within <code>fractal-tasks</code> extra (#741).</li>
+</ul>
+</li>
+</ul>
+<h1 id="102">1.0.2<a class="headerlink" href="#102" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Fix bug in plate metadata in MIP task (in the <code>copy_ome_zarr_hcs_plate</code> init function) (#736).</li>
+</ul>
+<h1 id="101">1.0.1<a class="headerlink" href="#101" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Add support for converting 1536 well plates in cellvoyager converters (#715).</li>
+<li>Testing:<ul>
+<li>Make validation of NGFF Zarr attributes more strict, in tests (#732).</li>
+</ul>
+</li>
+<li>Development:<ul>
+<li>Update poetry to 1.8.2 (#734).</li>
+</ul>
+</li>
+</ul>
+<h1 id="100">1.0.0<a class="headerlink" href="#100" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Update all tasks to use the new Fractal API from Fractal server 2.0 (#671)</li>
+<li>Provide new dev tooling to create Fractal manifest for new task API (#671)</li>
+<li>Add Pydantic models for OME-NGFF HCS Plate validation (#671)</li>
+<li>Breaking changes in core library:<ul>
+<li>In <code>get_acquisition_paths</code> helper function of <code>NgffWellMeta</code>:
+    The dictionary now contains a list of paths as values, not single paths.
+    The NotImplementedError for multiple images with the same acquisition was removed.</li>
+<li>The <code>utils.get_table_path_dict</code> helper function was made private &amp; changed its input parameters:
+    It's now <code>_get_table_path_dict(zarr_url: str)</code></li>
+</ul>
+</li>
+<li>Breaking changes in task sub-package:<ul>
+<li>Rename tasks for increase clarity (#671 &amp; #706).</li>
+<li>Changed registration tasks flow: Now 2 Compound tasks, 1 Parallel task (#671).</li>
+<li>Changed parameter names in registration tasks: acquisition instead of cycle (#719).</li>
+<li>Changed parameter names &amp; defaults in illumination correction task: (#671).<ul>
+<li>Now uses <code>illumination_profiles</code> instead of <code>dict_corr</code>.</li>
+<li>Changes default of background subtraction from 110 to 0.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Dependencies:<ul>
+<li>Add <code>filelock</code> (#718).</li>
+</ul>
+</li>
+</ul>
+<h1 id="0143">0.14.3<a class="headerlink" href="#0143" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Make Cellpose task work for non HCS plate OME-Zarr images (#659)</li>
+<li>Add option to Illumination Correction to specify the ROI table name (#665)</li>
+</ul>
+<h1 id="0142">0.14.2<a class="headerlink" href="#0142" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Add custom normalization options to the Cellpose task (#650)</li>
+<li>Add more options to the Cellpose task to control model behavior (#650)</li>
+<li>For Cellpose task, switch to using Enums for <code>model_type</code> (see issue #401)</li>
+</ul>
+<h1 id="0141">0.14.1<a class="headerlink" href="#0141" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Fix bug in <code>cellpose_segmentation</code> upon using masked loading and setting <code>channel2</code> (#639). Thanks <a href="https://github.com/FranziskaMoos-FMI">@FranziskaMoos-FMI</a> and <a href="https://github.com/enricotagliavini">@enricotagliavini</a>.</li>
+<li>Improve handling of potential race condition in "Apply Registration to image" task (#638).</li>
+</ul>
+<h1 id="0140">0.14.0<a class="headerlink" href="#0140" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Breaking changes in tasks:<ul>
+<li>Make <code>NapariWorkflowsOutput.label_name</code> attribute required, and use it to fill the <code>region["path"]</code> table attribute (#613).</li>
+</ul>
+</li>
+<li>Breaking changes in core library:<ul>
+<li>⚠️ Refactor the whole package structure, leading to breaking changes for most imports (#613); more details at <a href="https://fractal-analytics-platform.github.io/fractal-tasks-core/version_updates/v0_14_0/">this page</a>.</li>
+<li>In <code>prepare_label_group</code> helper function:<ul>
+<li>Make <code>label_attrs</code> function argument required (#613).</li>
+<li>Validate <code>label_attrs</code> with <code>NgffImageMeta</code> model (#613).</li>
+<li>Override multiscale name in <code>label_attrs</code> with <code>label_name</code> (#613).</li>
+</ul>
+</li>
+<li>In <code>write_table</code> helper function:<ul>
+<li>Drop <code>logger</code> function argument (#613).</li>
+<li>Add <code>table_name</code> function argument, taking priority over <code>table_attrs</code> (#613).</li>
+<li>Raise an error if no table type is not provided (#613).</li>
+<li>Raise an error if table attributes do not comply with table specs (#613).</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Other internal changes:<ul>
+<li>Comply with table specs V1, by writing all required Zarr attributes (#613).</li>
+<li>Remove <code>has_args_schema</code> obsolete property from manifest (#603).</li>
+<li>Handle <code>GroupNotFoundError</code> in <code>load_NgffImageMeta</code> and <code>load_NgffWellMeta</code> (#622).</li>
+</ul>
+</li>
+<li>Bug fixes:<ul>
+<li>Fix table selection in calculate registration image-based (#615).</li>
+</ul>
+</li>
+<li>Documentation<ul>
+<li>Clarify table specs V1 (#613).</li>
+</ul>
+</li>
+<li>Testing:<ul>
+<li>Use more recent Zenodo datasets, created with <code>fractal-tasks-core&gt;=0.12</code> (#623).</li>
+<li>Use poetry 1.7.1 in GitHub actions (#620).</li>
+<li>Align with new Zenodo API (#601).</li>
+<li>Update <code>test_valid_manifest</code> (#606).</li>
+<li>Use <a href="https://www.fatiando.org/pooch">pooch</a> to download test files (#610).</li>
+</ul>
+</li>
+<li>Documentation:<ul>
+<li>Add list of tasks (#625).</li>
+</ul>
+</li>
+<li>Dependencies:<ul>
+<li>Remove Pillow <code>&lt;10.1.0</code> constraint (#626).</li>
+</ul>
+</li>
+</ul>
+<h1 id="0131">0.13.1<a class="headerlink" href="#0131" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Always use <code>write_table</code> in tasks, rather than AnnData <code>write_elem</code> (#581).</li>
+<li>Remove assumptions on ROI-table columns from <code>get_ROI_table_with_translation</code> helper function of <code>calculate_registration_image_based</code> task (#591).</li>
+<li>Testing:<ul>
+<li>Cache Zenodo data, within GitHub actions (#585).</li>
+</ul>
+</li>
+<li>Documentation:<ul>
+<li>Define V1 of table specs (#582).</li>
+<li>Add mathjax support (#582).</li>
+<li>Add cross-reference inventories to external APIs (#582).</li>
+</ul>
+</li>
+</ul>
+<h1 id="0130">0.13.0<a class="headerlink" href="#0130" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Tasks:<ul>
+<li>New task and helper functions:<ul>
+<li>Introduce <code>import_ome_zarr</code> task (#557, #579).</li>
+<li>Introduce <code>get_single_image_ROI</code> and <code>get_image_grid_ROIs</code> (#557).</li>
+<li>Introduce <code>detect_ome_ngff_type</code> (#557).</li>
+<li>Introduce <code>update_omero_channels</code> (#579).</li>
+</ul>
+</li>
+<li>Make <code>maximum_intensity_projection</code> independent from ROI tables (#557).</li>
+<li>Make Cellpose task work when <code>input_ROI_table</code> is empty (#566).</li>
+<li>Fix bug of missing attributes in ROI-table Zarr group (#573).</li>
+</ul>
+</li>
+<li>Dependencies:<ul>
+<li>Restrict <code>Pillow</code> version to <code>&lt;10.1</code> (#571).</li>
+<li>Support AnnData <code>0.10</code> (#574).</li>
+</ul>
+</li>
+<li>Testing:<ul>
+<li>Align with new Zenodo API (#568).</li>
+<li>Use ubuntu-22 for GitHub CI (#576).</li>
+</ul>
+</li>
+</ul>
+<h1 id="0122">0.12.2<a class="headerlink" href="#0122" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Relax <code>check_valid_ROI_indices</code> to support search-first scenario (#555).</li>
+<li>Do not install <code>docs</code> dependencies in GitHub CI (#551).</li>
+</ul>
+<h1 id="0121">0.12.1<a class="headerlink" href="#0121" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Make <code>Channel.window</code> attribute optional in <code>lib_ngff.py</code> (#548).</li>
+<li>Automate procedure for publishing package to PyPI (#545).</li>
+</ul>
+<h1 id="0120">0.12.0<a class="headerlink" href="#0120" title="Permanent link">&para;</a></h1>
+<p>This release includes work on Pydantic models for NGFF specs and on ROI tables.</p>
+<ul>
+<li>NGFF Pydantic models:<ul>
+<li>Introduce Pydantic models for NGFF metadata in <code>lib_ngff.py</code> (#528).</li>
+<li>Extract <code>num_levels</code> and <code>coarsening_xy</code> parameters from NGFF objects, rather than from <code>metadata</code> task input (#528).</li>
+<li>Transform several <code>lib_zattrs_utils.py</code> functions (<code>get_axes_names</code>, <code>extract_zyx_pixel_sizes</code> and <code>get_acquisition_paths</code>) into <code>lib_ngff.py</code> methods (#528).</li>
+<li>Load Zarr attributes from groups, rather than from <code>.zattrs</code> files (#528).</li>
+</ul>
+</li>
+<li>Regions of interest:<ul>
+<li>Set <code>FOV_ROI_table</code> and <code>well_ROI_table</code> ZYX origin to zero (#524).</li>
+<li>Remove heuristics to determine whether to reset origin, in <code>cellpose_segmentation</code> task (#524).</li>
+<li>Remove obsolete <code>reset_origin</code> argument from <code>convert_ROI_table_to_indices</code> function (#524).</li>
+<li>Remove redundant <code>reset_origin</code> call from <code>apply_registration_to_ROI_tables</code> task (#524).</li>
+<li>Add check on non-negative ROI indices (#534).</li>
+<li>Add check on ROI indices not starting at <code>(0,0,0)</code>, to highlight v0.12/v0.11 incompatibility (#534).</li>
+<li>Fix bug in creation of bounding-box ROIs when <code>cellpose_segmentation</code> loops of FOVs (#524).</li>
+<li>Update type of <code>metadata</code> parameter of <code>prepare_FOV_ROI_table</code> and <code>prepare_well_ROI_table</code> functions (#524).</li>
+<li>Fix <code>reset_origin</code> so that it returns an updated copy of its input (#524).</li>
+</ul>
+</li>
+<li>Dependencies:<ul>
+<li>Relax <code>fsspec&lt;=2023.6</code> constraint into <code>fsspec!=2023.9.0</code> (#539).</li>
+</ul>
+</li>
+</ul>
+<h1 id="0110">0.11.0<a class="headerlink" href="#0110" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Tasks:<ul>
+<li><strong>(major)</strong> Introduce new tasks for registration of multiplexing cycles: <code>calculate_registration_image_based</code>, <code>apply_registration_to_ROI_tables</code>, <code>apply_registration_to_image</code> (#487).</li>
+<li><strong>(major)</strong> Introduce new <code>overwrite</code> argument for tasks <code>create_ome_zarr</code>, <code>create_ome_zarr_multiplex</code>, <code>yokogawa_to_ome_zarr</code>, <code>copy_ome_zarr</code>, <code>maximum_intensity_projection</code>, <code>cellpose_segmentation</code>, <code>napari_workflows_wrapper</code> (#499).</li>
+<li><strong>(major)</strong> Rename <code>illumination_correction</code> parameter from <code>overwrite</code> to <code>overwrite_input</code> (#499).</li>
+<li>Fix plate-selection bug in <code>copy_ome_zarr</code> task (#513).</li>
+<li>Fix bug in definition of <code>metadata["plate"]</code> in <code>create_ome_zarr_multiplex</code> task (#513).</li>
+<li>Introduce new helper functions <code>write_table</code>, <code>prepare_label_group</code> and <code>open_zarr_group_with_overwrite</code> (#499).</li>
+<li>Introduce new helper functions <code>are_ROI_table_columns_valid</code>, <code>convert_indices_to_regions</code>, <code>reset_origin</code>, <code>is_standard_roi_table</code>, <code>get_acquisition_paths</code>, <code>get_table_path_dict</code>, <code>get_axes_names</code>, <code>add_zero_translation_columns</code>, <code>calculate_min_max_across_dfs</code>, <code>apply_registration_to_single_ROI_table</code>, <code>write_registered_zarr</code>, <code>calculate_physical_shifts</code>, <code>get_ROI_table_with_translation</code> (#487).</li>
+</ul>
+</li>
+<li>Testing:<ul>
+<li>Add tests for <code>overwrite</code>-related task behaviors (#499).</li>
+<li>Introduce mock-up of <code>napari_skimage_regionprops</code> package, for testing of
+  <code>napari_workflows_wrapper</code> task (#499).</li>
+</ul>
+</li>
+<li>Dependencies:<ul>
+<li>Require <code>fsspec</code> version to be <code>&lt;=2023.6</code> (#509).</li>
+</ul>
+</li>
+</ul>
+<h1 id="0101">0.10.1<a class="headerlink" href="#0101" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Tasks:<ul>
+<li>Improve validation for <code>OmeroChannel.color</code> field (#488).</li>
+<li>Include <code>image-label/source/image</code> OME-NGFF attribute when creating labels (#478).</li>
+<li>Update default values for tolerance (<code>tol</code>) in <code>lib_ROI_overlaps.py</code> functions (#466).</li>
+</ul>
+</li>
+<li>Development tools:<ul>
+<li>Include <code>docs_info</code> and <code>docs_link</code> attributes in manifest tasks (#486).</li>
+<li>Rename and revamp scripts to update/check the manifest (#486).</li>
+<li>Improve logging and error-handling in tools for args-schema creation (#469).</li>
+</ul>
+</li>
+<li>Documentation:<ul>
+<li>Convert docstrings to Google style (#473, #479).</li>
+<li>Switch from sphinx to mkdocs for documentation (#479).</li>
+<li>Update generic type hints (#462, #479).</li>
+<li>Align examples to recent package version, and mention them in the documentation (#470).</li>
+</ul>
+</li>
+<li>Testing:<ul>
+<li>Improve coverage of core library (#459, #467, #468).</li>
+<li>Update Zenodo datasets used in tests (#454).</li>
+<li>Run tests both for the poetry-installed and pip-installed package (#455).</li>
+</ul>
+</li>
+<li>Dependencies:<ul>
+<li>Relax <code>numpy</code> required version to <code>&lt;2</code> (#477).</li>
+<li>Relax <code>dask</code> required version to <code>&gt;=2023.1.0</code> (#455).</li>
+<li>Relax <code>zarr</code> required version to <code>&gt;=2.13.6,&lt;3</code> (#455).</li>
+<li>Relax <code>pandas</code> required version to <code>&gt;=1.2.0,&lt;2</code> (#455).</li>
+<li>Relax <code>Pillow</code> required version to <code>&gt;=9.1.1,&lt;10.0.0</code> (#455).</li>
+<li>Full update of <code>poetry.lock</code> file (mutiple PRs, e.g. #472).</li>
+<li>Include <code>requests</code> and <code>wget</code> in the <code>dev</code> poetry dependency group (#455).</li>
+</ul>
+</li>
+</ul>
+<h1 id="0100">0.10.0<a class="headerlink" href="#0100" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Restructure the package and repository:<ul>
+<li>Move tasks to <code>tasks</code> subpackage (#390)</li>
+<li>Create new <code>dev</code> subpackage (#384).</li>
+<li>Make tasks-related dependencies optional, and installable via <code>fractal-tasks</code> extra (#390).</li>
+<li>Remove <code>tools</code> package extra (#384), and split the subpackage content into <code>lib_ROI_overlaps</code> and <code>examples</code> (#390).</li>
+</ul>
+</li>
+<li><strong>(major)</strong> Modify task arguments<ul>
+<li>Add Pydantic model <code>lib_channels.OmeroChannel</code> (#410, #422);</li>
+<li>Add Pydantic model <code>tasks._input_models.Channel</code> (#422);</li>
+<li>Add Pydantic model <code>tasks._input_models.NapariWorkflowsInput</code> (#422);</li>
+<li>Add Pydantic model <code>tasks._input_models.NapariWorkflowsOutput</code> (#422);</li>
+<li>Move all Pydantic models to main package (#438).</li>
+<li>Modify arguments of <code>illumination_correction</code> task (#431);</li>
+<li>Modify arguments of <code>create_ome_zarr</code> and <code>create_ome_zarr_multiplex</code> (#433).</li>
+<li>Modify argument default for <code>ROI_table_names</code>, in <code>copy_ome_zarr</code> (#449).</li>
+<li>Remove the delete option from yokogawa to ome zarr (#443).</li>
+<li>Reorder task inputs (#451).</li>
+</ul>
+</li>
+<li>JSON Schemas for task arguments:<ul>
+<li>Add JSON Schemas for task arguments in the package manifest (#369, #384).</li>
+<li>Add JSON Schemas for attributes of custom task-argument Pydantic models (#436).</li>
+<li>Make schema-generation tools more general, when handling custom Pydantic models (#445).</li>
+<li>Include titles for custom-model-typed arguments and argument attributes (#447).</li>
+<li>Remove <code>TaskArguments</code> models and switch to Pydantic V1 <code>validate_arguments</code> (#369).</li>
+<li>Make coercing&amp;validating task arguments required, rather than optional (#408).</li>
+<li>Remove <code>default_args</code> from manifest (#379, #393).</li>
+</ul>
+</li>
+<li>Other:<ul>
+<li>Make pydantic dependency required for running tasks, and pin it to V1 (#408).</li>
+<li>Remove legacy executor definitions from manifest (#361).</li>
+<li>Add GitHub action for testing <code>pip install</code> with/without <code>fractal-tasks</code> extra (#390).</li>
+<li>Remove <code>sqlmodel</code> from dev dependencies (#374).</li>
+<li>Relax constraint on torch version, from <code>==1.12.1</code> to <code>&lt;=2.0.0</code> (#406).</li>
+<li>Review task docstrings and improve documentation (#413, #416).</li>
+<li>Update <code>anndata</code> dependency requirements (from <code>^0.8.0</code> to <code>&gt;=0.8.0,&lt;=0.9.1</code>), and replace <code>anndata.experimental.write_elem</code> with <code>anndata._io.specs.write_elem</code> (#428).</li>
+</ul>
+</li>
+</ul>
+<h1 id="094">0.9.4<a class="headerlink" href="#094" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Relax constraint on <code>scikit-image</code> version, by only requiring a version <code>&gt;=0.19</code> (#367).</li>
+</ul>
+<h1 id="093">0.9.3<a class="headerlink" href="#093" title="Permanent link">&para;</a></h1>
+<ul>
+<li>For labeling tasks (<code>cellpose_segmentation</code> or <code>napari_worfklows_wrapper</code>), allow empty ROI tables as input or output (#365).</li>
+<li>Relax constraint related to the presence of channels in <code>create_zarr_structure_multiplex</code> task (#365).</li>
+</ul>
+<h1 id="092">0.9.2<a class="headerlink" href="#092" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Increase memory requirements for some tasks in manifest (#363).</li>
+</ul>
+<h1 id="091">0.9.1<a class="headerlink" href="#091" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Add <code>use_gpu</code> argument for <code>cellpose_segmentation</code> task (#350).</li>
+<li>Add dummy return object to napari-workflows task (#359).</li>
+<li>Include memory/cpu/gpu requirements in manifest, in view of new fractal-server SLURM backend (#360).</li>
+</ul>
+<h1 id="090">0.9.0<a class="headerlink" href="#090" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Introduce a module for masked loading of ROIs, and update the <code>cellpose_segmentation</code> task accordingly (#306).</li>
+<li>Rename task arguments: <code>ROI_table_name-&gt;input_ROI_table</code> and <code>bounding_box_ROI_table_name-&gt;output_ROI_table</code> (#306).</li>
+<li>Implement part of the <a href="https://github.com/ome/ngff/pull/64">proposed table support in OME-NGFF specs</a>, both for the <code>tables</code> zarr group and then for each table subgroup (#306).</li>
+<li>Rename module: <code>lib_remove_FOV_overlaps.py-&gt;lib_ROI_overlaps.py</code> (#306).</li>
+<li>Add new functions to existing modules: <code>lib_regions_of_interest.convert_region_to_low_res</code>, <code>lib_ROI_overlaps.find_overlaps_in_ROI_indices</code> (#306).</li>
+</ul>
+<h1 id="081">0.8.1<a class="headerlink" href="#081" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Disable bugged validation of <code>model_type</code> argument in <code>cellpose_segmentation</code> (#344).</li>
+<li>Raise an error if the user provides an unexpected argument to a task (#337); this applies to the case of running a task as a script, with a pydantic model for task-argument validation.</li>
+</ul>
+<h1 id="080">0.8.0<a class="headerlink" href="#080" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>(major)</strong> Update task interface: remove filename extension from <code>input_paths</code> and <code>output_path</code> for all tasks, and add new arguments <code>(image_extension,image_glob_pattern)</code> to <code>create_ome_zarr</code> task (#323).</li>
+<li>Implement logic for handling <code>image_glob_patterns</code> argument, both when globbing images and in Yokogawa metadata parsing (#326).</li>
+<li>Fix minor bugs in task arguments (#329).</li>
+</ul>
+<h1 id="075">0.7.5<a class="headerlink" href="#075" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Update <code>cellpose_segmentation</code> defaults and parse additional parameters (#316).</li>
+<li>Add dual-channel input for <code>cellpose_segmentation</code> task (#315).</li>
+</ul>
+<h1 id="074">0.7.4<a class="headerlink" href="#074" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Add tests for python 3.10 (#309).</li>
+<li>Drop support for python 3.8 (#319).</li>
+<li>Update task interface: use string arguments instead of <code>pathlib.Path</code>, and only set defaults in function call signatures (#303).</li>
+</ul>
+<h1 id="073">0.7.3<a class="headerlink" href="#073" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Add <code>reset_origin</code> argument to <code>convert_ROI_table_to_indices</code> (#305).</li>
+<li>Do not overwrite existing labels in <code>cellpose_segmentation</code> task (#308).</li>
+</ul>
+<h1 id="072">0.7.2<a class="headerlink" href="#072" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Remove pyqt5-related dependencies (#288).</li>
+</ul>
+<h1 id="071">0.7.1<a class="headerlink" href="#071" title="Permanent link">&para;</a></h1>
+<p>Missing</p>
+<h1 id="070">0.7.0<a class="headerlink" href="#070" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Replace <code>dask.array.core.get_mapper()</code> with <code>zarr.storage.FSStore()</code> (#282).</li>
+<li>Pin dask version to &gt;=2023.1.0, &lt;2023.2.</li>
+<li>Pin zarr version to &gt;=2.13.6, &lt;2.14.</li>
+<li>Pin numpy version to &gt;=1.23.5,&lt;1.24.</li>
+<li>Pin cellpose version to &gt;=2.2,&lt;2.3.</li>
+</ul>
+<h1 id="065">0.6.5<a class="headerlink" href="#065" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Remove FOV overlaps with more flexibility (#265).</li>
+</ul>
+<h1 id="064">0.6.4<a class="headerlink" href="#064" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Created <code>tools</code> submodule and installation extra (#262).</li>
+</ul>
+<h1 id="063">0.6.3<a class="headerlink" href="#063" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Added napari dependency, pinned to 0.4.16 version.</li>
+<li>Fixed type-hinting bug in task to create multiplexing OME-Zarr structure (#258).</li>
+</ul>
+<h1 id="062">0.6.2<a class="headerlink" href="#062" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Support passing a pre-made metadata table to tasks creating the OME-Zarr structure (#252).</li>
+</ul>
+<h1 id="061">0.6.1<a class="headerlink" href="#061" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Add option for padding an array with zeros in <code>upscale_array</code> (#251).</li>
+<li>Simplified <code>imagecodecs</code> and <code>PyQt5</code> dependencies (#248).</li>
+</ul>
+<h1 id="060">0.6.0<a class="headerlink" href="#060" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>(major)</strong> Refactor of how to address channels (#239).</li>
+<li>Fix bug in well ROI table (#245).</li>
+</ul>
+<h1 id="051">0.5.1<a class="headerlink" href="#051" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Fix sorting of image files when number of Z planes passes 100 (#237).</li>
+</ul>
+<h1 id="050">0.5.0<a class="headerlink" href="#050" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>(major)</strong> Deprecate <code>measurement</code> task (#235).</li>
+<li><strong>(major)</strong> Use more uniform names for tasks, both in python modules and manifest (#235).</li>
+<li>Remove deprecated manifest from <code>__init__.py</code> (#233).</li>
+</ul>
+<h1 id="046">0.4.6<a class="headerlink" href="#046" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Skip image files if filename is not parsable (#219).</li>
+<li>Preserve order of <code>input_paths</code> for multiplexing subfolders (#222).</li>
+<li>Major refactor of <code>replicate_zarr_structure</code>, also enabling support for zarr files with multiple images (#223).</li>
+</ul>
+<h1 id="045">0.4.5<a class="headerlink" href="#045" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Replace <code>Cellpose</code> wrapper with <code>CellposeModel</code>, to support <code>pretrained_model</code> argument (#218).</li>
+<li>Update cellpose version (it was pinned to 2.0, in previous versions) (#218).</li>
+<li>Pin <code>torch</code> dependency to version 1.12.1, to support CUDA version 10.2 (#218).</li>
+</ul>
+<h1 id="044">0.4.4<a class="headerlink" href="#044" title="Permanent link">&para;</a></h1>
+<p>Missing due to releasing error.</p>
+<h1 id="043">0.4.3<a class="headerlink" href="#043" title="Permanent link">&para;</a></h1>
+<ul>
+<li>In <code>create_zarr_structure_multiplex</code>, always use/require strings for <code>acquisition</code> field (#217).</li>
+</ul>
+<h1 id="042">0.4.2<a class="headerlink" href="#042" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Bugfixes</li>
+</ul>
+<h1 id="041">0.4.1<a class="headerlink" href="#041" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Only use strings as keys of <code>channel_parameters</code> (in <code>create_zarr_structure_multiplex</code>).</li>
+</ul>
+<h1 id="040">0.4.0<a class="headerlink" href="#040" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>(major)</strong> Rename <code>well</code> to <code>image</code> (both in metadata list and in manifest) and add an actual <code>well</code> field (#210).</li>
+<li>Add <code>create_ome_zarr_multiplexing</code>, and adapt <code>yokogawa_to_zarr</code> (#210).</li>
+<li>Relax constraint about outputs in <code>napari_worfklows_wrapper</code> (#209).</li>
+</ul>
+<h1 id="034">0.3.4<a class="headerlink" href="#034" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Always log START/END times for each task (#204).</li>
+<li>Add <code>label_name</code> argument to <code>cellpose_segmentation</code> (#207).</li>
+<li>Add <code>pretrained_model</code> argument to <code>cellpose_segmentation</code> (#207).</li>
+</ul>
+<h1 id="033">0.3.3<a class="headerlink" href="#033" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Added <code>napari_worfklows_wrapper</code> to manifest.</li>
+</ul>
+<h1 id="032">0.3.2<a class="headerlink" href="#032" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Compute bounding boxes of labels, in <code>cellpose_segmentation</code> (#192).</li>
+<li>Parse image filenames in a more robust way (#191).</li>
+<li>Update manifest, moving <code>parallelization_level</code> and <code>executor</code> to <code>meta</code> attribute.</li>
+</ul>
+<h1 id="031">0.3.1<a class="headerlink" href="#031" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Fix <code>executable</code> fields in manifest.</li>
+<li>Remove <code>graphviz</code> dependency.</li>
+</ul>
+<h1 id="030">0.3.0<a class="headerlink" href="#030" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Conform to Fractal v1, through new task manifest (#162) and standard input/output interface (#155, #157).</li>
+<li>Add several type hints (#148) and validate them in the standard task interface (#175).</li>
+<li>Update <code>napari_worfklows_wrapper</code>: pyramid level for labeling worfklows (#148), label-only inputs (#163, #171), relabeling (#167), 2D/3D handling (#166).</li>
+<li>Deprecate <code>dummy</code> and <code>dummy_fail</code> tasks.</li>
+</ul>
+<h1 id="026">0.2.6<a class="headerlink" href="#026" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Setup sphinx docs, to be built and hosted on <a href="https://fractal-tasks-core.readthedocs.io">https://fractal-tasks-core.readthedocs.io</a>; include some preliminary updates of docstrings (#143).</li>
+<li>Dependency cleanup via deptry (#144).</li>
+</ul>
+<h1 id="025">0.2.5<a class="headerlink" href="#025" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Add <code>napari_workflows_wrapper</code> task (#141).</li>
+<li>Add <code>lib_upscale_array.py</code> module (#141).</li>
+</ul>
+<h1 id="024">0.2.4<a class="headerlink" href="#024" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Major updates to <code>metadata_parsing.py</code> (#136).</li>
+</ul>
+<!-- END INCLUDE -->
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      © Copyright 2024
+University of Zurich
+(see <u><a href="https://github.com/fractal-analytics-platform/fractal-tasks-core/blob/main/LICENSE">
+LICENSE
+</a></u>).
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "content.code.copy"], "search": "../assets/javascripts/workers/search.74e28a9f.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.220ee61c.min.js"></script>
+      
+        
+          <script src="../javascripts/mathjax.js"></script>
+        
+      
+        
+          <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        
+      
+        
+          <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        
+      
+    
+  </body>
+</html>
