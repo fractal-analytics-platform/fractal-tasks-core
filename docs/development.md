@@ -59,7 +59,7 @@ A [dedicated GitHub action](https://github.com/fractal-analytics-platform/fracta
 3. `CHANGELOG.md` is up to date.
 4. If appropriate (e.g. if you added some new task arguments, or if you modified some of their descriptions), update the JSON Schemas in the manifest via:
 ```bash
-poetry run python fractal_tasks_core/dev/create_manifest.py
+fractal-manifest create --package fractal-tasks-core
 ```
 (note that the CI will fail if you forgot to update the manifest,, but it is good to be aware of it)
 
