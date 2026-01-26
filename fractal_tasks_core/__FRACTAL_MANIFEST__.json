@@ -764,7 +764,7 @@
         "2D",
         "3D"
       ],
-      "docs_info": "### Purpose\n- **Corrects illumination** in OME-Zarr images using **pre-calculated flatfield profiles**.\n- Optionally performs **background subtraction**.\n\n### Limitations\n- Requires pre-calculated flatfield profiles in TIFF format.\n- Supports only fixed-value background subtraction; background subtraction profiles are not supported.\n",
+      "docs_info": "### Purpose\n- **Corrects illumination** in OME-Zarr images using **pre-calculated flatfield profiles**.\n- Optionally performs **background subtraction** using **pre-calculated darkfield profiles** or constant values.\n- Corrections are applied with a formula:\n  - `corrected_image = (raw_image - background) / illumination`\n\n### Limitations\n- Requires pre-calculated flatfield profiles in TIFF format.\n- Optional background subtraction requires pre-calculated darkfield profiles in TIFF format or constant values.\n- Flatfield profiles are always normalized to 0-1 range before correction.\n- Requires all channels to have corresponding illumination profiles. If background correction is used, all channels must also have corresponding background profiles or constant values.\n",
       "type": "parallel",
       "executable_parallel": "tasks/illumination_correction.py",
       "meta_parallel": {
@@ -772,6 +772,119 @@
         "mem": 4000
       },
       "args_schema_parallel": {
+        "$defs": {
+          "BackgroundCorrection": {
+            "description": "Wrapper of background correction models for better UI display.",
+            "properties": {
+              "value": {
+                "default": {
+                  "model": "None"
+                },
+                "discriminator": {
+                  "mapping": {
+                    "Constant": "#/$defs/ConstantCorrectionModel",
+                    "None": "#/$defs/NoCorrectionModel",
+                    "Profile": "#/$defs/ProfileCorrectionModel"
+                  },
+                  "propertyName": "model"
+                },
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/NoCorrectionModel"
+                  },
+                  {
+                    "$ref": "#/$defs/ProfileCorrectionModel"
+                  },
+                  {
+                    "$ref": "#/$defs/ConstantCorrectionModel"
+                  }
+                ],
+                "title": "Value"
+              }
+            },
+            "title": "BackgroundCorrection",
+            "type": "object"
+          },
+          "ConstantCorrectionModel": {
+            "description": "Parameters for constant-based corrections.",
+            "properties": {
+              "model": {
+                "const": "Constant",
+                "default": "Constant",
+                "enum": [
+                  "Constant"
+                ],
+                "title": "Model",
+                "type": "string",
+                "description": "Correction model identifier."
+              },
+              "constants": {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "title": "Constants",
+                "type": "object",
+                "description": "Dictionary where keys match the `wavelength_id` attributes of existing channels (e.g. `A01_C01` ) and values are the constant values to be used for correction."
+              }
+            },
+            "required": [
+              "constants"
+            ],
+            "title": "Correction with constants",
+            "type": "object"
+          },
+          "NoCorrectionModel": {
+            "description": "Select for no correction to be applied.",
+            "properties": {
+              "model": {
+                "const": "None",
+                "default": "None",
+                "enum": [
+                  "None"
+                ],
+                "title": "Model",
+                "type": "string",
+                "description": "Correction model identifier."
+              }
+            },
+            "title": "No Correction",
+            "type": "object"
+          },
+          "ProfileCorrectionModel": {
+            "description": "Parameters for profile-based corrections.",
+            "properties": {
+              "model": {
+                "const": "Profile",
+                "default": "Profile",
+                "enum": [
+                  "Profile"
+                ],
+                "title": "Model",
+                "type": "string",
+                "description": "Correction model identifier."
+              },
+              "folder": {
+                "title": "Folder",
+                "type": "string",
+                "description": "Path of folder of correction profiles."
+              },
+              "profiles": {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "title": "Profiles",
+                "type": "object",
+                "description": "Dictionary where keys match the `wavelength_id` attributes of existing channels (e.g. `A01_C01` ) and values are the filenames of the corresponding correction profiles."
+              }
+            },
+            "required": [
+              "folder",
+              "profiles"
+            ],
+            "title": "Correction with Profiles",
+            "type": "object"
+          }
+        },
         "additionalProperties": false,
         "properties": {
           "zarr_url": {
@@ -779,24 +892,24 @@
             "type": "string",
             "description": "Path or url to the individual OME-Zarr image to be processed. (standard argument for Fractal tasks, managed by Fractal server)."
           },
-          "illumination_profiles_folder": {
-            "title": "Illumination Profiles Folder",
-            "type": "string",
-            "description": "Path of folder of illumination profiles."
-          },
           "illumination_profiles": {
-            "additionalProperties": {
-              "type": "string"
-            },
+            "$ref": "#/$defs/ProfileCorrectionModel",
             "title": "Illumination Profiles",
-            "type": "object",
-            "description": "Dictionary where keys match the `wavelength_id` attributes of existing channels (e.g. `A01_C01` ) and values are the filenames of the corresponding illumination profiles."
+            "description": "Illumination (flatfield) correction profiles."
           },
-          "background": {
-            "default": 0,
-            "title": "Background",
-            "type": "integer",
-            "description": "Background value that is subtracted from the image before the illumination correction is applied. Set it to `0` if you don't want any background subtraction."
+          "background_correction": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/BackgroundCorrection"
+              }
+            ],
+            "default": {
+              "value": {
+                "model": "None"
+              }
+            },
+            "title": "Background Correction",
+            "description": "(Optional) background (darkfield) correction parameters. Can be provided as profiles or as constant values."
           },
           "input_ROI_table": {
             "default": "FOV_ROI_table",
@@ -819,7 +932,6 @@
         },
         "required": [
           "zarr_url",
-          "illumination_profiles_folder",
           "illumination_profiles"
         ],
         "type": "object",

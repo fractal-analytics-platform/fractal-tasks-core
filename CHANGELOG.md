@@ -5,6 +5,7 @@
     * Fix Zenodo data downloads in CI (\#1010).
 * Dependencies
     * Update ngio to v0.4 (\#1007).
+    * Add handling of darkfield correction profiles to illumination correction task.
 
 # 1.5.6
 
