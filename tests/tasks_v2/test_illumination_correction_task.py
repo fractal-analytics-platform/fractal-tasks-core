@@ -2,6 +2,7 @@ import shutil
 from pathlib import Path
 
 import pytest
+from ngio import create_empty_ome_zarr
 from ngio import open_ome_zarr_container
 
 from fractal_tasks_core.tasks.illumination_correction import (
@@ -56,7 +57,7 @@ def test_output_handled(
     }
 
     # do illumination correction
-    illumination_correction(
+    task_update_list = illumination_correction(
         zarr_url=image_url,
         illumination_profiles=illumination_profiles,
         overwrite_input=overwrite_input,
@@ -73,6 +74,17 @@ def test_output_handled(
     # corrected image should be non-empty and different from origin
     output_image_url = image_url if overwrite_input else new_image_url
     _check_that_images_differs(saved_origin_url, output_image_url)
+
+    if overwrite_input:
+        assert task_update_list is None
+    else:
+        assert task_update_list is not None
+        assert len(task_update_list["image_list_updates"]) == 1
+        assert (
+            task_update_list["image_list_updates"][0]["zarr_url"]
+            == new_image_url
+        )
+        assert task_update_list["image_list_updates"][0]["origin"] == image_url
 
 
 @pytest.mark.parametrize(
@@ -443,3 +455,74 @@ def test_wrong_file_or_folder(
             overwrite_input=False,
             suffix="_corrected",
         )
+
+
+@pytest.mark.parametrize(
+    "shape, axes",
+    [
+        ((2160, 2560), "yx"),
+        ((16, 2160, 2560), "zyx"),
+        ((3, 16, 2160, 2560), "czyx"),
+        ((4, 3, 16, 2160, 2560), "tczyx"),
+    ],
+)
+def test_multidimensional_input(
+    shape, axes: str, tmp_path: Path, testdata_path: Path
+) -> None:
+    """
+    Test the projection task.
+    """
+    store = tmp_path / "sample_ome_zarr.zarr"
+    print(store)
+    origin_ome_zarr = create_empty_ome_zarr(
+        store=store.as_posix(),
+        shape=shape,
+        xy_pixelsize=0.1,
+        z_spacing=0.5,
+        overwrite=False,
+        axes_names=axes,
+    )
+
+    table = origin_ome_zarr.build_image_roi_table("image")
+    origin_ome_zarr.add_table(
+        "well_ROI_table", table, backend="experimental_json_v1"
+    )
+
+    # Prepare arguments for illumination_correction function
+    testdata_str = testdata_path.as_posix()
+
+    illumination_profiles_folder: str = (
+        f"{testdata_str}/illumination_correction/"
+    )
+    illumination_profiles_map: dict[str, str] = {
+        wavelength: "flatfield_corr_matrix.png"
+        for wavelength in origin_ome_zarr.wavelength_ids
+    }
+    illumination_profiles = {
+        "folder": illumination_profiles_folder,
+        "profiles": illumination_profiles_map,
+    }
+
+    print(store)
+    print(store.as_posix())
+    illumination_correction(
+        zarr_url=store.as_posix(),
+        illumination_profiles=illumination_profiles,
+        overwrite_input=False,
+        input_ROI_table="well_ROI_table",
+    )
+
+    # init_mip = InitArgsMIP(
+    #     origin_url=str(store),
+    #     method="mip",
+    #     overwrite=False,
+    #     new_plate_name="new_plate.zarr",
+    # )
+
+    # mip_store = tmp_path / "sample_ome_zarr_mip.zarr"
+    # update_list = projection(zarr_url=str(mip_store), init_args=init_mip)
+
+    # zarr_url = update_list["image_list_updates"][0]["zarr_url"]
+    # origin_url = update_list["image_list_updates"][0]["origin"]
+    # attributes = update_list["image_list_updates"][0]["attributes"]
+    # types = update_list["image_list_updates"][0]["types"]

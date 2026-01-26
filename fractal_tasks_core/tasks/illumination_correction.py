@@ -23,6 +23,7 @@ from ngio import ChannelSelectionModel
 from ngio import open_ome_zarr_container
 from ngio import open_ome_zarr_well
 from ngio.experimental.iterators import ImageProcessingIterator
+from ngio.utils._errors import NgioFileNotFoundError
 from pydantic import BaseModel
 from pydantic import Field
 from pydantic import validate_call
@@ -321,24 +322,34 @@ def illumination_correction(
         iterator = iterator.product(FOV_ROI_table).by_zyx(strict=False)
 
         for image_data, writer in iterator.iter_as_dask():
-            writer(
-                correct(
-                    image_data,
-                    illumination_matrices.get(wavelength_id),
-                    background_matrices.get(wavelength_id),
-                    background_constants.get(wavelength_id, 0),
-                )
+            corrected = correct(
+                image_data,
+                illumination_matrices.get(wavelength_id),
+                background_matrices.get(wavelength_id),
+                background_constants.get(wavelength_id, 0),
             )
+            # correct function operate on 3D arrays for better performance
+            # and in case of 2D, the output will be broadcasted to 3D
+            # with a singleton first dimension
+            if len(image_data.shape) == 2:
+                corrected = corrected.squeeze(axis=0)
+
+            writer(corrected)
 
     t_end = time.perf_counter()
     logger.info(f"End illumination_correction, elapsed: {t_end - t_start}")
 
     if not overwrite_input:
         well_url, new_image_path = _split_well_path_image_path(zarr_url_new)
-        ome_zarr_well = open_ome_zarr_well(well_url)
-        ome_zarr_well.atomic_add_image(
-            image_path=new_image_path,
-        )
+        try:
+            ome_zarr_well = open_ome_zarr_well(well_url)
+            ome_zarr_well.atomic_add_image(
+                image_path=new_image_path,
+            )
+        except NgioFileNotFoundError:
+            logger.warning(
+                "Input image not in an Ome-Zarr Plate, metadata not updated."
+            )
 
         logger.info(f"Saved illumination corrected image as {zarr_url_new}.")
         image_list_update = dict(zarr_url=zarr_url_new, origin=zarr_url)
