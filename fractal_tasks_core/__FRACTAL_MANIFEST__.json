@@ -639,6 +639,44 @@
       },
       "args_schema_non_parallel": {
         "$defs": {
+          "AdvancedArgsMIP": {
+            "description": "Advanced Args for MIP task.",
+            "properties": {
+              "projection_axis": {
+                "default": "z",
+                "enum": [
+                  "z",
+                  "y",
+                  "x"
+                ],
+                "title": "Projection Axis",
+                "type": "string"
+              },
+              "z_upscale_factor": {
+                "default": 1.0,
+                "title": "Z Upscale Factor",
+                "type": "number"
+              },
+              "z_upscale_interpolation_order": {
+                "default": 1,
+                "enum": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "title": "Z Upscale Interpolation Order",
+                "type": "integer"
+              },
+              "autofocus_radius": {
+                "title": "Autofocus Radius",
+                "type": "integer"
+              }
+            },
+            "title": "AdvancedArgsMIP",
+            "type": "object"
+          },
           "DaskProjectionMethod": {
             "description": "Registration method selection",
             "enum": [
@@ -676,6 +714,21 @@
             "title": "Method",
             "description": "Choose which method to use for intensity projection along the Z axis. mip is the default and performs a maximum intensity projection. minip performs a minimum intensity projection, meanip a mean intensity projection and sumip a sum intensity projection."
           },
+          "advanced_parameters": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/AdvancedArgsMIP"
+              }
+            ],
+            "default": {
+              "projection_axis": "z",
+              "z_upscale_factor": 1.0,
+              "z_upscale_interpolation_order": 1,
+              "autofocus_radius": null
+            },
+            "title": "Advanced Parameters",
+            "description": "Advanced parameters for the MIP task."
+          },
           "overwrite": {
             "default": false,
             "title": "Overwrite",
@@ -698,6 +751,44 @@
       },
       "args_schema_parallel": {
         "$defs": {
+          "AdvancedArgsMIP": {
+            "description": "Advanced Args for MIP task.",
+            "properties": {
+              "projection_axis": {
+                "default": "z",
+                "enum": [
+                  "z",
+                  "y",
+                  "x"
+                ],
+                "title": "Projection Axis",
+                "type": "string"
+              },
+              "z_upscale_factor": {
+                "default": 1.0,
+                "title": "Z Upscale Factor",
+                "type": "number"
+              },
+              "z_upscale_interpolation_order": {
+                "default": 1,
+                "enum": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "title": "Z Upscale Interpolation Order",
+                "type": "integer"
+              },
+              "autofocus_radius": {
+                "title": "Autofocus Radius",
+                "type": "integer"
+              }
+            },
+            "title": "AdvancedArgsMIP",
+            "type": "object"
+          },
           "InitArgsMIP": {
             "description": "Init Args for MIP task.",
             "properties": {
@@ -708,6 +799,10 @@
               "method": {
                 "title": "Method",
                 "type": "string"
+              },
+              "advanced_parameters": {
+                "$ref": "#/$defs/AdvancedArgsMIP",
+                "title": "Advanced_Parameters"
               },
               "overwrite": {
                 "title": "Overwrite",
@@ -721,6 +816,7 @@
             "required": [
               "origin_url",
               "method",
+              "advanced_parameters",
               "overwrite",
               "new_plate_name"
             ],
