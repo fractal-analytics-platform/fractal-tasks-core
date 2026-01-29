@@ -26,6 +26,7 @@ from ngio.utils import NgioFileNotFoundError
 from pydantic import validate_call
 
 import fractal_tasks_core
+from fractal_tasks_core.tasks.io_models import AdvancedArgsMIP
 from fractal_tasks_core.tasks.io_models import InitArgsMIP
 from fractal_tasks_core.tasks.projection_utils import DaskProjectionMethod
 
@@ -93,6 +94,7 @@ def copy_ome_zarr_hcs_plate(
     zarr_dir: str,
     method: DaskProjectionMethod = DaskProjectionMethod.MIP,
     # Advanced parameters
+    advanced_parameters: AdvancedArgsMIP = AdvancedArgsMIP(),
     overwrite: bool = False,
     re_initialize_plate: bool = False,
 ) -> dict[str, Any]:
@@ -122,6 +124,7 @@ def copy_ome_zarr_hcs_plate(
             Z axis. mip is the default and performs a maximum intensity
             projection. minip performs a minimum intensity projection, meanip
             a mean intensity projection and sumip a sum intensity projection.
+        advanced_parameters: Advanced parameters for the MIP task.
         overwrite: If `True`, overwrite the MIP images if they are
             already present in the new OME-Zarr Plate.
         re_initialize_plate: If `True`, re-initialize the plate, deleting all
@@ -132,6 +135,7 @@ def copy_ome_zarr_hcs_plate(
         A parallelization list to be used in a compute task to fill the wells
         with OME-Zarr images.
     """
+
     parallelization_list = []
 
     # A dictionary to store the plates and avoid re-initializing them multiple
@@ -157,9 +161,16 @@ def copy_ome_zarr_hcs_plate(
         base_dir = "/".join(base)
 
         plate_url = f"{base_dir}/{plate_name}"
-        proj_plate_name = (
-            f"{plate_name}".rstrip(".zarr") + f"_{method.value}.zarr"
-        )
+        if (
+            advanced_parameters is None
+            or advanced_parameters.projection_axis == "z"
+        ):
+            method_name = method.value
+        else:
+            method_name = (
+                f"{method.value}_{advanced_parameters.projection_axis}"
+            )
+        proj_plate_name = f"{plate_name.rstrip('.zarr')}_{method_name}.zarr"
         proj_plate_url = f"{zarr_dir}/{proj_plate_name}"
 
         if proj_plate_url not in proj_plates:
@@ -207,6 +218,7 @@ def copy_ome_zarr_hcs_plate(
         proj_init = InitArgsMIP(
             origin_url=zarr_url,
             method=method.value,
+            advanced_parameters=advanced_parameters,
             # Since we checked for existence above,
             # we can safely set this to True
             overwrite=True,

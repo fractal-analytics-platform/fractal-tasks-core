@@ -409,10 +409,18 @@ def test_projection_methods(
     zarr_urls = []
     zarr_urls = [Path(zarr_path, "plate.zarr/B/03/0").as_posix()]
 
+    advanced_parameters = {
+        "projection_axis": "z",
+        "z_upscale_factor": 1.0,
+        "z_upscale_interpolation_order": 3,
+        "autofocus_radius": None,
+    }
+
     parallelization_list = copy_ome_zarr_hcs_plate(
         zarr_urls=zarr_urls,
         zarr_dir=str(zarr_path),
         method=method,
+        advanced_parameters=advanced_parameters,
         overwrite=True,
         re_initialize_plate=True,
     )["parallelization_list"]
@@ -426,6 +434,7 @@ def test_projection_methods(
             "init_args": {
                 "origin_url": zarr_urls[0],
                 "method": method,
+                "advanced_parameters": advanced_parameters,
                 "overwrite": True,
                 "new_plate_name": f"plate_{method}.zarr",
             },

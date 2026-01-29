@@ -80,6 +80,64 @@ class InitArgsIllumination(BaseModel):
     subsets: dict[Literal["C_index"], int] = Field(default_factory=dict)
 
 
+class AdvancedArgsMIP(BaseModel):
+    """
+    Advanced Args for MIP task.
+
+    Attributes:
+        projection_axis: Axis along which to perform the projection, one of
+            "x", "y" or "z" (default). For "x" and "y", the projection is
+            performed along the respective axis, and the resulting image is
+            rotated to have the YX plane as spatial dimensions such that:
+            (z,y,x) -> (1,y,x) for projection along "z",
+            (z,y,x) -> (1,x,z) for projection along "y",
+            (z,y,x) -> (1,z,y) for projection along "x".
+        z_upscale_factor: Factor by which to upscale the z axis after
+            projection with projection_axis "x" or "y". By default there is
+            no upscaling (factor=1.0).
+        z_upscale_interpolation_order: The order of the spline interpolation
+            to rescale the image. Must be between 1 and 5. For example 3 is
+            cubic spline interpolation. Default is 1 (linear interpolation).
+        autofocus_radius: The radius around the sharpest plane to use for
+            the projection. If not specified, the sharpest plane is not
+            calculated and the projection is done based on all planes.
+    """
+
+    projection_axis: Literal["z", "y", "x"] = "z"
+    z_upscale_factor: float = 1.0
+    z_upscale_interpolation_order: Literal[1, 2, 3, 4, 5] = 1
+    autofocus_radius: Optional[int] = None
+
+    @model_validator(mode="after")
+    def validate_upscale_factor(self: Self) -> Self:
+        """
+        Validate that z_upscale_factor is greater than 1.0.
+        """
+        if self.z_upscale_factor < 1.0:
+            raise ValueError(
+                "z_upscale_factor must be >= 1.0"
+                f", but got {self.z_upscale_factor}."
+            )
+        if self.z_upscale_factor > 1.0 and self.projection_axis == "z":
+            raise ValueError(
+                "z_upscale_factor can only be used when projection_axis is"
+                " 'x' or 'y'."
+            )
+        return self
+
+    @model_validator(mode="after")
+    def validate_autofocus_radius(self: Self) -> Self:
+        """
+        Validate that autofocus_radius is positive if set.
+        """
+        if self.autofocus_radius is not None and self.autofocus_radius < 0:
+            raise ValueError(
+                "autofocus_radius must be non-negative"
+                f", but got {self.autofocus_radius}."
+            )
+        return self
+
+
 class InitArgsMIP(BaseModel):
     """
     Init Args for MIP task.
@@ -87,12 +145,14 @@ class InitArgsMIP(BaseModel):
     Attributes:
         origin_url: Path to the zarr_url with the 3D data
         method: Projection method to be used. See `DaskProjectionMethod`
+        advanced_parameters: Advanced parameters for MIP task.
         overwrite: If `True`, overwrite the task output.
         new_plate_name: Name of the new OME-Zarr HCS plate
     """
 
     origin_url: str
     method: str
+    advanced_parameters: AdvancedArgsMIP
     overwrite: bool
     new_plate_name: str
 

@@ -1,18 +1,27 @@
 from pathlib import Path
 
+import pytest
 from ngio import open_ome_zarr_container
 
+from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import AdvancedArgsMIP
 from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
     copy_ome_zarr_hcs_plate,
 )
 from fractal_tasks_core.tasks.projection import projection
 
 
-def test_mip_task(cardiomyocyte_tiny_path: Path, tmp_path: Path) -> None:
+@pytest.mark.parametrize("projection_axis", ["x", "y", "z"])
+def test_mip_task(
+    cardiomyocyte_tiny_path: Path,
+    tmp_path: Path,
+    projection_axis: str,
+) -> None:
+    """Test the full flow of the MIP projection task."""
     image_url = str(cardiomyocyte_tiny_path / "B" / "03" / "0")
     parallel_list = copy_ome_zarr_hcs_plate(
         zarr_urls=[image_url],
         zarr_dir=str(tmp_path / "tmp_out"),
+        advanced_parameters=AdvancedArgsMIP(projection_axis=projection_axis),
         overwrite=True,
         re_initialize_plate=True,
     )
@@ -29,15 +38,16 @@ def test_mip_task(cardiomyocyte_tiny_path: Path, tmp_path: Path) -> None:
 
     assert Path(zarr_url).exists()
     assert Path(origin_url).exists()
-    assert attributes == {
-        "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1-tiny_mip.zarr"
-    }
+    assert ["plate"] == list(attributes.keys())
+    assert attributes["plate"].endswith(
+        ("mip.zarr", f"mip_{projection_axis}.zarr")
+    )
     assert types == {"is_3D": False}
 
     ome_zarr = open_ome_zarr_container(zarr_url)
 
     image = ome_zarr.get_image()
-    assert image.dimensions.get("z", default=None) == 1
+    assert image.dimensions.get("z") == 1
     assert image.pixel_size.z == 1.0
 
     assert ome_zarr.list_tables() == ["FOV_ROI_table", "well_ROI_table"]

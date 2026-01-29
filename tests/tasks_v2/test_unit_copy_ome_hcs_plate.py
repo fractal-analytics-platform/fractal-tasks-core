@@ -125,21 +125,25 @@ def test_fail_overwrite(tmp_path: Path):
 def test_new_plate_name(tmp_path: Path):
     zarr_urls = plate_2w_1a_czyx(tmp_path)
 
-    for method in ["mip", "minip", "meanip", "sumip"]:
-        p_list = copy_ome_zarr_hcs_plate(
-            zarr_urls=[zarr_urls[0]],
-            zarr_dir=str(tmp_path),
-            method=method,
-            overwrite=False,
-            re_initialize_plate=False,
-        )
+    for projection_axis in ["x", "y", "z"]:
+        axis_suffix = "" if projection_axis == "z" else f"_{projection_axis}"
+        for method in ["mip", "minip", "meanip", "sumip"]:
+            p_list = copy_ome_zarr_hcs_plate(
+                zarr_urls=[zarr_urls[0]],
+                zarr_dir=str(tmp_path),
+                method=method,
+                advanced_parameters={"projection_axis": projection_axis},
+                overwrite=False,
+                re_initialize_plate=False,
+            )
 
-        test_new_plate_name = p_list["parallelization_list"][0]["init_args"][
-            "new_plate_name"
-        ]
-        assert (
-            test_new_plate_name == f"plate_xy_2w_1_{method}.zarr"
-        ), test_new_plate_name
+            test_new_plate_name = p_list["parallelization_list"][0][
+                "init_args"
+            ]["new_plate_name"]
+            assert (
+                test_new_plate_name
+                == f"plate_xy_2w_1_{method}{axis_suffix}.zarr"
+            )
 
 
 def test_fail_not_plate_url():
