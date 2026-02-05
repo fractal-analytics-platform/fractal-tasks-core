@@ -304,12 +304,11 @@ def illumination_correction(
             copy_tables=True,
             copy_labels=True,
         )
-    output_image = output_ome_zarr_container.get_image(image.path)
+    output_image = output_ome_zarr_container.get_image()
 
     # Start processing loop over channels
     for wavelength_id in image.wavelength_ids:
         logger.info(f"Applying illumination correction for {wavelength_id=}")
-        logger.info(f"{image.wavelength_ids=}")
         channel_selection = ChannelSelectionModel(
             mode="wavelength_id", identifier=wavelength_id
         )
@@ -347,8 +346,9 @@ def illumination_correction(
                 image_path=new_image_path,
             )
         except NgioFileNotFoundError:
-            logger.warning(
-                "Input image not in an Ome-Zarr Plate, metadata not updated."
+            logger.debug(
+                "Input image not in an Ome-Zarr Plate, well "
+                "metadata not updated."
             )
 
         logger.info(f"Saved illumination corrected image as {zarr_url_new}.")

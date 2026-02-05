@@ -778,12 +778,12 @@
             "properties": {
               "value": {
                 "default": {
-                  "model": "None"
+                  "model": "No Correction"
                 },
                 "discriminator": {
                   "mapping": {
                     "Constant": "#/$defs/ConstantCorrectionModel",
-                    "None": "#/$defs/NoCorrectionModel",
+                    "No Correction": "#/$defs/NoCorrectionModel",
                     "Profile": "#/$defs/ProfileCorrectionModel"
                   },
                   "propertyName": "model"
@@ -816,7 +816,7 @@
                 ],
                 "title": "Model",
                 "type": "string",
-                "description": "Correction model identifier."
+                "description": "The correction model to be applied."
               },
               "constants": {
                 "additionalProperties": {
@@ -837,14 +837,14 @@
             "description": "Select for no correction to be applied.",
             "properties": {
               "model": {
-                "const": "None",
-                "default": "None",
+                "const": "No Correction",
+                "default": "No Correction",
                 "enum": [
-                  "None"
+                  "No Correction"
                 ],
                 "title": "Model",
                 "type": "string",
-                "description": "Correction model identifier."
+                "description": "The correction model to be applied."
               }
             },
             "title": "No Correction",
@@ -861,7 +861,7 @@
                 ],
                 "title": "Model",
                 "type": "string",
-                "description": "Correction model identifier."
+                "description": "The correction model to be applied."
               },
               "folder": {
                 "title": "Folder",
@@ -905,7 +905,7 @@
             ],
             "default": {
               "value": {
-                "model": "None"
+                "model": "No Correction"
               }
             },
             "title": "Background Correction",

@@ -247,7 +247,7 @@ class ProfileCorrectionModel(BaseModel):
     Parameters for profile-based corrections.
 
     Attributes:
-        model: Correction model identifier.
+        model: The correction model to be applied.
         folder: Path of folder of correction profiles.
         profiles: Dictionary where keys match the `wavelength_id`
             attributes of existing channels (e.g.  `A01_C01` ) and values are
@@ -272,7 +272,7 @@ class ConstantCorrectionModel(BaseModel):
     Parameters for constant-based corrections.
 
     Attributes:
-        model: Correction model identifier.
+        model: The correction model to be applied.
         constants: Dictionary where keys match the `wavelength_id`
             attributes of existing channels (e.g.  `A01_C01` ) and values are
             the constant values to be used for correction.
@@ -288,8 +288,9 @@ class NoCorrectionModel(BaseModel):
     Select for no correction to be applied.
 
     Attributes:
-        model: Correction model identifier.
+        model: The correction model to be applied.
+
     """
 
     model_config = {"title": "No Correction"}
-    model: Literal["None"] = "None"
+    model: Literal["No Correction"] = "No Correction"
