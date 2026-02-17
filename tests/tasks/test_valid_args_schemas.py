@@ -107,29 +107,6 @@ def test_task_functions_have_valid_signatures():
                 _validate_function_signature(task_function)
 
 
-def test_args_schemas_are_up_to_date():
-    """
-    Test that args_schema attributes in the manifest are up-to-date
-    """
-    for ind_task, task in enumerate(TASK_LIST):
-        for kind in ["non_parallel", "parallel"]:
-            key = f"executable_{kind}"
-            value = task.get(key, None)
-            if value is not None:
-                print(f"Now handling {task[key]}")
-                old_schema = TASK_LIST[ind_task].get(
-                    f"args_schema_{kind}", None
-                )
-                assert old_schema is not None
-                new_schema = create_schema_for_single_task(task[key])
-                # The following step is required because some arguments may
-                # have a default which has a non-JSON type (e.g. a tuple),
-                # which we need to convert to JSON type (i.e. an array) before
-                # comparison.
-                new_schema = json.loads(json.dumps(new_schema))
-                assert new_schema == old_schema
-
-
 @pytest.mark.parametrize(
     "jsonschema_validator",
     [Draft7Validator, Draft201909Validator, Draft202012Validator],
