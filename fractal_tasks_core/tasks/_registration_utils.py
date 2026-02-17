@@ -1,9 +1,4 @@
-# Copyright 2024 (C) BioVisionCenter
-#
-# Original authors:
-# Joel Lüthi <joel.luethi@uzh.ch>
-#
-# This file is part of Fractal
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """Utils functions for registration"""
 import copy
 

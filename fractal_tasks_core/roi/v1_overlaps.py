@@ -1,14 +1,4 @@
-# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-# University of Zurich
-#
-# Original authors:
-# Tommaso Comparin <tommaso.comparin@exact-lab.it>
-# Joel Lüthi  <joel.luethi@fmi.ch>
-#
-# This file is part of Fractal and was originally developed by eXact lab S.r.l.
-# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-# Institute for Biomedical Research and Pelkmans Lab from the University of
-# Zurich.
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """
 Functions to identify and remove ROI overlaps, based on V1 table specs.
 """
