@@ -12,7 +12,7 @@ from fractal_tasks_core.utils import (
     create_well_acquisition_dict,
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("image_based_registration_hcs_init")
 
 
 @validate_call

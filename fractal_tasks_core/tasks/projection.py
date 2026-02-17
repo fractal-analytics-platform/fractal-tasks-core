@@ -15,7 +15,7 @@ from pydantic import validate_call
 from fractal_tasks_core.tasks.io_models import InitArgsMIP
 from fractal_tasks_core.tasks.projection_utils import DaskProjectionMethod
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("projection")
 
 
 def _compute_new_shape(source_image: Image) -> tuple[tuple[int, ...], int]:

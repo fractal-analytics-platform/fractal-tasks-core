@@ -31,7 +31,7 @@ from fractal_tasks_core.tasks._registration_utils import (
 )
 from fractal_tasks_core.tasks.io_models import InitArgsRegistration
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("calculate_registration_image_based")
 
 
 class RegistrationMethod(Enum):

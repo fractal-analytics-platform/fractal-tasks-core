@@ -47,7 +47,7 @@ __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
 import logging
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("cellvoyager_to_ome_zarr_init_multiplex")
 
 
 @validate_call

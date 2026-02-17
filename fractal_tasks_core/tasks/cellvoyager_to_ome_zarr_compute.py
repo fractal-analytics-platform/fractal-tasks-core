@@ -24,7 +24,7 @@ from fractal_tasks_core.roi import (
 )
 from fractal_tasks_core.tasks.io_models import ChunkSizes, InitArgsCellVoyager
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("cellvoyager_to_ome_zarr_compute")
 
 
 def sort_fun(filename: str) -> list[int]:

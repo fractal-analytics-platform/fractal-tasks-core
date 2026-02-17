@@ -16,7 +16,7 @@ import fractal_tasks_core
 from fractal_tasks_core.tasks.io_models import InitArgsMIP
 from fractal_tasks_core.tasks.projection_utils import DaskProjectionMethod
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("copy_ome_zarr_hcs_plate")
 
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__

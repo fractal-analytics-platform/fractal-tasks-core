@@ -21,7 +21,7 @@ from fractal_tasks_core.tasks.io_models import (
 )
 from fractal_tasks_core.utils import _split_well_path_image_path
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("illumination_correction")
 
 
 def correct(

@@ -21,7 +21,7 @@ from fractal_tasks_core.tasks._registration_utils import (
 )
 from fractal_tasks_core.tasks.io_models import InitArgsRegistrationConsensus
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("find_registration_consensus")
 
 
 @validate_call

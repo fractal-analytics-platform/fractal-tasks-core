@@ -34,7 +34,7 @@ from fractal_tasks_core.utils import (
     _split_well_path_image_path,
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("apply_registration_to_image")
 
 
 @validate_call

@@ -11,7 +11,7 @@ from fractal_tasks_core.utils import (
     create_well_acquisition_dict,
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("init_group_by_well_for_multiplexing")
 
 
 @validate_call

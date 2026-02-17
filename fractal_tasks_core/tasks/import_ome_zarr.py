@@ -15,7 +15,7 @@ from fractal_tasks_core.ngff import NgffImageMeta, detect_ome_ngff_type
 from fractal_tasks_core.roi import get_image_grid_ROIs, get_single_image_ROI
 from fractal_tasks_core.tables import write_table
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("import_ome_zarr")
 
 
 def _process_single_image(
