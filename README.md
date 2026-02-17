@@ -16,6 +16,19 @@ Fractal tasks core is the official task package for the [Fractal](https://fracta
 
 [Fractal](https://fractal-analytics-platform.github.io/) is a framework developed at the [BioVisionCenter](https://www.biovisioncenter.uzh.ch/en.html) to process bioimaging data at scale in the OME-Zarr format and prepare the images for interactive visualization.
 
+## Roadmap fo Fractal Tasks Core V2.0
+- Remove all the tooling around manifest creation and validation (DONE)
+- Remove napari workflows task (DONE)
+- Remove cellpose segmentation task (DONE)
+- Adopt Pixi for environment management and task execution (DONE)
+- Refactor dev tooling (DONE)
+- Refactor all tasks to use ngio
+- Remove all non-task related code (e.g. NGFF validation, ROI table handling, etc.)
+- Add a new simple segmentation task (like thresholding-based segmentation)
+- Add a new simple measurement task (like regionprops-based measurement)
+- Remove the cellvoyager conversion tasks (to be moved into fractal-uzh-converters)
+- Cleanup docs
+
 ## Core Library Components
 This repository includes several core sub-packages:
 - **NGFF Sub-package**: Validates OME-Zarr metadata and provides utilities for reading and writing it.
