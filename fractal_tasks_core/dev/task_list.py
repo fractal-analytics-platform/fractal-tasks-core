@@ -24,6 +24,9 @@ INPUT_MODELS = [
     ["fractal_tasks_core", "channels.py", "ChannelInputModel"],
     ["fractal_tasks_core", "tasks/io_models.py", "NapariWorkflowsInput"],
     ["fractal_tasks_core", "tasks/io_models.py", "NapariWorkflowsOutput"],
+    ["fractal_tasks_core", "tasks/io_models.py", "NoCorrectionModel"],
+    ["fractal_tasks_core", "tasks/io_models.py", "ProfileCorrectionModel"],
+    ["fractal_tasks_core", "tasks/io_models.py", "ConstantCorrectionModel"],
     [
         "fractal_tasks_core",
         "tasks/cellpose_utils.py",

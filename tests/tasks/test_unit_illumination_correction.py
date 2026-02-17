@@ -53,6 +53,10 @@ def test_illumination_correction(
         "A01_C02": "illum_corr_matrix.png",
     }
     illumination_profiles_folder = f"{testdata_str}/illumination_correction/"
+    illumination_profiles = {
+        "folder": illumination_profiles_folder,
+        "profiles": illum_params,
+    }
     with open(zarr_url + ".zattrs") as fin:
         zattrs = json.load(fin)
         num_levels = len(zattrs["multiscales"][0]["datasets"])
@@ -93,9 +97,7 @@ def test_illumination_correction(
     illumination_correction(
         zarr_url=zarr_url,
         overwrite_input=overwrite_input,
-        illumination_profiles_folder=illumination_profiles_folder,
-        illumination_profiles=illum_params,
-        background=0,
+        illumination_profiles=illumination_profiles,
         suffix=suffix,
     )
 
