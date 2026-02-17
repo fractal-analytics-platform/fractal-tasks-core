@@ -11,7 +11,6 @@ import numpy as np
 import pandas as pd
 import pytest
 from devtools import debug
-from pytest import MonkeyPatch
 
 from fractal_tasks_core.ngff.zarr_utils import load_NgffImageMeta
 from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
@@ -28,15 +27,8 @@ from fractal_tasks_core.tasks.apply_registration_to_image import (
 from fractal_tasks_core.tasks.calculate_registration_image_based import (
     calculate_registration_image_based,
 )
-from fractal_tasks_core.tasks.cellpose_segmentation import (
-    cellpose_segmentation,
-)
-from fractal_tasks_core.tasks.cellpose_utils import (
-    CellposeChannel1InputModel,
-)
-from fractal_tasks_core.tasks.cellpose_utils import (
-    CellposeCustomNormalizer,
-)
+from ngio import open_ome_zarr_container
+
 from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_compute import (
     cellvoyager_to_ome_zarr_compute,
 )
@@ -204,38 +196,10 @@ expected_registered_table_3d = {
 }
 
 
-def patched_segment_ROI(
-    x, do_3D=True, label_dtype=None, well_id=None, **kwargs
-):
-    # Expects x to always be a 4D image
-
-    import logging
-
-    logger = logging.getLogger("cellpose_segmentation.py")
-
-    logger.info(f"[{well_id}][patched_segment_ROI] START")
-    assert x.ndim == 4
-    # Actual labeling: segment_ROI returns a 3D mask with the same shape as x,
-    # except for the first dimension
-    mask = np.zeros_like(x[0, :, :, :])
-    nz, ny, nx = mask.shape
-    if do_3D:
-        mask[:, 0 : ny // 4, 0 : nx // 4] = 1  # noqa
-        mask[:, ny // 4 : ny // 2, 0:nx] = 2  # noqa
-    else:
-        mask[:, 0 : ny // 4, 0 : nx // 4] = 1  # noqa
-        mask[:, ny // 4 : ny // 2, 0:nx] = 2  # noqa
-
-    logger.info(f"[{well_id}][patched_segment_ROI] END")
-
-    return mask.astype(label_dtype)
-
-
 @pytest.mark.parametrize("method", ["phase_cross_correlation", "chi2_shift"])
 def test_multiplexing_registration(
     zenodo_images_multiplex_shifted: list[str],
     tmp_path,
-    monkeypatch: MonkeyPatch,
     method: str,
     lower_rescale_quantile: float = 0.0,
     upper_rescale_quantile: float = 0.99,
@@ -247,11 +211,6 @@ def test_multiplexing_registration(
     """
     zarr_dir = str(tmp_path / "registration_output/")
     num_levels = 3
-
-    monkeypatch.setattr(
-        "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
-        patched_segment_ROI,
-    )
 
     acquisitions = {
         "0": MultiplexingAcquisition(
@@ -306,18 +265,16 @@ def test_multiplexing_registration(
     zarr_urls_2D = [image["zarr_url"] for image in image_list_updates]
     debug(zarr_urls_2D)
 
-    # Run cellpose to create a label image that needs to be handled in
-    # registration
-    # Per-FOV labeling
-    channel = CellposeChannel1InputModel(
-        wavelength_id="A01_C01", normalize=CellposeCustomNormalizer()
-    )
-    for zarr_url in zarr_urls_2D:
-        cellpose_segmentation(
-            zarr_url=zarr_url,
-            channel=channel,
-            level=1,
-        )
+    # Create fake label images needed by apply_registration_to_image.
+    # Previously, this was done by monkeypatching cellpose_segmentation
+    # to run a dummy segmentation. Since cellpose has been removed from
+    # fractal-tasks-core, we now use ngio to derive empty label images
+    # directly, which is sufficient to satisfy the registration workflow.
+    ome_zarr = open_ome_zarr_container(zarr_urls_2D[0])
+    ome_zarr.derive_label("label_0_A01_C01")
+
+    ome_zarr = open_ome_zarr_container(zarr_urls_2D[1])
+    ome_zarr.derive_label("label_1_A01_C01")
 
     # Test non-available reference cycle:
     with pytest.raises(ValueError):
@@ -440,7 +397,6 @@ def test_multiplexing_registration(
 def test_multiplexing_registration_3d(
     zenodo_images_multiplex_shifted: list[str],
     tmp_path,
-    monkeypatch: MonkeyPatch,
     method: str,
     lower_rescale_quantile: float = 0.0,
     upper_rescale_quantile: float = 0.99,
@@ -453,11 +409,6 @@ def test_multiplexing_registration_3d(
 
     zarr_dir = str(tmp_path / "registration_output/")
     num_levels = 3
-
-    monkeypatch.setattr(
-        "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
-        patched_segment_ROI,
-    )
 
     acquisitions = {
         "0": MultiplexingAcquisition(
@@ -493,18 +444,13 @@ def test_multiplexing_registration_3d(
     zarr_urls_3D = [image["zarr_url"] for image in image_list_updates]
     debug(zarr_urls_3D)
 
-    # Run cellpose to create a label image that needs to be handled in
-    # registration
-    # Per-FOV labeling
-    channel = CellposeChannel1InputModel(
-        wavelength_id="A01_C01", normalize=CellposeCustomNormalizer()
-    )
-    for zarr_url in zarr_urls_3D:
-        cellpose_segmentation(
-            zarr_url=zarr_url,
-            channel=channel,
-            level=1,
-        )
+    # Create fake label images needed by apply_registration_to_image.
+    # See comment in test_multiplexing_registration for details.
+    ome_zarr = open_ome_zarr_container(zarr_urls_3D[0])
+    ome_zarr.derive_label("label_0_A01_C01")
+
+    ome_zarr = open_ome_zarr_container(zarr_urls_3D[1])
+    ome_zarr.derive_label("label_1_A01_C01")
 
     parallelization_list = image_based_registration_hcs_init(
         zarr_urls=zarr_urls_3D,

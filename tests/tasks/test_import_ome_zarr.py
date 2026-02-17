@@ -333,37 +333,7 @@ def test_import_ome_zarr_image_BIA(tmp_path):
     assert omero_channel["label"] == "Channel 0"
     assert omero_channel["wavelength_id"] == "Channel 0"
 
-    # Part 2: run Cellpose on the imported OME-Zarr.
-
-    # Cellpose task deactivated, as it cannot handle t axis of this dataset yet
-    # from fractal_tasks_core.tasks.cellpose_segmentation import (
-    #     cellpose_segmentation
-    # )
-    # from .test_workflows_cellpose_segmentation import (
-    #     patched_cellpose_core_use_gpu,
-    #     patched_segment_ROI,
-    # )
-
-    # monkeypatch.setattr(
-    #     "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
-    #     patched_cellpose_core_use_gpu,
-    # )
-
-    # monkeypatch.setattr(
-    #     "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
-    #     patched_segment_ROI,
-    # )
-
-    # # Per-FOV labeling
-    # for zarr_url in zarr_urls:
-    #     cellpose_segmentation(
-    #         zarr_url=zarr_url,
-    #         input_ROI_table="grid_ROI_table",
-    #         channel=ChannelInputModel(wavelength_id="Channel 0"),
-    #         level=0,
-    #         relabeling=True,
-    #         diameter_level0=80.0,
-    #         augment=True,
-    #         net_avg=True,
-    #         min_size=30,
-    #     )
+    # NOTE: Dead code left for reference. Previously, cellpose_segmentation
+    # was run here on the imported OME-Zarr, but it was deactivated because
+    # it cannot handle the t axis of this dataset. The cellpose task has
+    # since been removed from fractal-tasks-core entirely.
