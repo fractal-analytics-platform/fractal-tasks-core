@@ -34,8 +34,6 @@ fractal-tasks = [
     "scikit-image>=0.19",
     "llvmlite",
     "stackview<0.9.0",
-    "cellpose>=2.2,<2.3",
-    "torch<=3.0.0",
     "image_registration>=0.2.9",
 ]
 dev = [

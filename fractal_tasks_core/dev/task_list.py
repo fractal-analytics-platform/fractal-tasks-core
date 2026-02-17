@@ -25,22 +25,6 @@ INPUT_MODELS = [
     ["fractal_tasks_core", "tasks/io_models.py", "NoCorrectionModel"],
     ["fractal_tasks_core", "tasks/io_models.py", "ProfileCorrectionModel"],
     ["fractal_tasks_core", "tasks/io_models.py", "ConstantCorrectionModel"],
-    [
-        "fractal_tasks_core",
-        "tasks/cellpose_utils.py",
-        "CellposeCustomNormalizer",
-    ],
-    [
-        "fractal_tasks_core",
-        "tasks/cellpose_utils.py",
-        "CellposeChannel1InputModel",
-    ],
-    [
-        "fractal_tasks_core",
-        "tasks/cellpose_utils.py",
-        "CellposeChannel2InputModel",
-    ],
-    ["fractal_tasks_core", "tasks/cellpose_utils.py", "CellposeModelParams"],
     ["fractal_tasks_core", "tasks/io_models.py", "MultiplexingAcquisition"],
 ]
 
@@ -90,20 +74,6 @@ TASK_LIST = [
         category="Image Processing",
         tags=["Preprocessing", "2D", "3D"],
         docs_info="file:task_info/illumination_correction.md",
-    ),
-    ParallelTask(
-        name="Cellpose Segmentation",
-        executable="tasks/cellpose_segmentation.py",
-        meta={"cpus_per_task": 4, "mem": 16000, "needs_gpu": True},
-        category="Segmentation",
-        tags=[
-            "Deep Learning",
-            "Convolutional Neural Network",
-            "Instance Segmentation",
-            "2D",
-            "3D",
-        ],
-        docs_info="file:task_info/cellpose_segmentation.md",
     ),
     CompoundTask(
         name="Calculate Registration (image-based)",

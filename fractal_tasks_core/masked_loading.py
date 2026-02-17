@@ -37,7 +37,7 @@ def _preprocess_input(
     ROI_positional_index: int,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Preprocess a four-dimensional cellpose input.
+    Preprocess a four-dimensional input for masked loading.
 
     This involves :
 
@@ -54,19 +54,13 @@ def _preprocess_input(
     see
     https://fractal-analytics-platform.github.io/fractal-tasks-core/tables/.
 
-    **NOTE 2**: The pre/post-processing functions and the
-    masked_loading_wrapper are currently meant to work as part of the
-    cellpose_segmentation task, with the plan of then making them more
-    flexible; see
-    https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/340.
-
     Naming of variables refers to a two-steps labeling, as in "first identify
     organoids, then look for nuclei inside each organoid") :
 
     - `"masking"` refers to the labels that are used to identify the object
       vs background (e.g. the organoid labels); these labels already exist.
-    - `"current"` refers to the labels that are currently being computed in
-      the `cellpose_segmentation` task, e.g. the nuclear labels.
+    - `"current"` refers to the labels that are currently being computed,
+      e.g. the nuclear labels.
 
     Args:
         image_array: The 4D CZYX array with image data for a specific ROI.
@@ -190,13 +184,7 @@ def _postprocess_output(
     background: np.ndarray,
 ) -> np.ndarray:
     """
-    Postprocess cellpose output, mainly to restore its original background.
-
-    **NOTE**: The pre/post-processing functions and the
-    masked_loading_wrapper are currently meant to work as part of the
-    cellpose_segmentation task, with the plan of then making them more
-    flexible; see
-    https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/340.
+    Postprocess segmentation output, mainly to restore its original background.
 
     Args:
         modified_array: The 3D (ZYX) array with the correct object data and
