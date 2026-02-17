@@ -3,8 +3,12 @@
 # Unreleased
 * Development:
     * Move environment management from `poetry` to `pixi`.
+    * Remove deprecated `tasks/_utils.py` module (`run_fractal_task` wrapper).
+    * Remove `labels.py`, `masked_loading.py`, and `upscale_array.py` modules (only used by removed tasks).
 * Tasks:
     * `Illumination Correction` task adopted `ngio`.
+    * Remove `Cellpose Segmentation` task and `cellpose_utils.py`.
+    * Remove `Napari Workflows Wrapper` task.
 
 # 1.6.0
 * Tests
