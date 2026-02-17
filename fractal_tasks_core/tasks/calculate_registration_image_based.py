@@ -242,7 +242,7 @@ def calculate_registration_image_based(
     new_shifts = {}
     for i_ROI in range(num_ROIs):
         logger.info(
-            f"Now processing ROI {i_ROI+1}/{num_ROIs} "
+            f"Now processing ROI {i_ROI + 1}/{num_ROIs} "
             f"for channel {channel_align}."
         )
         img_ref = load_region(

@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from devtools import debug
+from ngio import open_ome_zarr_container
 
 from fractal_tasks_core.ngff.zarr_utils import load_NgffImageMeta
 from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
@@ -27,8 +28,6 @@ from fractal_tasks_core.tasks.apply_registration_to_image import (
 from fractal_tasks_core.tasks.calculate_registration_image_based import (
     calculate_registration_image_based,
 )
-from ngio import open_ome_zarr_container
-
 from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_compute import (
     cellvoyager_to_ome_zarr_compute,
 )
