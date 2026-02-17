@@ -7,7 +7,6 @@ on:
     branches: ["main", "v2"]
 
 jobs:
-
   tests_core:
     name: "Core, Python ${{ matrix.python-version }}"
     runs-on: ubuntu-24.04
@@ -23,7 +22,7 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
-      - uses: prefix-dev/setup-pixi@v0.8.8
+      - uses: prefix-dev/setup-pixi@v0.9.4
         with:
           environments: dev
           pixi-version: "latest"
@@ -54,7 +53,7 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
-      - uses: prefix-dev/setup-pixi@v0.8.8
+      - uses: prefix-dev/setup-pixi@v0.9.4
         with:
           environments: dev
           pixi-version: "latest"
