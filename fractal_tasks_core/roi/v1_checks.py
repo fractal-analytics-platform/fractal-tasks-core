@@ -2,6 +2,7 @@
 """
 Functions to check content of ROI tables.
 """
+
 import logging
 from typing import Optional
 
@@ -10,7 +11,6 @@ import zarr
 from pydantic import ValidationError
 
 from fractal_tasks_core.tables.v1 import MaskingROITableAttrs
-
 
 logger = logging.getLogger(__name__)
 

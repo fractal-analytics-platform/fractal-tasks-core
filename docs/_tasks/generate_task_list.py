@@ -65,16 +65,13 @@ pkgs["operetta-compose"] = dict(
     homepage_url="https://github.com/leukemia-kispi/operetta-compose",
     manifest_url="https://raw.githubusercontent.com/leukemia-kispi/operetta-compose/main/src/operetta_compose/__FRACTAL_MANIFEST__.json",  # noqa
     description=(
-        "Fractal tasks for the Opera/Operetta "
-        "microscope and drug response profiling."
+        "Fractal tasks for the Opera/Operetta microscope and drug response profiling."
     ),
 )
 pkgs["fractal-plantseg-tasks"] = dict(
     homepage_url="https://github.com/fractal-analytics-platform/fractal-plantseg-tasks",  # noqa
     manifest_url="https://raw.githubusercontent.com/fractal-analytics-platform/fractal-plantseg-tasks/main/src/plantseg_tasks/__FRACTAL_MANIFEST__.json",  # noqa
-    description=(
-        "Collection of Fractal task with the PlantSeg segmentation pipeline."
-    ),
+    description=("Collection of Fractal task with the PlantSeg segmentation pipeline."),
 )
 pkgs["fractal-ome-zarr-hcs-stitching"] = dict(
     homepage_url="https://github.com/m-albert/fractal-ome-zarr-hcs-stitching",  # noqa
@@ -137,9 +134,7 @@ with mkdocs_gen_files.open(markdown_file.as_posix(), "w") as md:
             else:
                 md.write(f"* {name}\n")
         num_tasks = len(task_list)
-        logger.info(
-            f"{prefix} Processed {package_name}, found {num_tasks} tasks"
-        )
+        logger.info(f"{prefix} Processed {package_name}, found {num_tasks} tasks")
         md.write("\n\n")
 
 logger.info(f"{prefix} END")

@@ -1,12 +1,10 @@
 from pathlib import Path
 
 import pytest
-from ngio import create_empty_ome_zarr
-from ngio import open_ome_zarr_container
+from ngio import create_empty_ome_zarr, open_ome_zarr_container
 from ngio.utils import NgioFileExistsError
 
-from fractal_tasks_core.tasks.projection import InitArgsMIP
-from fractal_tasks_core.tasks.projection import projection
+from fractal_tasks_core.tasks.projection import InitArgsMIP, projection
 
 
 @pytest.mark.parametrize(
@@ -34,9 +32,7 @@ def test_projection(
         axes_names=axes,
     )
     table = origin_ome_zarr.build_image_roi_table("image")
-    origin_ome_zarr.add_table(
-        "well_ROI_table", table, backend="experimental_json_v1"
-    )
+    origin_ome_zarr.add_table("well_ROI_table", table, backend="experimental_json_v1")
 
     init_mip = InitArgsMIP(
         origin_url=str(store),
@@ -140,9 +136,7 @@ def test_projections_methods(
     assert image.pixel_size.z == 1.0
 
 
-def test_projection_overwrite(
-    sample_ome_zarr_zyx_url: Path, tmp_path: Path
-) -> None:
+def test_projection_overwrite(sample_ome_zarr_zyx_url: Path, tmp_path: Path) -> None:
     """
     Test the projection task.
     """

@@ -2,6 +2,7 @@
 """
 Auxiliary functions related to filenames of Yokogawa-microscope images.
 """
+
 import logging
 import re
 from glob import glob
@@ -62,9 +63,7 @@ def glob_with_multiple_patterns(
     # Remove exclude_items from included list
     consensus_items = items - exclude_items
 
-    logging.info(
-        f"[glob_with_multiple_patterns] Found {len(consensus_items)} items"
-    )
+    logging.info(f"[glob_with_multiple_patterns] Found {len(consensus_items)} items")
 
     return consensus_items
 
@@ -154,8 +153,6 @@ def parse_filename(filename: str) -> dict[str, str]:
     for ind, key in enumerate(metadata[::2]):
         value = metadata[2 * ind + 1]
         if key.isdigit() or not value.isdigit():
-            raise ValueError(
-                f"Something wrong with {filename=}, for {key=} {value=}"
-            )
+            raise ValueError(f"Something wrong with {filename=}, for {key=} {value=}")
         output[key] = value
     return output

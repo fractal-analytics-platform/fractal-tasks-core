@@ -11,6 +11,7 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
+
 import json
 import logging
 import shutil
@@ -28,9 +29,7 @@ def prepare_3D_zarr(
     remove_omero: bool = False,
 ) -> list[str]:
     zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
-    shutil.copytree(
-        zenodo_zarr_3D, str(Path(zarr_path) / Path(zenodo_zarr_3D).name)
-    )
+    shutil.copytree(zenodo_zarr_3D, str(Path(zarr_path) / Path(zenodo_zarr_3D).name))
     if remove_tables:
         shutil.rmtree(
             str(Path(zarr_path) / Path(zenodo_zarr_3D).name / "B/03/0/tables")
@@ -56,9 +55,7 @@ def prepare_2D_zarr(
     make_CYX: bool = False,
 ) -> list[str]:
     zenodo_zarr_3D, zenodo_zarr_2D = zenodo_zarr[:]
-    shutil.copytree(
-        zenodo_zarr_2D, str(Path(zarr_path) / Path(zenodo_zarr_2D).name)
-    )
+    shutil.copytree(zenodo_zarr_2D, str(Path(zarr_path) / Path(zenodo_zarr_2D).name))
     FOV_path = Path(zarr_path) / Path(zenodo_zarr_2D).name / "B/03/0"
 
     # Preliminary check

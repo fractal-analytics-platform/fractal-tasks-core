@@ -2,18 +2,15 @@
 Functions and classes related to table specifications V1 (see
 https://fractal-analytics-platform.github.io/fractal-tasks-core/tables).
 """
+
 import logging
 import warnings
-from typing import Any
-from typing import Literal
-from typing import Optional
+from typing import Any, Literal, Optional
 
 import anndata as ad
 import zarr.hierarchy
 from anndata.experimental import write_elem
-from pydantic import BaseModel
-from pydantic import field_validator
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError, field_validator
 
 from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 
@@ -296,9 +293,7 @@ def get_tables_list_v1(
     if not table_type:
         return all_tables
     else:
-        return _filter_tables_by_type_v1(
-            zarr_url, all_tables, table_type, strict
-        )
+        return _filter_tables_by_type_v1(zarr_url, all_tables, table_type, strict)
 
 
 def _filter_tables_by_type_v1(

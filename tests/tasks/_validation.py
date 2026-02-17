@@ -21,8 +21,7 @@ from fractal_tasks_core.roi import (
 def validate_schema(*, path: str, type: str):
     if __OME_NGFF_VERSION__ != "0.4":
         raise ValueError(
-            "This test is only valid for OME-NGFF version 0.4, "
-            "please update the test."
+            "This test is only valid for OME-NGFF version 0.4, please update the test."
         )
     file_path = pooch.retrieve(
         url=(
@@ -41,17 +40,11 @@ def validate_schema(*, path: str, type: str):
     validate(instance=zattrs, schema=schema)
 
     if type == "plate" and "plate" not in zattrs.keys():
-        raise ValueError(
-            f"Zarr attributes of {path} do not include 'plate' key"
-        )
+        raise ValueError(f"Zarr attributes of {path} do not include 'plate' key")
     elif type == "well" and "well" not in zattrs.keys():
-        raise ValueError(
-            f"Zarr attributes of {path} do not include 'well' key"
-        )
+        raise ValueError(f"Zarr attributes of {path} do not include 'well' key")
     elif type == "image" and "multiscales" not in zattrs.keys():
-        raise ValueError(
-            f"Zarr attributes of {path} do not include 'multiscales' key"
-        )
+        raise ValueError(f"Zarr attributes of {path} do not include 'multiscales' key")
 
 
 def check_file_number(*, zarr_path: Path, num_axes: int = 4):

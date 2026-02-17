@@ -11,37 +11,24 @@ from devtools import debug
 
 from fractal_tasks_core.roi import (
     are_ROI_table_columns_valid,
-)
-from fractal_tasks_core.roi import (
     array_to_bounding_box_table,
-)
-from fractal_tasks_core.roi import check_valid_ROI_indices
-from fractal_tasks_core.roi import (
+    check_valid_ROI_indices,
     convert_indices_to_regions,
-)
-from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
-)
-from fractal_tasks_core.roi import (
     convert_ROIs_from_3D_to_2D,
-)
-from fractal_tasks_core.roi import empty_bounding_box_table
-from fractal_tasks_core.roi import (
+    empty_bounding_box_table,
     find_overlaps_in_ROI_indices,
-)
-from fractal_tasks_core.roi import get_image_grid_ROIs
-from fractal_tasks_core.roi import get_overlapping_pairs_3D
-from fractal_tasks_core.roi import get_single_image_ROI
-from fractal_tasks_core.roi import is_ROI_table_valid
-from fractal_tasks_core.roi import (
+    get_image_grid_ROIs,
+    get_overlapping_pairs_3D,
+    get_single_image_ROI,
+    is_ROI_table_valid,
     is_standard_roi_table,
+    load_region,
+    prepare_FOV_ROI_table,
+    prepare_well_ROI_table,
+    reset_origin,
 )
-from fractal_tasks_core.roi import load_region
-from fractal_tasks_core.roi import prepare_FOV_ROI_table
-from fractal_tasks_core.roi import prepare_well_ROI_table
-from fractal_tasks_core.roi import reset_origin
 from fractal_tasks_core.roi.v1 import create_roi_table_from_df_list
-
 
 PIXEL_SIZE_X = 0.1625
 PIXEL_SIZE_Y = 0.1625
@@ -132,9 +119,7 @@ for pxl_sizes in list_pxl_sizes:
         list_params.append((level, coarsening, pxl_sizes))
 
 
-@pytest.mark.parametrize(
-    "level,coarsening_xy,full_res_pxl_sizes_zyx", list_params
-)
+@pytest.mark.parametrize("level,coarsening_xy,full_res_pxl_sizes_zyx", list_params)
 def test_ROI_indices_3D(level, coarsening_xy, full_res_pxl_sizes_zyx):
     metadata_dataframe = get_metadata_dataframe()
     adata = prepare_FOV_ROI_table(metadata_dataframe)
@@ -189,9 +174,7 @@ def test_ROI_indices_3D(level, coarsening_xy, full_res_pxl_sizes_zyx):
         assert indices[1] == NUM_Z_PLANES
 
 
-@pytest.mark.parametrize(
-    "level,coarsening_xy,full_res_pxl_sizes_zyx", list_params
-)
+@pytest.mark.parametrize("level,coarsening_xy,full_res_pxl_sizes_zyx", list_params)
 def test_ROI_indices_2D(level, coarsening_xy, full_res_pxl_sizes_zyx):
     metadata_dataframe = get_metadata_dataframe()
     adata = prepare_FOV_ROI_table(metadata_dataframe)
@@ -230,10 +213,7 @@ def test_prepare_well_ROI_table(testdata_path: Path):
         # NOTE this assumes that columns are sorted in a specific way, we will
         # have to adapt the test otherwise
         for ind in [0, 1, 2]:
-            assert (
-                abs(min(table_FOVs.X[:, ind]) - min(table_well.X[:, ind]))
-                < 1e-12
-            )
+            assert abs(min(table_FOVs.X[:, ind]) - min(table_well.X[:, ind])) < 1e-12
 
 
 def test_overlaps_in_indices():
@@ -429,13 +409,9 @@ shapes = [
 @pytest.mark.parametrize("input_shape,region,expected_shape", shapes)
 @pytest.mark.parametrize("compute", [True, False])
 @pytest.mark.parametrize("return_as_3D", [True, False])
-def test_load_region(
-    input_shape, region, expected_shape, compute, return_as_3D
-):
+def test_load_region(input_shape, region, expected_shape, compute, return_as_3D):
     da_array = da.ones(input_shape)
-    output = load_region(
-        da_array, region, compute=compute, return_as_3D=return_as_3D
-    )
+    output = load_region(da_array, region, compute=compute, return_as_3D=return_as_3D)
     expected_type = np.ndarray if compute else da.Array
     assert isinstance(output, expected_type)
 
@@ -567,10 +543,7 @@ def test_search_first_ROI(testdata_path: Path):
     https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/554
     """
     big_df = pd.read_csv(
-        str(
-            testdata_path
-            / "site_metadata_ZebrafishMultiplexing_cycle0_new_rois.csv"
-        )
+        str(testdata_path / "site_metadata_ZebrafishMultiplexing_cycle0_new_rois.csv")
     )
     full_res_pxl_sizes_zyx = [
         big_df["pixel_size_z"].iloc[0],
@@ -662,9 +635,7 @@ def test_get_image_grid_ROIs():
     # Check that sum of len_x is equal to total X size
     assert np.allclose(ROI.X[:, 3].sum(), array_shape[2] * pixels_ZYX[2])
     # Check that last ROI ends at total X size
-    assert np.allclose(
-        ROI.X[-1, 3] + ROI.X[-1, 0], array_shape[2] * pixels_ZYX[2]
-    )
+    assert np.allclose(ROI.X[-1, 3] + ROI.X[-1, 0], array_shape[2] * pixels_ZYX[2])
 
     # Check data
     EXPECTED_DATA = np.array(
@@ -767,13 +738,9 @@ def test_get_overlapping_pairs_3D():
         "len_z_micrometer": [1.0, 1.0],
         "label": [1, 2],
     }
-    df_overlapping = pd.DataFrame(
-        {"x_micrometer": [0.0, 0.5], **common_columns}
-    )
+    df_overlapping = pd.DataFrame({"x_micrometer": [0.0, 0.5], **common_columns})
     full_res_pxl_sizes_zyx = [1.0, 1.0, 1.0]
-    df_non_overlapping = pd.DataFrame(
-        {"x_micrometer": [0.0, 2.0], **common_columns}
-    )
+    df_non_overlapping = pd.DataFrame({"x_micrometer": [0.0, 2.0], **common_columns})
     res_overlapping = get_overlapping_pairs_3D(
         df_overlapping,
         full_res_pxl_sizes_zyx,

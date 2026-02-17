@@ -10,7 +10,6 @@ import zarr
 from fractal_tasks_core.roi import prepare_FOV_ROI_table
 from fractal_tasks_core.tables import write_table
 
-
 num_C = 2
 num_Z = 2
 num_Y = 2
@@ -52,9 +51,7 @@ for ind_level in range(num_levels):
     y = da.coarsen(np.min, x, {2: scale, 3: scale}).rechunk(
         (1, 1, 2160, 2560), balance=True
     )
-    y.to_zarr(
-        zarrurl, component=f"{component}{ind_level}", dimension_separator="/"
-    )
+    y.to_zarr(zarrurl, component=f"{component}{ind_level}", dimension_separator="/")
 
 pxl_x = 0.1625
 pxl_y = 0.1625

@@ -9,13 +9,10 @@ from fractal_tasks_core.tasks.cellpose_segmentation import (
     cellpose_segmentation,
 )
 
-
 if os.path.exists("tmp"):
     shutil.rmtree("tmp")
 os.mkdir("tmp")
-shutil.copytree(
-    "output_mip/RS220304172545_mip.zarr", "tmp/RS220304172545_mip.zarr"
-)
+shutil.copytree("output_mip/RS220304172545_mip.zarr", "tmp/RS220304172545_mip.zarr")
 
 # Init
 zarr_path_mip = "tmp/"

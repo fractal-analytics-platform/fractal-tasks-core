@@ -9,12 +9,14 @@ import zarr
 from devtools import debug
 
 from fractal_tasks_core import __OME_NGFF_VERSION__
-from fractal_tasks_core.channels import check_unique_wavelength_ids
-from fractal_tasks_core.channels import check_well_channel_labels
-from fractal_tasks_core.channels import define_omero_channels
-from fractal_tasks_core.channels import get_channel_from_list
-from fractal_tasks_core.channels import OmeroChannel
-from fractal_tasks_core.channels import update_omero_channels
+from fractal_tasks_core.channels import (
+    OmeroChannel,
+    check_unique_wavelength_ids,
+    check_well_channel_labels,
+    define_omero_channels,
+    get_channel_from_list,
+    update_omero_channels,
+)
 
 
 def test_check_unique_wavelength_ids():
@@ -128,8 +130,7 @@ def test_get_channel_from_list(testdata_path: Path):
 def omero_channel_schema():
     if __OME_NGFF_VERSION__ != "0.4":
         raise ValueError(
-            "This test is only valid for OME-NGFF version 0.4, "
-            "please update the test."
+            "This test is only valid for OME-NGFF version 0.4, please update the test."
         )
     file_path = pooch.retrieve(
         url=(
@@ -239,9 +240,7 @@ def test_update_omero_channels(old_channels):
 
     # Validate new channels as `OmeroChannel` objects, and check that they
     # have unique `wavelength_id` values
-    check_unique_wavelength_ids(
-        [OmeroChannel(**channel) for channel in new_channels]
-    )
+    check_unique_wavelength_ids([OmeroChannel(**channel) for channel in new_channels])
 
     # Check that colors are as expected
     old_colors = [channel.get("color") for channel in old_channels]

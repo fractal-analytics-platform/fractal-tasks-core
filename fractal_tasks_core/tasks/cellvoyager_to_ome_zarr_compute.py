@@ -2,30 +2,27 @@
 """
 Task that writes image data to an existing OME-NGFF zarr array.
 """
+
 import logging
 
 import dask.array as da
 import zarr
 from anndata import read_zarr
 from dask.array.image import imread
-from pydantic import Field
-from pydantic import validate_call
+from pydantic import Field, validate_call
 
 from fractal_tasks_core.cellvoyager.filenames import (
     glob_with_multiple_patterns,
+    parse_filename,
 )
-from fractal_tasks_core.cellvoyager.filenames import parse_filename
-from fractal_tasks_core.channels import get_omero_channel_list
-from fractal_tasks_core.channels import OmeroChannel
+from fractal_tasks_core.channels import OmeroChannel, get_omero_channel_list
 from fractal_tasks_core.ngff import load_NgffImageMeta
 from fractal_tasks_core.pyramids import build_pyramid
-from fractal_tasks_core.roi import check_valid_ROI_indices
 from fractal_tasks_core.roi import (
+    check_valid_ROI_indices,
     convert_ROI_table_to_indices,
 )
-from fractal_tasks_core.tasks.io_models import ChunkSizes
-from fractal_tasks_core.tasks.io_models import InitArgsCellVoyager
-
+from fractal_tasks_core.tasks.io_models import ChunkSizes, InitArgsCellVoyager
 
 logger = logging.getLogger(__name__)
 
@@ -82,13 +79,9 @@ def cellvoyager_to_ome_zarr_compute(
     full_res_pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
     logger.info(f"NGFF image has {num_levels=}")
     logger.info(f"NGFF image has {coarsening_xy=}")
-    logger.info(
-        f"NGFF image has full-res pixel sizes {full_res_pxl_sizes_zyx}"
-    )
+    logger.info(f"NGFF image has full-res pixel sizes {full_res_pxl_sizes_zyx}")
 
-    channels: list[OmeroChannel] = get_omero_channel_list(
-        image_zarr_path=zarr_url
-    )
+    channels: list[OmeroChannel] = get_omero_channel_list(image_zarr_path=zarr_url)
     wavelength_ids = [c.wavelength_id for c in channels]
 
     # Read useful information from ROI table
@@ -113,8 +106,7 @@ def cellvoyager_to_ome_zarr_compute(
 
     # Load a single image, to retrieve useful information
     include_patterns = [
-        f"{init_args.plate_prefix}_{init_args.well_ID}_*."
-        f"{init_args.image_extension}"
+        f"{init_args.plate_prefix}_{init_args.well_ID}_*.{init_args.image_extension}"
     ]
     if init_args.include_glob_patterns:
         include_patterns.extend(init_args.include_glob_patterns)

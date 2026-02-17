@@ -2,6 +2,7 @@
 """
 Calculates translation for image-based registration
 """
+
 import logging
 from enum import Enum
 
@@ -13,26 +14,21 @@ from pydantic import validate_call
 from skimage.exposure import rescale_intensity
 from skimage.registration import phase_cross_correlation
 
-from fractal_tasks_core.channels import get_channel_from_image_zarr
-from fractal_tasks_core.channels import OmeroChannel
+from fractal_tasks_core.channels import OmeroChannel, get_channel_from_image_zarr
 from fractal_tasks_core.ngff import load_NgffImageMeta
-from fractal_tasks_core.roi import check_valid_ROI_indices
 from fractal_tasks_core.roi import (
+    check_valid_ROI_indices,
     convert_indices_to_regions,
-)
-from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
+    load_region,
 )
-from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
 from fractal_tasks_core.tasks._registration_utils import (
     calculate_physical_shifts,
-)
-from fractal_tasks_core.tasks._registration_utils import chi2_shift_out
-from fractal_tasks_core.tasks._registration_utils import (
+    chi2_shift_out,
     get_ROI_table_with_translation,
+    is_3D,
 )
-from fractal_tasks_core.tasks._registration_utils import is_3D
 from fractal_tasks_core.tasks.io_models import InitArgsRegistration
 
 logger = logging.getLogger(__name__)
@@ -136,12 +132,10 @@ def calculate_registration_image_based(
     channel_index_align = channel_align.index
 
     # Lazily load zarr array
-    data_reference_zyx = da.from_zarr(
-        f"{init_args.reference_zarr_url}/{level}"
-    )[channel_index_ref]
-    data_alignment_zyx = da.from_zarr(f"{zarr_url}/{level}")[
-        channel_index_align
+    data_reference_zyx = da.from_zarr(f"{init_args.reference_zarr_url}/{level}")[
+        channel_index_ref
     ]
+    data_alignment_zyx = da.from_zarr(f"{zarr_url}/{level}")[channel_index_align]
 
     # Check if data is 3D (as not all registration methods work in 3D)
     # TODO: Abstract this check into a higher-level Zarr loading class
@@ -154,13 +148,9 @@ def calculate_registration_image_based(
             )
 
     # Read ROIs
-    ROI_table_ref = ad.read_zarr(
-        f"{init_args.reference_zarr_url}/tables/{roi_table}"
-    )
+    ROI_table_ref = ad.read_zarr(f"{init_args.reference_zarr_url}/tables/{roi_table}")
     ROI_table_x = ad.read_zarr(f"{zarr_url}/tables/{roi_table}")
-    logger.info(
-        f"Found {len(ROI_table_x)} ROIs in {roi_table=} to be processed."
-    )
+    logger.info(f"Found {len(ROI_table_x)} ROIs in {roi_table=} to be processed.")
 
     # Check that table type of ROI_table_ref is valid. Note that
     # "ngff:region_table" and None are accepted for backwards compatibility
@@ -206,8 +196,7 @@ def calculate_registration_image_based(
 
     if pxl_sizes_zyx != pxl_sizes_zyx_acq_x:
         raise ValueError(
-            "Pixel sizes need to be equal between acquisitions for "
-            "registration."
+            "Pixel sizes need to be equal between acquisitions for registration."
         )
 
     # Create list of indices for 3D ROIs spanning the entire Z direction
@@ -232,8 +221,7 @@ def calculate_registration_image_based(
     new_shifts = {}
     for i_ROI in range(num_ROIs):
         logger.info(
-            f"Now processing ROI {i_ROI + 1}/{num_ROIs} "
-            f"for channel {channel_align}."
+            f"Now processing ROI {i_ROI + 1}/{num_ROIs} for channel {channel_align}."
         )
         img_ref = load_region(
             data_zyx=data_reference_zyx,

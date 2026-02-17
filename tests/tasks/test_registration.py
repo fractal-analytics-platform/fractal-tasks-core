@@ -13,15 +13,12 @@ import pytest
 from devtools import debug
 from ngio import open_ome_zarr_container
 
-from fractal_tasks_core.ngff.zarr_utils import load_NgffImageMeta
-from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
+from fractal_tasks_core.ngff.zarr_utils import load_NgffImageMeta, load_NgffWellMeta
 from fractal_tasks_core.roi import (
     convert_indices_to_regions,
-)
-from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
+    load_region,
 )
-from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tasks.apply_registration_to_image import (
     apply_registration_to_image,
 )
@@ -51,7 +48,6 @@ from fractal_tasks_core.tasks.projection import (
     projection,
 )
 from fractal_tasks_core.utils import _split_well_path_image_path
-
 
 single_cycle_allowed_channels_no_label = [
     {
@@ -343,9 +339,7 @@ def test_multiplexing_registration(
 
     # Validate the aligned tables
     for i, zarr_url in enumerate(zarr_urls_2D):
-        registered_table = ad.read_zarr(
-            f"{zarr_url}/tables/registered_{roi_table}"
-        )
+        registered_table = ad.read_zarr(f"{zarr_url}/tables/registered_{roi_table}")
         pd.testing.assert_frame_equal(
             registered_table.to_df()[registered_columns].astype("float32"),
             expected_registered_table[roi_table][i].astype("float32"),
@@ -383,9 +377,7 @@ def test_multiplexing_registration(
             registered_roi_table="registered_" + roi_table,
             overwrite_input=True,
         )
-        assert image_list_update == dict(
-            image_list_updates=[dict(zarr_url=zarr_url)]
-        )
+        assert image_list_update == dict(image_list_updates=[dict(zarr_url=zarr_url)])
     validate_assumptions_after_image_registration(
         zarr_list=zarr_list,
         roi_table=roi_table,
@@ -525,9 +517,7 @@ def test_multiplexing_registration_3d(
 
     # Validate the aligned tables
     for i, zarr_url in enumerate(zarr_urls_3D):
-        registered_table = ad.read_zarr(
-            f"{zarr_url}/tables/registered_{roi_table}"
-        )
+        registered_table = ad.read_zarr(f"{zarr_url}/tables/registered_{roi_table}")
         pd.testing.assert_frame_equal(
             registered_table.to_df()[registered_columns].astype("float32"),
             expected_registered_table_3d[roi_table][i].astype("float32"),
@@ -558,14 +548,10 @@ def validate_assumptions_after_image_registration(
         )
         region = convert_indices_to_regions(list_indices[0])
         data_array = da.from_zarr(f"{zarr_url}/0")[0]
-        img_array = load_region(
-            data_zyx=data_array, region=region, compute=True
-        )
+        img_array = load_region(data_zyx=data_array, region=region, compute=True)
         assert np.sum(img_array == 0) == 545280
 
-        registered_table = ad.read_zarr(
-            f"{zarr_url}/tables/registered_{roi_table}"
-        )
+        registered_table = ad.read_zarr(f"{zarr_url}/tables/registered_{roi_table}")
         # Create list of indices for 3D ROIs
         list_indices = convert_ROI_table_to_indices(
             registered_table,
@@ -575,9 +561,7 @@ def validate_assumptions_after_image_registration(
         )
         region = convert_indices_to_regions(list_indices[0])
         data_array = da.from_zarr(f"{zarr_url}/0")[0]
-        img_array_reg = load_region(
-            data_zyx=data_array, region=region, compute=True
-        )
+        img_array_reg = load_region(data_zyx=data_array, region=region, compute=True)
         assert np.sum(img_array_reg == 0) == 0
 
         # Check that the Zarr files contains the relevant label channels:

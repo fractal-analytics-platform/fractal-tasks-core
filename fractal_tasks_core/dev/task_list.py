@@ -2,10 +2,13 @@
 """
 Fractal task list.
 """
-from fractal_task_tools.task_models import CompoundTask
-from fractal_task_tools.task_models import ConverterCompoundTask
-from fractal_task_tools.task_models import ConverterNonParallelTask
-from fractal_task_tools.task_models import ParallelTask
+
+from fractal_task_tools.task_models import (
+    CompoundTask,
+    ConverterCompoundTask,
+    ConverterNonParallelTask,
+    ParallelTask,
+)
 
 AUTHORS = "Fractal Core Team"
 DOCS_LINK = "https://fractal-analytics-platform.github.io/fractal-tasks-core"

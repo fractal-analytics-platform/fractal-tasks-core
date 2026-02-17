@@ -3,14 +3,15 @@
 Subpackage with functions and classes related to table specifications (see
 https://fractal-analytics-platform.github.io/fractal-tasks-core/tables).
 """
-from typing import Any
-from typing import Optional
+
+from typing import Any, Optional
 
 import anndata as ad
 import zarr.hierarchy
 
-from .v1 import _write_table_v1
 from fractal_tasks_core import __FRACTAL_TABLE_VERSION__
+
+from .v1 import _write_table_v1
 
 
 def write_table(
@@ -78,6 +79,4 @@ def write_table(
             table_attrs,
         )
     else:
-        raise NotImplementedError(
-            f"fractal_table_version='{version}' is not supported"
-        )
+        raise NotImplementedError(f"fractal_table_version='{version}' is not supported")

@@ -6,11 +6,10 @@ These models are used in `task_list.py`, and they provide a layer that
 simplifies writing the task list of a package in a way that is compliant with
 fractal-server v2.
 """
-from typing import Any
-from typing import Optional
 
-from pydantic import BaseModel
-from pydantic import Field
+from typing import Any, Optional
+
+from pydantic import BaseModel, Field
 from typing_extensions import deprecated
 
 from fractal_tasks_core.dev.deprecation_message import DEPRECATION_MSG_CLASS

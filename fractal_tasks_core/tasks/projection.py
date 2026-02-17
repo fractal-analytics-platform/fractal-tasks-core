@@ -2,14 +2,14 @@
 """
 Task for 3D->2D maximum-intensity projection.
 """
+
 from __future__ import annotations
 
 import logging
 from typing import Any
 
 import dask.array as da
-from ngio import Image
-from ngio import open_ome_zarr_container
+from ngio import Image, open_ome_zarr_container
 from pydantic import validate_call
 
 from fractal_tasks_core.tasks.io_models import InitArgsMIP
@@ -73,8 +73,7 @@ def projection(
 
     if orginal_image.is_2d or orginal_image.is_2d_time_series:
         raise ValueError(
-            "The input image is 2D, "
-            "projection is only supported for 3D images."
+            "The input image is 2D, projection is only supported for 3D images."
         )
 
     # Compute the new shape and pixel size
@@ -107,9 +106,7 @@ def projection(
 
     # Edit the roi tables
     for roi_table_name in ome_zarr_mip.list_roi_tables():
-        table = ome_zarr_mip.get_table(
-            roi_table_name, check_type="generic_roi_table"
-        )
+        table = ome_zarr_mip.get_table(roi_table_name, check_type="generic_roi_table")
 
         for roi in table.rois():
             roi.z = 0.0

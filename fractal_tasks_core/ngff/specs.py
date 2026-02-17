@@ -2,16 +2,11 @@
 Pydantic models related to OME-NGFF 0.4 specs, as implemented in
 fractal-tasks-core.
 """
+
 import logging
-from typing import Literal
-from typing import Optional
-from typing import TypeVar
-from typing import Union
+from typing import Literal, Optional, TypeVar, Union
 
-from pydantic import BaseModel
-from pydantic import Field
-from pydantic import field_validator
-
+from pydantic import BaseModel, Field, field_validator
 
 logger = logging.getLogger(__name__)
 
@@ -113,9 +108,7 @@ class Dataset(BaseModel):
 
     path: str
     coordinateTransformations: list[
-        Union[
-            ScaleCoordinateTransformation, TranslationCoordinateTransformation
-        ]
+        Union[ScaleCoordinateTransformation, TranslationCoordinateTransformation]
     ] = Field(..., min_length=1)
 
     @property
@@ -165,9 +158,7 @@ class Multiscale(BaseModel):
 
     @field_validator("coordinateTransformations", mode="after")
     @classmethod
-    def _no_global_coordinateTransformations(
-        cls, v: Optional[list]
-    ) -> Optional[list]:
+    def _no_global_coordinateTransformations(cls, v: Optional[list]) -> Optional[list]:
         """
         Fail if Multiscale has a (global) coordinateTransformations attribute.
         """
@@ -329,9 +320,7 @@ class ImageInWell(BaseModel):
     acquisition: Optional[int] = Field(
         None, description="A unique identifier within the context of the plate"
     )
-    path: str = Field(
-        ..., description="The path for this field of view subgroup"
-    )
+    path: str = Field(..., description="The path for this field of view subgroup")
 
 
 class Well(BaseModel):
@@ -344,9 +333,7 @@ class Well(BaseModel):
     images: list[ImageInWell] = Field(
         ..., description="The images included in this well", min_length=1
     )
-    version: Optional[str] = Field(
-        None, description="The version of the specification"
-    )
+    version: Optional[str] = Field(None, description="The version of the specification")
     _check_unique = field_validator("images")(unique_items_validator)
 
 
@@ -400,14 +387,11 @@ class AcquisitionInPlate(BaseModel):
     See https://ngff.openmicroscopy.org/0.4/#plate-md.
     """
 
-    id: int = Field(
-        description="A unique identifier within the context of the plate"
-    )
+    id: int = Field(description="A unique identifier within the context of the plate")
     maximumfieldcount: Optional[int] = Field(
         None,
         description=(
-            "Int indicating the maximum number of fields of view for the "
-            "acquisition"
+            "Int indicating the maximum number of fields of view for the acquisition"
         ),
     )
     name: Optional[str] = Field(
@@ -467,9 +451,7 @@ class Plate(BaseModel):
     name: Optional[str] = None
     rows: list[RowInPlate]
     # version will become required in 0.5
-    version: Optional[str] = Field(
-        None, description="The version of the specification"
-    )
+    version: Optional[str] = Field(None, description="The version of the specification")
     wells: list[WellInPlate]
 
 

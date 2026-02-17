@@ -115,10 +115,6 @@ def test_build_pyramid_overwrite(tmp_path):
     build_pyramid(zarrurl=zarrurl, coarsening_xy=2, num_levels=3)
     # Should fail because overwrite is not set
     with pytest.raises(ValueError):
-        build_pyramid(
-            zarrurl=zarrurl, coarsening_xy=2, num_levels=3, overwrite=False
-        )
+        build_pyramid(zarrurl=zarrurl, coarsening_xy=2, num_levels=3, overwrite=False)
     # Should work
-    build_pyramid(
-        zarrurl=zarrurl, coarsening_xy=2, num_levels=3, overwrite=True
-    )
+    build_pyramid(zarrurl=zarrurl, coarsening_xy=2, num_levels=3, overwrite=True)

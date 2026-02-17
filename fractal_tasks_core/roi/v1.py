@@ -2,6 +2,7 @@
 """
 Functions to produce/process ROI tables.
 """
+
 import logging
 import math
 from typing import Sequence
@@ -9,7 +10,6 @@ from typing import Sequence
 import anndata as ad
 import numpy as np
 import pandas as pd
-
 
 logger = logging.getLogger(__name__)
 
@@ -351,9 +351,7 @@ def array_to_bounding_box_table(
         # Compute bounding box
         label_match = np.where(mask_array == label)
         zmin, ymin, xmin = np.min(label_match, axis=1) * pxl_sizes_zyx_array
-        zmax, ymax, xmax = (
-            np.max(label_match, axis=1) + 1
-        ) * pxl_sizes_zyx_array
+        zmax, ymax, xmax = (np.max(label_match, axis=1) + 1) * pxl_sizes_zyx_array
 
         # Compute bounding-box edges
         length_x = xmax - xmin

@@ -2,7 +2,6 @@ import sys
 
 from fractal_tasks_core.roi import _inspect_ROI_table
 
-
 table = sys.argv[1]
 level = int(sys.argv[2])
 full_res_pxl_sizes_zyx = [5.0, 0.325, 0.325]

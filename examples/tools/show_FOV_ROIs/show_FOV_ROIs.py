@@ -1,6 +1,7 @@
 """
 An example of visualizing FOV ROIs and their overlaps.
 """
+
 import matplotlib.pyplot as plt
 
 from fractal_tasks_core.cellvoyager.metadata import (
@@ -18,18 +19,14 @@ def _plot_rectangle(min_x, min_y, max_x, max_y, overlapping):
         plt.plot(x, y, ",-", lw=0.3, c="k", zorder=1)
 
 
-def _plotting_function(
-    xmin, xmax, ymin, ymax, list_overlapping_FOVs, selected_well
-):
+def _plotting_function(xmin, xmax, ymin, ymax, list_overlapping_FOVs, selected_well):
     plt.figure()
     num_lines = len(xmin)
     for line in range(num_lines):
         min_x, max_x = [a[line] for a in [xmin, xmax]]
         min_y, max_y = [a[line] for a in [ymin, ymax]]
 
-        _plot_rectangle(
-            min_x, min_y, max_x, max_y, line in list_overlapping_FOVs
-        )
+        _plot_rectangle(min_x, min_y, max_x, max_y, line in list_overlapping_FOVs)
         plt.text(
             0.5 * (min_x + max_x),
             0.5 * (min_y + max_y),
@@ -49,9 +46,7 @@ def _plotting_function(
         min_x, max_x = [a[line] for a in [xmin, xmax]]
         min_y, max_y = [a[line] for a in [ymin, ymax]]
 
-        _plot_rectangle(
-            min_x, min_y, max_x, max_y, line in list_overlapping_FOVs
-        )
+        _plot_rectangle(min_x, min_y, max_x, max_y, line in list_overlapping_FOVs)
         plt.text(
             0.5 * (min_x + max_x),
             0.5 * (min_y + max_y),
@@ -73,13 +68,9 @@ if __name__ == "__main__":
     site_metadata, total_files = parse_yokogawa_metadata(mrf_path, mlf_path)
 
     plt.close()
-    run_overlap_check(
-        site_metadata, tol=0, plotting_function=_plotting_function
-    )
+    run_overlap_check(site_metadata, tol=0, plotting_function=_plotting_function)
     plt.savefig("fig_tol_0.pdf")
 
     plt.close()
-    run_overlap_check(
-        site_metadata, tol=1e-10, plotting_function=_plotting_function
-    )
+    run_overlap_check(site_metadata, tol=1e-10, plotting_function=_plotting_function)
     plt.savefig("fig_tol_1e-10.pdf")

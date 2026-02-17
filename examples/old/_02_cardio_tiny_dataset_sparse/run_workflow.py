@@ -11,16 +11,15 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
+
 import os
 from pathlib import Path
 
 from devtools import debug
 
-from fractal_tasks_core.channels import OmeroChannel
-from fractal_tasks_core.channels import Window
+from fractal_tasks_core.channels import OmeroChannel, Window
 from fractal_tasks_core.tasks.create_ome_zarr import create_ome_zarr
 from fractal_tasks_core.tasks.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
-
 
 allowed_channels = [
     OmeroChannel(

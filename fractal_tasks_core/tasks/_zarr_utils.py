@@ -76,9 +76,7 @@ def _update_well_metadata(
             )
         try:
             well_meta_image_old = next(
-                image
-                for image in well_meta.well.images
-                if image.path == old_image_path
+                image for image in well_meta.well.images if image.path == old_image_path
             )
         except StopIteration:
             raise ValueError(
@@ -174,9 +172,7 @@ def _copy_tables_from_zarr_url(
         overwrite: Whether existing tables of the same name in the
             target_zarr_url should be overwritten.
     """
-    table_list = get_tables_list_v1(
-        zarr_url=origin_zarr_url, table_type=table_type
-    )
+    table_list = get_tables_list_v1(zarr_url=origin_zarr_url, table_type=table_type)
 
     if table_list:
         logger.info(

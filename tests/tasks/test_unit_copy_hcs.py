@@ -11,6 +11,7 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
+
 import shutil
 from pathlib import Path
 
@@ -19,10 +20,11 @@ import zarr
 from devtools import debug
 from ngio.utils import NgioFileExistsError
 
-from ._validation import validate_schema
 from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
     copy_ome_zarr_hcs_plate,
 )
+
+from ._validation import validate_schema
 
 expected_MIP_plate_attrs = {
     "plate": {

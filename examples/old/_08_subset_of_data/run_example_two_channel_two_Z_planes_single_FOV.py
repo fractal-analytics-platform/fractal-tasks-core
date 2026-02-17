@@ -2,8 +2,7 @@ import os
 
 from devtools import debug
 
-from fractal_tasks_core.channels import OmeroChannel
-from fractal_tasks_core.channels import Window
+from fractal_tasks_core.channels import OmeroChannel, Window
 from fractal_tasks_core.tasks.copy_ome_zarr import copy_ome_zarr
 from fractal_tasks_core.tasks.create_ome_zarr import create_ome_zarr
 from fractal_tasks_core.tasks.projection import (
@@ -41,8 +40,7 @@ coarsening_xy = 2
 img_path = "../images/10.5281_zenodo.7057076/"
 if not os.path.isdir(img_path):
     raise FileNotFoundError(
-        f"{img_path} is missing,"
-        " try running ./fetch_test_data_from_zenodo.sh"
+        f"{img_path} is missing, try running ./fetch_test_data_from_zenodo.sh"
     )
 zarr_path = "tmp_out"
 metadata: dict = {}

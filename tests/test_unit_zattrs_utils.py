@@ -3,8 +3,8 @@ from devtools import debug
 
 from fractal_tasks_core.utils import (
     _get_table_path_dict,
+    rescale_datasets,
 )
-from fractal_tasks_core.utils import rescale_datasets
 
 
 def test_rescale_datasets(tmp_path):
@@ -14,9 +14,7 @@ def test_rescale_datasets(tmp_path):
     """
 
     # 3D scale transformation (ZYX)
-    datasets = [
-        dict(coordinateTransformations=[dict(type="scale", scale=[3, 2, 1])])
-    ]
+    datasets = [dict(coordinateTransformations=[dict(type="scale", scale=[3, 2, 1])])]
     new_datasets = rescale_datasets(
         datasets=datasets, coarsening_xy=2, reference_level=1
     )
@@ -29,9 +27,7 @@ def test_rescale_datasets(tmp_path):
 
     # 4D scale transformation (CZYX)
     datasets = [
-        dict(
-            coordinateTransformations=[dict(type="scale", scale=[1, 3, 2, 1])]
-        )
+        dict(coordinateTransformations=[dict(type="scale", scale=[1, 3, 2, 1])])
     ]
     new_datasets = rescale_datasets(
         datasets=datasets, coarsening_xy=2, reference_level=1

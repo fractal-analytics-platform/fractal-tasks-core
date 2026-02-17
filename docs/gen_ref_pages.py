@@ -1,7 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Iterable
-from typing import Mapping
+from typing import Iterable, Mapping
 
 import mkdocs_gen_files
 from mkdocs_gen_files import Nav
@@ -39,9 +38,7 @@ class CustomNav(Nav):
         for key in sorted_keys:
             value = data[key]
             if key is not None:
-                yield cls.Item(
-                    level=level, title=key, filename=value.get(None)
-                )
+                yield cls.Item(level=level, title=key, filename=value.get(None))
                 yield from cls._items(value, level + 1)
 
 

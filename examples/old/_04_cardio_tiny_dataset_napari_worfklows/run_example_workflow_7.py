@@ -11,13 +11,13 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
+
 import os
 from pathlib import Path
 
 from devtools import debug
 
-from fractal_tasks_core.channels import OmeroChannel
-from fractal_tasks_core.channels import Window
+from fractal_tasks_core.channels import OmeroChannel, Window
 from fractal_tasks_core.tasks.cellpose_segmentation import (
     cellpose_segmentation,
 )

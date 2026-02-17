@@ -6,14 +6,18 @@ import pytest
 import zarr
 from devtools import debug
 
-from fractal_tasks_core.ngff.specs import Dataset
-from fractal_tasks_core.ngff.specs import Multiscale
-from fractal_tasks_core.ngff.specs import NgffImageMeta
-from fractal_tasks_core.ngff.specs import NgffWellMeta
-from fractal_tasks_core.ngff.zarr_utils import detect_ome_ngff_type
-from fractal_tasks_core.ngff.zarr_utils import load_NgffImageMeta
-from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
-from fractal_tasks_core.ngff.zarr_utils import ZarrGroupNotFoundError
+from fractal_tasks_core.ngff.specs import (
+    Dataset,
+    Multiscale,
+    NgffImageMeta,
+    NgffWellMeta,
+)
+from fractal_tasks_core.ngff.zarr_utils import (
+    ZarrGroupNotFoundError,
+    detect_ome_ngff_type,
+    load_NgffImageMeta,
+    load_NgffWellMeta,
+)
 
 
 def test_load_NgffWellMeta(tmp_path):
@@ -56,17 +60,13 @@ def test_Dataset(ngffdata_path):
     _load_and_validate(ngffdata_path / "dataset.json", Dataset)
 
     # Fail due to missing scale transformation
-    dataset = _load_and_validate(
-        ngffdata_path / "dataset_error_1.json", Dataset
-    )
+    dataset = _load_and_validate(ngffdata_path / "dataset_error_1.json", Dataset)
     with pytest.raises(ValueError) as e:
         dataset.scale_transformation
     assert "Missing scale transformation" in str(e.value)
 
     # Fail due to multiple scale transformations
-    dataset = _load_and_validate(
-        ngffdata_path / "dataset_error_2.json", Dataset
-    )
+    dataset = _load_and_validate(ngffdata_path / "dataset_error_2.json", Dataset)
     with pytest.raises(ValueError) as e:
         dataset.scale_transformation
     assert "More than one scale transformation" in str(e.value)
@@ -99,16 +99,12 @@ def test_NgffImageMeta(ngffdata_path):
         ngff_image_meta.multiscale
 
     # Success CZYX
-    ngff_image_meta = _load_and_validate(
-        ngffdata_path / "image.json", NgffImageMeta
-    )
+    ngff_image_meta = _load_and_validate(ngffdata_path / "image.json", NgffImageMeta)
     assert ngff_image_meta.multiscale
     assert len(ngff_image_meta.datasets) == 5
     assert len(ngff_image_meta.datasets) == ngff_image_meta.num_levels
     assert ngff_image_meta.axes_names == ["c", "z", "y", "x"]
-    assert np.allclose(
-        ngff_image_meta.get_pixel_sizes_zyx(), [1.0, 0.1625, 0.1625]
-    )
+    assert np.allclose(ngff_image_meta.get_pixel_sizes_zyx(), [1.0, 0.1625, 0.1625])
     assert np.allclose(
         ngff_image_meta.get_pixel_sizes_zyx(level=0), [1.0, 0.1625, 0.1625]
     )
@@ -125,9 +121,7 @@ def test_NgffImageMeta(ngffdata_path):
     assert len(ngff_image_meta.datasets) == 5
     assert len(ngff_image_meta.datasets) == ngff_image_meta.num_levels
     assert ngff_image_meta.axes_names == ["z", "y", "x"]
-    assert np.allclose(
-        ngff_image_meta.get_pixel_sizes_zyx(), [1.0, 0.1625, 0.1625]
-    )
+    assert np.allclose(ngff_image_meta.get_pixel_sizes_zyx(), [1.0, 0.1625, 0.1625])
     assert np.allclose(
         ngff_image_meta.get_pixel_sizes_zyx(level=0), [1.0, 0.1625, 0.1625]
     )
@@ -183,9 +177,7 @@ def test_ImageNgffMeta_inhomogeneous_coarsening(ngffdata_path):
 
 def test_NgffWellMeta_get_acquisition_paths(ngffdata_path):
     # Fail for no acquisition keys
-    ngff_well_meta = _load_and_validate(
-        ngffdata_path / "well.json", NgffWellMeta
-    )
+    ngff_well_meta = _load_and_validate(ngffdata_path / "well.json", NgffWellMeta)
     with pytest.raises(ValueError) as e:
         ngff_well_meta.get_acquisition_paths()
     assert "Cannot get acquisition paths" in str(e.value)

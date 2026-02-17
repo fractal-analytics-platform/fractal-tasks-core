@@ -2,6 +2,7 @@
 """
 Applies the multiplexing translation to all ROI tables
 """
+
 import logging
 from typing import Optional
 
@@ -15,15 +16,10 @@ from fractal_tasks_core.roi import (
 from fractal_tasks_core.tables import write_table
 from fractal_tasks_core.tasks._registration_utils import (
     add_zero_translation_columns,
-)
-from fractal_tasks_core.tasks._registration_utils import (
     apply_registration_to_single_ROI_table,
-)
-from fractal_tasks_core.tasks._registration_utils import (
     calculate_min_max_across_dfs,
 )
 from fractal_tasks_core.tasks.io_models import InitArgsRegistrationConsensus
-
 
 logger = logging.getLogger(__name__)
 
@@ -130,8 +126,7 @@ def find_registration_consensus(
         # TODO: Drop translation columns from this table?
 
         logger.info(
-            f"Write the registered ROI table {new_roi_table} for "
-            "{acq_zarr_url=}"
+            f"Write the registered ROI table {new_roi_table} for {{acq_zarr_url=}}"
         )
         # Save the shifted ROI table as a new table
         image_group = zarr.group(acq_zarr_url)

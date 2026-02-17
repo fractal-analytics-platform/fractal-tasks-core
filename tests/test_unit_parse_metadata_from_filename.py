@@ -11,15 +11,13 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
+
 import pytest
 from devtools import debug
 
 from fractal_tasks_core.cellvoyager.filenames import parse_filename
 
-f1 = (
-    "20200812-CardiomyocyteDifferentiation14-Cycle1"
-    "_B03_T0001F036L01A01Z18C01.png"
-)
+f1 = "20200812-CardiomyocyteDifferentiation14-Cycle1_B03_T0001F036L01A01Z18C01.png"
 f2 = "210305NAR005AAN_210416_164828_B11_T0001F006L01A04Z14C01.tif"
 f3 = "220304_172545_220304_175557_L06_T0277F004L277A04Z07C04.tif"
 f4 = "220517CS001XXXIl_220715_151525_D05_T0001F001L01A01Z01C04.tif"

@@ -2,17 +2,14 @@
 """
 Task that copies the structure of an OME-NGFF zarr array to a new one.
 """
+
 import logging
 from functools import cache
 from pathlib import Path
 from typing import Any
 
-from ngio import OmeZarrPlate
-from ngio import OmeZarrWell
-from ngio import open_ome_zarr_plate
-from ngio import open_ome_zarr_well
-from ngio.utils import NgioFileExistsError
-from ngio.utils import NgioFileNotFoundError
+from ngio import OmeZarrPlate, OmeZarrWell, open_ome_zarr_plate, open_ome_zarr_well
+from ngio.utils import NgioFileExistsError, NgioFileNotFoundError
 from pydantic import validate_call
 
 import fractal_tasks_core
@@ -32,9 +29,7 @@ def _open_well(well_path) -> OmeZarrWell:
         return the well object.
     """
     try:
-        well = open_ome_zarr_well(
-            well_path, mode="r", cache=True, parallel_safe=False
-        )
+        well = open_ome_zarr_well(well_path, mode="r", cache=True, parallel_safe=False)
     except NgioFileNotFoundError:
         raise NgioFileNotFoundError(
             f"Could not open well {well_path}. "
@@ -141,15 +136,11 @@ def copy_ome_zarr_hcs_plate(
                 "`/path/to/plate_name/row/column/image_path`. "
                 "The zarr_url given is too short to be valid."
             )
-        *base, plate_name, row, column, image_path = zarr_url.rstrip(
-            "/"
-        ).split("/")
+        *base, plate_name, row, column, image_path = zarr_url.rstrip("/").split("/")
         base_dir = "/".join(base)
 
         plate_url = f"{base_dir}/{plate_name}"
-        proj_plate_name = (
-            f"{plate_name}".rstrip(".zarr") + f"_{method.value}.zarr"
-        )
+        proj_plate_name = f"{plate_name}".rstrip(".zarr") + f"_{method.value}.zarr"
         proj_plate_url = f"{zarr_dir}/{proj_plate_name}"
 
         if proj_plate_url not in proj_plates:
@@ -159,9 +150,7 @@ def copy_ome_zarr_hcs_plate(
                 re_initialize_plate=re_initialize_plate,
             )
             proj_plates[proj_plate_url] = _proj_plate
-            proj_plates_images_paths[
-                proj_plate_url
-            ] = _proj_plate.images_paths()
+            proj_plates_images_paths[proj_plate_url] = _proj_plate.images_paths()
 
         proj_plate = proj_plates[proj_plate_url]
         proj_plate_images_paths = proj_plates_images_paths[proj_plate_url]

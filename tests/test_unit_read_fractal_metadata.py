@@ -4,8 +4,6 @@ from devtools import debug
 
 from fractal_tasks_core.utils import (
     _find_omengff_acquisition,
-)
-from fractal_tasks_core.utils import (
     get_parameters_from_metadata,
 )
 

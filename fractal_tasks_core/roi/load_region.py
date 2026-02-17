@@ -40,9 +40,7 @@ def load_region(
         if return_as_3D:
             img = np.expand_dims(img, axis=0)
     else:
-        raise ValueError(
-            f"Shape {data_zyx.shape} not supported for `load_region`"
-        )
+        raise ValueError(f"Shape {data_zyx.shape} not supported for `load_region`")
     if compute:
         return img.compute()
     else:

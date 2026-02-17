@@ -2,6 +2,7 @@
 """
 Functions to identify overlaps between regions, not related to table specs.
 """
+
 import logging
 from typing import Sequence
 
@@ -43,12 +44,8 @@ def is_overlapping_2D(
             `[x_min, y_min, x_max, y_max]`.
         tol: Finite tolerance for floating-point comparisons.
     """
-    overlap_x = is_overlapping_1D(
-        [box1[0], box1[2]], [box2[0], box2[2]], tol=tol
-    )
-    overlap_y = is_overlapping_1D(
-        [box1[1], box1[3]], [box2[1], box2[3]], tol=tol
-    )
+    overlap_x = is_overlapping_1D([box1[0], box1[2]], [box2[0], box2[2]], tol=tol)
+    overlap_y = is_overlapping_1D([box1[1], box1[3]], [box2[1], box2[3]], tol=tol)
     return overlap_x and overlap_y
 
 
@@ -69,15 +66,9 @@ def is_overlapping_3D(
         tol: Finite tolerance for floating-point comparisons.
     """
 
-    overlap_x = is_overlapping_1D(
-        [box1[0], box1[3]], [box2[0], box2[3]], tol=tol
-    )
-    overlap_y = is_overlapping_1D(
-        [box1[1], box1[4]], [box2[1], box2[4]], tol=tol
-    )
-    overlap_z = is_overlapping_1D(
-        [box1[2], box1[5]], [box2[2], box2[5]], tol=tol
-    )
+    overlap_x = is_overlapping_1D([box1[0], box1[3]], [box2[0], box2[3]], tol=tol)
+    overlap_y = is_overlapping_1D([box1[1], box1[4]], [box2[1], box2[4]], tol=tol)
+    overlap_z = is_overlapping_1D([box1[2], box1[5]], [box2[2], box2[5]], tol=tol)
     return overlap_x and overlap_y and overlap_z
 
 

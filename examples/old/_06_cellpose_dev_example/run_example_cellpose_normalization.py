@@ -11,12 +11,12 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
+
 import os
 
 from devtools import debug
 
-from fractal_tasks_core.channels import OmeroChannel
-from fractal_tasks_core.channels import Window
+from fractal_tasks_core.channels import OmeroChannel, Window
 from fractal_tasks_core.tasks.cellpose_segmentation import (
     cellpose_segmentation,
 )
@@ -48,8 +48,7 @@ coarsening_xy = 2
 img_path = "../images/10.5281_zenodo.7059515/"
 if not os.path.isdir(img_path):
     raise FileNotFoundError(
-        f"{img_path} is missing,"
-        " try running ./fetch_test_data_from_zenodo.sh"
+        f"{img_path} is missing, try running ./fetch_test_data_from_zenodo.sh"
     )
 zarr_path = "tmp_out_normalize/"
 metadata: dict = {}

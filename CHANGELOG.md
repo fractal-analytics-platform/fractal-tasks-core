@@ -3,6 +3,8 @@
 # Unreleased
 * Development:
     * Move environment management from `poetry` to `pixi`.
+    * Replace `black`, `flake8`, `reorder_python_imports` with `ruff` for linting and formatting.
+    * Update line-length from 79 to 88.
     * Remove deprecated `tasks/_utils.py` module (`run_fractal_task` wrapper).
     * Remove `labels.py`, `masked_loading.py`, and `upscale_array.py` modules (only used by removed tasks).
 * Tasks:

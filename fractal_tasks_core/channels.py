@@ -2,24 +2,20 @@
 """
 Helper functions to address channels via OME-NGFF/OMERO metadata.
 """
+
 import logging
 from copy import deepcopy
-from typing import Any
-from typing import Optional
-from typing import Union
+from typing import Any, Optional, Union
 
 import zarr
-from pydantic import BaseModel
-from pydantic import field_validator
-from pydantic import model_validator
+from pydantic import BaseModel, field_validator, model_validator
 from typing_extensions import Self
 
 from fractal_tasks_core import __OME_NGFF_VERSION__
 
-
 if __OME_NGFF_VERSION__ != "0.4":
     NotImplementedError(
-        f"OME NGFF {__OME_NGFF_VERSION__} is not supported " "in `channels.py`"
+        f"OME NGFF {__OME_NGFF_VERSION__} is not supported in `channels.py`"
     )
 
 
@@ -126,9 +122,7 @@ class ChannelInputModel(BaseModel):
                 f"(given {wavelength_id=} and {label=})."
             )
         if wavelength_id is None and label is None:
-            raise ValueError(
-                "`wavelength_id` and `label` cannot be both `None`"
-            )
+            raise ValueError("`wavelength_id` and `label` cannot be both `None`")
         return self
 
 
@@ -150,9 +144,7 @@ def check_unique_wavelength_ids(channels: list[OmeroChannel]):
     """
     wavelength_ids = [c.wavelength_id for c in channels]
     if len(set(wavelength_ids)) < len(wavelength_ids):
-        raise ValueError(
-            f"Non-unique wavelength_id's in {wavelength_ids}\n" f"{channels=}"
-        )
+        raise ValueError(f"Non-unique wavelength_id's in {wavelength_ids}\n{channels=}")
 
 
 def check_well_channel_labels(*, well_zarr_path: str) -> None:
@@ -190,8 +182,7 @@ def check_well_channel_labels(*, well_zarr_path: str) -> None:
                     "and then could be the reason of the error"
                 )
                 raise ValueError(
-                    "Non-unique channel labels\n"
-                    f"{labels_1=}\n{labels_2=}\n{hint}"
+                    f"Non-unique channel labels\n{labels_1=}\n{labels_2=}\n{hint}"
                 )
 
 
@@ -283,8 +274,7 @@ def get_channel_from_list(
         else:
             # Neither label or wavelength_id are specified
             raise ValueError(
-                "get_channel requires at least one in {label,wavelength_id} "
-                "arguments"
+                "get_channel requires at least one in {label,wavelength_id} arguments"
             )
 
     # Verify that there is one and only one matching channel
@@ -345,9 +335,7 @@ def define_omero_channels(
             default_label = wavelength_id
             if label_prefix is not None:
                 default_label = f"{label_prefix}_{default_label}"
-            logging.warning(
-                f"Missing label for {channel=}, using {default_label=}"
-            )
+            logging.warning(f"Missing label for {channel=}, using {default_label=}")
             channel.label = default_label
 
         # If channel.color is None, set it to a default value (use the default
@@ -378,8 +366,7 @@ def define_omero_channels(
         raise ValueError(f"Non-unique labels in {new_channels=}")
 
     new_channels_dictionaries = [
-        c.model_dump(exclude={"index"}, exclude_unset=True)
-        for c in new_channels
+        c.model_dump(exclude={"index"}, exclude_unset=True) for c in new_channels
     ]
 
     return new_channels_dictionaries
@@ -499,19 +486,13 @@ def update_omero_channels(
         label = old_channel.get("label")
         color = old_channel.get("color")
         wavelength_id = old_channel.get("wavelength_id")
-        old_attributes = (
-            f"Old attributes: {label=}, {wavelength_id=}, {color=}"
-        )
+        old_attributes = f"Old attributes: {label=}, {wavelength_id=}, {color=}"
         label = new_channels[ind]["label"]
         wavelength_id = new_channels[ind]["wavelength_id"]
         color = new_channels[ind]["color"]
-        new_attributes = (
-            f"New attributes: {label=}, {wavelength_id=}, {color=}"
-        )
+        new_attributes = f"New attributes: {label=}, {wavelength_id=}, {color=}"
         logging.info(
-            "Omero channel update:\n"
-            f"    {old_attributes}\n"
-            f"    {new_attributes}"
+            f"Omero channel update:\n    {old_attributes}\n    {new_attributes}"
         )
 
     return new_channels

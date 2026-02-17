@@ -6,10 +6,8 @@ from devtools import debug
 
 from fractal_tasks_core import __FRACTAL_TABLE_VERSION__
 from fractal_tasks_core.tables import write_table
-from fractal_tasks_core.tables.v1 import FeatureTableAttrs
-from fractal_tasks_core.tables.v1 import MaskingROITableAttrs
+from fractal_tasks_core.tables.v1 import FeatureTableAttrs, MaskingROITableAttrs
 from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
-
 
 TYPE = "some-arbitrary-type"
 
@@ -29,18 +27,13 @@ def test_write_table(tmp_path):
     image_group = zarr.open(zarr_path, mode="w")
 
     # Run write_table
-    table_a_group = write_table(
-        image_group, "table_a", ROI_table_1, table_type=TYPE
-    )
+    table_a_group = write_table(image_group, "table_a", ROI_table_1, table_type=TYPE)
     assert set(image_group.group_keys()) == {"tables"}
     assert image_group["tables"].attrs.asdict() == dict(tables=["table_a"])
     assert "region" not in table_a_group.attrs.keys()
     assert "instance_key" not in table_a_group.attrs.keys()
     assert table_a_group.attrs["type"] == TYPE
-    assert (
-        table_a_group.attrs["fractal_table_version"]
-        == __FRACTAL_TABLE_VERSION__
-    )  # noqa
+    assert table_a_group.attrs["fractal_table_version"] == __FRACTAL_TABLE_VERSION__  # noqa
 
     # Run write_table again, with overwrite=True
     table_a_group = write_table(
@@ -61,9 +54,7 @@ def test_write_table(tmp_path):
         table_type=TYPE,
         table_attrs={"type": "wrong"},
     )
-    assert image_group["tables"].attrs.asdict() == dict(
-        tables=["table_a", "table_b"]
-    )
+    assert image_group["tables"].attrs.asdict() == dict(tables=["table_a", "table_b"])
     assert table_b_group.attrs["type"] == TYPE
 
     # Run write_table, without specifying type
@@ -129,9 +120,7 @@ def test_write_table_validation_errors(tmp_path, caplog):
         region=dict(path="../labels/something"),
     )
     with pytest.raises(ValueError):
-        write_table(
-            img_group, "table", table, overwrite=True, table_attrs=ATTRS
-        )
+        write_table(img_group, "table", table, overwrite=True, table_attrs=ATTRS)
 
     # Valid feature_table
     ATTRS = dict(
@@ -147,9 +136,7 @@ def test_write_table_validation_errors(tmp_path, caplog):
         region=dict(path="../labels/something"),
     )
     with pytest.raises(ValueError):
-        write_table(
-            img_group, "table", table, overwrite=True, table_attrs=ATTRS
-        )
+        write_table(img_group, "table", table, overwrite=True, table_attrs=ATTRS)
 
 
 def test_write_table_V2_not_implemented(tmp_path):

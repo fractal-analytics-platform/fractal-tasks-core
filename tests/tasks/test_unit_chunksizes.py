@@ -25,9 +25,7 @@ def test_chunksize_default_with_extra_keys():
     """Test chunksize_default containing invalid keys."""
     chunk_sizes = ChunkSizes(t=5, c=2)
     chunksize_default = {"a": 100, "c": 1, "x": 2560}
-    with pytest.raises(
-        ValueError, match="Invalid keys in chunksize_default: {'a'}"
-    ):
+    with pytest.raises(ValueError, match="Invalid keys in chunksize_default: {'a'}"):
         chunk_sizes.get_chunksize(chunksize_default)
 
 

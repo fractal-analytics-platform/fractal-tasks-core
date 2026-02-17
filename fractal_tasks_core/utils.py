@@ -2,16 +2,14 @@
 """
 Helper functions for operations on Zarr attributes and OME-NGFF metadata.
 """
+
 import logging
 from pathlib import Path
-from typing import Any
-from typing import Sequence
-from typing import Union
+from typing import Any, Sequence, Union
 
 import zarr
 
 from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
-
 
 logger = logging.getLogger(__name__)
 

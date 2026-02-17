@@ -1,12 +1,8 @@
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Dict
-from typing import Literal
-from typing import Optional
-from typing import Tuple
+from typing import Dict, Literal, Optional, Tuple
 
-from pydantic import BaseModel
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from fractal_tasks_core.channels import OmeroChannel
 
@@ -161,9 +157,7 @@ class ChunkSizes(BaseModel):
 
         # Ensure the output tuple is ordered and matches the tczyx structure
         ordered_keys = ["t", "c", "z", "y", "x"]
-        return tuple(
-            chunksize[key] for key in ordered_keys if key in chunksize
-        )
+        return tuple(chunksize[key] for key in ordered_keys if key in chunksize)
 
 
 class ProfileCorrectionModel(BaseModel):

@@ -1,8 +1,7 @@
 import dask.array as da
 import numpy as np
 
-from fractal_tasks_core.tasks.projection_utils import mean_wrapper
-from fractal_tasks_core.tasks.projection_utils import safe_sum
+from fractal_tasks_core.tasks.projection_utils import mean_wrapper, safe_sum
 
 
 def test_uint8_no_overflow():
@@ -33,9 +32,7 @@ def test_uint16_overflow():
     # Test sum on uint16 array with potential overflow
     array = da.full((1000, 1000), 65535, chunks=(500, 500), dtype="uint16")
     result = safe_sum(array, axis=0).compute()
-    expected = np.full(
-        (1000,), 65535, dtype="uint16"
-    )  # Should be clipped to 65535
+    expected = np.full((1000,), 65535, dtype="uint16")  # Should be clipped to 65535
     np.testing.assert_array_equal(result, expected)
 
 
@@ -112,9 +109,9 @@ def test_mean_wrapper_axis():
     # Test mean along a specific axis
     array = da.arange(20, dtype="int32", chunks=(5,)).reshape((4, 5))
     result = mean_wrapper(array, axis=1).compute()
-    expected = np.mean(
-        np.arange(20, dtype="int32").reshape((4, 5)), axis=1
-    ).astype("int32")
+    expected = np.mean(np.arange(20, dtype="int32").reshape((4, 5)), axis=1).astype(
+        "int32"
+    )
     assert result.dtype == "int32"
     np.testing.assert_array_equal(result, expected)
 

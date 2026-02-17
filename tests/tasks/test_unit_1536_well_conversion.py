@@ -10,14 +10,13 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
+
 from pathlib import Path
 
 from devtools import debug
 
-from ._validation import validate_schema
 from fractal_tasks_core.cellvoyager.metadata import parse_yokogawa_metadata
-from fractal_tasks_core.channels import OmeroChannel
-from fractal_tasks_core.channels import Window
+from fractal_tasks_core.channels import OmeroChannel, Window
 from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_compute import (
     cellvoyager_to_ome_zarr_compute,
 )
@@ -29,13 +28,13 @@ from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_init_multiplex import (
 )
 from fractal_tasks_core.tasks.io_models import MultiplexingAcquisition
 
+from ._validation import validate_schema
+
 
 def test_1536_well_metadata_conversion(syn_1536_images: str):
     mlf_path = Path(syn_1536_images) / "MeasurementData.mlf"
     mrf_path = Path(syn_1536_images) / "MeasurementDetail.mrf"
-    site_metadata, number_of_files = parse_yokogawa_metadata(
-        mrf_path, mlf_path
-    )
+    site_metadata, number_of_files = parse_yokogawa_metadata(mrf_path, mlf_path)
     assert number_of_files == {"B03.a1": 2}
     assert len(site_metadata) == 2
 
@@ -75,9 +74,7 @@ def test_1536_ome_zarr_conversion(tmp_path: Path, syn_1536_images: str):
     debug(image_list_updates)
 
     # OME-NGFF JSON validation
-    image_zarr = Path(
-        parallelization_list["parallelization_list"][0]["zarr_url"]
-    )
+    image_zarr = Path(parallelization_list["parallelization_list"][0]["zarr_url"])
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
 
@@ -86,9 +83,7 @@ def test_1536_ome_zarr_conversion(tmp_path: Path, syn_1536_images: str):
     validate_schema(path=str(plate_zarr), type="plate")
 
 
-def test_1536_multiplexing_ome_zarr_conversion(
-    tmp_path: Path, syn_1536_images: str
-):
+def test_1536_multiplexing_ome_zarr_conversion(tmp_path: Path, syn_1536_images: str):
     acquisition_1 = MultiplexingAcquisition(
         image_dir=syn_1536_images,
         allowed_channels=[
@@ -136,9 +131,7 @@ def test_1536_multiplexing_ome_zarr_conversion(
     debug(image_list_updates)
 
     # OME-NGFF JSON validation
-    image_zarr = Path(
-        parallelization_list["parallelization_list"][0]["zarr_url"]
-    )
+    image_zarr = Path(parallelization_list["parallelization_list"][0]["zarr_url"])
     well_zarr = image_zarr.parent
     plate_zarr = image_zarr.parents[2]
 

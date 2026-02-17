@@ -14,6 +14,7 @@ Copyright 2022 (C)
 Script to generate JSON schemas for task arguments afresh, and write them
 to the package manifest.
 """
+
 import json
 from pathlib import Path
 
@@ -23,12 +24,9 @@ from fractal_tasks_core.dev.lib_args_schemas import (
     create_schema_for_single_task,
 )
 
-
 if __name__ == "__main__":
     # Read manifest
-    manifest_path = (
-        Path(my_package.__file__).parent / "__FRACTAL_MANIFEST__.json"
-    )
+    manifest_path = Path(my_package.__file__).parent / "__FRACTAL_MANIFEST__.json"
     with manifest_path.open("r") as f:
         manifest = json.load(f)
 

@@ -3,15 +3,13 @@ from typing import Any
 
 from devtools import debug
 
-from fractal_tasks_core.channels import OmeroChannel
-from fractal_tasks_core.channels import Window
+from fractal_tasks_core.channels import OmeroChannel, Window
 from fractal_tasks_core.tasks.copy_ome_zarr import copy_ome_zarr
 from fractal_tasks_core.tasks.create_ome_zarr import create_ome_zarr
 from fractal_tasks_core.tasks.projection import (
     projection,
 )
 from fractal_tasks_core.tasks.yokogawa_to_ome_zarr import yokogawa_to_ome_zarr
-
 
 allowed_channels = [
     OmeroChannel(
