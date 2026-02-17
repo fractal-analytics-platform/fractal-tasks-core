@@ -78,7 +78,7 @@ fractal-tasks-core = { path = ".", editable = true }
 
 [tool.pixi.environments]
 default = { solve-group = "default" }
-dev = { features = ["dev"], solve-group = "default" }
+dev = { features = ["dev", "fractal-tasks"], solve-group = "default" }
 docs = { features = ["docs"], solve-group = "default" }
 full = { features = ["fractal-tasks"], solve-group = "default" }
 
