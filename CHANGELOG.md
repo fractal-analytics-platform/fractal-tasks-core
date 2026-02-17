@@ -1,5 +1,11 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# Unreleased
+* Development:
+    * Move environment management from `poetry` to `pixi`.
+* Tasks:
+    * `Illumination Correction` task adopted `ngio`.
+
 # 1.6.0
 * Tests
     * Fix Zenodo data downloads in CI (\#1010).
