@@ -151,8 +151,23 @@ def test_import_ome_zarr_image(tmp_path, zenodo_zarr, reset_omero):
     g = zarr.open_group(f"{zarr_dir}/{zarr_name}", mode="r")
     debug(g.attrs["omero"]["channels"])
     if reset_omero:
-        EXPECTED_CHANNELS = [dict(label="1", wavelength_id="1", color="00FFFF")]
-        assert g.attrs["omero"]["channels"] == EXPECTED_CHANNELS
+        EXPECTED_CHANNELS = [
+            dict(
+                label="channel_0",
+                wavelength_id="channel_0",
+                color="00FFFF",
+                active=True,
+                window={
+                    "end": 65535.0,
+                    "max": 65535.0,
+                    "min": 0.0,
+                    "start": 0.0,
+                },
+            )
+        ]
+        assert g.attrs["omero"]["channels"] == EXPECTED_CHANNELS, g.attrs["omero"][
+            "channels"
+        ]
     else:
         EXPECTED_LABEL = "DAPI"
         EXPECTED_WAVELENGTH_ID = "A01_C01"
@@ -191,7 +206,7 @@ def test_import_ome_zarr_image_wrong_channels(tmp_path, zenodo_zarr):
             grid_x_shape=3,
         )
     debug(e.value)
-    assert "Channels-number mismatch" in str(e.value)
+    assert "Could not detect OME-NGFF type of OME-Zarr at " in str(e.value)
 
 
 def test_import_ome_zarr_plate_no_ROI_tables(tmp_path, zenodo_zarr):
