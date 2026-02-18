@@ -236,7 +236,7 @@ class NgffImageMeta(BaseModel):
             z_index = self.axes_names.index("z")
         except ValueError:
             z_index = None
-            logging.warning(
+            logger.warning(
                 f"Z axis is not present (axes: {self.axes_names}), and Z pixel"
                 " size is set to 1. This may work, by accident, but it is "
                 "not fully supported."

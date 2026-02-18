@@ -1,6 +1,8 @@
 import logging
 from pathlib import Path
 
+logger = logging.getLogger(__name__)
+
 import anndata as ad
 import pandas as pd
 import zarr
@@ -27,6 +29,6 @@ def _add_empty_ROI_table(
     # Write the ROI table into the tables group
     group_tables = zarr.group(str(image_zarr_path / "tables"))
     write_elem(group_tables, table_name, empty_ROI_table)
-    logging.info(
+    logger.info(
         f"Writing empty ROI table '{table_name}' into {str(image_zarr_path)}/tables"
     )

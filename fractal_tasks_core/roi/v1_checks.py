@@ -99,10 +99,10 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
     logger.info(f"ROI table at {table_path} has attrs: {attrs}")
     try:
         MaskingROITableAttrs(**attrs)
-        logging.info("ROI table can be used for masked loading")
+        logger.info("ROI table can be used for masked loading")
         return True
     except ValidationError:
-        logging.info("ROI table cannot be used for masked loading")
+        logger.info("ROI table cannot be used for masked loading")
         return False
 
 

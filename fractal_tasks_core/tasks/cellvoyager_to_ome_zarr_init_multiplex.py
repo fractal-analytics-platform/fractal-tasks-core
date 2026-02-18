@@ -261,7 +261,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
     zarrurls["plate"] = [f"{plate}.zarr"]
 
     ################################################################
-    logging.info(f"{acquisitions_sorted=}")
+    logger.info(f"{acquisitions_sorted=}")
 
     for i, acquisition in enumerate(acquisitions_sorted):
         # Define plate zarr
@@ -379,7 +379,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
             )
             try:
                 group_well = group_plate.create_group(f"{row}/{column}/")
-                logging.info(f"Created new group_well at {row}/{column}/")
+                logger.info(f"Created new group_well at {row}/{column}/")
                 well_attrs = {
                     "images": [
                         {
@@ -399,7 +399,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                 group_well = zarr.open_group(
                     f"{full_zarrurl}/{row}/{column}/", mode="r+"
                 )
-                logging.info(f"Loaded group_well from {full_zarrurl}/{row}/{column}")
+                logger.info(f"Loaded group_well from {full_zarrurl}/{row}/{column}")
                 current_images = group_well.attrs["well"]["images"] + [
                     {"path": f"{i}", "acquisition": int(acquisition)}
                 ]
@@ -412,7 +412,7 @@ def cellvoyager_to_ome_zarr_init_multiplex(
                 group_well.attrs["well"] = well_attrs
 
             group_image = group_well.create_group(f"{i}/")  # noqa: F841
-            logging.info(f"Created image group {row}/{column}/{i}")
+            logger.info(f"Created image group {row}/{column}/{i}")
             image = f"{plate}.zarr/{row}/{column}/{i}"
             zarrurls["image"].append(image)
 

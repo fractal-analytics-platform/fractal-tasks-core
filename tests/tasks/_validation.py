@@ -3,6 +3,8 @@ import json
 import logging
 from pathlib import Path
 
+logger = logging.getLogger(__name__)
+
 import anndata as ad
 import dask.array as da
 import numpy as np
@@ -145,14 +147,14 @@ def validate_labels_and_measurements(
     try:
         table = ad.read_zarr(table_path)
     except zarr.errors.PathNotFoundError:
-        logging.warning(
+        logger.warning(
             f"{table_path} missing, skip validation of dataframe and of "
             "dataframe/label match"
         )
         return
     debug(table)
     if len(table) == 0:
-        logging.warning(
+        logger.warning(
             f"Table in {table_path} is empty, skip validation of "
             "dataframe and of dataframe/label match"
         )

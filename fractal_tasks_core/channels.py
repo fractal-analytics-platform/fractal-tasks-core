@@ -13,6 +13,8 @@ from typing_extensions import Self
 
 from fractal_tasks_core import __OME_NGFF_VERSION__
 
+logger = logging.getLogger(__name__)
+
 if __OME_NGFF_VERSION__ != "0.4":
     NotImplementedError(
         f"OME NGFF {__OME_NGFF_VERSION__} is not supported in `channels.py`"
@@ -335,7 +337,7 @@ def define_omero_channels(
             default_label = wavelength_id
             if label_prefix is not None:
                 default_label = f"{label_prefix}_{default_label}"
-            logging.warning(f"Missing label for {channel=}, using {default_label=}")
+            logger.warning(f"Missing label for {channel=}, using {default_label=}")
             channel.label = default_label
 
         # If channel.color is None, set it to a default value (use the default
@@ -491,7 +493,7 @@ def update_omero_channels(
         wavelength_id = new_channels[ind]["wavelength_id"]
         color = new_channels[ind]["color"]
         new_attributes = f"New attributes: {label=}, {wavelength_id=}, {color=}"
-        logging.info(
+        logger.info(
             f"Omero channel update:\n    {old_attributes}\n    {new_attributes}"
         )
 

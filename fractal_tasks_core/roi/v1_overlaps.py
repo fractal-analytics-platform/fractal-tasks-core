@@ -115,7 +115,7 @@ def apply_shift_in_one_direction(
     min_max = min(max_1, max_2)
     max_min = max(min_1, min_2)
     shift = min_max - max_min
-    logging.debug(f"{mu}-shifting by {shift=}")
+    logger.debug(f"{mu}-shifting by {shift=}")
     ind = tmp_df_well.loc[:, f"{mu}min"] >= max_min - tol
     if not (shift > 0.0 and ind.to_numpy().max() > 0):
         raise ValueError(

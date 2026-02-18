@@ -9,6 +9,8 @@ from glob import glob
 from pathlib import Path
 from typing import Sequence
 
+logger = logging.getLogger(__name__)
+
 
 def glob_with_multiple_patterns(
     *,
@@ -40,7 +42,7 @@ def glob_with_multiple_patterns(
         exclude_patterns = []
 
     # Combine multiple glob searches (via set intersection)
-    logging.info(f"[glob_with_multiple_patterns] {include_patterns=}")
+    logger.info(f"[glob_with_multiple_patterns] {include_patterns=}")
     items = None
     for pattern in include_patterns:
         new_matches = glob(f"{actual_folder}/{pattern}")
@@ -63,7 +65,7 @@ def glob_with_multiple_patterns(
     # Remove exclude_items from included list
     consensus_items = items - exclude_items
 
-    logging.info(f"[glob_with_multiple_patterns] Found {len(consensus_items)} items")
+    logger.info(f"[glob_with_multiple_patterns] Found {len(consensus_items)} items")
 
     return consensus_items
 

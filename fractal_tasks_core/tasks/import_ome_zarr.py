@@ -126,7 +126,7 @@ def _process_single_image(
                     "of channels listed in NGFF omero metadata "
                     f"({len(old_channels)})."
                 )
-                logging.error(error_msg)
+                logger.error(error_msg)
                 raise ValueError(error_msg)
         else:
             old_channels = [{} for ind in range(num_channels_zarr)]

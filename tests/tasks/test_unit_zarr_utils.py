@@ -1,4 +1,5 @@
 import logging
+logger = logging.getLogger(__name__)
 import multiprocessing as mp
 import shutil
 import time
@@ -71,10 +72,10 @@ INTERVAL = 0.5
 
 
 def _slow_load_NgffWellMeta(*args, **kwargs):
-    logging.warning(f"START _slow wrapper for {args}, {time.perf_counter():.3f}")
+    logger.warning(f"START _slow wrapper for {args}, {time.perf_counter():.3f}")
     time.sleep(INTERVAL)
     output = load_NgffWellMeta(*args, **kwargs)
-    logging.warning(f"END _slow wrapper for {args}, {time.perf_counter():.3f}")
+    logger.warning(f"END _slow wrapper for {args}, {time.perf_counter():.3f}")
     return output
 
 
