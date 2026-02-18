@@ -2,12 +2,9 @@ from pathlib import Path
 from typing import Callable
 
 import pytest
-from conftest import plate_1w_2a_czyx
-from conftest import plate_2w_1a_czyx
-from conftest import plate_2w_1a_zyx
+from conftest import plate_1w_2a_czyx, plate_2w_1a_czyx, plate_2w_1a_zyx
 from devtools import debug
-from ngio import OmeZarrPlate
-from ngio import open_ome_zarr_plate
+from ngio import OmeZarrPlate, open_ome_zarr_plate
 
 from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
     copy_ome_zarr_hcs_plate,
@@ -137,9 +134,9 @@ def test_new_plate_name(tmp_path: Path):
         test_new_plate_name = p_list["parallelization_list"][0]["init_args"][
             "new_plate_name"
         ]
-        assert (
-            test_new_plate_name == f"plate_xy_2w_1_{method}.zarr"
-        ), test_new_plate_name
+        assert test_new_plate_name == f"plate_xy_2w_1_{method}.zarr", (
+            test_new_plate_name
+        )
 
 
 def test_fail_not_plate_url():

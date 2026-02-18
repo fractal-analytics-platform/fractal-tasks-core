@@ -1,30 +1,19 @@
-# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-# University of Zurich
-#
-# Original authors:
-# Tommaso Comparin <tommaso.comparin@exact-lab.it>
-# Joel Lüthi  <joel.luethi@fmi.ch>
-#
-# This file is part of Fractal and was originally developed by eXact lab S.r.l.
-# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-# Institute for Biomedical Research and Pelkmans Lab from the University of
-# Zurich.
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """
 Functions to identify and remove ROI overlaps, based on V1 table specs.
 """
+
 import logging
-from typing import Callable
-from typing import Optional
-from typing import Sequence
-from typing import Union
+from typing import Callable, Optional, Sequence, Union
 
 import pandas as pd
 
-from fractal_tasks_core.roi._overlaps_common import _is_overlapping_3D_int
-from fractal_tasks_core.roi._overlaps_common import is_overlapping_1D
-from fractal_tasks_core.roi._overlaps_common import is_overlapping_2D
-from fractal_tasks_core.roi._overlaps_common import is_overlapping_3D
-
+from fractal_tasks_core.roi._overlaps_common import (
+    _is_overlapping_3D_int,
+    is_overlapping_1D,
+    is_overlapping_2D,
+    is_overlapping_3D,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -126,7 +115,7 @@ def apply_shift_in_one_direction(
     min_max = min(max_1, max_2)
     max_min = max(min_1, min_2)
     shift = min_max - max_min
-    logging.debug(f"{mu}-shifting by {shift=}")
+    logger.debug(f"{mu}-shifting by {shift=}")
     ind = tmp_df_well.loc[:, f"{mu}min"] >= max_min - tol
     if not (shift > 0.0 and ind.to_numpy().max() > 0):
         raise ValueError(
@@ -170,9 +159,7 @@ def remove_FOV_overlaps(df: pd.DataFrame):
     # Check that tolerance is much smaller than pixel sizes
     min_pixel_size = df[["pixel_size_x", "pixel_size_y"]].min().min()
     if tol > min_pixel_size / 1e3:
-        raise ValueError(
-            f"In remove_FOV_overlaps, {tol=} but {min_pixel_size=}"
-        )
+        raise ValueError(f"In remove_FOV_overlaps, {tol=} but {min_pixel_size=}")
 
     # Loop over wells
     wells = sorted(list(set([ind[0] for ind in df.index])))
@@ -193,12 +180,8 @@ def remove_FOV_overlaps(df: pd.DataFrame):
             pos_ind_1, pos_ind_2 = pair_pos_indices
             fov_id_1 = df_well.index[pos_ind_1]
             fov_id_2 = df_well.index[pos_ind_2]
-            xmin_1, ymin_1, xmax_1, ymax_1 = df_well[list_columns].iloc[
-                pos_ind_1
-            ]
-            xmin_2, ymin_2, xmax_2, ymax_2 = df_well[list_columns].iloc[
-                pos_ind_2
-            ]
+            xmin_1, ymin_1, xmax_1, ymax_1 = df_well[list_columns].iloc[pos_ind_1]
+            xmin_2, ymin_2, xmax_2, ymax_2 = df_well[list_columns].iloc[pos_ind_2]
             logger.debug(
                 f"{well=}, {iteration=}, removing overlap between"
                 f" {fov_id_1=} and {fov_id_2=}"
@@ -232,9 +215,7 @@ def remove_FOV_overlaps(df: pd.DataFrame):
                     mu="x",
                     tol=tol,
                 )
-            elif not (is_x_equal or is_y_equal) and (
-                is_x_overlap and is_y_overlap
-            ):
+            elif not (is_x_equal or is_y_equal) and (is_x_overlap and is_y_overlap):
                 # XY overlap
                 df_well = apply_shift_in_one_direction(
                     df_well,
@@ -251,14 +232,10 @@ def remove_FOV_overlaps(df: pd.DataFrame):
                     tol=tol,
                 )
             else:
-                raise ValueError(
-                    "Trying to remove overlap which is not there."
-                )
+                raise ValueError("Trying to remove overlap which is not there.")
 
             # Look for next overlapping FOV pair
-            pair_pos_indices = get_overlapping_pair(
-                df_well[list_columns], tol=tol
-            )
+            pair_pos_indices = get_overlapping_pair(df_well[list_columns], tol=tol)
 
             # Enforce maximum number of iterations
             if iteration >= max_iterations:
@@ -350,9 +327,7 @@ def check_well_for_FOV_overlap(
                 list_overlapping_FOVs.append(line_2)
 
     # Call plotting_function
-    plotting_function(
-        xmin, xmax, ymin, ymax, list_overlapping_FOVs, selected_well
-    )
+    plotting_function(xmin, xmax, ymin, ymax, list_overlapping_FOVs, selected_well)
 
     if len(list_overlapping_FOVs) > 0:
         # Increase values by one to switch from index to the label plotted

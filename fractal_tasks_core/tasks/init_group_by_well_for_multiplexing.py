@@ -1,17 +1,8 @@
-# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-# University of Zurich
-#
-# Original authors:
-# Tommaso Comparin <tommaso.comparin@exact-lab.it>
-# Joel Lüthi <joel.luethi@uzh.ch>
-#
-# This file is part of Fractal and was originally developed by eXact lab S.r.l.
-# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-# Institute for Biomedical Research and Pelkmans Lab from the University of
-# Zurich.
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """
 Applies the multiplexing translation to all ROI tables
 """
+
 import logging
 
 from pydantic import validate_call
@@ -20,7 +11,7 @@ from fractal_tasks_core.utils import (
     create_well_acquisition_dict,
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("init_group_by_well_for_multiplexing")
 
 
 @validate_call
@@ -48,9 +39,7 @@ def init_group_by_well_for_multiplexing(
             OME-NGFF HCS well metadata acquisition keys to find the reference
             acquisition.
     """
-    logger.info(
-        f"Running `init_group_by_well_for_multiplexing` for {zarr_urls=}"
-    )
+    logger.info(f"Running `init_group_by_well_for_multiplexing` for {zarr_urls=}")
     image_groups = create_well_acquisition_dict(zarr_urls)
 
     # Create the parallelization list

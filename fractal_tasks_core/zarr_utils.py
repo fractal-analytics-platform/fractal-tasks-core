@@ -1,25 +1,14 @@
-# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-# University of Zurich
-#
-# Original authors:
-# Tommaso Comparin <tommaso.comparin@exact-lab.it>
-#
-# This file is part of Fractal and was originally developed by eXact lab S.r.l.
-# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-# Institute for Biomedical Research and Pelkmans Lab from the University of
-# Zurich.
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """
 Module with custom wrappers of the Zarr API.
 """
+
 import logging
 from collections.abc import MutableMapping
-from typing import Any
-from typing import Optional
-from typing import Union
+from typing import Any, Optional, Union
 
 import zarr.hierarchy
-from zarr.errors import ContainsGroupError
-from zarr.errors import GroupNotFoundError
+from zarr.errors import ContainsGroupError, GroupNotFoundError
 
 
 class OverwriteNotAllowedError(RuntimeError):
@@ -101,8 +90,7 @@ def open_zarr_group_with_overwrite(
     if "mode" in open_group_kwargs.keys():
         mode = open_group_kwargs.pop("mode")
         logger.warning(
-            f"Overriding {mode=} with {new_mode=}, "
-            "in open_zarr_group_with_overwrite"
+            f"Overriding {mode=} with {new_mode=}, in open_zarr_group_with_overwrite"
         )
 
     # Call zarr.open_group

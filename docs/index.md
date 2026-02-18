@@ -9,7 +9,7 @@ hide:
   <img src="https://raw.githubusercontent.com/fractal-analytics-platform/fractal-logos/refs/heads/main/projects/fractal_tasks_core.png" alt="Fractal tasks core logo" width="400">
 </p>
 
-Fractal tasks core is the official task package for the [Fractal](https://fractal-analytics-platform.github.io/) framework. It provides essential tools for building Fractal tasks, helpful utility functions, and a collection of ready-to-use tasks for processing bioimaging data. These tasks include OME-Zarr conversion, image registration, segmentation, and measurements.
+Fractal tasks core is the reference task package for the [Fractal](https://fractal-analytics-platform.github.io/) framework. It provides a collection of ready-to-use tasks for processing bioimaging data, including OME-Zarr conversion, image registration, and illumination correction.
 
 > This project is under active development 🔨. If you need help or found a bug, **open an issue [here](https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/new)**.
 
@@ -18,7 +18,9 @@ Fractal is a framework developed at the [BioVisionCenter](https://www.biovisionc
 
 ## Available Tasks
 
-This package includes the following tasks. For all available Fractal tasks, check the [task list page](all_tasks).
+For a complete list of all available Fractal tasks (including tasks from other packages), visit the [Fractal task list](https://fractal-analytics-platform.github.io/fractal_tasks/).
+
+This package includes the following tasks:
 
 **Image Conversion**:
 
@@ -30,19 +32,11 @@ This package includes the following tasks. For all available Fractal tasks, chec
   - *Project Image (HCS Plate)*: Generates intensity projections (e.g., maximum intensity projection) for images in an HCS plate.
   - *Illumination Correction*: Applies flatfield correction and background subtraction using pre-calculated illumination profiles.
 
-**Segmentation**:
-
-  - *Cellpose Segmentation*: Segments images using custom or pre-trained Cellpose models, with user-tunable options.
-
 **Registration**:
 
-  - *Calculate Registration*: Computes translations for aligning images in multiplexed image analysis.
+  - *Calculate Registration (image-based)*: Computes translations for aligning images in multiplexed image analysis.
   - *Find Registration Consensus*: Generates consensus transformations for aligning multiple acquisitions, updating ROI tables as necessary.
   - *Apply Registration to Image*: Applies registration to images based on existing or newly created ROI tables.
-
-**Measurements**:
-
-  - *Napari Workflows Wrapper*: Task to run existing napari workflows through Fractal to process images and labels and to generate new labels or measurement tables. Takes an arbitrary napari workflow yaml file to run.
 
 **Other Utilities**:
 

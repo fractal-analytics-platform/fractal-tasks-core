@@ -1,16 +1,8 @@
-# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-# University of Zurich
-#
-# Original authors:
-# Joel Lüthi <joel.luethi@uzh.ch>
-#
-# This file is part of Fractal and was originally developed by eXact lab S.r.l.
-# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-# Institute for Biomedical Research and Pelkmans Lab from the University of
-# Zurich.
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """
 Calculates translation for 2D image-based registration
 """
+
 import logging
 import os
 import shutil
@@ -28,23 +20,21 @@ from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
 from fractal_tasks_core.pyramids import build_pyramid
 from fractal_tasks_core.roi import (
     convert_indices_to_regions,
-)
-from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
+    is_standard_roi_table,
+    load_region,
 )
-from fractal_tasks_core.roi import is_standard_roi_table
-from fractal_tasks_core.roi import load_region
 from fractal_tasks_core.tables import write_table
 from fractal_tasks_core.tasks._zarr_utils import (
     _get_matching_ref_acquisition_path_heuristic,
+    _update_well_metadata,
 )
-from fractal_tasks_core.tasks._zarr_utils import _update_well_metadata
-from fractal_tasks_core.utils import _get_table_path_dict
 from fractal_tasks_core.utils import (
+    _get_table_path_dict,
     _split_well_path_image_path,
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("apply_registration_to_image")
 
 
 @validate_call
@@ -118,9 +108,7 @@ def apply_registration_to_image(
         ref_path = acq_dict[reference_acquisition][0]
     reference_zarr_url = f"{well_url}/{ref_path}"
 
-    ROI_table_ref = ad.read_zarr(
-        f"{reference_zarr_url}/tables/{registered_roi_table}"
-    )
+    ROI_table_ref = ad.read_zarr(f"{reference_zarr_url}/tables/{registered_roi_table}")
     ROI_table_acq = ad.read_zarr(f"{zarr_url}/tables/{registered_roi_table}")
 
     ngff_image_meta = load_NgffImageMeta(zarr_url)
@@ -209,9 +197,7 @@ def apply_registration_to_image(
             current_round = 0
             while current_round < max_retries:
                 try:
-                    old_table_group = zarr.open_group(
-                        table_dict[table], mode="r"
-                    )
+                    old_table_group = zarr.open_group(table_dict[table], mode="r")
                     current_round = max_retries
                     curr_table = ad.read_zarr(table_dict[table])
                     break  # Exit loop on success
@@ -246,9 +232,7 @@ def apply_registration_to_image(
     # Clean up Zarr file
     ####################
     if overwrite_input:
-        logger.info(
-            "Replace original zarr image with the newly created Zarr image"
-        )
+        logger.info("Replace original zarr image with the newly created Zarr image")
         # Potential for race conditions: Every acquisition reads the
         # reference acquisition, but the reference acquisition also gets
         # modified
@@ -348,9 +332,7 @@ def write_registered_zarr(
             num_channels = data_array.shape[0]
             # Loop over channels
             for ind_ch in range(num_channels):
-                idx = tuple(
-                    [slice(ind_ch, ind_ch + 1)] + list(reference_region)
-                )
+                idx = tuple([slice(ind_ch, ind_ch + 1)] + list(reference_region))
                 new_array[idx] = load_region(
                     data_zyx=data_array[ind_ch], region=region, compute=False
                 )

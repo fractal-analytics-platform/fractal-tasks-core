@@ -1,31 +1,21 @@
-# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-# University of Zurich
-#
-# Original authors:
-# Tommaso Comparin <tommaso.comparin@exact-lab.it>
-# Marco Franzon <marco.franzon@exact-lab.it>
-#
-# This file is part of Fractal and was originally developed by eXact lab S.r.l.
-# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-# Institute for Biomedical Research and Pelkmans Lab from the University of
-# Zurich.
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """
 Task for 3D->2D maximum-intensity projection.
 """
+
 from __future__ import annotations
 
 import logging
 from typing import Any
 
 import dask.array as da
-from ngio import Image
-from ngio import open_ome_zarr_container
+from ngio import Image, open_ome_zarr_container
 from pydantic import validate_call
 
 from fractal_tasks_core.tasks.io_models import InitArgsMIP
 from fractal_tasks_core.tasks.projection_utils import DaskProjectionMethod
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("projection")
 
 
 def _compute_new_shape(source_image: Image) -> tuple[tuple[int, ...], int]:
@@ -83,8 +73,7 @@ def projection(
 
     if orginal_image.is_2d or orginal_image.is_2d_time_series:
         raise ValueError(
-            "The input image is 2D, "
-            "projection is only supported for 3D images."
+            "The input image is 2D, projection is only supported for 3D images."
         )
 
     # Compute the new shape and pixel size
@@ -117,9 +106,7 @@ def projection(
 
     # Edit the roi tables
     for roi_table_name in ome_zarr_mip.list_roi_tables():
-        table = ome_zarr_mip.get_table(
-            roi_table_name, check_type="generic_roi_table"
-        )
+        table = ome_zarr_mip.get_table(roi_table_name, check_type="generic_roi_table")
 
         for roi in table.rois():
             roi.z = 0.0

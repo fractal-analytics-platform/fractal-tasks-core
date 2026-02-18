@@ -1,27 +1,15 @@
-# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-# University of Zurich
-#
-# Original authors:
-# Tommaso Comparin <tommaso.comparin@exact-lab.it>
-# Marco Franzon <marco.franzon@exact-lab.it>
-#
-# This file is part of Fractal and was originally developed by eXact lab S.r.l.
-# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-# Institute for Biomedical Research and Pelkmans Lab from the University of
-# Zurich.
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """
 Helper functions for operations on Zarr attributes and OME-NGFF metadata.
 """
+
 import logging
 from pathlib import Path
-from typing import Any
-from typing import Sequence
-from typing import Union
+from typing import Any, Sequence, Union
 
 import zarr
 
 from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
-
 
 logger = logging.getLogger(__name__)
 

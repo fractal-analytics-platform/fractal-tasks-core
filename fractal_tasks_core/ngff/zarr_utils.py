@@ -1,14 +1,13 @@
 """
 Utilities to work with the Pydantic models from `specs.py` for Zarr groups.
 """
+
 import logging
 
 import zarr.hierarchy
 from zarr.errors import GroupNotFoundError
 
-from fractal_tasks_core.ngff.specs import NgffImageMeta
-from fractal_tasks_core.ngff.specs import NgffPlateMeta
-from fractal_tasks_core.ngff.specs import NgffWellMeta
+from fractal_tasks_core.ngff.specs import NgffImageMeta, NgffPlateMeta, NgffWellMeta
 
 logger = logging.getLogger(__name__)
 
@@ -40,13 +39,13 @@ def load_NgffImageMeta(zarr_path: str) -> NgffImageMeta:
             "Could not load attributes for the requested image, "
             f"because no Zarr group was found at {zarr_path}"
         )
-        logging.error(error_msg)
+        logger.error(error_msg)
         raise ZarrGroupNotFoundError(error_msg)
     zarr_attrs = zarr_group.attrs.asdict()
     try:
         return NgffImageMeta(**zarr_attrs)
     except Exception as e:
-        logging.error(
+        logger.error(
             f"Contents of {zarr_path} cannot be cast to NgffImageMeta.\n"
             f"Original error:\n{str(e)}"
         )
@@ -70,13 +69,13 @@ def load_NgffWellMeta(zarr_path: str) -> NgffWellMeta:
             "Could not load attributes for the requested well, "
             f"because no Zarr group was found at {zarr_path}"
         )
-        logging.error(error_msg)
+        logger.error(error_msg)
         raise ZarrGroupNotFoundError(error_msg)
     zarr_attrs = zarr_group.attrs.asdict()
     try:
         return NgffWellMeta(**zarr_attrs)
     except Exception as e:
-        logging.error(
+        logger.error(
             f"Contents of {zarr_path} cannot be cast to NgffWellMeta.\n"
             f"Original error:\n{str(e)}"
         )
@@ -100,13 +99,13 @@ def load_NgffPlateMeta(zarr_path: str) -> NgffPlateMeta:
             "Could not load attributes for the requested plate, "
             f"because no Zarr group was found at {zarr_path}"
         )
-        logging.error(error_msg)
+        logger.error(error_msg)
         raise ZarrGroupNotFoundError(error_msg)
     zarr_attrs = zarr_group.attrs.asdict()
     try:
         return NgffPlateMeta(**zarr_attrs)
     except Exception as e:
-        logging.error(
+        logger.error(
             f"Contents of {zarr_path} cannot be cast to NgffPlateMeta.\n"
             f"Original error:\n{str(e)}"
         )

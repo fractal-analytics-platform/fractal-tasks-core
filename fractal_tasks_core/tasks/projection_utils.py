@@ -1,14 +1,11 @@
 from enum import Enum
-from typing import Any
-from typing import Dict
+from typing import Any, Dict
 
 import dask.array as da
 import numpy as np
 
 
-def safe_sum(
-    dask_array: da.Array, axis: int = 0, **kwargs: Dict[str, Any]
-) -> da.Array:
+def safe_sum(dask_array: da.Array, axis: int = 0, **kwargs: Dict[str, Any]) -> da.Array:
     """
     Perform a safe sum on a Dask array to avoid overflow, by clipping the
     result of da.sum & casting it to its original dtype.
@@ -123,9 +120,7 @@ class DaskProjectionMethod(Enum):
         """
         # Map the Enum values to the actual Dask array methods
         method_map = {
-            DaskProjectionMethod.MIP: lambda arr, axis, **kw: arr.max(
-                axis=axis, **kw
-            ),
+            DaskProjectionMethod.MIP: lambda arr, axis, **kw: arr.max(axis=axis, **kw),
             DaskProjectionMethod.MINIP: lambda arr, axis, **kw: arr.min(
                 axis=axis, **kw
             ),

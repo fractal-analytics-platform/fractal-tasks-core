@@ -11,10 +11,13 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
+
 import pytest
 
-from fractal_tasks_core.cellvoyager.wells import generate_row_col_split
-from fractal_tasks_core.cellvoyager.wells import get_filename_well_id
+from fractal_tasks_core.cellvoyager.wells import (
+    generate_row_col_split,
+    get_filename_well_id,
+)
 
 params_well_id = [
     ("A", "01", "A01"),

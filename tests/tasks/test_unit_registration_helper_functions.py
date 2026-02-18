@@ -7,18 +7,12 @@ from devtools import debug
 
 from fractal_tasks_core.tasks._registration_utils import (
     add_zero_translation_columns,
-)
-from fractal_tasks_core.tasks._registration_utils import (
     apply_registration_to_single_ROI_table,
-)
-from fractal_tasks_core.tasks._registration_utils import (
     calculate_min_max_across_dfs,
+    is_3D,
 )
-from fractal_tasks_core.tasks._registration_utils import is_3D
 from fractal_tasks_core.tasks.calculate_registration_image_based import (
     calculate_physical_shifts,
-)
-from fractal_tasks_core.tasks.calculate_registration_image_based import (
     get_ROI_table_with_translation,
 )
 
@@ -275,9 +269,7 @@ translated_ROI_table_df = pd.DataFrame(
 )
 
 
-def test_calculate_min_max_across_dfs(
-    translation_table, max_df_exp, min_df_exp
-):
+def test_calculate_min_max_across_dfs(translation_table, max_df_exp, min_df_exp):
     max_df, min_df = calculate_min_max_across_dfs(translation_table)
     assert (max_df == max_df_exp).all().all()
     assert (min_df == min_df_exp).all().all()
@@ -292,9 +284,7 @@ def test_apply_registration_to_single_ROI_table(roi_table, translation_table):
     assert (registered_table == translated_ROI_table_df).all().all()
 
 
-def test_failure_apply_registration_to_single_ROI_table(
-    roi_table, translation_table
-):
+def test_failure_apply_registration_to_single_ROI_table(roi_table, translation_table):
     adata_table = add_zero_translation_columns(roi_table)
     max_df, min_df = calculate_min_max_across_dfs(translation_table)
     max_df = pd.DataFrame(

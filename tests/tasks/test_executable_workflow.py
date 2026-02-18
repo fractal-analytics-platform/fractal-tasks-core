@@ -7,7 +7,6 @@ from devtools import debug
 
 import fractal_tasks_core.tasks
 
-
 allowed_channels = [
     {
         "label": "DAPI",

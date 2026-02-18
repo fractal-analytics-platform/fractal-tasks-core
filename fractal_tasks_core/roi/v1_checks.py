@@ -1,17 +1,8 @@
-# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-# University of Zurich
-#
-# Original authors:
-# Tommaso Comparin <tommaso.comparin@exact-lab.it>
-# Joel Lüthi <joel.luethi@uzh.ch>
-#
-# This file is part of Fractal and was originally developed by eXact lab S.r.l.
-# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-# Institute for Biomedical Research and Pelkmans Lab from the University of
-# Zurich.
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """
 Functions to check content of ROI tables.
 """
+
 import logging
 from typing import Optional
 
@@ -20,7 +11,6 @@ import zarr
 from pydantic import ValidationError
 
 from fractal_tasks_core.tables.v1 import MaskingROITableAttrs
-
 
 logger = logging.getLogger(__name__)
 
@@ -109,10 +99,10 @@ def is_ROI_table_valid(*, table_path: str, use_masks: bool) -> Optional[bool]:
     logger.info(f"ROI table at {table_path} has attrs: {attrs}")
     try:
         MaskingROITableAttrs(**attrs)
-        logging.info("ROI table can be used for masked loading")
+        logger.info("ROI table can be used for masked loading")
         return True
     except ValidationError:
-        logging.info("ROI table cannot be used for masked loading")
+        logger.info("ROI table cannot be used for masked loading")
         return False
 
 

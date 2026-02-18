@@ -2,8 +2,7 @@ import shutil
 from pathlib import Path
 
 import pytest
-from ngio import create_empty_ome_zarr
-from ngio import open_ome_zarr_container
+from ngio import create_empty_ome_zarr, open_ome_zarr_container
 
 from fractal_tasks_core.tasks.illumination_correction import (
     illumination_correction,
@@ -43,9 +42,7 @@ def test_output_handled(
     # Prepare arguments for illumination_correction function
     testdata_str = testdata_path.as_posix()
 
-    illumination_profiles_folder: str = (
-        f"{testdata_str}/illumination_correction/"
-    )
+    illumination_profiles_folder: str = f"{testdata_str}/illumination_correction/"
     illumination_profiles_map: dict[str, str] = {
         "A01_C01": "flatfield_corr_matrix.png",
         "A01_C02": "flatfield_corr_matrix.png",
@@ -80,10 +77,7 @@ def test_output_handled(
     else:
         assert task_update_list is not None
         assert len(task_update_list["image_list_updates"]) == 1
-        assert (
-            task_update_list["image_list_updates"][0]["zarr_url"]
-            == new_image_url
-        )
+        assert task_update_list["image_list_updates"][0]["zarr_url"] == new_image_url
         assert task_update_list["image_list_updates"][0]["origin"] == image_url
 
 
@@ -156,16 +150,12 @@ def test_wrong_wavelength_profiles(
     # Prepare arguments for illumination_correction function
     testdata_str = testdata_path.as_posix()
 
-    illumination_profiles_folder: str = (
-        f"{testdata_str}/illumination_correction/"
-    )
+    illumination_profiles_folder: str = f"{testdata_str}/illumination_correction/"
     illumination_profiles = {
         "folder": illumination_profiles_folder,
         "profiles": illumination_profiles_map,
     }
-    background_profiles_folder: str = (
-        f"{testdata_str}/illumination_correction/"
-    )
+    background_profiles_folder: str = f"{testdata_str}/illumination_correction/"
     background_profiles = {
         "folder": background_profiles_folder,
         "profiles": background_profiles_map,
@@ -195,9 +185,7 @@ def test_constant_background_subtraction(
     # Prepare arguments for illumination_correction function
     testdata_str = testdata_path.as_posix()
 
-    illumination_profiles_folder: str = (
-        f"{testdata_str}/illumination_correction/"
-    )
+    illumination_profiles_folder: str = f"{testdata_str}/illumination_correction/"
     illumination_profiles_map: dict[str, str] = {
         "A01_C01": "flatfield_corr_matrix.png",
         "A01_C02": "flatfield_corr_matrix.png",
@@ -249,17 +237,13 @@ def test_with_background_profiles(
     # Prepare arguments for illumination_correction function
     testdata_str = testdata_path.as_posix()
 
-    illumination_profiles_folder: str = (
-        f"{testdata_str}/illumination_correction/"
-    )
+    illumination_profiles_folder: str = f"{testdata_str}/illumination_correction/"
     illumination_profiles_map: dict[str, str] = {
         "A01_C01": "flatfield_corr_matrix.png",
         "A01_C02": "flatfield_corr_matrix.png",
         "A02_C03": "flatfield_corr_matrix.png",
     }
-    background_profiles_folder: str = (
-        f"{testdata_str}/illumination_correction/"
-    )
+    background_profiles_folder: str = f"{testdata_str}/illumination_correction/"
     background_profiles_map: dict[str, str] = {
         "A01_C01": "darkfield_corr_matrix.png",
         "A01_C02": "darkfield_corr_matrix.png",
@@ -310,9 +294,7 @@ def test_two_different_illumination_profiles(
     # Prepare arguments for illumination_correction function
     testdata_str = testdata_path.as_posix()
 
-    illumination_profiles_folder: str = (
-        f"{testdata_str}/illumination_correction/"
-    )
+    illumination_profiles_folder: str = f"{testdata_str}/illumination_correction/"
     illumination_profiles_map: dict[str, str] = {
         "A01_C01": "flatfield_corr_matrix.png",
         "A01_C02": "illum_corr_matrix.png",
@@ -348,9 +330,7 @@ def test_two_different_illumination_profiles(
         suffix="_corrected",
     )
 
-    _check_that_images_differs(
-        image_url + "_corrected", image_url + "_corrected2"
-    )
+    _check_that_images_differs(image_url + "_corrected", image_url + "_corrected2")
 
 
 def test_wrong_file_or_folder(
@@ -364,9 +344,7 @@ def test_wrong_file_or_folder(
 
     wrong_folder = f"{testdata_str}/non_existing_folder/"
 
-    illumination_profiles_folder: str = (
-        f"{testdata_str}/illumination_correction/"
-    )
+    illumination_profiles_folder: str = f"{testdata_str}/illumination_correction/"
     illumination_profiles_map: dict[str, str] = {
         "A01_C01": "flatfield_corr_matrix.png",
         "A01_C02": "flatfield_corr_matrix.png",
@@ -484,16 +462,12 @@ def test_multidimensional_input(
     )
 
     table = origin_ome_zarr.build_image_roi_table("image")
-    origin_ome_zarr.add_table(
-        "well_ROI_table", table, backend="experimental_json_v1"
-    )
+    origin_ome_zarr.add_table("well_ROI_table", table, backend="experimental_json_v1")
 
     # Prepare arguments for illumination_correction function
     testdata_str = testdata_path.as_posix()
 
-    illumination_profiles_folder: str = (
-        f"{testdata_str}/illumination_correction/"
-    )
+    illumination_profiles_folder: str = f"{testdata_str}/illumination_correction/"
     illumination_profiles_map: dict[str, str] = {
         wavelength: "flatfield_corr_matrix.png"
         for wavelength in origin_ome_zarr.wavelength_ids

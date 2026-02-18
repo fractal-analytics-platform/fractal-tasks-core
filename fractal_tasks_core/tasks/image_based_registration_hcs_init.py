@@ -1,17 +1,8 @@
-# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-# University of Zurich
-#
-# Original authors:
-# Tommaso Comparin <tommaso.comparin@exact-lab.it>
-# Joel Lüthi <joel.luethi@uzh.ch>
-#
-# This file is part of Fractal and was originally developed by eXact lab S.r.l.
-# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-# Institute for Biomedical Research and Pelkmans Lab from the University of
-# Zurich.
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """
 Initializes the parallelization list for registration in HCS plates.
 """
+
 import logging
 from typing import Any
 
@@ -21,7 +12,7 @@ from fractal_tasks_core.utils import (
     create_well_acquisition_dict,
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("image_based_registration_hcs_init")
 
 
 @validate_call
@@ -59,9 +50,7 @@ def image_based_registration_hcs_init(
         task_output: Dictionary for Fractal server that contains a
             parallelization list.
     """
-    logger.info(
-        f"Running `image_based_registration_hcs_init` for {zarr_urls=}"
-    )
+    logger.info(f"Running `image_based_registration_hcs_init` for {zarr_urls=}")
     image_groups = create_well_acquisition_dict(zarr_urls)
 
     # Create the parallelization list

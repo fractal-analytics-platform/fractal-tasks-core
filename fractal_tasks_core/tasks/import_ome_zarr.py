@@ -1,32 +1,21 @@
-# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-# University of Zurich
-#
-# Original authors:
-# Tommaso Comparin <tommaso.comparin@exact-lab.it>
-#
-# This file is part of Fractal and was originally developed by eXact lab S.r.l.
-# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-# Institute for Biomedical Research and Pelkmans Lab from the University of
-# Zurich.
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """
 Task to import an existing OME-Zarr.
 """
+
 import logging
-from typing import Any
-from typing import Optional
+from typing import Any, Optional
 
 import dask.array as da
 import zarr
 from pydantic import validate_call
 
 from fractal_tasks_core.channels import update_omero_channels
-from fractal_tasks_core.ngff import detect_ome_ngff_type
-from fractal_tasks_core.ngff import NgffImageMeta
-from fractal_tasks_core.roi import get_image_grid_ROIs
-from fractal_tasks_core.roi import get_single_image_ROI
+from fractal_tasks_core.ngff import NgffImageMeta, detect_ome_ngff_type
+from fractal_tasks_core.roi import get_image_grid_ROIs, get_single_image_ROI
 from fractal_tasks_core.tables import write_table
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("import_ome_zarr")
 
 
 def _process_single_image(
@@ -129,9 +118,7 @@ def _process_single_image(
         old_omero = image_group.attrs.get("omero", {})
         old_channels = old_omero.get("channels", [])
         if len(old_channels) > 0:
-            logger.info(
-                f"{len(old_channels)} channel(s) found in NGFF omero metadata"
-            )
+            logger.info(f"{len(old_channels)} channel(s) found in NGFF omero metadata")
             if len(old_channels) != num_channels_zarr:
                 error_msg = (
                     "Channels-number mismatch: Number of channels in the "
@@ -139,7 +126,7 @@ def _process_single_image(
                     "of channels listed in NGFF omero metadata "
                     f"({len(old_channels)})."
                 )
-                logging.error(error_msg)
+                logger.error(error_msg)
                 raise ValueError(error_msg)
         else:
             old_channels = [{} for ind in range(num_channels_zarr)]

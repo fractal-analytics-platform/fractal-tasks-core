@@ -1,10 +1,6 @@
-# Copyright 2024 (C) BioVisionCenter
-#
-# Original authors:
-# Joel Lüthi <joel.luethi@uzh.ch>
-#
-# This file is part of Fractal
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """Utils functions for registration"""
+
 import copy
 
 import anndata as ad
@@ -43,9 +39,7 @@ def calculate_physical_shifts(
             shifts[1] * curr_pixel_size[2],
         ]
     else:
-        raise ValueError(
-            f"Wrong input for calculate_physical_shifts ({shifts=})"
-        )
+        raise ValueError(f"Wrong input for calculate_physical_shifts ({shifts=})")
     return shifts_physical
 
 
@@ -102,12 +96,8 @@ def add_zero_translation_columns(ad_table: ad.AnnData):
 
 def calculate_min_max_across_dfs(tables_list):
     # Initialize dataframes to store the max and min values
-    max_df = pd.DataFrame(
-        index=tables_list[0].index, columns=tables_list[0].columns
-    )
-    min_df = pd.DataFrame(
-        index=tables_list[0].index, columns=tables_list[0].columns
-    )
+    max_df = pd.DataFrame(index=tables_list[0].index, columns=tables_list[0].columns)
+    min_df = pd.DataFrame(index=tables_list[0].index, columns=tables_list[0].columns)
 
     # Loop through the tables and calculate max and min values
     for table in tables_list:

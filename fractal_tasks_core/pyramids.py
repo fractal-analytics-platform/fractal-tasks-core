@@ -1,24 +1,11 @@
-# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-# University of Zurich
-#
-# Original authors:
-# Tommaso Comparin <tommaso.comparin@exact-lab.it>
-# Marco Franzon <marco.franzon@exact-lab.it>
-#
-# This file is part of Fractal and was originally developed by eXact lab S.r.l.
-# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-# Institute for Biomedical Research and Pelkmans Lab from the University of
-# Zurich.
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """
 Construct and write pyramid of lower-resolution levels.
 """
+
 import logging
 import pathlib
-from typing import Callable
-from typing import Mapping
-from typing import Optional
-from typing import Sequence
-from typing import Union
+from typing import Callable, Mapping, Optional, Sequence, Union
 
 import dask.array as da
 import numpy as np
@@ -99,8 +86,7 @@ def build_pyramid(
         else:
             newlevel_rechunked = newlevel.rechunk(chunksize)
         logger.info(
-            f"[build_pyramid] Level {ind_level} data: "
-            f"{str(newlevel_rechunked)}"
+            f"[build_pyramid] Level {ind_level} data: {str(newlevel_rechunked)}"
         )
 
         if open_array_kwargs is None:
@@ -124,9 +110,7 @@ def build_pyramid(
             chunks=newlevel_rechunked.chunksize,
             dtype=newlevel_rechunked.dtype,
             mode="w",
-            dimension_separator=open_array_kwargs.get(
-                "dimension_separator", "/"
-            ),
+            dimension_separator=open_array_kwargs.get("dimension_separator", "/"),
             **open_array_kwargs,
         )
 
@@ -137,7 +121,5 @@ def build_pyramid(
             compute=True,
             return_stored=True,
             write_empty_chunks=False,
-            dimension_separator=open_array_kwargs.get(
-                "dimension_separator", "/"
-            ),
+            dimension_separator=open_array_kwargs.get("dimension_separator", "/"),
         )

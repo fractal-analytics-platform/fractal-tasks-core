@@ -1,40 +1,27 @@
-# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-# University of Zurich
-#
-# Original authors:
-# Tommaso Comparin <tommaso.comparin@exact-lab.it>
-# Marco Franzon <marco.franzon@exact-lab.it>
-#
-# This file is part of Fractal and was originally developed by eXact lab S.r.l.
-# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-# Institute for Biomedical Research and Pelkmans Lab from the University of
-# Zurich.
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """
 Apply illumination correction to all fields of view.
 """
+
 import logging
 import time
-from typing import Annotated
-from typing import Any
-from typing import Union
+from typing import Annotated, Any, Union
 
 import numpy as np
-from ngio import ChannelSelectionModel
-from ngio import open_ome_zarr_container
-from ngio import open_ome_zarr_well
+from ngio import ChannelSelectionModel, open_ome_zarr_container, open_ome_zarr_well
 from ngio.experimental.iterators import ImageProcessingIterator
 from ngio.utils._errors import NgioFileNotFoundError
-from pydantic import BaseModel
-from pydantic import Field
-from pydantic import validate_call
+from pydantic import BaseModel, Field, validate_call
 from skimage.io import imread
 
-from fractal_tasks_core.tasks.io_models import ConstantCorrectionModel
-from fractal_tasks_core.tasks.io_models import NoCorrectionModel
-from fractal_tasks_core.tasks.io_models import ProfileCorrectionModel
+from fractal_tasks_core.tasks.io_models import (
+    ConstantCorrectionModel,
+    NoCorrectionModel,
+    ProfileCorrectionModel,
+)
 from fractal_tasks_core.utils import _split_well_path_image_path
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("illumination_correction")
 
 
 def correct(
@@ -65,13 +52,11 @@ def correct(
     # Check shapes
     if flatfield.shape != image.shape[-2:]:
         raise ValueError(
-            "Error in illumination_correction:\n"
-            f"{image.shape=}\n{flatfield.shape=}"
+            f"Error in illumination_correction:\n{image.shape=}\n{flatfield.shape=}"
         )
     if darkfield is not None and darkfield.shape != image.shape[-2:]:
         raise ValueError(
-            "Error in illumination_correction:\n"
-            f"{image.shape=}\n{darkfield.shape=}"
+            f"Error in illumination_correction:\n{image.shape=}\n{darkfield.shape=}"
         )
 
     # Store info about input dtype
@@ -81,9 +66,9 @@ def correct(
     # Background subtraction
     if darkfield is not None:
         logger.debug("Applying darkfield correction")
-        image = (
-            image.astype(np.int32) - darkfield.astype(np.int32)[None, :, :]
-        ).clip(0, None)
+        image = (image.astype(np.int32) - darkfield.astype(np.int32)[None, :, :]).clip(
+            0, None
+        )
 
     if background_constant != 0:
         logger.debug("Applying constant background correction")
@@ -205,9 +190,7 @@ def illumination_correction(
         )
 
     if background_correction.value.model == "Profile":
-        background_wavelengths = set(
-            background_correction.value.profiles.keys()
-        )
+        background_wavelengths = set(background_correction.value.profiles.keys())
 
         if not background_wavelengths.issubset(input_image_wavelengths):
             raise ValueError(
@@ -221,9 +204,7 @@ def illumination_correction(
                 f"{input_image_wavelengths - background_wavelengths}."
             )
     elif background_correction.value.model == "Constant":
-        background_wavelengths = set(
-            background_correction.value.constants.keys()
-        )
+        background_wavelengths = set(background_correction.value.constants.keys())
         if not background_wavelengths.issubset(input_image_wavelengths):
             raise ValueError(
                 "Background profiles provided for wavelengths: "
@@ -347,8 +328,7 @@ def illumination_correction(
             )
         except NgioFileNotFoundError:
             logger.debug(
-                "Input image not in an Ome-Zarr Plate, well "
-                "metadata not updated."
+                "Input image not in an Ome-Zarr Plate, well metadata not updated."
             )
 
         logger.info(f"Saved illumination corrected image as {zarr_url_new}.")

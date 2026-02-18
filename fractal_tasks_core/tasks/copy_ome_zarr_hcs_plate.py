@@ -1,35 +1,22 @@
-# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-# University of Zurich
-#
-# Original authors:
-# Tommaso Comparin <tommaso.comparin@exact-lab.it>
-# Marco Franzon <marco.franzon@exact-lab.it>
-#
-# This file is part of Fractal and was originally developed by eXact lab S.r.l.
-# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-# Institute for Biomedical Research and Pelkmans Lab from the University of
-# Zurich.
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """
 Task that copies the structure of an OME-NGFF zarr array to a new one.
 """
+
 import logging
 from functools import cache
 from pathlib import Path
 from typing import Any
 
-from ngio import OmeZarrPlate
-from ngio import OmeZarrWell
-from ngio import open_ome_zarr_plate
-from ngio import open_ome_zarr_well
-from ngio.utils import NgioFileExistsError
-from ngio.utils import NgioFileNotFoundError
+from ngio import OmeZarrPlate, OmeZarrWell, open_ome_zarr_plate, open_ome_zarr_well
+from ngio.utils import NgioFileExistsError, NgioFileNotFoundError
 from pydantic import validate_call
 
 import fractal_tasks_core
 from fractal_tasks_core.tasks.io_models import InitArgsMIP
 from fractal_tasks_core.tasks.projection_utils import DaskProjectionMethod
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("copy_ome_zarr_hcs_plate")
 
 
 __OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
@@ -42,9 +29,7 @@ def _open_well(well_path) -> OmeZarrWell:
         return the well object.
     """
     try:
-        well = open_ome_zarr_well(
-            well_path, mode="r", cache=True, parallel_safe=False
-        )
+        well = open_ome_zarr_well(well_path, mode="r", cache=True, parallel_safe=False)
     except NgioFileNotFoundError:
         raise NgioFileNotFoundError(
             f"Could not open well {well_path}. "
@@ -151,15 +136,11 @@ def copy_ome_zarr_hcs_plate(
                 "`/path/to/plate_name/row/column/image_path`. "
                 "The zarr_url given is too short to be valid."
             )
-        *base, plate_name, row, column, image_path = zarr_url.rstrip(
-            "/"
-        ).split("/")
+        *base, plate_name, row, column, image_path = zarr_url.rstrip("/").split("/")
         base_dir = "/".join(base)
 
         plate_url = f"{base_dir}/{plate_name}"
-        proj_plate_name = (
-            f"{plate_name}".rstrip(".zarr") + f"_{method.value}.zarr"
-        )
+        proj_plate_name = f"{plate_name}".rstrip(".zarr") + f"_{method.value}.zarr"
         proj_plate_url = f"{zarr_dir}/{proj_plate_name}"
 
         if proj_plate_url not in proj_plates:
@@ -169,9 +150,7 @@ def copy_ome_zarr_hcs_plate(
                 re_initialize_plate=re_initialize_plate,
             )
             proj_plates[proj_plate_url] = _proj_plate
-            proj_plates_images_paths[
-                proj_plate_url
-            ] = _proj_plate.images_paths()
+            proj_plates_images_paths[proj_plate_url] = _proj_plate.images_paths()
 
         proj_plate = proj_plates[proj_plate_url]
         proj_plate_images_paths = proj_plates_images_paths[proj_plate_url]

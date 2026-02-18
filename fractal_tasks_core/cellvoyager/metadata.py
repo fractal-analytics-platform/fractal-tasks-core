@@ -1,24 +1,14 @@
-# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-# University of Zurich
-#
-# Original authors:
-# Joel Lüthi  <joel.luethi@fmi.ch>
-# Tommaso Comparin <tommaso.comparin@exact-lab.it>
-#
-# This file is part of Fractal and was originally developed by eXact lab S.r.l.
-# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-# Institute for Biomedical Research and Pelkmans Lab from the University of
-# Zurich.
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """
 Functions to create a metadata dataframe from Yokogawa files.
 """
+
 import fnmatch
 import logging
 import math
 import string
 from pathlib import Path
-from typing import Optional
-from typing import Union
+from typing import Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -71,9 +61,9 @@ def parse_yokogawa_metadata(
     per_site_parameters = ["X", "Y"]
 
     grouping_params = ["well_id", "FieldIndex"]
-    grouped_sites = mlf_frame.loc[
-        :, grouping_params + per_site_parameters
-    ].groupby(by=grouping_params)
+    grouped_sites = mlf_frame.loc[:, grouping_params + per_site_parameters].groupby(
+        by=grouping_params
+    )
 
     check_group_consistency(grouped_sites, message="X & Y stage positions")
     site_metadata = grouped_sites.mean()
@@ -97,15 +87,9 @@ def parse_yokogawa_metadata(
         "VerticalPixels",
         "InputBitDepth",
     ]
-    check_group_consistency(
-        mrf_frame.loc[:, mrf_columns], message="Image dimensions"
-    )
-    site_metadata["pixel_size_x"] = mrf_frame.loc[
-        :, "HorizontalPixelDimension"
-    ].max()
-    site_metadata["pixel_size_y"] = mrf_frame.loc[
-        :, "VerticalPixelDimension"
-    ].max()
+    check_group_consistency(mrf_frame.loc[:, mrf_columns], message="Image dimensions")
+    site_metadata["pixel_size_x"] = mrf_frame.loc[:, "HorizontalPixelDimension"].max()
+    site_metadata["pixel_size_y"] = mrf_frame.loc[:, "VerticalPixelDimension"].max()
     site_metadata["x_pixel"] = int(mrf_frame.loc[:, "HorizontalPixels"].max())
     site_metadata["y_pixel"] = int(mrf_frame.loc[:, "VerticalPixels"].max())
     site_metadata["bit_depth"] = int(mrf_frame.loc[:, "InputBitDepth"].max())
@@ -121,9 +105,7 @@ def parse_yokogawa_metadata(
     number_of_files = {}
     for this_well_id in list_of_wells:
         num_images = (mlf_frame.well_id == this_well_id).sum()
-        logger.info(
-            f"Expected number of images for well {this_well_id}: {num_images}"
-        )
+        logger.info(f"Expected number of images for well {this_well_id}: {num_images}")
         number_of_files[this_well_id] = num_images
     # Check that the sum of per-well file numbers correspond to the total
     # file number
@@ -202,12 +184,8 @@ def read_mrf_file(mrf_path: str) -> tuple[pd.DataFrame, int]:
     """
     # Define the namespaces
     ns = {"bts": "http://www.yokogawa.co.jp/BTS/BTSSchema/1.0"}
-    channel_df = pd.read_xml(
-        mrf_path, xpath=".//bts:MeasurementChannel", namespaces=ns
-    )
-    meas_df = pd.read_xml(
-        mrf_path, xpath="//bts:MeasurementDetail", namespaces=ns
-    )
+    channel_df = pd.read_xml(mrf_path, xpath=".//bts:MeasurementChannel", namespaces=ns)
+    meas_df = pd.read_xml(mrf_path, xpath="//bts:MeasurementDetail", namespaces=ns)
     row_count = int(meas_df["RowCount"].iloc[0])
     column_count = int(meas_df["ColumnCount"].iloc[0])
     plate_type = row_count * column_count
@@ -254,9 +232,7 @@ def _create_well_ids(
         col_sub = [(x - 1) % 4 + 1 for x in col_series]
         well_ids = []
         for i in range(len(row_base)):
-            well_ids.append(
-                f"{row_base[i]}{col_base[i]:02}.{row_sub[i]}{col_sub[i]}"
-            )
+            well_ids.append(f"{row_base[i]}{col_base[i]:02}.{row_sub[i]}{col_sub[i]}")
     else:
         row_str = [chr(x) for x in (row_series + 64)]
         well_ids = [f"{a}{b:02}" for a, b in zip(row_str, col_series)]
@@ -415,26 +391,19 @@ def get_z_steps(mlf_frame: pd.DataFrame) -> pd.DataFrame:
             ["well_id", "FieldIndex"]
         )
 
-    check_group_consistency(
-        z_data, message="Comparing Z steps between channels"
-    )
+    check_group_consistency(z_data, message="Comparing Z steps between channels")
 
     # Ensure that channels have the same number of z planes and
     # reduce it to one value.
     # Only check if there is more than one channel available
-    if any(
-        grouped_sites_z.count().groupby(["well_id", "FieldIndex"]).count() > 1
-    ):
+    if any(grouped_sites_z.count().groupby(["well_id", "FieldIndex"]).count() > 1):
         check_group_consistency(
             grouped_sites_z.count().groupby(["well_id", "FieldIndex"]),
             message="Checking number of Z steps between channels",
         )
 
     z_steps = (
-        grouped_sites_z.count()
-        .groupby(["well_id", "FieldIndex"])
-        .mean()
-        .astype(int)
+        grouped_sites_z.count().groupby(["well_id", "FieldIndex"]).mean().astype(int)
     )
 
     # Combine the two dataframes

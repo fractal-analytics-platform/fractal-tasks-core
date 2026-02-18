@@ -10,6 +10,7 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
+
 import os
 from pathlib import Path
 
@@ -19,13 +20,12 @@ import pytest
 from devtools import debug
 from pandas import Timestamp
 
-from fractal_tasks_core.cellvoyager.metadata import _create_well_ids
 from fractal_tasks_core.cellvoyager.metadata import (
+    _create_well_ids,
     parse_yokogawa_metadata,
+    read_metadata_files,
 )
-from fractal_tasks_core.cellvoyager.metadata import read_metadata_files
-from fractal_tasks_core.roi import remove_FOV_overlaps
-from fractal_tasks_core.roi import run_overlap_check
+from fractal_tasks_core.roi import remove_FOV_overlaps, run_overlap_check
 
 # General variables and paths (relative to the test folder)
 testdir = os.path.dirname(__file__)
@@ -188,9 +188,7 @@ def test_parse_yokogawa_metadata_multiwell():
     )
     mrf_path_4 = f"{path}MeasurementDetail.mrf"
 
-    site_metadata, file_numbers = parse_yokogawa_metadata(
-        mrf_path_4, mlf_path_4
-    )
+    site_metadata, file_numbers = parse_yokogawa_metadata(mrf_path_4, mlf_path_4)
     debug(file_numbers)
     assert file_numbers == {"C03": 4, "B03": 4, "D04": 8}
 
@@ -198,10 +196,7 @@ def test_parse_yokogawa_metadata_multiwell():
 def test_manually_removing_overlap(testdata_path):
     # Set paths
     mlf_path = str(
-        testdata_path
-        / "metadata_files"
-        / "overlapping_ROIs"
-        / "MeasurementData.mlf"
+        testdata_path / "metadata_files" / "overlapping_ROIs" / "MeasurementData.mlf"
     )
     mrf_path = str(testdata_path / "metadata_files" / "MeasurementDetail.mrf")
     expected_site_metadata_path = str(
@@ -229,9 +224,7 @@ def test_manually_removing_overlap(testdata_path):
     # Load expected dataframe and set index + types correctly
     expected_site_metadata = pd.read_csv(expected_site_metadata_path)
     expected_site_metadata.set_index(["well_id", "FieldIndex"], inplace=True)
-    expected_site_metadata["Time"] = pd.to_datetime(
-        expected_site_metadata["Time"]
-    )
+    expected_site_metadata["Time"] = pd.to_datetime(expected_site_metadata["Time"])
 
     # Assert equality with expected dataframe
     pd.testing.assert_frame_equal(site_metadata, expected_site_metadata)

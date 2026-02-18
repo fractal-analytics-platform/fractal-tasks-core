@@ -1,4 +1,5 @@
 import logging
+logger = logging.getLogger(__name__)
 import multiprocessing as mp
 import shutil
 import time
@@ -12,11 +13,11 @@ from filelock._error import Timeout
 from pytest import LogCaptureFixture
 
 from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
-from fractal_tasks_core.tasks._zarr_utils import _copy_hcs_ome_zarr_metadata
 from fractal_tasks_core.tasks._zarr_utils import (
+    _copy_hcs_ome_zarr_metadata,
     _get_matching_ref_acquisition_path_heuristic,
+    _update_well_metadata,
 )
-from fractal_tasks_core.tasks._zarr_utils import _update_well_metadata
 from fractal_tasks_core.utils import (
     _split_well_path_image_path,
 )
@@ -42,9 +43,7 @@ def test_copy_hcs_ome_zarr_metadata(
         zarr_url += "/"
         new_zarr_url += "/"
 
-    _copy_hcs_ome_zarr_metadata(
-        zarr_url_origin=zarr_url, zarr_url_new=new_zarr_url
-    )
+    _copy_hcs_ome_zarr_metadata(zarr_url_origin=zarr_url, zarr_url_new=new_zarr_url)
 
     group = zarr.open_group(zarr_url, mode="r")
     old_attrs = group.attrs.asdict()
@@ -73,12 +72,10 @@ INTERVAL = 0.5
 
 
 def _slow_load_NgffWellMeta(*args, **kwargs):
-    logging.warning(
-        f"START _slow wrapper for {args}, {time.perf_counter():.3f}"
-    )
+    logger.warning(f"START _slow wrapper for {args}, {time.perf_counter():.3f}")
     time.sleep(INTERVAL)
     output = load_NgffWellMeta(*args, **kwargs)
-    logging.warning(f"END _slow wrapper for {args}, {time.perf_counter():.3f}")
+    logger.warning(f"END _slow wrapper for {args}, {time.perf_counter():.3f}")
     return output
 
 
@@ -142,13 +139,10 @@ def test_update_well_metadata_concurrency(
     # Prepare parallel-execution argument list with short timeout
     well_url = Path(zarr_url, "B/03").as_posix()
     list_args = [
-        (well_url, "0", f"0_new_{suffix}", INTERVAL / 100)
-        for suffix in range(N, 2 * N)
+        (well_url, "0", f"0_new_{suffix}", INTERVAL / 100) for suffix in range(N, 2 * N)
     ]
     with pytest.raises(Timeout) as e:
-        with ProcessPoolExecutor(
-            mp_context=mp.get_context("fork")
-        ) as executor:
+        with ProcessPoolExecutor(mp_context=mp.get_context("fork")) as executor:
             res_iter = executor.map(_star_update_well_metadata, list_args)
             list(res_iter)  # This is needed, to wait for all results.
     debug(e.value)
@@ -197,7 +191,5 @@ HEURISTIC_CASES = [
 def test_get_matching_ref_acquisition_path_heuristic(
     path_list: list[str], path: str, expected_match: str
 ):
-    match = _get_matching_ref_acquisition_path_heuristic(
-        path_list=path_list, path=path
-    )
+    match = _get_matching_ref_acquisition_path_heuristic(path_list=path_list, path=path)
     assert match == expected_match

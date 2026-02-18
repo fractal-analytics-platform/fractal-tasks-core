@@ -1,25 +1,17 @@
-# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-# University of Zurich
-#
-# Original authors:
-# Tommaso Comparin <tommaso.comparin@exact-lab.it>
-#
-# This file is part of Fractal and was originally developed by eXact lab S.r.l.
-# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-# Institute for Biomedical Research and Pelkmans Lab from the University of
-# Zurich.
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """
 Subpackage with functions and classes related to table specifications (see
 https://fractal-analytics-platform.github.io/fractal-tasks-core/tables).
 """
-from typing import Any
-from typing import Optional
+
+from typing import Any, Optional
 
 import anndata as ad
 import zarr.hierarchy
 
-from .v1 import _write_table_v1
 from fractal_tasks_core import __FRACTAL_TABLE_VERSION__
+
+from .v1 import _write_table_v1
 
 
 def write_table(
@@ -87,6 +79,4 @@ def write_table(
             table_attrs,
         )
     else:
-        raise NotImplementedError(
-            f"fractal_table_version='{version}' is not supported"
-        )
+        raise NotImplementedError(f"fractal_table_version='{version}' is not supported")

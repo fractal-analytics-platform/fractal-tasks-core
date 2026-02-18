@@ -11,6 +11,7 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
+
 from pathlib import Path
 from typing import Sequence
 
@@ -18,8 +19,6 @@ import pytest
 import zarr
 from devtools import debug
 
-from ._validation import check_file_number
-from ._validation import validate_schema
 from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_compute import (
     cellvoyager_to_ome_zarr_compute,
 )
@@ -35,6 +34,7 @@ from fractal_tasks_core.tasks.projection import (
 )
 from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 
+from ._validation import check_file_number, validate_schema
 
 single_cycle_allowed_channels_no_label = [
     {
@@ -61,9 +61,7 @@ coarsening_xy = 2
 def test_multiplexing_create_ome_zarr_fail(
     tmp_path: Path, zenodo_images_multiplex: Sequence[str]
 ):
-    single_cycle_allowed_channels = [
-        {"wavelength_id": "A01_C01", "label": "my label"}
-    ]
+    single_cycle_allowed_channels = [{"wavelength_id": "A01_C01", "label": "my label"}]
     acquisitions = {
         "0": MultiplexingAcquisition(
             image_dir=zenodo_images_multiplex[0],
@@ -106,10 +104,8 @@ def test_multiplexing_compute(
     if metadata_input == "use_existing_csv_files":
         testdata_str = testdata_path.as_posix()
         metadata_table_files = {
-            "0": f"{testdata_str}/metadata_files/"
-            "corrected_site_metadata_tiny_test.csv",
-            "1": f"{testdata_str}/metadata_files/"
-            "corrected_site_metadata_tiny_test.csv",
+            "0": f"{testdata_str}/metadata_files/corrected_site_metadata_tiny_test.csv",
+            "1": f"{testdata_str}/metadata_files/corrected_site_metadata_tiny_test.csv",
         }
 
     debug(metadata_table_files)
@@ -177,8 +173,7 @@ def test_multiplexing_compute(
     expected_image_list_update = [
         {
             "zarr_url": (
-                f"{zarr_dir}/20200812-CardiomyocyteDifferentiation14"
-                "-Cycle1.zarr/B/03/0"
+                f"{zarr_dir}/20200812-CardiomyocyteDifferentiation14-Cycle1.zarr/B/03/0"
             ),
             "attributes": {
                 "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
@@ -191,8 +186,7 @@ def test_multiplexing_compute(
         },
         {
             "zarr_url": (
-                f"{zarr_dir}/20200812-CardiomyocyteDifferentiation14"
-                "-Cycle1.zarr/B/03/1"
+                f"{zarr_dir}/20200812-CardiomyocyteDifferentiation14-Cycle1.zarr/B/03/1"
             ),
             "attributes": {
                 "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
@@ -286,9 +280,7 @@ def test_multiplexing_arbitrary_acquisition_names(
     ]
     well_path = "/".join(parallelization_list[0]["zarr_url"].split("/")[:-1])
     with zarr.open_group(well_path) as well_group:
-        assert (
-            well_group.attrs["well"]["images"] == expected_well_iamges_zattrs
-        )
+        assert well_group.attrs["well"]["images"] == expected_well_iamges_zattrs
 
     # Convert to OME-Zarr
     image_list_updates = []
@@ -303,8 +295,7 @@ def test_multiplexing_arbitrary_acquisition_names(
     expected_image_list_update = [
         {
             "zarr_url": (
-                f"{zarr_dir}/20200812-CardiomyocyteDifferentiation14"
-                "-Cycle1.zarr/B/03/0"
+                f"{zarr_dir}/20200812-CardiomyocyteDifferentiation14-Cycle1.zarr/B/03/0"
             ),
             "attributes": {
                 "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
@@ -317,8 +308,7 @@ def test_multiplexing_arbitrary_acquisition_names(
         },
         {
             "zarr_url": (
-                f"{zarr_dir}/20200812-CardiomyocyteDifferentiation14"
-                "-Cycle1.zarr/B/03/1"
+                f"{zarr_dir}/20200812-CardiomyocyteDifferentiation14-Cycle1.zarr/B/03/1"
             ),
             "attributes": {
                 "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
@@ -346,9 +336,7 @@ def test_multiplexing_arbitrary_acquisition_names(
     check_file_number(zarr_path=image_zarr_1)
 
 
-def test_multiplexing_MIP(
-    tmp_path: Path, zenodo_images_multiplex: Sequence[str]
-):
+def test_multiplexing_MIP(tmp_path: Path, zenodo_images_multiplex: Sequence[str]):
     # Init
     zarr_dir = tmp_path / "tmp_out/"
 

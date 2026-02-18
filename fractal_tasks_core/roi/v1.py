@@ -1,17 +1,8 @@
-# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-# University of Zurich
-#
-# Original authors:
-# Tommaso Comparin <tommaso.comparin@exact-lab.it>
-# Joel Lüthi <joel.luethi@uzh.ch>
-#
-# This file is part of Fractal and was originally developed by eXact lab S.r.l.
-# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-# Institute for Biomedical Research and Pelkmans Lab from the University of
-# Zurich.
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """
 Functions to produce/process ROI tables.
 """
+
 import logging
 import math
 from typing import Sequence
@@ -19,7 +10,6 @@ from typing import Sequence
 import anndata as ad
 import numpy as np
 import pandas as pd
-
 
 logger = logging.getLogger(__name__)
 
@@ -361,9 +351,7 @@ def array_to_bounding_box_table(
         # Compute bounding box
         label_match = np.where(mask_array == label)
         zmin, ymin, xmin = np.min(label_match, axis=1) * pxl_sizes_zyx_array
-        zmax, ymax, xmax = (
-            np.max(label_match, axis=1) + 1
-        ) * pxl_sizes_zyx_array
+        zmax, ymax, xmax = (np.max(label_match, axis=1) + 1) * pxl_sizes_zyx_array
 
         # Compute bounding-box edges
         length_x = xmax - xmin

@@ -1,20 +1,14 @@
-# Copyright 2024 (C) Friedrich Miescher Institute for Biomedical Research and
-# University of Zurich
-#
-# Original authors:
-# Joel Lüthi <joel.luethi@uzh.ch>
-#
-# This file is part of Fractal and was originally developed by eXact lab S.r.l.
-# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-# Institute for Biomedical Research and Pelkmans Lab from the University of
-# Zurich.
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """
 Fractal task list.
 """
-from fractal_task_tools.task_models import CompoundTask
-from fractal_task_tools.task_models import ConverterCompoundTask
-from fractal_task_tools.task_models import ConverterNonParallelTask
-from fractal_task_tools.task_models import ParallelTask
+
+from fractal_task_tools.task_models import (
+    CompoundTask,
+    ConverterCompoundTask,
+    ConverterNonParallelTask,
+    ParallelTask,
+)
 
 AUTHORS = "Fractal Core Team"
 DOCS_LINK = "https://fractal-analytics-platform.github.io/fractal-tasks-core"
@@ -22,27 +16,9 @@ INPUT_MODELS = [
     ["fractal_tasks_core", "channels.py", "OmeroChannel"],
     ["fractal_tasks_core", "channels.py", "Window"],
     ["fractal_tasks_core", "channels.py", "ChannelInputModel"],
-    ["fractal_tasks_core", "tasks/io_models.py", "NapariWorkflowsInput"],
-    ["fractal_tasks_core", "tasks/io_models.py", "NapariWorkflowsOutput"],
     ["fractal_tasks_core", "tasks/io_models.py", "NoCorrectionModel"],
     ["fractal_tasks_core", "tasks/io_models.py", "ProfileCorrectionModel"],
     ["fractal_tasks_core", "tasks/io_models.py", "ConstantCorrectionModel"],
-    [
-        "fractal_tasks_core",
-        "tasks/cellpose_utils.py",
-        "CellposeCustomNormalizer",
-    ],
-    [
-        "fractal_tasks_core",
-        "tasks/cellpose_utils.py",
-        "CellposeChannel1InputModel",
-    ],
-    [
-        "fractal_tasks_core",
-        "tasks/cellpose_utils.py",
-        "CellposeChannel2InputModel",
-    ],
-    ["fractal_tasks_core", "tasks/cellpose_utils.py", "CellposeModelParams"],
     ["fractal_tasks_core", "tasks/io_models.py", "MultiplexingAcquisition"],
 ]
 
@@ -93,20 +69,6 @@ TASK_LIST = [
         tags=["Preprocessing", "2D", "3D"],
         docs_info="file:task_info/illumination_correction.md",
     ),
-    ParallelTask(
-        name="Cellpose Segmentation",
-        executable="tasks/cellpose_segmentation.py",
-        meta={"cpus_per_task": 4, "mem": 16000, "needs_gpu": True},
-        category="Segmentation",
-        tags=[
-            "Deep Learning",
-            "Convolutional Neural Network",
-            "Instance Segmentation",
-            "2D",
-            "3D",
-        ],
-        docs_info="file:task_info/cellpose_segmentation.md",
-    ),
     CompoundTask(
         name="Calculate Registration (image-based)",
         executable_init="tasks/image_based_registration_hcs_init.py",
@@ -145,16 +107,5 @@ TASK_LIST = [
         executable="tasks/import_ome_zarr.py",
         docs_info="file:task_info/import_ome_zarr.md",
         tags=["2D", "3D"],
-    ),
-    ParallelTask(
-        name="Napari Workflows Wrapper",
-        executable="tasks/napari_workflows_wrapper.py",
-        meta={
-            "cpus_per_task": 8,
-            "mem": 32000,
-        },
-        category="Measurement",
-        tags=["2D", "3D"],
-        docs_info="file:task_info/napari_workflows_wrapper.md",
     ),
 ]

@@ -3,6 +3,8 @@ import json
 import logging
 from pathlib import Path
 
+logger = logging.getLogger(__name__)
+
 import anndata as ad
 import dask.array as da
 import numpy as np
@@ -21,8 +23,7 @@ from fractal_tasks_core.roi import (
 def validate_schema(*, path: str, type: str):
     if __OME_NGFF_VERSION__ != "0.4":
         raise ValueError(
-            "This test is only valid for OME-NGFF version 0.4, "
-            "please update the test."
+            "This test is only valid for OME-NGFF version 0.4, please update the test."
         )
     file_path = pooch.retrieve(
         url=(
@@ -41,17 +42,11 @@ def validate_schema(*, path: str, type: str):
     validate(instance=zattrs, schema=schema)
 
     if type == "plate" and "plate" not in zattrs.keys():
-        raise ValueError(
-            f"Zarr attributes of {path} do not include 'plate' key"
-        )
+        raise ValueError(f"Zarr attributes of {path} do not include 'plate' key")
     elif type == "well" and "well" not in zattrs.keys():
-        raise ValueError(
-            f"Zarr attributes of {path} do not include 'well' key"
-        )
+        raise ValueError(f"Zarr attributes of {path} do not include 'well' key")
     elif type == "image" and "multiscales" not in zattrs.keys():
-        raise ValueError(
-            f"Zarr attributes of {path} do not include 'multiscales' key"
-        )
+        raise ValueError(f"Zarr attributes of {path} do not include 'multiscales' key")
 
 
 def check_file_number(*, zarr_path: Path, num_axes: int = 4):
@@ -152,14 +147,14 @@ def validate_labels_and_measurements(
     try:
         table = ad.read_zarr(table_path)
     except zarr.errors.PathNotFoundError:
-        logging.warning(
+        logger.warning(
             f"{table_path} missing, skip validation of dataframe and of "
             "dataframe/label match"
         )
         return
     debug(table)
     if len(table) == 0:
-        logging.warning(
+        logger.warning(
             f"Table in {table_path} is empty, skip validation of "
             "dataframe and of dataframe/label match"
         )

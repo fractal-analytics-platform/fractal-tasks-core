@@ -2,7 +2,6 @@ import pytest
 import zarr
 from devtools import debug
 
-from .._zenodo_ome_zarrs import prepare_3D_zarr
 from fractal_tasks_core.tables.v1 import get_tables_list_v1
 from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
     copy_ome_zarr_hcs_plate,
@@ -11,6 +10,8 @@ from fractal_tasks_core.tasks.import_ome_zarr import import_ome_zarr
 from fractal_tasks_core.tasks.projection import (
     projection,
 )
+
+from .._zenodo_ome_zarrs import prepare_3D_zarr
 
 # from fractal_tasks_core.channels import ChannelInputModel
 
@@ -37,9 +38,7 @@ def test_import_ome_zarr_plate(tmp_path, zenodo_zarr):
         grid_x_shape=3,
     )
     debug(image_list_changes)
-    zarr_urls = [
-        x["zarr_url"] for x in image_list_changes["image_list_updates"]
-    ]
+    zarr_urls = [x["zarr_url"] for x in image_list_changes["image_list_updates"]]
 
     expected_image_list_changes = {
         "image_list_updates": [
@@ -90,9 +89,7 @@ def test_import_ome_zarr_well(tmp_path, zenodo_zarr):
         grid_x_shape=3,
     )
     debug(image_list_changes)
-    zarr_urls = [
-        x["zarr_url"] for x in image_list_changes["image_list_updates"]
-    ]
+    zarr_urls = [x["zarr_url"] for x in image_list_changes["image_list_updates"]]
 
     expected_image_list_changes = {
         "image_list_updates": [
@@ -133,9 +130,7 @@ def test_import_ome_zarr_image(tmp_path, zenodo_zarr, reset_omero):
         grid_x_shape=3,
     )
     debug(image_list_changes)
-    zarr_urls = [
-        x["zarr_url"] for x in image_list_changes["image_list_updates"]
-    ]
+    zarr_urls = [x["zarr_url"] for x in image_list_changes["image_list_updates"]]
 
     expected_image_list_changes = {
         "image_list_updates": [
@@ -156,17 +151,14 @@ def test_import_ome_zarr_image(tmp_path, zenodo_zarr, reset_omero):
     g = zarr.open_group(f"{zarr_dir}/{zarr_name}", mode="r")
     debug(g.attrs["omero"]["channels"])
     if reset_omero:
-        EXPECTED_CHANNELS = [
-            dict(label="1", wavelength_id="1", color="00FFFF")
-        ]
+        EXPECTED_CHANNELS = [dict(label="1", wavelength_id="1", color="00FFFF")]
         assert g.attrs["omero"]["channels"] == EXPECTED_CHANNELS
     else:
         EXPECTED_LABEL = "DAPI"
         EXPECTED_WAVELENGTH_ID = "A01_C01"
         assert g.attrs["omero"]["channels"][0]["label"] == EXPECTED_LABEL
         assert (
-            g.attrs["omero"]["channels"][0]["wavelength_id"]
-            == EXPECTED_WAVELENGTH_ID
+            g.attrs["omero"]["channels"][0]["wavelength_id"] == EXPECTED_WAVELENGTH_ID
         )
 
 
@@ -216,9 +208,7 @@ def test_import_ome_zarr_plate_no_ROI_tables(tmp_path, zenodo_zarr):
         add_grid_ROI_table=False,
     )
     debug(image_list_changes)
-    zarr_urls = [
-        x["zarr_url"] for x in image_list_changes["image_list_updates"]
-    ]
+    zarr_urls = [x["zarr_url"] for x in image_list_changes["image_list_updates"]]
 
     expected_image_list_changes = {
         "image_list_updates": [
@@ -269,8 +259,9 @@ def test_import_ome_zarr_image_BIA(tmp_path):
     because we don't support time data, see fractal-tasks-core issue #169.
     """
 
-    from ftplib import FTP
     import zipfile
+    from ftplib import FTP
+
     import anndata as ad
     import numpy as np
 
@@ -308,17 +299,13 @@ def test_import_ome_zarr_image_BIA(tmp_path):
     debug(g.attrs.asdict())
     pixel_size_x = g.attrs["multiscales"][0]["datasets"][0][
         "coordinateTransformations"
-    ][0]["scale"][
-        -1
-    ]  # noqa
+    ][0]["scale"][-1]  # noqa
     debug(pixel_size_x)
     g = zarr.open(f"{zarr_dir}/{zarr_name}/0", mode="r")
     array_shape_x = g.shape[-1]
     debug(array_shape_x)
     EXPECTED_X_LENGTH = array_shape_x * pixel_size_x
-    image_ROI_table = ad.read_zarr(
-        f"{zarr_dir}/{zarr_name}/tables/image_ROI_table"
-    )
+    image_ROI_table = ad.read_zarr(f"{zarr_dir}/{zarr_name}/tables/image_ROI_table")
     debug(image_ROI_table.X)
     assert np.allclose(
         image_ROI_table[:, "len_x_micrometer"].X[0, 0],
@@ -333,37 +320,7 @@ def test_import_ome_zarr_image_BIA(tmp_path):
     assert omero_channel["label"] == "Channel 0"
     assert omero_channel["wavelength_id"] == "Channel 0"
 
-    # Part 2: run Cellpose on the imported OME-Zarr.
-
-    # Cellpose task deactivated, as it cannot handle t axis of this dataset yet
-    # from fractal_tasks_core.tasks.cellpose_segmentation import (
-    #     cellpose_segmentation
-    # )
-    # from .test_workflows_cellpose_segmentation import (
-    #     patched_cellpose_core_use_gpu,
-    #     patched_segment_ROI,
-    # )
-
-    # monkeypatch.setattr(
-    #     "fractal_tasks_core.tasks.cellpose_segmentation.cellpose.core.use_gpu",
-    #     patched_cellpose_core_use_gpu,
-    # )
-
-    # monkeypatch.setattr(
-    #     "fractal_tasks_core.tasks.cellpose_segmentation.segment_ROI",
-    #     patched_segment_ROI,
-    # )
-
-    # # Per-FOV labeling
-    # for zarr_url in zarr_urls:
-    #     cellpose_segmentation(
-    #         zarr_url=zarr_url,
-    #         input_ROI_table="grid_ROI_table",
-    #         channel=ChannelInputModel(wavelength_id="Channel 0"),
-    #         level=0,
-    #         relabeling=True,
-    #         diameter_level0=80.0,
-    #         augment=True,
-    #         net_avg=True,
-    #         min_size=30,
-    #     )
+    # NOTE: Dead code left for reference. Previously, cellpose_segmentation
+    # was run here on the imported OME-Zarr, but it was deactivated because
+    # it cannot handle the t axis of this dataset. The cellpose task has
+    # since been removed from fractal-tasks-core entirely.

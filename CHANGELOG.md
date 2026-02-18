@@ -1,5 +1,21 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# Unreleased
+* Development:
+    * Move environment management from `poetry` to `pixi`.
+    * Replace `black`, `flake8`, `reorder_python_imports` with `ruff` for linting and formatting.
+    * Update line-length from 79 to 88.
+    * Remove deprecated `tasks/_utils.py` module (`run_fractal_task` wrapper).
+    * Remove `labels.py`, `masked_loading.py`, and `upscale_array.py` modules (only used by removed tasks).
+    * Move `fractal-tasks` optional dependencies into core dependencies.
+    * Unify CI test jobs (remove core/tasks split).
+    * Remove outdated docs pages and table specs.
+    * Update docs and README to reflect task-only package framing.
+* Tasks:
+    * `Illumination Correction` task adopted `ngio`.
+    * Remove `Cellpose Segmentation` task and `cellpose_utils.py`.
+    * Remove `Napari Workflows Wrapper` task.
+
 # 1.6.0
 * Tests
     * Fix Zenodo data downloads in CI (\#1010).

@@ -11,6 +11,7 @@ This file is part of Fractal and was originally developed by eXact lab S.r.l.
 Institute for Biomedical Research and Pelkmans Lab from the University of
 Zurich.
 """
+
 import logging
 import shutil
 from pathlib import Path
@@ -22,8 +23,6 @@ import zarr
 from devtools import debug
 from ngio.utils import NgioFileExistsError
 
-from ._validation import check_file_number
-from ._validation import validate_schema
 from fractal_tasks_core.tasks.cellvoyager_to_ome_zarr_compute import (
     cellvoyager_to_ome_zarr_compute,
 )
@@ -41,6 +40,7 @@ from fractal_tasks_core.tasks.projection import (
 )
 from fractal_tasks_core.zarr_utils import OverwriteNotAllowedError
 
+from ._validation import check_file_number, validate_schema
 
 allowed_channels = [
     {
@@ -139,8 +139,7 @@ def test_yokogawa_to_ome_zarr(
     if metadata_input == "use_existing_csv_files":
         testdata_str = testdata_path.as_posix()
         metadata_table_file = (
-            f"{testdata_str}/metadata_files/"
-            + "corrected_site_metadata_tiny_test.csv"
+            f"{testdata_str}/metadata_files/" + "corrected_site_metadata_tiny_test.csv"
         )
     debug(metadata_table_file)
 
@@ -172,8 +171,7 @@ def test_yokogawa_to_ome_zarr(
     # Validate image_list_updates contents
     expected_image_list_update = {
         "zarr_url": (
-            f"{output_path}/20200812-CardiomyocyteDifferentiation14"
-            "-Cycle1.zarr/B/03/0"
+            f"{output_path}/20200812-CardiomyocyteDifferentiation14-Cycle1.zarr/B/03/0"
         ),
         "attributes": {
             "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
@@ -267,8 +265,7 @@ def test_2D_cellvoyager_to_ome_zarr(
     # Validate image_list_updates contents
     expected_image_list_update = {
         "zarr_url": (
-            f"{output_path}/20200812-CardiomyocyteDifferentiation14"
-            "-Cycle1.zarr/B/03/0"
+            f"{output_path}/20200812-CardiomyocyteDifferentiation14-Cycle1.zarr/B/03/0"
         ),
         "attributes": {
             "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1.zarr",
@@ -420,9 +417,7 @@ def test_projection_methods(
     # Check that method is correctly in parallelization list & in suffix
     expected_parallelization_list = [
         {
-            "zarr_url": Path(
-                zarr_path, f"plate_{method}.zarr/B/03/0"
-            ).as_posix(),
+            "zarr_url": Path(zarr_path, f"plate_{method}.zarr/B/03/0").as_posix(),
             "init_args": {
                 "origin_url": zarr_urls[0],
                 "method": method,

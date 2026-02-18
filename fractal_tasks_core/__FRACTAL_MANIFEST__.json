@@ -44,11 +44,7 @@
                 "description": "Name of the channel."
               },
               "window": {
-                "allOf": [
-                  {
-                    "$ref": "#/$defs/Window"
-                  }
-                ],
+                "$ref": "#/$defs/Window",
                 "title": "Window",
                 "description": "Optional `Window` object to set default display settings. If unset, it will be set to the full bit range of the image (e.g. 0-65535 for 16 bit images)."
               },
@@ -364,11 +360,7 @@
                 "description": "Name of the channel."
               },
               "window": {
-                "allOf": [
-                  {
-                    "$ref": "#/$defs/Window"
-                  }
-                ],
+                "$ref": "#/$defs/Window",
                 "title": "Window",
                 "description": "Optional `Window` object to set default display settings. If unset, it will be set to the full bit range of the image (e.g. 0-65535 for 16 bit images)."
               },
@@ -667,11 +659,7 @@
             "description": "path of the directory where the new OME-Zarrs will be created. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "method": {
-            "allOf": [
-              {
-                "$ref": "#/$defs/DaskProjectionMethod"
-              }
-            ],
+            "$ref": "#/$defs/DaskProjectionMethod",
             "default": "mip",
             "title": "Method",
             "description": "Choose which method to use for intensity projection along the Z axis. mip is the default and performs a maximum intensity projection. minip performs a minimum intensity projection, meanip a mean intensity projection and sumip a sum intensity projection."
@@ -811,9 +799,6 @@
               "model": {
                 "const": "Constant",
                 "default": "Constant",
-                "enum": [
-                  "Constant"
-                ],
                 "title": "Model",
                 "type": "string",
                 "description": "The correction model to be applied."
@@ -839,9 +824,6 @@
               "model": {
                 "const": "No Correction",
                 "default": "No Correction",
-                "enum": [
-                  "No Correction"
-                ],
                 "title": "Model",
                 "type": "string",
                 "description": "The correction model to be applied."
@@ -856,9 +838,6 @@
               "model": {
                 "const": "Profile",
                 "default": "Profile",
-                "enum": [
-                  "Profile"
-                ],
                 "title": "Model",
                 "type": "string",
                 "description": "The correction model to be applied."
@@ -898,11 +877,7 @@
             "description": "Illumination (flatfield) correction profiles."
           },
           "background_correction": {
-            "allOf": [
-              {
-                "$ref": "#/$defs/BackgroundCorrection"
-              }
-            ],
+            "$ref": "#/$defs/BackgroundCorrection",
             "default": {
               "value": {
                 "model": "No Correction"
@@ -936,309 +911,6 @@
         ],
         "type": "object",
         "title": "IlluminationCorrection"
-      },
-      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
-    },
-    {
-      "name": "Cellpose Segmentation",
-      "category": "Segmentation",
-      "tags": [
-        "Deep Learning",
-        "Convolutional Neural Network",
-        "Instance Segmentation",
-        "2D",
-        "3D"
-      ],
-      "docs_info": "### Purpose\n- **Segments images using Cellpose models**.\n- Supports both **built-in Cellpose models** (shipped with Cellpose) and **user-trained models**.\n- Accepts dual image input for segmentation.\n- Can process **arbitrary regions of interest (ROIs)**, including whole images, fields of view (FOVs), or masked outputs from prior segmentations, based on corresponding ROI tables.\n- Provides access to all advanced Cellpose parameters.\n- Allows custom rescaling options per channel, particularly useful for sparse images.\n\n### Limitations\n- Compatible only with Cellpose 2.x models; does not yet support 3.x models.\n",
-      "type": "parallel",
-      "executable_parallel": "tasks/cellpose_segmentation.py",
-      "meta_parallel": {
-        "cpus_per_task": 4,
-        "mem": 16000,
-        "needs_gpu": true
-      },
-      "args_schema_parallel": {
-        "$defs": {
-          "CellposeChannel1InputModel": {
-            "description": "Channel input for cellpose with normalization options.",
-            "properties": {
-              "wavelength_id": {
-                "title": "Wavelength Id",
-                "type": "string",
-                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`. Can only be specified if label is not set."
-              },
-              "label": {
-                "title": "Label",
-                "type": "string",
-                "description": "Name of the channel. Can only be specified if wavelength_id is not set."
-              },
-              "normalize": {
-                "$ref": "#/$defs/CellposeCustomNormalizer",
-                "title": "Normalize",
-                "description": "Validator to handle different normalization scenarios for Cellpose models"
-              }
-            },
-            "title": "CellposeChannel1InputModel",
-            "type": "object"
-          },
-          "CellposeChannel2InputModel": {
-            "description": "Channel input for secondary cellpose channel with normalization options.",
-            "properties": {
-              "wavelength_id": {
-                "title": "Wavelength Id",
-                "type": "string",
-                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`. Can only be specified if label is not set."
-              },
-              "label": {
-                "title": "Label",
-                "type": "string",
-                "description": "Name of the channel. Can only be specified if wavelength_id is not set."
-              },
-              "normalize": {
-                "$ref": "#/$defs/CellposeCustomNormalizer",
-                "title": "Normalize",
-                "description": "Validator to handle different normalization scenarios for Cellpose models"
-              }
-            },
-            "title": "CellposeChannel2InputModel",
-            "type": "object"
-          },
-          "CellposeCustomNormalizer": {
-            "description": "Validator to handle different normalization scenarios for Cellpose models",
-            "properties": {
-              "type": {
-                "default": "default",
-                "enum": [
-                  "default",
-                  "custom",
-                  "no_normalization"
-                ],
-                "title": "Type",
-                "type": "string",
-                "description": "One of `default` (Cellpose default normalization), `custom` (using the other custom parameters) or `no_normalization`."
-              },
-              "lower_percentile": {
-                "maximum": 100.0,
-                "minimum": 0.0,
-                "title": "Lower Percentile",
-                "type": "number",
-                "description": "Specify a custom lower-bound percentile for rescaling as a float value between 0 and 100. Set to 1 to run the same as default). You can only specify percentiles or bounds, not both."
-              },
-              "upper_percentile": {
-                "maximum": 100.0,
-                "minimum": 0.0,
-                "title": "Upper Percentile",
-                "type": "number",
-                "description": "Specify a custom upper-bound percentile for rescaling as a float value between 0 and 100. Set to 99 to run the same as default, set to e.g. 99.99 if the default rescaling was too harsh. You can only specify percentiles or bounds, not both."
-              },
-              "lower_bound": {
-                "title": "Lower Bound",
-                "type": "integer",
-                "description": "Explicit lower bound value to rescale the image at. Needs to be an integer, e.g. 100. You can only specify percentiles or bounds, not both."
-              },
-              "upper_bound": {
-                "title": "Upper Bound",
-                "type": "integer",
-                "description": "Explicit upper bound value to rescale the image at. Needs to be an integer, e.g. 2000. You can only specify percentiles or bounds, not both."
-              }
-            },
-            "title": "CellposeCustomNormalizer",
-            "type": "object"
-          },
-          "CellposeModelParams": {
-            "description": "Advanced Cellpose Model Parameters",
-            "properties": {
-              "cellprob_threshold": {
-                "default": 0.0,
-                "title": "Cellprob Threshold",
-                "type": "number",
-                "description": "Parameter of `CellposeModel.eval` method. Valid values between -6 to 6. From Cellpose documentation: \"Decrease this threshold if cellpose is not returning as many ROIs as you'd expect. Similarly, increase this threshold if cellpose is returning too ROIs particularly from dim areas.\""
-              },
-              "flow_threshold": {
-                "default": 0.4,
-                "title": "Flow Threshold",
-                "type": "number",
-                "description": "Parameter of `CellposeModel.eval` method. Valid values between 0.0 and 1.0. From Cellpose documentation: \"Increase this threshold if cellpose is not returning as many ROIs as you'd expect. Similarly, decrease this threshold if cellpose is returning too many ill-shaped ROIs.\""
-              },
-              "anisotropy": {
-                "title": "Anisotropy",
-                "type": "number",
-                "description": "Ratio of the pixel sizes along Z and XY axis (ignored if the image is not three-dimensional). If unset, it is inferred from the OME-NGFF metadata."
-              },
-              "min_size": {
-                "default": 15,
-                "title": "Min Size",
-                "type": "integer",
-                "description": "Parameter of `CellposeModel` class. Minimum size of the segmented objects (in pixels). Use `-1` to turn off the size filter."
-              },
-              "augment": {
-                "default": false,
-                "title": "Augment",
-                "type": "boolean",
-                "description": "Parameter of `CellposeModel` class. Whether to use cellpose augmentation to tile images with overlap."
-              },
-              "net_avg": {
-                "default": false,
-                "title": "Net Avg",
-                "type": "boolean",
-                "description": "Parameter of `CellposeModel` class. Whether to use cellpose net averaging to run the 4 built-in networks (useful for `nuclei`, `cyto` and `cyto2`, not sure it works for the others)."
-              },
-              "use_gpu": {
-                "default": true,
-                "title": "Use Gpu",
-                "type": "boolean",
-                "description": "If `False`, always use the CPU; if `True`, use the GPU if possible (as defined in `cellpose.core.use_gpu()`) and fall-back to the CPU otherwise."
-              },
-              "batch_size": {
-                "default": 8,
-                "title": "Batch Size",
-                "type": "integer",
-                "description": "number of 224x224 patches to run simultaneously on the GPU (can make smaller or bigger depending on GPU memory usage)"
-              },
-              "invert": {
-                "default": false,
-                "title": "Invert",
-                "type": "boolean",
-                "description": "invert image pixel intensity before running network (if True, image is also normalized)"
-              },
-              "tile": {
-                "default": true,
-                "title": "Tile",
-                "type": "boolean",
-                "description": "tiles image to ensure GPU/CPU memory usage limited (recommended)"
-              },
-              "tile_overlap": {
-                "default": 0.1,
-                "title": "Tile Overlap",
-                "type": "number",
-                "description": "fraction of overlap of tiles when computing flows"
-              },
-              "resample": {
-                "default": true,
-                "title": "Resample",
-                "type": "boolean",
-                "description": "run dynamics at original image size (will be slower but create more accurate boundaries)"
-              },
-              "interp": {
-                "default": true,
-                "title": "Interp",
-                "type": "boolean",
-                "description": "interpolate during 2D dynamics (not available in 3D) (in previous versions it was False, now it defaults to True)"
-              },
-              "stitch_threshold": {
-                "default": 0.0,
-                "title": "Stitch Threshold",
-                "type": "number",
-                "description": "if stitch_threshold>0.0 and not do_3D and equal image sizes, masks are stitched in 3D to return volume segmentation"
-              }
-            },
-            "title": "CellposeModelParams",
-            "type": "object"
-          }
-        },
-        "additionalProperties": false,
-        "properties": {
-          "zarr_url": {
-            "title": "Zarr Url",
-            "type": "string",
-            "description": "Path or url to the individual OME-Zarr image to be processed. (standard argument for Fractal tasks, managed by Fractal server)."
-          },
-          "level": {
-            "title": "Level",
-            "type": "integer",
-            "description": "Pyramid level of the image to be segmented. Choose `0` to process at full resolution."
-          },
-          "channel": {
-            "$ref": "#/$defs/CellposeChannel1InputModel",
-            "title": "Channel",
-            "description": "Primary channel for segmentation; requires either `wavelength_id` (e.g. `A01_C01`) or `label` (e.g. `DAPI`), but not both. Also contains normalization options. By default, data is normalized so 0.0=1st percentile and 1.0=99th percentile of image intensities in each channel. This automatic normalization can lead to issues when the image to be segmented is very sparse. You can turn off the default rescaling. With the \"custom\" option, you can either provide your own rescaling percentiles or fixed rescaling upper and lower bound integers."
-          },
-          "channel2": {
-            "$ref": "#/$defs/CellposeChannel2InputModel",
-            "title": "Channel2",
-            "description": "Second channel for segmentation (in the same format as `channel`). If specified, cellpose runs in dual channel mode. For dual channel segmentation of cells, the first channel should contain the membrane marker, the second channel should contain the nuclear marker."
-          },
-          "input_ROI_table": {
-            "default": "FOV_ROI_table",
-            "title": "Input Roi Table",
-            "type": "string",
-            "description": "Name of the ROI table over which the task loops to apply Cellpose segmentation. Examples: `FOV_ROI_table` => loop over the field of views, `organoid_ROI_table` => loop over the organoid ROI table (generated by another task), `well_ROI_table` => process the whole well as one image."
-          },
-          "output_ROI_table": {
-            "title": "Output Roi Table",
-            "type": "string",
-            "description": "If provided, a ROI table with that name is created, which will contain the bounding boxes of the newly segmented labels. ROI tables should have `ROI` in their name."
-          },
-          "output_label_name": {
-            "title": "Output Label Name",
-            "type": "string",
-            "description": "Name of the output label image (e.g. `\"organoids\"`)."
-          },
-          "diameter_level0": {
-            "default": 30.0,
-            "title": "Diameter Level0",
-            "type": "number",
-            "description": "Expected diameter of the objects that should be segmented in pixels at level 0. Initial diameter is rescaled using the `level` that was selected. The rescaled value is passed as the diameter to the `CellposeModel.eval` method."
-          },
-          "model_type": {
-            "default": "cyto2",
-            "enum": [
-              "cyto",
-              "nuclei",
-              "tissuenet",
-              "livecell",
-              "cyto2",
-              "general",
-              "CP",
-              "CPx",
-              "TN1",
-              "TN2",
-              "TN3",
-              "LC1",
-              "LC2",
-              "LC3",
-              "LC4"
-            ],
-            "title": "Model Type",
-            "type": "string",
-            "description": "Parameter of `CellposeModel` class. Defines which model should be used. Typical choices are `nuclei`, `cyto`, `cyto2`, etc."
-          },
-          "pretrained_model": {
-            "title": "Pretrained Model",
-            "type": "string",
-            "description": "Parameter of `CellposeModel` class (takes precedence over `model_type`). Allows you to specify the path of a custom trained cellpose model."
-          },
-          "relabeling": {
-            "default": true,
-            "title": "Relabeling",
-            "type": "boolean",
-            "description": "If `True`, apply relabeling so that label values are unique for all objects in the well."
-          },
-          "use_masks": {
-            "default": true,
-            "title": "Use Masks",
-            "type": "boolean",
-            "description": "If `True`, try to use masked loading and fall back to `use_masks=False` if the ROI table is not suitable. Masked loading is relevant when only a subset of the bounding box should actually be processed (e.g. running within `organoid_ROI_table`)."
-          },
-          "advanced_cellpose_model_params": {
-            "$ref": "#/$defs/CellposeModelParams",
-            "title": "Advanced Cellpose Model Params",
-            "description": "Advanced Cellpose model parameters that are passed to the Cellpose `model.eval` method."
-          },
-          "overwrite": {
-            "default": true,
-            "title": "Overwrite",
-            "type": "boolean",
-            "description": "If `True`, overwrite the task output."
-          }
-        },
-        "required": [
-          "zarr_url",
-          "level",
-          "channel"
-        ],
-        "type": "object",
-        "title": "CellposeSegmentation"
       },
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
@@ -1337,11 +1009,7 @@
             "description": "Wavelength that will be used for image-based registration; e.g. `A01_C01` for Yokogawa, `C01` for MD."
           },
           "method": {
-            "allOf": [
-              {
-                "$ref": "#/$defs/RegistrationMethod"
-              }
-            ],
+            "$ref": "#/$defs/RegistrationMethod",
             "default": "phase_cross_correlation",
             "title": "Method",
             "description": "Method to use for image registration. The available methods are `phase_cross_correlation` (scikit-image package, works for 2D & 3D) and \"chi2_shift\" (image_registration package, only works for 2D images)."
@@ -1607,173 +1275,6 @@
         ],
         "type": "object",
         "title": "ImportOmeZarr"
-      },
-      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
-    },
-    {
-      "name": "Napari Workflows Wrapper",
-      "category": "Measurement",
-      "tags": [
-        "2D",
-        "3D"
-      ],
-      "docs_info": "### Purpose\n- Executes a **napari workflow** on the regions of interest (ROIs) within a single OME-NGFF image.\n- Processes specified images and labels as inputs to the workflow, producing outputs such as new labels and data tables.\n- Offers **flexibility in defining input and output** specifications to customize the workflow for specific datasets and analysis needs.\n\n### Limitations\n- Currently supports only Napari workflows that utilize functions from the `napari-segment-blobs-and-things-with-membranes` module. Other Napari-compatible modules are not supported.\n\n### Input Specifications\nNapari workflows require explicit definitions of input and output data.\nExample of valid `input_specs`:\n```json\n{\n    \"in_1\": {\"type\": \"image\", \"channel\": {\"wavelength_id\": \"A01_C02\"}},\n    \"in_2\": {\"type\": \"image\", \"channel\": {\"label\": \"DAPI\"}},\n    \"in_3\": {\"type\": \"label\", \"label_name\": \"label_DAPI\"}\n}\n```\n\nExample of valid `output_specs`:\n```json\n{\n    \"out_1\": {\"type\": \"label\", \"label_name\": \"label_DAPI_new\"},\n    \"out_2\": {\"type\": \"dataframe\", \"table_name\": \"measurements\"},\n}\n```\n",
-      "type": "parallel",
-      "executable_parallel": "tasks/napari_workflows_wrapper.py",
-      "meta_parallel": {
-        "cpus_per_task": 8,
-        "mem": 32000
-      },
-      "args_schema_parallel": {
-        "$defs": {
-          "ChannelInputModel": {
-            "description": "A channel which is specified by either `wavelength_id` or `label`.",
-            "properties": {
-              "wavelength_id": {
-                "title": "Wavelength Id",
-                "type": "string",
-                "description": "Unique ID for the channel wavelength, e.g. `A01_C01`. Can only be specified if label is not set."
-              },
-              "label": {
-                "title": "Label",
-                "type": "string",
-                "description": "Name of the channel. Can only be specified if wavelength_id is not set."
-              }
-            },
-            "title": "ChannelInputModel",
-            "type": "object"
-          },
-          "NapariWorkflowsInput": {
-            "description": "A value of the `input_specs` argument in `napari_workflows_wrapper`.",
-            "properties": {
-              "type": {
-                "enum": [
-                  "image",
-                  "label"
-                ],
-                "title": "Type",
-                "type": "string",
-                "description": "Input type (either `image` or `label`)."
-              },
-              "label_name": {
-                "title": "Label Name",
-                "type": "string",
-                "description": "Label name (for label inputs only)."
-              },
-              "channel": {
-                "allOf": [
-                  {
-                    "$ref": "#/$defs/ChannelInputModel"
-                  }
-                ],
-                "title": "Channel",
-                "description": "`ChannelInputModel` object (for image inputs only)."
-              }
-            },
-            "required": [
-              "type"
-            ],
-            "title": "NapariWorkflowsInput",
-            "type": "object"
-          },
-          "NapariWorkflowsOutput": {
-            "description": "A value of the `output_specs` argument in `napari_workflows_wrapper`.",
-            "properties": {
-              "type": {
-                "enum": [
-                  "label",
-                  "dataframe"
-                ],
-                "title": "Type",
-                "type": "string",
-                "description": "Output type (either `label` or `dataframe`)."
-              },
-              "label_name": {
-                "title": "Label Name",
-                "type": "string",
-                "description": "Label name (for label outputs, it is used as the name of the label; for dataframe outputs, it is used to fill the `region[\"path\"]` field)."
-              },
-              "table_name": {
-                "title": "Table Name",
-                "type": "string",
-                "description": "Table name (for dataframe outputs only)."
-              }
-            },
-            "required": [
-              "type",
-              "label_name"
-            ],
-            "title": "NapariWorkflowsOutput",
-            "type": "object"
-          }
-        },
-        "additionalProperties": false,
-        "properties": {
-          "zarr_url": {
-            "title": "Zarr Url",
-            "type": "string",
-            "description": "Path or url to the individual OME-Zarr image to be processed. (standard argument for Fractal tasks, managed by Fractal server)."
-          },
-          "workflow_file": {
-            "title": "Workflow File",
-            "type": "string",
-            "description": "Absolute path to napari-workflows YAML file"
-          },
-          "input_specs": {
-            "additionalProperties": {
-              "$ref": "#/$defs/NapariWorkflowsInput"
-            },
-            "title": "Input Specs",
-            "type": "object",
-            "description": "A dictionary of `NapariWorkflowsInput` values."
-          },
-          "output_specs": {
-            "additionalProperties": {
-              "$ref": "#/$defs/NapariWorkflowsOutput"
-            },
-            "title": "Output Specs",
-            "type": "object",
-            "description": "A dictionary of `NapariWorkflowsOutput` values."
-          },
-          "input_ROI_table": {
-            "default": "FOV_ROI_table",
-            "title": "Input Roi Table",
-            "type": "string",
-            "description": "Name of the ROI table over which the task loops to apply napari workflows. Examples: `FOV_ROI_table` => loop over the field of views; `organoid_ROI_table` => loop over the organoid ROI table (generated by another task); `well_ROI_table` => process the whole well as one image."
-          },
-          "level": {
-            "default": 0,
-            "title": "Level",
-            "type": "integer",
-            "description": "Pyramid level of the image to be used as input for napari-workflows. Choose `0` to process at full resolution. Levels > 0 are currently only supported for workflows that only have intensity images as input and only produce a label images as output."
-          },
-          "relabeling": {
-            "default": true,
-            "title": "Relabeling",
-            "type": "boolean",
-            "description": "If `True`, apply relabeling so that label values are unique across all ROIs in the well."
-          },
-          "expected_dimensions": {
-            "default": 3,
-            "title": "Expected Dimensions",
-            "type": "integer",
-            "description": "Expected dimensions (either `2` or `3`). Useful when loading 2D images that are stored in a 3D array with shape `(1, size_x, size_y)` [which is the default way Fractal stores 2D images], but you want to make sure the napari workflow gets a 2D array to process. Also useful to set to `2` when loading a 2D OME-Zarr that is saved as `(size_x, size_y)`."
-          },
-          "overwrite": {
-            "default": true,
-            "title": "Overwrite",
-            "type": "boolean",
-            "description": "If `True`, overwrite the task output."
-          }
-        },
-        "required": [
-          "zarr_url",
-          "workflow_file",
-          "input_specs",
-          "output_specs"
-        ],
-        "type": "object",
-        "title": "NapariWorkflowsWrapper"
       },
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     }

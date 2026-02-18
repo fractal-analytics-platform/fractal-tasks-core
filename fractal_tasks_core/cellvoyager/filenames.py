@@ -1,22 +1,15 @@
-# Copyright 2022 (C) Friedrich Miescher Institute for Biomedical Research and
-# University of Zurich
-#
-# Original authors:
-# Tommaso Comparin <tommaso.comparin@exact-lab.it>
-# Marco Franzon <marco.franzon@exact-lab.it>
-#
-# This file is part of Fractal and was originally developed by eXact lab S.r.l.
-# <exact-lab.it> under contract with Liberali Lab from the Friedrich Miescher
-# Institute for Biomedical Research and Pelkmans Lab from the University of
-# Zurich.
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """
 Auxiliary functions related to filenames of Yokogawa-microscope images.
 """
+
 import logging
 import re
 from glob import glob
 from pathlib import Path
 from typing import Sequence
+
+logger = logging.getLogger(__name__)
 
 
 def glob_with_multiple_patterns(
@@ -49,7 +42,7 @@ def glob_with_multiple_patterns(
         exclude_patterns = []
 
     # Combine multiple glob searches (via set intersection)
-    logging.info(f"[glob_with_multiple_patterns] {include_patterns=}")
+    logger.info(f"[glob_with_multiple_patterns] {include_patterns=}")
     items = None
     for pattern in include_patterns:
         new_matches = glob(f"{actual_folder}/{pattern}")
@@ -72,9 +65,7 @@ def glob_with_multiple_patterns(
     # Remove exclude_items from included list
     consensus_items = items - exclude_items
 
-    logging.info(
-        f"[glob_with_multiple_patterns] Found {len(consensus_items)} items"
-    )
+    logger.info(f"[glob_with_multiple_patterns] Found {len(consensus_items)} items")
 
     return consensus_items
 
@@ -164,8 +155,6 @@ def parse_filename(filename: str) -> dict[str, str]:
     for ind, key in enumerate(metadata[::2]):
         value = metadata[2 * ind + 1]
         if key.isdigit() or not value.isdigit():
-            raise ValueError(
-                f"Something wrong with {filename=}, for {key=} {value=}"
-            )
+            raise ValueError(f"Something wrong with {filename=}, for {key=} {value=}")
         output[key] = value
     return output

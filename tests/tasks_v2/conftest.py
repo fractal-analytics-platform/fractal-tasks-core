@@ -3,10 +3,12 @@ import shutil
 from pathlib import Path
 
 import pytest
-from ngio import create_empty_ome_zarr
-from ngio import create_empty_plate
-from ngio import ImageInWellPath
-from ngio import OmeZarrPlate
+from ngio import (
+    ImageInWellPath,
+    OmeZarrPlate,
+    create_empty_ome_zarr,
+    create_empty_plate,
+)
 from ngio.utils import download_ome_zarr_dataset
 
 
@@ -104,9 +106,7 @@ def add_images_to_plate(
             axes_names=axes,
         )
         table = ome_zarr.build_image_roi_table("image")
-        ome_zarr.add_table(
-            "well_ROI_table", table, backend="experimental_json_v1"
-        )
+        ome_zarr.add_table("well_ROI_table", table, backend="experimental_json_v1")
     return plate
 
 
@@ -215,9 +215,7 @@ def sample_ome_zarr_zyx_url(testdata_path) -> Path:
         axes_names="zyx",
     )
     table = origin_ome_zarr.build_image_roi_table("image")
-    origin_ome_zarr.add_table(
-        "well_ROI_table", table, backend="experimental_json_v1"
-    )
+    origin_ome_zarr.add_table("well_ROI_table", table, backend="experimental_json_v1")
     return store
 
 
@@ -226,9 +224,7 @@ def cardiomyocyte_tiny_path(
     tmp_path: Path, cardiomyocyte_tiny_source_path: Path
 ) -> Path:
     dest_path = tmp_path / cardiomyocyte_tiny_source_path.stem
-    shutil.copytree(
-        cardiomyocyte_tiny_source_path, dest_path, dirs_exist_ok=True
-    )
+    shutil.copytree(cardiomyocyte_tiny_source_path, dest_path, dirs_exist_ok=True)
     return dest_path
 
 
@@ -237,7 +233,5 @@ def cardiomyocyte_small_mip_path(
     tmp_path: Path, cardiomyocyte_small_mip_source_path: Path
 ) -> Path:
     dest_path = tmp_path / cardiomyocyte_small_mip_source_path.stem
-    shutil.copytree(
-        cardiomyocyte_small_mip_source_path, dest_path, dirs_exist_ok=True
-    )
+    shutil.copytree(cardiomyocyte_small_mip_source_path, dest_path, dirs_exist_ok=True)
     return dest_path
