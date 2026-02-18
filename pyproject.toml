@@ -6,10 +6,9 @@ readme = "README.md"
 license = { text = "BSD-3-Clause" }
 requires-python = ">=3.11,<3.13"
 authors = [
-    { name = "Joel Lüthi", email = "joel.luethi@fmi.ch" },
+    { name = "Lorenzo Cerrone", email = "lorenzo.cerrone@uzh.ch" },
+    { name = "Joel Lüthi", email = "joel.luethi@uzh.ch" },
     { name = "Tommaso Comparin", email = "tommaso.comparin@exact-lab.it" },
-    { name = "Marco Franzon", email = "marco.franzon@exact-lab.it" },
-    { name = "Jacopo Nespolo", email = "jacopo.nespolo@exact-lab.it" },
 ]
 dependencies = [
     "dask>=2023.1.0,<2025.11.0",
