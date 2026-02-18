@@ -1,5 +1,4 @@
 import logging
-logger = logging.getLogger(__name__)
 import multiprocessing as mp
 import shutil
 import time
@@ -21,6 +20,8 @@ from fractal_tasks_core.tasks._zarr_utils import (
 from fractal_tasks_core.utils import (
     _split_well_path_image_path,
 )
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.mark.parametrize("trailing_slash", [True, False])

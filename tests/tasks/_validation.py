@@ -3,8 +3,6 @@ import json
 import logging
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
-
 import anndata as ad
 import dask.array as da
 import numpy as np
@@ -18,6 +16,8 @@ from fractal_tasks_core.ngff.zarr_utils import load_NgffImageMeta
 from fractal_tasks_core.roi import (
     convert_ROI_table_to_indices,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def validate_schema(*, path: str, type: str):

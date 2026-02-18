@@ -1,12 +1,12 @@
 import logging
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
-
 import anndata as ad
 import pandas as pd
 import zarr
 from anndata._io.specs import write_elem
+
+logger = logging.getLogger(__name__)
 
 
 def _add_empty_ROI_table(
