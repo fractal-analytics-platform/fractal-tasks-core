@@ -23,6 +23,7 @@ Fractal tasks core is the official task package for the [Fractal](https://fracta
 - Adopt Pixi for environment management and task execution (DONE)
 - Refactor dev tooling (DONE)
 - Refactor Illumination correction task to use ngio (DONE)
+- Cleanup docs (DONE)
 - Refactor registration tasks to use ngio
 - Refactor import OME-Zarr task to use ngio
 - Remove the cellvoyager conversion tasks (to be moved into fractal-uzh-converters)
@@ -30,7 +31,6 @@ Fractal tasks core is the official task package for the [Fractal](https://fracta
 - Remove all non-task related code (e.g. NGFF validation, ROI table handling, etc.)
 - Add a new simple segmentation task (like thresholding-based segmentation)
 - Add a new simple measurement task (like regionprops-based measurement)
-- Cleanup docs
 
 ## Documentation
 
