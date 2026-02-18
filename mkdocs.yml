@@ -59,7 +59,6 @@ theme:
 nav:
   - Home page: index.md
   - Install: install.md
-  - Table specs: tables.md
   - Development: development.md
   - Code reference: reference/fractal_tasks_core/
   - Changelog: changelog.md
