@@ -1,3 +1,3 @@
 """
-Fractal manifest creation
+Fractal-tasks-core task list for manifest generation.
 """

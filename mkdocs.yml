@@ -59,10 +59,7 @@ theme:
 nav:
   - Home page: index.md
   - Install: install.md
-  - Run tasks: run_tasks/
-  - Task list: all_tasks.md
   - Table specs: tables.md
-  - Write custom tasks: custom_task.md
   - Development: development.md
   - Code reference: reference/fractal_tasks_core/
   - Changelog: changelog.md
@@ -75,7 +72,6 @@ plugins:
   - autorefs
   - gen-files:
       scripts:
-        - docs/_tasks/generate_task_list.py
         - docs/gen_ref_pages.py
   - literate-nav:
       nav_file: SUMMARY.md
@@ -104,8 +100,8 @@ extra_css:
   - extra.css
 
 copyright: |
-  © Copyright 2024
-  University of Zurich
+  © Copyright 2022-2026
+  BioVisionCenter, University of Zurich
   (see <u><a href="https://github.com/fractal-analytics-platform/fractal-tasks-core/blob/main/LICENSE">
   LICENSE
   </a></u>).
