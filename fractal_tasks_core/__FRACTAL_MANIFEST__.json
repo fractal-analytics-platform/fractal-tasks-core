@@ -44,11 +44,7 @@
                 "description": "Name of the channel."
               },
               "window": {
-                "allOf": [
-                  {
-                    "$ref": "#/$defs/Window"
-                  }
-                ],
+                "$ref": "#/$defs/Window",
                 "title": "Window",
                 "description": "Optional `Window` object to set default display settings. If unset, it will be set to the full bit range of the image (e.g. 0-65535 for 16 bit images)."
               },
@@ -364,11 +360,7 @@
                 "description": "Name of the channel."
               },
               "window": {
-                "allOf": [
-                  {
-                    "$ref": "#/$defs/Window"
-                  }
-                ],
+                "$ref": "#/$defs/Window",
                 "title": "Window",
                 "description": "Optional `Window` object to set default display settings. If unset, it will be set to the full bit range of the image (e.g. 0-65535 for 16 bit images)."
               },
@@ -667,11 +659,7 @@
             "description": "path of the directory where the new OME-Zarrs will be created. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "method": {
-            "allOf": [
-              {
-                "$ref": "#/$defs/DaskProjectionMethod"
-              }
-            ],
+            "$ref": "#/$defs/DaskProjectionMethod",
             "default": "mip",
             "title": "Method",
             "description": "Choose which method to use for intensity projection along the Z axis. mip is the default and performs a maximum intensity projection. minip performs a minimum intensity projection, meanip a mean intensity projection and sumip a sum intensity projection."
@@ -811,9 +799,6 @@
               "model": {
                 "const": "Constant",
                 "default": "Constant",
-                "enum": [
-                  "Constant"
-                ],
                 "title": "Model",
                 "type": "string",
                 "description": "The correction model to be applied."
@@ -839,9 +824,6 @@
               "model": {
                 "const": "No Correction",
                 "default": "No Correction",
-                "enum": [
-                  "No Correction"
-                ],
                 "title": "Model",
                 "type": "string",
                 "description": "The correction model to be applied."
@@ -856,9 +838,6 @@
               "model": {
                 "const": "Profile",
                 "default": "Profile",
-                "enum": [
-                  "Profile"
-                ],
                 "title": "Model",
                 "type": "string",
                 "description": "The correction model to be applied."
@@ -898,11 +877,7 @@
             "description": "Illumination (flatfield) correction profiles."
           },
           "background_correction": {
-            "allOf": [
-              {
-                "$ref": "#/$defs/BackgroundCorrection"
-              }
-            ],
+            "$ref": "#/$defs/BackgroundCorrection",
             "default": {
               "value": {
                 "model": "No Correction"
@@ -1034,11 +1009,7 @@
             "description": "Wavelength that will be used for image-based registration; e.g. `A01_C01` for Yokogawa, `C01` for MD."
           },
           "method": {
-            "allOf": [
-              {
-                "$ref": "#/$defs/RegistrationMethod"
-              }
-            ],
+            "$ref": "#/$defs/RegistrationMethod",
             "default": "phase_cross_correlation",
             "title": "Method",
             "description": "Method to use for image registration. The available methods are `phase_cross_correlation` (scikit-image package, works for 2D & 3D) and \"chi2_shift\" (image_registration package, only works for 2D images)."
