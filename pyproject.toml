@@ -1,7 +1,7 @@
 [project]
 name = "fractal-tasks-core"
 version = "1.6.0"
-description = "Official task package for the Fractal analytics platform"
+description = "Reference task package for the Fractal analytics platform"
 readme = "README.md"
 license = { text = "BSD-3-Clause" }
 requires-python = ">=3.11,<3.13"

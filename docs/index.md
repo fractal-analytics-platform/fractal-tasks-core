@@ -9,7 +9,7 @@ hide:
   <img src="https://raw.githubusercontent.com/fractal-analytics-platform/fractal-logos/refs/heads/main/projects/fractal_tasks_core.png" alt="Fractal tasks core logo" width="400">
 </p>
 
-Fractal tasks core is the official task package for the [Fractal](https://fractal-analytics-platform.github.io/) framework. It provides a collection of ready-to-use tasks for processing bioimaging data, including OME-Zarr conversion, image registration, and illumination correction.
+Fractal tasks core is the reference task package for the [Fractal](https://fractal-analytics-platform.github.io/) framework. It provides a collection of ready-to-use tasks for processing bioimaging data, including OME-Zarr conversion, image registration, and illumination correction.
 
 > This project is under active development 🔨. If you need help or found a bug, **open an issue [here](https://github.com/fractal-analytics-platform/fractal-tasks-core/issues/new)**.
 
