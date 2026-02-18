@@ -1,7 +1,7 @@
 [project]
 name = "fractal-tasks-core"
 version = "1.6.0"
-description = "Core bioimage-analysis library and tasks of the Fractal analytics platform"
+description = "Official task package for the Fractal analytics platform"
 readme = "README.md"
 license = { text = "BSD-3-Clause" }
 requires-python = ">=3.11,<3.13"
@@ -23,10 +23,6 @@ dependencies = [
     "ngio>=0.4.8,<0.5.0",
     "fractal-task-tools==0.3.0",
     "numcodecs<0.16.0",
-]
-
-[project.optional-dependencies]
-fractal-tasks = [
     "Pillow>=9.1.1",
     "imageio-ffmpeg>=0.4.7",
     "scikit-image>=0.19",
@@ -34,6 +30,8 @@ fractal-tasks = [
     "stackview<0.9.0",
     "image_registration>=0.2.9",
 ]
+
+[project.optional-dependencies]
 dev = [
     "devtools==0.12.0",
     "pre-commit>=2.19.0",
@@ -74,9 +72,8 @@ fractal-tasks-core = { path = ".", editable = true }
 
 [tool.pixi.environments]
 default = { solve-group = "default" }
-dev = { features = ["dev", "fractal-tasks"], solve-group = "default" }
+dev = { features = ["dev"], solve-group = "default" }
 docs = { features = ["docs"], solve-group = "default" }
-full = { features = ["fractal-tasks"], solve-group = "default" }
 
 [tool.coverage.run]
 branch = true

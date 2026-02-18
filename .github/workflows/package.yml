@@ -1,4 +1,4 @@
-name: Precommit and Mypy (soft)
+name: Precommit, Ruff and Mypy (soft)
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
 jobs:
 
   package:
-    name: "Precommit and Mypy (soft)"
+    name: "Precommit, Ruff and Mypy (soft)"
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -27,6 +27,13 @@ jobs:
 
       - name: Run pre-commit (fail upon errors)
         uses: pre-commit/action@v3.0.1
+
+      - name: Install ruff
+        run: pip install ruff
+
+      - name: Run ruff check (do not fail for errors)
+        continue-on-error: true
+        run: ruff check fractal_tasks_core
 
       - name: Install mypy
         run: pip install mypy
