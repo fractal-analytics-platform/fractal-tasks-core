@@ -7,15 +7,43 @@ import logging
 from enum import Enum
 
 import numpy as np
+from image_registration import chi2_shift
 from ngio import PixelSize, Roi, open_ome_zarr_container
 from pydantic import validate_call
 from skimage.exposure import rescale_intensity
 from skimage.registration import phase_cross_correlation
 
-from fractal_tasks_core.tasks._registration_utils import chi2_shift_out
 from fractal_tasks_core.tasks.io_models import InitArgsRegistration
 
 logger = logging.getLogger("calculate_registration_image_based")
+
+
+def chi2_shift_out(img_ref, img_cycle_x) -> list[np.ndarray]:
+    """
+    Helper function to get the output of chi2_shift into the same format as
+    phase_cross_correlation. Calculates the shift between two images using
+    the chi2_shift method.
+
+    Args:
+        img_ref (np.ndarray): First image.
+        img_cycle_x (np.ndarray): Second image.
+
+    Returns:
+        List containing numpy array of shift in y and x direction.
+    """
+    x, y, a, b = chi2_shift(np.squeeze(img_ref), np.squeeze(img_cycle_x))
+
+    """
+    Running into issues when using direct float output for fractal.
+    When rounding to integer and using integer dtype, it typically works
+    but for some reasons fails when run over a whole 384 well plate (but
+    the well where it fails works fine when run alone). For now, rounding
+    to integer, but still using float64 dtype (like the scikit-image
+    phase cross correlation function) seems to be the safest option.
+    """
+    shifts = np.array([-np.round(y), -np.round(x)], dtype="float64")
+    # return as a list to adhere to the phase_cross_correlation output format
+    return [shifts]
 
 
 class RegistrationMethod(Enum):
@@ -120,6 +148,13 @@ def calculate_registration_image_based(
     to_align_ome_zarr = open_ome_zarr_container(zarr_url)
     to_align_image = to_align_ome_zarr.get_image(path=str(level))
     channel_index_align = to_align_image.get_channel_idx(wavelength_id=wavelength_id)
+
+    if ref_image.is_time_series:
+        raise ValueError(
+            f"Time series images are currently not supported for image-based "
+            f"registration, but the reference image had a time dimension with "
+            f"shape {ref_image.shape}."
+        )
 
     if ref_image.is_3d and method == RegistrationMethod(RegistrationMethod.CHI2_SHIFT):
         raise ValueError(
