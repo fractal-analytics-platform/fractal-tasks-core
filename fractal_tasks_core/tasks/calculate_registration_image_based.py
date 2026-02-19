@@ -90,7 +90,7 @@ def calculate_registration_image_based(
             f"shape {ref_image.shape}."
         )
 
-    if ref_image.is_3d and method == RegistrationMethod(RegistrationMethod.CHI2_SHIFT):
+    if ref_image.is_3d and method == RegistrationMethod.CHI2_SHIFT:
         raise ValueError(
             f"The `{RegistrationMethod.CHI2_SHIFT}` registration method "
             "has not been implemented for 3D images and the input image "
@@ -103,13 +103,15 @@ def calculate_registration_image_based(
         f"Found {len(ref_roi_table.rois())} ROIs in {roi_table=} to be processed."
     )
 
+    to_align_rois = {roi.name: roi for roi in to_align_roi_table.rois()}
     new_shifts = {}
     for roi in ref_roi_table.rois():
-        logger.info(f"Processing ROI {roi} for registration between reference ")
-        for to_align_roi in to_align_roi_table.rois():
-            if roi.name == to_align_roi.name:
-                break
-        else:
+        logger.info(
+            f"Processing ROI {roi.name!r} for registration between "
+            f"{init_args.reference_zarr_url!r} and {zarr_url!r}."
+        )
+        to_align_roi = to_align_rois.get(roi.name)
+        if to_align_roi is None:
             raise ValueError(
                 f"Could not find matching ROI for ROI {roi} in the reference "
                 "acquisition in the alignment acquisition."
