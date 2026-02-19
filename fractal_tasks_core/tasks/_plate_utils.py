@@ -49,11 +49,10 @@ def _parse_hcs_zarr_url(zarr_urls: list[str]) -> list[HCSZarrUrl]:
 
 def group_by_plate(zarr_urls: list[str]) -> dict[str, list[HCSZarrUrl]]:
     """
-    Group a list of image dictionaries by plate.
+    Group a list of zarr_urls by plate.
 
     Args:
-        image_list: list of image dictionaries, each containing at least a "zarr_url"
-            key.
+        zarr_urls: list of zarr_urls, each containing the path to an OME-Zarr image.
 
     """
     hcs_url = _parse_hcs_zarr_url(zarr_urls)
