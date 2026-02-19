@@ -9,11 +9,9 @@ from fractal_tasks_core.tasks._registration_utils import (
     add_zero_translation_columns,
     apply_registration_to_single_ROI_table,
     calculate_min_max_across_dfs,
-    is_3D,
-)
-from fractal_tasks_core.tasks.calculate_registration_image_based import (
     calculate_physical_shifts,
     get_ROI_table_with_translation,
+    is_3D,
 )
 
 
