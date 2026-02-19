@@ -1,40 +1,111 @@
 # Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """
-Calculates translation for 2D image-based registration
+Applies pre-calculated registration to images
 """
 
 import logging
 import os
 import shutil
 import time
-from typing import Callable
 
-import anndata as ad
-import dask.array as da
-import numpy as np
-import zarr
+from ngio import OmeZarrContainer, Roi, open_ome_zarr_container, open_ome_zarr_well
 from pydantic import validate_call
 
-from fractal_tasks_core.ngff import load_NgffImageMeta
-from fractal_tasks_core.ngff.zarr_utils import load_NgffWellMeta
-from fractal_tasks_core.pyramids import build_pyramid
-from fractal_tasks_core.roi import (
-    convert_indices_to_regions,
-    convert_ROI_table_to_indices,
-    is_standard_roi_table,
-    load_region,
-)
-from fractal_tasks_core.tables import write_table
-from fractal_tasks_core.tasks._zarr_utils import (
-    _get_matching_ref_acquisition_path_heuristic,
-    _update_well_metadata,
-)
-from fractal_tasks_core.utils import (
-    _get_table_path_dict,
-    _split_well_path_image_path,
-)
-
 logger = logging.getLogger("apply_registration_to_image")
+
+
+def _get_ref_path_heuristic(path_list: list[str], path: str) -> str:
+    """
+    Pick the best-matching reference path from `path_list` for a given `path`.
+
+    Matches by the suffix (everything after the first ``_`` in the path name).
+    If no suffix match is found, falls back to the first sorted entry and logs
+    a warning. Used when a well contains multiple images of the same
+    acquisition (e.g. ``['0', '0_illum_corr']``) and we need to find the
+    reference counterpart of a given image (e.g. ``'1_illum_corr'``).
+
+    Args:
+        path_list: Candidate reference image paths in the well.
+        path: Current image path whose reference counterpart is sought.
+
+    Returns:
+        The best-matching path from `path_list`.
+    """
+
+    def _split_suffix(s: str) -> str:
+        parts = s.split("_", 1)
+        return parts[1] if len(parts) > 1 else ""
+
+    suffix = _split_suffix(path)
+    for p in sorted(path_list):
+        if _split_suffix(p) == suffix:
+            return p
+    logger.warning(
+        "No heuristic reference acquisition match found, defaulting to first "
+        f"option {sorted(path_list)[0]}."
+    )
+    return sorted(path_list)[0]
+
+
+def _write_registered_ngio_image(
+    source_ome_zarr: OmeZarrContainer,
+    new_zarr_url: str,
+    roi_pairs: list[tuple[Roi, Roi]],
+) -> OmeZarrContainer:
+    """
+    Write a registered OME-Zarr image to disk using pre-computed ROI pairs.
+
+    Creates a new image container derived from the source (same shape, dtype,
+    and metadata, initialised to zeros), writes image data from each acquisition
+    ROI into the corresponding reference ROI position, then builds the pyramid
+    using linear interpolation.
+
+    Args:
+        source_ome_zarr: Source image container (current acquisition).
+        new_zarr_url: Path where the new registered image will be written.
+        roi_pairs: List of (acq_roi, ref_roi) tuples. For each pair the data
+            is read from `acq_roi` in the source and written to `ref_roi` in
+            the new image. Regions not covered by any pair remain zero.
+
+    Returns:
+        The newly created OmeZarrContainer.
+    """
+    new_ome_zarr = source_ome_zarr.derive_image(new_zarr_url, overwrite=True)
+    source_image = source_ome_zarr.get_image()
+    new_image = new_ome_zarr.get_image()
+    for acq_roi, ref_roi in roi_pairs:
+        patch = source_image.get_roi(acq_roi)
+        new_image.set_roi(ref_roi, patch)
+    new_image.consolidate(order="linear")
+    return new_ome_zarr
+
+
+def _write_registered_ngio_label(
+    acq_ome_zarr: OmeZarrContainer,
+    new_ome_zarr: OmeZarrContainer,
+    label_name: str,
+    roi_pairs: list[tuple[Roi, Roi]],
+) -> None:
+    """
+    Write a registered label image into an existing new OME-Zarr container.
+
+    Derives an empty label from the source container, writes label data from
+    each acquisition ROI into the reference ROI position, then builds the
+    pyramid using nearest-neighbour interpolation (appropriate for integer
+    segmentation masks).
+
+    Args:
+        acq_ome_zarr: Source image container (current acquisition).
+        new_ome_zarr: Target container where the registered label is written.
+        label_name: Name of the label to process.
+        roi_pairs: List of (acq_roi, ref_roi) tuples (same as for the image).
+    """
+    acq_label = acq_ome_zarr.get_label(label_name)
+    new_label = new_ome_zarr.derive_label(label_name, overwrite=True)
+    for acq_roi, ref_roi in roi_pairs:
+        patch = acq_label.get_roi(acq_roi)
+        new_label.set_roi(ref_roi, patch)
+    new_label.consolidate()
 
 
 @validate_call
@@ -79,154 +150,116 @@ def apply_registration_to_image(
             `overwrite_input=True`.
 
     """
-    logger.info(zarr_url)
     logger.info(
         f"Running `apply_registration_to_image` on {zarr_url=}, "
         f"{registered_roi_table=} and {reference_acquisition=}. "
         f"Using {overwrite_input=}"
     )
 
-    well_url, old_img_path = _split_well_path_image_path(zarr_url)
-    new_zarr_url = f"{well_url}/{zarr_url.split('/')[-1]}_registered"
-    # Get the zarr_url for the reference acquisition
-    acq_dict = load_NgffWellMeta(well_url).get_acquisition_paths()
-    if reference_acquisition not in acq_dict:
+    well_url, old_img_path = zarr_url.rstrip("/").rsplit("/", 1)
+    new_zarr_url = f"{well_url}/{old_img_path}_registered"
+
+    # Resolve the zarr_url for the reference acquisition
+    ome_zarr_well = open_ome_zarr_well(well_url)
+    if reference_acquisition not in ome_zarr_well.acquisition_ids:
         raise ValueError(
             f"{reference_acquisition=} was not one of the available "
-            f"acquisitions in {acq_dict=} for well {well_url}"
+            f"acquisitions {ome_zarr_well.acquisition_ids} for well {well_url}"
         )
-    elif len(acq_dict[reference_acquisition]) > 1:
-        ref_path = _get_matching_ref_acquisition_path_heuristic(
-            acq_dict[reference_acquisition], old_img_path
-        )
+    ref_paths = ome_zarr_well.paths(reference_acquisition)
+    if len(ref_paths) > 1:
+        ref_path = _get_ref_path_heuristic(ref_paths, old_img_path)
         logger.warning(
             "Running registration when there are multiple images of the same "
             "acquisition in a well. Using a heuristic to match the reference "
             f"acquisition. Using {ref_path} as the reference image."
         )
     else:
-        ref_path = acq_dict[reference_acquisition][0]
+        ref_path = ref_paths[0]
     reference_zarr_url = f"{well_url}/{ref_path}"
 
-    ROI_table_ref = ad.read_zarr(f"{reference_zarr_url}/tables/{registered_roi_table}")
-    ROI_table_acq = ad.read_zarr(f"{zarr_url}/tables/{registered_roi_table}")
+    # Open containers and load registered ROI tables
+    ref_ome_zarr = open_ome_zarr_container(reference_zarr_url)
+    acq_ome_zarr = open_ome_zarr_container(zarr_url)
+    roi_table_ref = ref_ome_zarr.get_roi_table(registered_roi_table)
+    roi_table_acq = acq_ome_zarr.get_roi_table(registered_roi_table)
 
-    ngff_image_meta = load_NgffImageMeta(zarr_url)
-    coarsening_xy = ngff_image_meta.coarsening_xy
-    num_levels = ngff_image_meta.num_levels
+    # Build ROI pairs by name (order-independent; names already validated by
+    # find_registration_consensus)
+    rois_ref = {roi.name: roi for roi in roi_table_ref.rois()}
+    rois_acq = {roi.name: roi for roi in roi_table_acq.rois()}
+    roi_pairs: list[tuple[Roi, Roi]] = [
+        (rois_acq[name], rois_ref[name]) for name in sorted(rois_ref)
+    ]
 
     ####################
     # Process images
     ####################
     logger.info("Write the registered Zarr image to disk")
-    write_registered_zarr(
-        zarr_url=zarr_url,
-        new_zarr_url=new_zarr_url,
-        ROI_table=ROI_table_acq,
-        ROI_table_ref=ROI_table_ref,
-        num_levels=num_levels,
-        coarsening_xy=coarsening_xy,
-        aggregation_function=np.mean,
-    )
+    new_ome_zarr = _write_registered_ngio_image(acq_ome_zarr, new_zarr_url, roi_pairs)
 
     ####################
     # Process labels
     ####################
-    try:
-        labels_group = zarr.open_group(f"{zarr_url}/labels", "r")
-        label_list = labels_group.attrs["labels"]
-    except (zarr.errors.GroupNotFoundError, KeyError):
-        label_list = []
-
+    label_list = acq_ome_zarr.list_labels()
     if label_list:
         logger.info(f"Processing the label images: {label_list}")
-        labels_group = zarr.group(f"{new_zarr_url}/labels")
-        labels_group.attrs["labels"] = label_list
-
-        for label in label_list:
-            write_registered_zarr(
-                zarr_url=f"{zarr_url}/labels/{label}",
-                new_zarr_url=f"{new_zarr_url}/labels/{label}",
-                ROI_table=ROI_table_acq,
-                ROI_table_ref=ROI_table_ref,
-                num_levels=num_levels,
-                coarsening_xy=coarsening_xy,
-                aggregation_function=np.max,
+        for label_name in label_list:
+            _write_registered_ngio_label(
+                acq_ome_zarr, new_ome_zarr, label_name, roi_pairs
             )
 
     ####################
     # Copy tables
-    # 1. Copy all standard ROI tables from the reference acquisition.
-    # 2. Copy all tables that aren't standard ROI tables from the given
-    # acquisition.
+    # 1. Copy all ROI tables from the reference acquisition.
+    # 2. Copy all non-ROI tables from the given acquisition.
     ####################
-    table_dict_reference = _get_table_path_dict(reference_zarr_url)
-    table_dict_component = _get_table_path_dict(zarr_url)
+    ref_roi_table_names = set(ref_ome_zarr.list_roi_tables())
+    acq_non_roi_table_names = set(acq_ome_zarr.list_tables()) - set(
+        acq_ome_zarr.list_roi_tables()
+    )
 
-    table_dict = {}
-    # Define which table should get copied:
-    for table in table_dict_reference:
-        if is_standard_roi_table(table):
-            table_dict[table] = table_dict_reference[table]
-    for table in table_dict_component:
-        if not is_standard_roi_table(table):
-            if reference_zarr_url != zarr_url:
-                logger.warning(
-                    f"{zarr_url} contained a table that is not a standard "
-                    "ROI table. The `Apply Registration To Image task` is "
-                    "best used before additional tables are generated. It "
-                    f"will copy the {table} from this acquisition without "
-                    "applying any transformations. This will work well if "
-                    f"{table} contains measurements. But if {table} is a "
-                    "custom ROI table coming from another task, the "
-                    "transformation is not applied and it will not match "
-                    "with the registered image anymore."
-                )
-            table_dict[table] = table_dict_component[table]
+    tables_to_copy: dict[str, OmeZarrContainer] = {
+        name: ref_ome_zarr for name in ref_roi_table_names
+    }
+    for table_name in acq_non_roi_table_names:
+        if reference_zarr_url != zarr_url:
+            logger.warning(
+                f"{zarr_url} contained a table that is not a ROI table. "
+                "The `Apply Registration To Image task` is best used before "
+                "additional tables are generated. It will copy "
+                f"{table_name} from this acquisition without applying any "
+                "transformations. This will work well if it contains "
+                "measurements. But if it is a custom ROI table coming from "
+                "another task, the transformation is not applied and it will "
+                "not match with the registered image anymore."
+            )
+        tables_to_copy[table_name] = acq_ome_zarr
 
-    if table_dict:
-        logger.info(f"Processing the tables: {table_dict}")
-        new_image_group = zarr.group(new_zarr_url)
-
-        for table in table_dict.keys():
-            logger.info(f"Copying table: {table}")
-            # Get the relevant metadata of the Zarr table & add it
-            # See issue #516 for the need for this workaround
-            max_retries = 20
-            sleep_time = 10
-            current_round = 0
-            while current_round < max_retries:
+    if tables_to_copy:
+        logger.info(f"Processing the tables: {list(tables_to_copy.keys())}")
+        max_retries = 20
+        sleep_time = 10
+        for table_name, source in tables_to_copy.items():
+            logger.info(f"Copying table: {table_name}")
+            # Retry loop to guard against race conditions (see issue #516)
+            for attempt in range(max_retries):
                 try:
-                    old_table_group = zarr.open_group(table_dict[table], mode="r")
-                    current_round = max_retries
-                    curr_table = ad.read_zarr(table_dict[table])
-                    break  # Exit loop on success
-                except (
-                    zarr.errors.GroupNotFoundError,
-                    zarr.errors.PathNotFoundError,
-                    FileNotFoundError,
-                ):
+                    table = source.get_table(table_name)
+                    break
+                except Exception:
                     logger.debug(
-                        f"Table {table} not found in attempt {current_round}. "
+                        f"Table {table_name} not found in attempt {attempt}. "
                         f"Waiting {sleep_time} seconds before trying again."
                     )
-                    current_round += 1
                     time.sleep(sleep_time)
             else:
-                # This runs only if the loop exits via exhaustion
                 raise RuntimeError(
-                    f"Table {table} not found after {max_retries} attempts."
+                    f"Table {table_name} not found after {max_retries} attempts. "
                     "Check whether this table actually exists. If it does, "
                     "this may be a race condition issue."
                 )
-            # Write the Zarr table
-            write_table(
-                new_image_group,
-                table,
-                curr_table,
-                table_attrs=old_table_group.attrs.asdict(),
-                overwrite=True,
-            )
+            new_ome_zarr.add_table(name=table_name, table=table, overwrite=True)
 
     ####################
     # Clean up Zarr file
@@ -245,136 +278,20 @@ def apply_registration_to_image(
         image_list_updates = dict(
             image_list_updates=[dict(zarr_url=new_zarr_url, origin=zarr_url)]
         )
-        # Update the metadata of the the well
-        well_url, new_img_path = _split_well_path_image_path(new_zarr_url)
-        _update_well_metadata(
-            well_url=well_url,
-            old_image_path=old_img_path,
-            new_image_path=new_img_path,
+        # Update the well metadata to include the new image. We use
+        # parallel_safe=True (the default) so that ngio uses a FileLock,
+        # and atomic=True to ensure the metadata write is protected by that
+        # lock (guards against the race condition of multiple acquisitions
+        # modifying the well metadata simultaneously, see issue #516).
+        new_img_path = f"{old_img_path}_registered"
+        ome_zarr_well = open_ome_zarr_well(well_url)
+        acq_id = ome_zarr_well.get_image_acquisition_id(old_img_path)
+        # TODO: replace with a public atomic add_image method once ngio exposes one.
+        ome_zarr_well._add_image(
+            new_img_path, acquisition_id=acq_id, atomic=True, strict=True
         )
 
     return image_list_updates
-
-
-def write_registered_zarr(
-    zarr_url: str,
-    new_zarr_url: str,
-    ROI_table: ad.AnnData,
-    ROI_table_ref: ad.AnnData,
-    num_levels: int,
-    coarsening_xy: int = 2,
-    aggregation_function: Callable = np.mean,
-):
-    """
-    Write registered zarr array based on ROI tables
-
-    This function loads the image or label data from a zarr array based on the
-    ROI bounding-box coordinates and stores them into a new zarr array.
-    The new Zarr array has the same shape as the original array, but will have
-    0s where the ROI tables don't specify loading of the image data.
-    The ROIs loaded from `list_indices` will be written into the
-    `list_indices_ref` position, thus performing translational registration if
-    the two lists of ROI indices vary.
-
-    Args:
-        zarr_url: Path or url to the individual OME-Zarr image to be used as
-            the basis for the new OME-Zarr image.
-        new_zarr_url: Path or url to the new OME-Zarr image to be written
-        ROI_table: Fractal ROI table for the component
-        ROI_table_ref: Fractal ROI table for the reference acquisition
-        num_levels: Number of pyramid layers to be created (argument of
-            `build_pyramid`).
-        coarsening_xy: Coarsening factor between pyramid levels
-        aggregation_function: Function to be used when downsampling (argument
-            of `build_pyramid`).
-
-    """
-    # Read pixel sizes from Zarr attributes
-    ngff_image_meta = load_NgffImageMeta(zarr_url)
-    pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
-
-    # Create list of indices for 3D ROIs
-    list_indices = convert_ROI_table_to_indices(
-        ROI_table,
-        level=0,
-        coarsening_xy=coarsening_xy,
-        full_res_pxl_sizes_zyx=pxl_sizes_zyx,
-    )
-    list_indices_ref = convert_ROI_table_to_indices(
-        ROI_table_ref,
-        level=0,
-        coarsening_xy=coarsening_xy,
-        full_res_pxl_sizes_zyx=pxl_sizes_zyx,
-    )
-
-    old_image_group = zarr.open_group(zarr_url, mode="r")
-    old_ngff_image_meta = load_NgffImageMeta(zarr_url)
-    new_image_group = zarr.group(new_zarr_url)
-    new_image_group.attrs.put(old_image_group.attrs.asdict())
-
-    # Loop over all channels. For each channel, write full-res image data.
-    data_array = da.from_zarr(old_image_group["0"])
-    # Create dask array with 0s of same shape
-    new_array = da.zeros_like(data_array)
-
-    # TODO: Add sanity checks on the 2 ROI tables:
-    # 1. The number of ROIs need to match
-    # 2. The size of the ROIs need to match
-    # (otherwise, we can't assign them to the reference regions)
-    # ROI_table_ref vs ROI_table_acq
-    for i, roi_indices in enumerate(list_indices):
-        reference_region = convert_indices_to_regions(list_indices_ref[i])
-        region = convert_indices_to_regions(roi_indices)
-
-        axes_list = old_ngff_image_meta.axes_names
-
-        if axes_list == ["c", "z", "y", "x"]:
-            num_channels = data_array.shape[0]
-            # Loop over channels
-            for ind_ch in range(num_channels):
-                idx = tuple([slice(ind_ch, ind_ch + 1)] + list(reference_region))
-                new_array[idx] = load_region(
-                    data_zyx=data_array[ind_ch], region=region, compute=False
-                )
-        elif axes_list == ["z", "y", "x"]:
-            new_array[reference_region] = load_region(
-                data_zyx=data_array, region=region, compute=False
-            )
-        elif axes_list == ["c", "y", "x"]:
-            # TODO: Implement cyx case (based on looping over xy case)
-            raise NotImplementedError(
-                "`write_registered_zarr` has not been implemented for "
-                f"a zarr with {axes_list=}"
-            )
-        elif axes_list == ["y", "x"]:
-            # TODO: Implement yx case
-            raise NotImplementedError(
-                "`write_registered_zarr` has not been implemented for "
-                f"a zarr with {axes_list=}"
-            )
-        else:
-            raise NotImplementedError(
-                "`write_registered_zarr` has not been implemented for "
-                f"a zarr with {axes_list=}"
-            )
-
-    new_array.to_zarr(
-        f"{new_zarr_url}/0",
-        overwrite=True,
-        dimension_separator="/",
-        write_empty_chunks=False,
-    )
-
-    # Starting from on-disk highest-resolution data, build and write to
-    # disk a pyramid of coarser levels
-    build_pyramid(
-        zarrurl=new_zarr_url,
-        overwrite=True,
-        num_levels=num_levels,
-        coarsening_xy=coarsening_xy,
-        chunksize=data_array.chunksize,
-        aggregation_function=aggregation_function,
-    )
 
 
 if __name__ == "__main__":
