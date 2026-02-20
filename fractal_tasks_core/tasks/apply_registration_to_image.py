@@ -214,9 +214,9 @@ def apply_registration_to_image(
     # 1. Copy all ROI tables from the reference acquisition.
     # 2. Copy all non-ROI tables from the given acquisition.
     ####################
-    ref_roi_table_names = set(ref_ome_zarr.list_roi_tables())
+    ref_roi_table_names = set(ref_ome_zarr.list_tables(filter_types="roi_table"))
     acq_non_roi_table_names = set(acq_ome_zarr.list_tables()) - set(
-        acq_ome_zarr.list_roi_tables()
+        acq_ome_zarr.list_tables(filter_types="roi_table")
     )
 
     tables_to_copy: dict[str, OmeZarrContainer] = {
