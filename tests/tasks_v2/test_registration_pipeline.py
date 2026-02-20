@@ -501,6 +501,13 @@ def test_find_consensus_produces_correct_region(multiplex_plate_urls):
     assert acq_roi.y_length == pytest.approx(ref_roi.y_length, abs=0.01)
     assert acq_roi.x_length == pytest.approx(ref_roi.x_length, abs=0.01)
 
+    # After consensus: get_roi on both acquisitions with their respective registered
+    # ROIs should return pixel-identical arrays (same physical overlap region,
+    # but addressed by different pixel coordinates in each acquisition).
+    patch0 = ome0.get_image().get_roi(ref_roi)
+    patch1 = ome1.get_image().get_roi(acq_roi)
+    np.testing.assert_array_equal(patch0, patch1)
+
 
 # ---------------------------------------------------------------------------
 # apply_registration_to_image — full pipeline helpers
@@ -565,6 +572,15 @@ def test_full_pipeline_overwrite_input_true(multiplex_plate_urls):
     tables = set(ome1.list_tables())
     assert "FOV_ROI_table" in tables
     assert "registered_FOV_ROI_table" in tables
+
+    # After apply: both acquisitions must have pixel-identical data in the
+    # registered overlap region.  apply writes acq1 into the reference coordinate
+    # frame, so the same ref_roi extracts the same physical patch from both.
+    ome0 = open_ome_zarr_container(zarr_url_0)
+    ref_roi = ome0.get_roi_table("registered_FOV_ROI_table").rois()[0]
+    patch0 = ome0.get_image().get_roi(ref_roi)
+    patch1 = img1.get_roi(ref_roi)
+    np.testing.assert_array_equal(patch0, patch1)
 
 
 # ---------------------------------------------------------------------------
