@@ -58,6 +58,10 @@ _SHIFT_X_PX = 8
 # At level 2 (factor 4) these become 1 px and 2 px, i.e. 1.3 µm and 2.6 µm.
 _SHIFT_Y_UM = 1.3  # µm
 _SHIFT_X_UM = 2.6  # µm
+# z shift: ngio only downsamples xy, not z.  z_spacing = 1.0 µm/px at every
+# pyramid level, so 2 px × 1.0 µm/px = 2.0 µm.
+_SHIFT_Z_PX = 2
+_SHIFT_Z_UM = 2.0  # µm
 
 
 def _build_image(zarr_url: str, y_offset: int = 0, x_offset: int = 0) -> None:
@@ -93,6 +97,11 @@ def _build_image_for_axes(
 
     ngio supports channel metadata even for squeezed/implicit channels, so
     _WAVELENGTH is always provided.  z_spacing is added only when 'z' is present.
+
+    The z axis is left as slice(None) (signal across all z slices).  This keeps
+    the signal density high enough for phase_cross_correlation and avoids the
+    ngio behaviour where channel_selection picks the z=0 slice for images
+    without an explicit 'c' axis.
     """
     kwargs: dict = dict(
         shape=shape,
@@ -320,6 +329,72 @@ def test_calculate_registration_stores_translations(multiplex_plate_urls):
     ome0 = open_ome_zarr_container(zarr_url_0)
     ref_rois = ome0.get_generic_roi_table("FOV_ROI_table").rois()
     assert not (ref_rois[0].model_extra or {}).get("translation_y")
+
+
+def test_calculate_registration_detects_z_shift(tmp_path: Path):
+    """calculate_registration_image_based detects a pure z-shift in czyx images.
+
+    Two design choices keep this test reliable:
+    - 8 z-slices of signal (out of 16): at level 2 (xy/4, z unchanged because
+      ngio only downsamples xy) the 10×10 block shrinks to ~3×3 px.  Using 8
+      z-slices gives ~72 signal voxels out of 4 096 (1.76 %), which keeps
+      np.quantile(img, 0.99) above zero so rescale_intensity does not clip.
+    - czyx axes (not zyx): for zyx images get_roi with channel_selection picks
+      the z=0 slice; czyx ensures the full (z, y, x) volume is returned.
+    """
+    shape = (1, 16, 64, 64)  # czyx
+    _z_block = 8  # 8 z-slices of signal → ~1.76 % density at level 2
+    _z_start = 4  # start well away from boundaries
+
+    plate_path = tmp_path / "multiplex_zshift.zarr"
+    plate = create_empty_plate(
+        store=plate_path,
+        name="multiplex_zshift",
+        images=[
+            ImageInWellPath(row="A", column="01", path="0", acquisition_id=0),
+            ImageInWellPath(row="A", column="01", path="1", acquisition_id=1),
+        ],
+        overwrite=True,
+    )
+    base_url = plate._group_handler.full_url
+    zarr_url_0 = f"{base_url}A/01/0"
+    zarr_url_1 = f"{base_url}A/01/1"
+
+    for zarr_url, z_start in [
+        (zarr_url_0, _z_start),
+        (zarr_url_1, _z_start + _SHIFT_Z_PX),
+    ]:
+        ome = create_empty_ome_zarr(
+            zarr_url,
+            shape=shape,
+            xy_pixelsize=_PIXELSIZE,
+            z_spacing=1.0,
+            axes_names="czyx",
+            levels=_LEVELS,
+            channel_wavelengths=[_WAVELENGTH],
+            overwrite=True,
+        )
+        data = np.zeros(shape, dtype=np.uint16)
+        data[0, z_start : z_start + _z_block, 20:30, 20:30] = 1000
+        ome.get_image().set_array(data)
+        ome.get_image().consolidate()
+        fov = ome.build_image_roi_table("image")
+        ome.add_table("FOV_ROI_table", fov, backend="experimental_json_v1")
+
+    calculate_registration_image_based(
+        zarr_url=zarr_url_1,
+        init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
+        wavelength_id=_WAVELENGTH,
+        roi_table="FOV_ROI_table",
+        level=2,  # ngio only downsamples xy; z shape is unchanged at every level
+    )
+
+    ome1 = open_ome_zarr_container(zarr_url_1)
+    roi = ome1.get_generic_roi_table("FOV_ROI_table").rois()[0]
+    assert roi.model_extra is not None
+    assert roi.model_extra["translation_z"] == pytest.approx(-_SHIFT_Z_UM, abs=0.5)
+    assert roi.model_extra["translation_y"] == pytest.approx(0.0, abs=0.5)
+    assert roi.model_extra["translation_x"] == pytest.approx(0.0, abs=0.5)
 
 
 def test_calculate_registration_chi2_shift_3d_raises(tmp_path: Path):
