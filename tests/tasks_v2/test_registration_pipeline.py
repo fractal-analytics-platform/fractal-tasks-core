@@ -31,6 +31,12 @@ from fractal_tasks_core.tasks.calculate_registration_image_based import (
 from fractal_tasks_core.tasks.find_registration_consensus import (
     find_registration_consensus,
 )
+from fractal_tasks_core.tasks.image_based_registration_hcs_init import (
+    image_based_registration_hcs_init,
+)
+from fractal_tasks_core.tasks.init_group_by_well_for_multiplexing import (
+    init_group_by_well_for_multiplexing,
+)
 from fractal_tasks_core.tasks.io_models import (
     InitArgsRegistration,
     InitArgsRegistrationConsensus,
@@ -76,6 +82,72 @@ def _build_image(zarr_url: str, y_offset: int = 0, x_offset: int = 0) -> None:
     ome.add_table("FOV_ROI_table", fov, backend="experimental_json_v1")
 
 
+def _build_image_for_axes(
+    zarr_url: str,
+    axes: str,
+    shape: tuple[int, ...],
+    y_offset: int = 0,
+    x_offset: int = 0,
+) -> None:
+    """Create an OME-Zarr image for any axes configuration with a bright 10×10 block.
+
+    ngio supports channel metadata even for squeezed/implicit channels, so
+    _WAVELENGTH is always provided.  z_spacing is added only when 'z' is present.
+    """
+    kwargs: dict = dict(
+        shape=shape,
+        xy_pixelsize=_PIXELSIZE,
+        axes_names=axes,
+        levels=_LEVELS,
+        channel_wavelengths=[_WAVELENGTH],
+        overwrite=True,
+    )
+    if "z" in axes:
+        kwargs["z_spacing"] = 1.0
+    ome = create_empty_ome_zarr(zarr_url, **kwargs)
+    img = ome.get_image()
+    data = np.zeros(shape, dtype=np.uint16)
+    y_idx = axes.index("y")
+    x_idx = axes.index("x")
+    slices: list = [slice(None)] * len(shape)
+    slices[y_idx] = slice(20 + y_offset, 30 + y_offset)
+    slices[x_idx] = slice(20 + x_offset, 30 + x_offset)
+    data[tuple(slices)] = 1000
+    img.set_array(data)
+    img.consolidate()
+    fov = ome.build_image_roi_table("image")
+    ome.add_table("FOV_ROI_table", fov, backend="experimental_json_v1")
+
+
+def _build_multiplex_plate(
+    tmp_path: Path, axes: str, shape: tuple[int, ...]
+) -> dict[str, str]:
+    """Build a 2-acquisition plate for any axes/shape with a known shift.
+
+    Acquisition 0 (reference): bright block at y=20:30, x=20:30.
+    Acquisition 1 (to align):  block shifted by _SHIFT_Y_PX / _SHIFT_X_PX.
+    """
+    plate_path = tmp_path / f"multiplex_{axes}.zarr"
+    plate = create_empty_plate(
+        store=plate_path,
+        name=f"multiplex_{axes}",
+        images=[
+            ImageInWellPath(row="A", column="01", path="0", acquisition_id=0),
+            ImageInWellPath(row="A", column="01", path="1", acquisition_id=1),
+        ],
+        overwrite=True,
+    )
+    base_url = plate._group_handler.full_url
+    zarr_url_0 = f"{base_url}A/01/0"
+    zarr_url_1 = f"{base_url}A/01/1"
+    well_url = f"{base_url}A/01"
+    _build_image_for_axes(zarr_url_0, axes, shape)
+    _build_image_for_axes(
+        zarr_url_1, axes, shape, y_offset=_SHIFT_Y_PX, x_offset=_SHIFT_X_PX
+    )
+    return {"zarr_url_0": zarr_url_0, "zarr_url_1": zarr_url_1, "well_url": well_url}
+
+
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -113,12 +185,117 @@ def multiplex_plate_urls(tmp_path: Path) -> dict[str, str]:
 
 
 # ---------------------------------------------------------------------------
+# image_based_registration_hcs_init
+# ---------------------------------------------------------------------------
+
+
+def test_init_produces_correct_parallelization_list(multiplex_plate_urls):
+    """Init returns one entry: acq-1 paired with acq-0 as reference."""
+    zarr_url_0 = multiplex_plate_urls["zarr_url_0"]
+    zarr_url_1 = multiplex_plate_urls["zarr_url_1"]
+
+    result = image_based_registration_hcs_init(
+        zarr_urls=[zarr_url_0, zarr_url_1],
+        zarr_dir="/unused",
+        reference_acquisition=0,
+    )
+
+    plist = result["parallelization_list"]
+    assert len(plist) == 1
+    assert plist[0]["zarr_url"] == zarr_url_1
+    assert plist[0]["init_args"]["reference_zarr_url"] == zarr_url_0
+
+
+def test_init_excludes_reference_from_list(multiplex_plate_urls):
+    """The reference acquisition must not appear in the parallelization list."""
+    zarr_url_0 = multiplex_plate_urls["zarr_url_0"]
+    zarr_url_1 = multiplex_plate_urls["zarr_url_1"]
+
+    result = image_based_registration_hcs_init(
+        zarr_urls=[zarr_url_0, zarr_url_1],
+        zarr_dir="/unused",
+        reference_acquisition=0,
+    )
+
+    urls_in_list = [entry["zarr_url"] for entry in result["parallelization_list"]]
+    assert zarr_url_0 not in urls_in_list
+
+
+def test_init_missing_reference_raises(tmp_path: Path):
+    """ValueError when reference_acquisition is absent from the plate metadata."""
+    plate_path = tmp_path / "missing_ref.zarr"
+    plate = create_empty_plate(
+        store=plate_path,
+        name="missing_ref",
+        images=[
+            ImageInWellPath(row="A", column="01", path="1", acquisition_id=1),
+        ],
+        overwrite=True,
+    )
+    base_url = plate._group_handler.full_url
+    zarr_url_1 = f"{base_url}A/01/1"
+    _build_image(zarr_url_1)
+
+    with pytest.raises(ValueError, match="[Nn]o reference acquisition"):
+        image_based_registration_hcs_init(
+            zarr_urls=[zarr_url_1],
+            zarr_dir="/unused",
+            reference_acquisition=0,
+        )
+
+
+# ---------------------------------------------------------------------------
+# init_group_by_well_for_multiplexing
+# ---------------------------------------------------------------------------
+
+
+def test_group_by_well_produces_correct_parallelization_list(multiplex_plate_urls):
+    """Group-by-well init returns one entry per well with all acquisition URLs."""
+    zarr_url_0 = multiplex_plate_urls["zarr_url_0"]
+    zarr_url_1 = multiplex_plate_urls["zarr_url_1"]
+
+    result = init_group_by_well_for_multiplexing(
+        zarr_urls=[zarr_url_0, zarr_url_1],
+        zarr_dir="/unused",
+        reference_acquisition=0,
+    )
+
+    plist = result["parallelization_list"]
+    assert len(plist) == 1
+    assert plist[0]["zarr_url"] == zarr_url_0
+    assert set(plist[0]["init_args"]["zarr_url_list"]) == {zarr_url_0, zarr_url_1}
+
+
+def test_group_by_well_missing_reference_raises(tmp_path: Path):
+    """ValueError when reference_acquisition is absent from the well metadata."""
+    plate_path = tmp_path / "missing_ref2.zarr"
+    plate = create_empty_plate(
+        store=plate_path,
+        name="missing_ref2",
+        images=[
+            ImageInWellPath(row="A", column="01", path="1", acquisition_id=1),
+        ],
+        overwrite=True,
+    )
+    base_url = plate._group_handler.full_url
+    zarr_url_1 = f"{base_url}A/01/1"
+    _build_image(zarr_url_1)
+
+    with pytest.raises(ValueError):
+        init_group_by_well_for_multiplexing(
+            zarr_urls=[zarr_url_1],
+            zarr_dir="/unused",
+            reference_acquisition=0,
+        )
+
+
+# ---------------------------------------------------------------------------
 # calculate_registration_image_based
 # ---------------------------------------------------------------------------
 
 
 def test_calculate_registration_stores_translations(multiplex_plate_urls):
-    """After running calculate, acquisition 1's ROI table contains the detected shift."""
+    """After running calculate, acquisition ROI table contains the detected shift."""
     zarr_url_0 = multiplex_plate_urls["zarr_url_0"]
     zarr_url_1 = multiplex_plate_urls["zarr_url_1"]
 
@@ -354,3 +531,102 @@ def test_full_pipeline_overwrite_input_false(multiplex_plate_urls):
     well = open_ome_zarr_well(well_url)
     all_paths = well.paths()
     assert "1_registered" in all_paths
+
+
+# ---------------------------------------------------------------------------
+# Axes support — calculate_registration_image_based
+# ---------------------------------------------------------------------------
+#
+# ngio handles squeezed/implicit channels transparently (get_channel_idx works
+# even without an explicit 'c' axis) and reports is_time_series=False for t=1,
+# so the task already supports all axes combinations below without code changes.
+# ---------------------------------------------------------------------------
+
+_AXES_PARAMS = [
+    ("yx", (64, 64)),
+    ("zyx", (4, 64, 64)),
+    ("cyx", (1, 64, 64)),
+    ("tyx", (1, 64, 64)),  # t=1: must succeed after Phase 2
+    ("tzyx", (1, 4, 64, 64)),  # t=1: must succeed after Phase 2
+]
+
+
+@pytest.mark.parametrize("axes,shape", _AXES_PARAMS)
+def test_calculate_registration_axes_support(
+    tmp_path: Path, axes: str, shape: tuple[int, ...]
+):
+    """calculate_registration_image_based works for various axes configurations.
+
+    Covers yx, zyx, cyx (no z), and single-timepoint tyx / tzyx.
+    ngio handles squeezed channels and t=1 transparently, so no task-code
+    changes are needed for any of these axes.
+    """
+    urls = _build_multiplex_plate(tmp_path, axes, shape)
+
+    calculate_registration_image_based(
+        zarr_url=urls["zarr_url_1"],
+        init_args=InitArgsRegistration(reference_zarr_url=urls["zarr_url_0"]),
+        wavelength_id=_WAVELENGTH,
+        roi_table="FOV_ROI_table",
+        level=2,
+    )
+
+    ome1 = open_ome_zarr_container(urls["zarr_url_1"])
+    rois = ome1.get_generic_roi_table("FOV_ROI_table").rois()
+    assert len(rois) == 1
+    roi = rois[0]
+    assert roi.model_extra is not None
+    assert roi.model_extra["translation_y"] == pytest.approx(-_SHIFT_Y_UM, abs=0.1)
+    assert roi.model_extra["translation_x"] == pytest.approx(-_SHIFT_X_UM, abs=0.1)
+
+
+# ---------------------------------------------------------------------------
+# Full pipeline (calculate → consensus → apply) — all axes
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("axes,shape", _AXES_PARAMS)
+def test_full_pipeline_axes_support(tmp_path: Path, axes: str, shape: tuple[int, ...]):
+    """Full pipeline works end-to-end for every supported axes configuration."""
+    urls = _build_multiplex_plate(tmp_path, axes, shape)
+    zarr_url_0 = urls["zarr_url_0"]
+    zarr_url_1 = urls["zarr_url_1"]
+
+    result = _run_full_pipeline(zarr_url_0, zarr_url_1, overwrite_input=True)
+
+    assert result == {"image_list_updates": [{"zarr_url": zarr_url_1}]}
+    assert Path(zarr_url_1).exists()
+
+    ome1 = open_ome_zarr_container(zarr_url_1)
+    img1 = ome1.get_image()
+    assert img1.get_array().any(), f"Registered image is all zeros for axes={axes}"
+
+
+# ---------------------------------------------------------------------------
+# Time-series guard — tyx with t > 1 must raise
+# ---------------------------------------------------------------------------
+
+
+def test_calculate_registration_tyx_t_gt1_raises(tmp_path: Path):
+    """Time-series images with t > 1 are not supported and must raise ValueError."""
+    zarr_url = str(tmp_path / "img_tyx_t2.zarr")
+    ome = create_empty_ome_zarr(
+        zarr_url,
+        shape=(2, 64, 64),  # t=2, yx
+        xy_pixelsize=_PIXELSIZE,
+        axes_names="tyx",
+        levels=_LEVELS,
+        channel_wavelengths=[_WAVELENGTH],
+        overwrite=True,
+    )
+    fov = ome.build_image_roi_table("image")
+    ome.add_table("FOV_ROI_table", fov, backend="experimental_json_v1")
+
+    with pytest.raises(ValueError, match="[Tt]ime"):
+        calculate_registration_image_based(
+            zarr_url=zarr_url,
+            init_args=InitArgsRegistration(reference_zarr_url=zarr_url),
+            wavelength_id=_WAVELENGTH,
+            roi_table="FOV_ROI_table",
+            level=2,
+        )
