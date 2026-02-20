@@ -162,7 +162,7 @@ def test_import_roi_tables_disabled(tmp_path: Path) -> None:
 
 
 def test_import_overwrite(tmp_path: Path) -> None:
-    """IO-1: overwrite=True allows re-import; overwrite=False raises on duplicate tables."""
+    """overwrite=True allows re-import; overwrite=False raises on duplicate tables."""
     _make_image(tmp_path)
 
     # First import creates both ROI tables
@@ -170,9 +170,7 @@ def test_import_overwrite(tmp_path: Path) -> None:
 
     # Re-import with overwrite=False (default) raises because tables already exist
     with pytest.raises(NgioValueError):
-        import_ome_zarr(
-            zarr_dir=str(tmp_path), zarr_name="image.zarr", overwrite=False
-        )
+        import_ome_zarr(zarr_dir=str(tmp_path), zarr_name="image.zarr", overwrite=False)
 
     # Re-import with overwrite=True succeeds and returns valid updates
     result = import_ome_zarr(
