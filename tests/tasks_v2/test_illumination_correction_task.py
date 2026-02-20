@@ -1,8 +1,12 @@
+import logging
 import shutil
 from pathlib import Path
 
+import numpy as np
 import pytest
-from ngio import create_empty_ome_zarr, open_ome_zarr_container
+from ngio import Roi, create_empty_ome_zarr, open_ome_zarr_container
+from ngio.tables import RoiTable
+from skimage.io import imsave
 
 from fractal_tasks_core.tasks.illumination_correction import (
     illumination_correction,
@@ -500,3 +504,192 @@ def test_multidimensional_input(
     # origin_url = update_list["image_list_updates"][0]["origin"]
     # attributes = update_list["image_list_updates"][0]["attributes"]
     # types = update_list["image_list_updates"][0]["types"]
+
+
+# ---------------------------------------------------------------------------
+# empty suffix raises before any zarr I/O
+# ---------------------------------------------------------------------------
+
+
+def test_empty_suffix() -> None:
+    with pytest.raises(ValueError, match="suffix cannot be an empty string"):
+        illumination_correction(
+            zarr_url="/nonexistent",
+            illumination_profiles={"folder": "/any", "profiles": {}},
+            overwrite_input=False,
+            suffix="",
+        )
+
+
+# ---------------------------------------------------------------------------
+# Constant background model wavelength mismatch
+# ---------------------------------------------------------------------------
+
+
+def _make_tiny_czyx_zarr(tmp_path: Path) -> tuple[str, list[str]]:
+    """Create a minimal 2-channel czyx zarr; return (zarr_url, wavelength_ids)."""
+    store = tmp_path / "tiny_czyx.zarr"
+    ome_zarr = create_empty_ome_zarr(
+        store=store,
+        shape=(2, 1, 10, 10),
+        xy_pixelsize=0.5,
+        z_spacing=1.0,
+        axes_names="czyx",
+        overwrite=True,
+        levels=2,
+    )
+    return str(store), list(ome_zarr.wavelength_ids)
+
+
+@pytest.mark.parametrize(
+    "constants_factory,match",
+    [
+        # extra wavelength in constants → first ValueError branch (lines 208-212)
+        (
+            lambda wl: {wl[0]: 100, wl[1]: 100, "channel_EXTRA": 50},
+            "channel_EXTRA",
+        ),
+        # missing wavelength in constants → second ValueError branch (lines 214-218)
+        (
+            lambda wl: {wl[0]: 100},
+            "channel_1",
+        ),
+    ],
+)
+def test_wrong_constant_background_wavelengths(
+    tmp_path: Path,
+    constants_factory,
+    match: str,
+) -> None:
+    zarr_url, wavelengths = _make_tiny_czyx_zarr(tmp_path)
+
+    illumination_profiles = {
+        "folder": "/fake",
+        "profiles": {w: "fake.png" for w in wavelengths},
+    }
+    background_model = {
+        "value": {
+            "model": "Constant",
+            "constants": constants_factory(wavelengths),
+        },
+    }
+
+    with pytest.raises(ValueError, match=match):
+        illumination_correction(
+            zarr_url=zarr_url,
+            illumination_profiles=illumination_profiles,
+            background_correction=background_model,
+            overwrite_input=True,
+        )
+
+
+# ---------------------------------------------------------------------------
+# Inconsistent FOV sizes in the ROI table
+# ---------------------------------------------------------------------------
+
+
+def test_inconsistent_fov_sizes(tmp_path: Path) -> None:
+    store = tmp_path / "inconsistent.zarr"
+    ome_zarr = create_empty_ome_zarr(
+        store=store,
+        shape=(1, 20, 20),
+        xy_pixelsize=0.5,
+        z_spacing=1.0,
+        axes_names="zyx",
+        overwrite=True,
+        levels=2,
+    )
+    # ROI 1: 5×5 µm → 10×10 px; ROI 2: 10×10 µm → 20×20 px — inconsistent sizes
+    roi1 = Roi(
+        name="fov_1", x=0.0, y=0.0, z=0.0, x_length=5.0, y_length=5.0, z_length=1.0
+    )
+    roi2 = Roi(
+        name="fov_2", x=5.0, y=0.0, z=0.0, x_length=10.0, y_length=10.0, z_length=1.0
+    )
+    roi_table = RoiTable(rois=[roi1, roi2])
+    ome_zarr.add_table("well_ROI_table", roi_table, backend="experimental_json_v1")
+
+    wavelengths = list(ome_zarr.wavelength_ids)
+    illumination_profiles = {
+        "folder": "/fake",
+        "profiles": {w: "fake.png" for w in wavelengths},
+    }
+
+    with pytest.raises(ValueError, match="Inconsistent image sizes"):
+        illumination_correction(
+            zarr_url=str(store),
+            illumination_profiles=illumination_profiles,
+            overwrite_input=True,
+            input_ROI_table="well_ROI_table",
+        )
+
+# ---------------------------------------------------------------------------
+# Correction matrix shape mismatch (flatfield and darkfield)
+# ---------------------------------------------------------------------------
+
+def _make_tiny_zyx_zarr_with_roi(tmp_path: Path) -> tuple[str, list[str]]:
+    """Create a minimal 1-channel zyx zarr with a single-ROI well table."""
+    store = tmp_path / "tiny_zyx.zarr"
+    ome_zarr = create_empty_ome_zarr(
+        store=store,
+        shape=(1, 10, 10),
+        xy_pixelsize=0.5,
+        z_spacing=1.0,
+        axes_names="zyx",
+        overwrite=True,
+        levels=2,
+    )
+    table = ome_zarr.build_image_roi_table("image")
+    ome_zarr.add_table("well_ROI_table", table, backend="experimental_json_v1")
+    return str(store), list(ome_zarr.wavelength_ids)
+
+
+def _save_tiny_flatfield(path: Path) -> None:
+    """Save a valid 10×10 flatfield PNG (uniform, no zeros) to *path*."""
+    imsave(str(path), np.full((10, 10), 100, dtype=np.uint16))
+
+
+def test_flatfield_shape_mismatch(tmp_path: Path, testdata_path: Path) -> None:
+    zarr_url, wavelengths = _make_tiny_zyx_zarr_with_roi(tmp_path)
+    # The existing PNG is 2160×2560; the image is 10×10 → mismatch
+    illum_profiles = {
+        "folder": str(testdata_path / "illumination_correction"),
+        "profiles": {w: "flatfield_corr_matrix.png" for w in wavelengths},
+    }
+
+    with pytest.raises(ValueError, match="illumination"):
+        illumination_correction(
+            zarr_url=zarr_url,
+            illumination_profiles=illum_profiles,
+            overwrite_input=True,
+            input_ROI_table="well_ROI_table",
+        )
+
+
+def test_darkfield_shape_mismatch(tmp_path: Path, testdata_path: Path) -> None:
+    zarr_url, wavelengths = _make_tiny_zyx_zarr_with_roi(tmp_path)
+
+    # Flatfield must match (10×10) so we get past that check
+    tiny_ff = tmp_path / "tiny_flatfield.png"
+    _save_tiny_flatfield(tiny_ff)
+    illum_profiles = {
+        "folder": str(tmp_path),
+        "profiles": {w: "tiny_flatfield.png" for w in wavelengths},
+    }
+    # Darkfield PNG is 2160×2560 → mismatch with 10×10 image
+    background = {
+        "value": {
+            "folder": str(testdata_path / "illumination_correction"),
+            "profiles": {w: "darkfield_corr_matrix.png" for w in wavelengths},
+            "model": "Profile",
+        },
+    }
+
+    with pytest.raises(ValueError, match=r"background \(darkfield\)"):
+        illumination_correction(
+            zarr_url=zarr_url,
+            illumination_profiles=illum_profiles,
+            background_correction=background,
+            overwrite_input=True,
+            input_ROI_table="well_ROI_table",
+        )
