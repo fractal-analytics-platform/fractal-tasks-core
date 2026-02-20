@@ -7,6 +7,7 @@ from ngio import (
     create_empty_plate,
     open_ome_zarr_container,
 )
+from ngio.utils import NgioValueError
 
 from fractal_tasks_core.tasks.import_ome_zarr import (
     import_ome_zarr,
@@ -160,12 +161,33 @@ def test_import_roi_tables_disabled(tmp_path: Path) -> None:
         assert "grid_ROI_table" not in tables
 
 
+def test_import_overwrite(tmp_path: Path) -> None:
+    """IO-1: overwrite=True allows re-import; overwrite=False raises on duplicate tables."""
+    _make_image(tmp_path)
+
+    # First import creates both ROI tables
+    import_ome_zarr(zarr_dir=str(tmp_path), zarr_name="image.zarr")
+
+    # Re-import with overwrite=False (default) raises because tables already exist
+    with pytest.raises(NgioValueError):
+        import_ome_zarr(
+            zarr_dir=str(tmp_path), zarr_name="image.zarr", overwrite=False
+        )
+
+    # Re-import with overwrite=True succeeds and returns valid updates
+    result = import_ome_zarr(
+        zarr_dir=str(tmp_path), zarr_name="image.zarr", overwrite=True
+    )
+    assert len(result["image_list_updates"]) == 1
+
+
 @pytest.mark.parametrize(
     "shape, axes, grid_y, grid_x, expected_n_rois",
     [
         ((8, 8), "yx", 2, 2, 16),  # 4 steps in y × 4 in x
         ((8, 8), "yx", 4, 4, 4),  # 2 steps in y × 2 in x
         ((4, 8, 16), "zyx", 4, 4, 8),  # 2 steps in y × 4 in x
+        ((2, 2, 4, 8, 16), "tczyx", 4, 4, 8),  # t=2,c=2,z=4,y=8,x=16 → 2×4=8 ROIs
     ],
 )
 def test_grid_roi_table_roi_count(
@@ -206,6 +228,42 @@ def test_import_omero_metadata_update(tmp_path: Path) -> None:
 
     image = open_ome_zarr_container(str(tmp_path / "image.zarr")).get_image()
     assert len(image.channel_labels) == n_channels
+
+
+def test_import_plate_omero_metadata_update(tmp_path: Path) -> None:
+    """IO-2: update_omero_metadata=True works for plate containers."""
+    n_channels = 2
+    _make_plate(tmp_path, axes="czyx", shape=(n_channels, 4, 8, 8))
+
+    result = import_ome_zarr(
+        zarr_dir=str(tmp_path),
+        zarr_name="plate.zarr",
+        update_omero_metadata=True,
+        add_image_ROI_table=False,
+        add_grid_ROI_table=False,
+    )
+
+    for update in result["image_list_updates"]:
+        image = open_ome_zarr_container(update["zarr_url"]).get_image()
+        assert len(image.channel_labels) == n_channels
+
+
+def test_import_well_omero_metadata_update(tmp_path: Path) -> None:
+    """IO-2: update_omero_metadata=True works for well containers."""
+    n_channels = 2
+    _make_plate(tmp_path, axes="czyx", shape=(n_channels, 4, 8, 8))
+
+    result = import_ome_zarr(
+        zarr_dir=str(tmp_path),
+        zarr_name="plate.zarr/A/01",
+        update_omero_metadata=True,
+        add_image_ROI_table=False,
+        add_grid_ROI_table=False,
+    )
+
+    for update in result["image_list_updates"]:
+        image = open_ome_zarr_container(update["zarr_url"]).get_image()
+        assert len(image.channel_labels) == n_channels
 
 
 def test_open_unknown_container_error(tmp_path: Path) -> None:
