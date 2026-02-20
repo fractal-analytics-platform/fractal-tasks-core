@@ -43,6 +43,7 @@ dev = [
     "requests>=2.28.0",
     "pooch==1.8.0",
     "mypy",
+    "pytest-cov",
 ]
 docs = [
     "mkdocs==1.6.1",
@@ -75,6 +76,14 @@ fractal-tasks-core = { path = ".", editable = true }
 default = { solve-group = "default" }
 dev = { features = ["dev"], solve-group = "default" }
 docs = { features = ["docs"], solve-group = "default" }
+
+[tool.pytest.ini_options]
+addopts = [
+    # TODO reove the .tasks suffix before V2 merge
+    "--cov=fractal_tasks_core.tasks",
+    "--cov-report=term-missing",
+    "--cov-branch",
+]
 
 [tool.coverage.run]
 branch = true
