@@ -24,23 +24,23 @@ from ngio import (
 from ngio.tables import FeatureTable, RoiTable
 from pandas import DataFrame
 
-from fractal_tasks_core.tasks._registration_utils_v2 import RegistrationMethod
-from fractal_tasks_core.tasks.apply_registration_to_image import (
+from fractal_tasks_core._registration_utils_v2 import RegistrationMethod
+from fractal_tasks_core.apply_registration_to_image import (
     apply_registration_to_image,
 )
-from fractal_tasks_core.tasks.calculate_registration_image_based import (
+from fractal_tasks_core.calculate_registration_image_based import (
     calculate_registration_image_based,
 )
-from fractal_tasks_core.tasks.find_registration_consensus import (
+from fractal_tasks_core.find_registration_consensus import (
     find_registration_consensus,
 )
-from fractal_tasks_core.tasks.image_based_registration_hcs_init import (
+from fractal_tasks_core.image_based_registration_hcs_init import (
     image_based_registration_hcs_init,
 )
-from fractal_tasks_core.tasks.init_group_by_well_for_multiplexing import (
+from fractal_tasks_core.init_group_by_well_for_multiplexing import (
     init_group_by_well_for_multiplexing,
 )
-from fractal_tasks_core.tasks.io_models import (
+from fractal_tasks_core.io_models import (
     InitArgsRegistration,
     InitArgsRegistrationConsensus,
 )

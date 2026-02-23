@@ -1,6 +1,6 @@
 import numpy as np
 
-from fractal_tasks_core.tasks.illumination_correction import correct
+from fractal_tasks_core.illumination_correction import correct
 
 
 def test_correct_constant_background() -> None:

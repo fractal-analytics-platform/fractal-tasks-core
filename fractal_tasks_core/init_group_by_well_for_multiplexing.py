@@ -9,7 +9,7 @@ from typing import Any
 from ngio import open_ome_zarr_well
 from pydantic import validate_call
 
-from fractal_tasks_core.tasks._plate_utils import group_by_well
+from fractal_tasks_core._plate_utils import group_by_well
 
 logger = logging.getLogger("init_group_by_well_for_multiplexing")
 

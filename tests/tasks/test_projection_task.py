@@ -5,10 +5,10 @@ from ngio import create_empty_ome_zarr, open_ome_zarr_container
 from ngio.tables import RoiTable
 from ngio.utils import NgioFileExistsError
 
-from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
+from fractal_tasks_core.copy_ome_zarr_hcs_plate import (
     copy_ome_zarr_hcs_plate,
 )
-from fractal_tasks_core.tasks.projection import InitArgsMIP, projection
+from fractal_tasks_core.projection import InitArgsMIP, projection
 
 
 @pytest.fixture(scope="session")

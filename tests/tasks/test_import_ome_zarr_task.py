@@ -10,7 +10,7 @@ from ngio import (
 from ngio.tables import RoiTable
 from ngio.utils import NgioValueError
 
-from fractal_tasks_core.tasks.import_ome_zarr import (
+from fractal_tasks_core.import_ome_zarr import (
     import_ome_zarr,
     open_unknown_container,
 )

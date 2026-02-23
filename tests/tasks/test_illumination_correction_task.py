@@ -7,12 +7,12 @@ from ngio import Roi, create_empty_ome_zarr, open_ome_zarr_container
 from ngio.tables import RoiTable
 from skimage.io import imsave
 
-from fractal_tasks_core.tasks.illumination_correction import (
+from fractal_tasks_core.illumination_correction import (
     BackgroundCorrection,
     ProfileCorrectionModel,
     illumination_correction,
 )
-from fractal_tasks_core.tasks.io_models import ConstantCorrectionModel
+from fractal_tasks_core.io_models import ConstantCorrectionModel
 
 
 def _check_that_images_differs(first_url: str, second_url: str) -> None:

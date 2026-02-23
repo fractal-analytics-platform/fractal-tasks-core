@@ -11,7 +11,7 @@ from ngio import (
     open_ome_zarr_plate,
 )
 
-from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
+from fractal_tasks_core.copy_ome_zarr_hcs_plate import (
     DaskProjectionMethod,
     copy_ome_zarr_hcs_plate,
 )
