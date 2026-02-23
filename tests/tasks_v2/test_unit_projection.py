@@ -32,7 +32,7 @@ def test_projection(
         axes_names=axes,
     )
     table = origin_ome_zarr.build_image_roi_table("image")
-    origin_ome_zarr.add_table("well_ROI_table", table, backend="experimental_json_v1")
+    origin_ome_zarr.add_table("well_ROI_table", table, backend="anndata")
 
     init_mip = InitArgsMIP(
         origin_url=str(store),

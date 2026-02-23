@@ -65,7 +65,8 @@ _SHIFT_X_UM = 2.6  # µm
 # pyramid level, so 2 px × 1.0 µm/px = 2.0 µm.
 _SHIFT_Z_PX = 2
 _SHIFT_Z_UM = 2.0  # µm
-
+# Table backend
+_TABLE_BACKEND = "anndata"
 
 def _build_image(zarr_url: str, y_offset: int = 0, x_offset: int = 0) -> None:
     """Create a single-channel OME-Zarr image with a bright 10×10 block."""
@@ -86,14 +87,7 @@ def _build_image(zarr_url: str, y_offset: int = 0, x_offset: int = 0) -> None:
     img.set_array(data)
     img.consolidate()
     fov = ome.build_image_roi_table("image")
-    ome.add_table("FOV_ROI_table", fov, backend="experimental_json_v1")
-
-    # example feature table with dummy data
-    features = DataFrame({"label": [1], "feature1": [0], "feature2": [1]})
-    features_table = FeatureTable(features)
-    ome.add_table(
-        "example_feature_table", features_table, backend="experimental_json_v1"
-    )
+    ome.add_table("FOV_ROI_table", fov, backend=_TABLE_BACKEND)
 
 
 def _build_image_for_axes(
@@ -135,7 +129,7 @@ def _build_image_for_axes(
     img.set_array(data)
     img.consolidate()
     fov = ome.build_image_roi_table("image")
-    ome.add_table("FOV_ROI_table", fov, backend="experimental_json_v1")
+    ome.add_table("FOV_ROI_table", fov, backend=_TABLE_BACKEND)
 
 
 def _build_multi_fov_image(zarr_url: str, y_offset: int = 0, x_offset: int = 0) -> None:
@@ -170,7 +164,7 @@ def _build_multi_fov_image(zarr_url: str, y_offset: int = 0, x_offset: int = 0) 
     fov1 = Roi(name="FOV_1", y=0.0, x=0.0, y_length=half_um, x_length=full_um)
     fov2 = Roi(name="FOV_2", y=half_um, x=0.0, y_length=half_um, x_length=full_um)
     ome.add_table(
-        "FOV_ROI_table", RoiTable(rois=[fov1, fov2]), backend="experimental_json_v1"
+        "FOV_ROI_table", RoiTable(rois=[fov1, fov2]), backend=_TABLE_BACKEND
     )
 
 
@@ -425,7 +419,7 @@ def test_calculate_registration_detects_z_shift(tmp_path: Path):
         ome.get_image().set_array(data)
         ome.get_image().consolidate()
         fov = ome.build_image_roi_table("image")
-        ome.add_table("FOV_ROI_table", fov, backend="experimental_json_v1")
+        ome.add_table("FOV_ROI_table", fov, backend=_TABLE_BACKEND)
 
     calculate_registration_image_based(
         zarr_url=zarr_url_1,
@@ -458,7 +452,7 @@ def test_calculate_registration_chi2_shift_3d_raises(tmp_path: Path):
         overwrite=True,
     )
     fov = ome.build_image_roi_table("image")
-    ome.add_table("FOV_ROI_table", fov, backend="experimental_json_v1")
+    ome.add_table("FOV_ROI_table", fov, backend=_TABLE_BACKEND)
 
     with pytest.raises(ValueError, match="CHI2_SHIFT"):
         calculate_registration_image_based(
@@ -485,7 +479,7 @@ def test_calculate_registration_time_series_raises(tmp_path: Path):
         overwrite=True,
     )
     fov = ome.build_image_roi_table("image")
-    ome.add_table("FOV_ROI_table", fov, backend="experimental_json_v1")
+    ome.add_table("FOV_ROI_table", fov, backend=_TABLE_BACKEND)
 
     with pytest.raises(ValueError, match="[Tt]ime"):
         calculate_registration_image_based(
@@ -681,7 +675,7 @@ def test_calculate_registration_shape_mismatch_raises(tmp_path: Path):
         ome.get_image().set_array(data)
         ome.get_image().consolidate()
         fov = ome.build_image_roi_table("image")
-        ome.add_table("FOV_ROI_table", fov, backend="experimental_json_v1")
+        ome.add_table("FOV_ROI_table", fov, backend=_TABLE_BACKEND)
 
     with pytest.raises(NotImplementedError, match="[Ss]hape"):
         calculate_registration_image_based(
@@ -780,7 +774,7 @@ def test_consensus_mismatched_roi_names_raises(tmp_path: Path):
             overwrite=True,
         )
         fov = ome.build_image_roi_table(roi_name)
-        ome.add_table("FOV_ROI_table", fov, backend="experimental_json_v1")
+        ome.add_table("FOV_ROI_table", fov, backend=_TABLE_BACKEND)
 
     with pytest.raises(ValueError, match="[Rr]OI"):
         find_registration_consensus(
@@ -834,6 +828,15 @@ def test_full_pipeline_overwrite_input_true(multiplex_plate_urls):
     """
     zarr_url_0 = multiplex_plate_urls["zarr_url_0"]
     zarr_url_1 = multiplex_plate_urls["zarr_url_1"]
+    
+    # Add some non-ROI table
+    ome1 = open_ome_zarr_container(zarr_url_1)
+    # example feature table with dummy data
+    features = DataFrame({"label": [1], "feature1": [0], "feature2": [1]})
+    features_table = FeatureTable(features)
+    ome1.add_table(
+        "example_feature_table", features_table, backend=_TABLE_BACKEND
+    )
 
     result = _run_full_pipeline(zarr_url_0, zarr_url_1, overwrite_input=True)
 
@@ -982,7 +985,7 @@ def test_full_pipeline_with_labels(multiplex_plate_urls):
     # add masking roi table
     masking_roi_table = label.build_masking_roi_table()
     ome1_pre.add_table(
-        "masking_roi_table", masking_roi_table, backend="experimental_json_v1"
+        "masking_roi_table", masking_roi_table, backend=_TABLE_BACKEND
     )
 
     _run_full_pipeline(zarr_url_0, zarr_url_1, overwrite_input=True)
@@ -1087,7 +1090,7 @@ def test_calculate_registration_tyx_t_gt1_raises(tmp_path: Path):
         overwrite=True,
     )
     fov = ome.build_image_roi_table("image")
-    ome.add_table("FOV_ROI_table", fov, backend="experimental_json_v1")
+    ome.add_table("FOV_ROI_table", fov, backend=_TABLE_BACKEND)
 
     with pytest.raises(ValueError, match="[Tt]ime"):
         calculate_registration_image_based(

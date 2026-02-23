@@ -106,7 +106,7 @@ def add_images_to_plate(
             axes_names=axes,
         )
         table = ome_zarr.build_image_roi_table("image")
-        ome_zarr.add_table("well_ROI_table", table, backend="experimental_json_v1")
+        ome_zarr.add_table("well_ROI_table", table, backend="anndata")
     return plate
 
 
@@ -215,7 +215,7 @@ def sample_ome_zarr_zyx_url(testdata_path) -> Path:
         axes_names="zyx",
     )
     table = origin_ome_zarr.build_image_roi_table("image")
-    origin_ome_zarr.add_table("well_ROI_table", table, backend="experimental_json_v1")
+    origin_ome_zarr.add_table("well_ROI_table", table, backend="anndata")
     return store
 
 
