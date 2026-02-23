@@ -12,6 +12,8 @@
     * Remove outdated docs pages and table specs.
     * Update docs and README to reflect task-only package framing.
 * Tasks:
+    * `Import OME-Zarr` task refactored to use `ngio`.
+    * `Registration` tasks refactored to use `ngio`.
     * `Illumination Correction` task adopted `ngio`.
     * Remove `Cellpose Segmentation` task and `cellpose_utils.py`.
     * Remove `Napari Workflows Wrapper` task.

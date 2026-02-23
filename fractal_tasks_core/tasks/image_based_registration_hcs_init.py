@@ -6,11 +6,10 @@ Initializes the parallelization list for registration in HCS plates.
 import logging
 from typing import Any
 
+from ngio import open_ome_zarr_well
 from pydantic import validate_call
 
-from fractal_tasks_core.utils import (
-    create_well_acquisition_dict,
-)
+from fractal_tasks_core.tasks._plate_utils import group_by_well
 
 logger = logging.getLogger("image_based_registration_hcs_init")
 
@@ -51,30 +50,47 @@ def image_based_registration_hcs_init(
             parallelization list.
     """
     logger.info(f"Running `image_based_registration_hcs_init` for {zarr_urls=}")
-    image_groups = create_well_acquisition_dict(zarr_urls)
+    wells = group_by_well(zarr_urls)
 
-    # Create the parallelization list
     parallelization_list = []
-    for key, image_group in image_groups.items():
-        # Assert that all image groups have the reference acquisition present
-        if reference_acquisition not in image_group.keys():
+    for well_url, well_image_urls in wells.items():
+        well = open_ome_zarr_well(well_url)
+        logger.info(f"Found well {well} with {len(well_image_urls)} urls.")
+        # Find the reference acquisition url for this well
+        ref_image_zarr_path = well.paths(acquisition=reference_acquisition)
+        # Find the matching image url in the well_image_urls
+        # (there should be exactly one)
+        ref_image_zarr_url = [
+            url.zarr_url
+            for url in well_image_urls
+            if url.image_path in ref_image_zarr_path
+        ]
+        if len(ref_image_zarr_url) == 0:
             raise ValueError(
-                f"Registration with {reference_acquisition=} can only work if "
-                "all wells have the reference acquisition present. It was not "
-                f"found for well {key}."
+                f"No reference acquisition found for well {well}. "
+                f"Expected to find acquisition {reference_acquisition} in the "
+                "metadata of the OME-Zarr image, but it was not found."
             )
-        # Add all zarr_urls except the reference acquisition to the
-        # parallelization list
-        for acquisition, zarr_url in image_group.items():
-            if acquisition != reference_acquisition:
-                reference_zarr_url = image_group[reference_acquisition]
-                parallelization_list.append(
-                    dict(
-                        zarr_url=zarr_url,
-                        init_args=dict(reference_zarr_url=reference_zarr_url),
-                    )
+        elif len(ref_image_zarr_url) > 1:
+            raise ValueError(
+                f"Multiple reference acquisitions found for well {well}. "
+                f"Expected to find exactly one acquisition {reference_acquisition} "
+                "in the metadata of the OME-Zarr image, but multiple were found: "
+                f"{ref_image_zarr_url}"
+            )
+        logger.info(
+            f"Found reference acquisition for well {well}: {ref_image_zarr_url[0]}"
+        )
+        ref_path = ref_image_zarr_url[0]
+        for url in well_image_urls:
+            if url.zarr_url == ref_path:
+                continue
+            parallelization_list.append(
+                dict(
+                    zarr_url=url.zarr_url,
+                    init_args=dict(reference_zarr_url=ref_path),
                 )
-
+            )
     return dict(parallelization_list=parallelization_list)
 
 

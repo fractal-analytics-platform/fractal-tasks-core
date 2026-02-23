@@ -1194,6 +1194,12 @@
             "type": "integer",
             "description": "Which acquisition to register against. Uses the OME-NGFF HCS well metadata acquisition keys to find the reference acquisition."
           },
+          "register_labels": {
+            "default": true,
+            "title": "Register Labels",
+            "type": "boolean",
+            "description": "Whether to also apply the registration to the label images. If True, all label images will be registered in the same way as the main image. If False, only the main image is registered."
+          },
           "overwrite_input": {
             "default": true,
             "title": "Overwrite Input",

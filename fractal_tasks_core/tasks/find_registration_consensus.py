@@ -4,24 +4,124 @@ Applies the multiplexing translation to all ROI tables
 """
 
 import logging
-from typing import Optional
+from typing import Literal
 
-import anndata as ad
-import zarr
+from ngio import Roi, open_ome_zarr_container
+from ngio.tables import GenericRoiTable, RoiTable
 from pydantic import validate_call
 
-from fractal_tasks_core.roi import (
-    are_ROI_table_columns_valid,
-)
-from fractal_tasks_core.tables import write_table
-from fractal_tasks_core.tasks._registration_utils import (
-    add_zero_translation_columns,
-    apply_registration_to_single_ROI_table,
-    calculate_min_max_across_dfs,
-)
 from fractal_tasks_core.tasks.io_models import InitArgsRegistrationConsensus
 
 logger = logging.getLogger("find_registration_consensus")
+
+
+def _get_roi_translation(roi: Roi, dim: Literal["z", "y", "x"]) -> float:
+    """Return the translation for `dim` ('z', 'y', or 'x') from a ROI's extra
+    fields, defaulting to 0.0 when the field is absent (e.g. reference
+    acquisition whose table has no pre-computed shifts).
+    """
+    return (roi.model_extra or {}).get(f"translation_{dim}", 0.0) or 0.0
+
+
+def _group_roi_by_name(tables: list[GenericRoiTable]) -> dict[str, list[Roi]]:
+    roi_dict: dict[str, list[Roi]] = {}
+    for table in tables:
+        for roi in table.rois():
+            if roi.name is None:
+                raise ValueError(f"ROI without a name found in table: {roi}")
+            if roi.name not in roi_dict:
+                roi_dict[roi.name] = []
+            roi_dict[roi.name].append(roi)
+    return roi_dict
+
+
+def _find_roi_consensus(rois: list[Roi]) -> Roi:
+    """
+    Given a list of ROIs across acquisitions, find the consensus ROI that is
+    contained in all acquisitions after applying the pre-calculated shifts.
+
+    The consensus ROI is calculated by finding the max translation in positive
+    direction and the min translation in negative direction across acquisitions
+    for each roi, and applying this shift to the original ROIs to find the
+    consensus region.
+
+    Args:
+        rois: List of ROIs across acquisitions with the same name that need to be
+            registered to each other. They need to contain the pre-calculated
+            shifts as "translation_z", "translation_y", "translation_x" in
+            their metadata.
+    Returns:
+        Consensus ROI whose position is `base_pos + max_translation` and whose
+        size is reduced by `max_translation - min_translation` in each axis.
+        The position encodes the max-shift offset so that _shift_roi can derive
+        each acquisition's aligned position as `consensus.pos - own_translation`.
+    """
+    translations_z = [_get_roi_translation(r, "z") for r in rois]
+    translations_y = [_get_roi_translation(r, "y") for r in rois]
+    translations_x = [_get_roi_translation(r, "x") for r in rois]
+
+    max_z, min_z = max(translations_z), min(translations_z)
+    max_y, min_y = max(translations_y), min(translations_y)
+    max_x, min_x = max(translations_x), min(translations_x)
+
+    # All ROIs in the list share the same base position (same physical FOV
+    # across acquisitions), so rois[0] is a valid base for geometry.
+    base = rois[0]
+    return base.model_copy(
+        update={
+            "z": (base.z if base.z is not None else 0.0) + max_z,
+            "y": base.y + max_y,
+            "x": base.x + max_x,
+            "z_length": (base.z_length if base.z_length is not None else 0.0)
+            - max_z
+            + min_z,
+            "y_length": base.y_length - max_y + min_y,
+            "x_length": base.x_length - max_x + min_x,
+        }
+    )
+
+
+def _apply_consensus_to_roi(roi: Roi, consensus_roi: Roi) -> Roi:
+    """
+    Given a Roi and the consensus_roi across acquisitions, calculate the
+    shifted and cropped Roi that needs to be applied to the original Roi to get
+    the consensus region.
+
+    The position is computed as: consensus_roi.pos - own_translation
+    which equals: base_pos + max_translation - own_translation
+    The size is taken directly from the consensus_roi (same for all acquisitions).
+    """
+    own_z = _get_roi_translation(roi, "z")
+    own_y = _get_roi_translation(roi, "y")
+    own_x = _get_roi_translation(roi, "x")
+
+    return roi.model_copy(
+        update={
+            "z": (consensus_roi.z if consensus_roi.z is not None else 0.0) - own_z,
+            "y": consensus_roi.y - own_y,
+            "x": consensus_roi.x - own_x,
+            "z_length": consensus_roi.z_length,
+            "y_length": consensus_roi.y_length,
+            "x_length": consensus_roi.x_length,
+        }
+    )
+
+
+def _apply_consensus_to_roi_table(
+    roi_table: GenericRoiTable, consensus_rois: dict[str, Roi]
+) -> RoiTable:
+    """
+    Given a roi_table and the consensus_rois across acquisitions, calculate the
+    shifted and cropped roi_table that needs to be applied to the original
+    roi_table to get the consensus region.
+    """
+    shifted_rois = []
+    for roi in roi_table.rois():
+        if roi.name is None:
+            raise ValueError(f"ROI without a name found in table: {roi}")
+        consensus_roi = consensus_rois[roi.name]
+        shifted_rois.append(_apply_consensus_to_roi(roi, consensus_roi))
+    return RoiTable(rois=shifted_rois)
 
 
 @validate_call
@@ -33,7 +133,7 @@ def find_registration_consensus(
     # Core parameters
     roi_table: str = "FOV_ROI_table",
     # Advanced parameters
-    new_roi_table: Optional[str] = None,
+    new_roi_table: str | None = None,
 ):
     """
     Applies pre-calculated registration to ROI tables.
@@ -67,86 +167,43 @@ def find_registration_consensus(
         f"Applying translation registration to {roi_table=} and storing it as "
         f"{new_roi_table=}."
     )
-
-    # Collect all the ROI tables
-    roi_tables = {}
-    roi_tables_attrs = {}
+    # Open all containers and load ROI tables, keeping containers for reuse
+    # during the write phase. Reference acquisition is handled first so that
+    # _find_roi_consensus receives its ROIs (zero-shift) as rois[0].
+    ref_ome_zarr = open_ome_zarr_container(zarr_url)
+    containers = {zarr_url: ref_ome_zarr}
+    tables = {zarr_url: ref_ome_zarr.get_generic_roi_table(roi_table)}
     for acq_zarr_url in init_args.zarr_url_list:
-        curr_ROI_table = ad.read_zarr(f"{acq_zarr_url}/tables/{roi_table}")
-        curr_ROI_table_group = zarr.open_group(
-            f"{acq_zarr_url}/tables/{roi_table}", mode="r"
-        )
-        curr_ROI_table_attrs = curr_ROI_table_group.attrs.asdict()
-
-        # For reference_acquisition, handle the fact that it doesn't
-        # have the shifts
         if acq_zarr_url == zarr_url:
-            curr_ROI_table = add_zero_translation_columns(curr_ROI_table)
-        # Check for valid ROI tables
-        are_ROI_table_columns_valid(table=curr_ROI_table)
-        translation_columns = [
-            "translation_z",
-            "translation_y",
-            "translation_x",
-        ]
-        if curr_ROI_table.var.index.isin(translation_columns).sum() != 3:
-            raise ValueError(
-                f"{roi_table=} in {acq_zarr_url} does not contain the "
-                f"translation columns {translation_columns} necessary to use "
-                "this task."
-            )
-        roi_tables[acq_zarr_url] = curr_ROI_table
-        roi_tables_attrs[acq_zarr_url] = curr_ROI_table_attrs
+            continue
+        acq_ome_zarr = open_ome_zarr_container(acq_zarr_url)
+        containers[acq_zarr_url] = acq_ome_zarr
+        tables[acq_zarr_url] = acq_ome_zarr.get_generic_roi_table(roi_table)
 
-    # Check that all acquisitions have the same ROIs
-    rois = roi_tables[list(roi_tables.keys())[0]].obs.index
-    for acq_zarr_url, acq_roi_table in roi_tables.items():
-        if not (acq_roi_table.obs.index == rois).all():
+    # Validate that all acquisitions have the same set of ROI names
+    ref_roi_names = {roi.name for roi in list(tables.values())[0].rois()}
+    for acq_zarr_url, table in tables.items():
+        acq_roi_names = {roi.name for roi in table.rois()}
+        if acq_roi_names != ref_roi_names:
             raise ValueError(
                 f"Acquisition {acq_zarr_url} does not contain the same ROIs "
                 f"as the reference acquisition {zarr_url}:\n"
-                f"{acq_zarr_url}: {acq_roi_table.obs.index}\n"
-                f"{zarr_url}: {rois}"
+                f"{acq_zarr_url}: {acq_roi_names}\n"
+                f"{zarr_url}: {ref_roi_names}"
             )
 
-    roi_table_dfs = [
-        roi_table.to_df().loc[:, translation_columns]
-        for roi_table in roi_tables.values()
-    ]
-    logger.info("Calculating min & max translation across acquisitions.")
-    max_df, min_df = calculate_min_max_across_dfs(roi_table_dfs)
-    shifted_rois = {}
+    rois_by_name = _group_roi_by_name(list(tables.values()))
+    consensus_rois = {
+        name: _find_roi_consensus(rois) for name, rois in rois_by_name.items()
+    }
 
-    # Loop over acquisitions
-    for acq_zarr_url in init_args.zarr_url_list:
-        shifted_rois[acq_zarr_url] = apply_registration_to_single_ROI_table(
-            roi_tables[acq_zarr_url], max_df, min_df
-        )
-
-        # TODO: Drop translation columns from this table?
-
-        logger.info(
-            f"Write the registered ROI table {new_roi_table} for {{acq_zarr_url=}}"
-        )
-        # Save the shifted ROI table as a new table
-        image_group = zarr.group(acq_zarr_url)
-        write_table(
-            image_group,
-            new_roi_table,
-            shifted_rois[acq_zarr_url],
-            table_attrs=roi_tables_attrs[acq_zarr_url],
+    for acq_zarr_url, table in tables.items():
+        registered_table = _apply_consensus_to_roi_table(table, consensus_rois)
+        containers[acq_zarr_url].add_table(
+            name=new_roi_table,
+            table=registered_table,
             overwrite=True,
         )
-
-    # TODO: Optionally apply registration to other tables as well?
-    # e.g. to well_ROI_table based on FOV_ROI_table
-    # => out of scope for the initial task, apply registration separately
-    # to each table
-    # Easiest implementation: Apply average shift calculcated here to other
-    # ROIs. From many to 1 (e.g. FOV => well) => average shift, but crop len
-    # From well to many (e.g. well to FOVs) => average shift, crop len by that
-    # amount
-    # Many to many (FOVs to organoids) => tricky because of matching
 
 
 if __name__ == "__main__":

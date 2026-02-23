@@ -24,8 +24,9 @@ Fractal tasks core is the reference task package for the [Fractal](https://fract
 - Refactor dev tooling (DONE)
 - Refactor Illumination correction task to use ngio (DONE)
 - Cleanup docs (DONE)
-- Refactor registration tasks to use ngio
-- Refactor import OME-Zarr task to use ngio
+- Refactor registration tasks to use ngio (DONE)
+- Refactor import OME-Zarr task to use ngio (DONE)
+- Improve test_v2 suite to cover all legacy edge cases
 - Remove the cellvoyager conversion tasks (to be moved into fractal-uzh-converters)
 - Refactor test suite to rely more on ngio "correctness" in writing
 - Remove all non-task related code (e.g. NGFF validation, ROI table handling, etc.)

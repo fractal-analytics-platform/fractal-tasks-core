@@ -4,55 +4,19 @@ Calculates translation for image-based registration
 """
 
 import logging
-from enum import Enum
 
-import anndata as ad
-import dask.array as da
 import numpy as np
-import zarr
+from ngio import open_ome_zarr_container
 from pydantic import validate_call
 from skimage.exposure import rescale_intensity
-from skimage.registration import phase_cross_correlation
 
-from fractal_tasks_core.channels import OmeroChannel, get_channel_from_image_zarr
-from fractal_tasks_core.ngff import load_NgffImageMeta
-from fractal_tasks_core.roi import (
-    check_valid_ROI_indices,
-    convert_indices_to_regions,
-    convert_ROI_table_to_indices,
-    load_region,
-)
-from fractal_tasks_core.tables import write_table
-from fractal_tasks_core.tasks._registration_utils import (
-    calculate_physical_shifts,
-    chi2_shift_out,
-    get_ROI_table_with_translation,
-    is_3D,
+from fractal_tasks_core.tasks._registration_utils_v2 import (
+    RegistrationMethod,
+    add_translation_to_roi,
 )
 from fractal_tasks_core.tasks.io_models import InitArgsRegistration
 
 logger = logging.getLogger("calculate_registration_image_based")
-
-
-class RegistrationMethod(Enum):
-    """
-    RegistrationMethod Enum class
-
-    Attributes:
-        PHASE_CROSS_CORRELATION: phase cross correlation based on scikit-image
-            (works with 2D & 3D images).
-        CHI2_SHIFT: chi2 shift based on image-registration library
-            (only works with 2D images).
-    """
-
-    PHASE_CROSS_CORRELATION = "phase_cross_correlation"
-    CHI2_SHIFT = "chi2_shift"
-
-    def register(self, img_ref, img_acq_x):
-        if self == RegistrationMethod.PHASE_CROSS_CORRELATION:
-            return phase_cross_correlation(img_ref, img_acq_x)
-        elif self == RegistrationMethod.CHI2_SHIFT:
-            return chi2_shift_out(img_ref, img_acq_x)
 
 
 @validate_call
@@ -111,130 +75,52 @@ def calculate_registration_image_based(
         f"{wavelength_id=}."
     )
 
-    init_args.reference_zarr_url = init_args.reference_zarr_url
+    ref_ome_zarr = open_ome_zarr_container(init_args.reference_zarr_url)
+    ref_image = ref_ome_zarr.get_image(path=str(level))
+    channel_index_ref = ref_image.get_channel_idx(wavelength_id=wavelength_id)
 
-    # Read some parameters from Zarr metadata
-    ngff_image_meta = load_NgffImageMeta(str(init_args.reference_zarr_url))
-    coarsening_xy = ngff_image_meta.coarsening_xy
+    to_align_ome_zarr = open_ome_zarr_container(zarr_url)
+    to_align_image = to_align_ome_zarr.get_image(path=str(level))
+    channel_index_align = to_align_image.get_channel_idx(wavelength_id=wavelength_id)
 
-    # Get channel_index via wavelength_id.
-    # Intially only allow registration of the same wavelength
-    channel_ref: OmeroChannel = get_channel_from_image_zarr(
-        image_zarr_path=init_args.reference_zarr_url,
-        wavelength_id=wavelength_id,
-    )
-    channel_index_ref = channel_ref.index
-
-    channel_align: OmeroChannel = get_channel_from_image_zarr(
-        image_zarr_path=zarr_url,
-        wavelength_id=wavelength_id,
-    )
-    channel_index_align = channel_align.index
-
-    # Lazily load zarr array
-    data_reference_zyx = da.from_zarr(f"{init_args.reference_zarr_url}/{level}")[
-        channel_index_ref
-    ]
-    data_alignment_zyx = da.from_zarr(f"{zarr_url}/{level}")[channel_index_align]
-
-    # Check if data is 3D (as not all registration methods work in 3D)
-    # TODO: Abstract this check into a higher-level Zarr loading class
-    if is_3D(data_reference_zyx):
-        if method == RegistrationMethod(RegistrationMethod.CHI2_SHIFT):
-            raise ValueError(
-                f"The `{RegistrationMethod.CHI2_SHIFT}` registration method "
-                "has not been implemented for 3D images and the input image "
-                f"had a shape of {data_reference_zyx.shape}."
-            )
-
-    # Read ROIs
-    ROI_table_ref = ad.read_zarr(f"{init_args.reference_zarr_url}/tables/{roi_table}")
-    ROI_table_x = ad.read_zarr(f"{zarr_url}/tables/{roi_table}")
-    logger.info(f"Found {len(ROI_table_x)} ROIs in {roi_table=} to be processed.")
-
-    # Check that table type of ROI_table_ref is valid. Note that
-    # "ngff:region_table" and None are accepted for backwards compatibility
-    valid_table_types = [
-        "roi_table",
-        "masking_roi_table",
-        "ngff:region_table",
-        None,
-    ]
-    ROI_table_ref_group = zarr.open_group(
-        f"{init_args.reference_zarr_url}/tables/{roi_table}",
-        mode="r",
-    )
-    ref_table_attrs = ROI_table_ref_group.attrs.asdict()
-    ref_table_type = ref_table_attrs.get("type")
-    if ref_table_type not in valid_table_types:
+    if ref_image.is_time_series:
         raise ValueError(
-            (
-                f"Table '{roi_table}' (with type '{ref_table_type}') is "
-                "not a valid ROI table."
-            )
+            f"Time series images are currently not supported for image-based "
+            f"registration, but the reference image had a time dimension with "
+            f"shape {ref_image.shape}."
         )
 
-    # For each acquisition, get the relevant info
-    # TODO: Add additional checks on ROIs?
-    if (ROI_table_ref.obs.index != ROI_table_x.obs.index).all():
+    if ref_image.is_3d and method == RegistrationMethod.CHI2_SHIFT:
         raise ValueError(
-            "Registration is only implemented for ROIs that match between the "
-            "acquisitions (e.g. well, FOV ROIs). Here, the ROIs in the "
-            f"reference acquisitions were {ROI_table_ref.obs.index}, but the "
-            f"ROIs in the alignment acquisition were {ROI_table_x.obs.index}"
-        )
-    # TODO: Make this less restrictive? i.e. could we also run it if different
-    # acquisitions have different FOVs? But then how do we know which FOVs to
-    # match?
-    # If we relax this, downstream assumptions on matching based on order
-    # in the list will break.
-
-    # Read pixel sizes from zarr attributes
-    ngff_image_meta_acq_x = load_NgffImageMeta(zarr_url)
-    pxl_sizes_zyx = ngff_image_meta.get_pixel_sizes_zyx(level=0)
-    pxl_sizes_zyx_acq_x = ngff_image_meta_acq_x.get_pixel_sizes_zyx(level=0)
-
-    if pxl_sizes_zyx != pxl_sizes_zyx_acq_x:
-        raise ValueError(
-            "Pixel sizes need to be equal between acquisitions for registration."
+            f"The `{RegistrationMethod.CHI2_SHIFT}` registration method "
+            "has not been implemented for 3D images and the input image "
+            f"had a shape of {ref_image.shape}."
         )
 
-    # Create list of indices for 3D ROIs spanning the entire Z direction
-    list_indices_ref = convert_ROI_table_to_indices(
-        ROI_table_ref,
-        level=level,
-        coarsening_xy=coarsening_xy,
-        full_res_pxl_sizes_zyx=pxl_sizes_zyx,
+    ref_roi_table = ref_ome_zarr.get_generic_roi_table(roi_table)
+    to_align_roi_table = to_align_ome_zarr.get_generic_roi_table(roi_table)
+    logger.info(
+        f"Found {len(ref_roi_table.rois())} ROIs in {roi_table=} to be processed."
     )
-    check_valid_ROI_indices(list_indices_ref, roi_table)
 
-    list_indices_acq_x = convert_ROI_table_to_indices(
-        ROI_table_x,
-        level=level,
-        coarsening_xy=coarsening_xy,
-        full_res_pxl_sizes_zyx=pxl_sizes_zyx,
-    )
-    check_valid_ROI_indices(list_indices_acq_x, roi_table)
-
-    num_ROIs = len(list_indices_ref)
-    compute = True
+    to_align_rois = {roi.name: roi for roi in to_align_roi_table.rois()}
     new_shifts = {}
-    for i_ROI in range(num_ROIs):
+    for roi in ref_roi_table.rois():
         logger.info(
-            f"Now processing ROI {i_ROI + 1}/{num_ROIs} for channel {channel_align}."
+            f"Processing ROI {roi.name!r} for registration between "
+            f"{init_args.reference_zarr_url!r} and {zarr_url!r}."
         )
-        img_ref = load_region(
-            data_zyx=data_reference_zyx,
-            region=convert_indices_to_regions(list_indices_ref[i_ROI]),
-            compute=compute,
-        )
-        img_acq_x = load_region(
-            data_zyx=data_alignment_zyx,
-            region=convert_indices_to_regions(list_indices_acq_x[i_ROI]),
-            compute=compute,
+        to_align_roi = to_align_rois.get(roi.name)
+        if to_align_roi is None:
+            raise ValueError(
+                f"Could not find matching ROI for ROI {roi} in the reference "
+                "acquisition in the alignment acquisition."
+            )
+        img_ref = ref_image.get_roi(roi, channel_selection=channel_index_ref)
+        img_acq_x = to_align_image.get_roi(
+            to_align_roi, channel_selection=channel_index_align
         )
 
-        # Rescale the images
         img_ref = rescale_intensity(
             img_ref,
             in_range=(
@@ -250,9 +136,6 @@ def calculate_registration_image_based(
             ),
         )
 
-        ##############
-        #  Calculate the transformation
-        ##############
         if img_ref.shape != img_acq_x.shape:
             raise NotImplementedError(
                 "This registration is not implemented for ROIs with "
@@ -260,29 +143,18 @@ def calculate_registration_image_based(
             )
 
         shifts = method.register(np.squeeze(img_ref), np.squeeze(img_acq_x))[0]
+        new_shifts[roi.name] = shifts
 
-        ##############
-        # Store the calculated transformation ###
-        ##############
-        # Adapt ROIs for the given ROI table:
-        ROI_name = ROI_table_ref.obs.index[i_ROI]
-        new_shifts[ROI_name] = calculate_physical_shifts(
-            shifts,
-            level=level,
-            coarsening_xy=coarsening_xy,
-            full_res_pxl_sizes_zyx=pxl_sizes_zyx,
-        )
-
-    # Write physical shifts to disk (as part of the ROI table)
     logger.info(f"Updating the {roi_table=} with translation columns")
-    image_group = zarr.group(zarr_url)
-    new_ROI_table = get_ROI_table_with_translation(ROI_table_x, new_shifts)
-    write_table(
-        image_group,
-        roi_table,
-        new_ROI_table,
+    for roi in to_align_roi_table.rois():
+        shifts = new_shifts[roi.name]
+        updated_roi = add_translation_to_roi(roi, shifts, to_align_image.pixel_size)
+        to_align_roi_table.add(updated_roi, overwrite=True)
+
+    to_align_ome_zarr.add_table(
+        name=roi_table,
+        table=to_align_roi_table,
         overwrite=True,
-        table_attrs=ref_table_attrs,
     )
 
 
