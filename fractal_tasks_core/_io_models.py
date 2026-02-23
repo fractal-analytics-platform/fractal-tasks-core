@@ -1,6 +1,6 @@
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Dict, Literal, Optional, Tuple
+from typing import Literal, Optional, Tuple
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -160,74 +160,6 @@ class InitArgsMIP(BaseModel):
     method: str
     overwrite: bool
     new_plate_name: str
-
-
-class MultiplexingAcquisition(BaseModel):
-    """
-    Input class for Multiplexing Cellvoyager converter
-
-    Attributes:
-        image_dir: Path to the folder that contains the Cellvoyager image
-            files for that acquisition and the MeasurementData &
-            MeasurementDetail metadata files.
-        allowed_channels: A list of `OmeroChannel` objects, where each channel
-            must include the `wavelength_id` attribute and where the
-            `wavelength_id` values must be unique across the list.
-    """
-
-    image_dir: str
-    allowed_channels: list[OmeroChannel]
-
-
-class ChunkSizes(BaseModel):
-    """
-    Chunk size settings for OME-Zarrs.
-
-    Attributes:
-        t: Chunk size of time axis.
-        c: Chunk size of channel axis.
-        z: Chunk size of Z axis.
-        y: Chunk size of y axis.
-        x: Chunk size of x axis.
-    """
-
-    t: Optional[int] = None
-    c: Optional[int] = 1
-    z: Optional[int] = 10
-    y: Optional[int] = None
-    x: Optional[int] = None
-
-    def get_chunksize(
-        self, chunksize_default: Optional[Dict[str, int]] = None
-    ) -> Tuple[int, ...]:
-        # Define the valid keys
-        valid_keys = {"t", "c", "z", "y", "x"}
-
-        # If chunksize_default is not None, check for invalid keys
-        if chunksize_default:
-            invalid_keys = set(chunksize_default.keys()) - valid_keys
-            if invalid_keys:
-                raise ValueError(
-                    f"Invalid keys in chunksize_default: {invalid_keys}. "
-                    f"Only {valid_keys} are allowed."
-                )
-
-        # Filter and use only valid keys from chunksize_default
-        chunksize = {
-            key: chunksize_default[key]
-            for key in valid_keys
-            if chunksize_default and key in chunksize_default
-        }
-
-        # Overwrite with the values from the ChunkSizes instance if they are
-        # not None
-        for key in valid_keys:
-            if getattr(self, key) is not None:
-                chunksize[key] = getattr(self, key)
-
-        # Ensure the output tuple is ordered and matches the tczyx structure
-        ordered_keys = ["t", "c", "z", "y", "x"]
-        return tuple(chunksize[key] for key in ordered_keys if key in chunksize)
 
 
 class ProfileCorrectionModel(BaseModel):
