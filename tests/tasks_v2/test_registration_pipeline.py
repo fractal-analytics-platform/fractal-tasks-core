@@ -68,6 +68,7 @@ _SHIFT_Z_UM = 2.0  # µm
 # Table backend
 _TABLE_BACKEND = "anndata"
 
+
 def _build_image(zarr_url: str, y_offset: int = 0, x_offset: int = 0) -> None:
     """Create a single-channel OME-Zarr image with a bright 10×10 block."""
     ome = create_empty_ome_zarr(
@@ -163,9 +164,7 @@ def _build_multi_fov_image(zarr_url: str, y_offset: int = 0, x_offset: int = 0) 
     full_um = _SHAPE[-1] * _PIXELSIZE  # 20.8 µm
     fov1 = Roi(name="FOV_1", y=0.0, x=0.0, y_length=half_um, x_length=full_um)
     fov2 = Roi(name="FOV_2", y=half_um, x=0.0, y_length=half_um, x_length=full_um)
-    ome.add_table(
-        "FOV_ROI_table", RoiTable(rois=[fov1, fov2]), backend=_TABLE_BACKEND
-    )
+    ome.add_table("FOV_ROI_table", RoiTable(rois=[fov1, fov2]), backend=_TABLE_BACKEND)
 
 
 def _build_multiplex_plate(
@@ -828,15 +827,13 @@ def test_full_pipeline_overwrite_input_true(multiplex_plate_urls):
     """
     zarr_url_0 = multiplex_plate_urls["zarr_url_0"]
     zarr_url_1 = multiplex_plate_urls["zarr_url_1"]
-    
+
     # Add some non-ROI table
     ome1 = open_ome_zarr_container(zarr_url_1)
     # example feature table with dummy data
     features = DataFrame({"label": [1], "feature1": [0], "feature2": [1]})
     features_table = FeatureTable(features)
-    ome1.add_table(
-        "example_feature_table", features_table, backend=_TABLE_BACKEND
-    )
+    ome1.add_table("example_feature_table", features_table, backend=_TABLE_BACKEND)
 
     result = _run_full_pipeline(zarr_url_0, zarr_url_1, overwrite_input=True)
 
@@ -984,9 +981,7 @@ def test_full_pipeline_with_labels(multiplex_plate_urls):
 
     # add masking roi table
     masking_roi_table = label.build_masking_roi_table()
-    ome1_pre.add_table(
-        "masking_roi_table", masking_roi_table, backend=_TABLE_BACKEND
-    )
+    ome1_pre.add_table("masking_roi_table", masking_roi_table, backend=_TABLE_BACKEND)
 
     _run_full_pipeline(zarr_url_0, zarr_url_1, overwrite_input=True)
 

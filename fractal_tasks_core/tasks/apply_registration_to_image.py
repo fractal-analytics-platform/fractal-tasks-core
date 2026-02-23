@@ -290,9 +290,7 @@ def apply_registration_to_image(
         new_img_path = f"{old_img_path}_registered"
         ome_zarr_well = open_ome_zarr_well(well_url)
         acq_id = ome_zarr_well.get_image_acquisition_id(old_img_path)
-        ome_zarr_well.atomic_add_image(
-            new_img_path, acquisition_id=acq_id, strict=True
-        )
+        ome_zarr_well.atomic_add_image(new_img_path, acquisition_id=acq_id, strict=True)
 
     return image_list_updates
 
