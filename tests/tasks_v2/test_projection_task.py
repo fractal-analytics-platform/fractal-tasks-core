@@ -11,6 +11,22 @@ from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
 from fractal_tasks_core.tasks.projection import InitArgsMIP, projection
 
 
+@pytest.fixture(scope="session")
+def sample_ome_zarr_zyx_url(testdata_path) -> Path:
+    store = testdata_path / "ngio_synt" / "sample_ome_zarr_zyx.zarr"
+    origin_ome_zarr = create_empty_ome_zarr(
+        store=store,
+        shape=(16, 32, 32),
+        xy_pixelsize=0.1,
+        z_spacing=0.5,
+        overwrite=True,
+        axes_names="zyx",
+    )
+    table = origin_ome_zarr.build_image_roi_table("image")
+    origin_ome_zarr.add_table("well_ROI_table", table, backend="anndata")
+    return store
+
+
 def test_mip_task(cardiomyocyte_tiny_path: Path, tmp_path: Path) -> None:
     image_url = str(cardiomyocyte_tiny_path / "B" / "03" / "0")
     parallel_list = copy_ome_zarr_hcs_plate(

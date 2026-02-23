@@ -3,7 +3,6 @@ import shutil
 from pathlib import Path
 
 import pytest
-from ngio import create_empty_ome_zarr
 from ngio.utils import download_ome_zarr_dataset
 
 
@@ -36,24 +35,6 @@ def cardiomyocyte_small_mip_source_path(zenodo_download_dir: Path) -> Path:
         "CardiomyocyteSmallMip", download_dir=zenodo_download_dir
     )
 
-
-@pytest.fixture(scope="session")
-def sample_ome_zarr_zyx_url(testdata_path) -> Path:
-    """
-    Fixture to create a sample OME-Zarr store.
-    """
-    store = testdata_path / "ngio_synt" / "sample_ome_zarr_zyx.zarr"
-    origin_ome_zarr = create_empty_ome_zarr(
-        store=store,
-        shape=(16, 32, 32),
-        xy_pixelsize=0.1,
-        z_spacing=0.5,
-        overwrite=True,
-        axes_names="zyx",
-    )
-    table = origin_ome_zarr.build_image_roi_table("image")
-    origin_ome_zarr.add_table("well_ROI_table", table, backend="anndata")
-    return store
 
 
 @pytest.fixture
