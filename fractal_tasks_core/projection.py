@@ -12,8 +12,8 @@ import dask.array as da
 from ngio import Image, open_ome_zarr_container
 from pydantic import validate_call
 
-from fractal_tasks_core.io_models import InitArgsMIP
-from fractal_tasks_core.projection_utils import DaskProjectionMethod
+from fractal_tasks_core._io_models import InitArgsMIP
+from fractal_tasks_core._projection_utils import DaskProjectionMethod
 
 logger = logging.getLogger("projection")
 

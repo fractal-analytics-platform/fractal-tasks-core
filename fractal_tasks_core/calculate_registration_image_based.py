@@ -10,11 +10,11 @@ from ngio import open_ome_zarr_container
 from pydantic import validate_call
 from skimage.exposure import rescale_intensity
 
-from fractal_tasks_core._registration_utils_v2 import (
+from fractal_tasks_core._io_models import InitArgsRegistration
+from fractal_tasks_core._registration_utils import (
     RegistrationMethod,
     add_translation_to_roi,
 )
-from fractal_tasks_core.io_models import InitArgsRegistration
 
 logger = logging.getLogger("calculate_registration_image_based")
 
