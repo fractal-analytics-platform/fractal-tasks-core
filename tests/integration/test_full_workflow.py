@@ -69,7 +69,6 @@ _SHIFT_X_PX = 8
 _SHIFT_Y_UM = _SHIFT_Y_PX * _PIXELSIZE  # 1.3 µm
 _SHIFT_X_UM = _SHIFT_X_PX * _PIXELSIZE  # 2.6 µm
 
-_TABLE_BACKEND = "anndata"
 # ROI table names — reused from import_ome_zarr output
 _ROI_TABLE = "image_ROI_table"
 _REGISTERED_ROI_TABLE = "registered_image_ROI_table"
