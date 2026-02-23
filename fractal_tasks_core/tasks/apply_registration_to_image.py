@@ -116,6 +116,7 @@ def apply_registration_to_image(
     # Core parameters
     registered_roi_table: str,
     reference_acquisition: int = 0,
+    register_labels: bool = True,
     overwrite_input: bool = True,
 ):
     """
@@ -145,6 +146,9 @@ def apply_registration_to_image(
         reference_acquisition: Which acquisition to register against. Uses the
             OME-NGFF HCS well metadata acquisition keys to find the reference
             acquisition.
+        register_labels: Whether to also apply the registration to the label
+            images. If True, all label images will be registered in the same
+            way as the main image. If False, only the main image is registered.
         overwrite_input: Whether the old image data should be replaced with the
             newly registered image data. Currently only implemented for
             `overwrite_input=True`.
@@ -153,7 +157,7 @@ def apply_registration_to_image(
     logger.info(
         f"Running `apply_registration_to_image` on {zarr_url=}, "
         f"{registered_roi_table=} and {reference_acquisition=}. "
-        f"Using {overwrite_input=}"
+        f"Using {overwrite_input=} and {register_labels=}"
     )
 
     well_url, old_img_path = zarr_url.rstrip("/").rsplit("/", 1)
@@ -202,7 +206,7 @@ def apply_registration_to_image(
     # Process labels
     ####################
     label_list = acq_ome_zarr.list_labels()
-    if label_list:
+    if register_labels and label_list:
         logger.info(f"Processing the label images: {label_list}")
         for label_name in label_list:
             _write_registered_ngio_label(
@@ -246,6 +250,7 @@ def apply_registration_to_image(
             for attempt in range(max_retries):
                 try:
                     table = source.get_table(table_name)
+                    new_ome_zarr.add_table(name=table_name, table=table, overwrite=True)
                     break
                 except Exception:
                     logger.debug(
@@ -259,7 +264,6 @@ def apply_registration_to_image(
                     "Check whether this table actually exists. If it does, "
                     "this may be a race condition issue."
                 )
-            new_ome_zarr.add_table(name=table_name, table=table, overwrite=True)
 
     ####################
     # Clean up Zarr file
@@ -286,9 +290,8 @@ def apply_registration_to_image(
         new_img_path = f"{old_img_path}_registered"
         ome_zarr_well = open_ome_zarr_well(well_url)
         acq_id = ome_zarr_well.get_image_acquisition_id(old_img_path)
-        # TODO: replace with a public atomic add_image method once ngio exposes one.
-        ome_zarr_well._add_image(
-            new_img_path, acquisition_id=acq_id, atomic=True, strict=True
+        ome_zarr_well.atomic_add_image(
+            new_img_path, acquisition_id=acq_id, strict=True
         )
 
     return image_list_updates
