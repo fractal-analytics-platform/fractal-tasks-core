@@ -4,30 +4,19 @@ version = "1.6.0"
 description = "Reference task package for the Fractal analytics platform"
 readme = "README.md"
 license = { text = "BSD-3-Clause" }
-requires-python = ">=3.11,<3.13"
+requires-python = ">=3.11,<3.15"
 authors = [
     { name = "Lorenzo Cerrone", email = "lorenzo.cerrone@uzh.ch" },
     { name = "Joel Lüthi", email = "joel.luethi@uzh.ch" },
     { name = "Tommaso Comparin", email = "tommaso.comparin@exact-lab.it" },
 ]
 dependencies = [
+    "numpy>=2.0.0",
     "dask>=2023.1.0,<2025.11.0",
-    "fsspec!=2023.9.0",
-    "zarr>=2.13.6,<3",
-    "numpy<2.3.0",
-    "pandas>=1.2.0,<3.0.0",
-    "lxml<=5.4.0",
     "pydantic>2.11.0,<=2.12.0",
-    "anndata>=0.8.0,<0.11.0",
-    "filelock==3.13.*",
-    "ngio>=0.4.8,<0.5.0",
+    "ngio>=0.5.5,<0.6.0",
     "fractal-task-tools==0.3.0",
-    "numcodecs<0.16.0",
-    "Pillow>=9.1.1",
-    "imageio-ffmpeg>=0.4.7",
     "scikit-image>=0.19",
-    "llvmlite",
-    "stackview<0.9.0",
     "image_registration>=0.2.9",
 ]
 
