@@ -11,7 +11,7 @@ Tests are pure (no I/O) and cover:
 import pytest
 from ngio import PixelSize, Roi
 
-from fractal_tasks_core._registration_utils_v2 import add_translation_to_roi
+from fractal_tasks_core._registration_utils import add_translation_to_roi
 from fractal_tasks_core.apply_registration_to_image import _get_ref_path_heuristic
 from fractal_tasks_core.find_registration_consensus import (
     _apply_consensus_to_roi,

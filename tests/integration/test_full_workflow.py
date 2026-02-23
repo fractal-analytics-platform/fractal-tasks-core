@@ -28,6 +28,11 @@ from ngio import (
 )
 from skimage.io import imsave
 
+from fractal_tasks_core._io_models import (
+    InitArgsRegistration,
+    InitArgsRegistrationConsensus,
+    ProfileCorrectionModel,
+)
 from fractal_tasks_core.apply_registration_to_image import (
     apply_registration_to_image,
 )
@@ -43,11 +48,6 @@ from fractal_tasks_core.image_based_registration_hcs_init import (
     image_based_registration_hcs_init,
 )
 from fractal_tasks_core.import_ome_zarr import import_ome_zarr
-from fractal_tasks_core.io_models import (
-    InitArgsRegistration,
-    InitArgsRegistrationConsensus,
-    ProfileCorrectionModel,
-)
 from fractal_tasks_core.projection import projection
 
 # ---------------------------------------------------------------------------

@@ -24,7 +24,11 @@ from ngio import (
 from ngio.tables import FeatureTable, RoiTable
 from pandas import DataFrame
 
-from fractal_tasks_core._registration_utils_v2 import RegistrationMethod
+from fractal_tasks_core._io_models import (
+    InitArgsRegistration,
+    InitArgsRegistrationConsensus,
+)
+from fractal_tasks_core._registration_utils import RegistrationMethod
 from fractal_tasks_core.apply_registration_to_image import (
     apply_registration_to_image,
 )
@@ -39,10 +43,6 @@ from fractal_tasks_core.image_based_registration_hcs_init import (
 )
 from fractal_tasks_core.init_group_by_well_for_multiplexing import (
     init_group_by_well_for_multiplexing,
-)
-from fractal_tasks_core.io_models import (
-    InitArgsRegistration,
-    InitArgsRegistrationConsensus,
 )
 
 # ---------------------------------------------------------------------------
