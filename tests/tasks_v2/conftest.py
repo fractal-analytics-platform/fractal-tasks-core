@@ -36,7 +36,6 @@ def cardiomyocyte_small_mip_source_path(zenodo_download_dir: Path) -> Path:
     )
 
 
-
 @pytest.fixture
 def cardiomyocyte_tiny_path(
     tmp_path: Path, cardiomyocyte_tiny_source_path: Path
