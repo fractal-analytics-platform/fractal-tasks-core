@@ -14,12 +14,12 @@ from ngio.utils._errors import NgioFileNotFoundError
 from pydantic import BaseModel, Field, validate_call
 from skimage.io import imread
 
+from fractal_tasks_core.tasks._plate_utils import split_well_path_image_path
 from fractal_tasks_core.tasks.io_models import (
     ConstantCorrectionModel,
     NoCorrectionModel,
     ProfileCorrectionModel,
 )
-from fractal_tasks_core.utils import _split_well_path_image_path
 
 logger = logging.getLogger("illumination_correction")
 
@@ -320,7 +320,7 @@ def illumination_correction(
     logger.info(f"End illumination_correction, elapsed: {t_end - t_start}")
 
     if not overwrite_input:
-        well_url, new_image_path = _split_well_path_image_path(zarr_url_new)
+        well_url, new_image_path = split_well_path_image_path(zarr_url_new)
         try:
             ome_zarr_well = open_ome_zarr_well(well_url)
             ome_zarr_well.atomic_add_image(

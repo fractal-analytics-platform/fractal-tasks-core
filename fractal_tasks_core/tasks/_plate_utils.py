@@ -82,3 +82,26 @@ def group_by_well(zarr_urls: list[str]) -> dict[str, list[HCSZarrUrl]]:
             wells[well_url] = []
         wells[well_url].append(url)
     return wells
+
+
+def split_well_path_image_path(zarr_url: str) -> tuple[str, str]:
+    """
+    Split a zarr_url into the well path and the image path.
+
+    Args:
+        zarr_url: zarr_url of the form `/path/to/plate_name/row/column/image_path`.
+    Returns:
+        well_path: path to the well, of the form `/path/to/plate_name/row/column`.
+        image_path: path to the image within the well, of the form `image_path`.
+    """
+    parts = zarr_url.rstrip("/").split("/")
+    if len(parts) < 5:
+        raise ValueError(
+            f"Invalid zarr_url: {zarr_url}. "
+            "The zarr_url of an image in a plate should be of the form "
+            "`/path/to/plate_name/row/column/image_path`. "
+            "The zarr_url given is too short to be valid."
+        )
+    *well_parts, image_path = parts
+    well_path = "/".join(well_parts)
+    return well_path, image_path

@@ -2,9 +2,79 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Dict, Literal, Optional, Tuple
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
-from fractal_tasks_core.channels import OmeroChannel
+
+class Window(BaseModel):
+    """
+    Custom class for Omero-channel window, based on OME-NGFF v0.4.
+
+    Attributes:
+        min: Do not change. It will be set to `0` by default.
+        max:
+            Do not change. It will be set according to bit-depth of the images
+            by default (e.g. 65535 for 16 bit images).
+        start: Lower-bound rescaling value for visualization.
+        end: Upper-bound rescaling value for visualization.
+    """
+
+    min: Optional[int] = None
+    max: Optional[int] = None
+    start: int
+    end: int
+
+
+class OmeroChannel(BaseModel):
+    """
+    Custom class for Omero channels, based on OME-NGFF v0.4.
+
+    Attributes:
+        wavelength_id: Unique ID for the channel wavelength, e.g. `A01_C01`.
+        index: Do not change. For internal use only.
+        label: Name of the channel.
+        window: Optional `Window` object to set default display settings. If
+            unset, it will be set to the full bit range of the image
+            (e.g. 0-65535 for 16 bit images).
+        color: Optional hex colormap to display the channel in napari (it
+            must be of length 6, e.g. `00FFFF`).
+        active: Should this channel be shown in the viewer?
+        coefficient: Do not change. Omero-channel attribute.
+        inverted: Do not change. Omero-channel attribute.
+    """
+
+    # Custom
+
+    wavelength_id: str
+    index: Optional[int] = None
+
+    # From OME-NGFF v0.4 transitional metadata
+
+    label: Optional[str] = None
+    window: Optional[Window] = None
+    color: Optional[str] = None
+    active: bool = True
+    coefficient: int = 1
+    inverted: bool = False
+
+    @field_validator("color", mode="after")
+    @classmethod
+    def valid_hex_color(cls, v: Optional[str]) -> Optional[str]:
+        """
+        Check that `color` is made of exactly six elements which are letters
+        (a-f or A-F) or digits (0-9).
+        """
+        if v is None:
+            return v
+        if len(v) != 6:
+            raise ValueError(f'color must have length 6 (given: "{v}")')
+        allowed_characters = "abcdefABCDEF0123456789"
+        for character in v:
+            if character not in allowed_characters:
+                raise ValueError(
+                    "color must only include characters from "
+                    f'"{allowed_characters}" (given: "{v}")'
+                )
+        return v
 
 
 class InitArgsRegistration(BaseModel):

@@ -12,14 +12,10 @@ from ngio import OmeZarrPlate, OmeZarrWell, open_ome_zarr_plate, open_ome_zarr_w
 from ngio.utils import NgioFileExistsError, NgioFileNotFoundError
 from pydantic import validate_call
 
-import fractal_tasks_core
 from fractal_tasks_core.tasks.io_models import InitArgsMIP
 from fractal_tasks_core.tasks.projection_utils import DaskProjectionMethod
 
 logger = logging.getLogger("copy_ome_zarr_hcs_plate")
-
-
-__OME_NGFF_VERSION__ = fractal_tasks_core.__OME_NGFF_VERSION__
 
 
 @cache
