@@ -68,8 +68,7 @@ docs = { features = ["docs"], solve-group = "default" }
 
 [tool.pytest.ini_options]
 addopts = [
-    # TODO reove the .tasks suffix before V2 merge
-    "--cov=fractal_tasks_core.tasks",
+    "--cov=fractal_tasks_core",
     "--cov-report=term-missing",
     "--cov-branch",
 ]
