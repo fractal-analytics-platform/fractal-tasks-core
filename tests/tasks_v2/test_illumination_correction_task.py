@@ -1,4 +1,3 @@
-import logging
 import shutil
 from pathlib import Path
 
@@ -623,9 +622,11 @@ def test_inconsistent_fov_sizes(tmp_path: Path) -> None:
             input_ROI_table="well_ROI_table",
         )
 
+
 # ---------------------------------------------------------------------------
 # Correction matrix shape mismatch (flatfield and darkfield)
 # ---------------------------------------------------------------------------
+
 
 def _make_tiny_zyx_zarr_with_roi(tmp_path: Path) -> tuple[str, list[str]]:
     """Create a minimal 1-channel zyx zarr with a single-ROI well table."""
