@@ -124,15 +124,15 @@ def calculate_registration_image_based(
         img_ref = rescale_intensity(
             img_ref,
             in_range=(
-                np.quantile(img_ref, lower_rescale_quantile),
-                np.quantile(img_ref, upper_rescale_quantile),
+                np.quantile(img_ref, lower_rescale_quantile),  # type: ignore skimage wrong type hint
+                np.quantile(img_ref, upper_rescale_quantile),  # type: ignore skimage wrong type hint
             ),
         )
         img_acq_x = rescale_intensity(
             img_acq_x,
             in_range=(
-                np.quantile(img_acq_x, lower_rescale_quantile),
-                np.quantile(img_acq_x, upper_rescale_quantile),
+                np.quantile(img_acq_x, lower_rescale_quantile),  # type: ignore skimage wrong type hint
+                np.quantile(img_acq_x, upper_rescale_quantile),  # type: ignore skimage wrong type hint
             ),
         )
 
@@ -142,7 +142,7 @@ def calculate_registration_image_based(
                 "different shapes between acquisitions."
             )
 
-        shifts = method.register(np.squeeze(img_ref), np.squeeze(img_acq_x))[0]
+        shifts = method.register(np.squeeze(img_ref), np.squeeze(img_acq_x))[0]  # type: ignore skimage wrong type hint
         new_shifts[roi.name] = shifts
 
     logger.info(f"Updating the {roi_table=} with translation columns")

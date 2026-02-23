@@ -180,7 +180,7 @@ def _build_multiplex_plate(
     Acquisition 1 (to align):  block shifted by _SHIFT_Y_PX / _SHIFT_X_PX.
     """
     plate_path = tmp_path / f"multiplex_{axes}.zarr"
-    plate = create_empty_plate(
+    create_empty_plate(
         store=plate_path,
         name=f"multiplex_{axes}",
         images=[
@@ -189,10 +189,10 @@ def _build_multiplex_plate(
         ],
         overwrite=True,
     )
-    base_url = plate._group_handler.full_url
-    zarr_url_0 = f"{base_url}A/01/0"
-    zarr_url_1 = f"{base_url}A/01/1"
-    well_url = f"{base_url}A/01"
+    base_url = plate_path.resolve()
+    zarr_url_0 = f"{base_url}/A/01/0"
+    zarr_url_1 = f"{base_url}/A/01/1"
+    well_url = f"{base_url}/A/01"
     _build_image_for_axes(zarr_url_0, axes, shape)
     _build_image_for_axes(
         zarr_url_1, axes, shape, y_offset=_SHIFT_Y_PX, x_offset=_SHIFT_X_PX
@@ -216,7 +216,7 @@ def multiplex_plate_urls(tmp_path: Path) -> dict[str, str]:
     Returns a dict with keys 'zarr_url_0', 'zarr_url_1', 'well_url'.
     """
     plate_path = tmp_path / "multiplex.zarr"
-    plate = create_empty_plate(
+    create_empty_plate(
         store=plate_path,
         name="multiplex",
         images=[
@@ -225,10 +225,10 @@ def multiplex_plate_urls(tmp_path: Path) -> dict[str, str]:
         ],
         overwrite=True,
     )
-    base_url = plate._group_handler.full_url  # ends with '/'
-    zarr_url_0 = f"{base_url}A/01/0"
-    zarr_url_1 = f"{base_url}A/01/1"
-    well_url = f"{base_url}A/01"
+    base_url = plate_path.resolve()
+    zarr_url_0 = f"{base_url}/A/01/0"
+    zarr_url_1 = f"{base_url}/A/01/1"
+    well_url = f"{base_url}/A/01"
 
     _build_image(zarr_url_0, y_offset=0, x_offset=0)
     _build_image(zarr_url_1, y_offset=_SHIFT_Y_PX, x_offset=_SHIFT_X_PX)
@@ -276,7 +276,7 @@ def test_init_excludes_reference_from_list(multiplex_plate_urls):
 def test_init_missing_reference_raises(tmp_path: Path):
     """ValueError when reference_acquisition is absent from the plate metadata."""
     plate_path = tmp_path / "missing_ref.zarr"
-    plate = create_empty_plate(
+    create_empty_plate(
         store=plate_path,
         name="missing_ref",
         images=[
@@ -284,8 +284,8 @@ def test_init_missing_reference_raises(tmp_path: Path):
         ],
         overwrite=True,
     )
-    base_url = plate._group_handler.full_url
-    zarr_url_1 = f"{base_url}A/01/1"
+    base_url = plate_path.resolve()
+    zarr_url_1 = f"{base_url}/A/01/1"
     _build_image(zarr_url_1)
 
     with pytest.raises(ValueError, match="[Nn]o reference acquisition"):
@@ -321,7 +321,7 @@ def test_group_by_well_produces_correct_parallelization_list(multiplex_plate_url
 def test_group_by_well_missing_reference_raises(tmp_path: Path):
     """ValueError when reference_acquisition is absent from the well metadata."""
     plate_path = tmp_path / "missing_ref2.zarr"
-    plate = create_empty_plate(
+    create_empty_plate(
         store=plate_path,
         name="missing_ref2",
         images=[
@@ -329,8 +329,8 @@ def test_group_by_well_missing_reference_raises(tmp_path: Path):
         ],
         overwrite=True,
     )
-    base_url = plate._group_handler.full_url
-    zarr_url_1 = f"{base_url}A/01/1"
+    base_url = plate_path.resolve()
+    zarr_url_1 = f"{base_url}/A/01/1"
     _build_image(zarr_url_1)
 
     with pytest.raises(ValueError):
@@ -390,7 +390,7 @@ def test_calculate_registration_detects_z_shift(tmp_path: Path):
     _z_start = 4  # start well away from boundaries
 
     plate_path = tmp_path / "multiplex_zshift.zarr"
-    plate = create_empty_plate(
+    create_empty_plate(
         store=plate_path,
         name="multiplex_zshift",
         images=[
@@ -399,9 +399,9 @@ def test_calculate_registration_detects_z_shift(tmp_path: Path):
         ],
         overwrite=True,
     )
-    base_url = plate._group_handler.full_url
-    zarr_url_0 = f"{base_url}A/01/0"
-    zarr_url_1 = f"{base_url}A/01/1"
+    base_url = plate_path.resolve()
+    zarr_url_0 = f"{base_url}/A/01/0"
+    zarr_url_1 = f"{base_url}/A/01/1"
 
     for zarr_url, z_start in [
         (zarr_url_0, _z_start),
@@ -508,7 +508,7 @@ def test_calculate_registration_multi_fov(tmp_path: Path):
     independent translations.
     """
     plate_path = tmp_path / "multi_fov.zarr"
-    plate = create_empty_plate(
+    create_empty_plate(
         store=plate_path,
         name="multi_fov",
         images=[
@@ -517,9 +517,9 @@ def test_calculate_registration_multi_fov(tmp_path: Path):
         ],
         overwrite=True,
     )
-    base_url = plate._group_handler.full_url
-    zarr_url_0 = f"{base_url}A/01/0"
-    zarr_url_1 = f"{base_url}A/01/1"
+    base_url = plate_path.resolve()
+    zarr_url_0 = f"{base_url}/A/01/0"
+    zarr_url_1 = f"{base_url}/A/01/1"
 
     _build_multi_fov_image(zarr_url_0)
     _build_multi_fov_image(zarr_url_1, y_offset=_SHIFT_Y_PX, x_offset=_SHIFT_X_PX)
@@ -564,7 +564,7 @@ def test_full_pipeline_multi_fov(tmp_path: Path):
     registered FOV region (using the reference ROI for both).
     """
     plate_path = tmp_path / "multi_fov_pipeline.zarr"
-    plate = create_empty_plate(
+    create_empty_plate(
         store=plate_path,
         name="multi_fov_pipeline",
         images=[
@@ -573,9 +573,9 @@ def test_full_pipeline_multi_fov(tmp_path: Path):
         ],
         overwrite=True,
     )
-    base_url = plate._group_handler.full_url
-    zarr_url_0 = f"{base_url}A/01/0"
-    zarr_url_1 = f"{base_url}A/01/1"
+    base_url = plate_path.resolve()
+    zarr_url_0 = f"{base_url}/A/01/0"
+    zarr_url_1 = f"{base_url}/A/01/1"
 
     _build_multi_fov_image(zarr_url_0)
     _build_multi_fov_image(zarr_url_1, y_offset=_SHIFT_Y_PX, x_offset=_SHIFT_X_PX)
@@ -649,7 +649,7 @@ def test_calculate_registration_shape_mismatch_raises(tmp_path: Path):
     16×16 array from acq0 but only a 12×12 array from acq1 → shape mismatch.
     """
     plate_path = tmp_path / "shape_mismatch.zarr"
-    plate = create_empty_plate(
+    create_empty_plate(
         store=plate_path,
         name="shape_mismatch",
         images=[
@@ -658,9 +658,9 @@ def test_calculate_registration_shape_mismatch_raises(tmp_path: Path):
         ],
         overwrite=True,
     )
-    base_url = plate._group_handler.full_url
-    zarr_url_0 = f"{base_url}A/01/0"
-    zarr_url_1 = f"{base_url}A/01/1"
+    base_url = plate_path.resolve()
+    zarr_url_0 = f"{base_url}/A/01/0"
+    zarr_url_1 = f"{base_url}/A/01/1"
 
     for zarr_url, shape in [(zarr_url_0, (1, 1, 64, 64)), (zarr_url_1, (1, 1, 48, 48))]:
         ome = create_empty_ome_zarr(
@@ -751,7 +751,7 @@ def test_find_consensus_produces_correct_region(multiplex_plate_urls):
 def test_consensus_mismatched_roi_names_raises(tmp_path: Path):
     """find_registration_consensus raises when acquisitions have different ROI names."""
     plate_path = tmp_path / "mismatch.zarr"
-    plate = create_empty_plate(
+    create_empty_plate(
         store=plate_path,
         name="mismatch",
         images=[
@@ -760,9 +760,9 @@ def test_consensus_mismatched_roi_names_raises(tmp_path: Path):
         ],
         overwrite=True,
     )
-    base_url = plate._group_handler.full_url
-    zarr_url_0 = f"{base_url}A/01/0"
-    zarr_url_1 = f"{base_url}A/01/1"
+    base_url = plate_path.resolve()
+    zarr_url_0 = f"{base_url}/A/01/0"
+    zarr_url_1 = f"{base_url}/A/01/1"
 
     # acq0 gets ROI named "FOV_A", acq1 gets ROI named "FOV_B"
     for zarr_url, roi_name in [(zarr_url_0, "FOV_A"), (zarr_url_1, "FOV_B")]:

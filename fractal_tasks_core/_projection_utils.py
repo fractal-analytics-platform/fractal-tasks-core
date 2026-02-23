@@ -52,7 +52,6 @@ def mean_wrapper(dask_array: da.Array, axis: int = 0) -> da.Array:
         dask_array (dask.array.Array): The input Dask array.
         axis (int, optional): The axis along which to mean the array.
             Defaults to 0.
-        **kwargs: Additional keyword arguments passed to da.mean.
 
     Returns:
         dask.array.Array: The result of the mean, cast back to the original

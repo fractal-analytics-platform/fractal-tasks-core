@@ -71,19 +71,17 @@ def _sample_plate_zarr_urls(
 ) -> list[str]:
     if plate_type == "2w_1a":
         plate = _build_2w_1a_plate(tmp_path)
+        store_path = tmp_path / "plate_xy_2w_1a.zarr"
     elif plate_type == "1w_2a":
         plate = _build_1w_2a_plate(tmp_path)
+        store_path = tmp_path / "plate_xy_1w_2a.zarr"
     else:
         raise ValueError(f"Unknown plate type: {plate_type}")
 
     plate = _add_images_to_plate(plate, shape, axes)
 
-    zarr_urls = []
-    for image_path in plate.images_paths():
-        base_url = plate._group_handler.full_url
-        assert base_url is not None
-        zarr_urls.append(f"{base_url}/{image_path}")
-    return zarr_urls
+    base_url = store_path.resolve()
+    return [f"{base_url}/{image_path}" for image_path in plate.images_paths()]
 
 
 def plate_2w_1a_czyx(tmp_path: Path) -> list[str]:

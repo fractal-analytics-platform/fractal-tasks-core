@@ -192,9 +192,20 @@ def apply_registration_to_image(
     # find_registration_consensus)
     rois_ref = {roi.name: roi for roi in roi_table_ref.rois()}
     rois_acq = {roi.name: roi for roi in roi_table_acq.rois()}
-    roi_pairs: list[tuple[Roi, Roi]] = [
-        (rois_acq[name], rois_ref[name]) for name in sorted(rois_ref)
-    ]
+
+    roi_pairs: list[tuple[Roi, Roi]] = []
+    for name, roi_ref in rois_ref.items():
+        if name not in rois_ref:
+            raise ValueError(
+                f"ROI with name {name} found in acquisition {zarr_url} but not "
+                f"in reference acquisition {reference_zarr_url}."
+            )
+        if name not in rois_acq:
+            raise ValueError(
+                f"ROI with name {name} found in reference acquisition "
+                f"{reference_zarr_url} but not in acquisition {zarr_url}."
+            )
+        roi_pairs.append((rois_acq[name], roi_ref))
 
     ####################
     # Process images

@@ -113,12 +113,12 @@ def illumination_correction(
     zarr_url: str,
     # Core parameters
     illumination_profiles: ProfileCorrectionModel,
-    background_correction: BackgroundCorrection = BackgroundCorrection(),
+    background_correction: BackgroundCorrection = BackgroundCorrection(),  # type: ignore, TODO use factory # type: ignore
     input_ROI_table: str = "FOV_ROI_table",
     overwrite_input: bool = True,
     # Advanced parameters
     suffix: str = "_illum_corr",
-) -> dict[str, Any]:
+) -> dict[str, Any] | None:
     """
     Applies illumination correction to the images in the OME-Zarr.
 
@@ -289,6 +289,8 @@ def illumination_correction(
 
     # Start processing loop over channels
     for wavelength_id in image.wavelength_ids:
+        if wavelength_id is None:
+            raise ValueError("Image does not contain wavelength_id information.")
         logger.info(f"Applying illumination correction for {wavelength_id=}")
         channel_selection = ChannelSelectionModel(
             mode="wavelength_id", identifier=wavelength_id
@@ -300,11 +302,10 @@ def illumination_correction(
             output_channel_selection=channel_selection,
         )
         iterator = iterator.product(FOV_ROI_table).by_zyx(strict=False)
-
-        for image_data, writer in iterator.iter_as_dask():
+        for image_data, writer in iterator.iter_as_numpy():
             corrected = correct(
                 image_data,
-                illumination_matrices.get(wavelength_id),
+                illumination_matrices[wavelength_id],
                 background_matrices.get(wavelength_id),
                 background_constants.get(wavelength_id, 0),
             )
