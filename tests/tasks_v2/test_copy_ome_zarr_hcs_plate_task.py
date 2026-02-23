@@ -2,14 +2,108 @@ from pathlib import Path
 from typing import Callable
 
 import pytest
-from conftest import plate_1w_2a_czyx, plate_2w_1a_czyx, plate_2w_1a_zyx
 from devtools import debug
-from ngio import OmeZarrPlate, open_ome_zarr_plate
+from ngio import (
+    ImageInWellPath,
+    OmeZarrPlate,
+    create_empty_ome_zarr,
+    create_empty_plate,
+    open_ome_zarr_plate,
+)
 
 from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
     DaskProjectionMethod,
     copy_ome_zarr_hcs_plate,
 )
+
+
+def _build_2w_1a_plate(plate_path: Path) -> OmeZarrPlate:
+    images = [
+        ImageInWellPath(row="A", column="01", path="0"),
+        ImageInWellPath(row="B", column="02", path="0"),
+    ]
+    return create_empty_plate(
+        store=plate_path / "plate_xy_2w_1a.zarr",
+        name="plate_xy_2w_1a",
+        images=images,
+        overwrite=True,
+        cache=True,
+        parallel_safe=False,
+    )
+
+
+def _build_1w_2a_plate(plate_path: Path) -> OmeZarrPlate:
+    images = [
+        ImageInWellPath(row="A", column="01", path="0", acquisition_id=0),
+        ImageInWellPath(row="A", column="01", path="1", acquisition_id=1),
+    ]
+    return create_empty_plate(
+        store=plate_path / "plate_xy_1w_2a.zarr",
+        name="plate_xy_1w_2a",
+        images=images,
+        overwrite=True,
+        cache=True,
+        parallel_safe=False,
+    )
+
+
+def _add_images_to_plate(
+    plate: OmeZarrPlate, shape: tuple[int, ...], axes: str = "czyx"
+) -> OmeZarrPlate:
+    for image_path in plate.images_paths():
+        row, column, path = image_path.split("/")
+        ome_zarr = create_empty_ome_zarr(
+            store=plate.get_image_store(row, column, path),
+            shape=shape,
+            xy_pixelsize=0.5,
+            overwrite=True,
+            levels=2,
+            axes_names=axes,
+        )
+        table = ome_zarr.build_image_roi_table("image")
+        ome_zarr.add_table("well_ROI_table", table, backend="anndata")
+    return plate
+
+
+def _sample_plate_zarr_urls(
+    tmp_path: Path,
+    shape: tuple[int, ...],
+    axes: str,
+    plate_type: str = "2w_1a",
+) -> list[str]:
+    if plate_type == "2w_1a":
+        plate = _build_2w_1a_plate(tmp_path)
+    elif plate_type == "1w_2a":
+        plate = _build_1w_2a_plate(tmp_path)
+    else:
+        raise ValueError(f"Unknown plate type: {plate_type}")
+
+    plate = _add_images_to_plate(plate, shape, axes)
+
+    zarr_urls = []
+    for image_path in plate.images_paths():
+        base_url = plate._group_handler.full_url
+        assert base_url is not None
+        zarr_urls.append(f"{base_url}{image_path}")
+    return zarr_urls
+
+
+def plate_2w_1a_czyx(tmp_path: Path) -> list[str]:
+    return _sample_plate_zarr_urls(
+        tmp_path, shape=(3, 4, 10, 10), axes="czyx", plate_type="2w_1a"
+    )
+
+
+def plate_2w_1a_zyx(tmp_path: Path) -> list[str]:
+    return _sample_plate_zarr_urls(
+        tmp_path, shape=(4, 10, 10), axes="zyx", plate_type="2w_1a"
+    )
+
+
+def plate_1w_2a_czyx(tmp_path: Path) -> list[str]:
+    return _sample_plate_zarr_urls(
+        tmp_path, shape=(3, 4, 10, 10), axes="czyx", plate_type="1w_2a"
+    )
 
 
 def _get_plate(zarr_url: str) -> OmeZarrPlate:
