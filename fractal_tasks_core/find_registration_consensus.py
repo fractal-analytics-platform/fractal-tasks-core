@@ -67,18 +67,21 @@ def _find_roi_consensus(rois: list[Roi]) -> Roi:
     # All ROIs in the list share the same base position (same physical FOV
     # across acquisitions), so rois[0] is a valid base for geometry.
     base = rois[0]
-    return base.model_copy(
-        update={
-            "z": (base.z if base.z is not None else 0.0) + max_z,
-            "y": base.y + max_y,
-            "x": base.x + max_x,
-            "z_length": (base.z_length if base.z_length is not None else 0.0)
-            - max_z
-            + min_z,
-            "y_length": base.y_length - max_y + min_y,
-            "x_length": base.x_length - max_x + min_x,
-        }
-    )
+
+    z_slice = base["z"]
+    z_start = (z_slice.start if z_slice.start is not None else 0.0) + max_z
+    z_length = (z_slice.length if z_slice.length is not None else 0.0) - max_z + min_z
+    base = base.update_slice(name="z", new_slice=(z_start, z_length))
+
+    y_slice = base["y"]
+    y_start = (y_slice.start if y_slice.start is not None else 0.0) + max_y
+    y_length = (y_slice.length if y_slice.length is not None else 0.0) - max_y + min_y
+    base = base.update_slice(name="y", new_slice=(y_start, y_length))
+    x_slice = base["x"]
+    x_start = (x_slice.start if x_slice.start is not None else 0.0) + max_x
+    x_length = (x_slice.length if x_slice.length is not None else 0.0) - max_x + min_x
+    base = base.update_slice(name="x", new_slice=(x_start, x_length))
+    return base
 
 
 def _apply_consensus_to_roi(roi: Roi, consensus_roi: Roi) -> Roi:
@@ -95,16 +98,20 @@ def _apply_consensus_to_roi(roi: Roi, consensus_roi: Roi) -> Roi:
     own_y = _get_roi_translation(roi, "y")
     own_x = _get_roi_translation(roi, "x")
 
-    return roi.model_copy(
-        update={
-            "z": (consensus_roi.z if consensus_roi.z is not None else 0.0) - own_z,
-            "y": consensus_roi.y - own_y,
-            "x": consensus_roi.x - own_x,
-            "z_length": consensus_roi.z_length,
-            "y_length": consensus_roi.y_length,
-            "x_length": consensus_roi.x_length,
-        }
-    )
+    z_slice = consensus_roi["z"]
+    z_start = (z_slice.start if z_slice.start is not None else 0.0) - own_z
+    z_length = z_slice.length
+    roi = roi.update_slice(name="z", new_slice=(z_start, z_length))
+
+    y_slice = consensus_roi["y"]
+    y_start = (y_slice.start if y_slice.start is not None else 0.0) - own_y
+    y_length = y_slice.length
+    roi = roi.update_slice(name="y", new_slice=(y_start, y_length))
+    x_slice = consensus_roi["x"]
+    x_start = (x_slice.start if x_slice.start is not None else 0.0) - own_x
+    x_length = x_slice.length
+    roi = roi.update_slice(name="x", new_slice=(x_start, x_length))
+    return roi
 
 
 def _apply_consensus_to_roi_table(

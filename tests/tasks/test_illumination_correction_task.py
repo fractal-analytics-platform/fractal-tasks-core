@@ -609,11 +609,11 @@ def test_inconsistent_fov_sizes(tmp_path: Path) -> None:
         levels=2,
     )
     # ROI 1: 5×5 µm → 10×10 px; ROI 2: 10×10 µm → 20×20 px — inconsistent sizes
-    roi1 = Roi(
-        name="fov_1", x=0.0, y=0.0, z=0.0, x_length=5.0, y_length=5.0, z_length=1.0
+    roi1 = Roi.from_values(
+        name="fov_1", slices={"x": (0.0, 5.0), "y": (0.0, 5.0), "z": (0.0, 1.0)}
     )
-    roi2 = Roi(
-        name="fov_2", x=5.0, y=0.0, z=0.0, x_length=10.0, y_length=10.0, z_length=1.0
+    roi2 = Roi.from_values(
+        name="fov_2", slices={"x": (5.0, 10.0), "y": (0.0, 10.0), "z": (0.0, 1.0)}
     )
     roi_table = RoiTable(rois=[roi1, roi2])
     ome_zarr.add_table("well_ROI_table", roi_table, backend="anndata")

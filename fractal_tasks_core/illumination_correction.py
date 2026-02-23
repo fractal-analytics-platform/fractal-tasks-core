@@ -227,14 +227,14 @@ def illumination_correction(
     image_size = None
     ref_roi_name = None
     for roi in FOV_ROI_table.rois():
-        roi_pixels = roi.to_roi_pixels(image.pixel_size)
+        roi_pixels = roi.to_pixel(image.pixel_size)
         if image_size is None:
-            image_size = (roi_pixels.y_length, roi_pixels.x_length)
+            image_size = (roi_pixels["y"].length, roi_pixels["x"].length)
             ref_roi_name = roi.name
-        elif (roi_pixels.y_length, roi_pixels.x_length) != image_size:
+        elif (roi_pixels["y"].length, roi_pixels["x"].length) != image_size:
             raise ValueError(
                 "Inconsistent image sizes in the ROI table, found "
-                f"{(roi_pixels.y_length, roi_pixels.x_length)} for {roi.name} "
+                f"{(roi_pixels['y'].length, roi_pixels['x'].length)} for {roi.name} "
                 f"and {image_size} for {ref_roi_name}."
             )
     if image_size is None:

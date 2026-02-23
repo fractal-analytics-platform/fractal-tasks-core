@@ -1,11 +1,10 @@
 from enum import Enum
-from typing import Any, Dict
 
 import dask.array as da
 import numpy as np
 
 
-def safe_sum(dask_array: da.Array, axis: int = 0, **kwargs: Dict[str, Any]) -> da.Array:
+def safe_sum(dask_array: da.Array, axis: int = 0) -> da.Array:
     """
     Perform a safe sum on a Dask array to avoid overflow, by clipping the
     result of da.sum & casting it to its original dtype.
@@ -32,7 +31,7 @@ def safe_sum(dask_array: da.Array, axis: int = 0, **kwargs: Dict[str, Any]) -> d
     max_value = np.iinfo(original_dtype).max
 
     # Perform the sum
-    result = da.sum(dask_array, axis=axis, **kwargs)
+    result = da.sum(dask_array, axis=axis)
 
     # Clip the values to the maximum possible value for the original dtype
     result = da.clip(result, 0, max_value)
@@ -43,9 +42,7 @@ def safe_sum(dask_array: da.Array, axis: int = 0, **kwargs: Dict[str, Any]) -> d
     return result
 
 
-def mean_wrapper(
-    dask_array: da.Array, axis: int = 0, **kwargs: Dict[str, Any]
-) -> da.Array:
+def mean_wrapper(dask_array: da.Array, axis: int = 0) -> da.Array:
     """
     Perform a da.mean on the dask_array & cast it to its original dtype.
 
@@ -69,7 +66,7 @@ def mean_wrapper(
     original_dtype = dask_array.dtype
 
     # Perform the sum
-    result = da.mean(dask_array, axis=axis, **kwargs)
+    result = da.mean(dask_array, axis=axis)
 
     # Cast back to the original dtype
     result = result.astype(original_dtype)
@@ -95,17 +92,13 @@ class DaskProjectionMethod(Enum):
     MEANIP = "meanip"
     SUMIP = "sumip"
 
-    def apply(
-        self, dask_array: da.Array, axis: int = 0, **kwargs: Dict[str, Any]
-    ) -> da.Array:
+    def apply(self, dask_array: da.Array, axis: int = 0) -> da.Array:
         """
         Apply the selected projection method to the given Dask array.
 
         Args:
             dask_array (dask.array.Array): The Dask array to project.
             axis (int): The axis along which to apply the projection.
-            **kwargs: Additional keyword arguments to pass to the projection
-                method.
 
         Returns:
             dask.array.Array: The resulting Dask array after applying the
@@ -120,12 +113,10 @@ class DaskProjectionMethod(Enum):
         """
         # Map the Enum values to the actual Dask array methods
         method_map = {
-            DaskProjectionMethod.MIP: lambda arr, axis, **kw: arr.max(axis=axis, **kw),
-            DaskProjectionMethod.MINIP: lambda arr, axis, **kw: arr.min(
-                axis=axis, **kw
-            ),
+            DaskProjectionMethod.MIP: lambda arr, axis: arr.max(axis=axis),
+            DaskProjectionMethod.MINIP: lambda arr, axis: arr.min(axis=axis),
             DaskProjectionMethod.MEANIP: mean_wrapper,
             DaskProjectionMethod.SUMIP: safe_sum,
         }
         # Call the appropriate method, passing in the dask_array explicitly
-        return method_map[self](dask_array, axis=axis, **kwargs)
+        return method_map[self](dask_array, axis=axis)

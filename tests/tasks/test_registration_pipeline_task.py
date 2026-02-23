@@ -162,8 +162,12 @@ def _build_multi_fov_image(zarr_url: str, y_offset: int = 0, x_offset: int = 0) 
 
     half_um = (_SHAPE[-2] // 2) * _PIXELSIZE  # 10.4 µm
     full_um = _SHAPE[-1] * _PIXELSIZE  # 20.8 µm
-    fov1 = Roi(name="FOV_1", y=0.0, x=0.0, y_length=half_um, x_length=full_um)
-    fov2 = Roi(name="FOV_2", y=half_um, x=0.0, y_length=half_um, x_length=full_um)
+    fov1 = Roi.from_values(
+        name="FOV_1", slices={"y": (0.0, half_um), "x": (0.0, full_um)}
+    )
+    fov2 = Roi.from_values(
+        name="FOV_2", slices={"y": (half_um, half_um), "x": (0.0, full_um)}
+    )
     ome.add_table("FOV_ROI_table", RoiTable(rois=[fov1, fov2]), backend=_TABLE_BACKEND)
 
 
@@ -721,20 +725,20 @@ def test_find_consensus_produces_correct_region(multiplex_plate_urls):
     rois0 = ome0.get_roi_table("registered_FOV_ROI_table").rois()
     assert len(rois0) == 1
     ref_roi = rois0[0]
-    assert ref_roi.y == pytest.approx(0.0, abs=0.01)
-    assert ref_roi.x == pytest.approx(0.0, abs=0.01)
-    assert ref_roi.y_length == pytest.approx(20.8 - _SHIFT_Y_UM, abs=0.1)
-    assert ref_roi.x_length == pytest.approx(20.8 - _SHIFT_X_UM, abs=0.1)
+    assert ref_roi["y"].start == pytest.approx(0.0, abs=0.01)
+    assert ref_roi["x"].start == pytest.approx(0.0, abs=0.01)
+    assert ref_roi["y"].length == pytest.approx(20.8 - _SHIFT_Y_UM, abs=0.1)
+    assert ref_roi["x"].length == pytest.approx(20.8 - _SHIFT_X_UM, abs=0.1)
 
     ome1 = open_ome_zarr_container(zarr_url_1)
     rois1 = ome1.get_roi_table("registered_FOV_ROI_table").rois()
     assert len(rois1) == 1
     acq_roi = rois1[0]
-    assert acq_roi.y == pytest.approx(_SHIFT_Y_UM, abs=0.1)
-    assert acq_roi.x == pytest.approx(_SHIFT_X_UM, abs=0.1)
+    assert acq_roi["y"].start == pytest.approx(_SHIFT_Y_UM, abs=0.1)
+    assert acq_roi["x"].start == pytest.approx(_SHIFT_X_UM, abs=0.1)
     # Size must be identical to the reference
-    assert acq_roi.y_length == pytest.approx(ref_roi.y_length, abs=0.01)
-    assert acq_roi.x_length == pytest.approx(ref_roi.x_length, abs=0.01)
+    assert acq_roi["y"].length == pytest.approx(ref_roi["y"].length, abs=0.01)
+    assert acq_roi["x"].length == pytest.approx(ref_roi["x"].length, abs=0.01)
 
     # After consensus: get_roi on both acquisitions with their respective registered
     # ROIs should return pixel-identical arrays (same physical overlap region,

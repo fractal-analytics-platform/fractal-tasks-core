@@ -119,8 +119,10 @@ def test_projection(
 
     mip_table = ome_zarr.get_table("well_ROI_table")
     assert isinstance(mip_table, RoiTable)
-    assert mip_table.get("image").z_length == 1
-    assert mip_table.get("image").z == 0
+    z_slice = mip_table.get("image").get("z")
+    assert z_slice is not None
+    assert z_slice.length == 1
+    assert z_slice.start == 0
 
 
 @pytest.mark.parametrize(

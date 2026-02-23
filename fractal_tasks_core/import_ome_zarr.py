@@ -10,7 +10,7 @@ from ngio import (
     OmeZarrContainer,
     OmeZarrPlate,
     OmeZarrWell,
-    RoiPixels,
+    Roi,
     open_ome_zarr_container,
     open_ome_zarr_plate,
     open_ome_zarr_well,
@@ -52,18 +52,19 @@ def _build_xy_roi_table(
 
     for y in range(0, image_YX_shape[0], grid_YX_shape[0]):
         for x in range(0, image_YX_shape[1], grid_YX_shape[1]):
-            roi_pixels = RoiPixels(
+            x_length = min(grid_YX_shape[1], image_YX_shape[1] - x)
+            y_length = min(grid_YX_shape[0], image_YX_shape[0] - y)
+            roi_pixels = Roi.from_values(
                 name=f"ROI_{roi_id}",
-                x=x,
-                y=y,
-                x_length=min(grid_YX_shape[1], image_YX_shape[1] - x),
-                y_length=min(grid_YX_shape[0], image_YX_shape[0] - y),
-                z=z_start,
-                z_length=z_length,
-                t=t_start,
-                t_length=t_length,
+                slices={
+                    "x": (x, x_length),
+                    "y": (y, y_length),
+                    "z": (z_start, z_length),
+                    "t": (t_start, t_length),
+                },
+                space="pixel",
             )
-            roi_world = roi_pixels.to_roi(pixel_size=pixel_size)
+            roi_world = roi_pixels.to_world(pixel_size=pixel_size)
             rois.append(roi_world)
             roi_id += 1
     table = RoiTable(rois=rois)

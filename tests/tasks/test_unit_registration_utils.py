@@ -25,7 +25,15 @@ from fractal_tasks_core.find_registration_consensus import (
 
 
 def _make_roi(**extra) -> Roi:
-    return Roi(y=0.0, x=0.0, z=0.0, y_length=20.0, x_length=20.0, z_length=1.0, **extra)
+    return Roi.from_values(
+        name="image",
+        slices={
+            "y": (0.0, 20.0),
+            "x": (0.0, 20.0),
+            "z": (0.0, 1.0),
+        },
+        **extra,
+    )
 
 
 def _pixel_size(y: float = 1.3, x: float = 1.3, z: float = 1.0) -> PixelSize:
@@ -85,15 +93,20 @@ def test_get_roi_translation_absent():
 
 def test_find_roi_consensus_zero_shift():
     """With all translations at zero the consensus equals the base ROI."""
-    base = Roi(
-        name="FOV_1", y=5.0, x=10.0, z=0.0, y_length=20.0, x_length=20.0, z_length=1.0
+    base = Roi.from_values(
+        name="FOV_1",
+        slices={
+            "x": (10, 20),  # start=10, stop=30 → x_length=20
+            "y": (5, 20),  # start=5, stop=25 → y_length=20
+            "z": (0, 1),  # start=0, stop=1 → z_length=1
+        },
     )
     rois = [base, base.model_copy()]
     consensus = _find_roi_consensus(rois)
-    assert consensus.y == pytest.approx(5.0)
-    assert consensus.x == pytest.approx(10.0)
-    assert consensus.y_length == pytest.approx(20.0)
-    assert consensus.x_length == pytest.approx(20.0)
+    assert consensus["y"].start == pytest.approx(5.0)
+    assert consensus["x"].start == pytest.approx(10.0)
+    assert consensus["y"].length == pytest.approx(20.0)
+    assert consensus["x"].length == pytest.approx(20.0)
 
 
 def test_find_roi_consensus_known_shift():
@@ -106,17 +119,17 @@ def test_find_roi_consensus_known_shift():
       len_y = 20.8 - max(0,-1.3) + min(0,-1.3) = 20.8 - 0 + (-1.3) = 19.5
       len_x = 20.8 - max(0,-2.6) + min(0,-2.6) = 20.8 - 0 + (-2.6) = 18.2
     """
-    roi_ref = Roi(
-        name="image", y=0.0, x=0.0, z=0.0, y_length=20.8, x_length=20.8, z_length=1.0
+    roi_ref = Roi.from_values(
+        name="image", slices={"y": (0.0, 20.8), "x": (0.0, 20.8), "z": (0.0, 1.0)}
     )
     roi_acq = roi_ref.model_copy(
         update={"translation_y": -1.3, "translation_x": -2.6, "translation_z": 0.0}
     )
     consensus = _find_roi_consensus([roi_ref, roi_acq])
-    assert consensus.y == pytest.approx(0.0)
-    assert consensus.x == pytest.approx(0.0)
-    assert consensus.y_length == pytest.approx(19.5, abs=0.01)
-    assert consensus.x_length == pytest.approx(18.2, abs=0.01)
+    assert consensus["y"].start == pytest.approx(0.0)
+    assert consensus["x"].start == pytest.approx(0.0)
+    assert consensus["y"].length == pytest.approx(19.5, abs=0.01)
+    assert consensus["x"].length == pytest.approx(18.2, abs=0.01)
 
 
 # ---------------------------------------------------------------------------
@@ -126,8 +139,8 @@ def test_find_roi_consensus_known_shift():
 
 def test_apply_consensus_to_roi_reference():
     """Reference acquisition (zero shift) → position equals the consensus position."""
-    roi_ref = Roi(
-        name="image", y=0.0, x=0.0, z=0.0, y_length=20.8, x_length=20.8, z_length=1.0
+    roi_ref = Roi.from_values(
+        name="image", slices={"y": (0.0, 20.8), "x": (0.0, 20.8), "z": (0.0, 1.0)}
     )
     roi_acq = roi_ref.model_copy(
         update={"translation_y": -1.3, "translation_x": -2.6, "translation_z": 0.0}
@@ -136,16 +149,16 @@ def test_apply_consensus_to_roi_reference():
 
     shifted_ref = _apply_consensus_to_roi(roi_ref, consensus)
     # Reference has own_translation=0 → position = consensus.pos - 0 = 0,0
-    assert shifted_ref.y == pytest.approx(0.0)
-    assert shifted_ref.x == pytest.approx(0.0)
-    assert shifted_ref.y_length == pytest.approx(consensus.y_length)
-    assert shifted_ref.x_length == pytest.approx(consensus.x_length)
+    assert shifted_ref["y"].start == pytest.approx(0.0)
+    assert shifted_ref["x"].start == pytest.approx(0.0)
+    assert shifted_ref["y"].length == pytest.approx(consensus["y"].length)
+    assert shifted_ref["x"].length == pytest.approx(consensus["x"].length)
 
 
 def test_apply_consensus_to_roi_shifted():
     """Shifted acquisition → position = consensus.pos - own_translation."""
-    roi_ref = Roi(
-        name="image", y=0.0, x=0.0, z=0.0, y_length=20.8, x_length=20.8, z_length=1.0
+    roi_ref = Roi.from_values(
+        name="image", slices={"y": (0.0, 20.8), "x": (0.0, 20.8), "z": (0.0, 1.0)}
     )
     roi_acq = roi_ref.model_copy(
         update={"translation_y": -1.3, "translation_x": -2.6, "translation_z": 0.0}
@@ -154,10 +167,10 @@ def test_apply_consensus_to_roi_shifted():
 
     shifted_acq = _apply_consensus_to_roi(roi_acq, consensus)
     # own_y=-1.3, own_x=-2.6 → pos = 0 - (-1.3) = 1.3 ; 0 - (-2.6) = 2.6
-    assert shifted_acq.y == pytest.approx(1.3, abs=0.01)
-    assert shifted_acq.x == pytest.approx(2.6, abs=0.01)
-    assert shifted_acq.y_length == pytest.approx(consensus.y_length)
-    assert shifted_acq.x_length == pytest.approx(consensus.x_length)
+    assert shifted_acq["y"].start == pytest.approx(1.3, abs=0.01)
+    assert shifted_acq["x"].start == pytest.approx(2.6, abs=0.01)
+    assert shifted_acq["y"].length == pytest.approx(consensus["y"].length)
+    assert shifted_acq["x"].length == pytest.approx(consensus["x"].length)
 
 
 # ---------------------------------------------------------------------------

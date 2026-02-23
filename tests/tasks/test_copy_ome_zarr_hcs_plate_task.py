@@ -28,7 +28,6 @@ def _build_2w_1a_plate(plate_path: Path) -> OmeZarrPlate:
         images=images,
         overwrite=True,
         cache=True,
-        parallel_safe=False,
     )
 
 
@@ -43,7 +42,6 @@ def _build_1w_2a_plate(plate_path: Path) -> OmeZarrPlate:
         images=images,
         overwrite=True,
         cache=True,
-        parallel_safe=False,
     )
 
 
@@ -84,7 +82,7 @@ def _sample_plate_zarr_urls(
     for image_path in plate.images_paths():
         base_url = plate._group_handler.full_url
         assert base_url is not None
-        zarr_urls.append(f"{base_url}{image_path}")
+        zarr_urls.append(f"{base_url}/{image_path}")
     return zarr_urls
 
 
@@ -112,7 +110,7 @@ def _get_plate(zarr_url: str) -> OmeZarrPlate:
     """
     *plate_url, _, _, _ = zarr_url.split("/")
     plate_url = "/".join(plate_url)
-    return open_ome_zarr_plate(plate_url, parallel_safe=False, cache=True)
+    return open_ome_zarr_plate(plate_url, cache=True)
 
 
 @pytest.mark.parametrize(

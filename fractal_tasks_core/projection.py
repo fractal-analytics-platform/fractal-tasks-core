@@ -78,9 +78,6 @@ def projection(
 
     # Compute the new shape and pixel size
     dest_on_disk_shape, z_axis_index = _compute_new_shape(orginal_image)
-
-    dest_pixel_size = orginal_image.pixel_size
-    dest_pixel_size.z = 1.0
     logger.info(f"New shape: {dest_on_disk_shape=}")
 
     # Create the new empty image
@@ -88,7 +85,9 @@ def projection(
         store=zarr_url,
         name="MIP",
         shape=dest_on_disk_shape,
-        pixel_size=dest_pixel_size,
+        pixelsize=orginal_image.pixel_size.yx,
+        z_spacing=1.0,
+        time_spacing=orginal_image.pixel_size.t,
         overwrite=init_args.overwrite,
         copy_labels=False,
         copy_tables=True,
@@ -97,7 +96,7 @@ def projection(
     proj_image = ome_zarr_mip.get_image()
 
     # Process the image
-    source_dask = orginal_image.get_array(mode="dask")
+    source_dask = orginal_image.get_as_dask()
     dest_dask = method.apply(dask_array=source_dask, axis=z_axis_index)
     dest_dask = da.expand_dims(dest_dask, axis=z_axis_index)
     proj_image.set_array(dest_dask)
@@ -106,11 +105,12 @@ def projection(
 
     # Edit the roi tables
     for roi_table_name in ome_zarr_mip.list_roi_tables():
-        table = ome_zarr_mip.get_table(roi_table_name, check_type="generic_roi_table")
+        table = ome_zarr_mip.get_generic_roi_table(roi_table_name)
 
         for roi in table.rois():
-            roi.z = 0.0
-            roi.z_length = 1.0
+            old_z_slice = roi.get("z")
+            if old_z_slice is not None:
+                roi = roi.update_slice("z", (0, 1))
             table.add(roi, overwrite=True)
 
         table.consolidate()

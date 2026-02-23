@@ -25,7 +25,7 @@ def _open_well(well_path) -> OmeZarrWell:
         return the well object.
     """
     try:
-        well = open_ome_zarr_well(well_path, mode="r", cache=True, parallel_safe=False)
+        well = open_ome_zarr_well(well_path, mode="r", cache=True)
     except NgioFileNotFoundError:
         raise NgioFileNotFoundError(
             f"Could not open well {well_path}. "
@@ -50,18 +50,16 @@ def _get_plate(
     if re_initialize_plate or not Path(proj_plate_url).exists():
         logger.info(f"Creating proj plate: {proj_plate_url}")
         proj_plate_name = proj_plate_url.split("/")[-1]
-
         plate = open_ome_zarr_plate(current_plate_url).derive_plate(
             proj_plate_url,
             plate_name=proj_plate_name,
             overwrite=re_initialize_plate,
             keep_acquisitions=True,
-            parallel_safe=False,
         )
         logger.info(f"proj plate created: {plate}")
         return plate
 
-    plate = open_ome_zarr_plate(proj_plate_url, parallel_safe=False)
+    plate = open_ome_zarr_plate(proj_plate_url)
     logger.info(f"Plate already exists: {plate}")
     return plate
 
@@ -150,7 +148,6 @@ def copy_ome_zarr_hcs_plate(
 
         proj_plate = proj_plates[proj_plate_url]
         proj_plate_images_paths = proj_plates_images_paths[proj_plate_url]
-
         well_path = f"{plate_url}/{row}/{column}"
         well = _open_well(well_path)
         acquisition_id = well.get_image_acquisition_id(image_path)
