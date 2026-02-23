@@ -7,6 +7,7 @@ from devtools import debug
 from ngio import OmeZarrPlate, open_ome_zarr_plate
 
 from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import (
+    DaskProjectionMethod,
     copy_ome_zarr_hcs_plate,
 )
 
@@ -122,7 +123,7 @@ def test_fail_overwrite(tmp_path: Path):
 def test_new_plate_name(tmp_path: Path):
     zarr_urls = plate_2w_1a_czyx(tmp_path)
 
-    for method in ["mip", "minip", "meanip", "sumip"]:
+    for method in DaskProjectionMethod:
         p_list = copy_ome_zarr_hcs_plate(
             zarr_urls=[zarr_urls[0]],
             zarr_dir=str(tmp_path),
@@ -134,7 +135,7 @@ def test_new_plate_name(tmp_path: Path):
         test_new_plate_name = p_list["parallelization_list"][0]["init_args"][
             "new_plate_name"
         ]
-        assert test_new_plate_name == f"plate_xy_2w_1_{method}.zarr", (
+        assert test_new_plate_name == f"plate_xy_2w_1_{method.value}.zarr", (
             test_new_plate_name
         )
 

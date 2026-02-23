@@ -8,8 +8,11 @@ from ngio.tables import RoiTable
 from skimage.io import imsave
 
 from fractal_tasks_core.tasks.illumination_correction import (
+    BackgroundCorrection,
+    ProfileCorrectionModel,
     illumination_correction,
 )
+from fractal_tasks_core.tasks.io_models import ConstantCorrectionModel
 
 
 def _check_that_images_differs(first_url: str, second_url: str) -> None:
@@ -51,10 +54,10 @@ def test_output_handled(
         "A01_C02": "flatfield_corr_matrix.png",
         "A02_C03": "flatfield_corr_matrix.png",
     }
-    illumination_profiles = {
-        "folder": illumination_profiles_folder,
-        "profiles": illumination_profiles_map,
-    }
+    illumination_profiles = ProfileCorrectionModel(
+        folder=illumination_profiles_folder,
+        profiles=illumination_profiles_map,
+    )
 
     # do illumination correction
     task_update_list = illumination_correction(
@@ -154,10 +157,10 @@ def test_wrong_wavelength_profiles(
     testdata_str = testdata_path.as_posix()
 
     illumination_profiles_folder: str = f"{testdata_str}/illumination_correction/"
-    illumination_profiles = {
-        "folder": illumination_profiles_folder,
-        "profiles": illumination_profiles_map,
-    }
+    illumination_profiles = ProfileCorrectionModel(
+        folder=illumination_profiles_folder,
+        profiles=illumination_profiles_map,
+    )
     background_profiles_folder: str = f"{testdata_str}/illumination_correction/"
     background_profiles = {
         "folder": background_profiles_folder,
@@ -173,7 +176,7 @@ def test_wrong_wavelength_profiles(
         illumination_correction(
             zarr_url=image_url,
             illumination_profiles=illumination_profiles,
-            background_correction={"value": background_profiles},
+            background_correction={"value": background_profiles},  # type: ignore wrong profile
             overwrite_input=False,
             suffix="_corrected",
         )
@@ -194,21 +197,20 @@ def test_constant_background_subtraction(
         "A01_C02": "flatfield_corr_matrix.png",
         "A02_C03": "flatfield_corr_matrix.png",
     }
-    illumination_profiles = {
-        "folder": illumination_profiles_folder,
-        "profiles": illumination_profiles_map,
-    }
+    illumination_profiles = ProfileCorrectionModel(
+        folder=illumination_profiles_folder,
+        profiles=illumination_profiles_map,
+    )
 
-    background_model = {
-        "value": {
-            "model": "Constant",
-            "constants": {
+    background_model = BackgroundCorrection(
+        value=ConstantCorrectionModel(
+            constants={
                 "A01_C01": 100,
                 "A01_C02": 150,
                 "A02_C03": 200,
             },
-        },
-    }
+        ),
+    )
 
     # do illumination correction
     illumination_correction(
@@ -252,18 +254,16 @@ def test_with_background_profiles(
         "A01_C02": "darkfield_corr_matrix.png",
         "A02_C03": "darkfield_corr_matrix.png",
     }
-    illumination_profiles = {
-        "folder": illumination_profiles_folder,
-        "profiles": illumination_profiles_map,
-    }
-    background_profiles = {
-        "folder": background_profiles_folder,
-        "profiles": background_profiles_map,
-        "model": "Profile",
-    }
-    background_correction = {
-        "value": background_profiles,
-    }
+    illumination_profiles = ProfileCorrectionModel(
+        folder=illumination_profiles_folder,
+        profiles=illumination_profiles_map,
+    )
+    background_correction = BackgroundCorrection(
+        value=ProfileCorrectionModel(
+            folder=background_profiles_folder,
+            profiles=background_profiles_map,
+        )
+    )
 
     # do illumination correction
     illumination_correction(
@@ -303,10 +303,10 @@ def test_two_different_illumination_profiles(
         "A01_C02": "illum_corr_matrix.png",
         "A02_C03": "flatfield_corr_matrix.png",
     }
-    illumination_profiles = {
-        "folder": illumination_profiles_folder,
-        "profiles": illumination_profiles_map,
-    }
+    illumination_profiles = ProfileCorrectionModel(
+        folder=illumination_profiles_folder,
+        profiles=illumination_profiles_map,
+    )
 
     # do illumination correction
     illumination_correction(
@@ -322,10 +322,10 @@ def test_two_different_illumination_profiles(
         "A01_C02": "flatfield_corr_matrix.png",
         "A02_C03": "flatfield_corr_matrix.png",
     }
-    illumination_profiles_control = {
-        "folder": illumination_profiles_folder,
-        "profiles": illumination_profiles_control_map,
-    }
+    illumination_profiles_control = ProfileCorrectionModel(
+        folder=illumination_profiles_folder,
+        profiles=illumination_profiles_control_map,
+    )
     illumination_correction(
         zarr_url=image_url,
         illumination_profiles=illumination_profiles_control,
@@ -353,47 +353,51 @@ def test_wrong_file_or_folder(
         "A01_C02": "flatfield_corr_matrix.png",
         "A02_C03": "flatfield_corr_matrix.png",
     }
-    illumination_profiles = {
-        "folder": illumination_profiles_folder,
-        "profiles": illumination_profiles_map,
-    }
+    illumination_profiles = ProfileCorrectionModel(
+        folder=illumination_profiles_folder,
+        profiles=illumination_profiles_map,
+    )
     background_profiles_folder: str = illumination_profiles_folder
     background_profiles_map: dict[str, str] = {
         "A01_C01": "darkfield_corr_matrix.png",
         "A01_C02": "darkfield_corr_matrix.png",
         "A02_C03": "darkfield_corr_matrix.png",
     }
-    background_profiles = {
-        "folder": background_profiles_folder,
-        "profiles": background_profiles_map,
-        "model": "Profile",
-    }
+    background_profiles = ProfileCorrectionModel(
+        folder=background_profiles_folder,
+        profiles=background_profiles_map,
+        model="Profile",
+    )
+    background_correction = BackgroundCorrection(value=background_profiles)
 
     # test illumination folder wrong
-    illumination_profiles_wrong_folder = {
-        "folder": wrong_folder,
-        "profiles": illumination_profiles_map,
-    }
+    illumination_profiles_wrong_folder = ProfileCorrectionModel(
+        folder=wrong_folder,
+        profiles=illumination_profiles_map,
+    )
     with pytest.raises(FileNotFoundError, match="No such file"):
         illumination_correction(
             zarr_url=image_url,
             illumination_profiles=illumination_profiles_wrong_folder,
-            background_correction={"value": background_profiles},
+            background_correction=background_correction,
             overwrite_input=False,
             suffix="_corrected",
         )
 
     # test background folder wrong
-    background_profiles_wrong_folder = {
-        "folder": wrong_folder,
-        "profiles": background_profiles_map,
-        "model": "Profile",
-    }
+    background_profiles_wrong_folder = ProfileCorrectionModel(
+        folder=wrong_folder,
+        profiles=background_profiles_map,
+        model="Profile",
+    )
+    background_correction_wrong_folder = BackgroundCorrection(
+        value=background_profiles_wrong_folder
+    )
     with pytest.raises(FileNotFoundError, match="No such file"):
         illumination_correction(
             zarr_url=image_url,
             illumination_profiles=illumination_profiles,
-            background_correction={"value": background_profiles_wrong_folder},
+            background_correction=background_correction_wrong_folder,
             overwrite_input=False,
             suffix="_corrected",
         )
@@ -404,15 +408,15 @@ def test_wrong_file_or_folder(
         "A01_C02": "flatfield_corr_matrix.png",
         "A02_C03": "flatfield_corr_matrix.png",
     }
-    illumination_profiles_wrong = {
-        "folder": illumination_profiles_folder,
-        "profiles": illumination_profiles_map_wrong,
-    }
+    illumination_profiles_wrong = ProfileCorrectionModel(
+        folder=illumination_profiles_folder,
+        profiles=illumination_profiles_map_wrong,
+    )
     with pytest.raises(FileNotFoundError, match="No such file"):
         illumination_correction(
             zarr_url=image_url,
             illumination_profiles=illumination_profiles_wrong,
-            background_correction={"value": background_profiles},
+            background_correction=background_correction,
             overwrite_input=False,
             suffix="_corrected",
         )
@@ -423,16 +427,17 @@ def test_wrong_file_or_folder(
         "A01_C02": "non_existing_file.png",
         "A02_C03": "darkfield_corr_matrix.png",
     }
-    background_profiles_wrong = {
-        "folder": background_profiles_folder,
-        "profiles": background_profiles_map_wrong,
-        "model": "Profile",
-    }
+    background_profiles_wrong = ProfileCorrectionModel(
+        folder=background_profiles_folder,
+        profiles=background_profiles_map_wrong,
+        model="Profile",
+    )
+    background_correction_wrong = BackgroundCorrection(value=background_profiles_wrong)
     with pytest.raises(FileNotFoundError, match="No such file"):
         illumination_correction(
             zarr_url=image_url,
             illumination_profiles=illumination_profiles,
-            background_correction={"value": background_profiles_wrong},
+            background_correction=background_correction_wrong,
             overwrite_input=False,
             suffix="_corrected",
         )
@@ -471,14 +476,14 @@ def test_multidimensional_input(
     testdata_str = testdata_path.as_posix()
 
     illumination_profiles_folder: str = f"{testdata_str}/illumination_correction/"
-    illumination_profiles_map: dict[str, str] = {
-        wavelength: "flatfield_corr_matrix.png"
-        for wavelength in origin_ome_zarr.wavelength_ids
-    }
-    illumination_profiles = {
-        "folder": illumination_profiles_folder,
-        "profiles": illumination_profiles_map,
-    }
+    illumination_profiles_map: dict[str, str] = {}
+    for wavelength in origin_ome_zarr.wavelength_ids:
+        assert wavelength is not None
+        illumination_profiles_map[wavelength] = "flatfield_corr_matrix.png"
+    illumination_profiles = ProfileCorrectionModel(
+        folder=illumination_profiles_folder,
+        profiles=illumination_profiles_map,
+    )
 
     print(store)
     print(store.as_posix())
@@ -511,10 +516,14 @@ def test_multidimensional_input(
 
 
 def test_empty_suffix() -> None:
+    illumination_profile = ProfileCorrectionModel(
+        folder="/any",
+        profiles={},
+    )
     with pytest.raises(ValueError, match="suffix cannot be an empty string"):
         illumination_correction(
             zarr_url="/nonexistent",
-            illumination_profiles={"folder": "/any", "profiles": {}},
+            illumination_profiles=illumination_profile,
             overwrite_input=False,
             suffix="",
         )
@@ -537,7 +546,9 @@ def _make_tiny_czyx_zarr(tmp_path: Path) -> tuple[str, list[str]]:
         overwrite=True,
         levels=2,
     )
-    return str(store), list(ome_zarr.wavelength_ids)
+
+    wavelength_ids = [w for w in ome_zarr.wavelength_ids if w is not None]
+    return str(store), wavelength_ids
 
 
 @pytest.mark.parametrize(
@@ -562,16 +573,15 @@ def test_wrong_constant_background_wavelengths(
 ) -> None:
     zarr_url, wavelengths = _make_tiny_czyx_zarr(tmp_path)
 
-    illumination_profiles = {
-        "folder": "/fake",
-        "profiles": {w: "fake.png" for w in wavelengths},
-    }
-    background_model = {
-        "value": {
-            "model": "Constant",
-            "constants": constants_factory(wavelengths),
-        },
-    }
+    illumination_profiles = ProfileCorrectionModel(
+        folder="/fake",
+        profiles={w: "fake.png" for w in wavelengths},
+    )
+    background_model = BackgroundCorrection(
+        value=ConstantCorrectionModel(
+            constants=constants_factory(wavelengths),
+        ),
+    )
 
     with pytest.raises(ValueError, match=match):
         illumination_correction(
@@ -606,13 +616,13 @@ def test_inconsistent_fov_sizes(tmp_path: Path) -> None:
         name="fov_2", x=5.0, y=0.0, z=0.0, x_length=10.0, y_length=10.0, z_length=1.0
     )
     roi_table = RoiTable(rois=[roi1, roi2])
-    ome_zarr.add_table("well_ROI_table", roi_table, backend="experimental_json_v1")
+    ome_zarr.add_table("well_ROI_table", roi_table, backend="anndata")
 
-    wavelengths = list(ome_zarr.wavelength_ids)
-    illumination_profiles = {
-        "folder": "/fake",
-        "profiles": {w: "fake.png" for w in wavelengths},
-    }
+    wavelengths = [w for w in ome_zarr.wavelength_ids if w is not None]
+    illumination_profiles = ProfileCorrectionModel(
+        folder="/fake",
+        profiles={w: "fake.png" for w in wavelengths},
+    )
 
     with pytest.raises(ValueError, match="Inconsistent image sizes"):
         illumination_correction(
@@ -641,8 +651,9 @@ def _make_tiny_zyx_zarr_with_roi(tmp_path: Path) -> tuple[str, list[str]]:
         levels=2,
     )
     table = ome_zarr.build_image_roi_table("image")
-    ome_zarr.add_table("well_ROI_table", table, backend="experimental_json_v1")
-    return str(store), list(ome_zarr.wavelength_ids)
+    ome_zarr.add_table("well_ROI_table", table, backend="anndata")
+    wavelengths = list(w for w in ome_zarr.wavelength_ids if w is not None)
+    return str(store), wavelengths
 
 
 def _save_tiny_flatfield(path: Path) -> None:
@@ -653,10 +664,10 @@ def _save_tiny_flatfield(path: Path) -> None:
 def test_flatfield_shape_mismatch(tmp_path: Path, testdata_path: Path) -> None:
     zarr_url, wavelengths = _make_tiny_zyx_zarr_with_roi(tmp_path)
     # The existing PNG is 2160×2560; the image is 10×10 → mismatch
-    illum_profiles = {
-        "folder": str(testdata_path / "illumination_correction"),
-        "profiles": {w: "flatfield_corr_matrix.png" for w in wavelengths},
-    }
+    illum_profiles = ProfileCorrectionModel(
+        folder=str(testdata_path / "illumination_correction"),
+        profiles={w: "flatfield_corr_matrix.png" for w in wavelengths},
+    )
 
     with pytest.raises(ValueError, match="illumination"):
         illumination_correction(
@@ -673,18 +684,18 @@ def test_darkfield_shape_mismatch(tmp_path: Path, testdata_path: Path) -> None:
     # Flatfield must match (10×10) so we get past that check
     tiny_ff = tmp_path / "tiny_flatfield.png"
     _save_tiny_flatfield(tiny_ff)
-    illum_profiles = {
-        "folder": str(tmp_path),
-        "profiles": {w: "tiny_flatfield.png" for w in wavelengths},
-    }
+    illum_profiles = ProfileCorrectionModel(
+        folder=str(tmp_path),
+        profiles={w: "tiny_flatfield.png" for w in wavelengths},
+    )
     # Darkfield PNG is 2160×2560 → mismatch with 10×10 image
-    background = {
-        "value": {
-            "folder": str(testdata_path / "illumination_correction"),
-            "profiles": {w: "darkfield_corr_matrix.png" for w in wavelengths},
-            "model": "Profile",
-        },
-    }
+    background = BackgroundCorrection(
+        value=ProfileCorrectionModel(
+            folder=str(testdata_path / "illumination_correction"),
+            profiles={w: "darkfield_corr_matrix.png" for w in wavelengths},
+            model="Profile",
+        ),
+    )
 
     with pytest.raises(ValueError, match=r"background \(darkfield\)"):
         illumination_correction(

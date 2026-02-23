@@ -7,6 +7,7 @@ from ngio import (
     create_empty_plate,
     open_ome_zarr_container,
 )
+from ngio.tables import RoiTable
 from ngio.utils import NgioValueError
 
 from fractal_tasks_core.tasks.import_ome_zarr import (
@@ -209,6 +210,7 @@ def test_grid_roi_table_roi_count(
 
     ome_zarr = open_ome_zarr_container(str(image_path))
     grid_table = ome_zarr.get_table("grid_ROI_table")
+    assert isinstance(grid_table, RoiTable)
     assert len(grid_table.rois()) == expected_n_rois
 
 

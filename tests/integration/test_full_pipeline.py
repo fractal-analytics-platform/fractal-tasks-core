@@ -198,7 +198,7 @@ def test_full_pipeline(tmp_path: Path) -> None:
     # ------------------------------------------------------------------
     # 3. illumination_correction (overwrite_input=True, image_ROI_table)
     # ------------------------------------------------------------------
-    illumination_profiles = ProfileCorrectionModel(folder= illum_dir, profiles=profiles)
+    illumination_profiles = ProfileCorrectionModel(folder=illum_dir, profiles=profiles)
     for zarr_url in [zarr_url_0, zarr_url_1]:
         illumination_correction(
             zarr_url=zarr_url,
@@ -251,9 +251,7 @@ def test_full_pipeline(tmp_path: Path) -> None:
     # ------------------------------------------------------------------
     find_registration_consensus(
         zarr_url=zarr_url_0,
-        init_args=InitArgsRegistrationConsensus(
-            zarr_url_list=[zarr_url_0, zarr_url_1]
-        ),
+        init_args=InitArgsRegistrationConsensus(zarr_url_list=[zarr_url_0, zarr_url_1]),
         roi_table=_ROI_TABLE,
         new_roi_table=_REGISTERED_ROI_TABLE,
     )

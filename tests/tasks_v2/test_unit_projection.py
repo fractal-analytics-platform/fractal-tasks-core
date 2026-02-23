@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 from ngio import create_empty_ome_zarr, open_ome_zarr_container
+from ngio.tables import RoiTable
 from ngio.utils import NgioFileExistsError
 
 from fractal_tasks_core.tasks.projection import InitArgsMIP, projection
@@ -62,7 +63,8 @@ def test_projection(
 
     assert ome_zarr.list_tables() == ["well_ROI_table"]
 
-    mip_table = ome_zarr.get_table("well_ROI_table", check_type="roi_table")
+    mip_table = ome_zarr.get_table("well_ROI_table")
+    assert isinstance(mip_table, RoiTable)
     assert mip_table.get("image").z_length == 1
     assert mip_table.get("image").z == 0
 

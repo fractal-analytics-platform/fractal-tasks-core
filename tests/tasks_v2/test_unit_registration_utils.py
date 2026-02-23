@@ -36,6 +36,7 @@ def test_add_translation_to_roi_2d():
     roi = _make_roi()
     pixel_size = _pixel_size()
     updated = add_translation_to_roi(roi, [2.0, 3.0], pixel_size)
+    assert updated.model_extra is not None
     assert updated.model_extra["translation_z"] == pytest.approx(0.0)
     assert updated.model_extra["translation_y"] == pytest.approx(2.0 * 1.3)
     assert updated.model_extra["translation_x"] == pytest.approx(3.0 * 1.3)
@@ -45,6 +46,7 @@ def test_add_translation_to_roi_3d():
     roi = _make_roi()
     pixel_size = _pixel_size(y=1.3, x=1.3, z=2.0)
     updated = add_translation_to_roi(roi, [1.0, 2.0, 3.0], pixel_size)
+    assert updated.model_extra is not None
     assert updated.model_extra["translation_z"] == pytest.approx(1.0 * 2.0)
     assert updated.model_extra["translation_y"] == pytest.approx(2.0 * 1.3)
     assert updated.model_extra["translation_x"] == pytest.approx(3.0 * 1.3)
