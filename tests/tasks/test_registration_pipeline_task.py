@@ -74,7 +74,7 @@ def _build_image(zarr_url: str, y_offset: int = 0, x_offset: int = 0) -> None:
     ome = create_empty_ome_zarr(
         zarr_url,
         shape=_SHAPE,
-        xy_pixelsize=_PIXELSIZE,
+        pixelsize=_PIXELSIZE,
         z_spacing=1.0,
         axes_names="czyx",
         levels=_LEVELS,
@@ -110,7 +110,7 @@ def _build_image_for_axes(
     """
     kwargs: dict = dict(
         shape=shape,
-        xy_pixelsize=_PIXELSIZE,
+        pixelsize=_PIXELSIZE,
         axes_names=axes,
         levels=_LEVELS,
         channel_wavelengths=[_WAVELENGTH],
@@ -144,7 +144,7 @@ def _build_multi_fov_image(zarr_url: str, y_offset: int = 0, x_offset: int = 0) 
     ome = create_empty_ome_zarr(
         zarr_url,
         shape=_SHAPE,
-        xy_pixelsize=_PIXELSIZE,
+        pixelsize=_PIXELSIZE,
         z_spacing=1.0,
         axes_names="czyx",
         levels=_LEVELS,
@@ -410,7 +410,7 @@ def test_calculate_registration_detects_z_shift(tmp_path: Path):
         ome = create_empty_ome_zarr(
             zarr_url,
             shape=shape,
-            xy_pixelsize=_PIXELSIZE,
+            pixelsize=_PIXELSIZE,
             z_spacing=1.0,
             axes_names="czyx",
             levels=_LEVELS,
@@ -447,7 +447,7 @@ def test_calculate_registration_chi2_shift_3d_raises(tmp_path: Path):
     ome = create_empty_ome_zarr(
         zarr_url,
         shape=(1, 4, 32, 32),
-        xy_pixelsize=0.325,
+        pixelsize=0.325,
         z_spacing=1.0,
         axes_names="czyx",
         levels=3,
@@ -474,7 +474,7 @@ def test_calculate_registration_time_series_raises(tmp_path: Path):
     ome = create_empty_ome_zarr(
         zarr_url,
         shape=(2, 1, 1, 32, 32),
-        xy_pixelsize=0.325,
+        pixelsize=0.325,
         z_spacing=1.0,
         axes_names="tczyx",
         levels=3,
@@ -666,7 +666,7 @@ def test_calculate_registration_shape_mismatch_raises(tmp_path: Path):
         ome = create_empty_ome_zarr(
             zarr_url,
             shape=shape,
-            xy_pixelsize=_PIXELSIZE,
+            pixelsize=_PIXELSIZE,
             z_spacing=1.0,
             axes_names="czyx",
             levels=_LEVELS,
@@ -769,7 +769,7 @@ def test_consensus_mismatched_roi_names_raises(tmp_path: Path):
         ome = create_empty_ome_zarr(
             zarr_url,
             shape=_SHAPE,
-            xy_pixelsize=_PIXELSIZE,
+            pixelsize=_PIXELSIZE,
             z_spacing=1.0,
             axes_names="czyx",
             levels=_LEVELS,
@@ -1082,7 +1082,7 @@ def test_calculate_registration_tyx_t_gt1_raises(tmp_path: Path):
     ome = create_empty_ome_zarr(
         zarr_url,
         shape=(2, 64, 64),  # t=2, yx
-        xy_pixelsize=_PIXELSIZE,
+        pixelsize=_PIXELSIZE,
         axes_names="tyx",
         levels=_LEVELS,
         channel_wavelengths=[_WAVELENGTH],

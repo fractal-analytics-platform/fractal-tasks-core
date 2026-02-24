@@ -463,7 +463,7 @@ def test_multidimensional_input(
     origin_ome_zarr = create_empty_ome_zarr(
         store=store.as_posix(),
         shape=shape,
-        xy_pixelsize=0.1,
+        pixelsize=0.1,
         z_spacing=0.5,
         overwrite=False,
         axes_names=axes,
@@ -540,7 +540,7 @@ def _make_tiny_czyx_zarr(tmp_path: Path) -> tuple[str, list[str]]:
     ome_zarr = create_empty_ome_zarr(
         store=store,
         shape=(2, 1, 10, 10),
-        xy_pixelsize=0.5,
+        pixelsize=0.5,
         z_spacing=1.0,
         axes_names="czyx",
         overwrite=True,
@@ -602,7 +602,7 @@ def test_inconsistent_fov_sizes(tmp_path: Path) -> None:
     ome_zarr = create_empty_ome_zarr(
         store=store,
         shape=(1, 20, 20),
-        xy_pixelsize=0.5,
+        pixelsize=0.5,
         z_spacing=1.0,
         axes_names="zyx",
         overwrite=True,
@@ -644,7 +644,7 @@ def _make_tiny_zyx_zarr_with_roi(tmp_path: Path) -> tuple[str, list[str]]:
     ome_zarr = create_empty_ome_zarr(
         store=store,
         shape=(1, 10, 10),
-        xy_pixelsize=0.5,
+        pixelsize=0.5,
         z_spacing=1.0,
         axes_names="zyx",
         overwrite=True,

@@ -53,7 +53,7 @@ def _add_images_to_plate(
         ome_zarr = create_empty_ome_zarr(
             store=plate.get_image_store(row, column, path),
             shape=shape,
-            xy_pixelsize=0.5,
+            pixelsize=0.5,
             overwrite=True,
             levels=2,
             axes_names=axes,

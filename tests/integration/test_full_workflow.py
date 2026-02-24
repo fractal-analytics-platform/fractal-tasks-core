@@ -112,7 +112,7 @@ def _build_plate(tmp_path: Path) -> tuple[str, str, str]:
         ome = create_empty_ome_zarr(
             zarr_url,
             shape=_SHAPE,
-            xy_pixelsize=_PIXELSIZE,
+            pixelsize=_PIXELSIZE,
             z_spacing=_Z_SPACING,
             axes_names="czyx",
             levels=_LEVELS,

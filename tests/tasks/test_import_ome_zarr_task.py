@@ -42,7 +42,7 @@ def _make_plate(
         create_empty_ome_zarr(
             store=plate.get_image_store(row, col, path),
             shape=shape,
-            xy_pixelsize=0.5,
+            pixelsize=0.5,
             axes_names=axes,
             overwrite=True,
             levels=2,
@@ -60,7 +60,7 @@ def _make_image(
     create_empty_ome_zarr(
         store=image_path,
         shape=shape,
-        xy_pixelsize=0.5,
+        pixelsize=0.5,
         axes_names=axes,
         overwrite=True,
         levels=2,

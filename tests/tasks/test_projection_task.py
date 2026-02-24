@@ -17,7 +17,7 @@ def sample_ome_zarr_zyx_url(testdata_path) -> Path:
     origin_ome_zarr = create_empty_ome_zarr(
         store=store,
         shape=(16, 32, 32),
-        xy_pixelsize=0.1,
+        pixelsize=0.1,
         z_spacing=0.5,
         overwrite=True,
         axes_names="zyx",
@@ -81,7 +81,7 @@ def test_projection(
     origin_ome_zarr = create_empty_ome_zarr(
         store=store,
         shape=shape,
-        xy_pixelsize=0.1,
+        pixelsize=0.1,
         z_spacing=0.5,
         overwrite=False,
         axes_names=axes,
@@ -142,7 +142,7 @@ def test_fail_non_3d_projection(shape, axes: str, tmp_path: Path) -> None:
     create_empty_ome_zarr(
         store=store,
         shape=shape,
-        xy_pixelsize=0.1,
+        pixelsize=0.1,
         z_spacing=0.5,
         overwrite=False,
         axes_names=axes,
