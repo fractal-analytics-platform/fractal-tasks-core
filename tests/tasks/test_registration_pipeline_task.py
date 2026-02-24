@@ -1177,9 +1177,11 @@ def test_consensus_is_idempotent(multiplex_plate_urls):
         roi_table="FOV_ROI_table",
         new_roi_table="registered_FOV_ROI_table",
     )
-    rois_first = open_ome_zarr_container(zarr_url_0).get_roi_table(
-        "registered_FOV_ROI_table"
-    ).rois()
+    rois_first = (
+        open_ome_zarr_container(zarr_url_0)
+        .get_roi_table("registered_FOV_ROI_table")
+        .rois()
+    )
 
     # Second run — must not raise
     find_registration_consensus(
@@ -1188,9 +1190,11 @@ def test_consensus_is_idempotent(multiplex_plate_urls):
         roi_table="FOV_ROI_table",
         new_roi_table="registered_FOV_ROI_table",
     )
-    rois_second = open_ome_zarr_container(zarr_url_0).get_roi_table(
-        "registered_FOV_ROI_table"
-    ).rois()
+    rois_second = (
+        open_ome_zarr_container(zarr_url_0)
+        .get_roi_table("registered_FOV_ROI_table")
+        .rois()
+    )
 
     assert len(rois_first) == len(rois_second)
     for r1, r2 in zip(rois_first, rois_second):
@@ -1251,9 +1255,7 @@ def test_apply_invalid_reference_acquisition(multiplex_plate_urls):
     )
     find_registration_consensus(
         zarr_url=zarr_url_0,
-        init_args=InitArgsRegistrationConsensus(
-            zarr_url_list=[zarr_url_0, zarr_url_1]
-        ),
+        init_args=InitArgsRegistrationConsensus(zarr_url_list=[zarr_url_0, zarr_url_1]),
         roi_table="FOV_ROI_table",
         new_roi_table="registered_FOV_ROI_table",
     )

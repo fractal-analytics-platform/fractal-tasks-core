@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from fractal_tasks_core.illumination_correction import correct
 
@@ -63,3 +64,18 @@ def test_correct_with_background_profiles() -> None:
     )
 
     np.testing.assert_array_almost_equal(corrected_image, expected_corrected_image)
+
+
+def test_correct_flatfield_shape_mismatch_raises() -> None:
+    image = np.zeros((2, 10, 10), dtype=np.uint16)
+    flatfield = np.ones((8, 8), dtype=np.float64)  # wrong yx shape
+    with pytest.raises(ValueError, match="illumination_correction"):
+        correct(image, flatfield)
+
+
+def test_correct_darkfield_shape_mismatch_raises() -> None:
+    image = np.zeros((2, 10, 10), dtype=np.uint16)
+    flatfield = np.ones((10, 10), dtype=np.float64)  # correct shape
+    darkfield = np.ones((8, 8), dtype=np.float64)  # wrong yx shape
+    with pytest.raises(ValueError, match="illumination_correction"):
+        correct(image, flatfield, darkfield=darkfield)

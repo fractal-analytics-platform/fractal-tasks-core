@@ -1,3 +1,4 @@
+import logging
 import shutil
 from pathlib import Path
 
@@ -684,6 +685,91 @@ def test_darkfield_shape_mismatch(tmp_path: Path, testdata_path: Path) -> None:
             zarr_url=zarr_url,
             illumination_profiles=illum_profiles,
             background_correction=background,
+            overwrite_input=True,
+            input_ROI_table="well_ROI_table",
+        )
+
+
+# ---------------------------------------------------------------------------
+# Coverage gap: lines 84-88, 195-200, 254
+# ---------------------------------------------------------------------------
+
+
+def test_clipping_when_values_exceed_dtype_max(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    zarr_url, wavelengths = _make_tiny_zyx_zarr_with_roi(tmp_path)
+    # Fill the image with high uint16 values (60000)
+    ome = open_ome_zarr_container(zarr_url)
+    img = ome.get_image()
+    data = np.full((1, 10, 10), 60_000, dtype=np.uint16)
+    img.set_array(data)
+    img.consolidate()
+
+    # Flatfield: half pixels = 100, other half = 200 → normalized min = 0.5
+    # 60000 / 0.5 = 120000 > 65535 → triggers clip warning
+    flatfield = np.zeros((10, 10), dtype=np.uint16)
+    flatfield[:5, :] = 100
+    flatfield[5:, :] = 200
+    ff_path = tmp_path / "flatfield_clip.png"
+    imsave(str(ff_path), flatfield)
+    illum_profiles = ProfileCorrectionModel(
+        folder=str(tmp_path),
+        profiles={w: "flatfield_clip.png" for w in wavelengths},
+    )
+
+    with caplog.at_level(logging.WARNING, logger="illumination_correction"):
+        illumination_correction(
+            zarr_url=zarr_url,
+            illumination_profiles=illum_profiles,
+            overwrite_input=True,
+            input_ROI_table="well_ROI_table",
+        )
+    assert "clipped" in caplog.text
+
+
+def test_extra_background_profile_wavelengths_raises(tmp_path: Path) -> None:
+    zarr_url, wavelengths = _make_tiny_zyx_zarr_with_roi(tmp_path)
+    tiny_ff = tmp_path / "tiny_flatfield.png"
+    _save_tiny_flatfield(tiny_ff)
+    illum_profiles = ProfileCorrectionModel(
+        folder=str(tmp_path),
+        profiles={w: "tiny_flatfield.png" for w in wavelengths},
+    )
+    # Background has an extra wavelength not present in the image
+    background_profiles = {w: "tiny_flatfield.png" for w in wavelengths}
+    background_profiles["BOGUS_CHANNEL"] = "tiny_flatfield.png"
+    background = BackgroundCorrection(
+        value=ProfileCorrectionModel(
+            folder=str(tmp_path),
+            profiles=background_profiles,
+            model="Profile",
+        ),
+    )
+    with pytest.raises(ValueError, match="are not present in the input image"):
+        illumination_correction(
+            zarr_url=zarr_url,
+            illumination_profiles=illum_profiles,
+            background_correction=background,
+            overwrite_input=True,
+            input_ROI_table="well_ROI_table",
+        )
+
+
+def test_zero_in_flatfield_raises(tmp_path: Path) -> None:
+    zarr_url, wavelengths = _make_tiny_zyx_zarr_with_roi(tmp_path)
+    flatfield_with_zero = np.full((10, 10), 100, dtype=np.uint16)
+    flatfield_with_zero[5, 5] = 0
+    ff_path = tmp_path / "flatfield_with_zero.png"
+    imsave(str(ff_path), flatfield_with_zero)
+    illum_profiles = ProfileCorrectionModel(
+        folder=str(tmp_path),
+        profiles={w: "flatfield_with_zero.png" for w in wavelengths},
+    )
+    with pytest.raises(ValueError, match="zero values"):
+        illumination_correction(
+            zarr_url=zarr_url,
+            illumination_profiles=illum_profiles,
             overwrite_input=True,
             input_ROI_table="well_ROI_table",
         )

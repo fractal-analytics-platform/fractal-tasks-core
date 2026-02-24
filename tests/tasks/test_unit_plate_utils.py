@@ -27,8 +27,11 @@ def test_group_by_plate_multiple_plates():
 
 
 def test_group_by_well_groups_by_well():
-    urls = ["/base/plate.zarr/A/01/0", "/base/plate.zarr/A/01/1",
-            "/base/plate.zarr/B/02/0"]
+    urls = [
+        "/base/plate.zarr/A/01/0",
+        "/base/plate.zarr/A/01/1",
+        "/base/plate.zarr/B/02/0",
+    ]
     result = group_by_well(urls)
     assert len(result) == 2
     assert len(result["/base/plate.zarr/A/01"]) == 2
@@ -46,9 +49,7 @@ def test_split_well_path_too_short_raises():
 
 
 def test_split_well_path_returns_correct_parts():
-    well_path, image_path = split_well_path_image_path(
-        "/base/plate.zarr/A/01/0"
-    )
+    well_path, image_path = split_well_path_image_path("/base/plate.zarr/A/01/0")
     assert well_path == "/base/plate.zarr/A/01"
     assert image_path == "0"
 
