@@ -195,11 +195,6 @@ def apply_registration_to_image(
 
     roi_pairs: list[tuple[Roi, Roi]] = []
     for name, roi_ref in rois_ref.items():
-        if name not in rois_ref:
-            raise ValueError(
-                f"ROI with name {name} found in acquisition {zarr_url} but not "
-                f"in reference acquisition {reference_zarr_url}."
-            )
         if name not in rois_acq:
             raise ValueError(
                 f"ROI with name {name} found in reference acquisition "
