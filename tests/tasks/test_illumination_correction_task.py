@@ -459,7 +459,6 @@ def test_multidimensional_input(
     Test the projection task.
     """
     store = tmp_path / "sample_ome_zarr.zarr"
-    print(store)
     origin_ome_zarr = create_empty_ome_zarr(
         store=store.as_posix(),
         shape=shape,
@@ -485,29 +484,12 @@ def test_multidimensional_input(
         profiles=illumination_profiles_map,
     )
 
-    print(store)
-    print(store.as_posix())
     illumination_correction(
         zarr_url=store.as_posix(),
         illumination_profiles=illumination_profiles,
         overwrite_input=False,
         input_ROI_table="well_ROI_table",
     )
-
-    # init_mip = InitArgsMIP(
-    #     origin_url=str(store),
-    #     method="mip",
-    #     overwrite=False,
-    #     new_plate_name="new_plate.zarr",
-    # )
-
-    # mip_store = tmp_path / "sample_ome_zarr_mip.zarr"
-    # update_list = projection(zarr_url=str(mip_store), init_args=init_mip)
-
-    # zarr_url = update_list["image_list_updates"][0]["zarr_url"]
-    # origin_url = update_list["image_list_updates"][0]["origin"]
-    # attributes = update_list["image_list_updates"][0]["attributes"]
-    # types = update_list["image_list_updates"][0]["types"]
 
 
 # ---------------------------------------------------------------------------
