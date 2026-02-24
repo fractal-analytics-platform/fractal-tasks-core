@@ -1237,6 +1237,78 @@ def test_apply_overwrite_false_is_idempotent(multiplex_plate_urls):
     )
 
 
+def test_apply_invalid_reference_acquisition(multiplex_plate_urls):
+    """apply_registration raises when reference_acquisition is not in the well."""
+    zarr_url_0 = multiplex_plate_urls["zarr_url_0"]
+    zarr_url_1 = multiplex_plate_urls["zarr_url_1"]
+
+    calculate_registration_image_based(
+        zarr_url=zarr_url_1,
+        init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
+        wavelength_id=_WAVELENGTH,
+        roi_table="FOV_ROI_table",
+        level=2,
+    )
+    find_registration_consensus(
+        zarr_url=zarr_url_0,
+        init_args=InitArgsRegistrationConsensus(
+            zarr_url_list=[zarr_url_0, zarr_url_1]
+        ),
+        roi_table="FOV_ROI_table",
+        new_roi_table="registered_FOV_ROI_table",
+    )
+
+    with pytest.raises(ValueError, match="reference_acquisition"):
+        apply_registration_to_image(
+            zarr_url=zarr_url_1,
+            registered_roi_table="registered_FOV_ROI_table",
+            reference_acquisition=99,
+            overwrite_input=True,
+        )
+
+
+def test_consensus_partial_registration_fails(tmp_path: Path):
+    """Task 2 raises when Task 1 ran for some but not all non-reference acquisitions."""
+    plate_path = tmp_path / "multiplex3.zarr"
+    create_empty_plate(
+        store=plate_path,
+        name="multiplex3",
+        images=[
+            ImageInWellPath(row="A", column="01", path="0", acquisition_id=0),
+            ImageInWellPath(row="A", column="01", path="1", acquisition_id=1),
+            ImageInWellPath(row="A", column="01", path="2", acquisition_id=2),
+        ],
+        overwrite=True,
+    )
+    base_url = str(plate_path.resolve())
+    zarr_url_0 = f"{base_url}/A/01/0"
+    zarr_url_1 = f"{base_url}/A/01/1"
+    zarr_url_2 = f"{base_url}/A/01/2"
+
+    _build_image(zarr_url_0)
+    _build_image(zarr_url_1, y_offset=_SHIFT_Y_PX, x_offset=_SHIFT_X_PX)
+    _build_image(zarr_url_2, y_offset=_SHIFT_Y_PX, x_offset=_SHIFT_X_PX)
+
+    # Task 1 for acquisition 1 only — acquisition 2 is intentionally skipped
+    calculate_registration_image_based(
+        zarr_url=zarr_url_1,
+        init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
+        wavelength_id=_WAVELENGTH,
+        roi_table="FOV_ROI_table",
+        level=2,
+    )
+
+    with pytest.raises(ValueError, match="[Ss]ome but not all"):
+        find_registration_consensus(
+            zarr_url=zarr_url_0,
+            init_args=InitArgsRegistrationConsensus(
+                zarr_url_list=[zarr_url_0, zarr_url_1, zarr_url_2]
+            ),
+            roi_table="FOV_ROI_table",
+            new_roi_table="registered_FOV_ROI_table",
+        )
+
+
 def test_calculate_registration_tyx_t_gt1_raises(tmp_path: Path):
     """Time-series images with t > 1 are not supported and must raise ValueError."""
     zarr_url = str(tmp_path / "img_tyx_t2.zarr")
