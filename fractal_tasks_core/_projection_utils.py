@@ -73,6 +73,34 @@ def mean_wrapper(dask_array: da.Array, axis: int = 0) -> da.Array:
     return result
 
 
+def max_wrapper(dask_array: da.Array, axis: int = 0) -> da.Array:
+    """
+    Perform a da.max on the dask_array
+
+    Args:
+        dask_array (dask.array.Array): The input Dask array.
+        axis (int, optional): The axis along which to max the array.
+            Defaults to 0.
+
+    Returns:
+        dask.array.Array: The result of the max
+    """
+    return dask_array.max(axis=axis)
+
+def min_wrapper(dask_array: da.Array, axis: int = 0) -> da.Array:
+    """
+    Perform a da.min on the dask_array
+
+    Args:
+        dask_array (dask.array.Array): The input Dask array.
+        axis (int, optional): The axis along which to min the array.
+            Defaults to 0.
+
+    Returns:
+        dask.array.Array: The result of the min
+    """
+    return dask_array.min(axis=axis)
+
 class DaskProjectionMethod(Enum):
     """
     Registration method selection
@@ -112,8 +140,8 @@ class DaskProjectionMethod(Enum):
         """
         # Map the Enum values to the actual Dask array methods
         method_map = {
-            DaskProjectionMethod.MIP: lambda arr, axis: arr.max(axis=axis),
-            DaskProjectionMethod.MINIP: lambda arr, axis: arr.min(axis=axis),
+            DaskProjectionMethod.MIP: max_wrapper,
+            DaskProjectionMethod.MINIP: min_wrapper,
             DaskProjectionMethod.MEANIP: mean_wrapper,
             DaskProjectionMethod.SUMIP: safe_sum,
         }
