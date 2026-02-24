@@ -12,8 +12,6 @@ from fractal_task_tools.task_models import (
 AUTHORS = "Fractal Core Team"
 DOCS_LINK = "https://fractal-analytics-platform.github.io/fractal-tasks-core"
 INPUT_MODELS = [
-    ["fractal_tasks_core", "_io_models.py", "OmeroChannel"],
-    ["fractal_tasks_core", "_io_models.py", "Window"],
     ["fractal_tasks_core", "_io_models.py", "NoCorrectionModel"],
     ["fractal_tasks_core", "_io_models.py", "ProfileCorrectionModel"],
     ["fractal_tasks_core", "_io_models.py", "ConstantCorrectionModel"],
