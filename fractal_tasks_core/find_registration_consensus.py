@@ -15,12 +15,53 @@ from fractal_tasks_core._io_models import InitArgsRegistrationConsensus
 logger = logging.getLogger("find_registration_consensus")
 
 
+def _validate_if_translation_exists(tables: list[GenericRoiTable]) -> None:
+    """Check that at least one table contains pre-calculated translation fields.
+
+    The reference acquisition's table intentionally has no translations (Task 1
+    only runs on non-reference acquisitions), so we require at least one table
+    — not all tables — to carry the fields.  If none do, Task 1 has not been
+    run yet.
+    """
+    tables_with_translations = 0
+    for table in tables:
+        for roi in table.rois():
+            extra = roi.model_extra or {}
+            if (
+                "translation_z" in extra
+                and "translation_y" in extra
+                and "translation_x" in extra
+            ):
+                tables_with_translations += 1
+                break
+
+    if tables_with_translations == len(tables) - 1:
+        # Normal case: all non-reference tables contain translations
+        # and the reference table does not.
+        return None
+
+    if tables_with_translations == 0:
+        raise ValueError(
+            "No registration translations found in any acquisition ROI table. "
+            "Please run 'Calculate Registration (image-based)' before "
+            "'Find Registration Consensus'."
+        )
+    # Edge case: some but not all non-reference tables contain translations
+    if tables_with_translations != len(tables) - 1:
+        raise ValueError(
+            "Some but not all non-reference acquisitions contain registration "
+            "translations. Something went wrong, please re-run "
+            "'Calculate Registration (image-based)' and make sure it completes "
+            "without errors. "
+        )
+
+
 def _get_roi_translation(roi: Roi, dim: Literal["z", "y", "x"]) -> float:
     """Return the translation for `dim` ('z', 'y', or 'x') from a ROI's extra
     fields, defaulting to 0.0 when the field is absent (e.g. reference
     acquisition whose table has no pre-computed shifts).
     """
-    return (roi.model_extra or {}).get(f"translation_{dim}", 0.0) or 0.0
+    return (roi.model_extra or {}).get(f"translation_{dim}", 0.0)
 
 
 def _group_roi_by_name(tables: list[GenericRoiTable]) -> dict[str, list[Roi]]:
@@ -186,6 +227,10 @@ def find_registration_consensus(
         acq_ome_zarr = open_ome_zarr_container(acq_zarr_url)
         containers[acq_zarr_url] = acq_ome_zarr
         tables[acq_zarr_url] = acq_ome_zarr.get_generic_roi_table(roi_table)
+
+    # Check if all tables contain the pre-calculated translation fields, which
+    # are required for the consensus calculation.
+    _validate_if_translation_exists(list(tables.values()))
 
     # Validate that all acquisitions have the same set of ROI names
     ref_roi_names = {roi.name for roi in list(tables.values())[0].rois()}

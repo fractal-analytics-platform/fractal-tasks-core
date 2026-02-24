@@ -1076,6 +1076,167 @@ def test_full_pipeline_axes_support(tmp_path: Path, axes: str, shape: tuple[int,
 # ---------------------------------------------------------------------------
 
 
+# ---------------------------------------------------------------------------
+# Pre-condition & re-run-safety tests
+# ---------------------------------------------------------------------------
+
+
+def test_consensus_without_registration_fails(multiplex_plate_urls):
+    """Task 2 without Task 1 must raise a clear error about missing translations."""
+    zarr_url_0 = multiplex_plate_urls["zarr_url_0"]
+    zarr_url_1 = multiplex_plate_urls["zarr_url_1"]
+
+    with pytest.raises(ValueError, match="[Cc]alculate Registration"):
+        find_registration_consensus(
+            zarr_url=zarr_url_0,
+            init_args=InitArgsRegistrationConsensus(
+                zarr_url_list=[zarr_url_0, zarr_url_1]
+            ),
+            roi_table="FOV_ROI_table",
+            new_roi_table="registered_FOV_ROI_table",
+        )
+
+
+def test_apply_without_consensus_fails(multiplex_plate_urls):
+    """Task 3 without Task 2 must raise a clear error about missing ROI table."""
+    zarr_url_0 = multiplex_plate_urls["zarr_url_0"]
+    zarr_url_1 = multiplex_plate_urls["zarr_url_1"]
+
+    # Run Task 1 only
+    calculate_registration_image_based(
+        zarr_url=zarr_url_1,
+        init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
+        wavelength_id=_WAVELENGTH,
+        roi_table="FOV_ROI_table",
+        level=2,
+    )
+
+    with pytest.raises(ValueError, match="[Ff]ind Registration Consensus"):
+        apply_registration_to_image(
+            zarr_url=zarr_url_1,
+            registered_roi_table="registered_FOV_ROI_table",
+            reference_acquisition=0,
+            overwrite_input=True,
+        )
+
+
+def _get_translations(zarr_url: str) -> list[tuple[float | None, float | None]]:
+    ome = open_ome_zarr_container(zarr_url)
+    return [
+        (
+            (r.model_extra or {}).get("translation_y"),
+            (r.model_extra or {}).get("translation_x"),
+        )
+        for r in ome.get_roi_table("FOV_ROI_table").rois()
+    ]
+
+
+def test_calculate_registration_is_idempotent(multiplex_plate_urls):
+    """Running Task 1 twice must succeed and produce identical translations."""
+    zarr_url_0 = multiplex_plate_urls["zarr_url_0"]
+    zarr_url_1 = multiplex_plate_urls["zarr_url_1"]
+
+    calculate_registration_image_based(
+        zarr_url=zarr_url_1,
+        init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
+        wavelength_id=_WAVELENGTH,
+        roi_table="FOV_ROI_table",
+        level=2,
+    )
+    translations_first = _get_translations(zarr_url_1)
+
+    # Second run — must not raise
+    calculate_registration_image_based(
+        zarr_url=zarr_url_1,
+        init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
+        wavelength_id=_WAVELENGTH,
+        roi_table="FOV_ROI_table",
+        level=2,
+    )
+    translations_second = _get_translations(zarr_url_1)
+
+    assert translations_first == translations_second
+
+
+def test_consensus_is_idempotent(multiplex_plate_urls):
+    """Running Task 2 twice must succeed and produce identical consensus ROIs."""
+    zarr_url_0 = multiplex_plate_urls["zarr_url_0"]
+    zarr_url_1 = multiplex_plate_urls["zarr_url_1"]
+
+    calculate_registration_image_based(
+        zarr_url=zarr_url_1,
+        init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
+        wavelength_id=_WAVELENGTH,
+        roi_table="FOV_ROI_table",
+        level=2,
+    )
+
+    find_registration_consensus(
+        zarr_url=zarr_url_0,
+        init_args=InitArgsRegistrationConsensus(zarr_url_list=[zarr_url_0, zarr_url_1]),
+        roi_table="FOV_ROI_table",
+        new_roi_table="registered_FOV_ROI_table",
+    )
+    rois_first = open_ome_zarr_container(zarr_url_0).get_roi_table(
+        "registered_FOV_ROI_table"
+    ).rois()
+
+    # Second run — must not raise
+    find_registration_consensus(
+        zarr_url=zarr_url_0,
+        init_args=InitArgsRegistrationConsensus(zarr_url_list=[zarr_url_0, zarr_url_1]),
+        roi_table="FOV_ROI_table",
+        new_roi_table="registered_FOV_ROI_table",
+    )
+    rois_second = open_ome_zarr_container(zarr_url_0).get_roi_table(
+        "registered_FOV_ROI_table"
+    ).rois()
+
+    assert len(rois_first) == len(rois_second)
+    for r1, r2 in zip(rois_first, rois_second):
+        assert r1["y"].start == pytest.approx(r2["y"].start, abs=0.01)
+        assert r1["y"].length == pytest.approx(r2["y"].length, abs=0.01)
+        assert r1["x"].start == pytest.approx(r2["x"].start, abs=0.01)
+        assert r1["x"].length == pytest.approx(r2["x"].length, abs=0.01)
+
+
+def test_apply_overwrite_true_is_idempotent(multiplex_plate_urls):
+    """Full pipeline with overwrite_input=True can be re-run without errors."""
+    zarr_url_0 = multiplex_plate_urls["zarr_url_0"]
+    zarr_url_1 = multiplex_plate_urls["zarr_url_1"]
+
+    _run_full_pipeline(zarr_url_0, zarr_url_1, overwrite_input=True)
+
+    # Second run — must not raise
+    result = _run_full_pipeline(zarr_url_0, zarr_url_1, overwrite_input=True)
+
+    assert result == {"image_list_updates": [{"zarr_url": zarr_url_1}]}
+    ome1 = open_ome_zarr_container(zarr_url_1)
+    assert ome1.get_image().get_array().any(), (
+        "Registered image is all zeros after re-run"
+    )
+
+
+def test_apply_overwrite_false_is_idempotent(multiplex_plate_urls):
+    """Full pipeline with overwrite_input=False can be re-run without errors."""
+    zarr_url_0 = multiplex_plate_urls["zarr_url_0"]
+    zarr_url_1 = multiplex_plate_urls["zarr_url_1"]
+    new_zarr_url = f"{zarr_url_1}_registered"
+
+    _run_full_pipeline(zarr_url_0, zarr_url_1, overwrite_input=False)
+
+    # Second run — must not raise
+    result = _run_full_pipeline(zarr_url_0, zarr_url_1, overwrite_input=False)
+
+    assert result == {
+        "image_list_updates": [{"zarr_url": new_zarr_url, "origin": zarr_url_1}]
+    }
+    ome_new = open_ome_zarr_container(new_zarr_url)
+    assert ome_new.get_image().get_array().any(), (
+        "Registered image is all zeros after re-run"
+    )
+
+
 def test_calculate_registration_tyx_t_gt1_raises(tmp_path: Path):
     """Time-series images with t > 1 are not supported and must raise ValueError."""
     zarr_url = str(tmp_path / "img_tyx_t2.zarr")

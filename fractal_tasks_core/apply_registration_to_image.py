@@ -185,6 +185,16 @@ def apply_registration_to_image(
     # Open containers and load registered ROI tables
     ref_ome_zarr = open_ome_zarr_container(reference_zarr_url)
     acq_ome_zarr = open_ome_zarr_container(zarr_url)
+
+    # Validate that Task 2 has been run: the registered ROI table must exist.
+    if registered_roi_table not in acq_ome_zarr.list_tables():
+        raise ValueError(
+            f"Registered ROI table '{registered_roi_table}' not found in "
+            f"'{zarr_url}'. Please run 'Calculate Registration (image-based)' "
+            "and 'Find Registration Consensus' before "
+            "'Apply Registration to Image'."
+        )
+
     roi_table_ref = ref_ome_zarr.get_roi_table(registered_roi_table)
     roi_table_acq = acq_ome_zarr.get_roi_table(registered_roi_table)
 
@@ -296,7 +306,10 @@ def apply_registration_to_image(
         new_img_path = f"{old_img_path}_registered"
         ome_zarr_well = open_ome_zarr_well(well_url)
         acq_id = ome_zarr_well.get_image_acquisition_id(old_img_path)
-        ome_zarr_well.atomic_add_image(new_img_path, acquisition_id=acq_id, strict=True)
+        if new_img_path not in ome_zarr_well.paths():
+            ome_zarr_well.atomic_add_image(
+                new_img_path, acquisition_id=acq_id, strict=True
+            )
 
     return image_list_updates
 

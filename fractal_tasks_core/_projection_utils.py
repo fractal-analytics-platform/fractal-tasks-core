@@ -87,6 +87,7 @@ def max_wrapper(dask_array: da.Array, axis: int = 0) -> da.Array:
     """
     return dask_array.max(axis=axis)
 
+
 def min_wrapper(dask_array: da.Array, axis: int = 0) -> da.Array:
     """
     Perform a da.min on the dask_array
@@ -100,6 +101,7 @@ def min_wrapper(dask_array: da.Array, axis: int = 0) -> da.Array:
         dask.array.Array: The result of the min
     """
     return dask_array.min(axis=axis)
+
 
 class DaskProjectionMethod(Enum):
     """
