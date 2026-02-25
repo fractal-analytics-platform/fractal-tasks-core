@@ -28,27 +28,27 @@ from ngio import (
 )
 from skimage.io import imsave
 
-from fractal_tasks_core.tasks.apply_registration_to_image import (
-    apply_registration_to_image,
-)
-from fractal_tasks_core.tasks.calculate_registration_image_based import (
-    calculate_registration_image_based,
-)
-from fractal_tasks_core.tasks.copy_ome_zarr_hcs_plate import copy_ome_zarr_hcs_plate
-from fractal_tasks_core.tasks.find_registration_consensus import (
-    find_registration_consensus,
-)
-from fractal_tasks_core.tasks.illumination_correction import illumination_correction
-from fractal_tasks_core.tasks.image_based_registration_hcs_init import (
-    image_based_registration_hcs_init,
-)
-from fractal_tasks_core.tasks.import_ome_zarr import import_ome_zarr
-from fractal_tasks_core.tasks.io_models import (
+from fractal_tasks_core._io_models import (
     InitArgsRegistration,
     InitArgsRegistrationConsensus,
     ProfileCorrectionModel,
 )
-from fractal_tasks_core.tasks.projection import projection
+from fractal_tasks_core.apply_registration_to_image import (
+    apply_registration_to_image,
+)
+from fractal_tasks_core.calculate_registration_image_based import (
+    calculate_registration_image_based,
+)
+from fractal_tasks_core.copy_ome_zarr_hcs_plate import copy_ome_zarr_hcs_plate
+from fractal_tasks_core.find_registration_consensus import (
+    find_registration_consensus,
+)
+from fractal_tasks_core.illumination_correction import illumination_correction
+from fractal_tasks_core.image_based_registration_hcs_init import (
+    image_based_registration_hcs_init,
+)
+from fractal_tasks_core.import_ome_zarr import import_ome_zarr
+from fractal_tasks_core.projection import projection
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -112,7 +112,7 @@ def _build_plate(tmp_path: Path) -> tuple[str, str, str]:
         ome = create_empty_ome_zarr(
             zarr_url,
             shape=_SHAPE,
-            xy_pixelsize=_PIXELSIZE,
+            pixelsize=_PIXELSIZE,
             z_spacing=_Z_SPACING,
             axes_names="czyx",
             levels=_LEVELS,

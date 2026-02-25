@@ -5,7 +5,6 @@ Fractal task list.
 
 from fractal_task_tools.task_models import (
     CompoundTask,
-    ConverterCompoundTask,
     ConverterNonParallelTask,
     ParallelTask,
 )
@@ -13,44 +12,18 @@ from fractal_task_tools.task_models import (
 AUTHORS = "Fractal Core Team"
 DOCS_LINK = "https://fractal-analytics-platform.github.io/fractal-tasks-core"
 INPUT_MODELS = [
-    ["fractal_tasks_core", "channels.py", "OmeroChannel"],
-    ["fractal_tasks_core", "channels.py", "Window"],
-    ["fractal_tasks_core", "channels.py", "ChannelInputModel"],
-    ["fractal_tasks_core", "tasks/io_models.py", "NoCorrectionModel"],
-    ["fractal_tasks_core", "tasks/io_models.py", "ProfileCorrectionModel"],
-    ["fractal_tasks_core", "tasks/io_models.py", "ConstantCorrectionModel"],
-    ["fractal_tasks_core", "tasks/io_models.py", "MultiplexingAcquisition"],
+    ["fractal_tasks_core", "_io_models.py", "NoCorrectionModel"],
+    ["fractal_tasks_core", "_io_models.py", "ProfileCorrectionModel"],
+    ["fractal_tasks_core", "_io_models.py", "ConstantCorrectionModel"],
 ]
 
 
 TASK_LIST = [
-    ConverterCompoundTask(
-        name="Convert Cellvoyager to OME-Zarr",
-        executable_init="tasks/cellvoyager_to_ome_zarr_init.py",
-        executable="tasks/cellvoyager_to_ome_zarr_compute.py",
-        meta_init={"cpus_per_task": 1, "mem": 4000},
-        meta={"cpus_per_task": 1, "mem": 4000},
-        category="Conversion",
-        modality="HCS",
-        tags=["Yokogawa", "Cellvoyager", "2D", "3D"],
-        docs_info="file:task_info/convert_cellvoyager_to_ome_zarr.md",
-    ),
-    ConverterCompoundTask(
-        name="Convert Cellvoyager Multiplexing to OME-Zarr",
-        executable_init="tasks/cellvoyager_to_ome_zarr_init_multiplex.py",
-        executable="tasks/cellvoyager_to_ome_zarr_compute.py",
-        meta_init={"cpus_per_task": 1, "mem": 4000},
-        meta={"cpus_per_task": 1, "mem": 4000},
-        category="Conversion",
-        modality="HCS",
-        tags=["Yokogawa", "Cellvoyager", "2D", "3D"],
-        docs_info="file:task_info/convert_cellvoyager_multiplex.md",
-    ),
     CompoundTask(
         name="Project Image (HCS Plate)",
         input_types={"is_3D": True},
-        executable_init="tasks/copy_ome_zarr_hcs_plate.py",
-        executable="tasks/projection.py",
+        executable_init="copy_ome_zarr_hcs_plate.py",
+        executable="projection.py",
         output_types={"is_3D": False},
         meta_init={"cpus_per_task": 1, "mem": 4000},
         meta={"cpus_per_task": 1, "mem": 4000},
@@ -62,7 +35,7 @@ TASK_LIST = [
     ParallelTask(
         name="Illumination Correction",
         input_types=dict(illumination_corrected=False),
-        executable="tasks/illumination_correction.py",
+        executable="illumination_correction.py",
         output_types=dict(illumination_corrected=True),
         meta={"cpus_per_task": 1, "mem": 4000},
         category="Image Processing",
@@ -71,8 +44,8 @@ TASK_LIST = [
     ),
     CompoundTask(
         name="Calculate Registration (image-based)",
-        executable_init="tasks/image_based_registration_hcs_init.py",
-        executable="tasks/calculate_registration_image_based.py",
+        executable_init="image_based_registration_hcs_init.py",
+        executable="calculate_registration_image_based.py",
         meta_init={"cpus_per_task": 1, "mem": 1000},
         meta={"cpus_per_task": 1, "mem": 8000},
         category="Registration",
@@ -82,8 +55,8 @@ TASK_LIST = [
     ),
     CompoundTask(
         name="Find Registration Consensus",
-        executable_init="tasks/init_group_by_well_for_multiplexing.py",
-        executable="tasks/find_registration_consensus.py",
+        executable_init="init_group_by_well_for_multiplexing.py",
+        executable="find_registration_consensus.py",
         meta_init={"cpus_per_task": 1, "mem": 1000},
         meta={"cpus_per_task": 1, "mem": 1000},
         category="Registration",
@@ -94,7 +67,7 @@ TASK_LIST = [
     ParallelTask(
         name="Apply Registration to Image",
         input_types=dict(registered=False),
-        executable="tasks/apply_registration_to_image.py",
+        executable="apply_registration_to_image.py",
         output_types=dict(registered=True),
         meta={"cpus_per_task": 1, "mem": 4000},
         category="Registration",
@@ -104,7 +77,7 @@ TASK_LIST = [
     ),
     ConverterNonParallelTask(
         name="Import OME-Zarr",
-        executable="tasks/import_ome_zarr.py",
+        executable="import_ome_zarr.py",
         docs_info="file:task_info/import_ome_zarr.md",
         tags=["2D", "3D"],
     ),
