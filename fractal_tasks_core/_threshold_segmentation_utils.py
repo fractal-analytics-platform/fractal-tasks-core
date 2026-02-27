@@ -7,6 +7,7 @@ import numpy as np
 from ngio import ChannelSelectionModel
 from pydantic import BaseModel, Field
 from skimage.filters import gaussian, median, threshold_otsu
+from skimage.measure import label
 from skimage.morphology import remove_small_objects
 
 logger = logging.getLogger("threshold_segmentation_task_utils")
@@ -150,6 +151,44 @@ SegmentationConfiguration = Annotated[
     ThresholdConfiguration | OtsuConfiguration,
     Field(discriminator="method"),
 ]
+
+
+def segmentation_function(
+    *,
+    image_data: np.ndarray,
+    method: SegmentationConfiguration,
+    pre_post_process: "PrePostProcessConfiguration",
+) -> np.ndarray:
+    """Apply threshold-based segmentation to a single image chunk.
+
+    Args:
+        image_data (np.ndarray): Input image data
+        method (SegmentationConfiguration): Configuration for the segmentation method.
+        pre_post_process (PrePostProcessConfiguration): Configuration for pre- and
+            post-processing steps.
+
+    Returns:
+        np.ndarray: Segmented label image
+    """
+    # Pre-processing
+    image_data = apply_pre_process(
+        image=image_data,
+        pre_process_steps=pre_post_process.pre_process,
+    )
+    threshold_value = method.threshold_value(image_data)
+    logger.info(f"Calculated threshold value: {threshold_value}")
+    masks = image_data > threshold_value
+    label_img = label(masks)
+    assert isinstance(label_img, np.ndarray), "Label image must be a numpy array"
+
+    # Post-processing
+    masks = apply_post_process(
+        labels=label_img,
+        post_process_steps=pre_post_process.post_process,
+    )
+    masks = np.expand_dims(masks, axis=0).astype(np.uint32)
+    return masks
+
 
 ### Pre and post-processing configurations for threshold-based segmentation tasks
 

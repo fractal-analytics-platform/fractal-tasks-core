@@ -13,7 +13,6 @@ from ngio.images._image import _parse_channel_selection
 from ngio.images._masked_image import MaskedImage
 from ngio.utils import NgioValueError
 from pydantic import validate_call
-from skimage.measure import label
 
 from fractal_tasks_core._threshold_segmentation_utils import (
     AnyCreateRoiTableModel,
@@ -25,48 +24,10 @@ from fractal_tasks_core._threshold_segmentation_utils import (
     PrePostProcessConfiguration,
     SegmentationConfiguration,
     SkipCreateMaskingRoiTable,
-    apply_post_process,
-    apply_pre_process,
+    segmentation_function,
 )
 
 logger = logging.getLogger("threshold_segmentation")
-
-
-def segmentation_function(
-    *,
-    image_data: np.ndarray,
-    method: SegmentationConfiguration,
-    pre_post_process: PrePostProcessConfiguration,
-) -> np.ndarray:
-    """Apply threshold-based segmentation to a single image chunk.
-
-    Args:
-        image_data (np.ndarray): Input image data
-        method (SegmentationConfiguration): Configuration for the segmentation method.
-        pre_post_process (PrePostProcessConfiguration): Configuration for pre- and
-            post-processing steps.
-
-    Returns:
-        np.ndarray: Segmented label image
-    """
-    # Pre-processing
-    image_data = apply_pre_process(
-        image=image_data,
-        pre_process_steps=pre_post_process.pre_process,
-    )
-    threshold_value = method.threshold_value(image_data)
-    logger.info(f"Calculated threshold value: {threshold_value}")
-    masks = image_data > threshold_value
-    label_img = label(masks)
-    assert isinstance(label_img, np.ndarray), "Label image must be a numpy array"
-
-    # Post-processing
-    masks = apply_post_process(
-        labels=label_img,
-        post_process_steps=pre_post_process.post_process,
-    )
-    masks = np.expand_dims(masks, axis=0).astype(np.uint32)
-    return masks
 
 
 def load_masked_image(
