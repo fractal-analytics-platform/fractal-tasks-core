@@ -30,6 +30,12 @@ def test_safe_sum_other_dtype() -> None:
     np.testing.assert_array_equal(result, expected)
 
 
+def test_safe_sum_float_raises() -> None:
+    array = da.zeros((2, 5), dtype="float32")
+    with pytest.raises(ValueError, match="integer dtypes"):
+        safe_sum(array, axis=0)
+
+
 # ---------------------------------------------------------------------------
 # mean_wrapper
 # ---------------------------------------------------------------------------

@@ -1,7 +1,11 @@
 ### Purpose
 - Performs **Z-axis projection of intensity images** using a specified projection method.
-- **Generates a new OME-Zarr HCS plate** to store the projected data.
+- Stores the result in a **new OME-Zarr file** next to the input.
+
+### Output location
+The output zarr is placed alongside the input with the projection method appended to its
+name. For example, an input of `my_image.zarr` with method `mip` produces `my_image_mip.zarr`.
 
 ### Limitations
-- Supports projections only for OME-Zarr HCS plates; other collections of OME-Zarrs are not yet supported.
-- Currently limited to data in the CZYX format.
+- The input zarr URL must end with `.zarr`.
+- Supports projections for any 3D OME-Zarr image (ZYX, CZYX, TCZYX, etc.).

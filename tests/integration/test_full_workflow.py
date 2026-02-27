@@ -48,7 +48,7 @@ from fractal_tasks_core.image_based_registration_hcs_init import (
     image_based_registration_hcs_init,
 )
 from fractal_tasks_core.import_ome_zarr import import_ome_zarr
-from fractal_tasks_core.projection import projection
+from fractal_tasks_core.projection_hcs import projection_hcs
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -288,7 +288,7 @@ def test_full_pipeline(tmp_path: Path) -> None:
     assert len(para_proj["parallelization_list"]) == 1
 
     proj_item = para_proj["parallelization_list"][0]
-    proj_result = projection(**proj_item)
+    proj_result = projection_hcs(**proj_item)
 
     proj_zarr_url = proj_result["image_list_updates"][0]["zarr_url"]
     assert Path(proj_zarr_url).exists(), "Projected zarr must exist on disk"
