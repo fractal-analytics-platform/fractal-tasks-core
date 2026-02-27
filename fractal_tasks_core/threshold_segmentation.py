@@ -1,4 +1,7 @@
-"""This is the Python module for my_task."""
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
+"""
+Task for threshold-based segmentation of OME-Zarr images.
+"""
 
 import logging
 import time
@@ -12,7 +15,7 @@ from ngio.utils import NgioValueError
 from pydantic import validate_call
 from skimage.measure import label
 
-from fractal_tasks_core._threshold_segmentation_task_utils import (
+from fractal_tasks_core._threshold_segmentation_utils import (
     AnyCreateRoiTableModel,
     CreateMaskingRoiTable,
     InputChannel,
@@ -26,7 +29,7 @@ from fractal_tasks_core._threshold_segmentation_task_utils import (
     apply_pre_process,
 )
 
-logger = logging.getLogger("threshold_segmentation_task")
+logger = logging.getLogger("threshold_segmentation")
 
 
 def segmentation_function(
@@ -35,7 +38,7 @@ def segmentation_function(
     method: SegmentationConfiguration,
     pre_post_process: PrePostProcessConfiguration,
 ) -> np.ndarray:
-    """Wrap Cellpose segmentation call.
+    """Apply threshold-based segmentation to a single image chunk.
 
     Args:
         image_data (np.ndarray): Input image data
@@ -44,7 +47,7 @@ def segmentation_function(
             post-processing steps.
 
     Returns:
-        np.ndarray: Segmented image
+        np.ndarray: Segmented label image
     """
     # Pre-processing
     image_data = apply_pre_process(
@@ -121,7 +124,7 @@ def _format_label_name(label_name_template: str, channel_identifier: str) -> str
 
 
 def _skip_segmentation(channels: InputChannel, ome_zarr: OmeZarrContainer) -> bool:
-    """Check wheter to skip the current task based on the channel configuration.
+    """Check whether to skip the current task based on the channel configuration.
 
     If the channel selection specified in the channels parameter is not
     valid for the provided OME-Zarr image, this function checks the
@@ -130,7 +133,7 @@ def _skip_segmentation(channels: InputChannel, ome_zarr: OmeZarrContainer) -> bo
     should be skipped. If skip_if_missing is False, a ValueError is raised.
 
     Args:
-        channels (CellposeChannels): The channel selection configuration.
+        channels (InputChannel): The channel selection configuration.
         ome_zarr (OmeZarrContainer): The OME-Zarr container to check against.
 
     Returns:
@@ -160,7 +163,7 @@ def _skip_segmentation(channels: InputChannel, ome_zarr: OmeZarrContainer) -> bo
 
 
 @validate_call
-def cellpose_sam_segmentation_task(
+def threshold_segmentation(
     *,
     # Fractal managed parameters
     zarr_url: str,
@@ -175,18 +178,19 @@ def cellpose_sam_segmentation_task(
     create_masking_roi_table: AnyCreateRoiTableModel = SkipCreateMaskingRoiTable(),  # noqa: B008
     overwrite: bool = True,
 ) -> None:
-    """Segment an image using Cellpose with SAM model.
+    """Segment an image using intensity thresholding.
 
-    For more information, see:
-        https://github.com/MouseLand/cellpose/tree/main/cellpose
+    Pixels above the threshold are treated as foreground and connected
+    components are labelled. The threshold can be computed automatically
+    (Otsu) or set manually.
 
     Args:
-        zarr_url (str): URL to the OME-Zarr container
-        channels (CellposeChannels): Channels to use for segmentation.
-            It must contain between 1 and 3 channel identifiers.
+        zarr_url (str): URL to the OME-Zarr container.
+        channels (InputChannel): Channel to use for segmentation,
+            selected by label, wavelength ID, or index.
         label_name (str): Name of the resulting label image. Optionally, it can contain
             a placeholder "{channel_identifier}" which will be replaced by the
-            first channel identifier specified in the channels parameter.
+            channel identifier specified in the channels parameter.
         level_path (str | None): If the OME-Zarr has multiple resolution levels,
             the level to use can be specified here. If not provided, the highest
             resolution level will be used.
@@ -338,4 +342,7 @@ def cellpose_sam_segmentation_task(
 if __name__ == "__main__":
     from fractal_task_tools.task_wrapper import run_fractal_task
 
-    run_fractal_task(task_function=cellpose_sam_segmentation_task)
+    run_fractal_task(
+        task_function=threshold_segmentation,
+        logger_name=logger.name,
+    )

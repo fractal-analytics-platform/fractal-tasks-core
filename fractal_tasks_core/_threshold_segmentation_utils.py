@@ -88,18 +88,17 @@ AnyCreateRoiTableModel = Annotated[
 
 
 class InputChannel(BaseModel):
-    """Cellpose channels configuration.
+    """Input channel configuration for threshold segmentation.
 
     This model is used to select a channel by label, wavelength ID, or index.
 
     Attributes:
         mode (Literal["label", "wavelength_id", "index"]): Specifies how to
             interpret the identifier. Can be "label", "wavelength_id", or
-            "index" (must be an integer).
-        identifiers (list[str]): Unique identifiers for the channels. This can
-            be channel labels, wavelength IDs, or indices. At least one and at
-            most three identifiers must be provided.
-        skip_if_missing (bool): If True and the specified channel(s) are not found in
+            "index" (must be an integer string).
+        identifier (str): Unique identifier for the channel. This can be a
+            channel label, wavelength ID, or index.
+        skip_if_missing (bool): If True and the specified channel is not found in
             the image, the segmentation will be skipped instead of raising an error.
             Defaults to False.
     """
