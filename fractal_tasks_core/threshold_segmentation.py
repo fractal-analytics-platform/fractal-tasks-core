@@ -230,26 +230,7 @@ def threshold_segmentation(
     if iterator_configuration is None:
         iterator_configuration = IteratorConfiguration()
 
-    # Determine if we are doing 3D segmentation
-    # If so we need to set the anisotropy factor
-    if ome_zarr.is_3d:
-        axes_order = "czyx"
-        px_z, (px_y, px_x) = label.pixel_size.z, label.pixel_size.yx
-        # Pixelsize must be isotropic in XY (to some extent)
-        perc_diff_xy = abs(px_x - px_y) / max(px_x, px_y)
-        if perc_diff_xy >= 0.01:
-            logger.warning(
-                f"Non-isotropic pixel size in XY detected: px_x={px_x}, px_y={px_y}"
-            )
-        px_xy = (px_x + px_y) / 2.0
-        anisotropy = px_z / px_xy
-        logger.info(
-            "Anisotropy factor calculated: "
-            f"(px_z={px_z} / px_xy={px_xy}) = {anisotropy}"
-        )
-    else:
-        axes_order = "cyx"
-        anisotropy = None
+    axes_order = "czyx" if ome_zarr.is_3d else "cyx"
     logger.info(f"Segmenting using {axes_order=}")
 
     if iterator_configuration.masking is None:
