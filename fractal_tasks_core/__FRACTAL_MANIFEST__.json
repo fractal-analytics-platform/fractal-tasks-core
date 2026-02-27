@@ -731,6 +731,86 @@
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
     {
+      "name": "Measure Features",
+      "category": "Measurement",
+      "tags": [
+        "2D",
+        "3D",
+        "Feature Extraction"
+      ],
+      "docs_info": "### Purpose\n- Extracts region-properties features (shape and intensity) from a label image\n  using `skimage.measure.regionprops_table` and saves the result as a\n  `FeatureTable` inside the same OME-Zarr container.\n- Supports both **2D** (YX) and **3D** (ZYX) images.\n- Two built-in feature groups are available: `ShapeFeatures` and\n  `IntensityFeatures`.\n\n### Limitations\n- Requires a label image to already exist in the OME-Zarr container.\n- Processes one label image at a time.\n",
+      "type": "parallel",
+      "executable_parallel": "measure_features.py",
+      "meta_parallel": {
+        "cpus_per_task": 1,
+        "mem": 4000
+      },
+      "args_schema_parallel": {
+        "$defs": {
+          "IntensityFeatures": {
+            "description": "Intensity features extracted from regionprops.",
+            "properties": {},
+            "title": "IntensityFeatures",
+            "type": "object"
+          },
+          "ShapeFeatures": {
+            "description": "Shape features extracted from regionprops.",
+            "properties": {},
+            "title": "ShapeFeatures",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "zarr_url": {
+            "title": "Zarr Url",
+            "type": "string",
+            "description": "URL to the OME-Zarr container."
+          },
+          "label_image_name": {
+            "title": "Label Image Name",
+            "type": "string",
+            "description": "Name of the label image to analyze."
+          },
+          "output_table_name": {
+            "default": "region_props_features",
+            "title": "Output Table Name",
+            "type": "string",
+            "description": "Name for the output feature table."
+          },
+          "features": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ShapeFeatures"
+                },
+                {
+                  "$ref": "#/$defs/IntensityFeatures"
+                }
+              ]
+            },
+            "title": "Features",
+            "type": "array",
+            "description": "List of feature configurations describing which properties to extract."
+          },
+          "overwrite": {
+            "default": false,
+            "title": "Overwrite",
+            "type": "boolean",
+            "description": "Whether to overwrite an existing feature table. Defaults to False."
+          }
+        },
+        "required": [
+          "zarr_url",
+          "label_image_name",
+          "features"
+        ],
+        "type": "object",
+        "title": "MeasureFeatures"
+      },
+      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
+    },
+    {
       "name": "Calculate Registration (image-based)",
       "category": "Registration",
       "modality": "HCS",
