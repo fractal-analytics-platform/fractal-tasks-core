@@ -15,6 +15,7 @@ from fractal_tasks_core._projection_utils import DaskProjectionMethod, projectio
 
 logger = logging.getLogger("projection_hcs")
 
+
 @validate_call
 def projection_hcs(
     *,

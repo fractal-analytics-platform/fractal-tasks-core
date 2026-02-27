@@ -33,9 +33,7 @@ def projection(
         overwrite: If `True`, overwrite the task output.
     """
     if not zarr_url.endswith(".zarr"):
-        raise ValueError(
-            f"The input zarr url must end with .zarr, but got {zarr_url}"
-        )
+        raise ValueError(f"The input zarr url must end with .zarr, but got {zarr_url}")
     output_zarr_url = zarr_url.removesuffix(".zarr") + f"_{method.value}.zarr"
     return projection_core(
         input_zarr_url=zarr_url,

@@ -60,6 +60,14 @@ TASK_LIST = [
         tags=["2D", "3D", "Segmentation", "Otsu"],
         docs_info="file:task_info/threshold_segmentation.md",
     ),
+    ParallelTask(
+        name="Measure Features",
+        executable="measure_features.py",
+        meta={"cpus_per_task": 1, "mem": 4000},
+        category="Measurement",
+        tags=["2D", "3D", "Feature Extraction"],
+        docs_info="file:task_info/measure_features.md",
+    ),
     CompoundTask(
         name="Calculate Registration (image-based)",
         executable_init="image_based_registration_hcs_init.py",
