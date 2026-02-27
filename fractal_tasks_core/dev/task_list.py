@@ -42,6 +42,14 @@ TASK_LIST = [
         tags=["Preprocessing", "2D", "3D"],
         docs_info="file:task_info/illumination_correction.md",
     ),
+    ParallelTask(
+        name="Threshold Segmentation",
+        executable="threshold_segmentation.py",
+        meta={"cpus_per_task": 1, "mem": 8000},
+        category="Segmentation",
+        tags=["2D", "3D", "Segmentation", "Otsu"],
+        docs_info="file:task_info/threshold_segmentation.md",
+    ),
     CompoundTask(
         name="Calculate Registration (image-based)",
         executable_init="image_based_registration_hcs_init.py",
