@@ -16,7 +16,6 @@ def safe_sum(dask_array: da.Array, axis: int = 0) -> da.Array:
         dask_array (dask.array.Array): The input Dask array.
         axis (int, optional): The axis along which to sum the array.
             Defaults to 0.
-        **kwargs: Additional keyword arguments passed to da.sum.
 
     Returns:
         dask.array.Array: The result of the sum, safely clipped and cast
