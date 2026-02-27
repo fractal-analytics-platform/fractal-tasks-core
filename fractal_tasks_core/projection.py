@@ -18,7 +18,7 @@ logger = logging.getLogger("projection")
 @validate_call
 def projection(
     *,
-    input_zarr_url: str,
+    zarr_url: str,
     method: DaskProjectionMethod = DaskProjectionMethod.MIP,
     overwrite: bool = False,
 ) -> dict[str, Any]:
@@ -28,17 +28,17 @@ def projection(
     Note: this task stores the output in a new zarr file.
 
     Args:
-        input_zarr_url: Path or url to the individual OME-Zarr image to be processed.
+        zarr_url: Path or url to the individual OME-Zarr image to be processed.
         method: Projection method to be used. See `DaskProjectionMethod`
         overwrite: If `True`, overwrite the task output.
     """
-    if not input_zarr_url.endswith(".zarr"):
+    if not zarr_url.endswith(".zarr"):
         raise ValueError(
-            f"The input zarr url must end with .zarr, but got {input_zarr_url}"
+            f"The input zarr url must end with .zarr, but got {zarr_url}"
         )
-    output_zarr_url = input_zarr_url.removesuffix(".zarr") + f"_{method.value}.zarr"
+    output_zarr_url = zarr_url.removesuffix(".zarr") + f"_{method.value}.zarr"
     return projection_core(
-        input_zarr_url=input_zarr_url,
+        input_zarr_url=zarr_url,
         output_zarr_url=output_zarr_url,
         method=method,
         overwrite=overwrite,

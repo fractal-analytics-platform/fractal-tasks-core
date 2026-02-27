@@ -15,10 +15,10 @@
         "Preprocessing",
         "3D"
       ],
-      "docs_info": "### Purpose\n- Performs **Z-axis projection of intensity images** using a specified projection method.\n- **Generates a new OME-Zarr HCS plate** to store the projected data.\n\n### Limitations\n- Supports projections only for OME-Zarr HCS plates; other collections of OME-Zarrs are not yet supported.\n- Currently limited to data in the CZYX format.\n",
+      "docs_info": "### Purpose\n- Performs **Z-axis projection of intensity images** using a specified projection method.\n- **Generates a new OME-Zarr HCS plate** to store the projected data.\n\n### Limitations\n- Supports projections only for OME-Zarr HCS plates; other collections of OME-Zarrs are not yet supported.\n",
       "type": "compound",
       "executable_non_parallel": "copy_ome_zarr_hcs_plate.py",
-      "executable_parallel": "projection.py",
+      "executable_parallel": "projection_hcs.py",
       "meta_non_parallel": {
         "cpus_per_task": 1,
         "mem": 4000
@@ -124,12 +124,74 @@
           "init_args": {
             "$ref": "#/$defs/InitArgsMIP",
             "title": "Init Args",
-            "description": "Intialization arguments provided by `create_cellvoyager_ome_zarr_init`."
+            "description": "Intialization arguments provided by `copy_ome_zarr_hcs_plate`."
           }
         },
         "required": [
           "zarr_url",
           "init_args"
+        ],
+        "type": "object",
+        "title": "ProjectionHcs"
+      },
+      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
+    },
+    {
+      "name": "Project Image",
+      "input_types": {
+        "is_3D": true
+      },
+      "output_types": {
+        "is_3D": false
+      },
+      "category": "Image Processing",
+      "tags": [
+        "Preprocessing",
+        "3D"
+      ],
+      "docs_info": "### Purpose\n- Performs **Z-axis projection of intensity images** using a specified projection method.\n- Stores the result in a **new OME-Zarr file** next to the input.\n\n### Output location\nThe output zarr is placed alongside the input with the projection method appended to its\nname. For example, an input of `my_image.zarr` with method `mip` produces `my_image_mip.zarr`.\n\n### Limitations\n- The input zarr URL must end with `.zarr`.\n- Supports projections for any 3D OME-Zarr image (ZYX, CZYX, TCZYX, etc.).\n",
+      "type": "parallel",
+      "executable_parallel": "projection.py",
+      "meta_parallel": {
+        "cpus_per_task": 1,
+        "mem": 4000
+      },
+      "args_schema_parallel": {
+        "$defs": {
+          "DaskProjectionMethod": {
+            "description": "Registration method selection",
+            "enum": [
+              "mip",
+              "minip",
+              "meanip",
+              "sumip"
+            ],
+            "title": "DaskProjectionMethod",
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "zarr_url": {
+            "title": "Zarr Url",
+            "type": "string",
+            "description": "Path or url to the individual OME-Zarr image to be processed."
+          },
+          "method": {
+            "$ref": "#/$defs/DaskProjectionMethod",
+            "default": "mip",
+            "title": "Method",
+            "description": "Projection method to be used. See `DaskProjectionMethod`"
+          },
+          "overwrite": {
+            "default": false,
+            "title": "Overwrite",
+            "type": "boolean",
+            "description": "If `True`, overwrite the task output."
+          }
+        },
+        "required": [
+          "zarr_url"
         ],
         "type": "object",
         "title": "Projection"
