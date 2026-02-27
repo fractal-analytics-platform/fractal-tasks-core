@@ -37,7 +37,7 @@ def test_projection_basic(tmp_path: Path) -> None:
     """Basic ZYX projection: output URL, shape, pixel_size.z, ROI table."""
     store = _make_zarr(tmp_path, shape=(16, 32, 32), axes="zyx")
 
-    result = projection(input_zarr_url=str(store))
+    result = projection(zarr_url=str(store))
 
     updates = result["image_list_updates"]
     assert len(updates) == 1
@@ -71,7 +71,7 @@ def test_projection_all_axes(
     """Output z-dimension is collapsed to 1 regardless of axis order."""
     store = _make_zarr(tmp_path, shape=shape, axes=axes)
 
-    result = projection(input_zarr_url=str(store))
+    result = projection(zarr_url=str(store))
 
     zarr_url = result["image_list_updates"][0]["zarr_url"]
     img = open_ome_zarr_container(zarr_url).get_image()
@@ -91,7 +91,7 @@ def test_projection_all_methods(method: DaskProjectionMethod, tmp_path: Path) ->
     """Each projection method produces a correctly-named output zarr."""
     store = _make_zarr(tmp_path, shape=(16, 32, 32), axes="zyx")
 
-    result = projection(input_zarr_url=str(store), method=method)
+    result = projection(zarr_url=str(store), method=method)
 
     zarr_url = result["image_list_updates"][0]["zarr_url"]
     assert zarr_url == str(tmp_path / f"image_{method.value}.zarr")
@@ -105,13 +105,13 @@ def test_projection_overwrite(tmp_path: Path) -> None:
     store = _make_zarr(tmp_path, shape=(16, 32, 32), axes="zyx")
 
     # First run creates the output
-    projection(input_zarr_url=str(store), overwrite=True)
+    projection(zarr_url=str(store), overwrite=True)
     # Second run with overwrite=True must succeed
-    projection(input_zarr_url=str(store), overwrite=True)
+    projection(zarr_url=str(store), overwrite=True)
 
     # Running with overwrite=False when output already exists must raise
     with pytest.raises(NgioFileExistsError):
-        projection(input_zarr_url=str(store), overwrite=False)
+        projection(zarr_url=str(store), overwrite=False)
 
 
 def test_projection_non_zarr_url_fails(tmp_path: Path) -> None:
@@ -120,7 +120,7 @@ def test_projection_non_zarr_url_fails(tmp_path: Path) -> None:
     bad_url = str(store).removesuffix(".zarr")
 
     with pytest.raises(ValueError, match="must end with .zarr"):
-        projection(input_zarr_url=bad_url)
+        projection(zarr_url=bad_url)
 
 
 def test_projection_2d_fails(tmp_path: Path) -> None:
@@ -135,14 +135,14 @@ def test_projection_2d_fails(tmp_path: Path) -> None:
     )
 
     with pytest.raises(ValueError):
-        projection(input_zarr_url=str(store))
+        projection(zarr_url=str(store))
 
 
 def test_projection_roi_table_z_update(tmp_path: Path) -> None:
     """After projection the ROI table's z-slice is updated to (0, 1)."""
     store = _make_zarr(tmp_path, shape=(16, 32, 32), axes="zyx")
 
-    result = projection(input_zarr_url=str(store))
+    result = projection(zarr_url=str(store))
 
     zarr_url = result["image_list_updates"][0]["zarr_url"]
     out = open_ome_zarr_container(zarr_url)
