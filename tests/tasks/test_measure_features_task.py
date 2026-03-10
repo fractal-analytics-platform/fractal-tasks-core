@@ -3,7 +3,6 @@ from unittest.mock import Mock
 
 import numpy as np
 import pytest
-import zarr as za
 from ngio import create_empty_ome_zarr, open_ome_zarr_container
 
 from fractal_tasks_core._threshold_segmentation_utils import (
@@ -36,22 +35,23 @@ def _make_zarr_with_label(
     axes: str = "czyx",
     label_name: str = "nuclei",
 ) -> Path:
-    """Create an OME-Zarr with image data and a label produced by threshold_segmentation."""
+    """Create an OME-Zarr with a label produced by threshold_segmentation."""
     store = tmp_path / "image.zarr"
     kw: dict = dict(
         store=store, shape=shape, pixelsize=0.1, overwrite=False, axes_names=axes
     )
     if "z" in axes:
         kw["z_spacing"] = 0.5
-    create_empty_ome_zarr(**kw)
+    ome_zarr = create_empty_ome_zarr(**kw)
 
-    root = za.open(str(store), mode="r+")
+    image = ome_zarr.get_image()
     data = np.zeros(shape, dtype=np.uint16)
     if len(shape) == 4:  # CZYX
         data[:, :, 8:20, 8:20] = 500
     else:  # CYX
         data[:, 8:20, 8:20] = 500
-    root["0"][:] = data
+    image.set_array(data)
+    image.consolidate()
 
     threshold_segmentation(
         zarr_url=str(store),
@@ -230,14 +230,17 @@ def test_measure_features_2d(tmp_path: Path) -> None:
 def test_measure_features_overwrite_true(tmp_path: Path) -> None:
     """Running twice with overwrite=True succeeds."""
     store = _make_zarr_with_label(tmp_path)
-    kwargs = dict(
+    measure_features(
         zarr_url=str(store),
         label_image_name="nuclei",
         features=[ShapeFeatures()],
         overwrite=True,
     )
-    measure_features(**kwargs)
-    measure_features(**kwargs)
+    measure_features(zarr_url=str(store),
+        label_image_name="nuclei",
+        features=[ShapeFeatures()],
+        overwrite=True,
+    )
 
 
 def test_measure_features_overwrite_false_raises(tmp_path: Path) -> None:

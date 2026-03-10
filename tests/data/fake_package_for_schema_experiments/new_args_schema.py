@@ -19,7 +19,6 @@ import json
 from pathlib import Path
 
 import my_package
-
 from fractal_tasks_core.dev.lib_args_schemas import (
     create_schema_for_single_task,
 )

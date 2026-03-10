@@ -35,6 +35,10 @@ from fractal_tasks_core._io_models import (
     InitArgsRegistrationConsensus,
     ProfileCorrectionModel,
 )
+from fractal_tasks_core._threshold_segmentation_utils import (
+    InputChannel,
+    ThresholdConfiguration,
+)
 from fractal_tasks_core.apply_registration_to_image import (
     apply_registration_to_image,
 )
@@ -52,10 +56,6 @@ from fractal_tasks_core.image_based_registration_hcs_init import (
 from fractal_tasks_core.import_ome_zarr import import_ome_zarr
 from fractal_tasks_core.measure_features import ShapeFeatures, measure_features
 from fractal_tasks_core.projection_hcs import projection_hcs
-from fractal_tasks_core._threshold_segmentation_utils import (
-    InputChannel,
-    ThresholdConfiguration,
-)
 from fractal_tasks_core.threshold_segmentation import threshold_segmentation
 
 # ---------------------------------------------------------------------------

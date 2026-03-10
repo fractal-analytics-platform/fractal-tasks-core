@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from fractal_tasks_core._threshold_segmentation_utils import (
     CreateMaskingRoiTable,
     OtsuConfiguration,
@@ -7,7 +8,6 @@ from fractal_tasks_core._threshold_segmentation_utils import (
     segmentation_function,
 )
 from fractal_tasks_core.threshold_segmentation import _format_label_name
-
 
 # ---------------------------------------------------------------------------
 # ThresholdConfiguration / OtsuConfiguration

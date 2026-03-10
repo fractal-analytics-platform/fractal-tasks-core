@@ -2,7 +2,6 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-import zarr as za
 from fractal_tasks_utils.segmentation._transforms import SegmentationTransformConfig
 from fractal_tasks_utils.transforms import GaussianBlurConfig, SizeFilterConfig
 from ngio import create_empty_ome_zarr, open_ome_zarr_container
@@ -28,7 +27,7 @@ def _make_czyx_zarr(
 ) -> Path:
     """Create a CZYX OME-Zarr with a bright rectangular object."""
     store = tmp_path / f"{name}.zarr"
-    create_empty_ome_zarr(
+    ome_zarr = create_empty_ome_zarr(
         store=store,
         shape=shape,
         pixelsize=0.1,
@@ -36,10 +35,12 @@ def _make_czyx_zarr(
         overwrite=False,
         axes_names="czyx",
     )
-    root = za.open(str(store), mode="r+")
+    image = ome_zarr.get_image()
+
     data = np.zeros(shape, dtype=np.uint16)
     data[:, :, 10:20, 10:20] = bright_value
-    root["0"][:] = data
+    image.set_array(data)
+    image.consolidate()
     return store
 
 
@@ -51,17 +52,18 @@ def _make_cyx_zarr(
 ) -> Path:
     """Create a CYX OME-Zarr (2D) with a bright rectangular object."""
     store = tmp_path / f"{name}.zarr"
-    create_empty_ome_zarr(
+    ome_zarr = create_empty_ome_zarr(
         store=store,
         shape=shape,
         pixelsize=0.1,
         overwrite=False,
         axes_names="cyx",
     )
-    root = za.open(str(store), mode="r+")
+    image = ome_zarr.get_image()
     data = np.zeros(shape, dtype=np.uint16)
     data[:, 10:20, 10:20] = bright_value
-    root["0"][:] = data
+    image.set_array(data)
+    image.consolidate()
     return store
 
 
@@ -185,15 +187,16 @@ def test_missing_channel_raises(tmp_path: Path) -> None:
 def test_overwrite_true(tmp_path: Path) -> None:
     """Running twice with overwrite=True both succeed."""
     store = _make_czyx_zarr(tmp_path)
-    kwargs = dict(
-        zarr_url=str(store),
-        channels=InputChannel(mode="index", identifier="0"),
+    threshold_segmentation(zarr_url=str(store),
+                           channels=InputChannel(mode="index", identifier="0"),
         label_name="nuclei",
         method=ThresholdConfiguration(threshold=500),
-        overwrite=True,
-    )
-    threshold_segmentation(**kwargs)
-    threshold_segmentation(**kwargs)
+        overwrite=True,)
+    threshold_segmentation(zarr_url=str(store),
+                           channels=InputChannel(mode="index", identifier="0"),
+        label_name="nuclei",
+        method=ThresholdConfiguration(threshold=500),
+        overwrite=True)
 
 
 def test_overwrite_false_raises(tmp_path: Path) -> None:
