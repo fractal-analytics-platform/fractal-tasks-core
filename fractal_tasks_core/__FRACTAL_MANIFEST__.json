@@ -410,8 +410,8 @@
             "title": "CreateMaskingRoiTable",
             "type": "object"
           },
-          "GaussianFilter": {
-            "description": "Gaussian pre-processing configuration.",
+          "GaussianBlurConfig": {
+            "description": "Configuration for Gaussian blur transformation.",
             "properties": {
               "type": {
                 "const": "gaussian",
@@ -430,7 +430,40 @@
                 "type": "number"
               }
             },
-            "title": "GaussianFilter",
+            "title": "GaussianBlurConfig",
+            "type": "object"
+          },
+          "HistogramEqualizationConfig": {
+            "description": "Configuration for Contrast Limited Adaptive Histogram Equalization (CLAHE).",
+            "properties": {
+              "type": {
+                "const": "histogram",
+                "default": "histogram",
+                "title": "Type",
+                "type": "string"
+              },
+              "kernel_size_xy": {
+                "title": "Kernel Size Xy",
+                "type": "integer"
+              },
+              "kernel_size_z": {
+                "title": "Kernel Size Z",
+                "type": "integer"
+              },
+              "clip_limit": {
+                "default": 0.01,
+                "maximum": 1,
+                "minimum": 0,
+                "title": "Clip Limit",
+                "type": "number"
+              },
+              "nbins": {
+                "default": 256,
+                "title": "Nbins",
+                "type": "integer"
+              }
+            },
+            "title": "HistogramEqualizationConfig",
             "type": "object"
           },
           "InputChannel": {
@@ -497,8 +530,8 @@
             "title": "MaskingConfiguration",
             "type": "object"
           },
-          "MedianFilter": {
-            "description": "Median filter pre-processing configuration.",
+          "MedianFilterConfig": {
+            "description": "Configuration for Median filter transformation.",
             "properties": {
               "type": {
                 "const": "median",
@@ -517,7 +550,7 @@
                 "type": "integer"
               }
             },
-            "title": "MedianFilter",
+            "title": "MedianFilterConfig",
             "type": "object"
           },
           "OtsuConfiguration": {
@@ -533,24 +566,28 @@
             "title": "OtsuConfiguration",
             "type": "object"
           },
-          "PrePostProcessConfiguration": {
+          "SegmentationTransformConfig": {
             "description": "Configuration for pre- and post-processing steps.",
             "properties": {
               "pre_process": {
                 "items": {
                   "discriminator": {
                     "mapping": {
-                      "gaussian": "#/$defs/GaussianFilter",
-                      "median": "#/$defs/MedianFilter"
+                      "gaussian": "#/$defs/GaussianBlurConfig",
+                      "histogram": "#/$defs/HistogramEqualizationConfig",
+                      "median": "#/$defs/MedianFilterConfig"
                     },
                     "propertyName": "type"
                   },
                   "oneOf": [
                     {
-                      "$ref": "#/$defs/GaussianFilter"
+                      "$ref": "#/$defs/GaussianBlurConfig"
                     },
                     {
-                      "$ref": "#/$defs/MedianFilter"
+                      "$ref": "#/$defs/MedianFilterConfig"
+                    },
+                    {
+                      "$ref": "#/$defs/HistogramEqualizationConfig"
                     }
                   ]
                 },
@@ -561,13 +598,13 @@
                 "items": {
                   "discriminator": {
                     "mapping": {
-                      "size_filter": "#/$defs/SizeFilter"
+                      "size_filter": "#/$defs/SizeFilterConfig"
                     },
                     "propertyName": "type"
                   },
                   "oneOf": [
                     {
-                      "$ref": "#/$defs/SizeFilter"
+                      "$ref": "#/$defs/SizeFilterConfig"
                     }
                   ]
                 },
@@ -575,11 +612,11 @@
                 "type": "array"
               }
             },
-            "title": "PrePostProcessConfiguration",
+            "title": "SegmentationTransformConfig",
             "type": "object"
           },
-          "SizeFilter": {
-            "description": "Size filter post-processing configuration.",
+          "SizeFilterConfig": {
+            "description": "Configuration for size filter post-processing.",
             "properties": {
               "type": {
                 "const": "size_filter",
@@ -596,7 +633,7 @@
             "required": [
               "min_size"
             ],
-            "title": "SizeFilter",
+            "title": "SizeFilterConfig",
             "type": "object"
           },
           "SkipCreateMaskingRoiTable": {
@@ -684,13 +721,13 @@
             "description": "Configuration for the segmentation iterator. This can be used to specify masking and/or a ROI table."
           },
           "pre_post_process": {
-            "$ref": "#/$defs/PrePostProcessConfiguration",
+            "$ref": "#/$defs/SegmentationTransformConfig",
             "default": {
               "pre_process": [],
               "post_process": []
             },
             "title": "Pre Post Process",
-            "description": "Configuration for pre- and post-processing steps."
+            "description": "Configuration for pre- and post-processing transforms applied by the iterator."
           },
           "create_masking_roi_table": {
             "default": {
@@ -749,13 +786,27 @@
         "$defs": {
           "IntensityFeatures": {
             "description": "Intensity features extracted from regionprops.",
-            "properties": {},
+            "properties": {
+              "type": {
+                "const": "IntensityFeatures",
+                "default": "IntensityFeatures",
+                "title": "Type",
+                "type": "string"
+              }
+            },
             "title": "IntensityFeatures",
             "type": "object"
           },
           "ShapeFeatures": {
             "description": "Shape features extracted from regionprops.",
-            "properties": {},
+            "properties": {
+              "type": {
+                "const": "ShapeFeatures",
+                "default": "ShapeFeatures",
+                "title": "Type",
+                "type": "string"
+              }
+            },
             "title": "ShapeFeatures",
             "type": "object"
           }
@@ -780,7 +831,14 @@
           },
           "features": {
             "items": {
-              "anyOf": [
+              "discriminator": {
+                "mapping": {
+                  "IntensityFeatures": "#/$defs/IntensityFeatures",
+                  "ShapeFeatures": "#/$defs/ShapeFeatures"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
                 {
                   "$ref": "#/$defs/ShapeFeatures"
                 },
@@ -802,8 +860,7 @@
         },
         "required": [
           "zarr_url",
-          "label_image_name",
-          "features"
+          "label_image_name"
         ],
         "type": "object",
         "title": "MeasureFeatures"
