@@ -570,6 +570,7 @@
             "description": "Configuration for pre- and post-processing steps.",
             "properties": {
               "pre_process": {
+                "default": [],
                 "items": {
                   "discriminator": {
                     "mapping": {
@@ -595,6 +596,7 @@
                 "type": "array"
               },
               "post_process": {
+                "default": [],
                 "items": {
                   "discriminator": {
                     "mapping": {
@@ -830,6 +832,14 @@
             "description": "Name for the output feature table."
           },
           "features": {
+            "default": [
+              {
+                "type": "ShapeFeatures"
+              },
+              {
+                "type": "IntensityFeatures"
+              }
+            ],
             "items": {
               "discriminator": {
                 "mapping": {
