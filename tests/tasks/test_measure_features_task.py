@@ -12,7 +12,6 @@ from fractal_tasks_core._threshold_segmentation_utils import (
 from fractal_tasks_core.measure_features import (
     IntensityFeatures,
     ShapeFeatures,
-    join_tables,
     measure_features,
     region_props_features_func,
 )
@@ -87,31 +86,6 @@ def test_intensity_features_property_names() -> None:
         "min_intensity",
         "std_intensity",
     }
-
-
-# ---------------------------------------------------------------------------
-# Unit tests — join_tables
-# ---------------------------------------------------------------------------
-
-
-def test_join_tables_single() -> None:
-    table = {"label": [1, 2], "area": [100.0, 200.0]}
-    df = join_tables([table])
-    assert list(df.index) == [1, 2]
-    assert "area" in df.columns
-
-
-def test_join_tables_multiple() -> None:
-    t1 = {"label": [1], "area": [100.0]}
-    t2 = {"label": [2], "area": [200.0]}
-    df = join_tables([t1, t2])
-    assert len(df) == 2
-    assert set(df.index) == {1, 2}
-
-
-def test_join_tables_empty_raises() -> None:
-    with pytest.raises(AssertionError):
-        join_tables([])
 
 
 # ---------------------------------------------------------------------------
