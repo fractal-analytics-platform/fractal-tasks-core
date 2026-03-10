@@ -1,5 +1,5 @@
 """
-Integration test: full image-processing pipeline.
+Integration test: full HCS image-processing pipeline.
 
 Pipeline under test:
   1. Create synthetic 2-acquisition plate (no ROI tables)
@@ -10,7 +10,9 @@ Pipeline under test:
        b. calculate_registration_image_based
        c. find_registration_consensus
        d. apply_registration_to_image
-  5. copy_ome_zarr_hcs_plate + projection  (MIP on acquisition 0)
+  5. copy_ome_zarr_hcs_plate + projection_hcs  (MIP on acquisition 0)
+  6. threshold_segmentation → nuclei label on acquisition 0
+  7. measure_features       → region-properties feature table on acquisition 0
 
 All fixtures are built synthetically with ngio — no Zenodo downloads required.
 The flatfield PNGs are also created synthetically in tmp_path.
@@ -48,7 +50,13 @@ from fractal_tasks_core.image_based_registration_hcs_init import (
     image_based_registration_hcs_init,
 )
 from fractal_tasks_core.import_ome_zarr import import_ome_zarr
+from fractal_tasks_core.measure_features import ShapeFeatures, measure_features
 from fractal_tasks_core.projection_hcs import projection_hcs
+from fractal_tasks_core._threshold_segmentation_utils import (
+    InputChannel,
+    ThresholdConfiguration,
+)
+from fractal_tasks_core.threshold_segmentation import threshold_segmentation
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -299,3 +307,33 @@ def test_full_pipeline(tmp_path: Path) -> None:
         "Projected image must have z=1"
     )
     assert proj_img.get_array().any(), "Projected image must be non-empty"
+
+    # ------------------------------------------------------------------
+    # 6. Threshold segmentation — nuclei on acquisition 0 (3D, post-registration)
+    # ------------------------------------------------------------------
+    threshold_segmentation(
+        zarr_url=zarr_url_0,
+        channels=InputChannel(mode="wavelength_id", identifier=_CHANNELS[0]),
+        label_name="nuclei",
+        method=ThresholdConfiguration(threshold=500),
+        overwrite=True,
+    )
+
+    ome0 = open_ome_zarr_container(zarr_url_0)
+    assert "nuclei" in ome0.list_labels(), (
+        "threshold_segmentation must create a 'nuclei' label"
+    )
+
+    # ------------------------------------------------------------------
+    # 7. Measure features — region-properties on the nuclei label
+    # ------------------------------------------------------------------
+    measure_features(
+        zarr_url=zarr_url_0,
+        label_image_name="nuclei",
+        features=[ShapeFeatures()],
+    )
+
+    ome0 = open_ome_zarr_container(zarr_url_0)
+    assert "region_props_features" in ome0.list_tables(), (
+        "measure_features must create a 'region_props_features' table"
+    )

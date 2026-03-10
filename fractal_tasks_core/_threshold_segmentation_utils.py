@@ -1,4 +1,4 @@
-"""Pydantic models for advanced iterator configuration."""
+"""Pydantic models and utilities specific to threshold segmentation."""
 
 import logging
 from typing import Annotated, Literal
@@ -6,44 +6,10 @@ from typing import Annotated, Literal
 import numpy as np
 from ngio import ChannelSelectionModel
 from pydantic import BaseModel, Field
-from skimage.filters import gaussian, median, threshold_otsu
+from skimage.filters import threshold_otsu
 from skimage.measure import label
-from skimage.morphology import remove_small_objects
 
 logger = logging.getLogger("threshold_segmentation_task_utils")
-
-
-class MaskingConfiguration(BaseModel):
-    """Masking configuration.
-
-    Attributes:
-        mode (Literal["Table Name", "Label Name"]): Mode of masking to be applied.
-            If "Table Name", the identifier refers to a masking table name.
-            If "Label Name", the identifier refers to a label image name.
-        identifier (str | None): Name of the masking table or label image
-            depending on the mode.
-    """
-
-    mode: Literal["Table Name", "Label Name"] = "Table Name"
-    identifier: str | None = None
-
-
-class IteratorConfiguration(BaseModel):
-    """Advanced Masking configuration.
-
-    Attributes:
-        masking (MaskingConfiguration | None): If set, the segmentation will be
-            performed only within the confines of the specified mask. A mask can be
-            specified either by a label image or a Masking ROI table.
-        roi_table (str | None): Name of a ROI table. If set, the segmentation
-            will be applied to each ROI in the table individually. This option can
-            be combined with masking.
-    """
-
-    masking: MaskingConfiguration | None = Field(
-        default=None, title="Masking Iterator Configuration"
-    )
-    roi_table: str | None = Field(default=None, title="Iterate Over ROIs")
 
 
 class CreateMaskingRoiTable(BaseModel):
@@ -109,10 +75,10 @@ class InputChannel(BaseModel):
     skip_if_missing: bool = False
 
     def to_channel_selection_models(self) -> ChannelSelectionModel:
-        """Convert to list of ChannelSelectionModel.
+        """Convert to ChannelSelectionModel.
 
         Returns:
-            list[ChannelSelectionModel]: List of ChannelSelectionModel.
+            ChannelSelectionModel: Channel selection model.
         """
         return ChannelSelectionModel(identifier=self.identifier, mode=self.mode)
 
@@ -122,14 +88,14 @@ class ThresholdConfiguration(BaseModel):
 
     Attributes:
         method (Literal["threshold"]): Discriminator for threshold-based segmentation.
-        threshold_value (float): Threshold value to apply for segmentation.
+        threshold (float): Threshold value to apply for segmentation.
     """
 
     method: Literal["threshold"] = "threshold"
     threshold: float
 
     def threshold_value(self, image: np.ndarray) -> float:
-        """Validate that the threshold value is non-negative."""
+        """Return the fixed threshold value."""
         return self.threshold
 
 
@@ -154,216 +120,24 @@ SegmentationConfiguration = Annotated[
 
 
 def segmentation_function(
-    *,
-    image_data: np.ndarray,
+    input_image: np.ndarray,
     method: SegmentationConfiguration,
-    pre_post_process: "PrePostProcessConfiguration",
 ) -> np.ndarray:
     """Apply threshold-based segmentation to a single image chunk.
 
+    Pre- and post-processing transforms are handled by the segmentation iterator
+    and should be configured via SegmentationTransformConfig.
+
     Args:
-        image_data (np.ndarray): Input image data
+        input_image (np.ndarray): Input image data (after pre-processing transforms).
         method (SegmentationConfiguration): Configuration for the segmentation method.
-        pre_post_process (PrePostProcessConfiguration): Configuration for pre- and
-            post-processing steps.
 
     Returns:
-        np.ndarray: Segmented label image
+        np.ndarray: Segmented label image with a leading channel dimension.
     """
-    # Pre-processing
-    image_data = apply_pre_process(
-        image=image_data,
-        pre_process_steps=pre_post_process.pre_process,
-    )
-    threshold_value = method.threshold_value(image_data)
+    threshold_value = method.threshold_value(input_image)
     logger.info(f"Calculated threshold value: {threshold_value}")
-    masks = image_data > threshold_value
+    masks = input_image > threshold_value
     label_img = label(masks)
     assert isinstance(label_img, np.ndarray), "Label image must be a numpy array"
-
-    # Post-processing
-    masks = apply_post_process(
-        labels=label_img,
-        post_process_steps=pre_post_process.post_process,
-    )
-    masks = np.expand_dims(masks, axis=0).astype(np.uint32)
-    return masks
-
-
-### Pre and post-processing configurations for threshold-based segmentation tasks
-
-
-class GaussianFilter(BaseModel):
-    """Gaussian pre-processing configuration.
-
-    Attributes:
-        type (Literal["gaussian"]): Type of pre-processing.
-        sigma_xy (float): Standard deviation for Gaussian kernel in XY plane.
-        sigma_z (float | None): Standard deviation for Gaussian kernel in Z axis.
-            If not specified, no smoothing is applied in Z axis.
-    """
-
-    type: Literal["gaussian"] = "gaussian"
-    sigma_xy: float = Field(default=2.0, gt=0)
-    sigma_z: float | None = None
-
-    def apply(self, image: np.ndarray) -> np.ndarray:
-        """Apply Gaussian filter to the image.
-
-        Args:
-            image (np.ndarray): Input image.
-
-        Returns:
-            np.ndarray: Filtered image.
-        """
-        if image.ndim == 2:
-            if self.sigma_z is not None:
-                logger.warning(
-                    "sigma_z is specified but the input image is 2D. Ignoring sigma_z."
-                )
-            return gaussian(image, sigma=self.sigma_xy)
-        elif image.ndim == 3:
-            sigma = (
-                self.sigma_z if self.sigma_z is not None else 0,
-                self.sigma_xy,
-                self.sigma_xy,
-            )
-            return gaussian(image, sigma=sigma)  # type: ignore[call-arg] is correct
-        elif image.ndim == 4:
-            sigma = (
-                0,
-                self.sigma_z if self.sigma_z is not None else 0,
-                self.sigma_xy,
-                self.sigma_xy,
-            )
-            return gaussian(image, sigma=sigma)  # type: ignore[call-arg] is correct
-        else:
-            raise ValueError("Input to Gaussian filter image must be 2D, 3D, or 4D.")
-
-
-class MedianFilter(BaseModel):
-    """Median filter pre-processing configuration.
-
-    Attributes:
-        type (Literal["median"]): Type of pre-processing.
-        size_xy (int): Size in pixels of the median filter in XY plane.
-        size_z (int | None): Size in pixels of the median filter in Z axis.
-            If not specified, no filtering is applied in Z axis.
-    """
-
-    type: Literal["median"] = "median"
-    size_xy: int = Field(default=2, gt=0)
-    size_z: int | None = None
-
-    def apply(self, image: np.ndarray) -> np.ndarray:
-        """Apply Median filter to the image.
-
-        Args:
-            image (np.ndarray): Input image.
-
-        Returns:
-            np.ndarray: Filtered image.
-        """
-        if image.ndim == 2:
-            if self.size_z is not None:
-                logger.warning(
-                    "size_z is specified but the input image is 2D. Ignoring size_z."
-                )
-            return median(image, footprint=np.ones((self.size_xy, self.size_xy)))
-        elif image.ndim == 3:
-            size = (
-                self.size_z if self.size_z is not None else 1,
-                self.size_xy,
-                self.size_xy,
-            )
-            return median(image, footprint=np.ones(size))
-        elif image.ndim == 4:
-            size = (
-                1,
-                self.size_z if self.size_z is not None else 1,
-                self.size_xy,
-                self.size_xy,
-            )
-            return median(image, footprint=np.ones(size))
-        else:
-            raise ValueError("Input to median filter image must be 2D, 3D, or 4D.")
-
-
-PreProcess = Annotated[GaussianFilter | MedianFilter, Field(discriminator="type")]
-
-
-class SizeFilter(BaseModel):
-    """Size filter post-processing configuration.
-
-    Attributes:
-        type (Literal["size_filter"]): Type of post-processing.
-        min_size (int): Minimum size in pixels for objects to keep.
-    """
-
-    type: Literal["size_filter"] = "size_filter"
-    min_size: int = Field(ge=0)
-
-    def apply(self, labels: np.ndarray) -> np.ndarray:
-        """Apply size filtering to the labeled image.
-
-        Args:
-            labels (np.ndarray): Labeled image.
-
-        Returns:
-            np.ndarray: Size-filtered labeled image.
-        """
-        return remove_small_objects(labels, max_size=self.min_size)
-
-
-PostProcess = Annotated[
-    SizeFilter,
-    Field(discriminator="type"),
-]
-
-
-class PrePostProcessConfiguration(BaseModel):
-    """Configuration for pre- and post-processing steps.
-
-    Attributes:
-        pre_process (list[PreProcess]): List of pre-processing steps.
-        post_process (list[PostProcess]): List of post-processing steps.
-    """
-
-    pre_process: list[PreProcess] = Field(default_factory=list)
-    post_process: list[PostProcess] = Field(default_factory=list)
-
-
-def apply_pre_process(
-    image: np.ndarray,
-    pre_process_steps: list[PreProcess],
-) -> np.ndarray:
-    """Apply pre-processing steps to the image.
-
-    Args:
-        image (np.ndarray): Input image.
-        pre_process_steps (list[PreProcess]): List of pre-processing steps.
-
-    Returns:
-        np.ndarray: Pre-processed image.
-    """
-    for step in pre_process_steps:
-        image = step.apply(image)
-    return image
-
-
-def apply_post_process(
-    labels: np.ndarray,
-    post_process_steps: list[PostProcess],
-) -> np.ndarray:
-    """Apply post-processing steps to the labeled image.
-
-    Args:
-        labels (np.ndarray): Labeled image.
-        post_process_steps (list[PostProcess]): List of post-processing steps.
-
-    Returns:
-        np.ndarray: Post-processed labeled image.
-    """
-    for step in post_process_steps:
-        labels = step.apply(labels)
-    return labels
+    return np.expand_dims(label_img, axis=0).astype(np.uint32)
