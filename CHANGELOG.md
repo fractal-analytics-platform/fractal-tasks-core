@@ -20,6 +20,9 @@
     * Remove `Cellpose Segmentation` task.
     * Remove `Napari Workflows Wrapper` task.
     * Remove `Cellvoyager to OME-Zarr` and `Cellvoyager Multiplexing to OME-Zarr` tasks.
+    * Add new non-hcs `Projection` task.
+    * Add new `Thresholding` segmentation task.
+    * Add new `Measurement` task.
 
 # 1.6.0
 * Tests

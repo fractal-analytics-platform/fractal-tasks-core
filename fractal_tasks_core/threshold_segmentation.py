@@ -34,9 +34,9 @@ def _format_label_name(label_name_template: str, channel_identifier: str) -> str
 
     Args:
         label_name_template (str): The template for the label name. This
-        might contain a placeholder "{channel_identifier}" which will be replaced
-        by the channel identifier or no placeholder at all,
-        in which case the channel identifier will be ignored.
+            might contain a placeholder "{channel_identifier}" which will be
+            replaced by the channel identifier or no placeholder at all,
+            in which case the channel identifier will be ignored.
         channel_identifier (str): The channel identifier to insert into the
             label name template.
 
