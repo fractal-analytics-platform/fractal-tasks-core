@@ -15,6 +15,7 @@ dependencies = [
     "dask>=2023.1.0,<2025.11.0",
     "pydantic>2.11.0,<=2.12.0",
     "ngio>=0.5.6,<0.6.0",
+    "fractal-tasks-utils==0.1.1",
     "fractal-task-tools==0.4.0a7",
     "scikit-image>=0.19",
     "image_registration>=0.2.9",
@@ -61,7 +62,7 @@ platforms = ["linux-64", "osx-arm64", "win-64"]
 
 [tool.pixi.pypi-dependencies]
 fractal-tasks-core = { path = ".", editable = true }
-fractal-tasks-utils = { path = "../fractal-tasks-utils", editable = true }
+# fractal-tasks-utils = { path = "../fractal-tasks-utils", editable = true }
 
 [tool.pixi.environments]
 default = { solve-group = "default" }
