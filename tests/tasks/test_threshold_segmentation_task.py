@@ -27,9 +27,11 @@ def _make_czyx_zarr(
 ) -> Path:
     """Create a CZYX OME-Zarr with a bright rectangular object."""
     store = tmp_path / f"{name}.zarr"
+    chunks = tuple(max(s // 2, 1) for s in shape)
     ome_zarr = create_empty_ome_zarr(
         store=store,
         shape=shape,
+        chunks=chunks,
         pixelsize=0.1,
         z_spacing=0.5,
         overwrite=False,
@@ -52,9 +54,11 @@ def _make_cyx_zarr(
 ) -> Path:
     """Create a CYX OME-Zarr (2D) with a bright rectangular object."""
     store = tmp_path / f"{name}.zarr"
+    chunks = tuple(max(s // 2, 1) for s in shape)
     ome_zarr = create_empty_ome_zarr(
         store=store,
         shape=shape,
+        chunks=chunks,
         pixelsize=0.1,
         overwrite=False,
         axes_names="cyx",
@@ -187,16 +191,20 @@ def test_missing_channel_raises(tmp_path: Path) -> None:
 def test_overwrite_true(tmp_path: Path) -> None:
     """Running twice with overwrite=True both succeed."""
     store = _make_czyx_zarr(tmp_path)
-    threshold_segmentation(zarr_url=str(store),
-                           channels=InputChannel(mode="index", identifier="0"),
+    threshold_segmentation(
+        zarr_url=str(store),
+        channels=InputChannel(mode="index", identifier="0"),
         label_name="nuclei",
         method=ThresholdConfiguration(threshold=500),
-        overwrite=True,)
-    threshold_segmentation(zarr_url=str(store),
-                           channels=InputChannel(mode="index", identifier="0"),
+        overwrite=True,
+    )
+    threshold_segmentation(
+        zarr_url=str(store),
+        channels=InputChannel(mode="index", identifier="0"),
         label_name="nuclei",
         method=ThresholdConfiguration(threshold=500),
-        overwrite=True)
+        overwrite=True,
+    )
 
 
 def test_overwrite_false_raises(tmp_path: Path) -> None:

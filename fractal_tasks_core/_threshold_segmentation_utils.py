@@ -140,4 +140,5 @@ def segmentation_function(
     masks = input_image > threshold_value
     label_img = label(masks)
     assert isinstance(label_img, np.ndarray), "Label image must be a numpy array"
-    return np.expand_dims(label_img, axis=0).astype(np.uint32)
+    label_img = label_img.astype(np.uint32)
+    return label_img

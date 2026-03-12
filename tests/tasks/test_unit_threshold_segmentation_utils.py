@@ -41,7 +41,7 @@ def test_segmentation_function_manual_threshold() -> None:
         input_image=img,
         method=ThresholdConfiguration(threshold=50.0),
     )
-    assert result.shape == (1, 4, 32, 32)
+    assert result.shape == (4, 32, 32)
     assert result.dtype == np.uint32
     assert result.max() > 0
 
@@ -54,7 +54,7 @@ def test_segmentation_function_otsu() -> None:
         input_image=img,
         method=OtsuConfiguration(),
     )
-    assert result.shape == (1, 32, 32)
+    assert result.shape == (32, 32)
     assert result.max() > 0
 
 

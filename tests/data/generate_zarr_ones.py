@@ -6,6 +6,7 @@ import dask.array as da
 import numpy as np
 import pandas as pd
 import zarr
+
 from fractal_tasks_core.roi import prepare_FOV_ROI_table
 from fractal_tasks_core.tables import write_table
 

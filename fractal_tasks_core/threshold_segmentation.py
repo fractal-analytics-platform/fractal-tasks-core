@@ -162,9 +162,7 @@ def threshold_segmentation(
 
     # Run the core segmentation loop
     compute_segmentation(
-        func=lambda x: segmentation_function(
-            input_image=x, method=method
-        ),
+        func=lambda x: segmentation_function(input_image=x, method=method),
         iterator=iterator,
     )
     logger.info(f"label {label_name} successfully created at {zarr_url}")

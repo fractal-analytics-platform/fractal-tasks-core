@@ -1,5 +1,6 @@
 # Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """Measure region-properties features from OME-Zarr label images."""
+
 import logging
 from typing import Annotated, Literal
 
@@ -18,6 +19,7 @@ logger = logging.getLogger("measure_features")
 
 class ShapeFeatures(BaseModel):
     """Shape features extracted from regionprops."""
+
     type: Literal["ShapeFeatures"] = "ShapeFeatures"
 
     @property
@@ -33,6 +35,7 @@ class ShapeFeatures(BaseModel):
 
 class IntensityFeatures(BaseModel):
     """Intensity features extracted from regionprops."""
+
     type: Literal["IntensityFeatures"] = "IntensityFeatures"
 
     @property
@@ -44,10 +47,12 @@ class IntensityFeatures(BaseModel):
             "std_intensity",
         ]
 
+
 SupportedFeatures = Annotated[
     ShapeFeatures | IntensityFeatures,
     Field(discriminator="type"),
 ]
+
 
 def region_props_features_func(
     image: np.ndarray,

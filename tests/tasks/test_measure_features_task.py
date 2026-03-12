@@ -210,7 +210,8 @@ def test_measure_features_overwrite_true(tmp_path: Path) -> None:
         features=[ShapeFeatures()],
         overwrite=True,
     )
-    measure_features(zarr_url=str(store),
+    measure_features(
+        zarr_url=str(store),
         label_image_name="nuclei",
         features=[ShapeFeatures()],
         overwrite=True,
