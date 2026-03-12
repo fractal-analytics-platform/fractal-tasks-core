@@ -24,3 +24,5 @@ site
 # In the future but for now we can ignore it
 pixi.lock
 .claude
+
+*.zarr
