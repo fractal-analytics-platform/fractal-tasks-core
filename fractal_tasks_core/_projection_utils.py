@@ -133,13 +133,6 @@ class DaskProjectionMethod(Enum):
         Returns:
             dask.array.Array: The resulting Dask array after applying the
                 projection.
-
-        Example:
-            >>> array = da.random.random((1000, 1000), chunks=(100, 100))
-            >>> method = DaskProjectionMethod.MAX
-            >>> result = method.apply(array, axis=0)
-            >>> computed_result = result.compute()
-            >>> print(computed_result)
         """
         # Map the Enum values to the actual Dask array methods
         method_map = {
