@@ -5,17 +5,17 @@ import numpy as np
 import pytest
 from ngio import create_empty_ome_zarr, open_ome_zarr_container
 
+from fractal_tasks_core._measure_features_utils import (
+    AdvancedOptions,
+    IntensityFeatures,
+    ShapeFeatures,
+    region_props_features_func,
+)
 from fractal_tasks_core._threshold_segmentation_utils import (
     InputChannel,
     ThresholdConfiguration,
 )
-from fractal_tasks_core.measure_features import (
-    AdvancedOptions,
-    IntensityFeatures,
-    ShapeFeatures,
-    measure_features,
-    region_props_features_func,
-)
+from fractal_tasks_core.measure_features import measure_features
 from fractal_tasks_core.threshold_segmentation import threshold_segmentation
 
 # ---------------------------------------------------------------------------
@@ -169,10 +169,10 @@ def test_region_props_features_func_intensity_features() -> None:
 
 
 def test_region_props_features_func_wrong_ndim_raises() -> None:
-    """Image without channel dim (ndim=2) raises AssertionError."""
+    """Image without channel dim (ndim=2) raises ValueError."""
     image = np.zeros((32, 32), dtype=np.float32)
     label_arr = np.zeros((32, 32), dtype=np.int32)
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         region_props_features_func(
             image=image,
             label=label_arr,
@@ -182,10 +182,10 @@ def test_region_props_features_func_wrong_ndim_raises() -> None:
 
 
 def test_region_props_features_func_multichannel_label_raises() -> None:
-    """Label with C > 1 raises AssertionError."""
+    """Label with C > 1 raises ValueError."""
     image = np.zeros((32, 32, 2), dtype=np.float32)
     label_arr = np.zeros((32, 32, 2), dtype=np.int32)
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         region_props_features_func(
             image=image,
             label=label_arr,

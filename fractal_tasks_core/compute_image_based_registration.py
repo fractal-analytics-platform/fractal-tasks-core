@@ -10,8 +10,8 @@ from ngio import open_ome_zarr_container
 from pydantic import validate_call
 from skimage.exposure import rescale_intensity
 
-from fractal_tasks_core._io_models import InitArgsRegistration
 from fractal_tasks_core._registration_utils import (
+    InitArgsRegistration,
     RegistrationMethod,
     add_translation_to_roi,
 )

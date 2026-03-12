@@ -10,7 +10,7 @@ from ngio import Roi, open_ome_zarr_container
 from ngio.tables import GenericRoiTable, RoiTable
 from pydantic import validate_call
 
-from fractal_tasks_core._io_models import InitArgsRegistrationConsensus
+from fractal_tasks_core._registration_utils import InitArgsRegistrationConsensus
 
 logger = logging.getLogger("compute_registration_consensus")
 

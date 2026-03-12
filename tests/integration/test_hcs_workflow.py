@@ -30,10 +30,10 @@ from ngio import (
 )
 from skimage.io import imsave
 
-from fractal_tasks_core._io_models import (
+from fractal_tasks_core._illumination_correction_utils import ProfileCorrectionModel
+from fractal_tasks_core._registration_utils import (
     InitArgsRegistration,
     InitArgsRegistrationConsensus,
-    ProfileCorrectionModel,
 )
 from fractal_tasks_core._threshold_segmentation_utils import (
     InputChannel,

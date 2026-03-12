@@ -5,6 +5,7 @@ from typing import Any
 import dask.array as da
 import numpy as np
 from ngio import Image, open_ome_zarr_container
+from pydantic import BaseModel
 
 logger = logging.getLogger("projection_utils")
 
@@ -257,3 +258,20 @@ def projection_core(
         ]
     )
     return image_list_update_dict
+
+
+class InitArgsMIP(BaseModel):
+    """
+    Init Args for MIP task.
+
+    Attributes:
+        origin_url: Path to the zarr_url with the 3D data
+        method: Projection method to be used. See `DaskProjectionMethod`
+        overwrite: If `True`, overwrite the task output.
+        new_plate_name: Name of the new OME-Zarr HCS plate
+    """
+
+    origin_url: str
+    method: str
+    overwrite: bool
+    new_plate_name: str

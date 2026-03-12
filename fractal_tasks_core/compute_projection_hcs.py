@@ -10,8 +10,11 @@ from typing import Any
 
 from pydantic import validate_call
 
-from fractal_tasks_core._io_models import InitArgsMIP
-from fractal_tasks_core._projection_utils import DaskProjectionMethod, projection_core
+from fractal_tasks_core._projection_utils import (
+    DaskProjectionMethod,
+    InitArgsMIP,
+    projection_core,
+)
 
 logger = logging.getLogger("compute_projection_hcs")
 

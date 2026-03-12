@@ -14,7 +14,7 @@ from ngio.utils._errors import NgioFileNotFoundError
 from pydantic import BaseModel, Field, validate_call
 from skimage.io import imread
 
-from fractal_tasks_core._io_models import (
+from fractal_tasks_core._illumination_correction_utils import (
     ConstantCorrectionModel,
     NoCorrectionModel,
     ProfileCorrectionModel,

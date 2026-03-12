@@ -8,10 +8,12 @@ from ngio import Roi, create_empty_ome_zarr, open_ome_zarr_container
 from ngio.tables import RoiTable
 from skimage.io import imsave
 
-from fractal_tasks_core._io_models import ConstantCorrectionModel
+from fractal_tasks_core._illumination_correction_utils import (
+    ConstantCorrectionModel,
+    ProfileCorrectionModel,
+)
 from fractal_tasks_core.illumination_correction import (
     BackgroundCorrection,
-    ProfileCorrectionModel,
     illumination_correction,
 )
 
