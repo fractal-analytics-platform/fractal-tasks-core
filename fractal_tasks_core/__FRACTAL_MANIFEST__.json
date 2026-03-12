@@ -15,10 +15,10 @@
         "Preprocessing",
         "3D"
       ],
-      "docs_info": "### Purpose\n- Performs **Z-axis projection of intensity images** using a specified projection method.\n- **Generates a new OME-Zarr HCS plate** to store the projected data.\n\n### Limitations\n- Supports projections only for OME-Zarr HCS plates; other collections of OME-Zarrs are not yet supported.\n- Currently limited to data in the CZYX format.\n",
+      "docs_info": "### Purpose\n- Performs **Z-axis projection of intensity images** using a specified projection method.\n- **Generates a new OME-Zarr HCS plate** to store the projected data.\n\n### Limitations\n- Supports projections only for OME-Zarr HCS plates; other collections of OME-Zarrs are not yet supported.\n",
       "type": "compound",
       "executable_non_parallel": "copy_ome_zarr_hcs_plate.py",
-      "executable_parallel": "projection.py",
+      "executable_parallel": "projection_hcs.py",
       "meta_non_parallel": {
         "cpus_per_task": 1,
         "mem": 4000
@@ -124,12 +124,74 @@
           "init_args": {
             "$ref": "#/$defs/InitArgsMIP",
             "title": "Init Args",
-            "description": "Intialization arguments provided by `create_cellvoyager_ome_zarr_init`."
+            "description": "Intialization arguments provided by `copy_ome_zarr_hcs_plate`."
           }
         },
         "required": [
           "zarr_url",
           "init_args"
+        ],
+        "type": "object",
+        "title": "ProjectionHcs"
+      },
+      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
+    },
+    {
+      "name": "Project Image",
+      "input_types": {
+        "is_3D": true
+      },
+      "output_types": {
+        "is_3D": false
+      },
+      "category": "Image Processing",
+      "tags": [
+        "Preprocessing",
+        "3D"
+      ],
+      "docs_info": "### Purpose\n- Performs **Z-axis projection of intensity images** using a specified projection method.\n- Stores the result in a **new OME-Zarr file** next to the input.\n\n### Output location\nThe output zarr is placed alongside the input with the projection method appended to its\nname. For example, an input of `my_image.zarr` with method `mip` produces `my_image_mip.zarr`.\n\n### Limitations\n- The input zarr URL must end with `.zarr`.\n- Supports projections for any 3D OME-Zarr image (ZYX, CZYX, TCZYX, etc.).\n",
+      "type": "parallel",
+      "executable_parallel": "projection.py",
+      "meta_parallel": {
+        "cpus_per_task": 1,
+        "mem": 4000
+      },
+      "args_schema_parallel": {
+        "$defs": {
+          "DaskProjectionMethod": {
+            "description": "Registration method selection",
+            "enum": [
+              "mip",
+              "minip",
+              "meanip",
+              "sumip"
+            ],
+            "title": "DaskProjectionMethod",
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "zarr_url": {
+            "title": "Zarr Url",
+            "type": "string",
+            "description": "Path or url to the individual OME-Zarr image to be processed."
+          },
+          "method": {
+            "$ref": "#/$defs/DaskProjectionMethod",
+            "default": "mip",
+            "title": "Method",
+            "description": "Projection method to be used. See `DaskProjectionMethod`"
+          },
+          "overwrite": {
+            "default": false,
+            "title": "Overwrite",
+            "type": "boolean",
+            "description": "If `True`, overwrite the task output."
+          }
+        },
+        "required": [
+          "zarr_url"
         ],
         "type": "object",
         "title": "Projection"
@@ -309,6 +371,605 @@
         ],
         "type": "object",
         "title": "IlluminationCorrection"
+      },
+      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
+    },
+    {
+      "name": "Threshold Segmentation",
+      "category": "Segmentation",
+      "tags": [
+        "2D",
+        "3D",
+        "Segmentation",
+        "Otsu"
+      ],
+      "docs_info": "### Purpose\n- Segments intensity images by applying a threshold and labelling connected components.\n- Supports **automatic (Otsu)** and **manual** threshold selection.\n- Optionally applies pre-processing filters (Gaussian, Median) and post-processing\n  (size filtering) around the threshold step.\n- Writes the result as a label image inside the same OME-Zarr container.\n\n### Limitations\n- Operates on a single input channel at a time.\n- Requires images to have a channel axis (CZYX or CYX).\n",
+      "type": "parallel",
+      "executable_parallel": "threshold_segmentation.py",
+      "meta_parallel": {
+        "cpus_per_task": 1,
+        "mem": 8000
+      },
+      "args_schema_parallel": {
+        "$defs": {
+          "CreateMaskingRoiTable": {
+            "description": "Create Masking ROI Table Configuration.",
+            "properties": {
+              "mode": {
+                "const": "Create Masking ROI Table",
+                "default": "Create Masking ROI Table",
+                "title": "Mode",
+                "type": "string"
+              },
+              "table_name": {
+                "default": "{label_name}_masking_ROI_table",
+                "title": "Table Name",
+                "type": "string"
+              }
+            },
+            "title": "CreateMaskingRoiTable",
+            "type": "object"
+          },
+          "GaussianBlurConfig": {
+            "description": "Configuration for Gaussian blur transformation.",
+            "properties": {
+              "type": {
+                "const": "gaussian",
+                "default": "gaussian",
+                "title": "Type",
+                "type": "string"
+              },
+              "sigma_xy": {
+                "default": 2.0,
+                "exclusiveMinimum": 0,
+                "title": "Sigma Xy",
+                "type": "number"
+              },
+              "sigma_z": {
+                "title": "Sigma Z",
+                "type": "number"
+              }
+            },
+            "title": "GaussianBlurConfig",
+            "type": "object"
+          },
+          "HistogramEqualizationConfig": {
+            "description": "Configuration for Contrast Limited Adaptive Histogram Equalization (CLAHE).",
+            "properties": {
+              "type": {
+                "const": "histogram",
+                "default": "histogram",
+                "title": "Type",
+                "type": "string"
+              },
+              "kernel_size_xy": {
+                "title": "Kernel Size Xy",
+                "type": "integer"
+              },
+              "kernel_size_z": {
+                "title": "Kernel Size Z",
+                "type": "integer"
+              },
+              "clip_limit": {
+                "default": 0.01,
+                "maximum": 1,
+                "minimum": 0,
+                "title": "Clip Limit",
+                "type": "number"
+              },
+              "nbins": {
+                "default": 256,
+                "title": "Nbins",
+                "type": "integer"
+              }
+            },
+            "title": "HistogramEqualizationConfig",
+            "type": "object"
+          },
+          "InputChannel": {
+            "description": "Input channel configuration for threshold segmentation.",
+            "properties": {
+              "mode": {
+                "default": "label",
+                "enum": [
+                  "label",
+                  "wavelength_id",
+                  "index"
+                ],
+                "title": "Mode",
+                "type": "string"
+              },
+              "identifier": {
+                "title": "Identifier",
+                "type": "string"
+              },
+              "skip_if_missing": {
+                "default": false,
+                "title": "Skip If Missing",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "identifier"
+            ],
+            "title": "InputChannel",
+            "type": "object"
+          },
+          "IteratorConfig": {
+            "description": "Advanced iterator configuration.",
+            "properties": {
+              "masking": {
+                "$ref": "#/$defs/MaskingConfig",
+                "title": "Masking Iterator Configuration"
+              },
+              "roi_table": {
+                "title": "Iterate Over ROIs",
+                "type": "string"
+              }
+            },
+            "title": "IteratorConfig",
+            "type": "object"
+          },
+          "MaskingConfig": {
+            "description": "Masking configuration.",
+            "properties": {
+              "mode": {
+                "default": "Table Name",
+                "enum": [
+                  "Table Name",
+                  "Label Name"
+                ],
+                "title": "Mode",
+                "type": "string"
+              },
+              "identifier": {
+                "title": "Identifier",
+                "type": "string"
+              }
+            },
+            "title": "MaskingConfig",
+            "type": "object"
+          },
+          "MedianFilterConfig": {
+            "description": "Configuration for Median filter transformation.",
+            "properties": {
+              "type": {
+                "const": "median",
+                "default": "median",
+                "title": "Type",
+                "type": "string"
+              },
+              "size_xy": {
+                "default": 2,
+                "exclusiveMinimum": 0,
+                "title": "Size Xy",
+                "type": "integer"
+              },
+              "size_z": {
+                "title": "Size Z",
+                "type": "integer"
+              }
+            },
+            "title": "MedianFilterConfig",
+            "type": "object"
+          },
+          "OtsuConfiguration": {
+            "description": "Configuration for Otsu threshold-based segmentation.",
+            "properties": {
+              "method": {
+                "const": "otsu",
+                "default": "otsu",
+                "title": "Method",
+                "type": "string"
+              }
+            },
+            "title": "OtsuConfiguration",
+            "type": "object"
+          },
+          "SegmentationTransformConfig": {
+            "description": "Configuration for pre- and post-processing steps.",
+            "properties": {
+              "pre_process": {
+                "default": [],
+                "items": {
+                  "discriminator": {
+                    "mapping": {
+                      "gaussian": "#/$defs/GaussianBlurConfig",
+                      "histogram": "#/$defs/HistogramEqualizationConfig",
+                      "median": "#/$defs/MedianFilterConfig"
+                    },
+                    "propertyName": "type"
+                  },
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/GaussianBlurConfig"
+                    },
+                    {
+                      "$ref": "#/$defs/MedianFilterConfig"
+                    },
+                    {
+                      "$ref": "#/$defs/HistogramEqualizationConfig"
+                    }
+                  ]
+                },
+                "title": "Pre Process",
+                "type": "array"
+              },
+              "post_process": {
+                "default": [],
+                "items": {
+                  "discriminator": {
+                    "mapping": {
+                      "size_filter": "#/$defs/SizeFilterConfig"
+                    },
+                    "propertyName": "type"
+                  },
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/SizeFilterConfig"
+                    }
+                  ]
+                },
+                "title": "Post Process",
+                "type": "array"
+              }
+            },
+            "title": "SegmentationTransformConfig",
+            "type": "object"
+          },
+          "SizeFilterConfig": {
+            "description": "Configuration for size filter post-processing.",
+            "properties": {
+              "type": {
+                "const": "size_filter",
+                "default": "size_filter",
+                "title": "Type",
+                "type": "string"
+              },
+              "min_size": {
+                "minimum": 0,
+                "title": "Min Size",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "min_size"
+            ],
+            "title": "SizeFilterConfig",
+            "type": "object"
+          },
+          "SkipCreateMaskingRoiTable": {
+            "description": "Skip Creating Masking ROI Table Configuration.",
+            "properties": {
+              "mode": {
+                "const": "Skip Creating Masking ROI Table",
+                "default": "Skip Creating Masking ROI Table",
+                "title": "Mode",
+                "type": "string"
+              }
+            },
+            "title": "SkipCreateMaskingRoiTable",
+            "type": "object"
+          },
+          "ThresholdConfiguration": {
+            "description": "Configuration for threshold-based segmentation.",
+            "properties": {
+              "method": {
+                "const": "threshold",
+                "default": "threshold",
+                "title": "Method",
+                "type": "string"
+              },
+              "threshold": {
+                "title": "Threshold",
+                "type": "number"
+              }
+            },
+            "required": [
+              "threshold"
+            ],
+            "title": "ThresholdConfiguration",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "zarr_url": {
+            "title": "Zarr Url",
+            "type": "string",
+            "description": "URL to the OME-Zarr container."
+          },
+          "channels": {
+            "$ref": "#/$defs/InputChannel",
+            "title": "Channels",
+            "description": "Channel to use for segmentation, selected by label, wavelength ID, or index."
+          },
+          "label_name": {
+            "default": "{channel_identifier}_segmented",
+            "title": "Label Name",
+            "type": "string",
+            "description": "Name of the resulting label image. Optionally, it can contain a placeholder \"{channel_identifier}\" which will be replaced by the channel identifier specified in the channels parameter."
+          },
+          "level_path": {
+            "title": "Level Path",
+            "type": "string",
+            "description": "If the OME-Zarr has multiple resolution levels, the level to use can be specified here. If not provided, the highest resolution level will be used."
+          },
+          "method": {
+            "default": {
+              "method": "otsu"
+            },
+            "discriminator": {
+              "mapping": {
+                "otsu": "#/$defs/OtsuConfiguration",
+                "threshold": "#/$defs/ThresholdConfiguration"
+              },
+              "propertyName": "method"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/ThresholdConfiguration"
+              },
+              {
+                "$ref": "#/$defs/OtsuConfiguration"
+              }
+            ],
+            "title": "Method",
+            "description": "Configuration for the segmentation method."
+          },
+          "iterator_configuration": {
+            "$ref": "#/$defs/IteratorConfig",
+            "title": "Iterator Configuration",
+            "description": "Configuration for the segmentation iterator. This can be used to specify masking and/or a ROI table."
+          },
+          "pre_post_process": {
+            "$ref": "#/$defs/SegmentationTransformConfig",
+            "default": {
+              "pre_process": [],
+              "post_process": []
+            },
+            "title": "Pre Post Process",
+            "description": "Configuration for pre- and post-processing transforms applied by the iterator."
+          },
+          "create_masking_roi_table": {
+            "default": {
+              "mode": "Skip Creating Masking ROI Table"
+            },
+            "discriminator": {
+              "mapping": {
+                "Create Masking ROI Table": "#/$defs/CreateMaskingRoiTable",
+                "Skip Creating Masking ROI Table": "#/$defs/SkipCreateMaskingRoiTable"
+              },
+              "propertyName": "mode"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/CreateMaskingRoiTable"
+              },
+              {
+                "$ref": "#/$defs/SkipCreateMaskingRoiTable"
+              }
+            ],
+            "title": "Create Masking Roi Table",
+            "description": "Configuration to create a masking ROI table after segmentation."
+          },
+          "overwrite": {
+            "default": true,
+            "title": "Overwrite",
+            "type": "boolean",
+            "description": "Whether to overwrite an existing label image. Defaults to True."
+          }
+        },
+        "required": [
+          "zarr_url",
+          "channels"
+        ],
+        "type": "object",
+        "title": "ThresholdSegmentation"
+      },
+      "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
+    },
+    {
+      "name": "Measure Features",
+      "category": "Measurement",
+      "tags": [
+        "2D",
+        "3D",
+        "Feature Extraction"
+      ],
+      "docs_info": "### Purpose\n- Extracts region-properties features (shape and intensity) from a label image\n  using `skimage.measure.regionprops_table` and saves the result as a\n  `FeatureTable` inside the same OME-Zarr container.\n- Supports both **2D** (YX) and **3D** (ZYX) images.\n- Two built-in feature groups are available: `ShapeFeatures` and\n  `IntensityFeatures`.\n\n### Limitations\n- Requires a label image to already exist in the OME-Zarr container.\n- Processes one label image at a time.\n",
+      "type": "parallel",
+      "executable_parallel": "measure_features.py",
+      "meta_parallel": {
+        "cpus_per_task": 1,
+        "mem": 4000
+      },
+      "args_schema_parallel": {
+        "$defs": {
+          "AdvancedOptions": {
+            "description": "Advanced options for feature measurement.",
+            "properties": {
+              "level_path": {
+                "description": "Optional path to the pyramid level to use for the measurement.\nIf None, the highest resolution level will be used.",
+                "title": "Level Path",
+                "type": "string"
+              },
+              "use_scaling": {
+                "default": true,
+                "description": "Whether to use pixel scaling from the OME-Zarr metadata. This will scale the\nfeatures according to the physical pixel size, e.g. area will be in\nsquare microns instead of square pixels. Defaults to True.",
+                "title": "Use Scaling",
+                "type": "boolean"
+              },
+              "use_cache": {
+                "default": true,
+                "description": "Whether to cache the loaded images. Caching can speed up the measurement\nif multiple features are extracted from the same image, but it can also\nincrease memory usage. Defaults to True.",
+                "title": "Use Cache",
+                "type": "boolean"
+              },
+              "table_backend": {
+                "default": "anndata",
+                "description": "Table backend to use for the output table. Defaults to \"anndata\".",
+                "enum": [
+                  "anndata",
+                  "json",
+                  "csv",
+                  "parquet"
+                ],
+                "title": "Table Backend",
+                "type": "string"
+              }
+            },
+            "title": "AdvancedOptions",
+            "type": "object"
+          },
+          "InputChannel": {
+            "description": "Input channel configuration for measurement tasks.",
+            "properties": {
+              "mode": {
+                "default": "label",
+                "enum": [
+                  "label",
+                  "wavelength_id",
+                  "index"
+                ],
+                "title": "Mode",
+                "type": "string"
+              },
+              "identifier": {
+                "title": "Identifier",
+                "type": "string"
+              }
+            },
+            "required": [
+              "identifier"
+            ],
+            "title": "InputChannel",
+            "type": "object"
+          },
+          "IntensityFeatures": {
+            "description": "Intensity features extracted from regionprops.",
+            "properties": {
+              "type": {
+                "const": "IntensityFeatures",
+                "default": "IntensityFeatures",
+                "title": "Type",
+                "type": "string"
+              },
+              "channels": {
+                "description": "List of channels to extract intensity features from. If None all\nchannels will be used.",
+                "items": {
+                  "$ref": "#/$defs/InputChannel"
+                },
+                "title": "Channels",
+                "type": "array"
+              }
+            },
+            "title": "IntensityFeatures",
+            "type": "object"
+          },
+          "ShapeFeatures": {
+            "description": "Shape features extracted from regionprops.",
+            "properties": {
+              "include_convex_hull_properties": {
+                "default": false,
+                "description": "Whether to include convex hull related properties like area_convex, area_filled,\nextent, solidity. These are not included since they can sometimes return\nunexpected Warnings.",
+                "title": "Include Convex Hull Properties",
+                "type": "boolean"
+              },
+              "type": {
+                "const": "ShapeFeatures",
+                "default": "ShapeFeatures",
+                "title": "Type",
+                "type": "string"
+              }
+            },
+            "title": "ShapeFeatures",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "zarr_url": {
+            "title": "Zarr Url",
+            "type": "string",
+            "description": "URL to the OME-Zarr container."
+          },
+          "label_image_name": {
+            "title": "Label Image Name",
+            "type": "string",
+            "description": "Name of the label image to analyze."
+          },
+          "output_table_name": {
+            "default": "region_props_features",
+            "title": "Output Table Name",
+            "type": "string",
+            "description": "Name for the output feature table."
+          },
+          "features": {
+            "default": [
+              {
+                "include_convex_hull_properties": false,
+                "type": "ShapeFeatures"
+              },
+              {
+                "type": "IntensityFeatures",
+                "channels": null
+              }
+            ],
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "IntensityFeatures": "#/$defs/IntensityFeatures",
+                  "ShapeFeatures": "#/$defs/ShapeFeatures"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/ShapeFeatures"
+                },
+                {
+                  "$ref": "#/$defs/IntensityFeatures"
+                }
+              ]
+            },
+            "title": "Features",
+            "type": "array",
+            "description": "List of feature configurations describing which properties to extract."
+          },
+          "roi_tables": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Roi Tables",
+            "type": "array",
+            "description": "List of ROI table names to condition the feature extraction on. If empty, features will be extracted for the whole label image (2D) or volume (3D)."
+          },
+          "advanced_options": {
+            "$ref": "#/$defs/AdvancedOptions",
+            "default": {
+              "level_path": null,
+              "use_scaling": true,
+              "use_cache": true,
+              "table_backend": "anndata"
+            },
+            "title": "Advanced Options",
+            "description": "Advanced options for feature measurement."
+          },
+          "overwrite": {
+            "default": false,
+            "title": "Overwrite",
+            "type": "boolean",
+            "description": "Whether to overwrite an existing feature table. Defaults to False."
+          }
+        },
+        "required": [
+          "zarr_url",
+          "label_image_name"
+        ],
+        "type": "object",
+        "title": "MeasureFeatures"
       },
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },

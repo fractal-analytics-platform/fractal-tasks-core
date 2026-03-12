@@ -5,219 +5,152 @@ from ngio import create_empty_ome_zarr, open_ome_zarr_container
 from ngio.tables import RoiTable
 from ngio.utils import NgioFileExistsError
 
-from fractal_tasks_core.copy_ome_zarr_hcs_plate import (
-    copy_ome_zarr_hcs_plate,
-)
-from fractal_tasks_core.projection import InitArgsMIP, projection
+from fractal_tasks_core._projection_utils import DaskProjectionMethod
+from fractal_tasks_core.projection import projection
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 
 
-@pytest.fixture(scope="session")
-def sample_ome_zarr_zyx_url(testdata_path) -> Path:
-    store = testdata_path / "ngio_synt" / "sample_ome_zarr_zyx.zarr"
-    origin_ome_zarr = create_empty_ome_zarr(
+def _make_zarr(tmp_path: Path, shape: tuple, axes: str, name: str = "image") -> Path:
+    store = tmp_path / f"{name}.zarr"
+    ome = create_empty_ome_zarr(
         store=store,
-        shape=(16, 32, 32),
+        shape=shape,
         pixelsize=0.1,
         z_spacing=0.5,
-        overwrite=True,
-        axes_names="zyx",
+        overwrite=False,
+        axes_names=axes,
     )
-    table = origin_ome_zarr.build_image_roi_table("image")
-    origin_ome_zarr.add_table("well_ROI_table", table, backend="anndata")
+    table = ome.build_image_roi_table("image")
+    ome.add_table("well_ROI_table", table, backend="anndata")
     return store
 
 
-def test_mip_task(cardiomyocyte_tiny_path: Path, tmp_path: Path) -> None:
-    image_url = str(cardiomyocyte_tiny_path / "B" / "03" / "0")
-    parallel_list = copy_ome_zarr_hcs_plate(
-        zarr_urls=[image_url],
-        zarr_dir=str(tmp_path / "tmp_out"),
-        overwrite=True,
-        re_initialize_plate=True,
-    )
+# ---------------------------------------------------------------------------
+# Tests
+# ---------------------------------------------------------------------------
 
-    assert len(parallel_list["parallelization_list"]) == 1
 
-    image = parallel_list["parallelization_list"][0]
-    update_list = projection(**image)
+def test_projection_basic(tmp_path: Path) -> None:
+    """Basic ZYX projection: output URL, shape, pixel_size.z, ROI table."""
+    store = _make_zarr(tmp_path, shape=(16, 32, 32), axes="zyx")
 
-    zarr_url = update_list["image_list_updates"][0]["zarr_url"]
-    origin_url = update_list["image_list_updates"][0]["origin"]
-    attributes = update_list["image_list_updates"][0]["attributes"]
-    types = update_list["image_list_updates"][0]["types"]
+    result = projection(zarr_url=str(store))
 
+    updates = result["image_list_updates"]
+    assert len(updates) == 1
+    zarr_url = updates[0]["zarr_url"]
+    origin_url = updates[0]["origin"]
+    assert updates[0]["types"] == {"is_3D": False}
+    assert updates[0]["attributes"] == {}
+
+    # Output URL is derived from the input with the method suffix
+    assert zarr_url == str(tmp_path / "image_mip.zarr")
+    assert origin_url == str(store)
     assert Path(zarr_url).exists()
-    assert Path(origin_url).exists()
-    assert attributes == {
-        "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1-tiny_mip.zarr"
-    }
-    assert types == {"is_3D": False}
 
-    ome_zarr = open_ome_zarr_container(zarr_url)
-
-    image = ome_zarr.get_image()
-    assert image.dimensions.get("z", default=None) == 1
-    assert image.pixel_size.z == 1.0
-
-    assert ome_zarr.list_tables() == ["FOV_ROI_table", "well_ROI_table"]
+    out = open_ome_zarr_container(zarr_url)
+    img = out.get_image()
+    assert img.shape == (1, 32, 32)
+    assert img.pixel_size.z == 1.0
 
 
 @pytest.mark.parametrize(
     "shape, axes, expected_shape",
     [
         ((16, 32, 32), "zyx", (1, 32, 32)),
-        ((4, 3, 16, 32, 32), "tczyx", (4, 3, 1, 32, 32)),
-        ((1, 1, 16, 32, 32), "tczyx", (1, 1, 1, 32, 32)),
         ((3, 16, 32, 32), "czyx", (3, 1, 32, 32)),
+        ((4, 3, 16, 32, 32), "tczyx", (4, 3, 1, 32, 32)),
     ],
 )
-def test_projection(
-    shape, axes: str, expected_shape: tuple[int, ...], tmp_path: Path
+def test_projection_all_axes(
+    shape: tuple, axes: str, expected_shape: tuple, tmp_path: Path
 ) -> None:
-    """
-    Test the projection task.
-    """
-    store = tmp_path / "sample_ome_zarr.zarr"
-    origin_ome_zarr = create_empty_ome_zarr(
-        store=store,
-        shape=shape,
-        pixelsize=0.1,
-        z_spacing=0.5,
-        overwrite=False,
-        axes_names=axes,
-    )
-    table = origin_ome_zarr.build_image_roi_table("image")
-    origin_ome_zarr.add_table("well_ROI_table", table, backend="anndata")
+    """Output z-dimension is collapsed to 1 regardless of axis order."""
+    store = _make_zarr(tmp_path, shape=shape, axes=axes)
 
-    init_mip = InitArgsMIP(
-        origin_url=str(store),
-        method="mip",
-        overwrite=False,
-        new_plate_name="new_plate.zarr",
-    )
+    result = projection(zarr_url=str(store))
 
-    mip_store = tmp_path / "sample_ome_zarr_mip.zarr"
-    update_list = projection(zarr_url=str(mip_store), init_args=init_mip)
-
-    zarr_url = update_list["image_list_updates"][0]["zarr_url"]
-    origin_url = update_list["image_list_updates"][0]["origin"]
-    attributes = update_list["image_list_updates"][0]["attributes"]
-    types = update_list["image_list_updates"][0]["types"]
-
-    assert Path(zarr_url).exists()
-    assert Path(origin_url).exists()
-    assert attributes == {"plate": "new_plate.zarr"}
-    assert types == {"is_3D": False}
-
-    ome_zarr = open_ome_zarr_container(zarr_url)
-
-    image = ome_zarr.get_image()
-    assert image.shape == expected_shape
-    assert image.pixel_size.z == 1.0
-
-    assert ome_zarr.list_tables() == ["well_ROI_table"]
-
-    mip_table = ome_zarr.get_table("well_ROI_table")
-    assert isinstance(mip_table, RoiTable)
-    z_slice = mip_table.get("image").get("z")
-    assert z_slice is not None
-    assert z_slice.length == 1
-    assert z_slice.start == 0
+    zarr_url = result["image_list_updates"][0]["zarr_url"]
+    img = open_ome_zarr_container(zarr_url).get_image()
+    assert img.shape == expected_shape
 
 
 @pytest.mark.parametrize(
-    "shape, axes",
+    "method",
     [
-        ((1, 32, 32), "zyx"),
-        ((32, 32), "yx"),
-        ((4, 3, 1, 32, 32), "tczyx"),
-        ((4, 32, 32), "tyx"),
+        DaskProjectionMethod.MIP,
+        DaskProjectionMethod.MINIP,
+        DaskProjectionMethod.MEANIP,
+        DaskProjectionMethod.SUMIP,
     ],
 )
-def test_fail_non_3d_projection(shape, axes: str, tmp_path: Path) -> None:
-    """
-    Test the projection task.
-    """
-    store = tmp_path / "sample_ome_zarr.zarr"
+def test_projection_all_methods(method: DaskProjectionMethod, tmp_path: Path) -> None:
+    """Each projection method produces a correctly-named output zarr."""
+    store = _make_zarr(tmp_path, shape=(16, 32, 32), axes="zyx")
+
+    result = projection(zarr_url=str(store), method=method)
+
+    zarr_url = result["image_list_updates"][0]["zarr_url"]
+    assert zarr_url == str(tmp_path / f"image_{method.value}.zarr")
+    assert Path(zarr_url).exists()
+    img = open_ome_zarr_container(zarr_url).get_image()
+    assert img.shape == (1, 32, 32)
+
+
+def test_projection_overwrite(tmp_path: Path) -> None:
+    """overwrite=True allows re-running; overwrite=False raises when output exists."""
+    store = _make_zarr(tmp_path, shape=(16, 32, 32), axes="zyx")
+
+    # First run creates the output
+    projection(zarr_url=str(store), overwrite=True)
+    # Second run with overwrite=True must succeed
+    projection(zarr_url=str(store), overwrite=True)
+
+    # Running with overwrite=False when output already exists must raise
+    with pytest.raises(NgioFileExistsError):
+        projection(zarr_url=str(store), overwrite=False)
+
+
+def test_projection_non_zarr_url_fails(tmp_path: Path) -> None:
+    """Input URL that does not end with .zarr raises ValueError."""
+    store = _make_zarr(tmp_path, shape=(16, 32, 32), axes="zyx")
+    bad_url = str(store).removesuffix(".zarr")
+
+    with pytest.raises(ValueError, match="must end with .zarr"):
+        projection(zarr_url=bad_url)
+
+
+def test_projection_2d_fails(tmp_path: Path) -> None:
+    """Passing a 2D image (no z-axis) raises ValueError."""
+    store = tmp_path / "image_2d.zarr"
     create_empty_ome_zarr(
         store=store,
-        shape=shape,
+        shape=(32, 32),
         pixelsize=0.1,
-        z_spacing=0.5,
         overwrite=False,
-        axes_names=axes,
+        axes_names="yx",
     )
 
-    init_mip = InitArgsMIP(
-        origin_url=str(store),
-        method="mip",
-        overwrite=False,
-        new_plate_name="new_plate.zarr",
-    )
-
-    mip_store = tmp_path / "sample_ome_zarr_mip.zarr"
     with pytest.raises(ValueError):
-        projection(zarr_url=str(mip_store), init_args=init_mip)
+        projection(zarr_url=str(store))
 
 
-@pytest.mark.parametrize("method", ["mip", "minip", "meanip", "sumip"])
-def test_projections_methods(
-    sample_ome_zarr_zyx_url: Path, tmp_path: Path, method: str
-) -> None:
-    """
-    Test the projection task.
-    """
-    init_mip = InitArgsMIP(
-        origin_url=str(sample_ome_zarr_zyx_url),
-        method=method,
-        overwrite=False,
-        new_plate_name="new_plate.zarr",
-    )
+def test_projection_roi_table_z_update(tmp_path: Path) -> None:
+    """After projection the ROI table's z-slice is updated to (0, 1)."""
+    store = _make_zarr(tmp_path, shape=(16, 32, 32), axes="zyx")
 
-    mip_store = tmp_path / "sample_ome_zarr_mip.zarr"
-    update_list = projection(zarr_url=str(mip_store), init_args=init_mip)
+    result = projection(zarr_url=str(store))
 
-    zarr_url = update_list["image_list_updates"][0]["zarr_url"]
-    origin_url = update_list["image_list_updates"][0]["origin"]
-    attributes = update_list["image_list_updates"][0]["attributes"]
-    types = update_list["image_list_updates"][0]["types"]
+    zarr_url = result["image_list_updates"][0]["zarr_url"]
+    out = open_ome_zarr_container(zarr_url)
+    assert "well_ROI_table" in out.list_tables()
 
-    assert Path(zarr_url).exists()
-    assert Path(origin_url).exists()
-    assert attributes == {"plate": "new_plate.zarr"}
-    assert types == {"is_3D": False}
-
-    ome_zarr = open_ome_zarr_container(zarr_url)
-
-    image = ome_zarr.get_image()
-    assert image.shape == (1, 32, 32)
-    assert image.pixel_size.z == 1.0
-
-
-def test_projection_overwrite(sample_ome_zarr_zyx_url: Path, tmp_path: Path) -> None:
-    """
-    Test the projection task.
-    """
-    # Create a plate with 2 wells and 1 acquisition
-    init_mip = InitArgsMIP(
-        origin_url=str(sample_ome_zarr_zyx_url),
-        method="mip",
-        overwrite=True,
-        new_plate_name="new_plate.zarr",
-    )
-
-    mip_store = tmp_path / "sample_ome_zarr_mip.zarr"
-    projection(zarr_url=str(mip_store), init_args=init_mip)
-
-    projection(zarr_url=str(mip_store), init_args=init_mip)
-
-    # Check if the overwrite behavior is correct
-    init_mip = InitArgsMIP(
-        origin_url=str(sample_ome_zarr_zyx_url),
-        method="mip",
-        overwrite=False,
-        new_plate_name="new_plate.zarr",
-    )
-
-    with pytest.raises(NgioFileExistsError):
-        projection(zarr_url=str(mip_store), init_args=init_mip)
+    table = out.get_table("well_ROI_table")
+    assert isinstance(table, RoiTable)
+    z_slice = table.get("image").get("z")
+    assert z_slice is not None
+    assert z_slice.start == 0
+    assert z_slice.length == 1
