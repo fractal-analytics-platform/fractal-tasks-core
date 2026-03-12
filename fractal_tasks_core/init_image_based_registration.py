@@ -11,11 +11,11 @@ from pydantic import validate_call
 
 from fractal_tasks_core._plate_utils import group_by_well
 
-logger = logging.getLogger("image_based_registration_hcs_init")
+logger = logging.getLogger("init_image_based_registration")
 
 
 @validate_call
-def image_based_registration_hcs_init(
+def init_image_based_registration(
     *,
     # Fractal parameters
     zarr_urls: list[str],
@@ -49,7 +49,7 @@ def image_based_registration_hcs_init(
         task_output: Dictionary for Fractal server that contains a
             parallelization list.
     """
-    logger.info(f"Running `image_based_registration_hcs_init` for {zarr_urls=}")
+    logger.info(f"Running `init_image_based_registration` for {zarr_urls=}")
     wells = group_by_well(zarr_urls)
 
     parallelization_list = []
@@ -98,6 +98,6 @@ if __name__ == "__main__":
     from fractal_task_tools.task_wrapper import run_fractal_task
 
     run_fractal_task(
-        task_function=image_based_registration_hcs_init,
+        task_function=init_image_based_registration,
         logger_name=logger.name,
     )

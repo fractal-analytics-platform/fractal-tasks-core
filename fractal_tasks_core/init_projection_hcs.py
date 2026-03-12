@@ -15,7 +15,7 @@ from pydantic import validate_call
 from fractal_tasks_core._io_models import InitArgsMIP
 from fractal_tasks_core._projection_utils import DaskProjectionMethod
 
-logger = logging.getLogger("copy_ome_zarr_hcs_plate")
+logger = logging.getLogger("init_projection_hcs")
 
 
 @cache
@@ -65,7 +65,7 @@ def _get_plate(
 
 
 @validate_call
-def copy_ome_zarr_hcs_plate(
+def init_projection_hcs(
     *,
     # Fractal parameters
     zarr_urls: list[str],
@@ -198,6 +198,6 @@ if __name__ == "__main__":
     from fractal_task_tools.task_wrapper import run_fractal_task
 
     run_fractal_task(
-        task_function=copy_ome_zarr_hcs_plate,
+        task_function=init_projection_hcs,
         logger_name=logger.name,
     )

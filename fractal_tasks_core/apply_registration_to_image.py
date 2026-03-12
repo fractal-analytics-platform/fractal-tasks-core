@@ -199,7 +199,7 @@ def apply_registration_to_image(
     roi_table_acq = acq_ome_zarr.get_roi_table(registered_roi_table)
 
     # Build ROI pairs by name (order-independent; names already validated by
-    # find_registration_consensus)
+    # compute_registration_consensus)
     rois_ref = {roi.name: roi for roi in roi_table_ref.rois()}
     rois_acq = {roi.name: roi for roi in roi_table_acq.rois()}
 

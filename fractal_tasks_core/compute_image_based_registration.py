@@ -16,11 +16,11 @@ from fractal_tasks_core._registration_utils import (
     add_translation_to_roi,
 )
 
-logger = logging.getLogger("calculate_registration_image_based")
+logger = logging.getLogger("compute_image_based_registration")
 
 
 @validate_call
-def calculate_registration_image_based(
+def compute_image_based_registration(
     *,
     # Fractal arguments
     zarr_url: str,
@@ -46,7 +46,7 @@ def calculate_registration_image_based(
         zarr_url: Path or url to the individual OME-Zarr image to be processed.
             (standard argument for Fractal tasks, managed by Fractal server).
         init_args: Intialization arguments provided by
-            `image_based_registration_hcs_init`. They contain the
+            `init_image_based_registration`. They contain the
             reference_zarr_url that is used for registration.
             (standard argument for Fractal tasks, managed by Fractal server).
         wavelength_id: Wavelength that will be used for image-based
@@ -162,6 +162,6 @@ if __name__ == "__main__":
     from fractal_task_tools.task_wrapper import run_fractal_task
 
     run_fractal_task(
-        task_function=calculate_registration_image_based,
+        task_function=compute_image_based_registration,
         logger_name=logger.name,
     )

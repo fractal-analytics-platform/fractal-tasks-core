@@ -17,8 +17,8 @@
       ],
       "docs_info": "### Purpose\n- Performs **Z-axis projection of intensity images** using a specified projection method.\n- **Generates a new OME-Zarr HCS plate** to store the projected data.\n\n### Limitations\n- Supports projections only for OME-Zarr HCS plates; other collections of OME-Zarrs are not yet supported.\n",
       "type": "compound",
-      "executable_non_parallel": "copy_ome_zarr_hcs_plate.py",
-      "executable_parallel": "projection_hcs.py",
+      "executable_non_parallel": "init_projection_hcs.py",
+      "executable_parallel": "compute_projection_hcs.py",
       "meta_non_parallel": {
         "cpus_per_task": 1,
         "mem": 4000
@@ -80,7 +80,7 @@
           "zarr_dir"
         ],
         "type": "object",
-        "title": "CopyOmeZarrHcsPlate"
+        "title": "InitProjectionHcs"
       },
       "args_schema_parallel": {
         "$defs": {
@@ -124,7 +124,7 @@
           "init_args": {
             "$ref": "#/$defs/InitArgsMIP",
             "title": "Init Args",
-            "description": "Intialization arguments provided by `copy_ome_zarr_hcs_plate`."
+            "description": "Intialization arguments provided by `init_projection_hcs`."
           }
         },
         "required": [
@@ -132,7 +132,7 @@
           "init_args"
         ],
         "type": "object",
-        "title": "ProjectionHcs"
+        "title": "ComputeProjectionHcs"
       },
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
@@ -984,8 +984,8 @@
       ],
       "docs_info": "### Purpose\n- **Computes image-based registration** transformations for acquisitions in **HCS** OME-Zarr datasets.\n- Processes images grouped by well, under the assumption that each well contains one image per acquisition.\n- Calculates transformations for **specified regions of interest (ROIs)** and stores the results in the corresponding ROI table.\n- Typically used as the first task in a workflow, followed by `Find Registration Consensus` and optionally `Apply Registration to Image`.\n\n### Limitations\n- Supports only HCS OME-Zarr datasets, leveraging their acquisition metadata and well-based image grouping.\n- Assumes each well contains a single image per acquisition.\n",
       "type": "compound",
-      "executable_non_parallel": "image_based_registration_hcs_init.py",
-      "executable_parallel": "calculate_registration_image_based.py",
+      "executable_non_parallel": "init_image_based_registration.py",
+      "executable_parallel": "compute_image_based_registration.py",
       "meta_non_parallel": {
         "cpus_per_task": 1,
         "mem": 1000
@@ -1022,7 +1022,7 @@
           "zarr_dir"
         ],
         "type": "object",
-        "title": "ImageBasedRegistrationHcsInit"
+        "title": "InitImageBasedRegistration"
       },
       "args_schema_parallel": {
         "$defs": {
@@ -1060,7 +1060,7 @@
           "init_args": {
             "$ref": "#/$defs/InitArgsRegistration",
             "title": "Init Args",
-            "description": "Intialization arguments provided by `image_based_registration_hcs_init`. They contain the reference_zarr_url that is used for registration. (standard argument for Fractal tasks, managed by Fractal server)."
+            "description": "Intialization arguments provided by `init_image_based_registration`. They contain the reference_zarr_url that is used for registration. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "wavelength_id": {
             "title": "Wavelength Id",
@@ -1104,7 +1104,7 @@
           "wavelength_id"
         ],
         "type": "object",
-        "title": "CalculateRegistrationImageBased"
+        "title": "ComputeImageBasedRegistration"
       },
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
@@ -1119,8 +1119,8 @@
       ],
       "docs_info": "### Purpose\n- Determines the **consensus alignment** region across all selected acquisitions **within each well of an HCS OME-Zarr dataset**.\n- Generates a new ROI table for each image, defining consensus regions that are aligned across all acquisitions.\n- Typically used as the second task in a workflow, following `Calculate Registration (image-based)` and optionally preceding `Apply Registration to Image`.\n\n### Limitations\n- Supports only HCS OME-Zarr datasets, leveraging their acquisition metadata and well-based image grouping.\n",
       "type": "compound",
-      "executable_non_parallel": "init_group_by_well_for_multiplexing.py",
-      "executable_parallel": "find_registration_consensus.py",
+      "executable_non_parallel": "init_registration_consensus.py",
+      "executable_parallel": "compute_registration_consensus.py",
       "meta_non_parallel": {
         "cpus_per_task": 1,
         "mem": 1000
@@ -1157,7 +1157,7 @@
           "zarr_dir"
         ],
         "type": "object",
-        "title": "InitGroupByWellForMultiplexing"
+        "title": "InitRegistrationConsensus"
       },
       "args_schema_parallel": {
         "$defs": {
@@ -1189,7 +1189,7 @@
           "init_args": {
             "$ref": "#/$defs/InitArgsRegistrationConsensus",
             "title": "Init Args",
-            "description": "Intialization arguments provided by `init_group_by_well_for_multiplexing`. It contains the zarr_url_list listing all the zarr_urls in the same well as the zarr_url of the reference acquisition that are being processed. (standard argument for Fractal tasks, managed by Fractal server)."
+            "description": "Intialization arguments provided by `init_registration_consensus`. It contains the zarr_url_list listing all the zarr_urls in the same well as the zarr_url of the reference acquisition that are being processed. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "roi_table": {
             "default": "FOV_ROI_table",
@@ -1208,7 +1208,7 @@
           "init_args"
         ],
         "type": "object",
-        "title": "FindRegistrationConsensus"
+        "title": "ComputeRegistrationConsensus"
       },
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },

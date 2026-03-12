@@ -12,7 +12,7 @@ from pydantic import validate_call
 
 from fractal_tasks_core._io_models import InitArgsRegistrationConsensus
 
-logger = logging.getLogger("find_registration_consensus")
+logger = logging.getLogger("compute_registration_consensus")
 
 
 def _validate_if_translation_exists(tables: list[GenericRoiTable]) -> None:
@@ -173,7 +173,7 @@ def _apply_consensus_to_roi_table(
 
 
 @validate_call
-def find_registration_consensus(
+def compute_registration_consensus(
     *,
     # Fractal parameters
     zarr_url: str,
@@ -196,7 +196,7 @@ def find_registration_consensus(
             Refers to the zarr_url of the reference acquisition.
             (standard argument for Fractal tasks, managed by Fractal server).
         init_args: Intialization arguments provided by
-            `init_group_by_well_for_multiplexing`. It contains the
+            `init_registration_consensus`. It contains the
             zarr_url_list listing all the zarr_urls in the same well as the
             zarr_url of the reference acquisition that are being processed.
             (standard argument for Fractal tasks, managed by Fractal server).
@@ -262,6 +262,6 @@ if __name__ == "__main__":
     from fractal_task_tools.task_wrapper import run_fractal_task
 
     run_fractal_task(
-        task_function=find_registration_consensus,
+        task_function=compute_registration_consensus,
         logger_name=logger.name,
     )

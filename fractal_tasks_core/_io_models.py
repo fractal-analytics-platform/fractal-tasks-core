@@ -9,8 +9,8 @@ class InitArgsRegistration(BaseModel):
     """
     Registration init args.
 
-    Passed from `image_based_registration_hcs_init` to
-    `calculate_registration_image_based`.
+    Passed from `init_image_based_registration` to
+    `compute_image_based_registration`.
 
     Attributes:
         reference_zarr_url: zarr_url for the reference image
