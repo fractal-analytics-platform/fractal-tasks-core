@@ -90,6 +90,11 @@ def test_segmentation_manual_threshold(tmp_path: Path) -> None:
 
     ome = open_ome_zarr_container(str(store))
     assert "nuclei" in ome.list_labels()
+    # Check that the label image is correctly thresholded
+    nuclei = ome.get_label("nuclei").get_as_numpy()
+    labels, counts = np.unique(nuclei, return_counts=True)
+    assert set(labels) == {0, 1}  # background and one object
+    assert counts[labels == 1][0] == 4 * 10 * 10  # 4*10x10 square of bright pixels
 
 
 def test_segmentation_otsu(tmp_path: Path) -> None:
@@ -106,6 +111,10 @@ def test_segmentation_otsu(tmp_path: Path) -> None:
 
     ome = open_ome_zarr_container(str(store))
     assert "nuclei" in ome.list_labels()
+    nuclei = ome.get_label("nuclei").get_as_numpy()
+    labels, counts = np.unique(nuclei, return_counts=True)
+    assert set(labels) == {0, 1}  # background and one object
+    assert counts[labels == 1][0] == 4 * 10 * 10  # 4*10x10 square of bright pixels
 
 
 def test_segmentation_2d(tmp_path: Path) -> None:
@@ -122,6 +131,10 @@ def test_segmentation_2d(tmp_path: Path) -> None:
 
     ome = open_ome_zarr_container(str(store))
     assert "nuclei" in ome.list_labels()
+    nuclei = ome.get_label("nuclei").get_as_numpy()
+    labels, counts = np.unique(nuclei, return_counts=True)
+    assert set(labels) == {0, 1}  # background and one object
+    assert counts[labels == 1][0] == 10 * 10  # 4*10x10 square of bright pixels
 
 
 def test_label_name_template(tmp_path: Path) -> None:
