@@ -325,7 +325,7 @@ def test_measure_features_advanced_options_table_backend(tmp_path: Path) -> None
 
 def test_intensity_features_with_channels(tmp_path: Path) -> None:
     """IntensityFeatures with explicit channel selection runs without errors."""
-    from fractal_tasks_core.measure_features import InputChannel
+    from fractal_tasks_core._measure_features_utils import InputChannel
 
     store = _make_zarr_with_label(tmp_path)
 
@@ -435,7 +435,7 @@ def test_measure_features_duplicate_feature_type_raises(tmp_path: Path) -> None:
 
 def test_measure_features_channel_identifier_in_columns(tmp_path: Path) -> None:
     """Explicit channel identifier (index mode) appears in intensity column names."""
-    from fractal_tasks_core.measure_features import InputChannel
+    from fractal_tasks_core._measure_features_utils import InputChannel
 
     store = _make_zarr_with_label(tmp_path, shape=(1, 32, 32), axes="cyx")
 
