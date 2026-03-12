@@ -495,11 +495,11 @@
             "title": "InputChannel",
             "type": "object"
           },
-          "IteratorConfiguration": {
-            "description": "Advanced Masking configuration.",
+          "IteratorConfig": {
+            "description": "Advanced iterator configuration.",
             "properties": {
               "masking": {
-                "$ref": "#/$defs/MaskingConfiguration",
+                "$ref": "#/$defs/MaskingConfig",
                 "title": "Masking Iterator Configuration"
               },
               "roi_table": {
@@ -507,10 +507,10 @@
                 "type": "string"
               }
             },
-            "title": "IteratorConfiguration",
+            "title": "IteratorConfig",
             "type": "object"
           },
-          "MaskingConfiguration": {
+          "MaskingConfig": {
             "description": "Masking configuration.",
             "properties": {
               "mode": {
@@ -527,7 +527,7 @@
                 "type": "string"
               }
             },
-            "title": "MaskingConfiguration",
+            "title": "MaskingConfig",
             "type": "object"
           },
           "MedianFilterConfig": {
@@ -718,7 +718,7 @@
             "description": "Configuration for the segmentation method."
           },
           "iterator_configuration": {
-            "$ref": "#/$defs/IteratorConfiguration",
+            "$ref": "#/$defs/IteratorConfig",
             "title": "Iterator Configuration",
             "description": "Configuration for the segmentation iterator. This can be used to specify masking and/or a ROI table."
           },
@@ -946,7 +946,7 @@
             "type": "array",
             "description": "List of ROI table names to condition the feature extraction on. If empty, features will be extracted for the whole label image (2D) or volume (3D)."
           },
-          "andvanced_options": {
+          "advanced_options": {
             "$ref": "#/$defs/AdvancedOptions",
             "default": {
               "level_path": null,
@@ -954,8 +954,8 @@
               "use_cache": true,
               "table_backend": "anndata"
             },
-            "title": "Andvanced Options",
-            "description": "Missing description"
+            "title": "Advanced Options",
+            "description": "Advanced options for feature measurement."
           },
           "overwrite": {
             "default": false,
