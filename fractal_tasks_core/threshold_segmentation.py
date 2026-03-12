@@ -6,7 +6,7 @@ Task for threshold-based segmentation of OME-Zarr images.
 import logging
 
 from fractal_tasks_utils.segmentation import (
-    IteratorConfiguration,
+    IteratorConfig,
     compute_segmentation,
     setup_segmentation_iterator,
 )
@@ -103,7 +103,7 @@ def threshold_segmentation(
     level_path: str | None = None,
     method: SegmentationConfiguration = OtsuConfiguration(),
     # Iteration parameters
-    iterator_configuration: IteratorConfiguration | None = None,
+    iterator_configuration: IteratorConfig | None = None,
     pre_post_process: SegmentationTransformConfig = SegmentationTransformConfig(),  # noqa: B008
     create_masking_roi_table: AnyCreateRoiTableModel = SkipCreateMaskingRoiTable(),  # noqa: B008
     overwrite: bool = True,
@@ -124,7 +124,7 @@ def threshold_segmentation(
         level_path (str | None): If the OME-Zarr has multiple resolution levels,
             the level to use can be specified here. If not provided, the highest
             resolution level will be used.
-        iterator_configuration (IteratorConfiguration | None): Configuration
+        iterator_configuration (IteratorConfig | None): Configuration
             for the segmentation iterator. This can be used to specify masking
             and/or a ROI table.
         method (SegmentationConfiguration): Configuration for the segmentation method.
@@ -153,7 +153,7 @@ def threshold_segmentation(
     iterator = setup_segmentation_iterator(
         zarr_url=zarr_url,
         channels=[channels.to_channel_selection_models()],
-        label_name=label_name,
+        output_label_name=label_name,
         level_path=level_path,
         iterator_configuration=iterator_configuration,
         segmentation_transform_config=pre_post_process,
@@ -162,7 +162,7 @@ def threshold_segmentation(
 
     # Run the core segmentation loop
     compute_segmentation(
-        func=lambda x: segmentation_function(input_image=x, method=method),
+        segmentation_func=lambda x: segmentation_function(input_image=x, method=method),
         iterator=iterator,
     )
     logger.info(f"label {label_name} successfully created at {zarr_url}")

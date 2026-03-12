@@ -270,7 +270,7 @@ def measure_features(
         default_factory=lambda: [ShapeFeatures(), IntensityFeatures()]
     ),
     roi_tables: list[str] = Field(default_factory=list),
-    andvanced_options: AdvancedOptions = AdvancedOptions(),
+    advanced_options: AdvancedOptions = AdvancedOptions(),
     overwrite: bool = False,
 ) -> None:
     """Extract region-properties features from an OME-Zarr image and save as a table.
@@ -294,6 +294,16 @@ def measure_features(
 
     ome_zarr = open_ome_zarr_container(zarr_url)
 
+    _seen_types: set[str] = set()
+    for _feat in features:
+        _feat_type = type(_feat).__name__
+        if _feat_type in _seen_types:
+            raise ValueError(
+                f"Duplicate feature type '{_feat_type}' in features list. "
+                "Each feature type may only appear once."
+            )
+        _seen_types.add(_feat_type)
+
     if not overwrite and output_table_name in ome_zarr.list_tables():
         # This is already checked in ome_zarr.add_table, but we check it here
         # to fail early and avoid running the task unnecessarily
@@ -302,26 +312,26 @@ def measure_features(
             "Set overwrite=True to overwrite it."
         )
 
-    image = ome_zarr.get_image(path=andvanced_options.level_path)
+    image = ome_zarr.get_image(path=advanced_options.level_path)
     regionprops_kwargs, channel_selection_models = _prepare_regionprops_kwargs(
         image=image,
         list_features=features,
-        use_scaling=andvanced_options.use_scaling,
-        use_cache=andvanced_options.use_cache,
+        use_scaling=advanced_options.use_scaling,
+        use_cache=advanced_options.use_cache,
     )
 
     iterator = setup_measurement_iterator(
         zarr_url=zarr_url,
-        level_path=andvanced_options.level_path,
+        level_path=advanced_options.level_path,
         label_image_name=label_image_name,
         channels=channel_selection_models,
-        tables=roi_tables,
+        roi_table_names=roi_tables if roi_tables else None,
     )
 
     def extract_func(image: np.ndarray, label: np.ndarray, roi: Roi) -> dict:
         return region_props_features_func(image, label, roi, **regionprops_kwargs)
 
-    feature_df = compute_measurement(func=extract_func, iterator=iterator)
+    feature_df = compute_measurement(measurement_func=extract_func, iterator=iterator)
 
     # Create a FeatureTable and add it to the OME-Zarr container
     feature_table = FeatureTable(
@@ -331,7 +341,7 @@ def measure_features(
         name=output_table_name,
         table=feature_table,
         overwrite=overwrite,
-        backend=andvanced_options.table_backend,
+        backend=advanced_options.table_backend,
     )
     logger.info(f"Feature table {output_table_name} added to OME-Zarr container.")
     return None

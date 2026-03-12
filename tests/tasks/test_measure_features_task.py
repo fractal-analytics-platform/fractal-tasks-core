@@ -10,6 +10,7 @@ from fractal_tasks_core._threshold_segmentation_utils import (
     ThresholdConfiguration,
 )
 from fractal_tasks_core.measure_features import (
+    AdvancedOptions,
     IntensityFeatures,
     ShapeFeatures,
     measure_features,
@@ -290,3 +291,165 @@ def test_measure_features_custom_table_name(tmp_path: Path) -> None:
 
     ome = open_ome_zarr_container(str(store))
     assert "my_features" in ome.list_tables()
+
+
+def test_measure_features_advanced_options_no_scaling(tmp_path: Path) -> None:
+    """use_scaling=False runs without errors and produces a table."""
+    store = _make_zarr_with_label(tmp_path)
+
+    measure_features(
+        zarr_url=str(store),
+        label_image_name="nuclei",
+        features=[ShapeFeatures()],
+        advanced_options=AdvancedOptions(use_scaling=False),
+    )
+
+    ome = open_ome_zarr_container(str(store))
+    assert "region_props_features" in ome.list_tables()
+
+
+def test_measure_features_advanced_options_table_backend(tmp_path: Path) -> None:
+    """table_backend='parquet' stores the table correctly."""
+    store = _make_zarr_with_label(tmp_path)
+
+    measure_features(
+        zarr_url=str(store),
+        label_image_name="nuclei",
+        features=[ShapeFeatures()],
+        advanced_options=AdvancedOptions(table_backend="parquet"),
+    )
+
+    ome = open_ome_zarr_container(str(store))
+    assert "region_props_features" in ome.list_tables()
+
+
+def test_intensity_features_with_channels(tmp_path: Path) -> None:
+    """IntensityFeatures with explicit channel selection runs without errors."""
+    from fractal_tasks_core.measure_features import InputChannel
+
+    store = _make_zarr_with_label(tmp_path)
+
+    measure_features(
+        zarr_url=str(store),
+        label_image_name="nuclei",
+        features=[
+            IntensityFeatures(channels=[InputChannel(mode="index", identifier="0")])
+        ],
+    )
+
+    ome = open_ome_zarr_container(str(store))
+    assert "region_props_features" in ome.list_tables()
+
+
+# ---------------------------------------------------------------------------
+# Correctness tests — measurement table contents
+# ---------------------------------------------------------------------------
+
+
+def test_measure_features_table_structure(tmp_path: Path) -> None:
+    """Table has exactly one row, expected columns, and label=1 as index."""
+    store = _make_zarr_with_label(tmp_path, shape=(1, 32, 32), axes="cyx")
+
+    measure_features(
+        zarr_url=str(store),
+        label_image_name="nuclei",
+        features=[ShapeFeatures()],
+    )
+
+    ome = open_ome_zarr_container(str(store))
+    df = ome.get_table("region_props_features").dataframe
+    assert len(df) == 1
+    assert "area" in df.columns
+    assert "region" in df.columns
+    assert df.index.name == "label"
+    assert df.index[0] == 1
+
+
+def test_measure_features_shape_correctness_no_scaling(tmp_path: Path) -> None:
+    """num_pixels and area equal the raw pixel count when scaling is disabled."""
+    store = _make_zarr_with_label(tmp_path, shape=(1, 32, 32), axes="cyx")
+
+    measure_features(
+        zarr_url=str(store),
+        label_image_name="nuclei",
+        features=[ShapeFeatures()],
+        advanced_options=AdvancedOptions(use_scaling=False),
+    )
+
+    ome = open_ome_zarr_container(str(store))
+    df = ome.get_table("region_props_features").dataframe
+    # Bright region is rows 8:20, cols 8:20 → 12×12 = 144 pixels
+    assert df["num_pixels"].iloc[0] == pytest.approx(144.0)
+    assert df["area"].iloc[0] == pytest.approx(144.0)
+
+
+def test_measure_features_shape_correctness_with_scaling(tmp_path: Path) -> None:
+    """area is in physical units (μm²) when scaling is enabled."""
+    store = _make_zarr_with_label(tmp_path, shape=(1, 32, 32), axes="cyx")
+
+    measure_features(
+        zarr_url=str(store),
+        label_image_name="nuclei",
+        features=[ShapeFeatures()],
+        advanced_options=AdvancedOptions(use_scaling=True),
+    )
+
+    ome = open_ome_zarr_container(str(store))
+    df = ome.get_table("region_props_features").dataframe
+    # 144 pixels × (0.1 μm)² = 1.44 μm²
+    assert df["area"].iloc[0] == pytest.approx(1.44, rel=1e-3)
+
+
+def test_measure_features_intensity_correctness(tmp_path: Path) -> None:
+    """Intensity statistics are correct for a uniform bright region."""
+    store = _make_zarr_with_label(tmp_path, shape=(1, 32, 32), axes="cyx")
+
+    measure_features(
+        zarr_url=str(store),
+        label_image_name="nuclei",
+        features=[IntensityFeatures()],
+        advanced_options=AdvancedOptions(use_scaling=False),
+    )
+
+    ome = open_ome_zarr_container(str(store))
+    df = ome.get_table("region_props_features").dataframe
+    # The bright region is uniformly 500; background (0) is outside the label.
+    # Default channel label is "channel_0" (ngio convention).
+    assert df["intensity_mean-channel_0"].iloc[0] == pytest.approx(500.0)
+    assert df["intensity_max-channel_0"].iloc[0] == pytest.approx(500.0)
+    assert df["intensity_min-channel_0"].iloc[0] == pytest.approx(500.0)
+    assert df["intensity_std-channel_0"].iloc[0] == pytest.approx(0.0, abs=1e-3)
+
+
+def test_measure_features_duplicate_feature_type_raises(tmp_path: Path) -> None:
+    """Passing the same feature type twice raises ValueError."""
+    store = _make_zarr_with_label(tmp_path, shape=(1, 32, 32), axes="cyx")
+
+    with pytest.raises(ValueError, match="Duplicate"):
+        measure_features(
+            zarr_url=str(store),
+            label_image_name="nuclei",
+            features=[ShapeFeatures(), ShapeFeatures()],
+        )
+
+
+def test_measure_features_channel_identifier_in_columns(tmp_path: Path) -> None:
+    """Explicit channel identifier (index mode) appears in intensity column names."""
+    from fractal_tasks_core.measure_features import InputChannel
+
+    store = _make_zarr_with_label(tmp_path, shape=(1, 32, 32), axes="cyx")
+
+    measure_features(
+        zarr_url=str(store),
+        label_image_name="nuclei",
+        features=[
+            IntensityFeatures(
+                channels=[InputChannel(mode="index", identifier="0")]
+            )
+        ],
+    )
+
+    ome = open_ome_zarr_container(str(store))
+    df = ome.get_table("region_props_features").dataframe
+    assert "intensity_mean-0" in df.columns
+    assert "intensity_max-0" in df.columns
