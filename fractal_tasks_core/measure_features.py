@@ -220,13 +220,14 @@ def region_props_features_func(
     use_cache: bool = True,
 ) -> dict:
     """Extract region properties features from a label image within a ROI."""
-    assert image.ndim in (3, 4), "Image must be 3D yxc or 4D yxzc "
-    assert image.ndim == label.ndim, (
-        "Image and label must have the same number of dimensions"
-    )
+    if image.ndim not in (3, 4):
+        raise ValueError("Image must be 3D yxc or 4D yxzc ")
+    if image.ndim != label.ndim:
+        raise ValueError("Image and label must have the same number of dimensions")
     # Since we query the label image as yxc or yxzc, we need to ensure
     # it has a single channel and we need to squeeze the channel dimension
-    assert label.shape[-1] == 1, "Label image must have a single channel"
+    if label.shape[-1] != 1:
+        raise ValueError("Label image must have a single channel")
     label = label[..., 0]
 
     # Perform region props extraction

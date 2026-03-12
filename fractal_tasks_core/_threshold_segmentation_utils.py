@@ -139,6 +139,7 @@ def segmentation_function(
     logger.info(f"Calculated threshold value: {threshold_value}")
     masks = input_image > threshold_value
     label_img = label(masks)
-    assert isinstance(label_img, np.ndarray), "Label image must be a numpy array"
+    if not isinstance(label_img, np.ndarray):
+        raise TypeError("Label image must be a numpy array")
     label_img = label_img.astype(np.uint32)
     return label_img
