@@ -443,9 +443,7 @@ def test_measure_features_channel_identifier_in_columns(tmp_path: Path) -> None:
         zarr_url=str(store),
         label_image_name="nuclei",
         features=[
-            IntensityFeatures(
-                channels=[InputChannel(mode="index", identifier="0")]
-            )
+            IntensityFeatures(channels=[InputChannel(mode="index", identifier="0")])
         ],
     )
 
