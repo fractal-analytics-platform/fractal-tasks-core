@@ -27,13 +27,6 @@ AvailableTableBackends = Literal["anndata", "json", "csv", "parquet"]
 class ShapeFeatures(BaseModel):
     """Shape features extracted from regionprops."""
 
-    include_base_properties: bool = True
-    """
-    Whether to include the base set of shape properties like:
-    area, area_bbox, num_pixels, equivalent_diameter_area, axis_major_length,
-    axis_minor_length, euler_number, feret_diameter_max (2D), perimeter (2D),
-    perimeter_crofton (2D), eccentricity (2D), orientation (2D).
-    """
     include_convex_hull_properties: bool = False
     """
     Whether to include convex hull related properties like area_convex, area_filled,
@@ -67,8 +60,7 @@ class ShapeFeatures(BaseModel):
             "solidity",
         ]
         properties: list[str] = []
-        if self.include_base_properties:
-            properties.extend(_base_properties)
+        properties.extend(_base_properties)
         if is_2d:
             properties.extend(_base_2d_properties)
         if self.include_convex_hull_properties:
@@ -137,6 +129,35 @@ SupportedFeatures = Annotated[
     ShapeFeatures | IntensityFeatures,
     Field(discriminator="type"),
 ]
+
+
+class AdvancedOptions(BaseModel):
+    """Advanced options for feature measurement."""
+
+    level_path: str | None = None
+    """
+    Optional path to the pyramid level to use for the measurement.
+    If None, the highest resolution level will be used.
+    """
+
+    use_scaling: bool = True
+    """
+    Whether to use pixel scaling from the OME-Zarr metadata. This will scale the
+    features according to the physical pixel size, e.g. area will be in
+    square microns instead of square pixels. Defaults to True.
+    """
+
+    use_cache: bool = True
+    """
+    Whether to cache the loaded images. Caching can speed up the measurement
+    if multiple features are extracted from the same image, but it can also
+    increase memory usage. Defaults to True.
+    """
+
+    table_backend: AvailableTableBackends = "anndata"
+    """
+    Table backend to use for the output table. Defaults to "anndata".
+    """
 
 
 def _prepare_regionprops_kwargs(
@@ -244,15 +265,12 @@ def measure_features(
     zarr_url: str,
     # Input parameters
     label_image_name: str,
-    level_path: str | None = None,
     output_table_name: str = "region_props_features",
     features: list[SupportedFeatures] = Field(
         default_factory=lambda: [ShapeFeatures(), IntensityFeatures()]
     ),
     roi_tables: list[str] = Field(default_factory=list),
-    use_scaling: bool = True,
-    use_cache: bool = True,
-    table_backend: AvailableTableBackends = "anndata",
+    andvanced_options: AdvancedOptions = AdvancedOptions(),
     overwrite: bool = False,
 ) -> None:
     """Extract region-properties features from an OME-Zarr image and save as a table.
@@ -262,19 +280,13 @@ def measure_features(
     Args:
         zarr_url (str): URL to the OME-Zarr container.
         label_image_name (str): Name of the label image to analyze.
-        level_path (str | None): Optional path to the pyramid level to use
-            for the measurement. If None, the highest resolution level will be used.
         output_table_name (str): Name for the output feature table.
         features (list[SupportedFeatures]): List of feature configurations
             describing which properties to extract.
         roi_tables (list[str]): List of ROI table names to condition the
             feature extraction on. If empty, features will be extracted
             for the whole label image (2D) or volume (3D).
-        use_scaling (bool): Whether to use pixel scaling from the OME-Zarr metadata.
-            Defaults to True.
-        use_cache (bool): Whether to cache the loaded images. Defaults to True.
-        table_backend (AvailableTableBackends): Backend to use for the output table.
-            Defaults to "anndata".
+        advanced_options (AdvancedOptions): Advanced options for feature measurement.
         overwrite (bool): Whether to overwrite an existing feature table.
             Defaults to False.
     """
@@ -290,15 +302,17 @@ def measure_features(
             "Set overwrite=True to overwrite it."
         )
 
-    image = ome_zarr.get_image(path=level_path)
+    image = ome_zarr.get_image(path=andvanced_options.level_path)
     regionprops_kwargs, channel_selection_models = _prepare_regionprops_kwargs(
         image=image,
         list_features=features,
+        use_scaling=andvanced_options.use_scaling,
+        use_cache=andvanced_options.use_cache,
     )
 
     iterator = setup_measurement_iterator(
         zarr_url=zarr_url,
-        level_path=level_path,
+        level_path=andvanced_options.level_path,
         label_image_name=label_image_name,
         channels=channel_selection_models,
         tables=roi_tables,
@@ -317,7 +331,7 @@ def measure_features(
         name=output_table_name,
         table=feature_table,
         overwrite=overwrite,
-        backend=table_backend,
+        backend=andvanced_options.table_backend,
     )
     logger.info(f"Feature table {output_table_name} added to OME-Zarr container.")
     return None

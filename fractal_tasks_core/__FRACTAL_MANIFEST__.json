@@ -786,6 +786,42 @@
       },
       "args_schema_parallel": {
         "$defs": {
+          "AdvancedOptions": {
+            "description": "Advanced options for feature measurement.",
+            "properties": {
+              "level_path": {
+                "description": "Optional path to the pyramid level to use for the measurement.\nIf None, the highest resolution level will be used.",
+                "title": "Level Path",
+                "type": "string"
+              },
+              "use_scaling": {
+                "default": true,
+                "description": "Whether to use pixel scaling from the OME-Zarr metadata. This will scale the\nfeatures according to the physical pixel size, e.g. area will be in\nsquare microns instead of square pixels. Defaults to True.",
+                "title": "Use Scaling",
+                "type": "boolean"
+              },
+              "use_cache": {
+                "default": true,
+                "description": "Whether to cache the loaded images. Caching can speed up the measurement\nif multiple features are extracted from the same image, but it can also\nincrease memory usage. Defaults to True.",
+                "title": "Use Cache",
+                "type": "boolean"
+              },
+              "table_backend": {
+                "default": "anndata",
+                "description": "Table backend to use for the output table. Defaults to \"anndata\".",
+                "enum": [
+                  "anndata",
+                  "json",
+                  "csv",
+                  "parquet"
+                ],
+                "title": "Table Backend",
+                "type": "string"
+              }
+            },
+            "title": "AdvancedOptions",
+            "type": "object"
+          },
           "InputChannel": {
             "description": "Input channel configuration for measurement tasks.",
             "properties": {
@@ -834,12 +870,6 @@
           "ShapeFeatures": {
             "description": "Shape features extracted from regionprops.",
             "properties": {
-              "include_base_properties": {
-                "default": true,
-                "description": "Whether to include the base set of shape properties like:\narea, area_bbox, num_pixels, equivalent_diameter_area, axis_major_length,\naxis_minor_length, euler_number, feret_diameter_max (2D), perimeter (2D),\nperimeter_crofton (2D), eccentricity (2D), orientation (2D).",
-                "title": "Include Base Properties",
-                "type": "boolean"
-              },
               "include_convex_hull_properties": {
                 "default": false,
                 "description": "Whether to include convex hull related properties like area_convex, area_filled,\nextent, solidity. These are not included since they can sometimes return\nunexpected Warnings.",
@@ -869,11 +899,6 @@
             "type": "string",
             "description": "Name of the label image to analyze."
           },
-          "level_path": {
-            "title": "Level Path",
-            "type": "string",
-            "description": "Optional path to the pyramid level to use for the measurement. If None, the highest resolution level will be used."
-          },
           "output_table_name": {
             "default": "region_props_features",
             "title": "Output Table Name",
@@ -883,7 +908,6 @@
           "features": {
             "default": [
               {
-                "include_base_properties": true,
                 "include_convex_hull_properties": false,
                 "type": "ShapeFeatures"
               },
@@ -922,29 +946,16 @@
             "type": "array",
             "description": "List of ROI table names to condition the feature extraction on. If empty, features will be extracted for the whole label image (2D) or volume (3D)."
           },
-          "use_scaling": {
-            "default": true,
-            "title": "Use Scaling",
-            "type": "boolean",
-            "description": "Whether to use pixel scaling from the OME-Zarr metadata. Defaults to True."
-          },
-          "use_cache": {
-            "default": true,
-            "title": "Use Cache",
-            "type": "boolean",
-            "description": "Whether to cache the loaded images. Defaults to True."
-          },
-          "table_backend": {
-            "default": "anndata",
-            "enum": [
-              "anndata",
-              "json",
-              "csv",
-              "parquet"
-            ],
-            "title": "Table Backend",
-            "type": "string",
-            "description": "Backend to use for the output table. Defaults to \"anndata\"."
+          "andvanced_options": {
+            "$ref": "#/$defs/AdvancedOptions",
+            "default": {
+              "level_path": null,
+              "use_scaling": true,
+              "use_cache": true,
+              "table_backend": "anndata"
+            },
+            "title": "Andvanced Options",
+            "description": "Missing description"
           },
           "overwrite": {
             "default": false,

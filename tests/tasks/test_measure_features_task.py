@@ -68,23 +68,62 @@ def _make_zarr_with_label(
 
 
 def test_shape_features_property_names() -> None:
-    names = ShapeFeatures().property_names
+    names = ShapeFeatures().property_names(is_2d=True)
     assert set(names) == {
         "area",
         "area_bbox",
+        "num_pixels",
+        "equivalent_diameter_area",
         "axis_major_length",
         "axis_minor_length",
+        "euler_number",
+        "feret_diameter_max",
+        "perimeter",
+        "perimeter_crofton",
+        "eccentricity",
+        "orientation",
+    }
+    names = ShapeFeatures().property_names(is_2d=False)
+    assert set(names) == {
+        "area",
+        "area_bbox",
+        "num_pixels",
+        "equivalent_diameter_area",
+        "axis_major_length",
+        "axis_minor_length",
+        "euler_number",
+    }
+    names = ShapeFeatures(include_convex_hull_properties=True).property_names(
+        is_2d=True
+    )
+    assert set(names) == {
+        "area",
+        "area_bbox",
+        "num_pixels",
+        "equivalent_diameter_area",
+        "axis_major_length",
+        "axis_minor_length",
+        "euler_number",
+        "feret_diameter_max",
+        "perimeter",
+        "perimeter_crofton",
+        "eccentricity",
+        "orientation",
+        "area_convex",
+        "area_filled",
+        "extent",
         "solidity",
     }
 
 
 def test_intensity_features_property_names() -> None:
-    names = IntensityFeatures().property_names
+    names = IntensityFeatures().property_names(is_2d=True)
     assert set(names) == {
-        "mean_intensity",
-        "max_intensity",
-        "min_intensity",
-        "std_intensity",
+        "intensity_mean",
+        "intensity_median",
+        "intensity_max",
+        "intensity_min",
+        "intensity_std",
     }
 
 
@@ -104,7 +143,7 @@ def test_region_props_features_func_2d_shape_features() -> None:
         image=image,
         label=label_arr,
         roi=_mock_roi("roi_0"),
-        list_features=[ShapeFeatures()],
+        properties=["label"] + ShapeFeatures().property_names(is_2d=True),
     )
     assert "area" in result
     assert result["region"] == ["roi_0"]
@@ -122,10 +161,10 @@ def test_region_props_features_func_intensity_features() -> None:
         image=image,
         label=label_arr,
         roi=_mock_roi(),
-        list_features=[IntensityFeatures()],
+        properties=["label"] + IntensityFeatures().property_names(is_2d=True),
     )
     # skimage appends a channel suffix ("-0") when intensity_image has a channel dim
-    assert any(k.startswith("mean_intensity") for k in result)
+    assert any(k.startswith("intensity_mean") for k in result)
 
 
 def test_region_props_features_func_wrong_ndim_raises() -> None:
@@ -137,7 +176,7 @@ def test_region_props_features_func_wrong_ndim_raises() -> None:
             image=image,
             label=label_arr,
             roi=_mock_roi(),
-            list_features=[ShapeFeatures()],
+            properties=ShapeFeatures().property_names(is_2d=True),
         )
 
 
@@ -150,7 +189,7 @@ def test_region_props_features_func_multichannel_label_raises() -> None:
             image=image,
             label=label_arr,
             roi=_mock_roi(),
-            list_features=[ShapeFeatures()],
+            properties=ShapeFeatures().property_names(is_2d=True),
         )
 
 
