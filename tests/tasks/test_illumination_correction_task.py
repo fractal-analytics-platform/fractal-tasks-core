@@ -67,7 +67,7 @@ def test_output_handled(
         zarr_url=image_url,
         illumination_profiles=illumination_profiles,
         overwrite_input=overwrite_input,
-        suffix="_corrected",
+        output_image_name="{image_name}_corrected",
     )
 
     # check output paths
@@ -181,7 +181,7 @@ def test_wrong_wavelength_profiles(
             illumination_profiles=illumination_profiles,
             background_correction={"value": background_profiles},  # type: ignore wrong profile
             overwrite_input=False,
-            suffix="_corrected",
+            output_image_name="{image_name}_corrected",
         )
 
 
@@ -221,13 +221,13 @@ def test_constant_background_subtraction(
         illumination_profiles=illumination_profiles,
         background_correction=background_model,
         overwrite_input=False,
-        suffix="_with_background",
+        output_image_name="{image_name}_with_background",
     )
     illumination_correction(
         zarr_url=image_url,
         illumination_profiles=illumination_profiles,
         overwrite_input=False,
-        suffix="_no_background",
+        output_image_name="{image_name}_no_background",
     )
 
     # corrected with background profiles should differ from corrected without
@@ -274,7 +274,7 @@ def test_with_background_profiles(
         illumination_profiles=illumination_profiles,
         background_correction=background_correction,
         overwrite_input=False,
-        suffix="_with_background",
+        output_image_name="{image_name}_with_background",
     )
 
     # control group with no background profiles
@@ -282,7 +282,7 @@ def test_with_background_profiles(
         zarr_url=image_url,
         illumination_profiles=illumination_profiles,
         overwrite_input=False,
-        suffix="_no_background",
+        output_image_name="{image_name}_no_background",
     )
 
     _check_that_images_differs(
@@ -316,7 +316,7 @@ def test_two_different_illumination_profiles(
         zarr_url=image_url,
         illumination_profiles=illumination_profiles,
         overwrite_input=False,
-        suffix="_corrected2",
+        output_image_name="{image_name}_corrected2",
     )
 
     # control group
@@ -333,7 +333,7 @@ def test_two_different_illumination_profiles(
         zarr_url=image_url,
         illumination_profiles=illumination_profiles_control,
         overwrite_input=False,
-        suffix="_corrected",
+        output_image_name="{image_name}_corrected",
     )
 
     _check_that_images_differs(image_url + "_corrected", image_url + "_corrected2")
@@ -384,7 +384,7 @@ def test_wrong_file_or_folder(
             illumination_profiles=illumination_profiles_wrong_folder,
             background_correction=background_correction,
             overwrite_input=False,
-            suffix="_corrected",
+            output_image_name="{image_name}_corrected",
         )
 
     # test background folder wrong
@@ -402,7 +402,7 @@ def test_wrong_file_or_folder(
             illumination_profiles=illumination_profiles,
             background_correction=background_correction_wrong_folder,
             overwrite_input=False,
-            suffix="_corrected",
+            output_image_name="{image_name}_corrected",
         )
 
     # test illumination file wrong
@@ -421,7 +421,7 @@ def test_wrong_file_or_folder(
             illumination_profiles=illumination_profiles_wrong,
             background_correction=background_correction,
             overwrite_input=False,
-            suffix="_corrected",
+            output_image_name="{image_name}_corrected",
         )
 
     # test background file wrong
@@ -442,7 +442,7 @@ def test_wrong_file_or_folder(
             illumination_profiles=illumination_profiles,
             background_correction=background_correction_wrong,
             overwrite_input=False,
-            suffix="_corrected",
+            output_image_name="{image_name}_corrected",
         )
 
 
@@ -496,21 +496,23 @@ def test_multidimensional_input(
 
 
 # ---------------------------------------------------------------------------
-# empty suffix raises before any zarr I/O
+# empty output_image_name raises before any zarr I/O
 # ---------------------------------------------------------------------------
 
 
-def test_empty_suffix() -> None:
+def test_empty_output_image_name() -> None:
     illumination_profile = ProfileCorrectionModel(
         folder="/any",
         profiles={},
     )
-    with pytest.raises(ValueError, match="suffix cannot be an empty string"):
+    with pytest.raises(
+        ValueError, match="output_image_name cannot result in an empty string"
+    ):
         illumination_correction(
             zarr_url="/nonexistent",
             illumination_profiles=illumination_profile,
             overwrite_input=False,
-            suffix="",
+            output_image_name="",
         )
 
 

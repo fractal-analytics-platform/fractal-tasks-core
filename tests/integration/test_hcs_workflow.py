@@ -79,7 +79,7 @@ _SHIFT_X_UM = _SHIFT_X_PX * _PIXELSIZE  # 2.6 µm
 
 # ROI table names — reused from import_ome_zarr output
 _ROI_TABLE = "image_ROI_table"
-_REGISTERED_ROI_TABLE = "registered_image_ROI_table"
+_REGISTERED_ROI_TABLE = "image_ROI_table_registered"
 
 
 # ---------------------------------------------------------------------------
@@ -241,7 +241,7 @@ def test_full_pipeline(tmp_path: Path) -> None:
         init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
         wavelength_id=_CHANNELS[0],
         roi_table=_ROI_TABLE,
-        level=2,
+        level_path="2",
     )
 
     ome1 = open_ome_zarr_container(zarr_url_1)
@@ -265,7 +265,7 @@ def test_full_pipeline(tmp_path: Path) -> None:
 
     ome0 = open_ome_zarr_container(zarr_url_0)
     assert _REGISTERED_ROI_TABLE in ome0.list_tables(), (
-        "compute_registration_consensus must write registered_image_ROI_table to acq-0"
+        "compute_registration_consensus must write image_ROI_table_registered to acq-0"
     )
 
     # ------------------------------------------------------------------

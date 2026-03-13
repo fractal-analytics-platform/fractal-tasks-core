@@ -140,8 +140,8 @@ def apply_registration_to_image(
             (standard argument for Fractal tasks, managed by Fractal server).
         registered_roi_table: Name of the ROI table which has been registered
             and will be applied to mask and shift the images.
-            Examples: `registered_FOV_ROI_table` => loop over the field of
-            views, `registered_well_ROI_table` => process the whole well as
+            Examples: `FOV_ROI_table_registered` => loop over the field of
+            views, `well_ROI_table_registered` => process the whole well as
             one image.
         reference_acquisition: Which acquisition to register against. Uses the
             OME-NGFF HCS well metadata acquisition keys to find the reference

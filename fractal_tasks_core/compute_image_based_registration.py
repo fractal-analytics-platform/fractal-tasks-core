@@ -31,7 +31,7 @@ def compute_image_based_registration(
     lower_rescale_quantile: float = 0.0,
     upper_rescale_quantile: float = 0.99,
     roi_table: str = "FOV_ROI_table",
-    level: int = 2,
+    level_path: str = "2",
 ) -> None:
     """
     Calculate registration based on images
@@ -65,8 +65,8 @@ def compute_image_based_registration(
             calculate the registration. Examples: `FOV_ROI_table` => loop over
             the field of views, `well_ROI_table` => process the whole well as
             one image.
-        level: Pyramid level of the image to be used for registration.
-            Choose `0` to process at full resolution.
+        level_path: Path to the pyramid level of the image to be used for
+            registration. Choose `"0"` to process at full resolution.
 
     """
     logger.info(
@@ -76,11 +76,11 @@ def compute_image_based_registration(
     )
 
     ref_ome_zarr = open_ome_zarr_container(init_args.reference_zarr_url)
-    ref_image = ref_ome_zarr.get_image(path=str(level))
+    ref_image = ref_ome_zarr.get_image(path=level_path)
     channel_index_ref = ref_image.get_channel_idx(wavelength_id=wavelength_id)
 
     to_align_ome_zarr = open_ome_zarr_container(zarr_url)
-    to_align_image = to_align_ome_zarr.get_image(path=str(level))
+    to_align_image = to_align_ome_zarr.get_image(path=level_path)
     channel_index_align = to_align_image.get_channel_idx(wavelength_id=wavelength_id)
 
     if ref_image.is_time_series:

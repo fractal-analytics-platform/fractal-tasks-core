@@ -106,6 +106,29 @@ class BackgroundCorrection(BaseModel):
     ]
 
 
+def _format_output_image_name(output_image_name_template: str, image_name: str) -> str:
+    """Format the output image name based on the provided template and image name.
+
+    Args:
+        output_image_name_template: The template for the output image name. It may
+            contain a placeholder ``{image_name}`` which will be replaced by the
+            current image name, or no placeholder at all (the template is used
+            verbatim, ignoring the image name).
+        image_name: The current image name to insert into the template.
+
+    Returns:
+        The formatted output image name.
+    """
+    try:
+        name = output_image_name_template.format(image_name=image_name)
+    except KeyError as e:
+        raise ValueError(
+            "Output Image Name format error: only allowed placeholder is "
+            f"'image_name'. {{{e}}} was provided."
+        ) from e
+    return name
+
+
 @validate_call
 def illumination_correction(
     *,
@@ -115,9 +138,9 @@ def illumination_correction(
     illumination_profiles: ProfileCorrectionModel,
     background_correction: BackgroundCorrection = BackgroundCorrection(),  # type: ignore, TODO use factory # type: ignore
     input_ROI_table: str = "FOV_ROI_table",
-    overwrite_input: bool = True,
+    overwrite_input: bool = False,
     # Advanced parameters
-    suffix: str = "_illum_corr",
+    output_image_name: str = "{image_name}_illum_corr",
 ) -> dict[str, Any] | None:
     """
     Applies illumination correction to the images in the OME-Zarr.
@@ -144,10 +167,14 @@ def illumination_correction(
             have multiple FOVs per Zarr image and set the right grid options
             during import.
         overwrite_input: If `True`, the results of this task will overwrite
-            the input image data. If false, a new image is generated and the
-            illumination corrected data is saved there.
-        suffix: What suffix to append to the illumination corrected images.
-            Only relevant if `overwrite_input=False`.
+            the input image data. If `False`, a new image is generated and the
+            illumination corrected data is saved there. Defaults to `False`.
+        output_image_name: Name of the output image within the well. Only
+            relevant if ``overwrite_input=False``. May contain the placeholder
+            ``{image_name}``, which is replaced by the name of the input image
+            (i.e. the last path component of ``zarr_url``). For example, the
+            default ``"{image_name}_illum_corr"`` turns an input image named
+            ``0`` into ``0_illum_corr``.
     """
 
     # Prepare zarr urls
@@ -155,9 +182,12 @@ def illumination_correction(
     if overwrite_input:
         zarr_url_new = zarr_url
     else:
-        if suffix == "":
-            raise ValueError("suffix cannot be an empty string.")
-        zarr_url_new = f"{zarr_url}{suffix}"
+        image_name = zarr_url.split("/")[-1]
+        formatted_name = _format_output_image_name(output_image_name, image_name)
+        if formatted_name == "":
+            raise ValueError("output_image_name cannot result in an empty string.")
+        parent_url = zarr_url.rsplit("/", 1)[0]
+        zarr_url_new = f"{parent_url}/{formatted_name}"
 
     t_start = time.perf_counter()
     logger.info("Start illumination_correction")

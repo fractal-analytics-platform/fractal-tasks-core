@@ -15,6 +15,28 @@ from fractal_tasks_core._registration_utils import InitArgsRegistrationConsensus
 logger = logging.getLogger("compute_registration_consensus")
 
 
+def _format_new_roi_table_name(new_roi_table_template: str, roi_table: str) -> str:
+    """Format the new ROI table name from a template, substituting ``{roi_table}``.
+
+    Args:
+        new_roi_table_template: Template string, may contain a ``{roi_table}``
+            placeholder which will be replaced by the input ROI table name, or
+            no placeholder at all (the template is used verbatim).
+        roi_table: The input ROI table name to substitute into the template.
+
+    Returns:
+        The formatted output ROI table name.
+    """
+    try:
+        name = new_roi_table_template.format(roi_table=roi_table)
+    except KeyError as e:
+        raise ValueError(
+            "New ROI Table Name format error: only allowed placeholder is "
+            f"'roi_table'. {{{e}}} was provided."
+        ) from e
+    return name
+
+
 def _validate_if_translation_exists(tables: list[GenericRoiTable]) -> None:
     """Check that at least one table contains pre-calculated translation fields.
 
@@ -181,7 +203,7 @@ def compute_registration_consensus(
     # Core parameters
     roi_table: str = "FOV_ROI_table",
     # Advanced parameters
-    new_roi_table: str | None = None,
+    new_roi_table: str = "{roi_table}_registered",
 ):
     """
     Applies pre-calculated registration to ROI tables.
@@ -204,12 +226,22 @@ def compute_registration_consensus(
             calculate the registration. Examples: `FOV_ROI_table` => loop over
             the field of views, `well_ROI_table` => process the whole well as
             one image.
-        new_roi_table: Optional name for the new, registered ROI table. If no
-            name is given, it will default to "registered_" + `roi_table`
+        new_roi_table: Name template for the new, registered ROI table. May
+            contain the placeholder ``{roi_table}``, which is replaced by the
+            value of `roi_table`. For example, the default
+            ``"{roi_table}_registered"`` turns ``FOV_ROI_table`` into
+            ``FOV_ROI_table_registered``. Must resolve to a name different from
+            `roi_table` (overwriting the input table would destroy the
+            pre-calculated translation shifts).
 
     """
-    if not new_roi_table:
-        new_roi_table = "registered_" + roi_table
+    new_roi_table = _format_new_roi_table_name(new_roi_table, roi_table)
+    if new_roi_table == roi_table:
+        raise ValueError(
+            f"new_roi_table ({new_roi_table!r}) must differ from roi_table "
+            f"({roi_table!r}). Overwriting the input table would destroy the "
+            "pre-calculated translation shifts."
+        )
     logger.info(
         f"Running for {zarr_url=} & the other acquisitions in that well. \n"
         f"Applying translation registration to {roi_table=} and storing it as "
