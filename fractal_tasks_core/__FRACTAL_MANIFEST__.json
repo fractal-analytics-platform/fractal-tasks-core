@@ -32,10 +32,10 @@
           "DaskProjectionMethod": {
             "description": "Registration method selection",
             "enum": [
-              "mip",
-              "minip",
-              "meanip",
-              "sumip"
+              "Maximum intensity projection",
+              "Minimum intensity projection",
+              "Mean intensity projection",
+              "Sum intensity projection"
             ],
             "title": "DaskProjectionMethod",
             "type": "string"
@@ -58,9 +58,9 @@
           },
           "method": {
             "$ref": "#/$defs/DaskProjectionMethod",
-            "default": "mip",
+            "default": "Maximum intensity projection",
             "title": "Method",
-            "description": "Choose which method to use for intensity projection along the Z axis. mip is the default and performs a maximum intensity projection. minip performs a minimum intensity projection, meanip a mean intensity projection and sumip a sum intensity projection."
+            "description": "Choose which method to use for intensity projection along the Z axis. Implemented methods are: - MIP: Maximum intensity projection - MINIP: Minimum intensity projection - MEANIP: Mean intensity projection - SUMIP: Sum intensity projection"
           },
           "overwrite": {
             "default": false,
@@ -84,6 +84,17 @@
       },
       "args_schema_parallel": {
         "$defs": {
+          "DaskProjectionMethod": {
+            "description": "Registration method selection",
+            "enum": [
+              "Maximum intensity projection",
+              "Minimum intensity projection",
+              "Mean intensity projection",
+              "Sum intensity projection"
+            ],
+            "title": "DaskProjectionMethod",
+            "type": "string"
+          },
           "InitArgsMIP": {
             "description": "Init Args for MIP task.",
             "properties": {
@@ -92,8 +103,9 @@
                 "type": "string"
               },
               "method": {
-                "title": "Method",
-                "type": "string"
+                "$ref": "#/$defs/DaskProjectionMethod",
+                "default": "Maximum intensity projection",
+                "title": "Method"
               },
               "overwrite": {
                 "title": "Overwrite",
@@ -106,7 +118,6 @@
             },
             "required": [
               "origin_url",
-              "method",
               "overwrite",
               "new_plate_name"
             ],
@@ -161,10 +172,10 @@
           "DaskProjectionMethod": {
             "description": "Registration method selection",
             "enum": [
-              "mip",
-              "minip",
-              "meanip",
-              "sumip"
+              "Maximum intensity projection",
+              "Minimum intensity projection",
+              "Mean intensity projection",
+              "Sum intensity projection"
             ],
             "title": "DaskProjectionMethod",
             "type": "string"
@@ -179,9 +190,9 @@
           },
           "method": {
             "$ref": "#/$defs/DaskProjectionMethod",
-            "default": "mip",
+            "default": "Maximum intensity projection",
             "title": "Method",
-            "description": "Projection method to be used. See `DaskProjectionMethod`"
+            "description": "Projection method to be used. Implemented methods are: - MIP: Maximum intensity projection - MINIP: Minimum intensity projection - MEANIP: Mean intensity projection - SUMIP: Sum intensity projection"
           },
           "overwrite": {
             "default": false,

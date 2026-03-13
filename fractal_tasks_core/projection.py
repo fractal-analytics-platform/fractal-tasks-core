@@ -25,16 +25,23 @@ def projection(
     """
     Perform intensity projection along Z axis with a chosen method.
 
-    Note: this task stores the output in a new zarr file.
+    Note: this task will write the output in a new OM-Zarr file
+        in the same location as the input one, with the same name plus
+        a suffix indicating the projection method used (e.g. "_MIP" for
+        maximum intensity projection).
 
     Args:
         zarr_url: Path or url to the individual OME-Zarr image to be processed.
-        method: Projection method to be used. See `DaskProjectionMethod`
+        method: Projection method to be used. Implemented methods are:
+            - MIP: Maximum intensity projection
+            - MINIP: Minimum intensity projection
+            - MEANIP: Mean intensity projection
+            - SUMIP: Sum intensity projection
         overwrite: If `True`, overwrite the task output.
     """
     if not zarr_url.endswith(".zarr"):
         raise ValueError(f"The input zarr url must end with .zarr, but got {zarr_url}")
-    output_zarr_url = zarr_url.removesuffix(".zarr") + f"_{method.value}.zarr"
+    output_zarr_url = zarr_url.removesuffix(".zarr") + f"_{method.abbreviation}.zarr"
     return projection_core(
         input_zarr_url=zarr_url,
         output_zarr_url=output_zarr_url,

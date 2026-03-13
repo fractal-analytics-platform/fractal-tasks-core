@@ -225,7 +225,7 @@ def test_new_plate_name(tmp_path: Path):
         test_new_plate_name = p_list["parallelization_list"][0]["init_args"][
             "new_plate_name"
         ]
-        assert test_new_plate_name == f"plate_xy_2w_1_{method.value}.zarr", (
+        assert test_new_plate_name == f"plate_xy_2w_1_{method.abbreviation}.zarr", (
             test_new_plate_name
         )
 

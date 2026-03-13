@@ -97,9 +97,11 @@ def init_projection_hcs(
             created.
             (standard argument for Fractal tasks, managed by Fractal server).
         method: Choose which method to use for intensity projection along the
-            Z axis. mip is the default and performs a maximum intensity
-            projection. minip performs a minimum intensity projection, meanip
-            a mean intensity projection and sumip a sum intensity projection.
+            Z axis. Implemented methods are:
+            - MIP: Maximum intensity projection
+            - MINIP: Minimum intensity projection
+            - MEANIP: Mean intensity projection
+            - SUMIP: Sum intensity projection
         overwrite: If `True`, overwrite the MIP images if they are
             already present in the new OME-Zarr Plate.
         re_initialize_plate: If `True`, re-initialize the plate, deleting all
@@ -133,7 +135,9 @@ def init_projection_hcs(
         base_dir = "/".join(base)
 
         plate_url = f"{base_dir}/{plate_name}"
-        proj_plate_name = f"{plate_name}".rstrip(".zarr") + f"_{method.value}.zarr"
+        proj_plate_name = (
+            f"{plate_name}".rstrip(".zarr") + f"_{method.abbreviation}.zarr"
+        )
         proj_plate_url = f"{zarr_dir}/{proj_plate_name}"
 
         if proj_plate_url not in proj_plates:
@@ -177,7 +181,7 @@ def init_projection_hcs(
         proj_zarr_url = f"{proj_plate_url}/{proj_image_path}"
         proj_init = InitArgsMIP(
             origin_url=zarr_url,
-            method=method.value,
+            method=method,
             # Since we checked for existence above,
             # we can safely set this to True
             overwrite=True,

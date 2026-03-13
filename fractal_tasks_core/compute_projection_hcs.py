@@ -11,7 +11,6 @@ from typing import Any
 from pydantic import validate_call
 
 from fractal_tasks_core._projection_utils import (
-    DaskProjectionMethod,
     InitArgsMIP,
     projection_core,
 )
@@ -41,7 +40,7 @@ def compute_projection_hcs(
     return projection_core(
         input_zarr_url=init_args.origin_url,
         output_zarr_url=zarr_url,
-        method=DaskProjectionMethod(init_args.method),
+        method=init_args.method,
         overwrite=init_args.overwrite,
         attributes=attributes,
     )

@@ -118,10 +118,10 @@ class DaskProjectionMethod(Enum):
         SUMIP: Sum intensity projection
     """
 
-    MIP = "mip"
-    MINIP = "minip"
-    MEANIP = "meanip"
-    SUMIP = "sumip"
+    MIP = "Maximum intensity projection"
+    MINIP = "Minimum intensity projection"
+    MEANIP = "Mean intensity projection"
+    SUMIP = "Sum intensity projection"
 
     def apply(self, dask_array: da.Array, axis: int = 0) -> da.Array:
         """
@@ -144,6 +144,22 @@ class DaskProjectionMethod(Enum):
         }
         # Call the appropriate method, passing in the dask_array explicitly
         return method_map[self](dask_array, axis=axis)
+
+    @property
+    def abbreviation(self) -> str:
+        """
+        Get the abbreviation of the projection method.
+
+        Returns:
+            str: The abbreviation of the projection method.
+        """
+        abbrev_map = {
+            DaskProjectionMethod.MIP: "mip",
+            DaskProjectionMethod.MINIP: "minip",
+            DaskProjectionMethod.MEANIP: "meanip",
+            DaskProjectionMethod.SUMIP: "sumip",
+        }
+        return abbrev_map[self]
 
 
 def _compute_new_shape(source_image: Image) -> tuple[tuple[int, ...], int]:
@@ -272,6 +288,6 @@ class InitArgsMIP(BaseModel):
     """
 
     origin_url: str
-    method: str
+    method: DaskProjectionMethod = DaskProjectionMethod.MIP
     overwrite: bool
     new_plate_name: str

@@ -5,6 +5,7 @@ from ngio import create_empty_ome_zarr, open_ome_zarr_container
 from ngio.tables import RoiTable
 from ngio.utils import NgioFileExistsError
 
+from fractal_tasks_core._projection_utils import DaskProjectionMethod
 from fractal_tasks_core.compute_projection_hcs import (
     InitArgsMIP,
     compute_projection_hcs,
@@ -94,7 +95,7 @@ def test_compute_projection_hcs(
 
     init_mip = InitArgsMIP(
         origin_url=str(store),
-        method="mip",
+        method=DaskProjectionMethod.MIP,
         overwrite=False,
         new_plate_name="new_plate.zarr",
     )
@@ -153,7 +154,7 @@ def test_fail_non_3d_compute_projection_hcs(shape, axes: str, tmp_path: Path) ->
 
     init_mip = InitArgsMIP(
         origin_url=str(store),
-        method="mip",
+        method=DaskProjectionMethod.MIP,
         overwrite=False,
         new_plate_name="new_plate.zarr",
     )
@@ -163,9 +164,17 @@ def test_fail_non_3d_compute_projection_hcs(shape, axes: str, tmp_path: Path) ->
         compute_projection_hcs(zarr_url=str(mip_store), init_args=init_mip)
 
 
-@pytest.mark.parametrize("method", ["mip", "minip", "meanip", "sumip"])
+@pytest.mark.parametrize(
+    "method",
+    [
+        DaskProjectionMethod.MIP,
+        DaskProjectionMethod.MINIP,
+        DaskProjectionMethod.MEANIP,
+        DaskProjectionMethod.SUMIP,
+    ],
+)
 def test_projections_methods(
-    sample_ome_zarr_zyx_url: Path, tmp_path: Path, method: str
+    sample_ome_zarr_zyx_url: Path, tmp_path: Path, method: DaskProjectionMethod
 ) -> None:
     """
     Test the projection task.
@@ -204,7 +213,7 @@ def test_projection_overwrite(sample_ome_zarr_zyx_url: Path, tmp_path: Path) -> 
     # Create a plate with 2 wells and 1 acquisition
     init_mip = InitArgsMIP(
         origin_url=str(sample_ome_zarr_zyx_url),
-        method="mip",
+        method=DaskProjectionMethod.MIP,
         overwrite=True,
         new_plate_name="new_plate.zarr",
     )
@@ -217,7 +226,7 @@ def test_projection_overwrite(sample_ome_zarr_zyx_url: Path, tmp_path: Path) -> 
     # Check if the overwrite behavior is correct
     init_mip = InitArgsMIP(
         origin_url=str(sample_ome_zarr_zyx_url),
-        method="mip",
+        method=DaskProjectionMethod.MIP,
         overwrite=False,
         new_plate_name="new_plate.zarr",
     )
