@@ -10,7 +10,7 @@ from fractal_tasks_core._threshold_segmentation_utils import (
     CreateMaskingRoiTable,
     InputChannel,
     OtsuConfiguration,
-    ThresholdConfiguration,
+    SimpleThresholdConfiguration,
 )
 from fractal_tasks_core.threshold_segmentation import threshold_segmentation
 
@@ -84,7 +84,7 @@ def test_segmentation_manual_threshold(tmp_path: Path) -> None:
         zarr_url=str(store),
         channel=InputChannel(mode="index", identifier="0"),
         output_label_name="nuclei",
-        method=ThresholdConfiguration(threshold=500),
+        segmentation_method=SimpleThresholdConfiguration(threshold=500),
         overwrite=True,
     )
 
@@ -105,7 +105,7 @@ def test_segmentation_otsu(tmp_path: Path) -> None:
         zarr_url=str(store),
         channel=InputChannel(mode="index", identifier="0"),
         output_label_name="nuclei",
-        method=OtsuConfiguration(),
+        segmentation_method=OtsuConfiguration(),
         overwrite=True,
     )
 
@@ -125,7 +125,7 @@ def test_segmentation_2d(tmp_path: Path) -> None:
         zarr_url=str(store),
         channel=InputChannel(mode="index", identifier="0"),
         output_label_name="nuclei",
-        method=ThresholdConfiguration(threshold=500),
+        segmentation_method=SimpleThresholdConfiguration(threshold=500),
         overwrite=True,
     )
 
@@ -145,7 +145,7 @@ def test_label_name_template(tmp_path: Path) -> None:
         zarr_url=str(store),
         channel=InputChannel(mode="index", identifier="0"),
         output_label_name="{channel_identifier}_nuclei",
-        method=ThresholdConfiguration(threshold=500),
+        segmentation_method=SimpleThresholdConfiguration(threshold=500),
         overwrite=True,
     )
 
@@ -162,7 +162,7 @@ def test_invalid_label_name_raises(tmp_path: Path) -> None:
             zarr_url=str(store),
             channel=InputChannel(mode="index", identifier="0"),
             output_label_name="{bad_placeholder}_nuclei",
-            method=ThresholdConfiguration(threshold=500),
+            segmentation_method=SimpleThresholdConfiguration(threshold=500),
             overwrite=True,
         )
 
@@ -177,7 +177,7 @@ def test_skip_missing_channel_true(tmp_path: Path) -> None:
             mode="label", identifier="does_not_exist", skip_if_missing=True
         ),
         output_label_name="nuclei",
-        method=ThresholdConfiguration(threshold=500),
+        segmentation_method=SimpleThresholdConfiguration(threshold=500),
         overwrite=True,
     )
 
@@ -196,7 +196,7 @@ def test_missing_channel_raises(tmp_path: Path) -> None:
                 mode="label", identifier="does_not_exist", skip_if_missing=False
             ),
             output_label_name="nuclei",
-            method=ThresholdConfiguration(threshold=500),
+            segmentation_method=SimpleThresholdConfiguration(threshold=500),
             overwrite=True,
         )
 
@@ -208,14 +208,14 @@ def test_overwrite_true(tmp_path: Path) -> None:
         zarr_url=str(store),
         channel=InputChannel(mode="index", identifier="0"),
         output_label_name="nuclei",
-        method=ThresholdConfiguration(threshold=500),
+        segmentation_method=SimpleThresholdConfiguration(threshold=500),
         overwrite=True,
     )
     threshold_segmentation(
         zarr_url=str(store),
         channel=InputChannel(mode="index", identifier="0"),
         output_label_name="nuclei",
-        method=ThresholdConfiguration(threshold=500),
+        segmentation_method=SimpleThresholdConfiguration(threshold=500),
         overwrite=True,
     )
 
@@ -227,7 +227,7 @@ def test_overwrite_false_raises(tmp_path: Path) -> None:
         zarr_url=str(store),
         channel=InputChannel(mode="index", identifier="0"),
         output_label_name="nuclei",
-        method=ThresholdConfiguration(threshold=500),
+        segmentation_method=SimpleThresholdConfiguration(threshold=500),
         overwrite=True,
     )
 
@@ -236,7 +236,7 @@ def test_overwrite_false_raises(tmp_path: Path) -> None:
             zarr_url=str(store),
             channel=InputChannel(mode="index", identifier="0"),
             output_label_name="nuclei",
-            method=ThresholdConfiguration(threshold=500),
+            segmentation_method=SimpleThresholdConfiguration(threshold=500),
             overwrite=False,
         )
 
@@ -249,7 +249,7 @@ def test_create_masking_roi_table(tmp_path: Path) -> None:
         zarr_url=str(store),
         channel=InputChannel(mode="index", identifier="0"),
         output_label_name="nuclei",
-        method=ThresholdConfiguration(threshold=500),
+        segmentation_method=SimpleThresholdConfiguration(threshold=500),
         create_masking_roi_table=CreateMaskingRoiTable(),
         overwrite=True,
     )
@@ -267,7 +267,7 @@ def test_with_gaussian_preprocess(tmp_path: Path) -> None:
         zarr_url=str(store),
         channel=InputChannel(mode="index", identifier="0"),
         output_label_name="nuclei",
-        method=ThresholdConfiguration(threshold=500),
+        segmentation_method=SimpleThresholdConfiguration(threshold=500),
         pre_post_process=config,
         overwrite=True,
     )
@@ -285,7 +285,7 @@ def test_with_size_filter_postprocess(tmp_path: Path) -> None:
         zarr_url=str(store),
         channel=InputChannel(mode="index", identifier="0"),
         output_label_name="nuclei",
-        method=ThresholdConfiguration(threshold=500),
+        segmentation_method=SimpleThresholdConfiguration(threshold=500),
         pre_post_process=config,
         overwrite=True,
     )

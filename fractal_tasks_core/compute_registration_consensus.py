@@ -180,9 +180,9 @@ def compute_registration_consensus(
     zarr_url: str,
     init_args: InitArgsRegistrationConsensus,
     # Core parameters
-    roi_table: str = "FOV_ROI_table",
+    input_roi_table: str = "FOV_ROI_table",
     # Advanced parameters
-    new_roi_table: str = "{roi_table}_registered",
+    registered_roi_table: str = "{input_roi_table}_registered",
 ) -> None:
     """
     Applies pre-calculated registration to ROI tables.
@@ -199,43 +199,40 @@ def compute_registration_consensus(
             zarr_url_list listing all the zarr_urls in the same well as the
             zarr_url of the reference acquisition that are being processed.
             (standard argument for Fractal tasks, managed by Fractal server).
-        roi_table: Name of the ROI table over which the task loops to
-            calculate the registration. Examples: `FOV_ROI_table` => loop over
-            the field of views, `well_ROI_table` => process the whole well as
-            one image.
-        new_roi_table: Name template for the new, registered ROI table. May
-            contain the placeholder ``{roi_table}``, which is replaced by the
-            value of `roi_table`. For example, the default
-            ``"{roi_table}_registered"`` turns ``FOV_ROI_table`` into
-            ``FOV_ROI_table_registered``. Must resolve to a name different from
-            `roi_table` (overwriting the input table would destroy the
-            pre-calculated translation shifts).
+        input_roi_table: Name of the ROI table used as input for the
+            "Calculate Registration (image-based)" task, which contains the
+            pre-calculated translations.
+        registered_roi_table: Name template for the registered ROI table. May
+            contain the placeholder "{input_roi_table}", which is replaced by the
+            value of "input_roi_table".
 
     """
-    new_roi_table = format_template_name(new_roi_table, roi_table=roi_table)
-    if new_roi_table == roi_table:
+    registered_roi_table = format_template_name(
+        registered_roi_table, input_roi_table=input_roi_table
+    )
+    if registered_roi_table == input_roi_table:
         raise ValueError(
-            f"new_roi_table ({new_roi_table!r}) must differ from roi_table "
-            f"({roi_table!r}). Overwriting the input table would destroy the "
-            "pre-calculated translation shifts."
+            f"registered_roi_table ({registered_roi_table!r}) must differ from "
+            f"input_roi_table ({input_roi_table!r}). Overwriting the input table "
+            "would destroy the pre-calculated translation shifts."
         )
     logger.info(
         f"Running for {zarr_url=} & the other acquisitions in that well. \n"
-        f"Applying translation registration to {roi_table=} and storing it as "
-        f"{new_roi_table=}."
+        f"Applying translation registration to {input_roi_table=} and storing it as "
+        f"{registered_roi_table=}."
     )
     # Open all containers and load ROI tables, keeping containers for reuse
     # during the write phase. Reference acquisition is handled first so that
     # _find_roi_consensus receives its ROIs (zero-shift) as rois[0].
     ref_ome_zarr = open_ome_zarr_container(zarr_url)
     containers = {zarr_url: ref_ome_zarr}
-    tables = {zarr_url: ref_ome_zarr.get_generic_roi_table(roi_table)}
+    tables = {zarr_url: ref_ome_zarr.get_generic_roi_table(input_roi_table)}
     for acq_zarr_url in init_args.zarr_url_list:
         if acq_zarr_url == zarr_url:
             continue
         acq_ome_zarr = open_ome_zarr_container(acq_zarr_url)
         containers[acq_zarr_url] = acq_ome_zarr
-        tables[acq_zarr_url] = acq_ome_zarr.get_generic_roi_table(roi_table)
+        tables[acq_zarr_url] = acq_ome_zarr.get_generic_roi_table(input_roi_table)
 
     # Check if all tables contain the pre-calculated translation fields, which
     # are required for the consensus calculation.
@@ -260,10 +257,14 @@ def compute_registration_consensus(
 
     for acq_zarr_url, table in tables.items():
         registered_table = _apply_consensus_to_roi_table(table, consensus_rois)
+        # If backend is none the table will default to "anndata",
+        # for backwards compatibility with old tables that don't have the backend field.
+        backend = table.backend_name or "anndata"
         containers[acq_zarr_url].add_table(
-            name=new_roi_table,
+            name=registered_roi_table,
             table=registered_table,
             overwrite=True,
+            backend=backend,
         )
 
 

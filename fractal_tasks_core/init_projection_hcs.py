@@ -98,15 +98,14 @@ def init_projection_hcs(
         zarr_dir: path of the directory where the new OME-Zarrs will be
             created.
             (standard argument for Fractal tasks, managed by Fractal server).
-        output_plate_name: A string template to generate the name of the output
-            plates. To avoid name clashes, the output plate name must
-            contain the `{plate_name}` placeholder, which will be replaced by
-            the original plate name. The `{method}` placeholder will be replaced
-            by the projection method used. Defaults to "{plate_name}_{method}".
+            zarr_url: Path or url to the individual OME-Zarr image to be processed.
         method: Choose which method to use for intensity projection along the
             Z axis.
-        overwrite: If True, previous projected images with the same method will
-            be overwritten.
+        output_plate_name: The template for the output plate name. To make sure
+            that the output plate is unique it must contain the placeholder
+            {plate_name}, and it can optionally contain the placeholder {method}.
+        overwrite: If True, previous projected images with the same "output_plate_name"
+            will be overwritten.
         re_initialize_plate: If True, the projection plate will be re-initialized
             even if it already exists. If False, the task will incrementally add the
             projected images to the existing plate if it already exists.

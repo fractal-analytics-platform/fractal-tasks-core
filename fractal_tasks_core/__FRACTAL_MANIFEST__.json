@@ -54,7 +54,7 @@
           "zarr_dir": {
             "title": "Zarr Dir",
             "type": "string",
-            "description": "path of the directory where the new OME-Zarrs will be created. (standard argument for Fractal tasks, managed by Fractal server)."
+            "description": "path of the directory where the new OME-Zarrs will be created. (standard argument for Fractal tasks, managed by Fractal server). zarr_url: Path or url to the individual OME-Zarr image to be processed."
           },
           "method": {
             "$ref": "#/$defs/DaskProjectionMethod",
@@ -67,13 +67,13 @@
             "pattern": "^.*\\{plate_name\\}.*$",
             "title": "Output Plate Name",
             "type": "string",
-            "description": "A string template to generate the name of the output plates. To avoid name clashes, the output plate name must contain the `{plate_name}` placeholder, which will be replaced by the original plate name. The `{method}` placeholder will be replaced by the projection method used. Defaults to \"{plate_name}_{method}\"."
+            "description": "The template for the output plate name. To make sure that the output plate is unique it must contain the placeholder {plate_name}, and it can optionally contain the placeholder {method}."
           },
           "overwrite": {
             "default": false,
             "title": "Overwrite",
             "type": "boolean",
-            "description": "If True, previous projected images with the same method will be overwritten."
+            "description": "If True, previous projected images with the same \"output_plate_name\" will be overwritten."
           },
           "re_initialize_plate": {
             "default": false,
@@ -193,26 +193,26 @@
           "zarr_url": {
             "title": "Zarr Url",
             "type": "string",
-            "description": "Missing description"
+            "description": "Path or url to the individual OME-Zarr image to be processed."
           },
           "method": {
             "$ref": "#/$defs/DaskProjectionMethod",
             "default": "Maximum intensity projection",
             "title": "Method",
-            "description": "Missing description"
+            "description": "Choose which method to use for intensity projection along the Z axis."
           },
           "output_image_name": {
             "default": "{image_name}_{method}",
             "pattern": "^.*\\{image_name\\}.*$",
             "title": "Output Image Name",
             "type": "string",
-            "description": "Missing description"
+            "description": "The template for the output image name. To make sure that the output image is unique it must contain the placeholder {image_name}, and it can optionally contain the placeholder {method}."
           },
           "overwrite": {
             "default": false,
             "title": "Overwrite",
             "type": "boolean",
-            "description": "Missing description"
+            "description": "If True, previous projected images with the same \"output_image_name\" will be overwritten."
           }
         },
         "required": [
@@ -429,18 +429,20 @@
               },
               "table_name": {
                 "default": "{label_name}_masking_ROI_table",
+                "description": "Name of the masking ROI table to be created. This can include the placeholder\n\"{label_name}\", which will be replaced by the name of the label image used for\nsegmentation.",
                 "title": "Table Name",
                 "type": "string"
               },
-              "backend": {
+              "table_backend": {
                 "default": "anndata",
+                "description": "Backend to use for storing the masking ROI table. Options are \"anndata\", \"json\",\n\"csv\", and \"parquet\".",
                 "enum": [
                   "anndata",
                   "json",
                   "csv",
                   "parquet"
                 ],
-                "title": "Backend",
+                "title": "Table Backend",
                 "type": "string"
               }
             },
@@ -508,6 +510,7 @@
             "properties": {
               "mode": {
                 "default": "label",
+                "description": "Specifies how to interpret the identifier for selecting the channel. Can be\n\"label\" to select by channel label, \"wavelength_id\" to select by wavelength ID,\nor \"index\" to select by channel index (the identifier must be an integer string).",
                 "enum": [
                   "label",
                   "wavelength_id",
@@ -517,11 +520,13 @@
                 "type": "string"
               },
               "identifier": {
+                "description": "Identifier for the channel to use for segmentation.",
                 "title": "Identifier",
                 "type": "string"
               },
               "skip_if_missing": {
                 "default": false,
+                "description": "If True and the specified channel is not found in the image, the segmentation\nwill be skipped instead of raising an error. Defaults to False.",
                 "title": "Skip If Missing",
                 "type": "boolean"
               }
@@ -594,8 +599,9 @@
             "description": "Configuration for Otsu threshold-based segmentation.",
             "properties": {
               "method": {
-                "const": "otsu",
-                "default": "otsu",
+                "const": "Otsu",
+                "default": "Otsu",
+                "description": "Otsu's method automatically determines an optimal threshold value by maximizing\nthe variance between foreground and background pixel intensities.",
                 "title": "Method",
                 "type": "string"
               }
@@ -654,6 +660,28 @@
             "title": "SegmentationTransformConfig",
             "type": "object"
           },
+          "SimpleThresholdConfiguration": {
+            "description": "Configuration for threshold-based segmentation.",
+            "properties": {
+              "method": {
+                "const": "Simple Threshold",
+                "default": "Simple Threshold",
+                "description": "Simple threshold-based segmentation using a fixed threshold value.",
+                "title": "Method",
+                "type": "string"
+              },
+              "threshold": {
+                "description": "Threshold value to use for segmentation. All pixels with intensity greater\nthan this value will be considered foreground.",
+                "title": "Threshold",
+                "type": "number"
+              }
+            },
+            "required": [
+              "threshold"
+            ],
+            "title": "SimpleThresholdConfiguration",
+            "type": "object"
+          },
           "SizeFilterConfig": {
             "description": "Configuration for size filter post-processing.",
             "properties": {
@@ -687,26 +715,6 @@
             },
             "title": "SkipCreateMaskingRoiTable",
             "type": "object"
-          },
-          "ThresholdConfiguration": {
-            "description": "Configuration for threshold-based segmentation.",
-            "properties": {
-              "method": {
-                "const": "threshold",
-                "default": "threshold",
-                "title": "Method",
-                "type": "string"
-              },
-              "threshold": {
-                "title": "Threshold",
-                "type": "number"
-              }
-            },
-            "required": [
-              "threshold"
-            ],
-            "title": "ThresholdConfiguration",
-            "type": "object"
           }
         },
         "additionalProperties": false,
@@ -716,9 +724,9 @@
             "type": "string",
             "description": "URL to the OME-Zarr container."
           },
-          "channels": {
+          "channel": {
             "$ref": "#/$defs/InputChannel",
-            "title": "Channels",
+            "title": "Channel",
             "description": "Channel to use for segmentation, selected by label, wavelength ID, or index."
           },
           "output_label_name": {
@@ -732,26 +740,26 @@
             "type": "string",
             "description": "If the OME-Zarr has multiple resolution levels, the level to use can be specified here. If not provided, the highest resolution level will be used."
           },
-          "method": {
+          "segmentation_method": {
             "default": {
-              "method": "otsu"
+              "method": "Otsu"
             },
             "discriminator": {
               "mapping": {
-                "otsu": "#/$defs/OtsuConfiguration",
-                "threshold": "#/$defs/ThresholdConfiguration"
+                "Otsu": "#/$defs/OtsuConfiguration",
+                "Simple Threshold": "#/$defs/SimpleThresholdConfiguration"
               },
               "propertyName": "method"
             },
             "oneOf": [
               {
-                "$ref": "#/$defs/ThresholdConfiguration"
+                "$ref": "#/$defs/SimpleThresholdConfiguration"
               },
               {
                 "$ref": "#/$defs/OtsuConfiguration"
               }
             ],
-            "title": "Method",
+            "title": "Segmentation Method",
             "description": "Configuration for the segmentation method."
           },
           "iterator_configuration": {
@@ -799,7 +807,7 @@
         },
         "required": [
           "zarr_url",
-          "channels"
+          "channel"
         ],
         "type": "object",
         "title": "ThresholdSegmentation"
@@ -974,14 +982,10 @@
             "type": "array",
             "description": "List of feature configurations describing which properties to extract."
           },
-          "roi_tables": {
-            "default": [],
-            "items": {
-              "type": "string"
-            },
-            "title": "Roi Tables",
-            "type": "array",
-            "description": "List of ROI table names to condition the feature extraction on. If empty, features will be extracted for the whole label image (2D) or volume (3D)."
+          "input_roi_table": {
+            "title": "Input Roi Table",
+            "type": "string",
+            "description": "Name of the ROI table to condition the feature extraction on. If None, features will be extracted for the whole label image (2D) or volume (3D)."
           },
           "advanced_options": {
             "$ref": "#/$defs/AdvancedOptions",
@@ -1122,9 +1126,9 @@
             "type": "number",
             "description": "Upper quantile for rescaling the image intensities before applying registration. Can be helpful to deal with image artifacts. Default is 0.99."
           },
-          "roi_table": {
+          "input_roi_table": {
             "default": "FOV_ROI_table",
-            "title": "Roi Table",
+            "title": "Input Roi Table",
             "type": "string",
             "description": "Name of the ROI table over which the task loops to calculate the registration. Examples: `FOV_ROI_table` => loop over the field of views, `well_ROI_table` => process the whole well as one image."
           },
@@ -1228,17 +1232,17 @@
             "title": "Init Args",
             "description": "Initialization arguments provided by `init_registration_consensus`. It contains the zarr_url_list listing all the zarr_urls in the same well as the zarr_url of the reference acquisition that are being processed. (standard argument for Fractal tasks, managed by Fractal server)."
           },
-          "roi_table": {
+          "input_roi_table": {
             "default": "FOV_ROI_table",
-            "title": "Roi Table",
+            "title": "Input Roi Table",
             "type": "string",
-            "description": "Name of the ROI table over which the task loops to calculate the registration. Examples: `FOV_ROI_table` => loop over the field of views, `well_ROI_table` => process the whole well as one image."
+            "description": "Name of the ROI table used as input for the \"Calculate Registration (image-based)\" task, which contains the pre-calculated translations."
           },
-          "new_roi_table": {
-            "default": "{roi_table}_registered",
-            "title": "New Roi Table",
+          "registered_roi_table": {
+            "default": "{input_roi_table}_registered",
+            "title": "Registered Roi Table",
             "type": "string",
-            "description": "Name template for the new, registered ROI table. May contain the placeholder ``{roi_table}``, which is replaced by the value of `roi_table`. For example, the default ``\"{roi_table}_registered\"`` turns ``FOV_ROI_table`` into ``FOV_ROI_table_registered``. Must resolve to a name different from `roi_table` (overwriting the input table would destroy the pre-calculated translation shifts)."
+            "description": "Name template for the registered ROI table. May contain the placeholder \"{input_roi_table}\", which is replaced by the value of \"input_roi_table\"."
           }
         },
         "required": [

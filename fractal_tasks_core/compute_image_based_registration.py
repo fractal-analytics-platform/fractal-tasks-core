@@ -30,7 +30,7 @@ def compute_image_based_registration(
     method: RegistrationMethod = RegistrationMethod.PHASE_CROSS_CORRELATION,
     lower_rescale_quantile: float = 0.0,
     upper_rescale_quantile: float = 0.99,
-    roi_table: str = "FOV_ROI_table",
+    input_roi_table: str = "FOV_ROI_table",
     level_path: str = "2",
 ) -> None:
     """
@@ -61,7 +61,7 @@ def compute_image_based_registration(
         upper_rescale_quantile: Upper quantile for rescaling the image
             intensities before applying registration. Can be helpful
             to deal with image artifacts. Default is 0.99.
-        roi_table: Name of the ROI table over which the task loops to
+        input_roi_table: Name of the ROI table over which the task loops to
             calculate the registration. Examples: `FOV_ROI_table` => loop over
             the field of views, `well_ROI_table` => process the whole well as
             one image.
@@ -72,7 +72,7 @@ def compute_image_based_registration(
     """
     logger.info(
         f"Running for {zarr_url=}.\n"
-        f"Calculating translation registration per {roi_table=} for "
+        f"Calculating translation registration per {input_roi_table=} for "
         f"{wavelength_id=}."
     )
 
@@ -98,10 +98,10 @@ def compute_image_based_registration(
             f"had a shape of {ref_image.shape}."
         )
 
-    ref_roi_table = ref_ome_zarr.get_generic_roi_table(roi_table)
-    to_align_roi_table = to_align_ome_zarr.get_generic_roi_table(roi_table)
+    ref_roi_table = ref_ome_zarr.get_generic_roi_table(input_roi_table)
+    to_align_roi_table = to_align_ome_zarr.get_generic_roi_table(input_roi_table)
     logger.info(
-        f"Found {len(ref_roi_table.rois())} ROIs in {roi_table=} to be processed."
+        f"Found {len(ref_roi_table.rois())} ROIs in {input_roi_table=} to be processed."
     )
 
     to_align_rois = {roi.name: roi for roi in to_align_roi_table.rois()}
@@ -146,14 +146,14 @@ def compute_image_based_registration(
         shifts = method.register(np.squeeze(img_ref), np.squeeze(img_acq_x))[0]
         new_shifts[roi.name] = shifts
 
-    logger.info(f"Updating the {roi_table=} with translation columns")
+    logger.info(f"Updating the {input_roi_table=} with translation columns")
     for roi in to_align_roi_table.rois():
         shifts = new_shifts[roi.name]
         updated_roi = add_translation_to_roi(roi, shifts, to_align_image.pixel_size)
         to_align_roi_table.add(updated_roi, overwrite=True)
 
     to_align_ome_zarr.add_table(
-        name=roi_table,
+        name=input_roi_table,
         table=to_align_roi_table,
         overwrite=True,
     )

@@ -4,7 +4,7 @@ import pytest
 from fractal_tasks_core._threshold_segmentation_utils import (
     CreateMaskingRoiTable,
     OtsuConfiguration,
-    ThresholdConfiguration,
+    SimpleThresholdConfiguration,
     segmentation_function,
 )
 from fractal_tasks_core._utils import format_template_name
@@ -15,7 +15,7 @@ from fractal_tasks_core._utils import format_template_name
 
 
 def test_threshold_configuration_value() -> None:
-    config = ThresholdConfiguration(threshold=42.0)
+    config = SimpleThresholdConfiguration(threshold=42.0)
     img = np.zeros((10, 10), dtype=np.float32)
     assert config.threshold_value(img) == 42.0
 
@@ -39,7 +39,7 @@ def test_segmentation_function_manual_threshold() -> None:
     img[1:3, 10:20, 10:20] = 100.0
     result = segmentation_function(
         input_image=img,
-        method=ThresholdConfiguration(threshold=50.0),
+        method=SimpleThresholdConfiguration(threshold=50.0),
     )
     assert result.shape == (4, 32, 32)
     assert result.dtype == np.uint32

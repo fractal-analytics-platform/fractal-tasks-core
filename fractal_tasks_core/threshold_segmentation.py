@@ -77,7 +77,7 @@ def threshold_segmentation(
     channel: InputChannel,
     output_label_name: str = "{channel_identifier}_segmented",
     level_path: str | None = None,
-    method: SegmentationConfiguration = OtsuConfiguration(),
+    segmentation_method: SegmentationConfiguration = OtsuConfiguration(),
     # Iteration parameters
     iterator_configuration: IteratorConfig | None = None,
     pre_post_process: SegmentationTransformConfig = SegmentationTransformConfig(),  # noqa: B008
@@ -103,7 +103,7 @@ def threshold_segmentation(
         iterator_configuration: Optionally restrict segmentation to a specific
             set of ROIs or a sub-region. If not provided, the full image is
             segmented.
-        method: Configuration for the segmentation method.
+        segmentation_method: Configuration for the segmentation method.
         pre_post_process: Configuration for pre- and post-processing transforms
             applied by the iterator.
         create_masking_roi_table: Configuration to create a masking ROI table
@@ -138,7 +138,9 @@ def threshold_segmentation(
 
     # Run the core segmentation loop
     compute_segmentation(
-        segmentation_func=lambda x: segmentation_function(input_image=x, method=method),
+        segmentation_func=lambda x: segmentation_function(
+            input_image=x, method=segmentation_method
+        ),
         iterator=iterator,
     )
     logger.info(f"label {output_label_name} successfully created at {zarr_url}")

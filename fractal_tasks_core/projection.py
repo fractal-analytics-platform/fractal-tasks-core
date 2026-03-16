@@ -15,6 +15,10 @@ from fractal_tasks_core._utils import format_template_name
 
 logger = logging.getLogger("projection")
 
+# Complete validation pattern for output_image_name:
+# pattern = r'^[^{}]*(\{method\}[^{}]*)*\{image_name\}[^{}]*
+# (\{(?:image_name|method)\}[^{}]*)*$'
+
 
 @validate_call
 def projection(
@@ -40,10 +44,10 @@ def projection(
         method: Choose which method to use for intensity projection along the
             Z axis.
         output_image_name: The template for the output image name. To make sure
-        that the output image is unique it must contain the placeholder
-        {image_name} which will be replaced by the input image name.
-        overwrite: If True, previous projected images with the same method will
-            be overwritten.
+            that the output image is unique it must contain the placeholder
+            {image_name}, and it can optionally contain the placeholder {method}.
+        overwrite: If True, previous projected images with the same "output_image_name"
+            will be overwritten.
     """
     if not zarr_url.endswith(".zarr"):
         raise ValueError(f"The input zarr url must end with .zarr, but got {zarr_url}")

@@ -35,7 +35,7 @@ def measure_features(
     features: list[SupportedFeatures] = Field(
         default_factory=lambda: [ShapeFeatures(), IntensityFeatures()]
     ),
-    roi_tables: list[str] = Field(default_factory=list),
+    input_roi_table: str | None = None,
     advanced_options: AdvancedOptions = AdvancedOptions(),
     overwrite: bool = False,
 ) -> None:
@@ -50,8 +50,8 @@ def measure_features(
         output_table_name: Name for the output feature table.
         features: List of feature configurations describing which properties
             to extract.
-        roi_tables: List of ROI table names to condition the feature extraction
-            on. If empty, features will be extracted for the whole label image
+        input_roi_table: Name of the ROI table to condition the feature extraction
+            on. If None, features will be extracted for the whole label image
             (2D) or volume (3D).
         advanced_options: Advanced options for feature measurement.
         overwrite: Whether to overwrite an existing feature table.
@@ -92,7 +92,7 @@ def measure_features(
         level_path=advanced_options.level_path,
         label_image_name=input_label_name,
         channels=channel_selection_models,
-        roi_table_names=roi_tables if roi_tables else None,
+        roi_table_names=[input_roi_table] if input_roi_table else None,
     )
 
     def extract_func(image: np.ndarray, label: np.ndarray, roi: Roi) -> dict:

@@ -37,7 +37,7 @@ from fractal_tasks_core._registration_utils import (
 )
 from fractal_tasks_core._threshold_segmentation_utils import (
     InputChannel,
-    ThresholdConfiguration,
+    SimpleThresholdConfiguration,
 )
 from fractal_tasks_core.apply_registration_to_image import (
     apply_registration_to_image,
@@ -240,7 +240,7 @@ def test_full_pipeline(tmp_path: Path) -> None:
         zarr_url=zarr_url_1,
         init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
         wavelength_id=_CHANNELS[0],
-        roi_table=_ROI_TABLE,
+        input_roi_table=_ROI_TABLE,
         level_path="2",
     )
 
@@ -259,8 +259,8 @@ def test_full_pipeline(tmp_path: Path) -> None:
     compute_registration_consensus(
         zarr_url=zarr_url_0,
         init_args=InitArgsRegistrationConsensus(zarr_url_list=[zarr_url_0, zarr_url_1]),
-        roi_table=_ROI_TABLE,
-        new_roi_table=_REGISTERED_ROI_TABLE,
+        input_roi_table=_ROI_TABLE,
+        registered_roi_table=_REGISTERED_ROI_TABLE,
     )
 
     ome0 = open_ome_zarr_container(zarr_url_0)
@@ -315,7 +315,7 @@ def test_full_pipeline(tmp_path: Path) -> None:
         zarr_url=zarr_url_0,
         channel=InputChannel(mode="wavelength_id", identifier=_CHANNELS[0]),
         output_label_name="nuclei",
-        method=ThresholdConfiguration(threshold=500),
+        segmentation_method=SimpleThresholdConfiguration(threshold=500),
         overwrite=True,
     )
 

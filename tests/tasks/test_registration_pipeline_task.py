@@ -355,7 +355,7 @@ def test_calculate_registration_stores_translations(multiplex_plate_urls):
         zarr_url=zarr_url_1,
         init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
         wavelength_id=_WAVELENGTH,
-        roi_table="FOV_ROI_table",
+        input_roi_table="FOV_ROI_table",
         level_path="2",
     )
 
@@ -428,7 +428,7 @@ def test_calculate_registration_detects_z_shift(tmp_path: Path):
         zarr_url=zarr_url_1,
         init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
         wavelength_id=_WAVELENGTH,
-        roi_table="FOV_ROI_table",
+        input_roi_table="FOV_ROI_table",
         level_path="2",  # ngio only downsamples xy; z shape is unchanged at every level
     )
 
@@ -463,7 +463,7 @@ def test_calculate_registration_chi2_shift_3d_raises(tmp_path: Path):
             init_args=InitArgsRegistration(reference_zarr_url=zarr_url),
             wavelength_id=_WAVELENGTH,
             method=RegistrationMethod.CHI2_SHIFT,
-            roi_table="FOV_ROI_table",
+            input_roi_table="FOV_ROI_table",
             level_path="2",
         )
 
@@ -489,7 +489,7 @@ def test_calculate_registration_time_series_raises(tmp_path: Path):
             zarr_url=zarr_url,
             init_args=InitArgsRegistration(reference_zarr_url=zarr_url),
             wavelength_id=_WAVELENGTH,
-            roi_table="FOV_ROI_table",
+            input_roi_table="FOV_ROI_table",
             level_path="2",
         )
 
@@ -528,7 +528,7 @@ def test_calculate_registration_multi_fov(tmp_path: Path):
         zarr_url=zarr_url_1,
         init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
         wavelength_id=_WAVELENGTH,
-        roi_table="FOV_ROI_table",
+        input_roi_table="FOV_ROI_table",
         level_path="2",
     )
 
@@ -624,7 +624,7 @@ def test_calculate_registration_chi2_shift_2d(multiplex_plate_urls):
         init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
         wavelength_id=_WAVELENGTH,
         method=RegistrationMethod.CHI2_SHIFT,
-        roi_table="FOV_ROI_table",
+        input_roi_table="FOV_ROI_table",
         level_path="2",
     )
 
@@ -685,7 +685,7 @@ def test_calculate_registration_shape_mismatch_raises(tmp_path: Path):
             zarr_url=zarr_url_1,
             init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
             wavelength_id=_WAVELENGTH,
-            roi_table="FOV_ROI_table",
+            input_roi_table="FOV_ROI_table",
             level_path="2",
         )
 
@@ -710,15 +710,15 @@ def test_find_consensus_produces_correct_region(multiplex_plate_urls):
         zarr_url=zarr_url_1,
         init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
         wavelength_id=_WAVELENGTH,
-        roi_table="FOV_ROI_table",
+        input_roi_table="FOV_ROI_table",
         level_path="2",
     )
 
     compute_registration_consensus(
         zarr_url=zarr_url_0,
         init_args=InitArgsRegistrationConsensus(zarr_url_list=[zarr_url_0, zarr_url_1]),
-        roi_table="FOV_ROI_table",
-        new_roi_table="FOV_ROI_table_registered",
+        input_roi_table="FOV_ROI_table",
+        registered_roi_table="FOV_ROI_table_registered",
     )
 
     ome0 = open_ome_zarr_container(zarr_url_0)
@@ -785,7 +785,7 @@ def test_consensus_mismatched_roi_names_raises(tmp_path: Path):
             init_args=InitArgsRegistrationConsensus(
                 zarr_url_list=[zarr_url_0, zarr_url_1]
             ),
-            roi_table="FOV_ROI_table",
+            input_roi_table="FOV_ROI_table",
         )
 
 
@@ -800,14 +800,14 @@ def _run_full_pipeline(zarr_url_0: str, zarr_url_1: str, overwrite_input: bool):
         zarr_url=zarr_url_1,
         init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
         wavelength_id=_WAVELENGTH,
-        roi_table="FOV_ROI_table",
+        input_roi_table="FOV_ROI_table",
         level_path="2",
     )
     compute_registration_consensus(
         zarr_url=zarr_url_0,
         init_args=InitArgsRegistrationConsensus(zarr_url_list=[zarr_url_0, zarr_url_1]),
-        roi_table="FOV_ROI_table",
-        new_roi_table="FOV_ROI_table_registered",
+        input_roi_table="FOV_ROI_table",
+        registered_roi_table="FOV_ROI_table_registered",
     )
     return apply_registration_to_image(
         zarr_url=zarr_url_1,
@@ -937,14 +937,14 @@ def test_apply_on_reference_acquisition(multiplex_plate_urls):
         zarr_url=zarr_url_1,
         init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
         wavelength_id=_WAVELENGTH,
-        roi_table="FOV_ROI_table",
+        input_roi_table="FOV_ROI_table",
         level_path="2",
     )
     compute_registration_consensus(
         zarr_url=zarr_url_0,
         init_args=InitArgsRegistrationConsensus(zarr_url_list=[zarr_url_0, zarr_url_1]),
-        roi_table="FOV_ROI_table",
-        new_roi_table="FOV_ROI_table_registered",
+        input_roi_table="FOV_ROI_table",
+        registered_roi_table="FOV_ROI_table_registered",
     )
 
     # Apply on the reference itself (zarr_url == reference_zarr_url)
@@ -1036,7 +1036,7 @@ def test_calculate_registration_axes_support(
         zarr_url=urls["zarr_url_1"],
         init_args=InitArgsRegistration(reference_zarr_url=urls["zarr_url_0"]),
         wavelength_id=_WAVELENGTH,
-        roi_table="FOV_ROI_table",
+        input_roi_table="FOV_ROI_table",
         level_path="2",
     )
 
@@ -1092,8 +1092,8 @@ def test_consensus_without_registration_fails(multiplex_plate_urls):
             init_args=InitArgsRegistrationConsensus(
                 zarr_url_list=[zarr_url_0, zarr_url_1]
             ),
-            roi_table="FOV_ROI_table",
-            new_roi_table="FOV_ROI_table_registered",
+            input_roi_table="FOV_ROI_table",
+            registered_roi_table="FOV_ROI_table_registered",
         )
 
 
@@ -1107,7 +1107,7 @@ def test_apply_without_consensus_fails(multiplex_plate_urls):
         zarr_url=zarr_url_1,
         init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
         wavelength_id=_WAVELENGTH,
-        roi_table="FOV_ROI_table",
+        input_roi_table="FOV_ROI_table",
         level_path="2",
     )
 
@@ -1140,7 +1140,7 @@ def test_calculate_registration_is_idempotent(multiplex_plate_urls):
         zarr_url=zarr_url_1,
         init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
         wavelength_id=_WAVELENGTH,
-        roi_table="FOV_ROI_table",
+        input_roi_table="FOV_ROI_table",
         level_path="2",
     )
     translations_first = _get_translations(zarr_url_1)
@@ -1150,7 +1150,7 @@ def test_calculate_registration_is_idempotent(multiplex_plate_urls):
         zarr_url=zarr_url_1,
         init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
         wavelength_id=_WAVELENGTH,
-        roi_table="FOV_ROI_table",
+        input_roi_table="FOV_ROI_table",
         level_path="2",
     )
     translations_second = _get_translations(zarr_url_1)
@@ -1167,15 +1167,15 @@ def test_consensus_is_idempotent(multiplex_plate_urls):
         zarr_url=zarr_url_1,
         init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
         wavelength_id=_WAVELENGTH,
-        roi_table="FOV_ROI_table",
+        input_roi_table="FOV_ROI_table",
         level_path="2",
     )
 
     compute_registration_consensus(
         zarr_url=zarr_url_0,
         init_args=InitArgsRegistrationConsensus(zarr_url_list=[zarr_url_0, zarr_url_1]),
-        roi_table="FOV_ROI_table",
-        new_roi_table="FOV_ROI_table_registered",
+        input_roi_table="FOV_ROI_table",
+        registered_roi_table="FOV_ROI_table_registered",
     )
     rois_first = (
         open_ome_zarr_container(zarr_url_0)
@@ -1187,8 +1187,8 @@ def test_consensus_is_idempotent(multiplex_plate_urls):
     compute_registration_consensus(
         zarr_url=zarr_url_0,
         init_args=InitArgsRegistrationConsensus(zarr_url_list=[zarr_url_0, zarr_url_1]),
-        roi_table="FOV_ROI_table",
-        new_roi_table="FOV_ROI_table_registered",
+        input_roi_table="FOV_ROI_table",
+        registered_roi_table="FOV_ROI_table_registered",
     )
     rois_second = (
         open_ome_zarr_container(zarr_url_0)
@@ -1250,14 +1250,14 @@ def test_apply_invalid_reference_acquisition(multiplex_plate_urls):
         zarr_url=zarr_url_1,
         init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
         wavelength_id=_WAVELENGTH,
-        roi_table="FOV_ROI_table",
+        input_roi_table="FOV_ROI_table",
         level_path="2",
     )
     compute_registration_consensus(
         zarr_url=zarr_url_0,
         init_args=InitArgsRegistrationConsensus(zarr_url_list=[zarr_url_0, zarr_url_1]),
-        roi_table="FOV_ROI_table",
-        new_roi_table="FOV_ROI_table_registered",
+        input_roi_table="FOV_ROI_table",
+        registered_roi_table="FOV_ROI_table_registered",
     )
 
     with pytest.raises(ValueError, match="reference_acquisition"):
@@ -1296,7 +1296,7 @@ def test_consensus_partial_registration_fails(tmp_path: Path):
         zarr_url=zarr_url_1,
         init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
         wavelength_id=_WAVELENGTH,
-        roi_table="FOV_ROI_table",
+        input_roi_table="FOV_ROI_table",
         level_path="2",
     )
 
@@ -1306,8 +1306,8 @@ def test_consensus_partial_registration_fails(tmp_path: Path):
             init_args=InitArgsRegistrationConsensus(
                 zarr_url_list=[zarr_url_0, zarr_url_1, zarr_url_2]
             ),
-            roi_table="FOV_ROI_table",
-            new_roi_table="FOV_ROI_table_registered",
+            input_roi_table="FOV_ROI_table",
+            registered_roi_table="FOV_ROI_table_registered",
         )
 
 
@@ -1331,6 +1331,6 @@ def test_calculate_registration_tyx_t_gt1_raises(tmp_path: Path):
             zarr_url=zarr_url,
             init_args=InitArgsRegistration(reference_zarr_url=zarr_url),
             wavelength_id=_WAVELENGTH,
-            roi_table="FOV_ROI_table",
+            input_roi_table="FOV_ROI_table",
             level_path="2",
         )

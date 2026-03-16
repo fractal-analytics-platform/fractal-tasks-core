@@ -24,7 +24,16 @@ class CreateMaskingRoiTable(BaseModel):
 
     mode: Literal["Create Masking ROI Table"] = "Create Masking ROI Table"
     table_name: str = "{label_name}_masking_ROI_table"
-    backend: Literal["anndata", "json", "csv", "parquet"] = "anndata"
+    """
+    Name of the masking ROI table to be created. This can include the placeholder
+    "{label_name}", which will be replaced by the name of the label image used for
+    segmentation.
+    """
+    table_backend: Literal["anndata", "json", "csv", "parquet"] = "anndata"
+    """
+    Backend to use for storing the masking ROI table. Options are "anndata", "json",
+    "csv", and "parquet".
+    """
 
     def get_table_name(self, label_name: str) -> str:
         """Get the actual table name by replacing placeholder.
@@ -55,7 +64,7 @@ class CreateMaskingRoiTable(BaseModel):
             name=table_name,
             table=masking_roi_table,
             overwrite=overwrite,
-            backend=self.backend,
+            backend=self.table_backend,
         )
 
 
@@ -99,8 +108,20 @@ class InputChannel(BaseModel):
     """
 
     mode: Literal["label", "wavelength_id", "index"] = "label"
+    """
+    Specifies how to interpret the identifier for selecting the channel. Can be
+    "label" to select by channel label, "wavelength_id" to select by wavelength ID,
+    or "index" to select by channel index (the identifier must be an integer string).
+    """
     identifier: str
+    """
+    Identifier for the channel to use for segmentation.
+    """
     skip_if_missing: bool = False
+    """
+    If True and the specified channel is not found in the image, the segmentation
+    will be skipped instead of raising an error. Defaults to False.
+    """
 
     def to_channel_selection_models(self) -> ChannelSelectionModel:
         """Convert to ChannelSelectionModel.
@@ -111,16 +132,25 @@ class InputChannel(BaseModel):
         return ChannelSelectionModel(identifier=self.identifier, mode=self.mode)
 
 
-class ThresholdConfiguration(BaseModel):
+class SimpleThresholdConfiguration(BaseModel):
     """Configuration for threshold-based segmentation.
 
     Attributes:
-        method (Literal["threshold"]): Discriminator for threshold-based segmentation.
+        method (Literal["Simple Threshold"]): Discriminator for simple
+            threshold-based segmentation.
         threshold (float): Threshold value to apply for segmentation.
     """
 
-    method: Literal["threshold"] = "threshold"
+    method: Literal["Simple Threshold"] = "Simple Threshold"
+    """
+    Simple threshold-based segmentation using a fixed threshold value.
+    """
+
     threshold: float
+    """
+    Threshold value to use for segmentation. All pixels with intensity greater
+    than this value will be considered foreground.
+    """
 
     def threshold_value(self, image: np.ndarray) -> float:
         """Return the fixed threshold value."""
@@ -131,10 +161,14 @@ class OtsuConfiguration(BaseModel):
     """Configuration for Otsu threshold-based segmentation.
 
     Attributes:
-        method (Literal["otsu"]): Discriminator for Otsu threshold-based segmentation.
+        method (Literal["Otsu"]): Discriminator for Otsu threshold-based segmentation.
     """
 
-    method: Literal["otsu"] = "otsu"
+    method: Literal["Otsu"] = "Otsu"
+    """
+    Otsu's method automatically determines an optimal threshold value by maximizing
+    the variance between foreground and background pixel intensities.
+    """
 
     def threshold_value(self, image: np.ndarray) -> float:
         """Calculate Otsu threshold value for the given image."""
@@ -142,7 +176,7 @@ class OtsuConfiguration(BaseModel):
 
 
 SegmentationConfiguration = Annotated[
-    ThresholdConfiguration | OtsuConfiguration,
+    SimpleThresholdConfiguration | OtsuConfiguration,
     Field(discriminator="method"),
 ]
 

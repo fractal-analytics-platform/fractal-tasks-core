@@ -13,7 +13,7 @@ from fractal_tasks_core._measure_features_utils import (
 )
 from fractal_tasks_core._threshold_segmentation_utils import (
     InputChannel,
-    ThresholdConfiguration,
+    SimpleThresholdConfiguration,
 )
 from fractal_tasks_core.measure_features import measure_features
 from fractal_tasks_core.threshold_segmentation import threshold_segmentation
@@ -57,7 +57,7 @@ def _make_zarr_with_label(
         zarr_url=str(store),
         channel=InputChannel(mode="index", identifier="0"),
         output_label_name=label_name,
-        method=ThresholdConfiguration(threshold=100),
+        segmentation_method=SimpleThresholdConfiguration(threshold=100),
         overwrite=True,
     )
     return store
