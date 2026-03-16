@@ -44,21 +44,21 @@ def _validate_if_translation_exists(tables: list[GenericRoiTable]) -> None:
     if tables_with_translations == 0:
         raise ValueError(
             "No registration translations found in any acquisition ROI table. "
-            "Please run 'Calculate Registration (image-based)' before "
-            "'Find Registration Consensus'."
+            'Please run "Calculate Registration (image-based)" before '
+            '"Find Registration Consensus".'
         )
     # Edge case: some but not all non-reference tables contain translations
     if tables_with_translations != len(tables) - 1:
         raise ValueError(
             "Some but not all non-reference acquisitions contain registration "
             "translations. Something went wrong, please re-run "
-            "'Calculate Registration (image-based)' and make sure it completes "
+            '"Calculate Registration (image-based)" and make sure it completes '
             "without errors. "
         )
 
 
 def _get_roi_translation(roi: Roi, dim: Literal["z", "y", "x"]) -> float:
-    """Return the translation for `dim` ('z', 'y', or 'x') from a ROI's extra
+    """Return the translation for `dim` ("z", "y", or "x") from a ROI's extra
     fields, defaulting to 0.0 when the field is absent (e.g. reference
     acquisition whose table has no pre-computed shifts).
     """

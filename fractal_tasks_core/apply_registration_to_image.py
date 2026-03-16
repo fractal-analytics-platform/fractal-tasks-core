@@ -186,10 +186,10 @@ def apply_registration_to_image(
     # Validate that Task 2 has been run: the registered ROI table must exist.
     if registered_roi_table not in acq_ome_zarr.list_tables():
         raise ValueError(
-            f"Registered ROI table '{registered_roi_table}' not found in "
-            f"'{zarr_url}'. Please run 'Calculate Registration (image-based)' "
-            "and 'Find Registration Consensus' before "
-            "'Apply Registration to Image'."
+            f'Registered ROI table "{registered_roi_table}" not found in '
+            f'"{zarr_url}". Please run "Calculate Registration (image-based)" '
+            'and "Find Registration Consensus" before '
+            '"Apply Registration to Image".'
         )
 
     roi_table_ref = ref_ome_zarr.get_roi_table(registered_roi_table)
