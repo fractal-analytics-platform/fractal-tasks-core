@@ -10,7 +10,7 @@ from typing import Any
 
 from ngio import OmeZarrPlate, OmeZarrWell, open_ome_zarr_plate, open_ome_zarr_well
 from ngio.utils import NgioFileExistsError, NgioFileNotFoundError
-from pydantic import validate_call
+from pydantic import Field, validate_call
 
 from fractal_tasks_core._projection_utils import DaskProjectionMethod, InitArgsMIP
 from fractal_tasks_core._utils import format_template_name
@@ -71,7 +71,10 @@ def init_projection_hcs(
     zarr_urls: list[str],
     zarr_dir: str,
     method: DaskProjectionMethod = DaskProjectionMethod.MIP,
-    output_plate_name: str = "{plate_name}_{method}",
+    output_plate_name: str = Field(
+        default="{plate_name}_{method}",
+        pattern=r"^.*\{plate_name\}.*$",
+    ),
     # Advanced parameters
     overwrite: bool = False,
     re_initialize_plate: bool = False,

@@ -64,6 +64,7 @@
           },
           "output_plate_name": {
             "default": "{plate_name}_{method}",
+            "pattern": "^.*\\{plate_name\\}.*$",
             "title": "Output Plate Name",
             "type": "string",
             "description": "A string template to generate the name of the output plates. To avoid name clashes, the output plate name must contain the `{plate_name}` placeholder, which will be replaced by the original plate name. The `{method}` placeholder will be replaced by the projection method used. Defaults to \"{plate_name}_{method}\"."
@@ -202,6 +203,7 @@
           },
           "output_image_name": {
             "default": "{image_name}_{method}",
+            "pattern": "^.*\\{image_name\\}.*$",
             "title": "Output Image Name",
             "type": "string",
             "description": "Missing description"
@@ -377,6 +379,7 @@
           },
           "output_image_name": {
             "default": "{image_name}_illum_corr",
+            "pattern": "^.*\\{image_name\\}.*$",
             "title": "Output Image Name",
             "type": "string",
             "description": "Name of the output image within the well. Only relevant if ``overwrite_input=False``. May contain the placeholder ``{image_name}``, which is replaced by the name of the input image (i.e. the last path component of ``zarr_url``). For example, the default ``\"{image_name}_illum_corr\"`` turns an input image named ``0`` into ``0_illum_corr``."
@@ -1094,7 +1097,7 @@
           "init_args": {
             "$ref": "#/$defs/InitArgsRegistration",
             "title": "Init Args",
-            "description": "Intialization arguments provided by `init_image_based_registration`. They contain the reference_zarr_url that is used for registration. (standard argument for Fractal tasks, managed by Fractal server)."
+            "description": "Initialization arguments provided by `init_image_based_registration`. They contain the reference_zarr_url that is used for registration. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "wavelength_id": {
             "title": "Wavelength Id",
@@ -1129,7 +1132,7 @@
             "default": "2",
             "title": "Level Path",
             "type": "string",
-            "description": "Path to the pyramid level of the image to be used for registration. Choose `\"0\"` to process at full resolution."
+            "description": "Resolution level of the image to use for registration. Lower numbers correspond to higher resolution. Choose `\"0\"` to process at full resolution."
           }
         },
         "required": [
@@ -1223,7 +1226,7 @@
           "init_args": {
             "$ref": "#/$defs/InitArgsRegistrationConsensus",
             "title": "Init Args",
-            "description": "Intialization arguments provided by `init_registration_consensus`. It contains the zarr_url_list listing all the zarr_urls in the same well as the zarr_url of the reference acquisition that are being processed. (standard argument for Fractal tasks, managed by Fractal server)."
+            "description": "Initialization arguments provided by `init_registration_consensus`. It contains the zarr_url_list listing all the zarr_urls in the same well as the zarr_url of the reference acquisition that are being processed. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "roi_table": {
             "default": "FOV_ROI_table",
@@ -1298,7 +1301,7 @@
             "default": true,
             "title": "Overwrite Input",
             "type": "boolean",
-            "description": "Whether the old image data should be replaced with the newly registered image data. Currently only implemented for `overwrite_input=True`."
+            "description": "Whether the old image data should be replaced with the newly registered image data. If False, a new image is created with `_registered` appended to the name and the original is kept."
           }
         },
         "required": [

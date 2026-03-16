@@ -115,7 +115,10 @@ def illumination_correction(
     illumination_profiles: ProfileCorrectionModel,
     background_correction: BackgroundCorrection = BackgroundCorrection(),  # type: ignore, TODO use factory # type: ignore
     input_roi_table: str = "FOV_ROI_table",
-    output_image_name: str = "{image_name}_illum_corr",
+    output_image_name: str = Field(
+        default="{image_name}_illum_corr",
+        pattern=r"^.*\{image_name\}.*$",
+    ),
     overwrite_input: bool = False,
 ) -> dict[str, Any] | None:
     """
@@ -195,7 +198,9 @@ def illumination_correction(
         )
 
     if background_correction.value.model == "Profile":
-        background_wavelengths = set(background_correction.value.profiles.keys())
+        background_wavelengths = set(
+            background_correction.value.profiles.keys()
+        )  # ty:ignore[unresolved-attribute]
 
         if not background_wavelengths.issubset(input_image_wavelengths):
             raise ValueError(
@@ -209,7 +214,9 @@ def illumination_correction(
                 f"{input_image_wavelengths - background_wavelengths}."
             )
     elif background_correction.value.model == "Constant":
-        background_wavelengths = set(background_correction.value.constants.keys())
+        background_wavelengths = set(
+            background_correction.value.constants.keys()
+        )  # ty:ignore[unresolved-attribute]
         if not background_wavelengths.issubset(input_image_wavelengths):
             raise ValueError(
                 "Background profiles provided for wavelengths: "
@@ -267,9 +274,9 @@ def illumination_correction(
     background_matrices = {}
     background_constants = {}
     if background_correction.value.model == "Constant":
-        background_constants = background_correction.value.constants
+        background_constants = background_correction.value.constants  # type: ignore[unresolved-attribute]
     elif background_correction.value.model == "Profile":
-        for wavelength_id, profile_path in background_correction.value.items():
+        for wavelength_id, profile_path in background_correction.value.items():  # type: ignore[unresolved-attribute]
             correction_matrix = imread(profile_path)
             if correction_matrix.shape != image_size:
                 raise ValueError(

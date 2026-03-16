@@ -8,7 +8,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from pydantic import validate_call
+from pydantic import Field, validate_call
 
 from fractal_tasks_core._projection_utils import DaskProjectionMethod, projection_core
 from fractal_tasks_core._utils import format_template_name
@@ -21,7 +21,10 @@ def projection(
     *,
     zarr_url: str,
     method: DaskProjectionMethod = DaskProjectionMethod.MIP,
-    output_image_name: str = "{image_name}_{method}",
+    output_image_name: str = Field(
+        default="{image_name}_{method}",
+        pattern=r"^.*\{image_name\}.*$",
+    ),
     overwrite: bool = False,
 ) -> dict[str, Any]:
     """

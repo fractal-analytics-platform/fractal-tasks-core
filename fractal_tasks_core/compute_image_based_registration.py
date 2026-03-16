@@ -143,7 +143,7 @@ def compute_image_based_registration(
                 "different shapes between acquisitions."
             )
 
-        shifts = method.register(np.squeeze(img_ref), np.squeeze(img_acq_x))[0]  # type: ignore skimage wrong type hint
+        shifts = method.register(np.squeeze(img_ref), np.squeeze(img_acq_x))[0]
         new_shifts[roi.name] = shifts
 
     logger.info(f"Updating the {roi_table=} with translation columns")
