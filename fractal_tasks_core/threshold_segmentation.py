@@ -74,7 +74,7 @@ def threshold_segmentation(
     # Fractal managed parameters
     zarr_url: str,
     # Segmentation parameters
-    channels: InputChannel,
+    channel: InputChannel,
     output_label_name: str = "{channel_identifier}_segmented",
     level_path: str | None = None,
     method: SegmentationConfiguration = OtsuConfiguration(),
@@ -92,7 +92,7 @@ def threshold_segmentation(
 
     Args:
         zarr_url: URL to the OME-Zarr container.
-        channels: Channel to use for segmentation,
+        channel: Channel to use for segmentation,
             selected by label, wavelength ID, or index.
         output_label_name: Name of the resulting label image. Optionally, it can
             contain a placeholder "{channel_identifier}" which will be replaced by the
@@ -116,19 +116,19 @@ def threshold_segmentation(
     # Open the OME-Zarr container for early channel validation
     ome_zarr = open_ome_zarr_container(zarr_url)
     logger.info(f"{ome_zarr=}")
-    if _skip_segmentation(channels=channels, ome_zarr=ome_zarr):
+    if _skip_segmentation(channels=channel, ome_zarr=ome_zarr):
         return None
 
     # Format the label name based on the provided template and channel identifier
     output_label_name = format_template_name(
-        output_label_name, channel_identifier=channels.identifier
+        output_label_name, channel_identifier=channel.identifier
     )
     logger.info(f"Formatted label name: {output_label_name=}")
 
     # Set up iterator (opens ome_zarr internally, derives label, handles masking)
     iterator = setup_segmentation_iterator(
         zarr_url=zarr_url,
-        channels=[channels.to_channel_selection_models()],
+        channels=[channel.to_channel_selection_models()],
         output_label_name=output_label_name,
         level_path=level_path,
         iterator_configuration=iterator_configuration,

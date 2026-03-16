@@ -55,7 +55,7 @@ def _make_zarr_with_label(
 
     threshold_segmentation(
         zarr_url=str(store),
-        channels=InputChannel(mode="index", identifier="0"),
+        channel=InputChannel(mode="index", identifier="0"),
         output_label_name=label_name,
         method=ThresholdConfiguration(threshold=100),
         overwrite=True,

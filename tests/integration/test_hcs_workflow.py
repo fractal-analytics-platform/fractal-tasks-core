@@ -313,7 +313,7 @@ def test_full_pipeline(tmp_path: Path) -> None:
     # ------------------------------------------------------------------
     threshold_segmentation(
         zarr_url=zarr_url_0,
-        channels=InputChannel(mode="wavelength_id", identifier=_CHANNELS[0]),
+        channel=InputChannel(mode="wavelength_id", identifier=_CHANNELS[0]),
         output_label_name="nuclei",
         method=ThresholdConfiguration(threshold=500),
         overwrite=True,
