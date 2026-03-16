@@ -11,30 +11,9 @@ from ngio.tables import GenericRoiTable, RoiTable
 from pydantic import validate_call
 
 from fractal_tasks_core._registration_utils import InitArgsRegistrationConsensus
+from fractal_tasks_core._utils import format_template_name
 
 logger = logging.getLogger("compute_registration_consensus")
-
-
-def _format_new_roi_table_name(new_roi_table_template: str, roi_table: str) -> str:
-    """Format the new ROI table name from a template, substituting ``{roi_table}``.
-
-    Args:
-        new_roi_table_template: Template string, may contain a ``{roi_table}``
-            placeholder which will be replaced by the input ROI table name, or
-            no placeholder at all (the template is used verbatim).
-        roi_table: The input ROI table name to substitute into the template.
-
-    Returns:
-        The formatted output ROI table name.
-    """
-    try:
-        name = new_roi_table_template.format(roi_table=roi_table)
-    except KeyError as e:
-        raise ValueError(
-            "New ROI Table Name format error: only allowed placeholder is "
-            f"'roi_table'. {{{e}}} was provided."
-        ) from e
-    return name
 
 
 def _validate_if_translation_exists(tables: list[GenericRoiTable]) -> None:
@@ -235,7 +214,7 @@ def compute_registration_consensus(
             pre-calculated translation shifts).
 
     """
-    new_roi_table = _format_new_roi_table_name(new_roi_table, roi_table)
+    new_roi_table = format_template_name(new_roi_table, roi_table=roi_table)
     if new_roi_table == roi_table:
         raise ValueError(
             f"new_roi_table ({new_roi_table!r}) must differ from roi_table "

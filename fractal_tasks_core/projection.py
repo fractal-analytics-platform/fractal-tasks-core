@@ -11,34 +11,9 @@ from typing import Any
 from pydantic import validate_call
 
 from fractal_tasks_core._projection_utils import DaskProjectionMethod, projection_core
+from fractal_tasks_core._utils import format_template_name
 
 logger = logging.getLogger("projection")
-
-
-def _format_output_image_name(
-    output_image_name_template: str, image_name: str, method: str
-) -> str:
-    """Format the output image name based on the provided template and image name.
-
-    Args:
-        output_image_name_template: The template for the output image name. It may
-            contain a placeholder ``{image_name}`` which will be replaced by the
-            current image name, or no placeholder at all (the template is used
-            verbatim, ignoring the image name).
-        image_name: The current image name to insert into the template.
-        method: The projection method used, to be inserted into the template.
-
-    Returns:
-        The formatted output image name.
-    """
-    try:
-        name = output_image_name_template.format(image_name=image_name, method=method)
-    except KeyError as e:
-        raise ValueError(
-            "Output Image Name format error: only allowed placeholders are "
-            f"'image_name' and 'method'. {{{e}}} was provided."
-        ) from e
-    return name
 
 
 @validate_call
@@ -73,7 +48,7 @@ def projection(
 
     base, image_name = zarr_url.rsplit("/", 1)
     image_name = image_name.removesuffix(".zarr")
-    output_image_name = _format_output_image_name(
+    output_image_name = format_template_name(
         output_image_name, image_name=image_name, method=method.abbreviation
     )
     if not output_image_name.endswith(".zarr"):

@@ -105,3 +105,32 @@ def split_well_path_image_path(zarr_url: str) -> tuple[str, str]:
     *well_parts, image_path = parts
     well_path = "/".join(well_parts)
     return well_path, image_path
+
+
+def format_template_name(template: str, **kwargs: str) -> str:
+    """Format a name from a template string and keyword arguments.
+
+    The template may contain zero or more placeholders in ``{key}`` form.
+    If no placeholders are present the template is returned verbatim,
+    ignoring the supplied kwargs.
+
+    Args:
+        template: A format string such as ``"{image_name}_{method}"``.
+        **kwargs: Values to substitute into the template. Allowed placeholder
+            names are the keys of kwargs.
+
+    Returns:
+        The formatted name.
+
+    Raises:
+        ValueError: If the template references a placeholder that is not one
+            of the supplied kwargs.
+    """
+    allowed = ", ".join(f"'{k}'" for k in kwargs)
+    try:
+        return template.format(**kwargs)
+    except KeyError as e:
+        raise ValueError(
+            f"Template format error: {e} is not a valid placeholder. "
+            f"Allowed placeholders are: {allowed}."
+        ) from e

@@ -13,6 +13,7 @@ from ngio.utils import NgioFileExistsError, NgioFileNotFoundError
 from pydantic import validate_call
 
 from fractal_tasks_core._projection_utils import DaskProjectionMethod, InitArgsMIP
+from fractal_tasks_core._utils import format_template_name
 
 logger = logging.getLogger("init_projection_hcs")
 
@@ -61,32 +62,6 @@ def _get_plate(
     plate = open_ome_zarr_plate(proj_plate_url)
     logger.info(f"Plate already exists: {plate}")
     return plate
-
-
-def _format_output_plate_name(
-    output_plate_name_template: str, plate_name: str, method: str
-) -> str:
-    """Format the output plate name based on the provided template and plate name.
-
-    Args:
-        output_plate_name_template: The template for the output plate name. It may
-            contain a placeholder ``{plate_name}`` which will be replaced by the
-            current plate name, or no placeholder at all (the template is used
-            verbatim, ignoring the plate name).
-        plate_name: The current plate name to insert into the template.
-        method: The projection method used, to be inserted into the template.
-
-    Returns:
-        The formatted output plate name.
-    """
-    try:
-        name = output_plate_name_template.format(plate_name=plate_name, method=method)
-    except KeyError as e:
-        raise ValueError(
-            "Output Plate Name format error: only allowed placeholders are "
-            f"'plate_name' and 'method'. {{{e}}} was provided."
-        ) from e
-    return name
 
 
 @validate_call
@@ -164,8 +139,8 @@ def init_projection_hcs(
 
         plate_url = f"{base_dir}/{plate_name}"
         plate_name = plate_name.rstrip(".zarr")  # Remove .zarr extension if present
-        proj_plate_name = _format_output_plate_name(
-            output_plate_name_template=output_plate_name,
+        proj_plate_name = format_template_name(
+            output_plate_name,
             plate_name=plate_name,
             method=method.abbreviation,
         )

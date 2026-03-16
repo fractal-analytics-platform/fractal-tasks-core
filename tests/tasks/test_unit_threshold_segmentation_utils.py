@@ -7,7 +7,7 @@ from fractal_tasks_core._threshold_segmentation_utils import (
     ThresholdConfiguration,
     segmentation_function,
 )
-from fractal_tasks_core.threshold_segmentation import _format_label_name
+from fractal_tasks_core._utils import format_template_name
 
 # ---------------------------------------------------------------------------
 # ThresholdConfiguration / OtsuConfiguration
@@ -74,20 +74,20 @@ def test_create_masking_roi_table_get_name_custom() -> None:
 
 
 # ---------------------------------------------------------------------------
-# _format_label_name
+# format_template_name
 # ---------------------------------------------------------------------------
 
 
-def test_format_label_name_with_placeholder() -> None:
-    result = _format_label_name("{channel_identifier}_seg", "DAPI")
+def test_format_template_name_with_placeholder() -> None:
+    result = format_template_name("{channel_identifier}_seg", channel_identifier="DAPI")
     assert result == "DAPI_seg"
 
 
-def test_format_label_name_without_placeholder() -> None:
-    result = _format_label_name("nuclei", "DAPI")
+def test_format_template_name_without_placeholder() -> None:
+    result = format_template_name("nuclei", channel_identifier="DAPI")
     assert result == "nuclei"
 
 
-def test_format_label_name_invalid_placeholder() -> None:
+def test_format_template_name_invalid_placeholder() -> None:
     with pytest.raises(ValueError, match="channel_identifier"):
-        _format_label_name("{bad_key}_seg", "DAPI")
+        format_template_name("{bad_key}_seg", channel_identifier="DAPI")

@@ -25,32 +25,9 @@ from fractal_tasks_core._threshold_segmentation_utils import (
     SkipCreateMaskingRoiTable,
     segmentation_function,
 )
+from fractal_tasks_core._utils import format_template_name
 
 logger = logging.getLogger("threshold_segmentation")
-
-
-def _format_label_name(label_name_template: str, channel_identifier: str) -> str:
-    """Format the label name based on the provided template and channel identifier.
-
-    Args:
-        label_name_template (str): The template for the label name. This
-            might contain a placeholder "{channel_identifier}" which will be
-            replaced by the channel identifier or no placeholder at all,
-            in which case the channel identifier will be ignored.
-        channel_identifier (str): The channel identifier to insert into the
-            label name template.
-
-    Returns:
-        str: The formatted label name.
-    """
-    try:
-        label_name = label_name_template.format(channel_identifier=channel_identifier)
-    except KeyError as e:
-        raise ValueError(
-            "Label Name format error only allowed placeholder is "
-            f"'channel_identifier'. {{{e}}} was provided."
-        ) from e
-    return label_name
 
 
 def _skip_segmentation(channels: InputChannel, ome_zarr: OmeZarrContainer) -> bool:
@@ -144,8 +121,8 @@ def threshold_segmentation(
         return None
 
     # Format the label name based on the provided template and channel identifier
-    label_name = _format_label_name(
-        label_name_template=label_name, channel_identifier=channels.identifier
+    label_name = format_template_name(
+        label_name, channel_identifier=channels.identifier
     )
     logger.info(f"Formatted label name: {label_name=}")
 
