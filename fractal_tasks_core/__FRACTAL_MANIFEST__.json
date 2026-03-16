@@ -60,19 +60,25 @@
             "$ref": "#/$defs/DaskProjectionMethod",
             "default": "Maximum intensity projection",
             "title": "Method",
-            "description": "Choose which method to use for intensity projection along the Z axis. Implemented methods are: - MIP: Maximum intensity projection - MINIP: Minimum intensity projection - MEANIP: Mean intensity projection - SUMIP: Sum intensity projection"
+            "description": "Choose which method to use for intensity projection along the Z axis."
+          },
+          "output_plate_name": {
+            "default": "{plate_name}_{method}",
+            "title": "Output Plate Name",
+            "type": "string",
+            "description": "A string template to generate the name of the output plates. To avoid name clashes, the output plate name must contain the `{plate_name}` placeholder, which will be replaced by the original plate name. The `{method}` placeholder will be replaced by the projection method used. Defaults to \"{plate_name}_{method}\"."
           },
           "overwrite": {
             "default": false,
             "title": "Overwrite",
             "type": "boolean",
-            "description": "If `True`, overwrite the MIP images if they are already present in the new OME-Zarr Plate."
+            "description": "If True, previous projected images with the same method will be overwritten."
           },
           "re_initialize_plate": {
             "default": false,
             "title": "Re Initialize Plate",
             "type": "boolean",
-            "description": "If `True`, re-initialize the plate, deleting all existing wells and images. If `False`, the task will only incrementally add new wells and images to the plate."
+            "description": "If True, the projection plate will be re-initialized even if it already exists. If False, the task will incrementally add the projected images to the existing plate if it already exists."
           }
         },
         "required": [
@@ -186,19 +192,25 @@
           "zarr_url": {
             "title": "Zarr Url",
             "type": "string",
-            "description": "Path or url to the individual OME-Zarr image to be processed."
+            "description": "Missing description"
           },
           "method": {
             "$ref": "#/$defs/DaskProjectionMethod",
             "default": "Maximum intensity projection",
             "title": "Method",
-            "description": "Projection method to be used. Implemented methods are: - MIP: Maximum intensity projection - MINIP: Minimum intensity projection - MEANIP: Mean intensity projection - SUMIP: Sum intensity projection"
+            "description": "Missing description"
+          },
+          "output_image_name": {
+            "default": "{image_name}_{method}",
+            "title": "Output Image Name",
+            "type": "string",
+            "description": "Missing description"
           },
           "overwrite": {
             "default": false,
             "title": "Overwrite",
             "type": "boolean",
-            "description": "If `True`, overwrite the task output."
+            "description": "Missing description"
           }
         },
         "required": [

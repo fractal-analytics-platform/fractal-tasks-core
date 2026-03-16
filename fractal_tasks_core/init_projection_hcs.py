@@ -63,6 +63,32 @@ def _get_plate(
     return plate
 
 
+def _format_output_plate_name(
+    output_plate_name_template: str, plate_name: str, method: str
+) -> str:
+    """Format the output plate name based on the provided template and plate name.
+
+    Args:
+        output_plate_name_template: The template for the output plate name. It may
+            contain a placeholder ``{plate_name}`` which will be replaced by the
+            current plate name, or no placeholder at all (the template is used
+            verbatim, ignoring the plate name).
+        plate_name: The current plate name to insert into the template.
+        method: The projection method used, to be inserted into the template.
+
+    Returns:
+        The formatted output plate name.
+    """
+    try:
+        name = output_plate_name_template.format(plate_name=plate_name, method=method)
+    except KeyError as e:
+        raise ValueError(
+            "Output Plate Name format error: only allowed placeholders are "
+            f"'plate_name' and 'method'. {{{e}}} was provided."
+        ) from e
+    return name
+
+
 @validate_call
 def init_projection_hcs(
     *,
@@ -70,6 +96,7 @@ def init_projection_hcs(
     zarr_urls: list[str],
     zarr_dir: str,
     method: DaskProjectionMethod = DaskProjectionMethod.MIP,
+    output_plate_name: str = "{plate_name}_{method}",
     # Advanced parameters
     overwrite: bool = False,
     re_initialize_plate: bool = False,
@@ -96,17 +123,18 @@ def init_projection_hcs(
         zarr_dir: path of the directory where the new OME-Zarrs will be
             created.
             (standard argument for Fractal tasks, managed by Fractal server).
+        output_plate_name: A string template to generate the name of the output
+            plates. To avoid name clashes, the output plate name must
+            contain the `{plate_name}` placeholder, which will be replaced by
+            the original plate name. The `{method}` placeholder will be replaced
+            by the projection method used. Defaults to "{plate_name}_{method}".
         method: Choose which method to use for intensity projection along the
-            Z axis. Implemented methods are:
-            - MIP: Maximum intensity projection
-            - MINIP: Minimum intensity projection
-            - MEANIP: Mean intensity projection
-            - SUMIP: Sum intensity projection
-        overwrite: If `True`, overwrite the MIP images if they are
-            already present in the new OME-Zarr Plate.
-        re_initialize_plate: If `True`, re-initialize the plate, deleting all
-            existing wells and images. If `False`, the task will only
-            incrementally add new wells and images to the plate.
+            Z axis.
+        overwrite: If True, previous projected images with the same method will
+            be overwritten.
+        re_initialize_plate: If True, the projection plate will be re-initialized
+            even if it already exists. If False, the task will incrementally add the
+            projected images to the existing plate if it already exists.
 
     Returns:
         A parallelization list to be used in a compute task to fill the wells
@@ -135,9 +163,15 @@ def init_projection_hcs(
         base_dir = "/".join(base)
 
         plate_url = f"{base_dir}/{plate_name}"
-        proj_plate_name = (
-            f"{plate_name}".rstrip(".zarr") + f"_{method.abbreviation}.zarr"
+        plate_name = plate_name.rstrip(".zarr")  # Remove .zarr extension if present
+        proj_plate_name = _format_output_plate_name(
+            output_plate_name_template=output_plate_name,
+            plate_name=plate_name,
+            method=method.abbreviation,
         )
+        # Make sure the proj_plate_name ends with .zarr
+        if not proj_plate_name.endswith(".zarr"):
+            proj_plate_name = f"{proj_plate_name}.zarr"
         proj_plate_url = f"{zarr_dir}/{proj_plate_name}"
 
         if proj_plate_url not in proj_plates:

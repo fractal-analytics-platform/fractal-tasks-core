@@ -15,11 +15,38 @@ from fractal_tasks_core._projection_utils import DaskProjectionMethod, projectio
 logger = logging.getLogger("projection")
 
 
+def _format_output_image_name(
+    output_image_name_template: str, image_name: str, method: str
+) -> str:
+    """Format the output image name based on the provided template and image name.
+
+    Args:
+        output_image_name_template: The template for the output image name. It may
+            contain a placeholder ``{image_name}`` which will be replaced by the
+            current image name, or no placeholder at all (the template is used
+            verbatim, ignoring the image name).
+        image_name: The current image name to insert into the template.
+        method: The projection method used, to be inserted into the template.
+
+    Returns:
+        The formatted output image name.
+    """
+    try:
+        name = output_image_name_template.format(image_name=image_name, method=method)
+    except KeyError as e:
+        raise ValueError(
+            "Output Image Name format error: only allowed placeholders are "
+            f"'image_name' and 'method'. {{{e}}} was provided."
+        ) from e
+    return name
+
+
 @validate_call
 def projection(
     *,
     zarr_url: str,
     method: DaskProjectionMethod = DaskProjectionMethod.MIP,
+    output_image_name: str = "{image_name}_{method}",
     overwrite: bool = False,
 ) -> dict[str, Any]:
     """
@@ -32,16 +59,26 @@ def projection(
 
     Args:
         zarr_url: Path or url to the individual OME-Zarr image to be processed.
-        method: Projection method to be used. Implemented methods are:
-            - MIP: Maximum intensity projection
-            - MINIP: Minimum intensity projection
-            - MEANIP: Mean intensity projection
-            - SUMIP: Sum intensity projection
+        method: Choose which method to use for intensity projection along the
+            Z axis.
+        output_image_name: The template for the output image name. To make sure
+        that the output image is unique it must contain the placeholder
+        {image_name} which will be replaced by the input image name.
+        overwrite: If True, previous projected images with the same method will
+            be overwritten.
         overwrite: If `True`, overwrite the task output.
     """
     if not zarr_url.endswith(".zarr"):
         raise ValueError(f"The input zarr url must end with .zarr, but got {zarr_url}")
-    output_zarr_url = zarr_url.removesuffix(".zarr") + f"_{method.abbreviation}.zarr"
+
+    base, image_name = zarr_url.rsplit("/", 1)
+    image_name = image_name.removesuffix(".zarr")
+    output_image_name = _format_output_image_name(
+        output_image_name, image_name=image_name, method=method.abbreviation
+    )
+    if not output_image_name.endswith(".zarr"):
+        output_image_name = f"{output_image_name}.zarr"
+    output_zarr_url = f"{base}/{output_image_name}"
     return projection_core(
         input_zarr_url=zarr_url,
         output_zarr_url=output_zarr_url,
