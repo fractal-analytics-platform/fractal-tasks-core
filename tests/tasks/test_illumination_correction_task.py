@@ -496,27 +496,6 @@ def test_multidimensional_input(
 
 
 # ---------------------------------------------------------------------------
-# empty output_image_name raises before any zarr I/O
-# ---------------------------------------------------------------------------
-
-
-def test_empty_output_image_name() -> None:
-    illumination_profile = ProfileCorrectionModel(
-        folder="/any",
-        profiles={},
-    )
-    with pytest.raises(
-        ValueError, match="output_image_name cannot result in an empty string"
-    ):
-        illumination_correction(
-            zarr_url="/nonexistent",
-            illumination_profiles=illumination_profile,
-            overwrite_input=False,
-            output_image_name="",
-        )
-
-
-# ---------------------------------------------------------------------------
 # Constant background model wavelength mismatch
 # ---------------------------------------------------------------------------
 

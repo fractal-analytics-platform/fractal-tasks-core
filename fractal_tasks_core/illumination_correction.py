@@ -162,8 +162,6 @@ def illumination_correction(
     else:
         image_name = zarr_url.split("/")[-1]
         formatted_name = format_template_name(output_image_name, image_name=image_name)
-        if formatted_name == "":
-            raise ValueError("output_image_name cannot result in an empty string.")
         parent_url = zarr_url.rsplit("/", 1)[0]
         zarr_url_new = f"{parent_url}/{formatted_name}"
 
