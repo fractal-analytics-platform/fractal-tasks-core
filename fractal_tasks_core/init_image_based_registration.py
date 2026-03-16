@@ -24,7 +24,7 @@ def init_image_based_registration(
     reference_acquisition: int = 0,
 ) -> dict[str, list[dict[str, Any]]]:
     """
-    Initialized calculate registration task
+    Initialize the image-based registration task.
 
     This task prepares a parallelization list of all zarr_urls that need to be
     used to calculate the registration between acquisitions (all zarr_urls
@@ -33,7 +33,7 @@ def init_image_based_registration(
     currently have defined acquisition metadata to determine reference
     acquisitions. And we have only implemented the grouping of images for
     HCS OME-Zarrs by well (with the assumption that every well just has 1
-    image per acqusition).
+    image per acquisition).
 
     Args:
         zarr_urls: List of paths or urls to the individual OME-Zarr image to

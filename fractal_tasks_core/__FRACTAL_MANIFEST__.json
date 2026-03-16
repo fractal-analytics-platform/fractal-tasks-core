@@ -141,7 +141,7 @@
           "init_args": {
             "$ref": "#/$defs/InitArgsMIP",
             "title": "Init Args",
-            "description": "Intialization arguments provided by `init_projection_hcs`."
+            "description": "Initialization arguments provided by `init_projection_hcs`."
           }
         },
         "required": [
@@ -369,7 +369,7 @@
             "title": "Background Correction",
             "description": "(Optional) background (darkfield) correction parameters. Can be provided as profiles or as constant values."
           },
-          "input_ROI_table": {
+          "input_roi_table": {
             "default": "FOV_ROI_table",
             "title": "Input Roi Table",
             "type": "string",
@@ -754,7 +754,7 @@
           "iterator_configuration": {
             "$ref": "#/$defs/IteratorConfig",
             "title": "Iterator Configuration",
-            "description": "Configuration for the segmentation iterator. This can be used to specify masking and/or a ROI table."
+            "description": "Optionally restrict segmentation to a specific set of ROIs or a sub-region. If not provided, the full image is segmented."
           },
           "pre_post_process": {
             "$ref": "#/$defs/SegmentationTransformConfig",
@@ -931,7 +931,7 @@
           "input_label_name": {
             "title": "Input Label Name",
             "type": "string",
-            "description": "Name of the label image to analyze."
+            "description": "Name of the segmentation label image to measure (must already exist in the OME-Zarr)."
           },
           "output_table_name": {
             "default": "region_props_features",
@@ -1338,13 +1338,13 @@
             "type": "boolean",
             "description": "Whether to update Omero-channels metadata, to make them Fractal-compatible."
           },
-          "add_image_ROI_table": {
+          "add_image_roi_table": {
             "default": true,
             "title": "Add Image Roi Table",
             "type": "boolean",
             "description": "Whether to add a `image_ROI_table` table to each image, with a single ROI covering the whole image."
           },
-          "add_grid_ROI_table": {
+          "add_grid_roi_table": {
             "default": true,
             "title": "Add Grid Roi Table",
             "type": "boolean",
@@ -1378,7 +1378,7 @@
             "default": false,
             "title": "Overwrite",
             "type": "boolean",
-            "description": "Whether new ROI tables (added when `add_image_ROI_table` and/or `add_grid_ROI_table` are `True`) can overwrite existing ones."
+            "description": "Whether new ROI tables (added when `add_image_roi_table` and/or `add_grid_roi_table` are `True`) can overwrite existing ones."
           }
         },
         "required": [

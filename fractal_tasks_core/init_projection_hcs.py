@@ -88,9 +88,6 @@ def init_projection_hcs(
     - For each well (in each plate), create a new zarr subgroup with the
        same attributes as the original one.
 
-    Note: this task makes use of methods from the `Attributes` class, see
-    https://zarr.readthedocs.io/en/stable/api/attrs.html.
-
     Args:
         zarr_urls: List of paths or urls to the individual OME-Zarr image to
             be processed.
@@ -112,8 +109,7 @@ def init_projection_hcs(
             projected images to the existing plate if it already exists.
 
     Returns:
-        A parallelization list to be used in a compute task to fill the wells
-        with OME-Zarr images.
+        Setup information required by the Compute Projection (HCS) task.
     """
     parallelization_list = []
 

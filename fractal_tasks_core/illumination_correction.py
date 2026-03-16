@@ -114,17 +114,16 @@ def illumination_correction(
     # Core parameters
     illumination_profiles: ProfileCorrectionModel,
     background_correction: BackgroundCorrection = BackgroundCorrection(),  # type: ignore, TODO use factory # type: ignore
-    input_ROI_table: str = "FOV_ROI_table",
+    input_roi_table: str = "FOV_ROI_table",
     output_image_name: str = "{image_name}_illum_corr",
     overwrite_input: bool = False,
 ) -> dict[str, Any] | None:
     """
     Applies illumination correction to the images in the OME-Zarr.
 
-    Assumes that the illumination correction profiles were generated before
-    separately and that the same background subtraction was used during
-    calculation of the illumination correction (otherwise, it will not work
-    well & the correction may only be partial).
+    The illumination correction profiles must be pre-computed using the same
+    background correction settings as specified here (otherwise the correction
+    may only be partial).
 
     Args:
         zarr_url: Path or url to the individual OME-Zarr image to be processed.
@@ -132,7 +131,7 @@ def illumination_correction(
         illumination_profiles: Illumination (flatfield) correction profiles.
         background_correction: (Optional) background (darkfield) correction
             parameters. Can be provided as profiles or as constant values.
-        input_ROI_table: Name of the ROI table that contains the information
+        input_roi_table: Name of the ROI table that contains the information
             about the location of the individual field of views (FOVs) to
             which the illumination correction shall be applied. Defaults to
             "FOV_ROI_table", the default name Fractal converters give the ROI
@@ -224,7 +223,7 @@ def illumination_correction(
             )
 
     # Read FOV ROIs
-    FOV_ROI_table = ome_zarr_container.get_generic_roi_table(input_ROI_table)
+    FOV_ROI_table = ome_zarr_container.get_generic_roi_table(input_roi_table)
 
     logger.info(f"{FOV_ROI_table=}")
 

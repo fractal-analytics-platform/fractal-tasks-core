@@ -211,7 +211,7 @@ def test_full_pipeline(tmp_path: Path) -> None:
             zarr_url=zarr_url,
             illumination_profiles=illumination_profiles,
             overwrite_input=True,
-            input_ROI_table=_ROI_TABLE,
+            input_roi_table=_ROI_TABLE,
         )
 
     # Both images should still exist and be non-empty after in-place correction

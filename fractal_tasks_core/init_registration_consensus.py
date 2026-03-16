@@ -1,6 +1,6 @@
 # Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """
-Applies the multiplexing translation to all ROI tables
+Prepares the parallelization list for consensus registration.
 """
 
 import logging
@@ -24,9 +24,10 @@ def init_registration_consensus(
     reference_acquisition: int = 0,
 ) -> dict[str, list[dict[str, Any]]]:
     """
-    Finds images for all acquisitions per well.
+    Prepare the list of images needed to compute a registration consensus.
 
-    Returns the parallelization_list to run `compute_registration_consensus`.
+    Finds all images for each well across all acquisitions and returns the
+    information required to run `compute_registration_consensus`.
 
     Args:
         zarr_urls: List of paths or urls to the individual OME-Zarr image to

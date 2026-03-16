@@ -91,24 +91,24 @@ def threshold_segmentation(
     (Otsu) or set manually.
 
     Args:
-        zarr_url (str): URL to the OME-Zarr container.
-        channels (InputChannel): Channel to use for segmentation,
+        zarr_url: URL to the OME-Zarr container.
+        channels: Channel to use for segmentation,
             selected by label, wavelength ID, or index.
-        output_label_name (str): Name of the resulting label image. Optionally, it can
+        output_label_name: Name of the resulting label image. Optionally, it can
             contain a placeholder "{channel_identifier}" which will be replaced by the
             channel identifier specified in the channels parameter.
-        level_path (str | None): If the OME-Zarr has multiple resolution levels,
+        level_path: If the OME-Zarr has multiple resolution levels,
             the level to use can be specified here. If not provided, the highest
             resolution level will be used.
-        iterator_configuration (IteratorConfig | None): Configuration
-            for the segmentation iterator. This can be used to specify masking
-            and/or a ROI table.
-        method (SegmentationConfiguration): Configuration for the segmentation method.
-        pre_post_process (SegmentationTransformConfig): Configuration for pre- and
-            post-processing transforms applied by the iterator.
-        create_masking_roi_table (AnyCreateRoiTableModel): Configuration to
-            create a masking ROI table after segmentation.
-        overwrite (bool): Whether to overwrite an existing label image.
+        iterator_configuration: Optionally restrict segmentation to a specific
+            set of ROIs or a sub-region. If not provided, the full image is
+            segmented.
+        method: Configuration for the segmentation method.
+        pre_post_process: Configuration for pre- and post-processing transforms
+            applied by the iterator.
+        create_masking_roi_table: Configuration to create a masking ROI table
+            after segmentation.
+        overwrite: Whether to overwrite an existing label image.
             Defaults to True.
     """
     logger.info(f"{zarr_url=}")

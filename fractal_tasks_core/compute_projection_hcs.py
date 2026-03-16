@@ -26,14 +26,15 @@ def compute_projection_hcs(
     init_args: InitArgsMIP,
 ) -> dict[str, Any]:
     """
-    Perform intensity projection along Z axis with a chosen method.
+    Perform intensity projection for one image in an HCS plate.
 
-    Note: this task stores the output in a new zarr file.
+    Uses settings prepared by `init_projection_hcs` and stores the output
+    in a new OME-Zarr file within the projected plate.
 
     Args:
         zarr_url: Path or url to the individual OME-Zarr image to be processed.
             (standard argument for Fractal tasks, managed by Fractal server).
-        init_args: Intialization arguments provided by
+        init_args: Initialization arguments provided by
             `init_projection_hcs`.
     """
     attributes = {"plate": init_args.new_plate_name}

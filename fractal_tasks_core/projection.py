@@ -41,7 +41,6 @@ def projection(
         {image_name} which will be replaced by the input image name.
         overwrite: If True, previous projected images with the same method will
             be overwritten.
-        overwrite: If `True`, overwrite the task output.
     """
     if not zarr_url.endswith(".zarr"):
         raise ValueError(f"The input zarr url must end with .zarr, but got {zarr_url}")

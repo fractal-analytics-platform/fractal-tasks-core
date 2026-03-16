@@ -491,7 +491,7 @@ def test_multidimensional_input(
         zarr_url=store.as_posix(),
         illumination_profiles=illumination_profiles,
         overwrite_input=False,
-        input_ROI_table="well_ROI_table",
+        input_roi_table="well_ROI_table",
     )
 
 
@@ -616,7 +616,7 @@ def test_inconsistent_fov_sizes(tmp_path: Path) -> None:
             zarr_url=str(store),
             illumination_profiles=illumination_profiles,
             overwrite_input=True,
-            input_ROI_table="well_ROI_table",
+            input_roi_table="well_ROI_table",
         )
 
 
@@ -661,7 +661,7 @@ def test_flatfield_shape_mismatch(tmp_path: Path, testdata_path: Path) -> None:
             zarr_url=zarr_url,
             illumination_profiles=illum_profiles,
             overwrite_input=True,
-            input_ROI_table="well_ROI_table",
+            input_roi_table="well_ROI_table",
         )
 
 
@@ -690,7 +690,7 @@ def test_darkfield_shape_mismatch(tmp_path: Path, testdata_path: Path) -> None:
             illumination_profiles=illum_profiles,
             background_correction=background,
             overwrite_input=True,
-            input_ROI_table="well_ROI_table",
+            input_roi_table="well_ROI_table",
         )
 
 
@@ -727,7 +727,7 @@ def test_clipping_when_values_exceed_dtype_max(
             zarr_url=zarr_url,
             illumination_profiles=illum_profiles,
             overwrite_input=True,
-            input_ROI_table="well_ROI_table",
+            input_roi_table="well_ROI_table",
         )
     assert "clipped" in caplog.text
 
@@ -756,7 +756,7 @@ def test_extra_background_profile_wavelengths_raises(tmp_path: Path) -> None:
             illumination_profiles=illum_profiles,
             background_correction=background,
             overwrite_input=True,
-            input_ROI_table="well_ROI_table",
+            input_roi_table="well_ROI_table",
         )
 
 
@@ -775,5 +775,5 @@ def test_zero_in_flatfield_raises(tmp_path: Path) -> None:
             zarr_url=zarr_url,
             illumination_profiles=illum_profiles,
             overwrite_input=True,
-            input_ROI_table="well_ROI_table",
+            input_roi_table="well_ROI_table",
         )

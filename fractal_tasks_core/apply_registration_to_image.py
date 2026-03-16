@@ -7,6 +7,7 @@ import logging
 import os
 import shutil
 import time
+from typing import Any
 
 from ngio import OmeZarrContainer, Roi, open_ome_zarr_container, open_ome_zarr_well
 from pydantic import validate_call
@@ -118,22 +119,18 @@ def apply_registration_to_image(
     reference_acquisition: int = 0,
     register_labels: bool = True,
     overwrite_input: bool = True,
-):
+) -> dict[str, Any]:
     """
-    Apply registration to images by using a registered ROI table
+    Apply registration to images by using a registered ROI table.
 
-    This task consists of 4 parts:
+    Crops and shifts each acquisition so that all acquisitions are aligned
+    to the reference acquisition. Only the region visible in all acquisitions
+    is retained. This task consists of 4 steps:
 
-    1. Mask all regions in images that are not available in the
-    registered ROI table and store each acquisition aligned to the
-    reference_acquisition (by looping over ROIs).
-    2. Do the same for all label images.
-    3. Copy all tables from the non-aligned image to the aligned image
-    (currently only works well if the only tables are well & FOV ROI tables
-    (registered and original). Not implemented for measurement tables and
-    other ROI tables).
-    4. Clean up: Delete the old, non-aligned image and rename the new,
-    aligned image to take over its place.
+    1. Write a new image aligned to the reference acquisition for each ROI.
+    2. Apply the same registration to all label images (if requested).
+    3. Copy tables from the original image to the registered image.
+    4. Replace the original image with the registered image.
 
     Args:
         zarr_url: Path or url to the individual OME-Zarr image to be processed.
@@ -150,8 +147,8 @@ def apply_registration_to_image(
             images. If True, all label images will be registered in the same
             way as the main image. If False, only the main image is registered.
         overwrite_input: Whether the old image data should be replaced with the
-            newly registered image data. Currently only implemented for
-            `overwrite_input=True`.
+            newly registered image data. If False, a new image is created with
+            `_registered` appended to the name and the original is kept.
 
     """
     logger.info(

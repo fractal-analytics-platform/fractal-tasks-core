@@ -44,16 +44,17 @@ def measure_features(
     This task requires a label image to be present in the OME-Zarr container.
 
     Args:
-        zarr_url (str): URL to the OME-Zarr container.
-        input_label_name (str): Name of the label image to analyze.
-        output_table_name (str): Name for the output feature table.
-        features (list[SupportedFeatures]): List of feature configurations
-            describing which properties to extract.
-        roi_tables (list[str]): List of ROI table names to condition the
-            feature extraction on. If empty, features will be extracted
-            for the whole label image (2D) or volume (3D).
-        advanced_options (AdvancedOptions): Advanced options for feature measurement.
-        overwrite (bool): Whether to overwrite an existing feature table.
+        zarr_url: URL to the OME-Zarr container.
+        input_label_name: Name of the segmentation label image to measure
+            (must already exist in the OME-Zarr).
+        output_table_name: Name for the output feature table.
+        features: List of feature configurations describing which properties
+            to extract.
+        roi_tables: List of ROI table names to condition the feature extraction
+            on. If empty, features will be extracted for the whole label image
+            (2D) or volume (3D).
+        advanced_options: Advanced options for feature measurement.
+        overwrite: Whether to overwrite an existing feature table.
             Defaults to False.
     """
     logger.info(f"{zarr_url=}")

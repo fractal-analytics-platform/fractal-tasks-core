@@ -151,8 +151,8 @@ def test_import_roi_tables_disabled(tmp_path: Path) -> None:
     result = import_ome_zarr(
         zarr_dir=str(tmp_path),
         zarr_name="plate.zarr",
-        add_image_ROI_table=False,
-        add_grid_ROI_table=False,
+        add_image_roi_table=False,
+        add_grid_roi_table=False,
         update_omero_metadata=False,
     )
 
@@ -204,7 +204,7 @@ def test_grid_roi_table_roi_count(
         zarr_name="image.zarr",
         grid_y_shape=grid_y,
         grid_x_shape=grid_x,
-        add_image_ROI_table=False,
+        add_image_roi_table=False,
         update_omero_metadata=False,
     )
 
@@ -222,8 +222,8 @@ def test_import_omero_metadata_update(tmp_path: Path) -> None:
         zarr_dir=str(tmp_path),
         zarr_name="image.zarr",
         update_omero_metadata=True,
-        add_image_ROI_table=False,
-        add_grid_ROI_table=False,
+        add_image_roi_table=False,
+        add_grid_roi_table=False,
     )
 
     image = open_ome_zarr_container(str(tmp_path / "image.zarr")).get_image()
@@ -239,8 +239,8 @@ def test_import_plate_omero_metadata_update(tmp_path: Path) -> None:
         zarr_dir=str(tmp_path),
         zarr_name="plate.zarr",
         update_omero_metadata=True,
-        add_image_ROI_table=False,
-        add_grid_ROI_table=False,
+        add_image_roi_table=False,
+        add_grid_roi_table=False,
     )
 
     for update in result["image_list_updates"]:
@@ -257,8 +257,8 @@ def test_import_well_omero_metadata_update(tmp_path: Path) -> None:
         zarr_dir=str(tmp_path),
         zarr_name="plate.zarr/A/01",
         update_omero_metadata=True,
-        add_image_ROI_table=False,
-        add_grid_ROI_table=False,
+        add_image_roi_table=False,
+        add_grid_roi_table=False,
     )
 
     for update in result["image_list_updates"]:

@@ -34,7 +34,7 @@ def compute_image_based_registration(
     level_path: str = "2",
 ) -> None:
     """
-    Calculate registration based on images
+    Calculate the shift between acquisitions for each field of view.
 
     This task consists of 3 parts:
 
@@ -45,7 +45,7 @@ def compute_image_based_registration(
     Args:
         zarr_url: Path or url to the individual OME-Zarr image to be processed.
             (standard argument for Fractal tasks, managed by Fractal server).
-        init_args: Intialization arguments provided by
+        init_args: Initialization arguments provided by
             `init_image_based_registration`. They contain the
             reference_zarr_url that is used for registration.
             (standard argument for Fractal tasks, managed by Fractal server).
@@ -65,8 +65,9 @@ def compute_image_based_registration(
             calculate the registration. Examples: `FOV_ROI_table` => loop over
             the field of views, `well_ROI_table` => process the whole well as
             one image.
-        level_path: Path to the pyramid level of the image to be used for
-            registration. Choose `"0"` to process at full resolution.
+        level_path: Resolution level of the image to use for registration.
+            Lower numbers correspond to higher resolution. Choose `"0"` to
+            process at full resolution.
 
     """
     logger.info(

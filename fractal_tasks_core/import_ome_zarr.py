@@ -80,8 +80,8 @@ def _process_single_image(
     *,
     zarr_path: str,
     ome_zarr_image: OmeZarrContainer,
-    add_image_ROI_table: bool,
-    add_grid_ROI_table: bool,
+    add_image_roi_table: bool,
+    add_grid_roi_table: bool,
     update_omero_metadata: bool,
     grid_YX_shape: tuple[int, int] | None = None,
     attributes: dict[str, Any] | None = None,
@@ -94,16 +94,16 @@ def _process_single_image(
     Args:
         zarr_path: Absolute path to the image Zarr group.
         ome_zarr_image: OME-Zarr image container.
-        add_image_ROI_table: Whether to add an `image_ROI_table` table.
-        add_grid_ROI_table: Whether to add a `grid_ROI_table` table.
+        add_image_roi_table: Whether to add an `image_ROI_table` table.
+        add_grid_roi_table: Whether to add a `grid_ROI_table` table.
         update_omero_metadata: Whether to update Omero-channels metadata.
         grid_YX_shape: YX shape of the ROI grid (must not be `None` when
-            `add_grid_ROI_table=True`).
+            `add_grid_roi_table=True`).
         attributes: Optional image attributes to include in the update dict.
         table_backend: Backend to use for the new ROI tables.
         overwrite: Whether to overwrite existing ROI tables.
     """
-    if add_image_ROI_table:
+    if add_image_roi_table:
         table = ome_zarr_image.build_image_roi_table()
         ome_zarr_image.add_table(
             name="image_ROI_table",
@@ -112,7 +112,7 @@ def _process_single_image(
             backend=table_backend,
         )
 
-    if add_grid_ROI_table:
+    if add_grid_roi_table:
         _build_xy_roi_table(
             ome_zarr_image=ome_zarr_image,
             grid_YX_shape=grid_YX_shape,
@@ -147,8 +147,8 @@ def _process_well(
     *,
     zarr_path: str,
     ome_zarr_well: OmeZarrWell,
-    add_image_ROI_table: bool,
-    add_grid_ROI_table: bool,
+    add_image_roi_table: bool,
+    add_grid_roi_table: bool,
     update_omero_metadata: bool,
     grid_YX_shape: tuple[int, int] | None = None,
     table_backend: TableBackend = "anndata",
@@ -168,8 +168,8 @@ def _process_well(
         _updates = _process_single_image(
             zarr_path=image_zarr_path,
             ome_zarr_image=ome_zarr_image,
-            add_image_ROI_table=add_image_ROI_table,
-            add_grid_ROI_table=add_grid_ROI_table,
+            add_image_roi_table=add_image_roi_table,
+            add_grid_roi_table=add_grid_roi_table,
             update_omero_metadata=update_omero_metadata,
             grid_YX_shape=grid_YX_shape,
             attributes=attributes,
@@ -184,8 +184,8 @@ def _process_plate(
     *,
     zarr_path: str,
     ome_zarr_plate: OmeZarrPlate,
-    add_image_ROI_table: bool,
-    add_grid_ROI_table: bool,
+    add_image_roi_table: bool,
+    add_grid_roi_table: bool,
     update_omero_metadata: bool,
     grid_YX_shape: tuple[int, int] | None = None,
     table_backend: TableBackend = "anndata",
@@ -205,8 +205,8 @@ def _process_plate(
         _updates = _process_single_image(
             zarr_path=image_zarr_path,
             ome_zarr_image=image,
-            add_image_ROI_table=add_image_ROI_table,
-            add_grid_ROI_table=add_grid_ROI_table,
+            add_image_roi_table=add_image_roi_table,
+            add_grid_roi_table=add_grid_roi_table,
             update_omero_metadata=update_omero_metadata,
             grid_YX_shape=grid_YX_shape,
             attributes=attributes,
@@ -263,8 +263,8 @@ def import_ome_zarr(
     # Core parameters
     zarr_name: str,
     update_omero_metadata: bool = True,
-    add_image_ROI_table: bool = True,
-    add_grid_ROI_table: bool = True,
+    add_image_roi_table: bool = True,
+    add_grid_roi_table: bool = True,
     # Advanced parameters
     grid_y_shape: int = 2,
     grid_x_shape: int = 2,
@@ -277,11 +277,9 @@ def import_ome_zarr(
 
     The single OME-Zarr can be a full OME-Zarr HCS plate or an individual
     OME-Zarr image. The image needs to be in the zarr_dir as specified by the
-    dataset. The current version of this task:
-
-    1. Creates the appropriate components-related metadata, needed for
-       processing an existing OME-Zarr through Fractal.
-    2. Optionally adds new ROI tables to the existing OME-Zarr.
+    dataset. This task registers the OME-Zarr with Fractal so it can be used
+    in processing workflows, and optionally adds new ROI tables to the existing
+    OME-Zarr.
 
     Args:
         zarr_dir: Path of the directory where the OME-Zarr is located
@@ -289,17 +287,17 @@ def import_ome_zarr(
         zarr_name: The OME-Zarr name, without its parent folder. The parent
             folder is provided by zarr_dir; e.g. `zarr_name="array.zarr"`,
             if the OME-Zarr path is in `/zarr_dir/array.zarr`.
-        add_image_ROI_table: Whether to add a `image_ROI_table` table to each
+        add_image_roi_table: Whether to add a `image_ROI_table` table to each
             image, with a single ROI covering the whole image.
-        add_grid_ROI_table: Whether to add a `grid_ROI_table` table to each
+        add_grid_roi_table: Whether to add a `grid_ROI_table` table to each
             image, with the image split into a rectangular grid of ROIs.
         grid_y_shape: Y shape of the ROI grid in `grid_ROI_table`.
         grid_x_shape: X shape of the ROI grid in `grid_ROI_table`.
         table_backend: Backend to use for the new ROI tables. Defaults to "anndata".
         update_omero_metadata: Whether to update Omero-channels metadata, to
             make them Fractal-compatible.
-        overwrite: Whether new ROI tables (added when `add_image_ROI_table`
-            and/or `add_grid_ROI_table` are `True`) can overwrite existing ones.
+        overwrite: Whether new ROI tables (added when `add_image_roi_table`
+            and/or `add_grid_roi_table` are `True`) can overwrite existing ones.
     """
 
     zarr_path = f"{zarr_dir.rstrip('/')}/{zarr_name}"
@@ -311,8 +309,8 @@ def import_ome_zarr(
         image_list_updates = _process_plate(
             zarr_path=zarr_path,
             ome_zarr_plate=ome_zarr,
-            add_image_ROI_table=add_image_ROI_table,
-            add_grid_ROI_table=add_grid_ROI_table,
+            add_image_roi_table=add_image_roi_table,
+            add_grid_roi_table=add_grid_roi_table,
             update_omero_metadata=update_omero_metadata,
             grid_YX_shape=(grid_y_shape, grid_x_shape),
             table_backend=table_backend,
@@ -322,8 +320,8 @@ def import_ome_zarr(
         image_list_updates = _process_well(
             zarr_path=zarr_path,
             ome_zarr_well=ome_zarr,
-            add_image_ROI_table=add_image_ROI_table,
-            add_grid_ROI_table=add_grid_ROI_table,
+            add_image_roi_table=add_image_roi_table,
+            add_grid_roi_table=add_grid_roi_table,
             update_omero_metadata=update_omero_metadata,
             grid_YX_shape=(grid_y_shape, grid_x_shape),
             table_backend=table_backend,
@@ -333,8 +331,8 @@ def import_ome_zarr(
         image_list_updates = _process_single_image(
             zarr_path=zarr_path,
             ome_zarr_image=ome_zarr,
-            add_image_ROI_table=add_image_ROI_table,
-            add_grid_ROI_table=add_grid_ROI_table,
+            add_image_roi_table=add_image_roi_table,
+            add_grid_roi_table=add_grid_roi_table,
             update_omero_metadata=update_omero_metadata,
             grid_YX_shape=(grid_y_shape, grid_x_shape),
             table_backend=table_backend,

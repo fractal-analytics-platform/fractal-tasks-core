@@ -183,20 +183,18 @@ def compute_registration_consensus(
     roi_table: str = "FOV_ROI_table",
     # Advanced parameters
     new_roi_table: str = "{roi_table}_registered",
-):
+) -> None:
     """
     Applies pre-calculated registration to ROI tables.
 
-    Apply pre-calculated registration such that resulting ROIs contain
-    the consensus align region between all acquisitions.
-
-    Parallelization level: well
+    Adjusts the ROI tables for each acquisition so that the resulting ROIs
+    cover only the region visible in all acquisitions after registration.
 
     Args:
         zarr_url: Path or url to the individual OME-Zarr image to be processed.
             Refers to the zarr_url of the reference acquisition.
             (standard argument for Fractal tasks, managed by Fractal server).
-        init_args: Intialization arguments provided by
+        init_args: Initialization arguments provided by
             `init_registration_consensus`. It contains the
             zarr_url_list listing all the zarr_urls in the same well as the
             zarr_url of the reference acquisition that are being processed.
