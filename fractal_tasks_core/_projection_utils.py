@@ -5,6 +5,7 @@ from typing import Any
 import dask.array as da
 import numpy as np
 from ngio import Image, open_ome_zarr_container
+from pydantic import BaseModel
 
 logger = logging.getLogger("projection_utils")
 
@@ -117,10 +118,10 @@ class DaskProjectionMethod(Enum):
         SUMIP: Sum intensity projection
     """
 
-    MIP = "mip"
-    MINIP = "minip"
-    MEANIP = "meanip"
-    SUMIP = "sumip"
+    MIP = "Maximum intensity projection"
+    MINIP = "Minimum intensity projection"
+    MEANIP = "Mean intensity projection"
+    SUMIP = "Sum intensity projection"
 
     def apply(self, dask_array: da.Array, axis: int = 0) -> da.Array:
         """
@@ -143,6 +144,22 @@ class DaskProjectionMethod(Enum):
         }
         # Call the appropriate method, passing in the dask_array explicitly
         return method_map[self](dask_array, axis=axis)
+
+    @property
+    def abbreviation(self) -> str:
+        """
+        Get the abbreviation of the projection method.
+
+        Returns:
+            str: The abbreviation of the projection method.
+        """
+        abbrev_map = {
+            DaskProjectionMethod.MIP: "mip",
+            DaskProjectionMethod.MINIP: "minip",
+            DaskProjectionMethod.MEANIP: "meanip",
+            DaskProjectionMethod.SUMIP: "sumip",
+        }
+        return abbrev_map[self]
 
 
 def _compute_new_shape(source_image: Image) -> tuple[tuple[int, ...], int]:
@@ -257,3 +274,20 @@ def projection_core(
         ]
     )
     return image_list_update_dict
+
+
+class InitArgsMIP(BaseModel):
+    """
+    Init Args for MIP task.
+
+    Attributes:
+        origin_url: Path to the zarr_url with the 3D data
+        method: Projection method to be used. See `DaskProjectionMethod`
+        overwrite: If `True`, overwrite the task output.
+        new_plate_name: Name of the new OME-Zarr HCS plate
+    """
+
+    origin_url: str
+    method: DaskProjectionMethod = DaskProjectionMethod.MIP
+    overwrite: bool
+    new_plate_name: str

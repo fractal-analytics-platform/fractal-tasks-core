@@ -8,10 +8,12 @@ from ngio import Roi, create_empty_ome_zarr, open_ome_zarr_container
 from ngio.tables import RoiTable
 from skimage.io import imsave
 
-from fractal_tasks_core._io_models import ConstantCorrectionModel
+from fractal_tasks_core._illumination_correction_utils import (
+    ConstantCorrectionModel,
+    ProfileCorrectionModel,
+)
 from fractal_tasks_core.illumination_correction import (
     BackgroundCorrection,
-    ProfileCorrectionModel,
     illumination_correction,
 )
 
@@ -65,7 +67,7 @@ def test_output_handled(
         zarr_url=image_url,
         illumination_profiles=illumination_profiles,
         overwrite_input=overwrite_input,
-        suffix="_corrected",
+        output_image_name="{image_name}_corrected",
     )
 
     # check output paths
@@ -179,7 +181,7 @@ def test_wrong_wavelength_profiles(
             illumination_profiles=illumination_profiles,
             background_correction={"value": background_profiles},  # type: ignore wrong profile
             overwrite_input=False,
-            suffix="_corrected",
+            output_image_name="{image_name}_corrected",
         )
 
 
@@ -219,13 +221,13 @@ def test_constant_background_subtraction(
         illumination_profiles=illumination_profiles,
         background_correction=background_model,
         overwrite_input=False,
-        suffix="_with_background",
+        output_image_name="{image_name}_with_background",
     )
     illumination_correction(
         zarr_url=image_url,
         illumination_profiles=illumination_profiles,
         overwrite_input=False,
-        suffix="_no_background",
+        output_image_name="{image_name}_no_background",
     )
 
     # corrected with background profiles should differ from corrected without
@@ -272,7 +274,7 @@ def test_with_background_profiles(
         illumination_profiles=illumination_profiles,
         background_correction=background_correction,
         overwrite_input=False,
-        suffix="_with_background",
+        output_image_name="{image_name}_with_background",
     )
 
     # control group with no background profiles
@@ -280,7 +282,7 @@ def test_with_background_profiles(
         zarr_url=image_url,
         illumination_profiles=illumination_profiles,
         overwrite_input=False,
-        suffix="_no_background",
+        output_image_name="{image_name}_no_background",
     )
 
     _check_that_images_differs(
@@ -314,7 +316,7 @@ def test_two_different_illumination_profiles(
         zarr_url=image_url,
         illumination_profiles=illumination_profiles,
         overwrite_input=False,
-        suffix="_corrected2",
+        output_image_name="{image_name}_corrected2",
     )
 
     # control group
@@ -331,7 +333,7 @@ def test_two_different_illumination_profiles(
         zarr_url=image_url,
         illumination_profiles=illumination_profiles_control,
         overwrite_input=False,
-        suffix="_corrected",
+        output_image_name="{image_name}_corrected",
     )
 
     _check_that_images_differs(image_url + "_corrected", image_url + "_corrected2")
@@ -382,7 +384,7 @@ def test_wrong_file_or_folder(
             illumination_profiles=illumination_profiles_wrong_folder,
             background_correction=background_correction,
             overwrite_input=False,
-            suffix="_corrected",
+            output_image_name="{image_name}_corrected",
         )
 
     # test background folder wrong
@@ -400,7 +402,7 @@ def test_wrong_file_or_folder(
             illumination_profiles=illumination_profiles,
             background_correction=background_correction_wrong_folder,
             overwrite_input=False,
-            suffix="_corrected",
+            output_image_name="{image_name}_corrected",
         )
 
     # test illumination file wrong
@@ -419,7 +421,7 @@ def test_wrong_file_or_folder(
             illumination_profiles=illumination_profiles_wrong,
             background_correction=background_correction,
             overwrite_input=False,
-            suffix="_corrected",
+            output_image_name="{image_name}_corrected",
         )
 
     # test background file wrong
@@ -440,7 +442,7 @@ def test_wrong_file_or_folder(
             illumination_profiles=illumination_profiles,
             background_correction=background_correction_wrong,
             overwrite_input=False,
-            suffix="_corrected",
+            output_image_name="{image_name}_corrected",
         )
 
 
@@ -489,27 +491,8 @@ def test_multidimensional_input(
         zarr_url=store.as_posix(),
         illumination_profiles=illumination_profiles,
         overwrite_input=False,
-        input_ROI_table="well_ROI_table",
+        input_roi_table="well_ROI_table",
     )
-
-
-# ---------------------------------------------------------------------------
-# empty suffix raises before any zarr I/O
-# ---------------------------------------------------------------------------
-
-
-def test_empty_suffix() -> None:
-    illumination_profile = ProfileCorrectionModel(
-        folder="/any",
-        profiles={},
-    )
-    with pytest.raises(ValueError, match="suffix cannot be an empty string"):
-        illumination_correction(
-            zarr_url="/nonexistent",
-            illumination_profiles=illumination_profile,
-            overwrite_input=False,
-            suffix="",
-        )
 
 
 # ---------------------------------------------------------------------------
@@ -612,7 +595,7 @@ def test_inconsistent_fov_sizes(tmp_path: Path) -> None:
             zarr_url=str(store),
             illumination_profiles=illumination_profiles,
             overwrite_input=True,
-            input_ROI_table="well_ROI_table",
+            input_roi_table="well_ROI_table",
         )
 
 
@@ -657,7 +640,7 @@ def test_flatfield_shape_mismatch(tmp_path: Path, testdata_path: Path) -> None:
             zarr_url=zarr_url,
             illumination_profiles=illum_profiles,
             overwrite_input=True,
-            input_ROI_table="well_ROI_table",
+            input_roi_table="well_ROI_table",
         )
 
 
@@ -686,7 +669,7 @@ def test_darkfield_shape_mismatch(tmp_path: Path, testdata_path: Path) -> None:
             illumination_profiles=illum_profiles,
             background_correction=background,
             overwrite_input=True,
-            input_ROI_table="well_ROI_table",
+            input_roi_table="well_ROI_table",
         )
 
 
@@ -723,7 +706,7 @@ def test_clipping_when_values_exceed_dtype_max(
             zarr_url=zarr_url,
             illumination_profiles=illum_profiles,
             overwrite_input=True,
-            input_ROI_table="well_ROI_table",
+            input_roi_table="well_ROI_table",
         )
     assert "clipped" in caplog.text
 
@@ -752,7 +735,7 @@ def test_extra_background_profile_wavelengths_raises(tmp_path: Path) -> None:
             illumination_profiles=illum_profiles,
             background_correction=background,
             overwrite_input=True,
-            input_ROI_table="well_ROI_table",
+            input_roi_table="well_ROI_table",
         )
 
 
@@ -771,5 +754,5 @@ def test_zero_in_flatfield_raises(tmp_path: Path) -> None:
             zarr_url=zarr_url,
             illumination_profiles=illum_profiles,
             overwrite_input=True,
-            input_ROI_table="well_ROI_table",
+            input_roi_table="well_ROI_table",
         )

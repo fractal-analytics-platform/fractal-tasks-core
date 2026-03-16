@@ -2,7 +2,7 @@
 
 import pytest
 
-from fractal_tasks_core._plate_utils import (
+from fractal_tasks_core._utils import (
     HCSZarrUrl,
     _parse_hcs_zarr_url,
     group_by_plate,

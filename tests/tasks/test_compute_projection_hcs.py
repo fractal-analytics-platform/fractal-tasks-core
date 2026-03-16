@@ -5,10 +5,14 @@ from ngio import create_empty_ome_zarr, open_ome_zarr_container
 from ngio.tables import RoiTable
 from ngio.utils import NgioFileExistsError
 
-from fractal_tasks_core.copy_ome_zarr_hcs_plate import (
-    copy_ome_zarr_hcs_plate,
+from fractal_tasks_core._projection_utils import DaskProjectionMethod
+from fractal_tasks_core.compute_projection_hcs import (
+    InitArgsMIP,
+    compute_projection_hcs,
 )
-from fractal_tasks_core.projection_hcs import InitArgsMIP, projection_hcs
+from fractal_tasks_core.init_projection_hcs import (
+    init_projection_hcs,
+)
 
 
 @pytest.fixture(scope="session")
@@ -29,7 +33,7 @@ def sample_ome_zarr_zyx_url(testdata_path) -> Path:
 
 def test_mip_task(cardiomyocyte_tiny_path: Path, tmp_path: Path) -> None:
     image_url = str(cardiomyocyte_tiny_path / "B" / "03" / "0")
-    parallel_list = copy_ome_zarr_hcs_plate(
+    parallel_list = init_projection_hcs(
         zarr_urls=[image_url],
         zarr_dir=str(tmp_path / "tmp_out"),
         overwrite=True,
@@ -39,7 +43,7 @@ def test_mip_task(cardiomyocyte_tiny_path: Path, tmp_path: Path) -> None:
     assert len(parallel_list["parallelization_list"]) == 1
 
     image = parallel_list["parallelization_list"][0]
-    update_list = projection_hcs(**image)
+    update_list = compute_projection_hcs(**image)
 
     zarr_url = update_list["image_list_updates"][0]["zarr_url"]
     origin_url = update_list["image_list_updates"][0]["origin"]
@@ -71,7 +75,7 @@ def test_mip_task(cardiomyocyte_tiny_path: Path, tmp_path: Path) -> None:
         ((3, 16, 32, 32), "czyx", (3, 1, 32, 32)),
     ],
 )
-def test_projection_hcs(
+def test_compute_projection_hcs(
     shape, axes: str, expected_shape: tuple[int, ...], tmp_path: Path
 ) -> None:
     """
@@ -91,13 +95,13 @@ def test_projection_hcs(
 
     init_mip = InitArgsMIP(
         origin_url=str(store),
-        method="mip",
+        method=DaskProjectionMethod.MIP,
         overwrite=False,
         new_plate_name="new_plate.zarr",
     )
 
     mip_store = tmp_path / "sample_ome_zarr_mip.zarr"
-    update_list = projection_hcs(zarr_url=str(mip_store), init_args=init_mip)
+    update_list = compute_projection_hcs(zarr_url=str(mip_store), init_args=init_mip)
 
     zarr_url = update_list["image_list_updates"][0]["zarr_url"]
     origin_url = update_list["image_list_updates"][0]["origin"]
@@ -134,7 +138,7 @@ def test_projection_hcs(
         ((4, 32, 32), "tyx"),
     ],
 )
-def test_fail_non_3d_projection_hcs(shape, axes: str, tmp_path: Path) -> None:
+def test_fail_non_3d_compute_projection_hcs(shape, axes: str, tmp_path: Path) -> None:
     """
     Test the projection task.
     """
@@ -150,19 +154,27 @@ def test_fail_non_3d_projection_hcs(shape, axes: str, tmp_path: Path) -> None:
 
     init_mip = InitArgsMIP(
         origin_url=str(store),
-        method="mip",
+        method=DaskProjectionMethod.MIP,
         overwrite=False,
         new_plate_name="new_plate.zarr",
     )
 
     mip_store = tmp_path / "sample_ome_zarr_mip.zarr"
     with pytest.raises(ValueError):
-        projection_hcs(zarr_url=str(mip_store), init_args=init_mip)
+        compute_projection_hcs(zarr_url=str(mip_store), init_args=init_mip)
 
 
-@pytest.mark.parametrize("method", ["mip", "minip", "meanip", "sumip"])
+@pytest.mark.parametrize(
+    "method",
+    [
+        DaskProjectionMethod.MIP,
+        DaskProjectionMethod.MINIP,
+        DaskProjectionMethod.MEANIP,
+        DaskProjectionMethod.SUMIP,
+    ],
+)
 def test_projections_methods(
-    sample_ome_zarr_zyx_url: Path, tmp_path: Path, method: str
+    sample_ome_zarr_zyx_url: Path, tmp_path: Path, method: DaskProjectionMethod
 ) -> None:
     """
     Test the projection task.
@@ -175,7 +187,7 @@ def test_projections_methods(
     )
 
     mip_store = tmp_path / "sample_ome_zarr_mip.zarr"
-    update_list = projection_hcs(zarr_url=str(mip_store), init_args=init_mip)
+    update_list = compute_projection_hcs(zarr_url=str(mip_store), init_args=init_mip)
 
     zarr_url = update_list["image_list_updates"][0]["zarr_url"]
     origin_url = update_list["image_list_updates"][0]["origin"]
@@ -201,23 +213,23 @@ def test_projection_overwrite(sample_ome_zarr_zyx_url: Path, tmp_path: Path) -> 
     # Create a plate with 2 wells and 1 acquisition
     init_mip = InitArgsMIP(
         origin_url=str(sample_ome_zarr_zyx_url),
-        method="mip",
+        method=DaskProjectionMethod.MIP,
         overwrite=True,
         new_plate_name="new_plate.zarr",
     )
 
     mip_store = tmp_path / "sample_ome_zarr_mip.zarr"
-    projection_hcs(zarr_url=str(mip_store), init_args=init_mip)
+    compute_projection_hcs(zarr_url=str(mip_store), init_args=init_mip)
 
-    projection_hcs(zarr_url=str(mip_store), init_args=init_mip)
+    compute_projection_hcs(zarr_url=str(mip_store), init_args=init_mip)
 
     # Check if the overwrite behavior is correct
     init_mip = InitArgsMIP(
         origin_url=str(sample_ome_zarr_zyx_url),
-        method="mip",
+        method=DaskProjectionMethod.MIP,
         overwrite=False,
         new_plate_name="new_plate.zarr",
     )
 
     with pytest.raises(NgioFileExistsError):
-        projection_hcs(zarr_url=str(mip_store), init_args=init_mip)
+        compute_projection_hcs(zarr_url=str(mip_store), init_args=init_mip)

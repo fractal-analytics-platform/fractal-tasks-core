@@ -6,6 +6,7 @@ from enum import Enum
 import numpy as np
 from image_registration import chi2_shift
 from ngio import PixelSize, Roi
+from pydantic import BaseModel
 from skimage.registration import phase_cross_correlation
 
 
@@ -72,3 +73,31 @@ class RegistrationMethod(Enum):
             return phase_cross_correlation(img_ref, img_acq_x)
         elif self == RegistrationMethod.CHI2_SHIFT:
             return chi2_shift_out(img_ref, img_acq_x)
+
+
+class InitArgsRegistration(BaseModel):
+    """
+    Registration init args.
+
+    Passed from `init_image_based_registration` to
+    `compute_image_based_registration`.
+
+    Attributes:
+        reference_zarr_url: zarr_url for the reference image
+    """
+
+    reference_zarr_url: str
+
+
+class InitArgsRegistrationConsensus(BaseModel):
+    """
+    Registration consensus init args.
+
+    Provides the list of zarr_urls for all acquisitions for a given well
+
+    Attributes:
+        zarr_url_list: List of zarr_urls for all the OME-Zarr images in the
+            well.
+    """
+
+    zarr_url_list: list[str]

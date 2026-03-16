@@ -7,6 +7,7 @@ import logging
 import os
 import shutil
 import time
+from typing import Any
 
 from ngio import OmeZarrContainer, Roi, open_ome_zarr_container, open_ome_zarr_well
 from pydantic import validate_call
@@ -118,30 +119,26 @@ def apply_registration_to_image(
     reference_acquisition: int = 0,
     register_labels: bool = True,
     overwrite_input: bool = True,
-):
+) -> dict[str, Any]:
     """
-    Apply registration to images by using a registered ROI table
+    Apply registration to images by using a registered ROI table.
 
-    This task consists of 4 parts:
+    Crops and shifts each acquisition so that all acquisitions are aligned
+    to the reference acquisition. Only the region visible in all acquisitions
+    is retained. This task consists of 4 steps:
 
-    1. Mask all regions in images that are not available in the
-    registered ROI table and store each acquisition aligned to the
-    reference_acquisition (by looping over ROIs).
-    2. Do the same for all label images.
-    3. Copy all tables from the non-aligned image to the aligned image
-    (currently only works well if the only tables are well & FOV ROI tables
-    (registered and original). Not implemented for measurement tables and
-    other ROI tables).
-    4. Clean up: Delete the old, non-aligned image and rename the new,
-    aligned image to take over its place.
+    1. Write a new image aligned to the reference acquisition for each ROI.
+    2. Apply the same registration to all label images (if requested).
+    3. Copy tables from the original image to the registered image.
+    4. Replace the original image with the registered image.
 
     Args:
         zarr_url: Path or url to the individual OME-Zarr image to be processed.
             (standard argument for Fractal tasks, managed by Fractal server).
         registered_roi_table: Name of the ROI table which has been registered
             and will be applied to mask and shift the images.
-            Examples: `registered_FOV_ROI_table` => loop over the field of
-            views, `registered_well_ROI_table` => process the whole well as
+            Examples: `FOV_ROI_table_registered` => loop over the field of
+            views, `well_ROI_table_registered` => process the whole well as
             one image.
         reference_acquisition: Which acquisition to register against. Uses the
             OME-NGFF HCS well metadata acquisition keys to find the reference
@@ -150,8 +147,8 @@ def apply_registration_to_image(
             images. If True, all label images will be registered in the same
             way as the main image. If False, only the main image is registered.
         overwrite_input: Whether the old image data should be replaced with the
-            newly registered image data. Currently only implemented for
-            `overwrite_input=True`.
+            newly registered image data. If False, a new image is created with
+            `_registered` appended to the name and the original is kept.
 
     """
     logger.info(
@@ -189,17 +186,17 @@ def apply_registration_to_image(
     # Validate that Task 2 has been run: the registered ROI table must exist.
     if registered_roi_table not in acq_ome_zarr.list_tables():
         raise ValueError(
-            f"Registered ROI table '{registered_roi_table}' not found in "
-            f"'{zarr_url}'. Please run 'Calculate Registration (image-based)' "
-            "and 'Find Registration Consensus' before "
-            "'Apply Registration to Image'."
+            f'Registered ROI table "{registered_roi_table}" not found in '
+            f'"{zarr_url}". Please run "Calculate Registration (image-based)" '
+            'and "Find Registration Consensus" before '
+            '"Apply Registration to Image".'
         )
 
     roi_table_ref = ref_ome_zarr.get_roi_table(registered_roi_table)
     roi_table_acq = acq_ome_zarr.get_roi_table(registered_roi_table)
 
     # Build ROI pairs by name (order-independent; names already validated by
-    # find_registration_consensus)
+    # compute_registration_consensus)
     rois_ref = {roi.name: roi for roi in roi_table_ref.rois()}
     rois_acq = {roi.name: roi for roi in roi_table_acq.rois()}
 

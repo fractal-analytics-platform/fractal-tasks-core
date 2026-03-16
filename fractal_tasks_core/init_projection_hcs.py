@@ -10,12 +10,12 @@ from typing import Any
 
 from ngio import OmeZarrPlate, OmeZarrWell, open_ome_zarr_plate, open_ome_zarr_well
 from ngio.utils import NgioFileExistsError, NgioFileNotFoundError
-from pydantic import validate_call
+from pydantic import Field, validate_call
 
-from fractal_tasks_core._io_models import InitArgsMIP
-from fractal_tasks_core._projection_utils import DaskProjectionMethod
+from fractal_tasks_core._projection_utils import DaskProjectionMethod, InitArgsMIP
+from fractal_tasks_core._utils import format_template_name
 
-logger = logging.getLogger("copy_ome_zarr_hcs_plate")
+logger = logging.getLogger("init_projection_hcs")
 
 
 @cache
@@ -65,12 +65,16 @@ def _get_plate(
 
 
 @validate_call
-def copy_ome_zarr_hcs_plate(
+def init_projection_hcs(
     *,
     # Fractal parameters
     zarr_urls: list[str],
     zarr_dir: str,
     method: DaskProjectionMethod = DaskProjectionMethod.MIP,
+    output_plate_name: str = Field(
+        default="{plate_name}_{method}",
+        pattern=r"^.*\{plate_name\}.*$",
+    ),
     # Advanced parameters
     overwrite: bool = False,
     re_initialize_plate: bool = False,
@@ -87,9 +91,6 @@ def copy_ome_zarr_hcs_plate(
     - For each well (in each plate), create a new zarr subgroup with the
        same attributes as the original one.
 
-    Note: this task makes use of methods from the `Attributes` class, see
-    https://zarr.readthedocs.io/en/stable/api/attrs.html.
-
     Args:
         zarr_urls: List of paths or urls to the individual OME-Zarr image to
             be processed.
@@ -97,19 +98,20 @@ def copy_ome_zarr_hcs_plate(
         zarr_dir: path of the directory where the new OME-Zarrs will be
             created.
             (standard argument for Fractal tasks, managed by Fractal server).
+            zarr_url: Path or url to the individual OME-Zarr image to be processed.
         method: Choose which method to use for intensity projection along the
-            Z axis. mip is the default and performs a maximum intensity
-            projection. minip performs a minimum intensity projection, meanip
-            a mean intensity projection and sumip a sum intensity projection.
-        overwrite: If `True`, overwrite the MIP images if they are
-            already present in the new OME-Zarr Plate.
-        re_initialize_plate: If `True`, re-initialize the plate, deleting all
-            existing wells and images. If `False`, the task will only
-            incrementally add new wells and images to the plate.
+            Z axis.
+        output_plate_name: The template for the output plate name. To make sure
+            that the output plate is unique it must contain the placeholder
+            {plate_name}, and it can optionally contain the placeholder {method}.
+        overwrite: If True, previous projected images with the same "output_plate_name"
+            will be overwritten.
+        re_initialize_plate: If True, the projection plate will be re-initialized
+            even if it already exists. If False, the task will incrementally add the
+            projected images to the existing plate if it already exists.
 
     Returns:
-        A parallelization list to be used in a compute task to fill the wells
-        with OME-Zarr images.
+        Setup information required by the Compute Projection (HCS) task.
     """
     parallelization_list = []
 
@@ -134,7 +136,15 @@ def copy_ome_zarr_hcs_plate(
         base_dir = "/".join(base)
 
         plate_url = f"{base_dir}/{plate_name}"
-        proj_plate_name = f"{plate_name}".rstrip(".zarr") + f"_{method.value}.zarr"
+        plate_name = plate_name.rstrip(".zarr")  # Remove .zarr extension if present
+        proj_plate_name = format_template_name(
+            output_plate_name,
+            plate_name=plate_name,
+            method=method.abbreviation,
+        )
+        # Make sure the proj_plate_name ends with .zarr
+        if not proj_plate_name.endswith(".zarr"):
+            proj_plate_name = f"{proj_plate_name}.zarr"
         proj_plate_url = f"{zarr_dir}/{proj_plate_name}"
 
         if proj_plate_url not in proj_plates:
@@ -178,7 +188,7 @@ def copy_ome_zarr_hcs_plate(
         proj_zarr_url = f"{proj_plate_url}/{proj_image_path}"
         proj_init = InitArgsMIP(
             origin_url=zarr_url,
-            method=method.value,
+            method=method,
             # Since we checked for existence above,
             # we can safely set this to True
             overwrite=True,
@@ -198,6 +208,6 @@ if __name__ == "__main__":
     from fractal_task_tools.task_wrapper import run_fractal_task
 
     run_fractal_task(
-        task_function=copy_ome_zarr_hcs_plate,
+        task_function=init_projection_hcs,
         logger_name=logger.name,
     )

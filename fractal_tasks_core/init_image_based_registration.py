@@ -9,13 +9,13 @@ from typing import Any
 from ngio import open_ome_zarr_well
 from pydantic import validate_call
 
-from fractal_tasks_core._plate_utils import group_by_well
+from fractal_tasks_core._utils import group_by_well
 
-logger = logging.getLogger("image_based_registration_hcs_init")
+logger = logging.getLogger("init_image_based_registration")
 
 
 @validate_call
-def image_based_registration_hcs_init(
+def init_image_based_registration(
     *,
     # Fractal parameters
     zarr_urls: list[str],
@@ -24,7 +24,7 @@ def image_based_registration_hcs_init(
     reference_acquisition: int = 0,
 ) -> dict[str, list[dict[str, Any]]]:
     """
-    Initialized calculate registration task
+    Initialize the image-based registration task.
 
     This task prepares a parallelization list of all zarr_urls that need to be
     used to calculate the registration between acquisitions (all zarr_urls
@@ -33,7 +33,7 @@ def image_based_registration_hcs_init(
     currently have defined acquisition metadata to determine reference
     acquisitions. And we have only implemented the grouping of images for
     HCS OME-Zarrs by well (with the assumption that every well just has 1
-    image per acqusition).
+    image per acquisition).
 
     Args:
         zarr_urls: List of paths or urls to the individual OME-Zarr image to
@@ -49,7 +49,7 @@ def image_based_registration_hcs_init(
         task_output: Dictionary for Fractal server that contains a
             parallelization list.
     """
-    logger.info(f"Running `image_based_registration_hcs_init` for {zarr_urls=}")
+    logger.info(f"Running `init_image_based_registration` for {zarr_urls=}")
     wells = group_by_well(zarr_urls)
 
     parallelization_list = []
@@ -98,6 +98,6 @@ if __name__ == "__main__":
     from fractal_task_tools.task_wrapper import run_fractal_task
 
     run_fractal_task(
-        task_function=image_based_registration_hcs_init,
+        task_function=init_image_based_registration,
         logger_name=logger.name,
     )

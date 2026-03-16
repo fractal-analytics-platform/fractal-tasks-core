@@ -5,17 +5,17 @@ import numpy as np
 import pytest
 from ngio import create_empty_ome_zarr, open_ome_zarr_container
 
-from fractal_tasks_core._threshold_segmentation_utils import (
-    InputChannel,
-    ThresholdConfiguration,
-)
-from fractal_tasks_core.measure_features import (
+from fractal_tasks_core._measure_features_utils import (
     AdvancedOptions,
     IntensityFeatures,
     ShapeFeatures,
-    measure_features,
     region_props_features_func,
 )
+from fractal_tasks_core._threshold_segmentation_utils import (
+    InputChannel,
+    SimpleThresholdConfiguration,
+)
+from fractal_tasks_core.measure_features import measure_features
 from fractal_tasks_core.threshold_segmentation import threshold_segmentation
 
 # ---------------------------------------------------------------------------
@@ -55,9 +55,9 @@ def _make_zarr_with_label(
 
     threshold_segmentation(
         zarr_url=str(store),
-        channels=InputChannel(mode="index", identifier="0"),
-        label_name=label_name,
-        method=ThresholdConfiguration(threshold=100),
+        channel=InputChannel(mode="index", identifier="0"),
+        output_label_name=label_name,
+        segmentation_method=SimpleThresholdConfiguration(threshold=100),
         overwrite=True,
     )
     return store
@@ -169,10 +169,10 @@ def test_region_props_features_func_intensity_features() -> None:
 
 
 def test_region_props_features_func_wrong_ndim_raises() -> None:
-    """Image without channel dim (ndim=2) raises AssertionError."""
+    """Image without channel dim (ndim=2) raises ValueError."""
     image = np.zeros((32, 32), dtype=np.float32)
     label_arr = np.zeros((32, 32), dtype=np.int32)
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         region_props_features_func(
             image=image,
             label=label_arr,
@@ -182,10 +182,10 @@ def test_region_props_features_func_wrong_ndim_raises() -> None:
 
 
 def test_region_props_features_func_multichannel_label_raises() -> None:
-    """Label with C > 1 raises AssertionError."""
+    """Label with C > 1 raises ValueError."""
     image = np.zeros((32, 32, 2), dtype=np.float32)
     label_arr = np.zeros((32, 32, 2), dtype=np.int32)
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         region_props_features_func(
             image=image,
             label=label_arr,
@@ -205,7 +205,7 @@ def test_measure_features_basic(tmp_path: Path) -> None:
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures()],
     )
 
@@ -219,7 +219,7 @@ def test_measure_features_shape_and_intensity(tmp_path: Path) -> None:
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures(), IntensityFeatures()],
     )
 
@@ -233,7 +233,7 @@ def test_measure_features_2d(tmp_path: Path) -> None:
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures()],
     )
 
@@ -246,13 +246,13 @@ def test_measure_features_overwrite_true(tmp_path: Path) -> None:
     store = _make_zarr_with_label(tmp_path)
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures()],
         overwrite=True,
     )
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures()],
         overwrite=True,
     )
@@ -264,7 +264,7 @@ def test_measure_features_overwrite_false_raises(tmp_path: Path) -> None:
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures()],
         overwrite=True,
     )
@@ -272,7 +272,7 @@ def test_measure_features_overwrite_false_raises(tmp_path: Path) -> None:
     with pytest.raises(FileExistsError):
         measure_features(
             zarr_url=str(store),
-            label_image_name="nuclei",
+            input_label_name="nuclei",
             features=[ShapeFeatures()],
             overwrite=False,
         )
@@ -284,7 +284,7 @@ def test_measure_features_custom_table_name(tmp_path: Path) -> None:
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         output_table_name="my_features",
         features=[ShapeFeatures()],
     )
@@ -299,7 +299,7 @@ def test_measure_features_advanced_options_no_scaling(tmp_path: Path) -> None:
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures()],
         advanced_options=AdvancedOptions(use_scaling=False),
     )
@@ -314,7 +314,7 @@ def test_measure_features_advanced_options_table_backend(tmp_path: Path) -> None
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures()],
         advanced_options=AdvancedOptions(table_backend="parquet"),
     )
@@ -325,13 +325,13 @@ def test_measure_features_advanced_options_table_backend(tmp_path: Path) -> None
 
 def test_intensity_features_with_channels(tmp_path: Path) -> None:
     """IntensityFeatures with explicit channel selection runs without errors."""
-    from fractal_tasks_core.measure_features import InputChannel
+    from fractal_tasks_core._measure_features_utils import InputChannel
 
     store = _make_zarr_with_label(tmp_path)
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[
             IntensityFeatures(channels=[InputChannel(mode="index", identifier="0")])
         ],
@@ -352,7 +352,7 @@ def test_measure_features_table_structure(tmp_path: Path) -> None:
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures()],
     )
 
@@ -371,7 +371,7 @@ def test_measure_features_shape_correctness_no_scaling(tmp_path: Path) -> None:
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures()],
         advanced_options=AdvancedOptions(use_scaling=False),
     )
@@ -389,7 +389,7 @@ def test_measure_features_shape_correctness_with_scaling(tmp_path: Path) -> None
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures()],
         advanced_options=AdvancedOptions(use_scaling=True),
     )
@@ -406,7 +406,7 @@ def test_measure_features_intensity_correctness(tmp_path: Path) -> None:
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[IntensityFeatures()],
         advanced_options=AdvancedOptions(use_scaling=False),
     )
@@ -428,20 +428,20 @@ def test_measure_features_duplicate_feature_type_raises(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="Duplicate"):
         measure_features(
             zarr_url=str(store),
-            label_image_name="nuclei",
+            input_label_name="nuclei",
             features=[ShapeFeatures(), ShapeFeatures()],
         )
 
 
 def test_measure_features_channel_identifier_in_columns(tmp_path: Path) -> None:
     """Explicit channel identifier (index mode) appears in intensity column names."""
-    from fractal_tasks_core.measure_features import InputChannel
+    from fractal_tasks_core._measure_features_utils import InputChannel
 
     store = _make_zarr_with_label(tmp_path, shape=(1, 32, 32), axes="cyx")
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[
             IntensityFeatures(channels=[InputChannel(mode="index", identifier="0")])
         ],

@@ -10,17 +10,17 @@ from ngio import open_ome_zarr_container
 from pydantic import validate_call
 from skimage.exposure import rescale_intensity
 
-from fractal_tasks_core._io_models import InitArgsRegistration
 from fractal_tasks_core._registration_utils import (
+    InitArgsRegistration,
     RegistrationMethod,
     add_translation_to_roi,
 )
 
-logger = logging.getLogger("calculate_registration_image_based")
+logger = logging.getLogger("compute_image_based_registration")
 
 
 @validate_call
-def calculate_registration_image_based(
+def compute_image_based_registration(
     *,
     # Fractal arguments
     zarr_url: str,
@@ -30,11 +30,11 @@ def calculate_registration_image_based(
     method: RegistrationMethod = RegistrationMethod.PHASE_CROSS_CORRELATION,
     lower_rescale_quantile: float = 0.0,
     upper_rescale_quantile: float = 0.99,
-    roi_table: str = "FOV_ROI_table",
-    level: int = 2,
+    input_roi_table: str = "FOV_ROI_table",
+    level_path: str = "2",
 ) -> None:
     """
-    Calculate registration based on images
+    Calculate the shift between acquisitions for each field of view.
 
     This task consists of 3 parts:
 
@@ -45,8 +45,8 @@ def calculate_registration_image_based(
     Args:
         zarr_url: Path or url to the individual OME-Zarr image to be processed.
             (standard argument for Fractal tasks, managed by Fractal server).
-        init_args: Intialization arguments provided by
-            `image_based_registration_hcs_init`. They contain the
+        init_args: Initialization arguments provided by
+            `init_image_based_registration`. They contain the
             reference_zarr_url that is used for registration.
             (standard argument for Fractal tasks, managed by Fractal server).
         wavelength_id: Wavelength that will be used for image-based
@@ -61,26 +61,27 @@ def calculate_registration_image_based(
         upper_rescale_quantile: Upper quantile for rescaling the image
             intensities before applying registration. Can be helpful
             to deal with image artifacts. Default is 0.99.
-        roi_table: Name of the ROI table over which the task loops to
+        input_roi_table: Name of the ROI table over which the task loops to
             calculate the registration. Examples: `FOV_ROI_table` => loop over
             the field of views, `well_ROI_table` => process the whole well as
             one image.
-        level: Pyramid level of the image to be used for registration.
-            Choose `0` to process at full resolution.
+        level_path: Resolution level of the image to use for registration.
+            Lower numbers correspond to higher resolution. Choose `"0"` to
+            process at full resolution.
 
     """
     logger.info(
         f"Running for {zarr_url=}.\n"
-        f"Calculating translation registration per {roi_table=} for "
+        f"Calculating translation registration per {input_roi_table=} for "
         f"{wavelength_id=}."
     )
 
     ref_ome_zarr = open_ome_zarr_container(init_args.reference_zarr_url)
-    ref_image = ref_ome_zarr.get_image(path=str(level))
+    ref_image = ref_ome_zarr.get_image(path=level_path)
     channel_index_ref = ref_image.get_channel_idx(wavelength_id=wavelength_id)
 
     to_align_ome_zarr = open_ome_zarr_container(zarr_url)
-    to_align_image = to_align_ome_zarr.get_image(path=str(level))
+    to_align_image = to_align_ome_zarr.get_image(path=level_path)
     channel_index_align = to_align_image.get_channel_idx(wavelength_id=wavelength_id)
 
     if ref_image.is_time_series:
@@ -97,10 +98,10 @@ def calculate_registration_image_based(
             f"had a shape of {ref_image.shape}."
         )
 
-    ref_roi_table = ref_ome_zarr.get_generic_roi_table(roi_table)
-    to_align_roi_table = to_align_ome_zarr.get_generic_roi_table(roi_table)
+    ref_roi_table = ref_ome_zarr.get_generic_roi_table(input_roi_table)
+    to_align_roi_table = to_align_ome_zarr.get_generic_roi_table(input_roi_table)
     logger.info(
-        f"Found {len(ref_roi_table.rois())} ROIs in {roi_table=} to be processed."
+        f"Found {len(ref_roi_table.rois())} ROIs in {input_roi_table=} to be processed."
     )
 
     to_align_rois = {roi.name: roi for roi in to_align_roi_table.rois()}
@@ -142,17 +143,17 @@ def calculate_registration_image_based(
                 "different shapes between acquisitions."
             )
 
-        shifts = method.register(np.squeeze(img_ref), np.squeeze(img_acq_x))[0]  # type: ignore skimage wrong type hint
+        shifts = method.register(np.squeeze(img_ref), np.squeeze(img_acq_x))[0]
         new_shifts[roi.name] = shifts
 
-    logger.info(f"Updating the {roi_table=} with translation columns")
+    logger.info(f"Updating the {input_roi_table=} with translation columns")
     for roi in to_align_roi_table.rois():
         shifts = new_shifts[roi.name]
         updated_roi = add_translation_to_roi(roi, shifts, to_align_image.pixel_size)
         to_align_roi_table.add(updated_roi, overwrite=True)
 
     to_align_ome_zarr.add_table(
-        name=roi_table,
+        name=input_roi_table,
         table=to_align_roi_table,
         overwrite=True,
     )
@@ -162,6 +163,6 @@ if __name__ == "__main__":
     from fractal_task_tools.task_wrapper import run_fractal_task
 
     run_fractal_task(
-        task_function=calculate_registration_image_based,
+        task_function=compute_image_based_registration,
         logger_name=logger.name,
     )

@@ -6,11 +6,11 @@ Pipeline under test:
   2. import_ome_zarr        → adds image_ROI_table and grid_ROI_table
   3. illumination_correction → in-place correction using image_ROI_table
   4. Registration:
-       a. image_based_registration_hcs_init
-       b. calculate_registration_image_based
-       c. find_registration_consensus
+       a. init_image_based_registration
+       b. compute_image_based_registration
+       c. compute_registration_consensus
        d. apply_registration_to_image
-  5. copy_ome_zarr_hcs_plate + projection_hcs  (MIP on acquisition 0)
+  5. init_projection_hcs + compute_projection_hcs  (MIP on acquisition 0)
   6. threshold_segmentation → nuclei label on acquisition 0
   7. measure_features       → region-properties feature table on acquisition 0
 
@@ -30,32 +30,32 @@ from ngio import (
 )
 from skimage.io import imsave
 
-from fractal_tasks_core._io_models import (
+from fractal_tasks_core._illumination_correction_utils import ProfileCorrectionModel
+from fractal_tasks_core._registration_utils import (
     InitArgsRegistration,
     InitArgsRegistrationConsensus,
-    ProfileCorrectionModel,
 )
 from fractal_tasks_core._threshold_segmentation_utils import (
     InputChannel,
-    ThresholdConfiguration,
+    SimpleThresholdConfiguration,
 )
 from fractal_tasks_core.apply_registration_to_image import (
     apply_registration_to_image,
 )
-from fractal_tasks_core.calculate_registration_image_based import (
-    calculate_registration_image_based,
+from fractal_tasks_core.compute_image_based_registration import (
+    compute_image_based_registration,
 )
-from fractal_tasks_core.copy_ome_zarr_hcs_plate import copy_ome_zarr_hcs_plate
-from fractal_tasks_core.find_registration_consensus import (
-    find_registration_consensus,
+from fractal_tasks_core.compute_projection_hcs import compute_projection_hcs
+from fractal_tasks_core.compute_registration_consensus import (
+    compute_registration_consensus,
 )
 from fractal_tasks_core.illumination_correction import illumination_correction
-from fractal_tasks_core.image_based_registration_hcs_init import (
-    image_based_registration_hcs_init,
-)
 from fractal_tasks_core.import_ome_zarr import import_ome_zarr
+from fractal_tasks_core.init_image_based_registration import (
+    init_image_based_registration,
+)
+from fractal_tasks_core.init_projection_hcs import init_projection_hcs
 from fractal_tasks_core.measure_features import ShapeFeatures, measure_features
-from fractal_tasks_core.projection_hcs import projection_hcs
 from fractal_tasks_core.threshold_segmentation import threshold_segmentation
 
 # ---------------------------------------------------------------------------
@@ -79,7 +79,7 @@ _SHIFT_X_UM = _SHIFT_X_PX * _PIXELSIZE  # 2.6 µm
 
 # ROI table names — reused from import_ome_zarr output
 _ROI_TABLE = "image_ROI_table"
-_REGISTERED_ROI_TABLE = "registered_image_ROI_table"
+_REGISTERED_ROI_TABLE = "image_ROI_table_registered"
 
 
 # ---------------------------------------------------------------------------
@@ -211,7 +211,7 @@ def test_full_pipeline(tmp_path: Path) -> None:
             zarr_url=zarr_url,
             illumination_profiles=illumination_profiles,
             overwrite_input=True,
-            input_ROI_table=_ROI_TABLE,
+            input_roi_table=_ROI_TABLE,
         )
 
     # Both images should still exist and be non-empty after in-place correction
@@ -223,7 +223,7 @@ def test_full_pipeline(tmp_path: Path) -> None:
     # ------------------------------------------------------------------
     # 4a. Registration — init: build parallelization list
     # ------------------------------------------------------------------
-    init_result = image_based_registration_hcs_init(
+    init_result = init_image_based_registration(
         zarr_urls=[zarr_url_0, zarr_url_1],
         zarr_dir="/unused",
         reference_acquisition=0,
@@ -236,12 +236,12 @@ def test_full_pipeline(tmp_path: Path) -> None:
     # ------------------------------------------------------------------
     # 4b. Registration — calculate per-ROI shifts for acquisition 1
     # ------------------------------------------------------------------
-    calculate_registration_image_based(
+    compute_image_based_registration(
         zarr_url=zarr_url_1,
         init_args=InitArgsRegistration(reference_zarr_url=zarr_url_0),
         wavelength_id=_CHANNELS[0],
-        roi_table=_ROI_TABLE,
-        level=2,
+        input_roi_table=_ROI_TABLE,
+        level_path="2",
     )
 
     ome1 = open_ome_zarr_container(zarr_url_1)
@@ -256,16 +256,16 @@ def test_full_pipeline(tmp_path: Path) -> None:
     # ------------------------------------------------------------------
     # 4c. Registration — consensus: derive registered overlap region
     # ------------------------------------------------------------------
-    find_registration_consensus(
+    compute_registration_consensus(
         zarr_url=zarr_url_0,
         init_args=InitArgsRegistrationConsensus(zarr_url_list=[zarr_url_0, zarr_url_1]),
-        roi_table=_ROI_TABLE,
-        new_roi_table=_REGISTERED_ROI_TABLE,
+        input_roi_table=_ROI_TABLE,
+        registered_roi_table=_REGISTERED_ROI_TABLE,
     )
 
     ome0 = open_ome_zarr_container(zarr_url_0)
     assert _REGISTERED_ROI_TABLE in ome0.list_tables(), (
-        "find_registration_consensus must write registered_image_ROI_table to acq-0"
+        "compute_registration_consensus must write image_ROI_table_registered to acq-0"
     )
 
     # ------------------------------------------------------------------
@@ -287,7 +287,7 @@ def test_full_pipeline(tmp_path: Path) -> None:
     # 5. Projection — MIP of acquisition 0 (3D czyx → z=1)
     # ------------------------------------------------------------------
     proj_dir = str(tmp_path / "projections")
-    para_proj = copy_ome_zarr_hcs_plate(
+    para_proj = init_projection_hcs(
         zarr_urls=[zarr_url_0],
         zarr_dir=proj_dir,
         overwrite=True,
@@ -296,7 +296,7 @@ def test_full_pipeline(tmp_path: Path) -> None:
     assert len(para_proj["parallelization_list"]) == 1
 
     proj_item = para_proj["parallelization_list"][0]
-    proj_result = projection_hcs(**proj_item)
+    proj_result = compute_projection_hcs(**proj_item)
 
     proj_zarr_url = proj_result["image_list_updates"][0]["zarr_url"]
     assert Path(proj_zarr_url).exists(), "Projected zarr must exist on disk"
@@ -313,9 +313,9 @@ def test_full_pipeline(tmp_path: Path) -> None:
     # ------------------------------------------------------------------
     threshold_segmentation(
         zarr_url=zarr_url_0,
-        channels=InputChannel(mode="wavelength_id", identifier=_CHANNELS[0]),
-        label_name="nuclei",
-        method=ThresholdConfiguration(threshold=500),
+        channel=InputChannel(mode="wavelength_id", identifier=_CHANNELS[0]),
+        output_label_name="nuclei",
+        segmentation_method=SimpleThresholdConfiguration(threshold=500),
         overwrite=True,
     )
 
@@ -329,7 +329,7 @@ def test_full_pipeline(tmp_path: Path) -> None:
     # ------------------------------------------------------------------
     measure_features(
         zarr_url=zarr_url_0,
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures()],
     )
 

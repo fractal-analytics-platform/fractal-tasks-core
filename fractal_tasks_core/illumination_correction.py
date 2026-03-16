@@ -14,12 +14,12 @@ from ngio.utils._errors import NgioFileNotFoundError
 from pydantic import BaseModel, Field, validate_call
 from skimage.io import imread
 
-from fractal_tasks_core._io_models import (
+from fractal_tasks_core._illumination_correction_utils import (
     ConstantCorrectionModel,
     NoCorrectionModel,
     ProfileCorrectionModel,
 )
-from fractal_tasks_core._plate_utils import split_well_path_image_path
+from fractal_tasks_core._utils import format_template_name, split_well_path_image_path
 
 logger = logging.getLogger("illumination_correction")
 
@@ -114,18 +114,19 @@ def illumination_correction(
     # Core parameters
     illumination_profiles: ProfileCorrectionModel,
     background_correction: BackgroundCorrection = BackgroundCorrection(),  # type: ignore, TODO use factory # type: ignore
-    input_ROI_table: str = "FOV_ROI_table",
-    overwrite_input: bool = True,
-    # Advanced parameters
-    suffix: str = "_illum_corr",
+    input_roi_table: str = "FOV_ROI_table",
+    output_image_name: str = Field(
+        default="{image_name}_illum_corr",
+        pattern=r"^.*\{image_name\}.*$",
+    ),
+    overwrite_input: bool = False,
 ) -> dict[str, Any] | None:
     """
     Applies illumination correction to the images in the OME-Zarr.
 
-    Assumes that the illumination correction profiles were generated before
-    separately and that the same background subtraction was used during
-    calculation of the illumination correction (otherwise, it will not work
-    well & the correction may only be partial).
+    The illumination correction profiles must be pre-computed using the same
+    background correction settings as specified here (otherwise the correction
+    may only be partial).
 
     Args:
         zarr_url: Path or url to the individual OME-Zarr image to be processed.
@@ -133,7 +134,7 @@ def illumination_correction(
         illumination_profiles: Illumination (flatfield) correction profiles.
         background_correction: (Optional) background (darkfield) correction
             parameters. Can be provided as profiles or as constant values.
-        input_ROI_table: Name of the ROI table that contains the information
+        input_roi_table: Name of the ROI table that contains the information
             about the location of the individual field of views (FOVs) to
             which the illumination correction shall be applied. Defaults to
             "FOV_ROI_table", the default name Fractal converters give the ROI
@@ -143,11 +144,15 @@ def illumination_correction(
             you only have 1 FOV per Zarr image and `grid_ROI_table` if you
             have multiple FOVs per Zarr image and set the right grid options
             during import.
+        output_image_name: Name of the output image within the well. Only
+            relevant if ``overwrite_input=False``. May contain the placeholder
+            ``{image_name}``, which is replaced by the name of the input image
+            (i.e. the last path component of ``zarr_url``). For example, the
+            default ``"{image_name}_illum_corr"`` turns an input image named
+            ``0`` into ``0_illum_corr``.
         overwrite_input: If `True`, the results of this task will overwrite
-            the input image data. If false, a new image is generated and the
-            illumination corrected data is saved there.
-        suffix: What suffix to append to the illumination corrected images.
-            Only relevant if `overwrite_input=False`.
+            the input image data. If `False`, a new image is generated and the
+            illumination corrected data is saved there. Defaults to `False`.
     """
 
     # Prepare zarr urls
@@ -155,9 +160,10 @@ def illumination_correction(
     if overwrite_input:
         zarr_url_new = zarr_url
     else:
-        if suffix == "":
-            raise ValueError("suffix cannot be an empty string.")
-        zarr_url_new = f"{zarr_url}{suffix}"
+        image_name = zarr_url.split("/")[-1]
+        formatted_name = format_template_name(output_image_name, image_name=image_name)
+        parent_url = zarr_url.rsplit("/", 1)[0]
+        zarr_url_new = f"{parent_url}/{formatted_name}"
 
     t_start = time.perf_counter()
     logger.info("Start illumination_correction")
@@ -190,7 +196,9 @@ def illumination_correction(
         )
 
     if background_correction.value.model == "Profile":
-        background_wavelengths = set(background_correction.value.profiles.keys())
+        background_wavelengths = set(
+            background_correction.value.profiles.keys()  # type: ignore
+        )
 
         if not background_wavelengths.issubset(input_image_wavelengths):
             raise ValueError(
@@ -204,7 +212,9 @@ def illumination_correction(
                 f"{input_image_wavelengths - background_wavelengths}."
             )
     elif background_correction.value.model == "Constant":
-        background_wavelengths = set(background_correction.value.constants.keys())
+        background_wavelengths = set(
+            background_correction.value.constants.keys()  # type: ignore
+        )
         if not background_wavelengths.issubset(input_image_wavelengths):
             raise ValueError(
                 "Background profiles provided for wavelengths: "
@@ -218,7 +228,7 @@ def illumination_correction(
             )
 
     # Read FOV ROIs
-    FOV_ROI_table = ome_zarr_container.get_generic_roi_table(input_ROI_table)
+    FOV_ROI_table = ome_zarr_container.get_generic_roi_table(input_roi_table)
 
     logger.info(f"{FOV_ROI_table=}")
 
@@ -262,9 +272,9 @@ def illumination_correction(
     background_matrices = {}
     background_constants = {}
     if background_correction.value.model == "Constant":
-        background_constants = background_correction.value.constants
+        background_constants = background_correction.value.constants  # type: ignore
     elif background_correction.value.model == "Profile":
-        for wavelength_id, profile_path in background_correction.value.items():
+        for wavelength_id, profile_path in background_correction.value.items():  # type: ignore
             correction_matrix = imread(profile_path)
             if correction_matrix.shape != image_size:
                 raise ValueError(

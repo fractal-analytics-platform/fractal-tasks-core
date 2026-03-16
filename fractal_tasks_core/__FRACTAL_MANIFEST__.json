@@ -17,8 +17,8 @@
       ],
       "docs_info": "### Purpose\n- Performs **Z-axis projection of intensity images** using a specified projection method.\n- **Generates a new OME-Zarr HCS plate** to store the projected data.\n\n### Limitations\n- Supports projections only for OME-Zarr HCS plates; other collections of OME-Zarrs are not yet supported.\n",
       "type": "compound",
-      "executable_non_parallel": "copy_ome_zarr_hcs_plate.py",
-      "executable_parallel": "projection_hcs.py",
+      "executable_non_parallel": "init_projection_hcs.py",
+      "executable_parallel": "compute_projection_hcs.py",
       "meta_non_parallel": {
         "cpus_per_task": 1,
         "mem": 4000
@@ -32,10 +32,10 @@
           "DaskProjectionMethod": {
             "description": "Registration method selection",
             "enum": [
-              "mip",
-              "minip",
-              "meanip",
-              "sumip"
+              "Maximum intensity projection",
+              "Minimum intensity projection",
+              "Mean intensity projection",
+              "Sum intensity projection"
             ],
             "title": "DaskProjectionMethod",
             "type": "string"
@@ -54,25 +54,32 @@
           "zarr_dir": {
             "title": "Zarr Dir",
             "type": "string",
-            "description": "path of the directory where the new OME-Zarrs will be created. (standard argument for Fractal tasks, managed by Fractal server)."
+            "description": "path of the directory where the new OME-Zarrs will be created. (standard argument for Fractal tasks, managed by Fractal server). zarr_url: Path or url to the individual OME-Zarr image to be processed."
           },
           "method": {
             "$ref": "#/$defs/DaskProjectionMethod",
-            "default": "mip",
+            "default": "Maximum intensity projection",
             "title": "Method",
-            "description": "Choose which method to use for intensity projection along the Z axis. mip is the default and performs a maximum intensity projection. minip performs a minimum intensity projection, meanip a mean intensity projection and sumip a sum intensity projection."
+            "description": "Choose which method to use for intensity projection along the Z axis."
+          },
+          "output_plate_name": {
+            "default": "{plate_name}_{method}",
+            "pattern": "^.*\\{plate_name\\}.*$",
+            "title": "Output Plate Name",
+            "type": "string",
+            "description": "The template for the output plate name. To make sure that the output plate is unique it must contain the placeholder {plate_name}, and it can optionally contain the placeholder {method}."
           },
           "overwrite": {
             "default": false,
             "title": "Overwrite",
             "type": "boolean",
-            "description": "If `True`, overwrite the MIP images if they are already present in the new OME-Zarr Plate."
+            "description": "If True, previous projected images with the same \"output_plate_name\" will be overwritten."
           },
           "re_initialize_plate": {
             "default": false,
             "title": "Re Initialize Plate",
             "type": "boolean",
-            "description": "If `True`, re-initialize the plate, deleting all existing wells and images. If `False`, the task will only incrementally add new wells and images to the plate."
+            "description": "If True, the projection plate will be re-initialized even if it already exists. If False, the task will incrementally add the projected images to the existing plate if it already exists."
           }
         },
         "required": [
@@ -80,10 +87,21 @@
           "zarr_dir"
         ],
         "type": "object",
-        "title": "CopyOmeZarrHcsPlate"
+        "title": "InitProjectionHcs"
       },
       "args_schema_parallel": {
         "$defs": {
+          "DaskProjectionMethod": {
+            "description": "Registration method selection",
+            "enum": [
+              "Maximum intensity projection",
+              "Minimum intensity projection",
+              "Mean intensity projection",
+              "Sum intensity projection"
+            ],
+            "title": "DaskProjectionMethod",
+            "type": "string"
+          },
           "InitArgsMIP": {
             "description": "Init Args for MIP task.",
             "properties": {
@@ -92,8 +110,9 @@
                 "type": "string"
               },
               "method": {
-                "title": "Method",
-                "type": "string"
+                "$ref": "#/$defs/DaskProjectionMethod",
+                "default": "Maximum intensity projection",
+                "title": "Method"
               },
               "overwrite": {
                 "title": "Overwrite",
@@ -106,7 +125,6 @@
             },
             "required": [
               "origin_url",
-              "method",
               "overwrite",
               "new_plate_name"
             ],
@@ -124,7 +142,7 @@
           "init_args": {
             "$ref": "#/$defs/InitArgsMIP",
             "title": "Init Args",
-            "description": "Intialization arguments provided by `copy_ome_zarr_hcs_plate`."
+            "description": "Initialization arguments provided by `init_projection_hcs`."
           }
         },
         "required": [
@@ -132,7 +150,7 @@
           "init_args"
         ],
         "type": "object",
-        "title": "ProjectionHcs"
+        "title": "ComputeProjectionHcs"
       },
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
@@ -161,10 +179,10 @@
           "DaskProjectionMethod": {
             "description": "Registration method selection",
             "enum": [
-              "mip",
-              "minip",
-              "meanip",
-              "sumip"
+              "Maximum intensity projection",
+              "Minimum intensity projection",
+              "Mean intensity projection",
+              "Sum intensity projection"
             ],
             "title": "DaskProjectionMethod",
             "type": "string"
@@ -179,15 +197,22 @@
           },
           "method": {
             "$ref": "#/$defs/DaskProjectionMethod",
-            "default": "mip",
+            "default": "Maximum intensity projection",
             "title": "Method",
-            "description": "Projection method to be used. See `DaskProjectionMethod`"
+            "description": "Choose which method to use for intensity projection along the Z axis."
+          },
+          "output_image_name": {
+            "default": "{image_name}_{method}",
+            "pattern": "^.*\\{image_name\\}.*$",
+            "title": "Output Image Name",
+            "type": "string",
+            "description": "The template for the output image name. To make sure that the output image is unique it must contain the placeholder {image_name}, and it can optionally contain the placeholder {method}."
           },
           "overwrite": {
             "default": false,
             "title": "Overwrite",
             "type": "boolean",
-            "description": "If `True`, overwrite the task output."
+            "description": "If True, previous projected images with the same \"output_image_name\" will be overwritten."
           }
         },
         "required": [
@@ -346,23 +371,24 @@
             "title": "Background Correction",
             "description": "(Optional) background (darkfield) correction parameters. Can be provided as profiles or as constant values."
           },
-          "input_ROI_table": {
+          "input_roi_table": {
             "default": "FOV_ROI_table",
             "title": "Input Roi Table",
             "type": "string",
             "description": "Name of the ROI table that contains the information about the location of the individual field of views (FOVs) to which the illumination correction shall be applied. Defaults to \"FOV_ROI_table\", the default name Fractal converters give the ROI tables that list all FOVs separately. If you generated your OME-Zarr with a different converter and used Import OME-Zarr to generate the ROI tables, `image_ROI_table` is the right choice if you only have 1 FOV per Zarr image and `grid_ROI_table` if you have multiple FOVs per Zarr image and set the right grid options during import."
           },
+          "output_image_name": {
+            "default": "{image_name}_illum_corr",
+            "pattern": "^.*\\{image_name\\}.*$",
+            "title": "Output Image Name",
+            "type": "string",
+            "description": "Name of the output image within the well. Only relevant if ``overwrite_input=False``. May contain the placeholder ``{image_name}``, which is replaced by the name of the input image (i.e. the last path component of ``zarr_url``). For example, the default ``\"{image_name}_illum_corr\"`` turns an input image named ``0`` into ``0_illum_corr``."
+          },
           "overwrite_input": {
-            "default": true,
+            "default": false,
             "title": "Overwrite Input",
             "type": "boolean",
-            "description": "If `True`, the results of this task will overwrite the input image data. If false, a new image is generated and the illumination corrected data is saved there."
-          },
-          "suffix": {
-            "default": "_illum_corr",
-            "title": "Suffix",
-            "type": "string",
-            "description": "What suffix to append to the illumination corrected images. Only relevant if `overwrite_input=False`."
+            "description": "If `True`, the results of this task will overwrite the input image data. If `False`, a new image is generated and the illumination corrected data is saved there. Defaults to `False`."
           }
         },
         "required": [
@@ -403,7 +429,20 @@
               },
               "table_name": {
                 "default": "{label_name}_masking_ROI_table",
+                "description": "Name of the masking ROI table to be created. This can include the placeholder\n\"{label_name}\", which will be replaced by the name of the label image used for\nsegmentation.",
                 "title": "Table Name",
+                "type": "string"
+              },
+              "table_backend": {
+                "default": "anndata",
+                "description": "Backend to use for storing the masking ROI table. Options are \"anndata\", \"json\",\n\"csv\", and \"parquet\".",
+                "enum": [
+                  "anndata",
+                  "json",
+                  "csv",
+                  "parquet"
+                ],
+                "title": "Table Backend",
                 "type": "string"
               }
             },
@@ -471,6 +510,7 @@
             "properties": {
               "mode": {
                 "default": "label",
+                "description": "Specifies how to interpret the identifier for selecting the channel. Can be\n\"label\" to select by channel label, \"wavelength_id\" to select by wavelength ID,\nor \"index\" to select by channel index (the identifier must be an integer string).",
                 "enum": [
                   "label",
                   "wavelength_id",
@@ -480,11 +520,13 @@
                 "type": "string"
               },
               "identifier": {
+                "description": "Identifier for the channel to use for segmentation.",
                 "title": "Identifier",
                 "type": "string"
               },
               "skip_if_missing": {
                 "default": false,
+                "description": "If True and the specified channel is not found in the image, the segmentation\nwill be skipped instead of raising an error. Defaults to False.",
                 "title": "Skip If Missing",
                 "type": "boolean"
               }
@@ -557,8 +599,9 @@
             "description": "Configuration for Otsu threshold-based segmentation.",
             "properties": {
               "method": {
-                "const": "otsu",
-                "default": "otsu",
+                "const": "Otsu",
+                "default": "Otsu",
+                "description": "Otsu's method automatically determines an optimal threshold value by maximizing\nthe variance between foreground and background pixel intensities.",
                 "title": "Method",
                 "type": "string"
               }
@@ -617,6 +660,28 @@
             "title": "SegmentationTransformConfig",
             "type": "object"
           },
+          "SimpleThresholdConfiguration": {
+            "description": "Configuration for threshold-based segmentation.",
+            "properties": {
+              "method": {
+                "const": "Simple Threshold",
+                "default": "Simple Threshold",
+                "description": "Simple threshold-based segmentation using a fixed threshold value.",
+                "title": "Method",
+                "type": "string"
+              },
+              "threshold": {
+                "description": "Threshold value to use for segmentation. All pixels with intensity greater\nthan this value will be considered foreground.",
+                "title": "Threshold",
+                "type": "number"
+              }
+            },
+            "required": [
+              "threshold"
+            ],
+            "title": "SimpleThresholdConfiguration",
+            "type": "object"
+          },
           "SizeFilterConfig": {
             "description": "Configuration for size filter post-processing.",
             "properties": {
@@ -650,26 +715,6 @@
             },
             "title": "SkipCreateMaskingRoiTable",
             "type": "object"
-          },
-          "ThresholdConfiguration": {
-            "description": "Configuration for threshold-based segmentation.",
-            "properties": {
-              "method": {
-                "const": "threshold",
-                "default": "threshold",
-                "title": "Method",
-                "type": "string"
-              },
-              "threshold": {
-                "title": "Threshold",
-                "type": "number"
-              }
-            },
-            "required": [
-              "threshold"
-            ],
-            "title": "ThresholdConfiguration",
-            "type": "object"
           }
         },
         "additionalProperties": false,
@@ -679,14 +724,14 @@
             "type": "string",
             "description": "URL to the OME-Zarr container."
           },
-          "channels": {
+          "channel": {
             "$ref": "#/$defs/InputChannel",
-            "title": "Channels",
+            "title": "Channel",
             "description": "Channel to use for segmentation, selected by label, wavelength ID, or index."
           },
-          "label_name": {
+          "output_label_name": {
             "default": "{channel_identifier}_segmented",
-            "title": "Label Name",
+            "title": "Output Label Name",
             "type": "string",
             "description": "Name of the resulting label image. Optionally, it can contain a placeholder \"{channel_identifier}\" which will be replaced by the channel identifier specified in the channels parameter."
           },
@@ -695,32 +740,32 @@
             "type": "string",
             "description": "If the OME-Zarr has multiple resolution levels, the level to use can be specified here. If not provided, the highest resolution level will be used."
           },
-          "method": {
+          "segmentation_method": {
             "default": {
-              "method": "otsu"
+              "method": "Otsu"
             },
             "discriminator": {
               "mapping": {
-                "otsu": "#/$defs/OtsuConfiguration",
-                "threshold": "#/$defs/ThresholdConfiguration"
+                "Otsu": "#/$defs/OtsuConfiguration",
+                "Simple Threshold": "#/$defs/SimpleThresholdConfiguration"
               },
               "propertyName": "method"
             },
             "oneOf": [
               {
-                "$ref": "#/$defs/ThresholdConfiguration"
+                "$ref": "#/$defs/SimpleThresholdConfiguration"
               },
               {
                 "$ref": "#/$defs/OtsuConfiguration"
               }
             ],
-            "title": "Method",
+            "title": "Segmentation Method",
             "description": "Configuration for the segmentation method."
           },
           "iterator_configuration": {
             "$ref": "#/$defs/IteratorConfig",
             "title": "Iterator Configuration",
-            "description": "Configuration for the segmentation iterator. This can be used to specify masking and/or a ROI table."
+            "description": "Optionally restrict segmentation to a specific set of ROIs or a sub-region. If not provided, the full image is segmented."
           },
           "pre_post_process": {
             "$ref": "#/$defs/SegmentationTransformConfig",
@@ -762,7 +807,7 @@
         },
         "required": [
           "zarr_url",
-          "channels"
+          "channel"
         ],
         "type": "object",
         "title": "ThresholdSegmentation"
@@ -894,10 +939,10 @@
             "type": "string",
             "description": "URL to the OME-Zarr container."
           },
-          "label_image_name": {
-            "title": "Label Image Name",
+          "input_label_name": {
+            "title": "Input Label Name",
             "type": "string",
-            "description": "Name of the label image to analyze."
+            "description": "Name of the segmentation label image to measure (must already exist in the OME-Zarr)."
           },
           "output_table_name": {
             "default": "region_props_features",
@@ -937,14 +982,10 @@
             "type": "array",
             "description": "List of feature configurations describing which properties to extract."
           },
-          "roi_tables": {
-            "default": [],
-            "items": {
-              "type": "string"
-            },
-            "title": "Roi Tables",
-            "type": "array",
-            "description": "List of ROI table names to condition the feature extraction on. If empty, features will be extracted for the whole label image (2D) or volume (3D)."
+          "input_roi_table": {
+            "title": "Input Roi Table",
+            "type": "string",
+            "description": "Name of the ROI table to condition the feature extraction on. If None, features will be extracted for the whole label image (2D) or volume (3D)."
           },
           "advanced_options": {
             "$ref": "#/$defs/AdvancedOptions",
@@ -966,7 +1007,7 @@
         },
         "required": [
           "zarr_url",
-          "label_image_name"
+          "input_label_name"
         ],
         "type": "object",
         "title": "MeasureFeatures"
@@ -984,8 +1025,8 @@
       ],
       "docs_info": "### Purpose\n- **Computes image-based registration** transformations for acquisitions in **HCS** OME-Zarr datasets.\n- Processes images grouped by well, under the assumption that each well contains one image per acquisition.\n- Calculates transformations for **specified regions of interest (ROIs)** and stores the results in the corresponding ROI table.\n- Typically used as the first task in a workflow, followed by `Find Registration Consensus` and optionally `Apply Registration to Image`.\n\n### Limitations\n- Supports only HCS OME-Zarr datasets, leveraging their acquisition metadata and well-based image grouping.\n- Assumes each well contains a single image per acquisition.\n",
       "type": "compound",
-      "executable_non_parallel": "image_based_registration_hcs_init.py",
-      "executable_parallel": "calculate_registration_image_based.py",
+      "executable_non_parallel": "init_image_based_registration.py",
+      "executable_parallel": "compute_image_based_registration.py",
       "meta_non_parallel": {
         "cpus_per_task": 1,
         "mem": 1000
@@ -1022,7 +1063,7 @@
           "zarr_dir"
         ],
         "type": "object",
-        "title": "ImageBasedRegistrationHcsInit"
+        "title": "InitImageBasedRegistration"
       },
       "args_schema_parallel": {
         "$defs": {
@@ -1060,7 +1101,7 @@
           "init_args": {
             "$ref": "#/$defs/InitArgsRegistration",
             "title": "Init Args",
-            "description": "Intialization arguments provided by `image_based_registration_hcs_init`. They contain the reference_zarr_url that is used for registration. (standard argument for Fractal tasks, managed by Fractal server)."
+            "description": "Initialization arguments provided by `init_image_based_registration`. They contain the reference_zarr_url that is used for registration. (standard argument for Fractal tasks, managed by Fractal server)."
           },
           "wavelength_id": {
             "title": "Wavelength Id",
@@ -1085,17 +1126,17 @@
             "type": "number",
             "description": "Upper quantile for rescaling the image intensities before applying registration. Can be helpful to deal with image artifacts. Default is 0.99."
           },
-          "roi_table": {
+          "input_roi_table": {
             "default": "FOV_ROI_table",
-            "title": "Roi Table",
+            "title": "Input Roi Table",
             "type": "string",
             "description": "Name of the ROI table over which the task loops to calculate the registration. Examples: `FOV_ROI_table` => loop over the field of views, `well_ROI_table` => process the whole well as one image."
           },
-          "level": {
-            "default": 2,
-            "title": "Level",
-            "type": "integer",
-            "description": "Pyramid level of the image to be used for registration. Choose `0` to process at full resolution."
+          "level_path": {
+            "default": "2",
+            "title": "Level Path",
+            "type": "string",
+            "description": "Resolution level of the image to use for registration. Lower numbers correspond to higher resolution. Choose `\"0\"` to process at full resolution."
           }
         },
         "required": [
@@ -1104,7 +1145,7 @@
           "wavelength_id"
         ],
         "type": "object",
-        "title": "CalculateRegistrationImageBased"
+        "title": "ComputeImageBasedRegistration"
       },
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
@@ -1119,8 +1160,8 @@
       ],
       "docs_info": "### Purpose\n- Determines the **consensus alignment** region across all selected acquisitions **within each well of an HCS OME-Zarr dataset**.\n- Generates a new ROI table for each image, defining consensus regions that are aligned across all acquisitions.\n- Typically used as the second task in a workflow, following `Calculate Registration (image-based)` and optionally preceding `Apply Registration to Image`.\n\n### Limitations\n- Supports only HCS OME-Zarr datasets, leveraging their acquisition metadata and well-based image grouping.\n",
       "type": "compound",
-      "executable_non_parallel": "init_group_by_well_for_multiplexing.py",
-      "executable_parallel": "find_registration_consensus.py",
+      "executable_non_parallel": "init_registration_consensus.py",
+      "executable_parallel": "compute_registration_consensus.py",
       "meta_non_parallel": {
         "cpus_per_task": 1,
         "mem": 1000
@@ -1157,7 +1198,7 @@
           "zarr_dir"
         ],
         "type": "object",
-        "title": "InitGroupByWellForMultiplexing"
+        "title": "InitRegistrationConsensus"
       },
       "args_schema_parallel": {
         "$defs": {
@@ -1189,18 +1230,19 @@
           "init_args": {
             "$ref": "#/$defs/InitArgsRegistrationConsensus",
             "title": "Init Args",
-            "description": "Intialization arguments provided by `init_group_by_well_for_multiplexing`. It contains the zarr_url_list listing all the zarr_urls in the same well as the zarr_url of the reference acquisition that are being processed. (standard argument for Fractal tasks, managed by Fractal server)."
+            "description": "Initialization arguments provided by `init_registration_consensus`. It contains the zarr_url_list listing all the zarr_urls in the same well as the zarr_url of the reference acquisition that are being processed. (standard argument for Fractal tasks, managed by Fractal server)."
           },
-          "roi_table": {
+          "input_roi_table": {
             "default": "FOV_ROI_table",
-            "title": "Roi Table",
+            "title": "Input Roi Table",
             "type": "string",
-            "description": "Name of the ROI table over which the task loops to calculate the registration. Examples: `FOV_ROI_table` => loop over the field of views, `well_ROI_table` => process the whole well as one image."
+            "description": "Name of the ROI table used as input for the \"Calculate Registration (image-based)\" task, which contains the pre-calculated translations."
           },
-          "new_roi_table": {
-            "title": "New Roi Table",
+          "registered_roi_table": {
+            "default": "{input_roi_table}_registered",
+            "title": "Registered Roi Table",
             "type": "string",
-            "description": "Optional name for the new, registered ROI table. If no name is given, it will default to \"registered_\" + `roi_table`"
+            "description": "Name template for the registered ROI table. May contain the placeholder \"{input_roi_table}\", which is replaced by the value of \"input_roi_table\"."
           }
         },
         "required": [
@@ -1208,7 +1250,7 @@
           "init_args"
         ],
         "type": "object",
-        "title": "FindRegistrationConsensus"
+        "title": "ComputeRegistrationConsensus"
       },
       "docs_link": "https://fractal-analytics-platform.github.io/fractal-tasks-core"
     },
@@ -1245,7 +1287,7 @@
           "registered_roi_table": {
             "title": "Registered Roi Table",
             "type": "string",
-            "description": "Name of the ROI table which has been registered and will be applied to mask and shift the images. Examples: `registered_FOV_ROI_table` => loop over the field of views, `registered_well_ROI_table` => process the whole well as one image."
+            "description": "Name of the ROI table which has been registered and will be applied to mask and shift the images. Examples: `FOV_ROI_table_registered` => loop over the field of views, `well_ROI_table_registered` => process the whole well as one image."
           },
           "reference_acquisition": {
             "default": 0,
@@ -1263,7 +1305,7 @@
             "default": true,
             "title": "Overwrite Input",
             "type": "boolean",
-            "description": "Whether the old image data should be replaced with the newly registered image data. Currently only implemented for `overwrite_input=True`."
+            "description": "Whether the old image data should be replaced with the newly registered image data. If False, a new image is created with `_registered` appended to the name and the original is kept."
           }
         },
         "required": [
@@ -1303,13 +1345,13 @@
             "type": "boolean",
             "description": "Whether to update Omero-channels metadata, to make them Fractal-compatible."
           },
-          "add_image_ROI_table": {
+          "add_image_roi_table": {
             "default": true,
             "title": "Add Image Roi Table",
             "type": "boolean",
             "description": "Whether to add a `image_ROI_table` table to each image, with a single ROI covering the whole image."
           },
-          "add_grid_ROI_table": {
+          "add_grid_roi_table": {
             "default": true,
             "title": "Add Grid Roi Table",
             "type": "boolean",
@@ -1327,11 +1369,23 @@
             "type": "integer",
             "description": "X shape of the ROI grid in `grid_ROI_table`."
           },
+          "table_backend": {
+            "default": "anndata",
+            "enum": [
+              "anndata",
+              "json",
+              "csv",
+              "parquet"
+            ],
+            "title": "Table Backend",
+            "type": "string",
+            "description": "Backend to use for the new ROI tables. Defaults to \"anndata\"."
+          },
           "overwrite": {
             "default": false,
             "title": "Overwrite",
             "type": "boolean",
-            "description": "Whether new ROI tables (added when `add_image_ROI_table` and/or `add_grid_ROI_table` are `True`) can overwrite existing ones."
+            "description": "Whether new ROI tables (added when `add_image_roi_table` and/or `add_grid_roi_table` are `True`) can overwrite existing ones."
           }
         },
         "required": [

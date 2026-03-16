@@ -11,9 +11,9 @@ from ngio import (
     open_ome_zarr_plate,
 )
 
-from fractal_tasks_core.copy_ome_zarr_hcs_plate import (
+from fractal_tasks_core.init_projection_hcs import (
     DaskProjectionMethod,
-    copy_ome_zarr_hcs_plate,
+    init_projection_hcs,
 )
 
 
@@ -122,7 +122,7 @@ def test_copy_hcs_plate(create_plate: Callable, tmp_path: Path):
     # Create a sample plate and returns a list of zarr urls
     sample_plate_zarr_urls = create_plate(tmp_path)
     debug(sample_plate_zarr_urls)
-    parallel_list = copy_ome_zarr_hcs_plate(
+    parallel_list = init_projection_hcs(
         zarr_urls=sample_plate_zarr_urls, zarr_dir=str(tmp_path)
     )
 
@@ -148,14 +148,14 @@ def test_flexibility_copy_hcs(tmp_path: Path):
     # Run in subsets
     subset_dir = str(tmp_path / "subset")
     # Subset 1
-    parallel_list_1 = copy_ome_zarr_hcs_plate(
+    parallel_list_1 = init_projection_hcs(
         zarr_urls=[zarr_urls[0]],
         zarr_dir=subset_dir,
         overwrite=True,
         re_initialize_plate=True,
     )
     # Subset 2
-    _ = copy_ome_zarr_hcs_plate(
+    _ = init_projection_hcs(
         zarr_urls=[zarr_urls[1]],
         zarr_dir=subset_dir,
         overwrite=False,
@@ -167,7 +167,7 @@ def test_flexibility_copy_hcs(tmp_path: Path):
 
     # Run all
     all_dir = str(tmp_path / "all")
-    parallel_list_all = copy_ome_zarr_hcs_plate(
+    parallel_list_all = init_projection_hcs(
         zarr_urls=zarr_urls,
         zarr_dir=all_dir,
         overwrite=True,
@@ -185,7 +185,7 @@ def test_flexibility_copy_hcs(tmp_path: Path):
 def test_fail_overwrite(tmp_path: Path):
     zarr_urls = plate_2w_1a_czyx(tmp_path)
 
-    copy_ome_zarr_hcs_plate(
+    init_projection_hcs(
         zarr_urls=zarr_urls,
         zarr_dir=str(tmp_path),
         overwrite=False,
@@ -194,7 +194,7 @@ def test_fail_overwrite(tmp_path: Path):
 
     # Run with re_initialize_plate=True
     # Should remove all existing images
-    copy_ome_zarr_hcs_plate(
+    init_projection_hcs(
         zarr_urls=zarr_urls,
         zarr_dir=str(tmp_path),
         overwrite=False,
@@ -202,7 +202,7 @@ def test_fail_overwrite(tmp_path: Path):
     )
 
     with pytest.raises(FileExistsError):
-        copy_ome_zarr_hcs_plate(
+        init_projection_hcs(
             zarr_urls=zarr_urls,
             zarr_dir=str(tmp_path),
             overwrite=False,
@@ -214,7 +214,7 @@ def test_new_plate_name(tmp_path: Path):
     zarr_urls = plate_2w_1a_czyx(tmp_path)
 
     for method in DaskProjectionMethod:
-        p_list = copy_ome_zarr_hcs_plate(
+        p_list = init_projection_hcs(
             zarr_urls=[zarr_urls[0]],
             zarr_dir=str(tmp_path),
             method=method,
@@ -225,7 +225,7 @@ def test_new_plate_name(tmp_path: Path):
         test_new_plate_name = p_list["parallelization_list"][0]["init_args"][
             "new_plate_name"
         ]
-        assert test_new_plate_name == f"plate_xy_2w_1_{method.value}.zarr", (
+        assert test_new_plate_name == f"plate_xy_2w_1_{method.abbreviation}.zarr", (
             test_new_plate_name
         )
 
@@ -233,7 +233,7 @@ def test_new_plate_name(tmp_path: Path):
 def test_fail_not_plate_url():
     with pytest.raises(ValueError):
         # Test with a non-image-in-plate URL
-        copy_ome_zarr_hcs_plate(
+        init_projection_hcs(
             zarr_urls=["/tmp/plate.zarr"],
             zarr_dir="/tmp",
             overwrite=False,
@@ -246,7 +246,7 @@ def test_reinit_true(tmp_path: Path):
 
     # Run in subsets
     # Subset 1
-    parallel_list_1 = copy_ome_zarr_hcs_plate(
+    parallel_list_1 = init_projection_hcs(
         zarr_urls=[zarr_urls[0]],
         zarr_dir=str(tmp_path),
         overwrite=True,
@@ -258,7 +258,7 @@ def test_reinit_true(tmp_path: Path):
 
     # Subset 2 will reinitialize the plate
     # and overwrite the images
-    parallel_list_2 = copy_ome_zarr_hcs_plate(
+    parallel_list_2 = init_projection_hcs(
         zarr_urls=[zarr_urls[1]],
         zarr_dir=str(tmp_path),
         overwrite=False,

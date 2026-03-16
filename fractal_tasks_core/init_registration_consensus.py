@@ -1,6 +1,6 @@
 # Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """
-Applies the multiplexing translation to all ROI tables
+Prepares the parallelization list for consensus registration.
 """
 
 import logging
@@ -9,13 +9,13 @@ from typing import Any
 from ngio import open_ome_zarr_well
 from pydantic import validate_call
 
-from fractal_tasks_core._plate_utils import group_by_well
+from fractal_tasks_core._utils import group_by_well
 
-logger = logging.getLogger("init_group_by_well_for_multiplexing")
+logger = logging.getLogger("init_registration_consensus")
 
 
 @validate_call
-def init_group_by_well_for_multiplexing(
+def init_registration_consensus(
     *,
     # Fractal parameters
     zarr_urls: list[str],
@@ -24,9 +24,10 @@ def init_group_by_well_for_multiplexing(
     reference_acquisition: int = 0,
 ) -> dict[str, list[dict[str, Any]]]:
     """
-    Finds images for all acquisitions per well.
+    Prepare the list of images needed to compute a registration consensus.
 
-    Returns the parallelization_list to run `find_registration_consensus`.
+    Finds all images for each well across all acquisitions and returns the
+    information required to run `compute_registration_consensus`.
 
     Args:
         zarr_urls: List of paths or urls to the individual OME-Zarr image to
@@ -39,7 +40,7 @@ def init_group_by_well_for_multiplexing(
             OME-NGFF HCS well metadata acquisition keys to find the reference
             acquisition.
     """
-    logger.info(f"Running `init_group_by_well_for_multiplexing` for {zarr_urls=}")
+    logger.info(f"Running `init_registration_consensus` for {zarr_urls=}")
     wells = group_by_well(zarr_urls)
 
     parallelization_list = []
@@ -83,6 +84,6 @@ if __name__ == "__main__":
     from fractal_task_tools.task_wrapper import run_fractal_task
 
     run_fractal_task(
-        task_function=init_group_by_well_for_multiplexing,
+        task_function=init_registration_consensus,
         logger_name=logger.name,
     )

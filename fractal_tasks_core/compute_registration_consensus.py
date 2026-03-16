@@ -10,9 +10,10 @@ from ngio import Roi, open_ome_zarr_container
 from ngio.tables import GenericRoiTable, RoiTable
 from pydantic import validate_call
 
-from fractal_tasks_core._io_models import InitArgsRegistrationConsensus
+from fractal_tasks_core._registration_utils import InitArgsRegistrationConsensus
+from fractal_tasks_core._utils import format_template_name
 
-logger = logging.getLogger("find_registration_consensus")
+logger = logging.getLogger("compute_registration_consensus")
 
 
 def _validate_if_translation_exists(tables: list[GenericRoiTable]) -> None:
@@ -43,21 +44,21 @@ def _validate_if_translation_exists(tables: list[GenericRoiTable]) -> None:
     if tables_with_translations == 0:
         raise ValueError(
             "No registration translations found in any acquisition ROI table. "
-            "Please run 'Calculate Registration (image-based)' before "
-            "'Find Registration Consensus'."
+            'Please run "Calculate Registration (image-based)" before '
+            '"Find Registration Consensus".'
         )
     # Edge case: some but not all non-reference tables contain translations
     if tables_with_translations != len(tables) - 1:
         raise ValueError(
             "Some but not all non-reference acquisitions contain registration "
             "translations. Something went wrong, please re-run "
-            "'Calculate Registration (image-based)' and make sure it completes "
+            '"Calculate Registration (image-based)" and make sure it completes '
             "without errors. "
         )
 
 
 def _get_roi_translation(roi: Roi, dim: Literal["z", "y", "x"]) -> float:
-    """Return the translation for `dim` ('z', 'y', or 'x') from a ROI's extra
+    """Return the translation for `dim` ("z", "y", or "x") from a ROI's extra
     fields, defaulting to 0.0 when the field is absent (e.g. reference
     acquisition whose table has no pre-computed shifts).
     """
@@ -173,60 +174,65 @@ def _apply_consensus_to_roi_table(
 
 
 @validate_call
-def find_registration_consensus(
+def compute_registration_consensus(
     *,
     # Fractal parameters
     zarr_url: str,
     init_args: InitArgsRegistrationConsensus,
     # Core parameters
-    roi_table: str = "FOV_ROI_table",
+    input_roi_table: str = "FOV_ROI_table",
     # Advanced parameters
-    new_roi_table: str | None = None,
-):
+    registered_roi_table: str = "{input_roi_table}_registered",
+) -> None:
     """
     Applies pre-calculated registration to ROI tables.
 
-    Apply pre-calculated registration such that resulting ROIs contain
-    the consensus align region between all acquisitions.
-
-    Parallelization level: well
+    Adjusts the ROI tables for each acquisition so that the resulting ROIs
+    cover only the region visible in all acquisitions after registration.
 
     Args:
         zarr_url: Path or url to the individual OME-Zarr image to be processed.
             Refers to the zarr_url of the reference acquisition.
             (standard argument for Fractal tasks, managed by Fractal server).
-        init_args: Intialization arguments provided by
-            `init_group_by_well_for_multiplexing`. It contains the
+        init_args: Initialization arguments provided by
+            `init_registration_consensus`. It contains the
             zarr_url_list listing all the zarr_urls in the same well as the
             zarr_url of the reference acquisition that are being processed.
             (standard argument for Fractal tasks, managed by Fractal server).
-        roi_table: Name of the ROI table over which the task loops to
-            calculate the registration. Examples: `FOV_ROI_table` => loop over
-            the field of views, `well_ROI_table` => process the whole well as
-            one image.
-        new_roi_table: Optional name for the new, registered ROI table. If no
-            name is given, it will default to "registered_" + `roi_table`
+        input_roi_table: Name of the ROI table used as input for the
+            "Calculate Registration (image-based)" task, which contains the
+            pre-calculated translations.
+        registered_roi_table: Name template for the registered ROI table. May
+            contain the placeholder "{input_roi_table}", which is replaced by the
+            value of "input_roi_table".
 
     """
-    if not new_roi_table:
-        new_roi_table = "registered_" + roi_table
+    registered_roi_table = format_template_name(
+        registered_roi_table, input_roi_table=input_roi_table
+    )
+    if registered_roi_table == input_roi_table:
+        raise ValueError(
+            f"registered_roi_table ({registered_roi_table!r}) must differ from "
+            f"input_roi_table ({input_roi_table!r}). Overwriting the input table "
+            "would destroy the pre-calculated translation shifts."
+        )
     logger.info(
         f"Running for {zarr_url=} & the other acquisitions in that well. \n"
-        f"Applying translation registration to {roi_table=} and storing it as "
-        f"{new_roi_table=}."
+        f"Applying translation registration to {input_roi_table=} and storing it as "
+        f"{registered_roi_table=}."
     )
     # Open all containers and load ROI tables, keeping containers for reuse
     # during the write phase. Reference acquisition is handled first so that
     # _find_roi_consensus receives its ROIs (zero-shift) as rois[0].
     ref_ome_zarr = open_ome_zarr_container(zarr_url)
     containers = {zarr_url: ref_ome_zarr}
-    tables = {zarr_url: ref_ome_zarr.get_generic_roi_table(roi_table)}
+    tables = {zarr_url: ref_ome_zarr.get_generic_roi_table(input_roi_table)}
     for acq_zarr_url in init_args.zarr_url_list:
         if acq_zarr_url == zarr_url:
             continue
         acq_ome_zarr = open_ome_zarr_container(acq_zarr_url)
         containers[acq_zarr_url] = acq_ome_zarr
-        tables[acq_zarr_url] = acq_ome_zarr.get_generic_roi_table(roi_table)
+        tables[acq_zarr_url] = acq_ome_zarr.get_generic_roi_table(input_roi_table)
 
     # Check if all tables contain the pre-calculated translation fields, which
     # are required for the consensus calculation.
@@ -251,10 +257,14 @@ def find_registration_consensus(
 
     for acq_zarr_url, table in tables.items():
         registered_table = _apply_consensus_to_roi_table(table, consensus_rois)
+        # If backend is none the table will default to "anndata",
+        # for backwards compatibility with old tables that don't have the backend field.
+        backend = table.backend_name or "anndata"
         containers[acq_zarr_url].add_table(
-            name=new_roi_table,
+            name=registered_roi_table,
             table=registered_table,
             overwrite=True,
+            backend=backend,
         )
 
 
@@ -262,6 +272,6 @@ if __name__ == "__main__":
     from fractal_task_tools.task_wrapper import run_fractal_task
 
     run_fractal_task(
-        task_function=find_registration_consensus,
+        task_function=compute_registration_consensus,
         logger_name=logger.name,
     )

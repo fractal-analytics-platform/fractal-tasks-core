@@ -3,7 +3,7 @@ Unit tests for registration helper functions.
 
 Tests are pure (no I/O) and cover:
 - _registration_utils_v2: add_translation_to_roi
-- find_registration_consensus: _get_roi_translation, _find_roi_consensus,
+- compute_registration_consensus: _get_roi_translation, _find_roi_consensus,
   _apply_consensus_to_roi
 - apply_registration_to_image: _get_ref_path_heuristic
 """
@@ -13,7 +13,7 @@ from ngio import PixelSize, Roi
 
 from fractal_tasks_core._registration_utils import add_translation_to_roi
 from fractal_tasks_core.apply_registration_to_image import _get_ref_path_heuristic
-from fractal_tasks_core.find_registration_consensus import (
+from fractal_tasks_core.compute_registration_consensus import (
     _apply_consensus_to_roi,
     _find_roi_consensus,
     _get_roi_translation,
@@ -68,7 +68,7 @@ def test_add_translation_to_roi_invalid():
 
 
 # ---------------------------------------------------------------------------
-# find_registration_consensus._get_roi_translation
+# compute_registration_consensus._get_roi_translation
 # ---------------------------------------------------------------------------
 
 
@@ -87,7 +87,7 @@ def test_get_roi_translation_absent():
 
 
 # ---------------------------------------------------------------------------
-# find_registration_consensus._find_roi_consensus
+# compute_registration_consensus._find_roi_consensus
 # ---------------------------------------------------------------------------
 
 
@@ -133,7 +133,7 @@ def test_find_roi_consensus_known_shift():
 
 
 # ---------------------------------------------------------------------------
-# find_registration_consensus._apply_consensus_to_roi
+# compute_registration_consensus._apply_consensus_to_roi
 # ---------------------------------------------------------------------------
 
 

@@ -94,7 +94,7 @@ def test_projection_all_methods(method: DaskProjectionMethod, tmp_path: Path) ->
     result = projection(zarr_url=str(store), method=method)
 
     zarr_url = result["image_list_updates"][0]["zarr_url"]
-    assert zarr_url == str(tmp_path / f"image_{method.value}.zarr")
+    assert zarr_url == str(tmp_path / f"image_{method.abbreviation}.zarr")
     assert Path(zarr_url).exists()
     img = open_ome_zarr_container(zarr_url).get_image()
     assert img.shape == (1, 32, 32)

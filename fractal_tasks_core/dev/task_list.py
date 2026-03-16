@@ -12,9 +12,17 @@ from fractal_task_tools.task_models import (
 AUTHORS = "Fractal Core Team"
 DOCS_LINK = "https://fractal-analytics-platform.github.io/fractal-tasks-core"
 INPUT_MODELS = [
-    ["fractal_tasks_core", "_io_models.py", "NoCorrectionModel"],
-    ["fractal_tasks_core", "_io_models.py", "ProfileCorrectionModel"],
-    ["fractal_tasks_core", "_io_models.py", "ConstantCorrectionModel"],
+    ["fractal_tasks_core", "_illumination_correction_utils.py", "NoCorrectionModel"],
+    [
+        "fractal_tasks_core",
+        "_illumination_correction_utils.py",
+        "ProfileCorrectionModel",
+    ],
+    [
+        "fractal_tasks_core",
+        "_illumination_correction_utils.py",
+        "ConstantCorrectionModel",
+    ],
 ]
 
 
@@ -22,8 +30,8 @@ TASK_LIST = [
     CompoundTask(
         name="Project Image (HCS Plate)",
         input_types={"is_3D": True},
-        executable_init="copy_ome_zarr_hcs_plate.py",
-        executable="projection_hcs.py",
+        executable_init="init_projection_hcs.py",
+        executable="compute_projection_hcs.py",
         output_types={"is_3D": False},
         meta_init={"cpus_per_task": 1, "mem": 4000},
         meta={"cpus_per_task": 1, "mem": 4000},
@@ -70,25 +78,25 @@ TASK_LIST = [
     ),
     CompoundTask(
         name="Calculate Registration (image-based)",
-        executable_init="image_based_registration_hcs_init.py",
-        executable="calculate_registration_image_based.py",
+        executable_init="init_image_based_registration.py",
+        executable="compute_image_based_registration.py",
         meta_init={"cpus_per_task": 1, "mem": 1000},
         meta={"cpus_per_task": 1, "mem": 8000},
         category="Registration",
         modality="HCS",
         tags=["Multiplexing", "2D", "3D"],
-        docs_info="file:task_info/calculate_registration_image_based.md",
+        docs_info="file:task_info/image_based_registration.md",
     ),
     CompoundTask(
         name="Find Registration Consensus",
-        executable_init="init_group_by_well_for_multiplexing.py",
-        executable="find_registration_consensus.py",
+        executable_init="init_registration_consensus.py",
+        executable="compute_registration_consensus.py",
         meta_init={"cpus_per_task": 1, "mem": 1000},
         meta={"cpus_per_task": 1, "mem": 1000},
         category="Registration",
         modality="HCS",
         tags=["Multiplexing", "2D", "3D"],
-        docs_info="file:task_info/find_registration_consensus.md",
+        docs_info="file:task_info/registration_consensus.md",
     ),
     ParallelTask(
         name="Apply Registration to Image",
