@@ -199,8 +199,8 @@ def illumination_correction(
 
     if background_correction.value.model == "Profile":
         background_wavelengths = set(
-            background_correction.value.profiles.keys()
-        )  # ty:ignore[unresolved-attribute]
+            background_correction.value.profiles.keys()  # type: ignore
+        )
 
         if not background_wavelengths.issubset(input_image_wavelengths):
             raise ValueError(
@@ -215,8 +215,8 @@ def illumination_correction(
             )
     elif background_correction.value.model == "Constant":
         background_wavelengths = set(
-            background_correction.value.constants.keys()
-        )  # ty:ignore[unresolved-attribute]
+            background_correction.value.constants.keys()  # type: ignore
+        )
         if not background_wavelengths.issubset(input_image_wavelengths):
             raise ValueError(
                 "Background profiles provided for wavelengths: "
@@ -274,9 +274,9 @@ def illumination_correction(
     background_matrices = {}
     background_constants = {}
     if background_correction.value.model == "Constant":
-        background_constants = background_correction.value.constants  # type: ignore[unresolved-attribute]
+        background_constants = background_correction.value.constants  # type: ignore
     elif background_correction.value.model == "Profile":
-        for wavelength_id, profile_path in background_correction.value.items():  # type: ignore[unresolved-attribute]
+        for wavelength_id, profile_path in background_correction.value.items():  # type: ignore
             correction_matrix = imread(profile_path)
             if correction_matrix.shape != image_size:
                 raise ValueError(
