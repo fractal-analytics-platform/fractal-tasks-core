@@ -30,7 +30,7 @@ def measure_features(
     # Fractal managed parameters
     zarr_url: str,
     # Input parameters
-    label_image_name: str,
+    input_label_name: str,
     output_table_name: str = "region_props_features",
     features: list[SupportedFeatures] = Field(
         default_factory=lambda: [ShapeFeatures(), IntensityFeatures()]
@@ -45,7 +45,7 @@ def measure_features(
 
     Args:
         zarr_url (str): URL to the OME-Zarr container.
-        label_image_name (str): Name of the label image to analyze.
+        input_label_name (str): Name of the label image to analyze.
         output_table_name (str): Name for the output feature table.
         features (list[SupportedFeatures]): List of feature configurations
             describing which properties to extract.
@@ -89,7 +89,7 @@ def measure_features(
     iterator = setup_measurement_iterator(
         zarr_url=zarr_url,
         level_path=advanced_options.level_path,
-        label_image_name=label_image_name,
+        label_image_name=input_label_name,
         channels=channel_selection_models,
         roi_table_names=roi_tables if roi_tables else None,
     )
@@ -101,7 +101,7 @@ def measure_features(
 
     # Create a FeatureTable and add it to the OME-Zarr container
     feature_table = FeatureTable(
-        table_data=feature_df, reference_label=label_image_name
+        table_data=feature_df, reference_label=input_label_name
     )
     ome_zarr.add_table(
         name=output_table_name,

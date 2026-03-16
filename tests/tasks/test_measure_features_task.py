@@ -56,7 +56,7 @@ def _make_zarr_with_label(
     threshold_segmentation(
         zarr_url=str(store),
         channels=InputChannel(mode="index", identifier="0"),
-        label_name=label_name,
+        output_label_name=label_name,
         method=ThresholdConfiguration(threshold=100),
         overwrite=True,
     )
@@ -205,7 +205,7 @@ def test_measure_features_basic(tmp_path: Path) -> None:
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures()],
     )
 
@@ -219,7 +219,7 @@ def test_measure_features_shape_and_intensity(tmp_path: Path) -> None:
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures(), IntensityFeatures()],
     )
 
@@ -233,7 +233,7 @@ def test_measure_features_2d(tmp_path: Path) -> None:
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures()],
     )
 
@@ -246,13 +246,13 @@ def test_measure_features_overwrite_true(tmp_path: Path) -> None:
     store = _make_zarr_with_label(tmp_path)
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures()],
         overwrite=True,
     )
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures()],
         overwrite=True,
     )
@@ -264,7 +264,7 @@ def test_measure_features_overwrite_false_raises(tmp_path: Path) -> None:
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures()],
         overwrite=True,
     )
@@ -272,7 +272,7 @@ def test_measure_features_overwrite_false_raises(tmp_path: Path) -> None:
     with pytest.raises(FileExistsError):
         measure_features(
             zarr_url=str(store),
-            label_image_name="nuclei",
+            input_label_name="nuclei",
             features=[ShapeFeatures()],
             overwrite=False,
         )
@@ -284,7 +284,7 @@ def test_measure_features_custom_table_name(tmp_path: Path) -> None:
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         output_table_name="my_features",
         features=[ShapeFeatures()],
     )
@@ -299,7 +299,7 @@ def test_measure_features_advanced_options_no_scaling(tmp_path: Path) -> None:
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures()],
         advanced_options=AdvancedOptions(use_scaling=False),
     )
@@ -314,7 +314,7 @@ def test_measure_features_advanced_options_table_backend(tmp_path: Path) -> None
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures()],
         advanced_options=AdvancedOptions(table_backend="parquet"),
     )
@@ -331,7 +331,7 @@ def test_intensity_features_with_channels(tmp_path: Path) -> None:
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[
             IntensityFeatures(channels=[InputChannel(mode="index", identifier="0")])
         ],
@@ -352,7 +352,7 @@ def test_measure_features_table_structure(tmp_path: Path) -> None:
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures()],
     )
 
@@ -371,7 +371,7 @@ def test_measure_features_shape_correctness_no_scaling(tmp_path: Path) -> None:
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures()],
         advanced_options=AdvancedOptions(use_scaling=False),
     )
@@ -389,7 +389,7 @@ def test_measure_features_shape_correctness_with_scaling(tmp_path: Path) -> None
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures()],
         advanced_options=AdvancedOptions(use_scaling=True),
     )
@@ -406,7 +406,7 @@ def test_measure_features_intensity_correctness(tmp_path: Path) -> None:
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[IntensityFeatures()],
         advanced_options=AdvancedOptions(use_scaling=False),
     )
@@ -428,7 +428,7 @@ def test_measure_features_duplicate_feature_type_raises(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="Duplicate"):
         measure_features(
             zarr_url=str(store),
-            label_image_name="nuclei",
+            input_label_name="nuclei",
             features=[ShapeFeatures(), ShapeFeatures()],
         )
 
@@ -441,7 +441,7 @@ def test_measure_features_channel_identifier_in_columns(tmp_path: Path) -> None:
 
     measure_features(
         zarr_url=str(store),
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[
             IntensityFeatures(channels=[InputChannel(mode="index", identifier="0")])
         ],

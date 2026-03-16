@@ -115,9 +115,8 @@ def illumination_correction(
     illumination_profiles: ProfileCorrectionModel,
     background_correction: BackgroundCorrection = BackgroundCorrection(),  # type: ignore, TODO use factory # type: ignore
     input_ROI_table: str = "FOV_ROI_table",
-    overwrite_input: bool = False,
-    # Advanced parameters
     output_image_name: str = "{image_name}_illum_corr",
+    overwrite_input: bool = False,
 ) -> dict[str, Any] | None:
     """
     Applies illumination correction to the images in the OME-Zarr.
@@ -143,15 +142,15 @@ def illumination_correction(
             you only have 1 FOV per Zarr image and `grid_ROI_table` if you
             have multiple FOVs per Zarr image and set the right grid options
             during import.
-        overwrite_input: If `True`, the results of this task will overwrite
-            the input image data. If `False`, a new image is generated and the
-            illumination corrected data is saved there. Defaults to `False`.
         output_image_name: Name of the output image within the well. Only
             relevant if ``overwrite_input=False``. May contain the placeholder
             ``{image_name}``, which is replaced by the name of the input image
             (i.e. the last path component of ``zarr_url``). For example, the
             default ``"{image_name}_illum_corr"`` turns an input image named
             ``0`` into ``0_illum_corr``.
+        overwrite_input: If `True`, the results of this task will overwrite
+            the input image data. If `False`, a new image is generated and the
+            illumination corrected data is saved there. Defaults to `False`.
     """
 
     # Prepare zarr urls

@@ -18,7 +18,6 @@ from pydantic import validate_call
 
 from fractal_tasks_core._threshold_segmentation_utils import (
     AnyCreateRoiTableModel,
-    CreateMaskingRoiTable,
     InputChannel,
     OtsuConfiguration,
     SegmentationConfiguration,
@@ -76,7 +75,7 @@ def threshold_segmentation(
     zarr_url: str,
     # Segmentation parameters
     channels: InputChannel,
-    label_name: str = "{channel_identifier}_segmented",
+    output_label_name: str = "{channel_identifier}_segmented",
     level_path: str | None = None,
     method: SegmentationConfiguration = OtsuConfiguration(),
     # Iteration parameters
@@ -95,8 +94,8 @@ def threshold_segmentation(
         zarr_url (str): URL to the OME-Zarr container.
         channels (InputChannel): Channel to use for segmentation,
             selected by label, wavelength ID, or index.
-        label_name (str): Name of the resulting label image. Optionally, it can contain
-            a placeholder "{channel_identifier}" which will be replaced by the
+        output_label_name (str): Name of the resulting label image. Optionally, it can
+            contain a placeholder "{channel_identifier}" which will be replaced by the
             channel identifier specified in the channels parameter.
         level_path (str | None): If the OME-Zarr has multiple resolution levels,
             the level to use can be specified here. If not provided, the highest
@@ -121,16 +120,16 @@ def threshold_segmentation(
         return None
 
     # Format the label name based on the provided template and channel identifier
-    label_name = format_template_name(
-        label_name, channel_identifier=channels.identifier
+    output_label_name = format_template_name(
+        output_label_name, channel_identifier=channels.identifier
     )
-    logger.info(f"Formatted label name: {label_name=}")
+    logger.info(f"Formatted label name: {output_label_name=}")
 
     # Set up iterator (opens ome_zarr internally, derives label, handles masking)
     iterator = setup_segmentation_iterator(
         zarr_url=zarr_url,
         channels=[channels.to_channel_selection_models()],
-        output_label_name=label_name,
+        output_label_name=output_label_name,
         level_path=level_path,
         iterator_configuration=iterator_configuration,
         segmentation_transform_config=pre_post_process,
@@ -142,16 +141,12 @@ def threshold_segmentation(
         segmentation_func=lambda x: segmentation_function(input_image=x, method=method),
         iterator=iterator,
     )
-    logger.info(f"label {label_name} successfully created at {zarr_url}")
+    logger.info(f"label {output_label_name} successfully created at {zarr_url}")
 
     # Build a masking ROI table if requested
-    if isinstance(create_masking_roi_table, CreateMaskingRoiTable):
-        table_name = create_masking_roi_table.get_table_name(label_name=label_name)
-        label_img = ome_zarr.get_label(name=label_name)
-        masking_roi_table = label_img.build_masking_roi_table()
-        ome_zarr.add_table(
-            name=table_name, table=masking_roi_table, overwrite=overwrite
-        )
+    create_masking_roi_table.create(
+        ome_zarr=ome_zarr, label_name=output_label_name, overwrite=overwrite
+    )
     return None
 
 

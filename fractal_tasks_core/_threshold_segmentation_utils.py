@@ -4,7 +4,7 @@ import logging
 from typing import Annotated, Literal
 
 import numpy as np
-from ngio import ChannelSelectionModel
+from ngio import ChannelSelectionModel, OmeZarrContainer
 from pydantic import BaseModel, Field
 from skimage.filters import threshold_otsu
 from skimage.measure import label
@@ -24,6 +24,7 @@ class CreateMaskingRoiTable(BaseModel):
 
     mode: Literal["Create Masking ROI Table"] = "Create Masking ROI Table"
     table_name: str = "{label_name}_masking_ROI_table"
+    backend: Literal["anndata", "json", "csv", "parquet"] = "anndata"
 
     def get_table_name(self, label_name: str) -> str:
         """Get the actual table name by replacing placeholder.
@@ -36,6 +37,27 @@ class CreateMaskingRoiTable(BaseModel):
         """
         return self.table_name.format(label_name=label_name)
 
+    def create(
+        self, ome_zarr: OmeZarrContainer, label_name: str, overwrite: bool = True
+    ) -> None:
+        """Create the masking ROI table based on the provided label image.
+
+        Args:
+            ome_zarr (OmeZarrContainer): The OME-Zarr container to add the table to.
+            label_name (str): The name of the label image for which to create the
+                masking ROI table.
+            overwrite (bool): Whether to overwrite an existing table. Defaults to True.
+        """
+        table_name = self.get_table_name(label_name)
+        label_img = ome_zarr.get_label(name=label_name)
+        masking_roi_table = label_img.build_masking_roi_table()
+        ome_zarr.add_table(
+            name=table_name,
+            table=masking_roi_table,
+            overwrite=overwrite,
+            backend=self.backend,
+        )
+
 
 class SkipCreateMaskingRoiTable(BaseModel):
     """Skip Creating Masking ROI Table Configuration.
@@ -46,6 +68,12 @@ class SkipCreateMaskingRoiTable(BaseModel):
     """
 
     mode: Literal["Skip Creating Masking ROI Table"] = "Skip Creating Masking ROI Table"
+
+    def create(
+        self, ome_zarr: OmeZarrContainer, label_name: str, overwrite: bool = True
+    ) -> None:
+        """No-op create method for skipping masking ROI table creation."""
+        pass
 
 
 AnyCreateRoiTableModel = Annotated[

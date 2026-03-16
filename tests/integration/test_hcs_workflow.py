@@ -314,7 +314,7 @@ def test_full_pipeline(tmp_path: Path) -> None:
     threshold_segmentation(
         zarr_url=zarr_url_0,
         channels=InputChannel(mode="wavelength_id", identifier=_CHANNELS[0]),
-        label_name="nuclei",
+        output_label_name="nuclei",
         method=ThresholdConfiguration(threshold=500),
         overwrite=True,
     )
@@ -329,7 +329,7 @@ def test_full_pipeline(tmp_path: Path) -> None:
     # ------------------------------------------------------------------
     measure_features(
         zarr_url=zarr_url_0,
-        label_image_name="nuclei",
+        input_label_name="nuclei",
         features=[ShapeFeatures()],
     )
 

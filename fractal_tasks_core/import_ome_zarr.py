@@ -4,7 +4,7 @@ Task to import an existing OME-Zarr.
 """
 
 import logging
-from typing import Any
+from typing import Any, Literal
 
 from ngio import (
     OmeZarrContainer,
@@ -20,10 +20,13 @@ from pydantic import validate_call
 
 logger = logging.getLogger("import_ome_zarr")
 
+TableBackend = Literal["anndata", "json", "csv", "parquet"]
+
 
 def _build_xy_roi_table(
     ome_zarr_image: OmeZarrContainer,
     grid_YX_shape: tuple[int, int] | None = None,
+    backend: TableBackend = "anndata",
     overwrite: bool = False,
 ) -> None:
     """
@@ -68,7 +71,9 @@ def _build_xy_roi_table(
             rois.append(roi_world)
             roi_id += 1
     table = RoiTable(rois=rois)
-    ome_zarr_image.add_table(name="grid_ROI_table", table=table, overwrite=overwrite)
+    ome_zarr_image.add_table(
+        name="grid_ROI_table", table=table, overwrite=overwrite, backend=backend
+    )
 
 
 def _process_single_image(
@@ -80,6 +85,7 @@ def _process_single_image(
     update_omero_metadata: bool,
     grid_YX_shape: tuple[int, int] | None = None,
     attributes: dict[str, Any] | None = None,
+    table_backend: TableBackend = "anndata",
     overwrite: bool = False,
 ) -> list[dict[str, Any]]:
     """
@@ -94,12 +100,16 @@ def _process_single_image(
         grid_YX_shape: YX shape of the ROI grid (must not be `None` when
             `add_grid_ROI_table=True`).
         attributes: Optional image attributes to include in the update dict.
+        table_backend: Backend to use for the new ROI tables.
         overwrite: Whether to overwrite existing ROI tables.
     """
     if add_image_ROI_table:
         table = ome_zarr_image.build_image_roi_table()
         ome_zarr_image.add_table(
-            name="image_ROI_table", table=table, overwrite=overwrite
+            name="image_ROI_table",
+            table=table,
+            overwrite=overwrite,
+            backend=table_backend,
         )
 
     if add_grid_ROI_table:
@@ -107,6 +117,7 @@ def _process_single_image(
             ome_zarr_image=ome_zarr_image,
             grid_YX_shape=grid_YX_shape,
             overwrite=overwrite,
+            backend=table_backend,
         )
 
     if update_omero_metadata:
@@ -115,7 +126,7 @@ def _process_single_image(
         wavelengths = image.channels_meta.channel_wavelength_ids
         ome_zarr_image.set_channel_meta(
             labels=channel_names,
-            wavelength_id=wavelengths,  # type: ignore
+            wavelength_id=wavelengths,
         )
 
     type_updates = {
@@ -140,6 +151,7 @@ def _process_well(
     add_grid_ROI_table: bool,
     update_omero_metadata: bool,
     grid_YX_shape: tuple[int, int] | None = None,
+    table_backend: TableBackend = "anndata",
     overwrite: bool = False,
 ) -> list[dict[str, Any]]:
     """
@@ -161,6 +173,7 @@ def _process_well(
             update_omero_metadata=update_omero_metadata,
             grid_YX_shape=grid_YX_shape,
             attributes=attributes,
+            table_backend=table_backend,
             overwrite=overwrite,
         )
         image_list_updates.extend(_updates)
@@ -175,6 +188,7 @@ def _process_plate(
     add_grid_ROI_table: bool,
     update_omero_metadata: bool,
     grid_YX_shape: tuple[int, int] | None = None,
+    table_backend: TableBackend = "anndata",
     overwrite: bool = False,
 ) -> list[dict[str, Any]]:
     """For each image in the plate, create an image list update dict."""
@@ -197,6 +211,7 @@ def _process_plate(
             grid_YX_shape=grid_YX_shape,
             attributes=attributes,
             overwrite=overwrite,
+            table_backend=table_backend,
         )
         image_list_updates.extend(_updates)
     return image_list_updates
@@ -253,6 +268,8 @@ def import_ome_zarr(
     # Advanced parameters
     grid_y_shape: int = 2,
     grid_x_shape: int = 2,
+    table_backend: TableBackend = "anndata",
+    # Other parameters
     overwrite: bool = False,
 ) -> dict[str, Any]:
     """
@@ -278,6 +295,7 @@ def import_ome_zarr(
             image, with the image split into a rectangular grid of ROIs.
         grid_y_shape: Y shape of the ROI grid in `grid_ROI_table`.
         grid_x_shape: X shape of the ROI grid in `grid_ROI_table`.
+        table_backend: Backend to use for the new ROI tables. Defaults to "anndata".
         update_omero_metadata: Whether to update Omero-channels metadata, to
             make them Fractal-compatible.
         overwrite: Whether new ROI tables (added when `add_image_ROI_table`
@@ -297,6 +315,7 @@ def import_ome_zarr(
             add_grid_ROI_table=add_grid_ROI_table,
             update_omero_metadata=update_omero_metadata,
             grid_YX_shape=(grid_y_shape, grid_x_shape),
+            table_backend=table_backend,
             overwrite=overwrite,
         )
     elif isinstance(ome_zarr, OmeZarrWell):
@@ -307,6 +326,7 @@ def import_ome_zarr(
             add_grid_ROI_table=add_grid_ROI_table,
             update_omero_metadata=update_omero_metadata,
             grid_YX_shape=(grid_y_shape, grid_x_shape),
+            table_backend=table_backend,
             overwrite=overwrite,
         )
     elif isinstance(ome_zarr, OmeZarrContainer):
@@ -317,6 +337,7 @@ def import_ome_zarr(
             add_grid_ROI_table=add_grid_ROI_table,
             update_omero_metadata=update_omero_metadata,
             grid_YX_shape=(grid_y_shape, grid_x_shape),
+            table_backend=table_backend,
             overwrite=overwrite,
         )
     else:

@@ -375,17 +375,17 @@
             "type": "string",
             "description": "Name of the ROI table that contains the information about the location of the individual field of views (FOVs) to which the illumination correction shall be applied. Defaults to \"FOV_ROI_table\", the default name Fractal converters give the ROI tables that list all FOVs separately. If you generated your OME-Zarr with a different converter and used Import OME-Zarr to generate the ROI tables, `image_ROI_table` is the right choice if you only have 1 FOV per Zarr image and `grid_ROI_table` if you have multiple FOVs per Zarr image and set the right grid options during import."
           },
-          "overwrite_input": {
-            "default": false,
-            "title": "Overwrite Input",
-            "type": "boolean",
-            "description": "If `True`, the results of this task will overwrite the input image data. If `False`, a new image is generated and the illumination corrected data is saved there. Defaults to `False`."
-          },
           "output_image_name": {
             "default": "{image_name}_illum_corr",
             "title": "Output Image Name",
             "type": "string",
             "description": "Name of the output image within the well. Only relevant if ``overwrite_input=False``. May contain the placeholder ``{image_name}``, which is replaced by the name of the input image (i.e. the last path component of ``zarr_url``). For example, the default ``\"{image_name}_illum_corr\"`` turns an input image named ``0`` into ``0_illum_corr``."
+          },
+          "overwrite_input": {
+            "default": false,
+            "title": "Overwrite Input",
+            "type": "boolean",
+            "description": "If `True`, the results of this task will overwrite the input image data. If `False`, a new image is generated and the illumination corrected data is saved there. Defaults to `False`."
           }
         },
         "required": [
@@ -427,6 +427,17 @@
               "table_name": {
                 "default": "{label_name}_masking_ROI_table",
                 "title": "Table Name",
+                "type": "string"
+              },
+              "backend": {
+                "default": "anndata",
+                "enum": [
+                  "anndata",
+                  "json",
+                  "csv",
+                  "parquet"
+                ],
+                "title": "Backend",
                 "type": "string"
               }
             },
@@ -707,9 +718,9 @@
             "title": "Channels",
             "description": "Channel to use for segmentation, selected by label, wavelength ID, or index."
           },
-          "label_name": {
+          "output_label_name": {
             "default": "{channel_identifier}_segmented",
-            "title": "Label Name",
+            "title": "Output Label Name",
             "type": "string",
             "description": "Name of the resulting label image. Optionally, it can contain a placeholder \"{channel_identifier}\" which will be replaced by the channel identifier specified in the channels parameter."
           },
@@ -917,8 +928,8 @@
             "type": "string",
             "description": "URL to the OME-Zarr container."
           },
-          "label_image_name": {
-            "title": "Label Image Name",
+          "input_label_name": {
+            "title": "Input Label Name",
             "type": "string",
             "description": "Name of the label image to analyze."
           },
@@ -989,7 +1000,7 @@
         },
         "required": [
           "zarr_url",
-          "label_image_name"
+          "input_label_name"
         ],
         "type": "object",
         "title": "MeasureFeatures"
@@ -1350,6 +1361,18 @@
             "title": "Grid X Shape",
             "type": "integer",
             "description": "X shape of the ROI grid in `grid_ROI_table`."
+          },
+          "table_backend": {
+            "default": "anndata",
+            "enum": [
+              "anndata",
+              "json",
+              "csv",
+              "parquet"
+            ],
+            "title": "Table Backend",
+            "type": "string",
+            "description": "Backend to use for the new ROI tables. Defaults to \"anndata\"."
           },
           "overwrite": {
             "default": false,
