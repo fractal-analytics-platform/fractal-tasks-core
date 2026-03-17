@@ -38,12 +38,12 @@ jobs:
       - name: Install some testing dependencies (hard-coded)
         run: python -m pip install pytest devtools jsonschema requests wget pooch pytest-cov
 
-      - name: Cache Pooch folder
-        id: cache-pooch-folder
-        uses: actions/cache@v4
+      - name: Ngio Cache
+        id: cache-ngio-zenodo-folder
+        uses: actions/cache@v5
         with:
-          path: ~/.cache/pooch
-          key: pooch-cache
+          path: tests/data/ngio_zenodo
+          key: ngio-zenodo-cache
 
       - name: Run tests with pytest
         run: python -m pytest tests -s --log-cli-level info
