@@ -9,6 +9,8 @@ from pydantic import BaseModel, Field
 from skimage.filters import threshold_otsu
 from skimage.measure import label
 
+from fractal_tasks_core._utils import AVAILABLE_TABLE_BACKENDS, DEFAULT_TABLE_BACKEND
+
 logger = logging.getLogger("threshold_segmentation_task_utils")
 
 
@@ -18,47 +20,47 @@ class CreateMaskingRoiTable(BaseModel):
     Attributes:
         mode (Literal["Create Masking ROI Table"]): Mode to create masking ROI table.
         table_name (str): Name of the masking ROI table to be created.
-            Defaults to "{label_name}_masking_ROI_table", where {label_name} is
-            the name of the label image used for segmentation.
+            Defaults to "{output_label_name}_masking_ROI_table", where
+            {output_label_name} is the name of the label image used for segmentation.
     """
 
     mode: Literal["Create Masking ROI Table"] = "Create Masking ROI Table"
-    table_name: str = "{label_name}_masking_ROI_table"
+    table_name: str = "{output_label_name}_masking_ROI_table"
     """
     Name of the masking ROI table to be created. This can include the placeholder
-    "{label_name}", which will be replaced by the name of the label image used for
-    segmentation.
+    "{output_label_name}", which will be replaced by the name of the label image used
+    for segmentation.
     """
-    table_backend: Literal["anndata", "json", "csv", "parquet"] = "anndata"
+    table_backend: AVAILABLE_TABLE_BACKENDS = DEFAULT_TABLE_BACKEND
     """
     Backend to use for storing the masking ROI table. Options are "anndata", "json",
     "csv", and "parquet".
     """
 
-    def get_table_name(self, label_name: str) -> str:
+    def get_table_name(self, output_label_name: str) -> str:
         """Get the actual table name by replacing placeholder.
 
         Args:
-            label_name (str): Name of the label image used for segmentation.
+            output_label_name (str): Name of the label image used for segmentation.
 
         Returns:
             str: Actual name of the masking ROI table.
         """
-        return self.table_name.format(label_name=label_name)
+        return self.table_name.format(output_label_name=output_label_name)
 
     def create(
-        self, ome_zarr: OmeZarrContainer, label_name: str, overwrite: bool = True
+        self, ome_zarr: OmeZarrContainer, output_label_name: str, overwrite: bool = True
     ) -> None:
         """Create the masking ROI table based on the provided label image.
 
         Args:
             ome_zarr (OmeZarrContainer): The OME-Zarr container to add the table to.
-            label_name (str): The name of the label image for which to create the
-                masking ROI table.
+            output_label_name (str): The name of the label image for which to create
+                the masking ROI table.
             overwrite (bool): Whether to overwrite an existing table. Defaults to True.
         """
-        table_name = self.get_table_name(label_name)
-        label_img = ome_zarr.get_label(name=label_name)
+        table_name = self.get_table_name(output_label_name)
+        label_img = ome_zarr.get_label(name=output_label_name)
         masking_roi_table = label_img.build_masking_roi_table()
         ome_zarr.add_table(
             name=table_name,
@@ -69,17 +71,15 @@ class CreateMaskingRoiTable(BaseModel):
 
 
 class SkipCreateMaskingRoiTable(BaseModel):
-    """Skip Creating Masking ROI Table Configuration.
-
-    Attributes:
-        mode (Literal["Skip Creating Masking ROI Table"]): Mode to skip creating
-            masking ROI table.
-    """
+    """Skip Creating Masking ROI Table Configuration."""
 
     mode: Literal["Skip Creating Masking ROI Table"] = "Skip Creating Masking ROI Table"
+    """
+    Mode to skip creating masking ROI table.
+    """
 
     def create(
-        self, ome_zarr: OmeZarrContainer, label_name: str, overwrite: bool = True
+        self, ome_zarr: OmeZarrContainer, output_label_name: str, overwrite: bool = True
     ) -> None:
         """No-op create method for skipping masking ROI table creation."""
         pass

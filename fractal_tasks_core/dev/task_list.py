@@ -11,19 +11,6 @@ from fractal_task_tools.task_models import (
 
 AUTHORS = "Fractal Core Team"
 DOCS_LINK = "https://fractal-analytics-platform.github.io/fractal-tasks-core"
-INPUT_MODELS = [
-    ["fractal_tasks_core", "_illumination_correction_utils.py", "NoCorrectionModel"],
-    [
-        "fractal_tasks_core",
-        "_illumination_correction_utils.py",
-        "ProfileCorrectionModel",
-    ],
-    [
-        "fractal_tasks_core",
-        "_illumination_correction_utils.py",
-        "ConstantCorrectionModel",
-    ],
-]
 
 
 TASK_LIST = [

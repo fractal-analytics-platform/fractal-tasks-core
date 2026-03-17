@@ -104,6 +104,9 @@ class BackgroundCorrection(BaseModel):
         ],
         Field(default=NoCorrectionModel(), discriminator="model"),
     ]
+    """
+    Background correction model to apply.
+    """
 
 
 @validate_call

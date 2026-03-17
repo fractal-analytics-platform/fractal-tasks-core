@@ -1,4 +1,8 @@
 from dataclasses import dataclass
+from typing import Literal, TypeAlias
+
+AVAILABLE_TABLE_BACKENDS: TypeAlias = Literal["anndata", "json", "csv", "parquet"]
+DEFAULT_TABLE_BACKEND: AVAILABLE_TABLE_BACKENDS = "anndata"
 
 
 @dataclass

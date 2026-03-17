@@ -12,7 +12,7 @@ from ngio import (
 from pydantic import BaseModel, Field
 from skimage import measure
 
-AvailableTableBackends = Literal["anndata", "json", "csv", "parquet"]
+from fractal_tasks_core._utils import AVAILABLE_TABLE_BACKENDS, DEFAULT_TABLE_BACKEND
 
 
 class ShapeFeatures(BaseModel):
@@ -64,17 +64,18 @@ class InputChannel(BaseModel):
     """Input channel configuration for measurement tasks.
 
     This model is used to select a channel by label, wavelength ID, or index.
-
-    Attributes:
-        mode (Literal["label", "wavelength_id", "index"]): Specifies how to
-            interpret the identifier. Can be "label", "wavelength_id", or
-            "index" (must be an integer string).
-        identifier (str): Unique identifier for the channel. This can be a
-            channel label, wavelength ID, or index.
     """
 
     mode: Literal["label", "wavelength_id", "index"] = "label"
+    """
+    Specifies how to interpret the identifier. Can be "label", "wavelength_id",
+    or "index" (must be an integer string).
+    """
     identifier: str
+    """
+    Unique identifier for the channel. This can be a channel label, wavelength
+    ID, or index.
+    """
 
     def to_channel_selection_models(self) -> ChannelSelectionModel:
         """Convert to ChannelSelectionModel.
@@ -145,7 +146,7 @@ class AdvancedOptions(BaseModel):
     increase memory usage. Defaults to True.
     """
 
-    table_backend: AvailableTableBackends = "anndata"
+    table_backend: AVAILABLE_TABLE_BACKENDS = DEFAULT_TABLE_BACKEND
     """
     Table backend to use for the output table. Defaults to "anndata".
     """

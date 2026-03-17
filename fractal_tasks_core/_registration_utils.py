@@ -81,23 +81,22 @@ class InitArgsRegistration(BaseModel):
 
     Passed from `init_image_based_registration` to
     `compute_image_based_registration`.
-
-    Attributes:
-        reference_zarr_url: zarr_url for the reference image
     """
 
     reference_zarr_url: str
+    """
+    zarr_url for the reference image.
+    """
 
 
 class InitArgsRegistrationConsensus(BaseModel):
     """
     Registration consensus init args.
 
-    Provides the list of zarr_urls for all acquisitions for a given well
-
-    Attributes:
-        zarr_url_list: List of zarr_urls for all the OME-Zarr images in the
-            well.
+    Provides the list of zarr_urls for all acquisitions for a given well.
     """
 
     zarr_url_list: list[str]
+    """
+    List of zarr_urls for all the OME-Zarr images in the well.
+    """

@@ -147,7 +147,7 @@ def threshold_segmentation(
 
     # Build a masking ROI table if requested
     create_masking_roi_table.create(
-        ome_zarr=ome_zarr, label_name=output_label_name, overwrite=overwrite
+        ome_zarr=ome_zarr, output_label_name=output_label_name, overwrite=overwrite
     )
     return None
 

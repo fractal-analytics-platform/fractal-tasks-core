@@ -4,7 +4,7 @@ Task to import an existing OME-Zarr.
 """
 
 import logging
-from typing import Any, Literal
+from typing import Any
 
 from ngio import (
     OmeZarrContainer,
@@ -18,15 +18,15 @@ from ngio import (
 from ngio.tables import RoiTable
 from pydantic import validate_call
 
-logger = logging.getLogger("import_ome_zarr")
+from fractal_tasks_core._utils import AVAILABLE_TABLE_BACKENDS, DEFAULT_TABLE_BACKEND
 
-TableBackend = Literal["anndata", "json", "csv", "parquet"]
+logger = logging.getLogger("import_ome_zarr")
 
 
 def _build_xy_roi_table(
     ome_zarr_image: OmeZarrContainer,
     grid_YX_shape: tuple[int, int] | None = None,
-    backend: TableBackend = "anndata",
+    backend: AVAILABLE_TABLE_BACKENDS = DEFAULT_TABLE_BACKEND,
     overwrite: bool = False,
 ) -> None:
     """
@@ -85,7 +85,7 @@ def _process_single_image(
     update_omero_metadata: bool,
     grid_YX_shape: tuple[int, int] | None = None,
     attributes: dict[str, Any] | None = None,
-    table_backend: TableBackend = "anndata",
+    table_backend: AVAILABLE_TABLE_BACKENDS = DEFAULT_TABLE_BACKEND,
     overwrite: bool = False,
 ) -> list[dict[str, Any]]:
     """
@@ -151,7 +151,7 @@ def _process_well(
     add_grid_roi_table: bool,
     update_omero_metadata: bool,
     grid_YX_shape: tuple[int, int] | None = None,
-    table_backend: TableBackend = "anndata",
+    table_backend: AVAILABLE_TABLE_BACKENDS = DEFAULT_TABLE_BACKEND,
     overwrite: bool = False,
 ) -> list[dict[str, Any]]:
     """
@@ -188,7 +188,7 @@ def _process_plate(
     add_grid_roi_table: bool,
     update_omero_metadata: bool,
     grid_YX_shape: tuple[int, int] | None = None,
-    table_backend: TableBackend = "anndata",
+    table_backend: AVAILABLE_TABLE_BACKENDS = DEFAULT_TABLE_BACKEND,
     overwrite: bool = False,
 ) -> list[dict[str, Any]]:
     """For each image in the plate, create an image list update dict."""
@@ -268,7 +268,7 @@ def import_ome_zarr(
     # Advanced parameters
     grid_y_shape: int = 2,
     grid_x_shape: int = 2,
-    table_backend: TableBackend = "anndata",
+    table_backend: AVAILABLE_TABLE_BACKENDS = DEFAULT_TABLE_BACKEND,
     # Other parameters
     overwrite: bool = False,
 ) -> dict[str, Any]:

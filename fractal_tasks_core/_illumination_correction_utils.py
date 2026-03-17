@@ -9,21 +9,23 @@ from pydantic import BaseModel
 
 
 class ProfileCorrectionModel(BaseModel):
-    """
-    Parameters for profile-based corrections.
-
-    Attributes:
-        model: The correction model to be applied.
-        folder: Path of folder of correction profiles.
-        profiles: Dictionary where keys match the `wavelength_id`
-            attributes of existing channels (e.g.  `A01_C01` ) and values are
-            the filenames of the corresponding correction profiles.
-    """
+    """Parameters for profile-based corrections."""
 
     model_config = {"title": "Correction with Profiles"}
     model: Literal["Profile"] = "Profile"
+    """
+    The correction model to be applied.
+    """
     folder: str
+    """
+    Path of folder of correction profiles.
+    """
     profiles: dict[str, str]
+    """
+    Dictionary where keys match the "wavelength_id" attributes of existing channels
+    (e.g. "A01_C01") and values are the filenames of the corresponding
+    correction profiles.
+    """
 
     def items(
         self,
@@ -34,29 +36,25 @@ class ProfileCorrectionModel(BaseModel):
 
 
 class ConstantCorrectionModel(BaseModel):
-    """
-    Parameters for constant-based corrections.
-
-    Attributes:
-        model: The correction model to be applied.
-        constants: Dictionary where keys match the `wavelength_id`
-            attributes of existing channels (e.g.  `A01_C01` ) and values are
-            the constant values to be used for correction.
-    """
+    """Parameters for constant-based corrections."""
 
     model_config = {"title": "Correction with constants"}
     model: Literal["Constant"] = "Constant"
+    """
+    The correction model to be applied.
+    """
     constants: dict[str, int]
+    """
+    Dictionary where keys match the "wavelength_id" attributes of existing channels
+    (e.g. "A01_C01") and values are the constant values to be used for correction.
+    """
 
 
 class NoCorrectionModel(BaseModel):
-    """
-    Select for no correction to be applied.
-
-    Attributes:
-        model: The correction model to be applied.
-
-    """
+    """Select for no correction to be applied."""
 
     model_config = {"title": "No Correction"}
     model: Literal["No Correction"] = "No Correction"
+    """
+    The correction model to be applied.
+    """

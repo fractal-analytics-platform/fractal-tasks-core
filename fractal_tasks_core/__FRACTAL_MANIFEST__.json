@@ -253,6 +253,7 @@
                 "default": {
                   "model": "No Correction"
                 },
+                "description": "Background correction model to apply.",
                 "discriminator": {
                   "mapping": {
                     "Constant": "#/$defs/ConstantCorrectionModel",
@@ -284,17 +285,17 @@
               "model": {
                 "const": "Constant",
                 "default": "Constant",
+                "description": "The correction model to be applied.",
                 "title": "Model",
-                "type": "string",
-                "description": "The correction model to be applied."
+                "type": "string"
               },
               "constants": {
                 "additionalProperties": {
                   "type": "integer"
                 },
+                "description": "Dictionary where keys match the \"wavelength_id\" attributes of existing channels\n(e.g. \"A01_C01\") and values are the constant values to be used for correction.",
                 "title": "Constants",
-                "type": "object",
-                "description": "Dictionary where keys match the `wavelength_id` attributes of existing channels (e.g. `A01_C01` ) and values are the constant values to be used for correction."
+                "type": "object"
               }
             },
             "required": [
@@ -309,9 +310,9 @@
               "model": {
                 "const": "No Correction",
                 "default": "No Correction",
+                "description": "The correction model to be applied.",
                 "title": "Model",
-                "type": "string",
-                "description": "The correction model to be applied."
+                "type": "string"
               }
             },
             "title": "No Correction",
@@ -323,22 +324,22 @@
               "model": {
                 "const": "Profile",
                 "default": "Profile",
+                "description": "The correction model to be applied.",
                 "title": "Model",
-                "type": "string",
-                "description": "The correction model to be applied."
+                "type": "string"
               },
               "folder": {
+                "description": "Path of folder of correction profiles.",
                 "title": "Folder",
-                "type": "string",
-                "description": "Path of folder of correction profiles."
+                "type": "string"
               },
               "profiles": {
                 "additionalProperties": {
                   "type": "string"
                 },
+                "description": "Dictionary where keys match the \"wavelength_id\" attributes of existing channels\n(e.g. \"A01_C01\") and values are the filenames of the corresponding\ncorrection profiles.",
                 "title": "Profiles",
-                "type": "object",
-                "description": "Dictionary where keys match the `wavelength_id` attributes of existing channels (e.g. `A01_C01` ) and values are the filenames of the corresponding correction profiles."
+                "type": "object"
               }
             },
             "required": [
@@ -428,8 +429,8 @@
                 "type": "string"
               },
               "table_name": {
-                "default": "{label_name}_masking_ROI_table",
-                "description": "Name of the masking ROI table to be created. This can include the placeholder\n\"{label_name}\", which will be replaced by the name of the label image used for\nsegmentation.",
+                "default": "{output_label_name}_masking_ROI_table",
+                "description": "Name of the masking ROI table to be created. This can include the placeholder\n\"{output_label_name}\", which will be replaced by the name of the label image used\nfor segmentation.",
                 "title": "Table Name",
                 "type": "string"
               },
@@ -453,18 +454,21 @@
             "description": "Configuration for Gaussian blur transformation.",
             "properties": {
               "type": {
-                "const": "gaussian",
-                "default": "gaussian",
+                "const": "Gaussian Blur Filter",
+                "default": "Gaussian Blur Filter",
+                "description": "Transformation type identifier for Gaussian blur filtering.",
                 "title": "Type",
                 "type": "string"
               },
               "sigma_xy": {
                 "default": 2.0,
+                "description": "Standard deviation for Gaussian kernel in XY plane.",
                 "exclusiveMinimum": 0,
-                "title": "Sigma Xy",
+                "title": "Sigma XY",
                 "type": "number"
               },
               "sigma_z": {
+                "description": "Standard deviation for Gaussian kernel in Z axis.\nIf not specified, no blurring is applied in Z axis.",
                 "title": "Sigma Z",
                 "type": "number"
               }
@@ -476,21 +480,25 @@
             "description": "Configuration for Contrast Limited Adaptive Histogram Equalization (CLAHE).",
             "properties": {
               "type": {
-                "const": "histogram",
-                "default": "histogram",
+                "const": "Histogram Equalization",
+                "default": "Histogram Equalization",
+                "description": "Transformation type identifier for histogram equalization.",
                 "title": "Type",
                 "type": "string"
               },
               "kernel_size_xy": {
-                "title": "Kernel Size Xy",
+                "description": "Shape of kernel in XY plane. If None, the default is 1/8 of image height by\n1/8 of its width.",
+                "title": "Kernel Size XY",
                 "type": "integer"
               },
               "kernel_size_z": {
+                "description": "Shape of kernel in Z axis. If None, the default is 1/8 of image height by\n1/8 of its width.",
                 "title": "Kernel Size Z",
                 "type": "integer"
               },
               "clip_limit": {
                 "default": 0.01,
+                "description": "Clipping limit, normalized between 0 and 1 (higher values give more contrast).",
                 "maximum": 1,
                 "minimum": 0,
                 "title": "Clip Limit",
@@ -498,6 +506,7 @@
               },
               "nbins": {
                 "default": 256,
+                "description": "Number of gray bins for histogram (\"data range\").",
                 "title": "Nbins",
                 "type": "integer"
               }
@@ -542,9 +551,11 @@
             "properties": {
               "masking": {
                 "$ref": "#/$defs/MaskingConfig",
+                "description": "If set, the segmentation will be performed only within the confines of\nthe specified mask. A mask can be specified either by a label image or a\nMasking ROI table.",
                 "title": "Masking Iterator Configuration"
               },
               "roi_table": {
+                "description": "Name of a ROI table. If set, the segmentation will be applied to each ROI\nin the table individually. This option can be combined with masking.",
                 "title": "Iterate Over ROIs",
                 "type": "string"
               }
@@ -557,6 +568,7 @@
             "properties": {
               "mode": {
                 "default": "Table Name",
+                "description": "Mode of masking to be applied.\n    - If \"Table Name\", the identifier refers to a masking table name.\n    - If \"Label Name\", the identifier refers to a label image name.",
                 "enum": [
                   "Table Name",
                   "Label Name"
@@ -565,6 +577,7 @@
                 "type": "string"
               },
               "identifier": {
+                "description": "Name of the masking table or label image depending on the mode.",
                 "title": "Identifier",
                 "type": "string"
               }
@@ -576,18 +589,21 @@
             "description": "Configuration for Median filter transformation.",
             "properties": {
               "type": {
-                "const": "median",
-                "default": "median",
+                "const": "Median Filter",
+                "default": "Median Filter",
+                "description": "Transformation type identifier for median filtering.",
                 "title": "Type",
                 "type": "string"
               },
               "size_xy": {
                 "default": 2,
+                "description": "Size in pixels of the median filter in XY plane.",
                 "exclusiveMinimum": 0,
-                "title": "Size Xy",
+                "title": "Size XY",
                 "type": "integer"
               },
               "size_z": {
+                "description": "Size in pixels of the median filter in Z axis.\nIf not specified, no filtering is applied in Z axis.",
                 "title": "Size Z",
                 "type": "integer"
               }
@@ -614,12 +630,13 @@
             "properties": {
               "pre_process": {
                 "default": [],
+                "description": "List of pre-processing steps to be applied before segmentation.",
                 "items": {
                   "discriminator": {
                     "mapping": {
-                      "gaussian": "#/$defs/GaussianBlurConfig",
-                      "histogram": "#/$defs/HistogramEqualizationConfig",
-                      "median": "#/$defs/MedianFilterConfig"
+                      "Gaussian Blur Filter": "#/$defs/GaussianBlurConfig",
+                      "Histogram Equalization": "#/$defs/HistogramEqualizationConfig",
+                      "Median Filter": "#/$defs/MedianFilterConfig"
                     },
                     "propertyName": "type"
                   },
@@ -640,10 +657,11 @@
               },
               "post_process": {
                 "default": [],
+                "description": "List of post-processing steps to be applied after segmentation.",
                 "items": {
                   "discriminator": {
                     "mapping": {
-                      "size_filter": "#/$defs/SizeFilterConfig"
+                      "Size Filter": "#/$defs/SizeFilterConfig"
                     },
                     "propertyName": "type"
                   },
@@ -686,12 +704,14 @@
             "description": "Configuration for size filter post-processing.",
             "properties": {
               "type": {
-                "const": "size_filter",
-                "default": "size_filter",
+                "const": "Size Filter",
+                "default": "Size Filter",
+                "description": "Transformation type identifier for size filtering.",
                 "title": "Type",
                 "type": "string"
               },
               "min_size": {
+                "description": "Minimum size in pixels for objects to keep.\nObjects smaller than this size will be removed.",
                 "minimum": 0,
                 "title": "Min Size",
                 "type": "integer"
@@ -709,6 +729,7 @@
               "mode": {
                 "const": "Skip Creating Masking ROI Table",
                 "default": "Skip Creating Masking ROI Table",
+                "description": "Mode to skip creating masking ROI table.",
                 "title": "Mode",
                 "type": "string"
               }
@@ -872,6 +893,7 @@
             "properties": {
               "mode": {
                 "default": "label",
+                "description": "Specifies how to interpret the identifier. Can be \"label\", \"wavelength_id\",\nor \"index\" (must be an integer string).",
                 "enum": [
                   "label",
                   "wavelength_id",
@@ -881,6 +903,7 @@
                 "type": "string"
               },
               "identifier": {
+                "description": "Unique identifier for the channel. This can be a channel label, wavelength\nID, or index.",
                 "title": "Identifier",
                 "type": "string"
               }
@@ -1071,6 +1094,7 @@
             "description": "Registration init args.",
             "properties": {
               "reference_zarr_url": {
+                "description": "zarr_url for the reference image.",
                 "title": "Reference Zarr Url",
                 "type": "string"
               }
@@ -1206,6 +1230,7 @@
             "description": "Registration consensus init args.",
             "properties": {
               "zarr_url_list": {
+                "description": "List of zarr_urls for all the OME-Zarr images in the well.",
                 "items": {
                   "type": "string"
                 },
