@@ -10,6 +10,8 @@
     * Remove outdated docs pages and table specs.
     * Update docs and README to reflect task-only package framing.
     * Remove all testings outside of `tests_v2` (not renamed `tests`) and `integration` subpackage.
+    * Update `fractal-task-tools` to v0.4.x.
+    * Adopt `fractal-tasks-utils` for segmentation and measurement tasks.
 * Library:
     * Remove all library function outside the `tasks` subpackage.
     * Move the `tasks` subpackage to the top package level.
@@ -23,6 +25,7 @@
     * Add new non-hcs `Projection` task.
     * Add new `Thresholding` segmentation task.
     * Add new `Measurement` task.
+    * Refactor UI for all tasks to be more consistent across tasks.
 
 # 1.6.0
 * Tests
