@@ -83,7 +83,4 @@ def init_registration_consensus(
 if __name__ == "__main__":
     from fractal_task_tools.task_wrapper import run_fractal_task
 
-    run_fractal_task(
-        task_function=init_registration_consensus,
-        logger_name=logger.name,
-    )
+    run_fractal_task(task_function=init_registration_consensus)

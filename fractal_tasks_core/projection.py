@@ -5,15 +5,12 @@ Task for 3D->2D maximum-intensity projection.
 
 from __future__ import annotations
 
-import logging
 from typing import Any
 
 from pydantic import Field, validate_call
 
 from fractal_tasks_core._projection_utils import DaskProjectionMethod, projection_core
 from fractal_tasks_core._utils import format_template_name
-
-logger = logging.getLogger("projection")
 
 # Complete validation pattern for output_image_name:
 # pattern = r'^[^{}]*(\{method\}[^{}]*)*\{image_name\}[^{}]*
@@ -71,7 +68,4 @@ def projection(
 if __name__ == "__main__":
     from fractal_task_tools.task_wrapper import run_fractal_task
 
-    run_fractal_task(
-        task_function=projection,
-        logger_name=logger.name,
-    )
+    run_fractal_task(task_function=projection)
