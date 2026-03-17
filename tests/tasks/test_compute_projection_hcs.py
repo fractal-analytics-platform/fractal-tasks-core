@@ -15,9 +15,9 @@ from fractal_tasks_core.init_projection_hcs import (
 )
 
 
-@pytest.fixture(scope="session")
-def sample_ome_zarr_zyx_url(testdata_path) -> Path:
-    store = testdata_path / "ngio_synt" / "sample_ome_zarr_zyx.zarr"
+@pytest.fixture
+def sample_ome_zarr_zyx_url(tmp_path: Path) -> Path:
+    store = tmp_path / "sample_zyx" / "sample_ome_zarr_zyx.zarr"
     origin_ome_zarr = create_empty_ome_zarr(
         store=store,
         shape=(16, 32, 32),
