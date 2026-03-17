@@ -18,14 +18,20 @@ from fractal_tasks_core._utils import AVAILABLE_TABLE_BACKENDS, DEFAULT_TABLE_BA
 class ShapeFeatures(BaseModel):
     """Shape features extracted from regionprops."""
 
+    type: Literal["ShapeFeatures"] = "ShapeFeatures"
+    """
+    Features included in this model are: area, area_bbox, num_pixels,
+    equivalent_diameter_area, axis_major_length, axis_minor_length, euler_number,
+    and if 2D also feret_diameter_max, perimeter, perimeter_crofton, eccentricity,
+    orientation.
+    """
+
     include_convex_hull_properties: bool = False
     """
     Whether to include convex hull related properties like area_convex, area_filled,
     extent, solidity. These are not included since they can sometimes return
     unexpected Warnings.
     """
-
-    type: Literal["ShapeFeatures"] = "ShapeFeatures"
 
     def property_names(self, is_2d: bool) -> list[str]:
         _base_properties = [
@@ -90,6 +96,10 @@ class IntensityFeatures(BaseModel):
     """Intensity features extracted from regionprops."""
 
     type: Literal["IntensityFeatures"] = "IntensityFeatures"
+    """
+    Features included in this model are: intensity_mean, intensity_median,
+    intensity_max, intensity_min, intensity_std.
+    """
     channels: list[InputChannel] | None = None
     """
     List of channels to extract intensity features from. If None all
@@ -141,9 +151,8 @@ class AdvancedOptions(BaseModel):
 
     use_cache: bool = True
     """
-    Whether to cache the loaded images. Caching can speed up the measurement
-    if multiple features are extracted from the same image, but it can also
-    increase memory usage. Defaults to True.
+    Whether to cache in the regionprops function. This can speed up the measurement for
+    but can also increase memory usage. Defaults to True.
     """
 
     table_backend: AVAILABLE_TABLE_BACKENDS = DEFAULT_TABLE_BACKEND

@@ -868,7 +868,7 @@
               },
               "use_cache": {
                 "default": true,
-                "description": "Whether to cache the loaded images. Caching can speed up the measurement\nif multiple features are extracted from the same image, but it can also\nincrease memory usage. Defaults to True.",
+                "description": "Whether to cache in the regionprops function. This can speed up the measurement for\nbut can also increase memory usage. Defaults to True.",
                 "title": "Use Cache",
                 "type": "boolean"
               },
@@ -920,6 +920,7 @@
               "type": {
                 "const": "IntensityFeatures",
                 "default": "IntensityFeatures",
+                "description": "Features included in this model are: intensity_mean, intensity_median,\nintensity_max, intensity_min, intensity_std.",
                 "title": "Type",
                 "type": "string"
               },
@@ -938,17 +939,18 @@
           "ShapeFeatures": {
             "description": "Shape features extracted from regionprops.",
             "properties": {
+              "type": {
+                "const": "ShapeFeatures",
+                "default": "ShapeFeatures",
+                "description": "Features included in this model are: area, area_bbox, num_pixels,\nequivalent_diameter_area, axis_major_length, axis_minor_length, euler_number,\nand if 2D also feret_diameter_max, perimeter, perimeter_crofton, eccentricity,\norientation.",
+                "title": "Type",
+                "type": "string"
+              },
               "include_convex_hull_properties": {
                 "default": false,
                 "description": "Whether to include convex hull related properties like area_convex, area_filled,\nextent, solidity. These are not included since they can sometimes return\nunexpected Warnings.",
                 "title": "Include Convex Hull Properties",
                 "type": "boolean"
-              },
-              "type": {
-                "const": "ShapeFeatures",
-                "default": "ShapeFeatures",
-                "title": "Type",
-                "type": "string"
               }
             },
             "title": "ShapeFeatures",
@@ -976,8 +978,8 @@
           "features": {
             "default": [
               {
-                "include_convex_hull_properties": false,
-                "type": "ShapeFeatures"
+                "type": "ShapeFeatures",
+                "include_convex_hull_properties": false
               },
               {
                 "type": "IntensityFeatures",
