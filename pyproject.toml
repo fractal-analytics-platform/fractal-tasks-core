@@ -81,10 +81,10 @@ branch = true
 parallel = true
 relative_files = true
 source = ["fractal_tasks_core"]
-omit = ["tests/*", "examples/*", "fractal_tasks_core/dev/*", "*/.venv/*"]
+omit = ["tests/*", "fractal_tasks_core/dev/*", ".pixi/*"]
 
 [tool.coverage.report]
-omit = ["tests/*", "examples/*", "fractal_tasks_core/dev/*", "*/.venv/*"]
+omit = ["tests/*", "fractal_tasks_core/dev/*", ".pixi/*"]
 
 [tool.bumpver]
 current_version = "1.6.0"
@@ -107,4 +107,4 @@ select = ["E", "F", "W", "I"]
 ignore = ["E203"]
 
 [tool.deptry]
-exclude = ['tests', 'examples', 'docs']
+exclude = ['tests', 'docs']
