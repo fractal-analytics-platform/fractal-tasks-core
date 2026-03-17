@@ -11,7 +11,7 @@ import numpy as np
 from ngio import ChannelSelectionModel, open_ome_zarr_container, open_ome_zarr_well
 from ngio.experimental.iterators import ImageProcessingIterator
 from ngio.utils._errors import NgioFileNotFoundError
-from pydantic import BaseModel, Field, validate_call
+from pydantic import Field, validate_call
 from skimage.io import imread
 
 from fractal_tasks_core._illumination_correction_utils import (
@@ -93,20 +93,10 @@ def correct(
     return image.astype(dtype)
 
 
-class BackgroundCorrection(BaseModel):
-    """Wrapper of background correction models for better UI display."""
-
-    value: Annotated[
-        Union[
-            NoCorrectionModel,
-            ProfileCorrectionModel,
-            ConstantCorrectionModel,
-        ],
-        Field(default=NoCorrectionModel(), discriminator="model"),
-    ]
-    """
-    Background correction model to apply.
-    """
+BackgroundCorrection = Annotated[
+    Union[NoCorrectionModel, ProfileCorrectionModel, ConstantCorrectionModel],
+    Field(default=NoCorrectionModel(), discriminator="model"),
+]
 
 
 @validate_call
@@ -116,7 +106,7 @@ def illumination_correction(
     zarr_url: str,
     # Core parameters
     illumination_profiles: ProfileCorrectionModel,
-    background_correction: BackgroundCorrection = BackgroundCorrection(),  # type: ignore, TODO use factory # type: ignore
+    background_correction: BackgroundCorrection = NoCorrectionModel(),
     input_roi_table: str = "FOV_ROI_table",
     output_image_name: str = Field(
         default="{image_name}_illum_corr",
@@ -198,10 +188,8 @@ def illumination_correction(
             f"{input_image_wavelengths - illumination_wavelengths}."
         )
 
-    if background_correction.value.model == "Profile":
-        background_wavelengths = set(
-            background_correction.value.profiles.keys()  # type: ignore
-        )
+    if isinstance(background_correction, ProfileCorrectionModel):
+        background_wavelengths = set(background_correction.profiles.keys())
 
         if not background_wavelengths.issubset(input_image_wavelengths):
             raise ValueError(
@@ -214,10 +202,8 @@ def illumination_correction(
                 "No background profiles provided for wavelengths: "
                 f"{input_image_wavelengths - background_wavelengths}."
             )
-    elif background_correction.value.model == "Constant":
-        background_wavelengths = set(
-            background_correction.value.constants.keys()  # type: ignore
-        )
+    elif isinstance(background_correction, ConstantCorrectionModel):
+        background_wavelengths = set(background_correction.constants.keys())
         if not background_wavelengths.issubset(input_image_wavelengths):
             raise ValueError(
                 "Background profiles provided for wavelengths: "
@@ -274,10 +260,10 @@ def illumination_correction(
     # Assemble dictionary of background images and check their shapes
     background_matrices = {}
     background_constants = {}
-    if background_correction.value.model == "Constant":
-        background_constants = background_correction.value.constants  # type: ignore
-    elif background_correction.value.model == "Profile":
-        for wavelength_id, profile_path in background_correction.value.items():  # type: ignore
+    if isinstance(background_correction, ConstantCorrectionModel):
+        background_constants = background_correction.constants
+    elif isinstance(background_correction, ProfileCorrectionModel):
+        for wavelength_id, profile_path in background_correction.items():
             correction_matrix = imread(profile_path)
             if correction_matrix.shape != image_size:
                 raise ValueError(

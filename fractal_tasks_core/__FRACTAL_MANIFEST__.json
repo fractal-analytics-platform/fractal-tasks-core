@@ -246,39 +246,6 @@
       },
       "args_schema_parallel": {
         "$defs": {
-          "BackgroundCorrection": {
-            "description": "Wrapper of background correction models for better UI display.",
-            "properties": {
-              "value": {
-                "default": {
-                  "model": "No Correction"
-                },
-                "description": "Background correction model to apply.",
-                "discriminator": {
-                  "mapping": {
-                    "Constant": "#/$defs/ConstantCorrectionModel",
-                    "No Correction": "#/$defs/NoCorrectionModel",
-                    "Profile": "#/$defs/ProfileCorrectionModel"
-                  },
-                  "propertyName": "model"
-                },
-                "oneOf": [
-                  {
-                    "$ref": "#/$defs/NoCorrectionModel"
-                  },
-                  {
-                    "$ref": "#/$defs/ProfileCorrectionModel"
-                  },
-                  {
-                    "$ref": "#/$defs/ConstantCorrectionModel"
-                  }
-                ],
-                "title": "Value"
-              }
-            },
-            "title": "BackgroundCorrection",
-            "type": "object"
-          },
           "ConstantCorrectionModel": {
             "description": "Parameters for constant-based corrections.",
             "properties": {
@@ -363,12 +330,28 @@
             "description": "Illumination (flatfield) correction profiles."
           },
           "background_correction": {
-            "$ref": "#/$defs/BackgroundCorrection",
             "default": {
-              "value": {
-                "model": "No Correction"
-              }
+              "model": "No Correction"
             },
+            "discriminator": {
+              "mapping": {
+                "Constant": "#/$defs/ConstantCorrectionModel",
+                "No Correction": "#/$defs/NoCorrectionModel",
+                "Profile": "#/$defs/ProfileCorrectionModel"
+              },
+              "propertyName": "model"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/NoCorrectionModel"
+              },
+              {
+                "$ref": "#/$defs/ProfileCorrectionModel"
+              },
+              {
+                "$ref": "#/$defs/ConstantCorrectionModel"
+              }
+            ],
             "title": "Background Correction",
             "description": "(Optional) background (darkfield) correction parameters. Can be provided as profiles or as constant values."
           },

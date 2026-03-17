@@ -13,7 +13,6 @@ from fractal_tasks_core._illumination_correction_utils import (
     ProfileCorrectionModel,
 )
 from fractal_tasks_core.illumination_correction import (
-    BackgroundCorrection,
     illumination_correction,
 )
 
@@ -205,16 +204,13 @@ def test_constant_background_subtraction(
         profiles=illumination_profiles_map,
     )
 
-    background_model = BackgroundCorrection(
-        value=ConstantCorrectionModel(
-            constants={
-                "A01_C01": 100,
-                "A01_C02": 150,
-                "A02_C03": 200,
-            },
-        ),
+    background_model = ConstantCorrectionModel(
+        constants={
+            "A01_C01": 100,
+            "A01_C02": 150,
+            "A02_C03": 200,
+        },
     )
-
     # do illumination correction
     illumination_correction(
         zarr_url=image_url,
@@ -261,11 +257,9 @@ def test_with_background_profiles(
         folder=illumination_profiles_folder,
         profiles=illumination_profiles_map,
     )
-    background_correction = BackgroundCorrection(
-        value=ProfileCorrectionModel(
-            folder=background_profiles_folder,
-            profiles=background_profiles_map,
-        )
+    background_correction = ProfileCorrectionModel(
+        folder=background_profiles_folder,
+        profiles=background_profiles_map,
     )
 
     # do illumination correction
@@ -371,7 +365,6 @@ def test_wrong_file_or_folder(
         profiles=background_profiles_map,
         model="Profile",
     )
-    background_correction = BackgroundCorrection(value=background_profiles)
 
     # test illumination folder wrong
     illumination_profiles_wrong_folder = ProfileCorrectionModel(
@@ -382,7 +375,7 @@ def test_wrong_file_or_folder(
         illumination_correction(
             zarr_url=image_url,
             illumination_profiles=illumination_profiles_wrong_folder,
-            background_correction=background_correction,
+            background_correction=background_profiles,
             overwrite_input=False,
             output_image_name="{image_name}_corrected",
         )
@@ -393,14 +386,11 @@ def test_wrong_file_or_folder(
         profiles=background_profiles_map,
         model="Profile",
     )
-    background_correction_wrong_folder = BackgroundCorrection(
-        value=background_profiles_wrong_folder
-    )
     with pytest.raises(FileNotFoundError, match="No such file"):
         illumination_correction(
             zarr_url=image_url,
             illumination_profiles=illumination_profiles,
-            background_correction=background_correction_wrong_folder,
+            background_correction=background_profiles_wrong_folder,
             overwrite_input=False,
             output_image_name="{image_name}_corrected",
         )
@@ -419,7 +409,7 @@ def test_wrong_file_or_folder(
         illumination_correction(
             zarr_url=image_url,
             illumination_profiles=illumination_profiles_wrong,
-            background_correction=background_correction,
+            background_correction=background_profiles,
             overwrite_input=False,
             output_image_name="{image_name}_corrected",
         )
@@ -435,12 +425,11 @@ def test_wrong_file_or_folder(
         profiles=background_profiles_map_wrong,
         model="Profile",
     )
-    background_correction_wrong = BackgroundCorrection(value=background_profiles_wrong)
     with pytest.raises(FileNotFoundError, match="No such file"):
         illumination_correction(
             zarr_url=image_url,
             illumination_profiles=illumination_profiles,
-            background_correction=background_correction_wrong,
+            background_correction=background_profiles_wrong,
             overwrite_input=False,
             output_image_name="{image_name}_corrected",
         )
@@ -543,10 +532,8 @@ def test_wrong_constant_background_wavelengths(
         folder="/fake",
         profiles={w: "fake.png" for w in wavelengths},
     )
-    background_model = BackgroundCorrection(
-        value=ConstantCorrectionModel(
-            constants=constants_factory(wavelengths),
-        ),
+    background_model = ConstantCorrectionModel(
+        constants=constants_factory(wavelengths),
     )
 
     with pytest.raises(ValueError, match=match):
@@ -655,12 +642,10 @@ def test_darkfield_shape_mismatch(tmp_path: Path, testdata_path: Path) -> None:
         profiles={w: "tiny_flatfield.png" for w in wavelengths},
     )
     # Darkfield PNG is 2160×2560 → mismatch with 10×10 image
-    background = BackgroundCorrection(
-        value=ProfileCorrectionModel(
-            folder=str(testdata_path / "illumination_correction"),
-            profiles={w: "darkfield_corr_matrix.png" for w in wavelengths},
-            model="Profile",
-        ),
+    background = ProfileCorrectionModel(
+        folder=str(testdata_path / "illumination_correction"),
+        profiles={w: "darkfield_corr_matrix.png" for w in wavelengths},
+        model="Profile",
     )
 
     with pytest.raises(ValueError, match=r"background \(darkfield\)"):
@@ -722,12 +707,10 @@ def test_extra_background_profile_wavelengths_raises(tmp_path: Path) -> None:
     # Background has an extra wavelength not present in the image
     background_profiles = {w: "tiny_flatfield.png" for w in wavelengths}
     background_profiles["BOGUS_CHANNEL"] = "tiny_flatfield.png"
-    background = BackgroundCorrection(
-        value=ProfileCorrectionModel(
-            folder=str(tmp_path),
-            profiles=background_profiles,
-            model="Profile",
-        ),
+    background = ProfileCorrectionModel(
+        folder=str(tmp_path),
+        profiles=background_profiles,
+        model="Profile",
     )
     with pytest.raises(ValueError, match="are not present in the input image"):
         illumination_correction(
