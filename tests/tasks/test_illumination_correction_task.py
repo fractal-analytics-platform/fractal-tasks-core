@@ -164,11 +164,10 @@ def test_wrong_wavelength_profiles(
         profiles=illumination_profiles_map,
     )
     background_profiles_folder: str = f"{testdata_str}/illumination_correction/"
-    background_profiles = {
-        "folder": background_profiles_folder,
-        "profiles": background_profiles_map,
-        "model": "Profile",
-    }
+    background_profiles = ProfileCorrectionModel(
+        folder=background_profiles_folder,
+        profiles=background_profiles_map,
+    )
 
     # do illumination correction
     with pytest.raises(
@@ -178,7 +177,7 @@ def test_wrong_wavelength_profiles(
         illumination_correction(
             zarr_url=image_url,
             illumination_profiles=illumination_profiles,
-            background_correction={"value": background_profiles},  # type: ignore wrong profile
+            background_correction=background_profiles,
             overwrite_input=False,
             output_image_name="{image_name}_corrected",
         )
