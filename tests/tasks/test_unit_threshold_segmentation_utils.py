@@ -69,7 +69,7 @@ def test_create_masking_roi_table_get_name_default() -> None:
 
 
 def test_create_masking_roi_table_get_name_custom() -> None:
-    conf = CreateMaskingRoiTable(table_name="{label_name}_roi")
+    conf = CreateMaskingRoiTable(table_name="{output_label_name}_roi")
     assert conf.get_table_name("cells") == "cells_roi"
 
 
