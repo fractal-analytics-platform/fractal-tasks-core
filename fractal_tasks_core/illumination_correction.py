@@ -95,7 +95,7 @@ def correct(
 
 BackgroundCorrection = Annotated[
     Union[NoCorrectionModel, ProfileCorrectionModel, ConstantCorrectionModel],
-    Field(default=NoCorrectionModel(), discriminator="model"),
+    Field(discriminator="model"),
 ]
 
 
