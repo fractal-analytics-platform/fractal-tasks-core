@@ -24,6 +24,10 @@ from fractal_tasks_core._measure_features_utils import (
 logger = logging.getLogger("measure_features")
 
 
+def default_features() -> list[SupportedFeatures]:
+    return [ShapeFeatures(), IntensityFeatures()]
+
+
 @validate_call
 def measure_features(
     *,
@@ -32,11 +36,9 @@ def measure_features(
     # Input parameters
     input_label_name: str,
     output_table_name: str = "region_props_features",
-    features: list[SupportedFeatures] = Field(
-        default_factory=lambda: [ShapeFeatures(), IntensityFeatures()]
-    ),
+    features: list[SupportedFeatures] = Field(default_factory=default_features),
     input_roi_table: str | None = None,
-    advanced_options: AdvancedOptions = AdvancedOptions(),
+    advanced_options: AdvancedOptions = Field(default_factory=AdvancedOptions),
     overwrite: bool = False,
 ) -> None:
     """Extract region-properties features from an OME-Zarr image and save as a table.

@@ -106,7 +106,9 @@ def illumination_correction(
     zarr_url: str,
     # Core parameters
     illumination_profiles: ProfileCorrectionModel,
-    background_correction: BackgroundCorrection = NoCorrectionModel(),
+    background_correction: BackgroundCorrection = Field(
+        default_factory=NoCorrectionModel
+    ),
     input_roi_table: str = "FOV_ROI_table",
     output_image_name: str = Field(
         default="{image_name}_illum_corr",

@@ -196,7 +196,7 @@ def init_projection_hcs(
         )
         parallelization_item = {
             "zarr_url": proj_zarr_url,
-            "init_args": proj_init.model_dump(),
+            "init_args": proj_init.model_dump(mode="json"),
         }
         parallelization_list.append(parallelization_item)
 

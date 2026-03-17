@@ -14,7 +14,7 @@ from fractal_tasks_utils.segmentation._transforms import SegmentationTransformCo
 from ngio import OmeZarrContainer, open_ome_zarr_container
 from ngio.images._image import _parse_channel_selection
 from ngio.utils import NgioValueError
-from pydantic import validate_call
+from pydantic import Field, validate_call
 
 from fractal_tasks_core._threshold_segmentation_utils import (
     AnyCreateRoiTableModel,
@@ -77,11 +77,17 @@ def threshold_segmentation(
     channel: InputChannel,
     output_label_name: str = "{channel_identifier}_segmented",
     level_path: str | None = None,
-    segmentation_method: SegmentationConfiguration = OtsuConfiguration(),
+    segmentation_method: SegmentationConfiguration = Field(
+        default_factory=OtsuConfiguration
+    ),
     # Iteration parameters
     iterator_configuration: IteratorConfig | None = None,
-    pre_post_process: SegmentationTransformConfig = SegmentationTransformConfig(),  # noqa: B008
-    create_masking_roi_table: AnyCreateRoiTableModel = SkipCreateMaskingRoiTable(),  # noqa: B008
+    pre_post_process: SegmentationTransformConfig = Field(
+        default_factory=SegmentationTransformConfig
+    ),
+    create_masking_roi_table: AnyCreateRoiTableModel = Field(
+        default_factory=SkipCreateMaskingRoiTable
+    ),
     overwrite: bool = True,
 ) -> None:
     """Segment an image using intensity thresholding.
