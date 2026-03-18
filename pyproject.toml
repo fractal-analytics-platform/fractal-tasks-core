@@ -1,6 +1,6 @@
 [project]
 name = "fractal-tasks-core"
-version = "1.6.0"
+version = "2.0.0a0"
 description = "Reference task package for the Fractal analytics platform"
 readme = "README.md"
 license = { text = "BSD-3-Clause" }
@@ -87,7 +87,7 @@ omit = ["tests/*", "fractal_tasks_core/dev/*", ".pixi/*"]
 omit = ["tests/*", "fractal_tasks_core/dev/*", ".pixi/*"]
 
 [tool.bumpver]
-current_version = "1.6.0"
+current_version = "2.0.0a0"
 version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true
