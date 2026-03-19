@@ -1,7 +1,5 @@
 # Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
-"""
-Fractal task list.
-"""
+"""Fractal task list."""
 
 from fractal_task_tools.task_models import (
     CompoundTask,
@@ -39,9 +37,9 @@ TASK_LIST = [
     ),
     ParallelTask(
         name="Illumination Correction",
-        input_types=dict(illumination_corrected=False),
+        input_types={"illumination_corrected": False},
         executable="illumination_correction.py",
-        output_types=dict(illumination_corrected=True),
+        output_types={"illumination_corrected": True},
         meta={"cpus_per_task": 1, "mem": 4000},
         category="Image Processing",
         tags=["Preprocessing", "2D", "3D"],
@@ -87,9 +85,9 @@ TASK_LIST = [
     ),
     ParallelTask(
         name="Apply Registration to Image",
-        input_types=dict(registered=False),
+        input_types={"registered": False},
         executable="apply_registration_to_image.py",
-        output_types=dict(registered=True),
+        output_types={"registered": True},
         meta={"cpus_per_task": 1, "mem": 4000},
         category="Registration",
         modality="HCS",

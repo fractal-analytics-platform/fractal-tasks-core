@@ -1,7 +1,5 @@
 # Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
-"""
-Prepares the parallelization list for consensus registration.
-"""
+"""Prepares the parallelization list for consensus registration."""
 
 import logging
 from typing import Any
@@ -23,8 +21,7 @@ def init_registration_consensus(
     # Core parameters
     reference_acquisition: int = 0,
 ) -> dict[str, list[dict[str, Any]]]:
-    """
-    Prepare the list of images needed to compute a registration consensus.
+    """Prepare the list of images needed to compute a registration consensus.
 
     Finds all images for each well across all acquisitions and returns the
     information required to run `compute_registration_consensus`.
@@ -71,13 +68,13 @@ def init_registration_consensus(
             url.zarr_url for url in well_image_urls if url.zarr_url != ref_path
         ]
         parallelization_list.append(
-            dict(
-                zarr_url=ref_path,
-                init_args=dict(zarr_url_list=zarr_url_list),
-            )
+            {
+                "zarr_url": ref_path,
+                "init_args": {"zarr_url_list": zarr_url_list},
+            }
         )
 
-    return dict(parallelization_list=parallelization_list)
+    return {"parallelization_list": parallelization_list}
 
 
 if __name__ == "__main__":

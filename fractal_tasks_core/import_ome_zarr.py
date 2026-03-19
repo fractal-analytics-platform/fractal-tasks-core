@@ -1,7 +1,5 @@
 # Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
-"""
-Task to import an existing OME-Zarr.
-"""
+"""Task to import an existing OME-Zarr."""
 
 import logging
 from typing import Any
@@ -29,12 +27,12 @@ def _build_xy_roi_table(
     backend: AVAILABLE_TABLE_BACKENDS = DEFAULT_TABLE_BACKEND,
     overwrite: bool = False,
 ) -> None:
-    """
-    Build a grid_ROI_table with a rectangular grid of ROIs covering the whole image.
+    """Build a grid_ROI_table with a rectangular grid of ROIs covering the whole image.
 
     Args:
         ome_zarr_image: OME-Zarr image container.
         grid_YX_shape: YX shape of the ROI grid.
+        backend: Table backend to use.
         overwrite: Whether to overwrite an existing `grid_ROI_table`.
     """
     if grid_YX_shape is None:
@@ -88,8 +86,7 @@ def _process_single_image(
     table_backend: AVAILABLE_TABLE_BACKENDS = DEFAULT_TABLE_BACKEND,
     overwrite: bool = False,
 ) -> list[dict[str, Any]]:
-    """
-    Optionally generate ROI tables and update omero metadata for a single image.
+    """Optionally generate ROI tables and update omero metadata for a single image.
 
     Args:
         zarr_path: Absolute path to the image Zarr group.
@@ -154,9 +151,7 @@ def _process_well(
     table_backend: AVAILABLE_TABLE_BACKENDS = DEFAULT_TABLE_BACKEND,
     overwrite: bool = False,
 ) -> list[dict[str, Any]]:
-    """
-    For each image in the well, create an image list update dict.
-    """
+    """For each image in the well, create an image list update dict."""
     image_list_updates = []
     *_, row, column = zarr_path.rstrip("/").split("/")
     attributes = {
@@ -220,14 +215,14 @@ def _process_plate(
 def open_unknown_container(
     zarr_path: str,
 ) -> OmeZarrContainer | OmeZarrWell | OmeZarrPlate:
-    """
-    Detect the OME-NGFF type of the OME-Zarr, based on its root metadata.
+    """Detect the OME-NGFF type of the OME-Zarr, based on its root metadata.
 
     The OME-NGFF type can be "plate", "well" or "image". If the OME-Zarr does
     not contain valid OME-NGFF metadata, an error is raised.
 
     Args:
         zarr_path: Path to the OME-Zarr.
+
     Returns:
         OmeZarrContainer, OmeZarrWell, or OmeZarrPlate
     """
@@ -251,7 +246,7 @@ def open_unknown_container(
         errors.append(e)
 
     base_error = f"Could not detect OME-NGFF type of OME-Zarr at {zarr_path}."
-    error_messages = "\n".join([f"{type(e).__name__}: {str(e)}" for e in errors])
+    error_messages = "\n".join([f"{type(e).__name__}: {e!s}" for e in errors])
     raise ValueError(f"{base_error}\nErrors:\n{error_messages}")
 
 
@@ -272,8 +267,7 @@ def import_ome_zarr(
     # Other parameters
     overwrite: bool = False,
 ) -> dict[str, Any]:
-    """
-    Import a single OME-Zarr into Fractal.
+    """Import a single OME-Zarr into Fractal.
 
     The single OME-Zarr can be a full OME-Zarr HCS plate or an individual
     OME-Zarr image. The image needs to be in the zarr_dir as specified by the
@@ -299,7 +293,6 @@ def import_ome_zarr(
         overwrite: Whether new ROI tables (added when `add_image_roi_table`
             and/or `add_grid_roi_table` are `True`) can overwrite existing ones.
     """
-
     zarr_path = f"{zarr_dir.rstrip('/')}/{zarr_name}"
     logger.info(f"Zarr path: {zarr_path}")
 

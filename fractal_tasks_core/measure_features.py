@@ -25,6 +25,7 @@ logger = logging.getLogger("measure_features")
 
 
 def default_features() -> list[SupportedFeatures]:
+    """Return the default list of features to measure."""
     return [ShapeFeatures(), IntensityFeatures()]
 
 

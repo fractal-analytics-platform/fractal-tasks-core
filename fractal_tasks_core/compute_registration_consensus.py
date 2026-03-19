@@ -1,7 +1,5 @@
 # Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
-"""
-Applies the multiplexing translation to all ROI tables
-"""
+"""Applies the multiplexing translation to all ROI tables."""
 
 import logging
 from typing import Literal
@@ -58,9 +56,10 @@ def _validate_if_translation_exists(tables: list[GenericRoiTable]) -> None:
 
 
 def _get_roi_translation(roi: Roi, dim: Literal["z", "y", "x"]) -> float:
-    """Return the translation for `dim` ("z", "y", or "x") from a ROI's extra
-    fields, defaulting to 0.0 when the field is absent (e.g. reference
-    acquisition whose table has no pre-computed shifts).
+    """Return the translation for `dim` from a ROI's extra fields.
+
+    Defaults to 0.0 when the field is absent (e.g. reference acquisition
+    whose table has no pre-computed shifts).
     """
     return (roi.model_extra or {}).get(f"translation_{dim}", 0.0)
 
@@ -78,9 +77,7 @@ def _group_roi_by_name(tables: list[GenericRoiTable]) -> dict[str, list[Roi]]:
 
 
 def _find_roi_consensus(rois: list[Roi]) -> Roi:
-    """
-    Given a list of ROIs across acquisitions, find the consensus ROI that is
-    contained in all acquisitions after applying the pre-calculated shifts.
+    """Find the consensus ROI contained in all acquisitions.
 
     The consensus ROI is calculated by finding the max translation in positive
     direction and the min translation in negative direction across acquisitions
@@ -92,6 +89,7 @@ def _find_roi_consensus(rois: list[Roi]) -> Roi:
             registered to each other. They need to contain the pre-calculated
             shifts as "translation_z", "translation_y", "translation_x" in
             their metadata.
+
     Returns:
         Consensus ROI whose position is `base_pos + max_translation` and whose
         size is reduced by `max_translation - min_translation` in each axis.
@@ -127,11 +125,10 @@ def _find_roi_consensus(rois: list[Roi]) -> Roi:
 
 
 def _apply_consensus_to_roi(roi: Roi, consensus_roi: Roi) -> Roi:
-    """
-    Given a Roi and the consensus_roi across acquisitions, calculate the
-    shifted and cropped Roi that needs to be applied to the original Roi to get
-    the consensus region.
+    """Calculate the shifted and cropped ROI for the consensus region.
 
+    Given a ROI and the consensus ROI across acquisitions, computes the
+    region that needs to be applied to the original ROI.
     The position is computed as: consensus_roi.pos - own_translation
     which equals: base_pos + max_translation - own_translation
     The size is taken directly from the consensus_roi (same for all acquisitions).
@@ -159,10 +156,10 @@ def _apply_consensus_to_roi(roi: Roi, consensus_roi: Roi) -> Roi:
 def _apply_consensus_to_roi_table(
     roi_table: GenericRoiTable, consensus_rois: dict[str, Roi]
 ) -> RoiTable:
-    """
-    Given a roi_table and the consensus_rois across acquisitions, calculate the
-    shifted and cropped roi_table that needs to be applied to the original
-    roi_table to get the consensus region.
+    """Calculate the shifted and cropped ROI table for the consensus region.
+
+    Given a roi_table and the consensus_rois across acquisitions, computes
+    the roi_table that needs to be applied to get the consensus region.
     """
     shifted_rois = []
     for roi in roi_table.rois():
@@ -184,8 +181,7 @@ def compute_registration_consensus(
     # Advanced parameters
     registered_roi_table: str = "{input_roi_table}_registered",
 ) -> None:
-    """
-    Applies pre-calculated registration to ROI tables.
+    """Applies pre-calculated registration to ROI tables.
 
     Adjusts the ROI tables for each acquisition so that the resulting ROIs
     cover only the region visible in all acquisitions after registration.
@@ -239,7 +235,7 @@ def compute_registration_consensus(
     _validate_if_translation_exists(list(tables.values()))
 
     # Validate that all acquisitions have the same set of ROI names
-    ref_roi_names = {roi.name for roi in list(tables.values())[0].rois()}
+    ref_roi_names = {roi.name for roi in next(iter(tables.values())).rois()}
     for acq_zarr_url, table in tables.items():
         acq_roi_names = {roi.name for roi in table.rois()}
         if acq_roi_names != ref_roi_names:

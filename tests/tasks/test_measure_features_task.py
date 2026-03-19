@@ -37,9 +37,13 @@ def _make_zarr_with_label(
 ) -> Path:
     """Create an OME-Zarr with a label produced by threshold_segmentation."""
     store = tmp_path / "image.zarr"
-    kw: dict = dict(
-        store=store, shape=shape, pixelsize=0.1, overwrite=False, axes_names=axes
-    )
+    kw: dict = {
+        "store": store,
+        "shape": shape,
+        "pixelsize": 0.1,
+        "overwrite": False,
+        "axes_names": axes,
+    }
     if "z" in axes:
         kw["z_spacing"] = 0.5
     ome_zarr = create_empty_ome_zarr(**kw)
@@ -144,7 +148,7 @@ def test_region_props_features_func_2d_shape_features() -> None:
         image=image,
         label=label_arr,
         roi=_mock_roi("roi_0"),
-        properties=["label"] + ShapeFeatures().property_names(is_2d=True),
+        properties=["label", *ShapeFeatures().property_names(is_2d=True)],
     )
     assert "area" in result
     assert result["region"] == ["roi_0"]
@@ -162,7 +166,7 @@ def test_region_props_features_func_intensity_features() -> None:
         image=image,
         label=label_arr,
         roi=_mock_roi(),
-        properties=["label"] + IntensityFeatures().property_names(is_2d=True),
+        properties=["label", *IntensityFeatures().property_names(is_2d=True)],
     )
     # skimage appends a channel suffix ("-0") when intensity_image has a channel dim
     assert any(k.startswith("intensity_mean") for k in result)
@@ -209,8 +213,8 @@ def test_measure_features_basic(tmp_path: Path) -> None:
         features=[ShapeFeatures()],
     )
 
-    ome = open_ome_zarr_container(str(store))
-    assert "region_props_features" in ome.list_tables()
+    some = open_ome_zarr_container(str(store))
+    assert "region_props_features" in some.list_tables()
 
 
 def test_measure_features_shape_and_intensity(tmp_path: Path) -> None:
@@ -223,8 +227,8 @@ def test_measure_features_shape_and_intensity(tmp_path: Path) -> None:
         features=[ShapeFeatures(), IntensityFeatures()],
     )
 
-    ome = open_ome_zarr_container(str(store))
-    assert "region_props_features" in ome.list_tables()
+    some = open_ome_zarr_container(str(store))
+    assert "region_props_features" in some.list_tables()
 
 
 def test_measure_features_2d(tmp_path: Path) -> None:
@@ -237,8 +241,8 @@ def test_measure_features_2d(tmp_path: Path) -> None:
         features=[ShapeFeatures()],
     )
 
-    ome = open_ome_zarr_container(str(store))
-    assert "region_props_features" in ome.list_tables()
+    some = open_ome_zarr_container(str(store))
+    assert "region_props_features" in some.list_tables()
 
 
 def test_measure_features_overwrite_true(tmp_path: Path) -> None:
@@ -289,8 +293,8 @@ def test_measure_features_custom_table_name(tmp_path: Path) -> None:
         features=[ShapeFeatures()],
     )
 
-    ome = open_ome_zarr_container(str(store))
-    assert "my_features" in ome.list_tables()
+    some = open_ome_zarr_container(str(store))
+    assert "my_features" in some.list_tables()
 
 
 def test_measure_features_advanced_options_no_scaling(tmp_path: Path) -> None:
@@ -304,8 +308,8 @@ def test_measure_features_advanced_options_no_scaling(tmp_path: Path) -> None:
         advanced_options=AdvancedOptions(use_scaling=False),
     )
 
-    ome = open_ome_zarr_container(str(store))
-    assert "region_props_features" in ome.list_tables()
+    some = open_ome_zarr_container(str(store))
+    assert "region_props_features" in some.list_tables()
 
 
 def test_measure_features_advanced_options_table_backend(tmp_path: Path) -> None:
@@ -319,8 +323,8 @@ def test_measure_features_advanced_options_table_backend(tmp_path: Path) -> None
         advanced_options=AdvancedOptions(table_backend="parquet"),
     )
 
-    ome = open_ome_zarr_container(str(store))
-    assert "region_props_features" in ome.list_tables()
+    some = open_ome_zarr_container(str(store))
+    assert "region_props_features" in some.list_tables()
 
 
 def test_intensity_features_with_channels(tmp_path: Path) -> None:
@@ -337,8 +341,8 @@ def test_intensity_features_with_channels(tmp_path: Path) -> None:
         ],
     )
 
-    ome = open_ome_zarr_container(str(store))
-    assert "region_props_features" in ome.list_tables()
+    some = open_ome_zarr_container(str(store))
+    assert "region_props_features" in some.list_tables()
 
 
 # ---------------------------------------------------------------------------
@@ -356,8 +360,8 @@ def test_measure_features_table_structure(tmp_path: Path) -> None:
         features=[ShapeFeatures()],
     )
 
-    ome = open_ome_zarr_container(str(store))
-    df = ome.get_table("region_props_features").dataframe
+    some = open_ome_zarr_container(str(store))
+    df = some.get_table("region_props_features").dataframe
     assert len(df) == 1
     assert "area" in df.columns
     assert "region" in df.columns
@@ -376,9 +380,9 @@ def test_measure_features_shape_correctness_no_scaling(tmp_path: Path) -> None:
         advanced_options=AdvancedOptions(use_scaling=False),
     )
 
-    ome = open_ome_zarr_container(str(store))
-    df = ome.get_table("region_props_features").dataframe
-    # Bright region is rows 8:20, cols 8:20 → 12×12 = 144 pixels
+    some = open_ome_zarr_container(str(store))
+    df = some.get_table("region_props_features").dataframe
+    # Bright region is rows 8:20, cols 8:20 -> 12x12 = 144 pixels
     assert df["num_pixels"].iloc[0] == pytest.approx(144.0)
     assert df["area"].iloc[0] == pytest.approx(144.0)
 
@@ -394,9 +398,9 @@ def test_measure_features_shape_correctness_with_scaling(tmp_path: Path) -> None
         advanced_options=AdvancedOptions(use_scaling=True),
     )
 
-    ome = open_ome_zarr_container(str(store))
-    df = ome.get_table("region_props_features").dataframe
-    # 144 pixels × (0.1 μm)² = 1.44 μm²
+    some = open_ome_zarr_container(str(store))
+    df = some.get_table("region_props_features").dataframe
+    # 144 pixels x (0.1 um)**2 = 1.44 um**2
     assert df["area"].iloc[0] == pytest.approx(1.44, rel=1e-3)
 
 
@@ -411,8 +415,8 @@ def test_measure_features_intensity_correctness(tmp_path: Path) -> None:
         advanced_options=AdvancedOptions(use_scaling=False),
     )
 
-    ome = open_ome_zarr_container(str(store))
-    df = ome.get_table("region_props_features").dataframe
+    some = open_ome_zarr_container(str(store))
+    df = some.get_table("region_props_features").dataframe
     # The bright region is uniformly 500; background (0) is outside the label.
     # Default channel label is "channel_0" (ngio convention).
     assert df["intensity_mean-channel_0"].iloc[0] == pytest.approx(500.0)
@@ -447,7 +451,7 @@ def test_measure_features_channel_identifier_in_columns(tmp_path: Path) -> None:
         ],
     )
 
-    ome = open_ome_zarr_container(str(store))
-    df = ome.get_table("region_props_features").dataframe
+    some = open_ome_zarr_container(str(store))
+    df = some.get_table("region_props_features").dataframe
     assert "intensity_mean-0" in df.columns
     assert "intensity_max-0" in df.columns

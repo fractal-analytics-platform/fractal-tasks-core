@@ -1,11 +1,9 @@
 # Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
-"""
-Apply illumination correction to all fields of view.
-"""
+"""Apply illumination correction to all fields of view."""
 
 import logging
 import time
-from typing import Annotated, Any, Union
+from typing import Annotated, Any
 
 import numpy as np
 from ngio import ChannelSelectionModel, open_ome_zarr_container, open_ome_zarr_well
@@ -30,13 +28,14 @@ def correct(
     darkfield: np.ndarray | None = None,
     background_constant: int = 0,
 ):
-    """
-    Corrects a stack of images, using a given illumination profile (e.g. bright
-    in the center of the image, dim outside) and a darkfield profile
-    (e.g. sensor noise) and the given constant background value.
-    Illumination correction is normalized to [0, 1] before application.
+    """Correct a stack of images using illumination and darkfield profiles.
+
+    Uses a given illumination profile (e.g. bright in the center of the
+    image, dim outside) and a darkfield profile (e.g. sensor noise) and the
+    given constant background value. Illumination correction is normalized
+    to [0, 1] before application.
     Uses the formula:
-        corrected_image = (image - darkfield - background) / illumination
+        corrected_image = (image - darkfield - background) / illumination.
 
     Args:
         image: 3D numpy array (zyx)
@@ -46,7 +45,6 @@ def correct(
         background_constant: Background value that is subtracted from the
             image before the illumination correction is applied.
     """
-
     logger.debug(f"Start correct, {image.shape}")
 
     # Check shapes
@@ -94,7 +92,7 @@ def correct(
 
 
 BackgroundCorrection = Annotated[
-    Union[NoCorrectionModel, ProfileCorrectionModel, ConstantCorrectionModel],
+    NoCorrectionModel | ProfileCorrectionModel | ConstantCorrectionModel,
     Field(discriminator="model"),
 ]
 
@@ -116,8 +114,7 @@ def illumination_correction(
     ),
     overwrite_input: bool = False,
 ) -> dict[str, Any] | None:
-    """
-    Applies illumination correction to the images in the OME-Zarr.
+    """Applies illumination correction to the images in the OME-Zarr.
 
     The illumination correction profiles must be pre-computed using the same
     background correction settings as specified here (otherwise the correction
@@ -149,7 +146,6 @@ def illumination_correction(
             the input image data. If `False`, a new image is generated and the
             illumination corrected data is saved there. Defaults to `False`.
     """
-
     # Prepare zarr urls
     zarr_url = zarr_url.rstrip("/")
     if overwrite_input:
@@ -330,11 +326,11 @@ def illumination_correction(
             )
         except NgioFileNotFoundError:
             logger.debug(
-                "Input image not in an Ome-Zarr Plate, well metadata not updated."
+                "Input image not in an OME-Zarr Plate, well metadata not updated."
             )
 
         logger.info(f"Saved illumination corrected image as {zarr_url_new}.")
-        image_list_update = dict(zarr_url=zarr_url_new, origin=zarr_url)
+        image_list_update = {"zarr_url": zarr_url_new, "origin": zarr_url}
         return {"image_list_updates": [image_list_update]}
     else:
         logger.info("Overwrote input image with illumination corrected data.")

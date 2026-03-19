@@ -1,5 +1,5 @@
 # Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
-"""Utils functions for registration"""
+"""Utils functions for registration."""
 
 from enum import Enum
 
@@ -29,10 +29,9 @@ def add_translation_to_roi(roi: Roi, shifts: list[float], pixel_size: PixelSize)
 
 
 def chi2_shift_out(img_ref, img_cycle_x) -> list[np.ndarray]:
-    """
-    Helper function to get the output of chi2_shift into the same format as
-    phase_cross_correlation. Calculates the shift between two images using
-    the chi2_shift method.
+    """Calculate the shift between two images using chi2_shift.
+
+    Returns the output in the same format as phase_cross_correlation.
 
     Args:
         img_ref (np.ndarray): First image.
@@ -41,7 +40,7 @@ def chi2_shift_out(img_ref, img_cycle_x) -> list[np.ndarray]:
     Returns:
         List containing numpy array of shift in y and x direction.
     """
-    x, y, a, b = chi2_shift(np.squeeze(img_ref), np.squeeze(img_cycle_x))
+    x, y, _a, _b = chi2_shift(np.squeeze(img_ref), np.squeeze(img_cycle_x))
 
     # Running into issues when using direct float output for fractal.
     # When rounding to integer and using integer dtype, it typically works
@@ -55,8 +54,7 @@ def chi2_shift_out(img_ref, img_cycle_x) -> list[np.ndarray]:
 
 
 class RegistrationMethod(Enum):
-    """
-    RegistrationMethod Enum class
+    """RegistrationMethod Enum class.
 
     Attributes:
         PHASE_CROSS_CORRELATION: phase cross correlation based on scikit-image
@@ -76,8 +74,7 @@ class RegistrationMethod(Enum):
 
 
 class InitArgsRegistration(BaseModel):
-    """
-    Registration init args.
+    """Registration init args.
 
     Passed from `init_image_based_registration` to
     `compute_image_based_registration`.
@@ -90,8 +87,7 @@ class InitArgsRegistration(BaseModel):
 
 
 class InitArgsRegistrationConsensus(BaseModel):
-    """
-    Registration consensus init args.
+    """Registration consensus init args.
 
     Provides the list of zarr_urls for all acquisitions for a given well.
     """

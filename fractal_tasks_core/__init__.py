@@ -1,1 +1,8 @@
-__VERSION__ = "2.0.0a0"
+"""Reference task package for the Fractal analytics platform."""
+
+from importlib.metadata import PackageNotFoundError, version
+
+try:
+    __version__ = version("fractal-tasks-core")
+except PackageNotFoundError:
+    __version__ = "uninstalled"

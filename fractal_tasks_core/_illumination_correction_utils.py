@@ -3,7 +3,7 @@
 
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Literal, Tuple
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -29,7 +29,7 @@ class ProfileCorrectionModel(BaseModel):
 
     def items(
         self,
-    ) -> Iterator[Tuple[str, str],]:
+    ) -> Iterator[tuple[str, str],]:
         root_path = Path(self.folder)
         for wavelength_id, profile_name in self.profiles.items():
             yield wavelength_id, (root_path / profile_name).as_posix()

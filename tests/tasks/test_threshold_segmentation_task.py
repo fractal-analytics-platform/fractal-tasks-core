@@ -88,10 +88,10 @@ def test_segmentation_manual_threshold(tmp_path: Path) -> None:
         overwrite=True,
     )
 
-    ome = open_ome_zarr_container(str(store))
-    assert "nuclei" in ome.list_labels()
+    some = open_ome_zarr_container(str(store))
+    assert "nuclei" in some.list_labels()
     # Check that the label image is correctly thresholded
-    nuclei = ome.get_label("nuclei").get_as_numpy()
+    nuclei = some.get_label("nuclei").get_as_numpy()
     labels, counts = np.unique(nuclei, return_counts=True)
     assert set(labels) == {0, 1}  # background and one object
     assert counts[labels == 1][0] == 4 * 10 * 10  # 4*10x10 square of bright pixels
@@ -109,9 +109,9 @@ def test_segmentation_otsu(tmp_path: Path) -> None:
         overwrite=True,
     )
 
-    ome = open_ome_zarr_container(str(store))
-    assert "nuclei" in ome.list_labels()
-    nuclei = ome.get_label("nuclei").get_as_numpy()
+    some = open_ome_zarr_container(str(store))
+    assert "nuclei" in some.list_labels()
+    nuclei = some.get_label("nuclei").get_as_numpy()
     labels, counts = np.unique(nuclei, return_counts=True)
     assert set(labels) == {0, 1}  # background and one object
     assert counts[labels == 1][0] == 4 * 10 * 10  # 4*10x10 square of bright pixels
@@ -129,9 +129,9 @@ def test_segmentation_2d(tmp_path: Path) -> None:
         overwrite=True,
     )
 
-    ome = open_ome_zarr_container(str(store))
-    assert "nuclei" in ome.list_labels()
-    nuclei = ome.get_label("nuclei").get_as_numpy()
+    some = open_ome_zarr_container(str(store))
+    assert "nuclei" in some.list_labels()
+    nuclei = some.get_label("nuclei").get_as_numpy()
     labels, counts = np.unique(nuclei, return_counts=True)
     assert set(labels) == {0, 1}  # background and one object
     assert counts[labels == 1][0] == 10 * 10  # 4*10x10 square of bright pixels
@@ -149,8 +149,8 @@ def test_label_name_template(tmp_path: Path) -> None:
         overwrite=True,
     )
 
-    ome = open_ome_zarr_container(str(store))
-    assert "0_nuclei" in ome.list_labels()
+    some = open_ome_zarr_container(str(store))
+    assert "0_nuclei" in some.list_labels()
 
 
 def test_invalid_label_name_raises(tmp_path: Path) -> None:
@@ -181,8 +181,8 @@ def test_skip_missing_channel_true(tmp_path: Path) -> None:
         overwrite=True,
     )
 
-    ome = open_ome_zarr_container(str(store))
-    assert "nuclei" not in ome.list_labels()
+    some = open_ome_zarr_container(str(store))
+    assert "nuclei" not in some.list_labels()
 
 
 def test_missing_channel_raises(tmp_path: Path) -> None:
@@ -231,7 +231,7 @@ def test_overwrite_false_raises(tmp_path: Path) -> None:
         overwrite=True,
     )
 
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         threshold_segmentation(
             zarr_url=str(store),
             channel=InputChannel(mode="index", identifier="0"),
@@ -254,8 +254,8 @@ def test_create_masking_roi_table(tmp_path: Path) -> None:
         overwrite=True,
     )
 
-    ome = open_ome_zarr_container(str(store))
-    assert "nuclei_masking_ROI_table" in ome.list_tables()
+    some = open_ome_zarr_container(str(store))
+    assert "nuclei_masking_ROI_table" in some.list_tables()
 
 
 def test_with_gaussian_preprocess(tmp_path: Path) -> None:
@@ -272,8 +272,8 @@ def test_with_gaussian_preprocess(tmp_path: Path) -> None:
         overwrite=True,
     )
 
-    ome = open_ome_zarr_container(str(store))
-    assert "nuclei" in ome.list_labels()
+    some = open_ome_zarr_container(str(store))
+    assert "nuclei" in some.list_labels()
 
 
 def test_with_size_filter_postprocess(tmp_path: Path) -> None:
@@ -290,5 +290,5 @@ def test_with_size_filter_postprocess(tmp_path: Path) -> None:
         overwrite=True,
     )
 
-    ome = open_ome_zarr_container(str(store))
-    assert "nuclei" in ome.list_labels()
+    some = open_ome_zarr_container(str(store))
+    assert "nuclei" in some.list_labels()

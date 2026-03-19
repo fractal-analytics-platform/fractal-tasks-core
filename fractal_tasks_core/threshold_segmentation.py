@@ -1,7 +1,5 @@
 # Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
-"""
-Task for threshold-based segmentation of OME-Zarr images.
-"""
+"""Task for threshold-based segmentation of OME-Zarr images."""
 
 import logging
 

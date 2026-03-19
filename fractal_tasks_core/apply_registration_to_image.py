@@ -1,7 +1,5 @@
 # Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
-"""
-Applies pre-calculated registration to images
-"""
+"""Applies pre-calculated registration to images."""
 
 import logging
 import os
@@ -16,8 +14,7 @@ logger = logging.getLogger("apply_registration_to_image")
 
 
 def _get_ref_path_heuristic(path_list: list[str], path: str) -> str:
-    """
-    Pick the best-matching reference path from `path_list` for a given `path`.
+    """Pick the best-matching reference path from `path_list` for a given `path`.
 
     Matches by the suffix (everything after the first ``_`` in the path name).
     If no suffix match is found, falls back to the first sorted entry and logs
@@ -53,8 +50,7 @@ def _write_registered_ngio_image(
     new_zarr_url: str,
     roi_pairs: list[tuple[Roi, Roi]],
 ) -> OmeZarrContainer:
-    """
-    Write a registered OME-Zarr image to disk using pre-computed ROI pairs.
+    """Write a registered OME-Zarr image to disk using pre-computed ROI pairs.
 
     Creates a new image container derived from the source (same shape, dtype,
     and metadata, initialised to zeros), writes image data from each acquisition
@@ -87,8 +83,7 @@ def _write_registered_ngio_label(
     label_name: str,
     roi_pairs: list[tuple[Roi, Roi]],
 ) -> None:
-    """
-    Write a registered label image into an existing new OME-Zarr container.
+    """Write a registered label image into an existing new OME-Zarr container.
 
     Derives an empty label from the source container, writes label data from
     each acquisition ROI into the reference ROI position, then builds the
@@ -120,8 +115,7 @@ def apply_registration_to_image(
     register_labels: bool = True,
     overwrite_input: bool = True,
 ) -> dict[str, Any]:
-    """
-    Apply registration to images by using a registered ROI table.
+    """Apply registration to images by using a registered ROI table.
 
     Crops and shifts each acquisition so that all acquisitions are aligned
     to the reference acquisition. Only the region visible in all acquisitions
@@ -236,9 +230,9 @@ def apply_registration_to_image(
         acq_ome_zarr.list_tables(filter_types="roi_table")
     )
 
-    tables_to_copy: dict[str, OmeZarrContainer] = {
-        name: ref_ome_zarr for name in ref_roi_table_names
-    }
+    tables_to_copy: dict[str, OmeZarrContainer] = dict.fromkeys(
+        ref_roi_table_names, ref_ome_zarr
+    )
     for table_name in acq_non_roi_table_names:
         if reference_zarr_url != zarr_url:
             logger.warning(
@@ -290,11 +284,11 @@ def apply_registration_to_image(
         os.rename(zarr_url, f"{zarr_url}_tmp")
         os.rename(new_zarr_url, zarr_url)
         shutil.rmtree(f"{zarr_url}_tmp")
-        image_list_updates = dict(image_list_updates=[dict(zarr_url=zarr_url)])
+        image_list_updates = {"image_list_updates": [{"zarr_url": zarr_url}]}
     else:
-        image_list_updates = dict(
-            image_list_updates=[dict(zarr_url=new_zarr_url, origin=zarr_url)]
-        )
+        image_list_updates = {
+            "image_list_updates": [{"zarr_url": new_zarr_url, "origin": zarr_url}]
+        }
         # Update the well metadata to include the new image. We use
         # parallel_safe=True (the default) so that ngio uses a FileLock,
         # and atomic=True to ensure the metadata write is protected by that

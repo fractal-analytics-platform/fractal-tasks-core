@@ -1,7 +1,5 @@
 # Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
-"""
-Calculates translation for image-based registration
-"""
+"""Calculates translation for image-based registration."""
 
 import logging
 
@@ -33,8 +31,7 @@ def compute_image_based_registration(
     input_roi_table: str = "FOV_ROI_table",
     level_path: str = "2",
 ) -> None:
-    """
-    Calculate the shift between acquisitions for each field of view.
+    """Calculate the shift between acquisitions for each field of view.
 
     This task consists of 3 parts:
 

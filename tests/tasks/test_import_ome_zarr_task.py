@@ -183,10 +183,10 @@ def test_import_overwrite(tmp_path: Path) -> None:
 @pytest.mark.parametrize(
     "shape, axes, grid_y, grid_x, expected_n_rois",
     [
-        ((8, 8), "yx", 2, 2, 16),  # 4 steps in y × 4 in x
-        ((8, 8), "yx", 4, 4, 4),  # 2 steps in y × 2 in x
-        ((4, 8, 16), "zyx", 4, 4, 8),  # 2 steps in y × 4 in x
-        ((2, 2, 4, 8, 16), "tczyx", 4, 4, 8),  # t=2,c=2,z=4,y=8,x=16 → 2×4=8 ROIs
+        ((8, 8), "yx", 2, 2, 16),  # 4 steps in y x 4 in x
+        ((8, 8), "yx", 4, 4, 4),  # 2 steps in y x 2 in x
+        ((4, 8, 16), "zyx", 4, 4, 8),  # 2 steps in y x 4 in x
+        ((2, 2, 4, 8, 16), "tczyx", 4, 4, 8),  # t=2,c=2,z=4,y=8,x=16 -> 2x4=8 ROIs
     ],
 )
 def test_grid_roi_table_roi_count(

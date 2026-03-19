@@ -15,7 +15,7 @@ Pipeline under test:
   7. measure_features       → region-properties feature table on acquisition 0
 
 All fixtures are built synthetically with ngio — no Zenodo downloads required.
-The flatfield PNGs are also created synthetically in tmp_path.
+The flatfield ONGs are also created synthetically in tmp_path.
 """
 
 from pathlib import Path
@@ -63,17 +63,17 @@ from fractal_tasks_core.threshold_segmentation import threshold_segmentation
 # ---------------------------------------------------------------------------
 
 _CHANNELS = ["A01_C01", "A01_C02"]
-_SHAPE = (2, 4, 64, 64)  # czyx: 2 channels, 4 z-slices, 64×64 px
+_SHAPE = (2, 4, 64, 64)  # czyx: 2 channels, 4 z-slices, 64x64 px
 _PIXELSIZE = 0.325  # µm/px at level 0
 _Z_SPACING = 1.0  # µm/z-slice
-_LEVELS = 3  # pyramid levels; level 2 = 4× downsampled → 16×16 px
+_LEVELS = 3  # pyramid levels; level 2 = 4x downsampled -> 16x16 px
 
 # Known shift applied to acquisition 1 relative to acquisition 0 (level-0 px)
 _SHIFT_Y_PX = 4
 _SHIFT_X_PX = 8
-# At level 2 (4× xy downsampling):
-#   y:  4 px → 1 px × (0.325 × 4) µm/px = 1.3 µm
-#   x:  8 px → 2 px × (0.325 × 4) µm/px = 2.6 µm
+# At level 2 (4x xy downsampling):
+#   y:  4 px -> 1 px x (0.325 x 4) um/px = 1.3 um
+#   x:  8 px -> 2 px x (0.325 x 4) um/px = 2.6 um
 _SHIFT_Y_UM = _SHIFT_Y_PX * _PIXELSIZE  # 1.3 µm
 _SHIFT_X_UM = _SHIFT_X_PX * _PIXELSIZE  # 2.6 µm
 
@@ -89,7 +89,7 @@ _REGISTERED_ROI_TABLE = "image_ROI_table_registered"
 
 def _build_plate(tmp_path: Path) -> tuple[str, str, str]:
     """
-    Create a 2-acquisition, 1-well plate with a bright 10×10 block.
+    Create a 2-acquisition, 1-well plate with a bright 10x10 block.
 
     Acquisition 0 (reference): block at y=[20:30], x=[20:30].
     Acquisition 1 (to align):  same block shifted by (_SHIFT_Y_PX, _SHIFT_X_PX).
@@ -117,7 +117,7 @@ def _build_plate(tmp_path: Path) -> tuple[str, str, str]:
         (zarr_url_0, 0, 0),
         (zarr_url_1, _SHIFT_Y_PX, _SHIFT_X_PX),
     ]:
-        ome = create_empty_ome_zarr(
+        some = create_empty_ome_zarr(
             zarr_url,
             shape=_SHAPE,
             pixelsize=_PIXELSIZE,
@@ -129,7 +129,7 @@ def _build_plate(tmp_path: Path) -> tuple[str, str, str]:
         )
         data = np.zeros(_SHAPE, dtype=np.uint16)
         data[:, :, 20 + y_off : 30 + y_off, 20 + x_off : 30 + x_off] = 1_000
-        img = ome.get_image()
+        img = some.get_image()
         img.set_array(data)
         img.consolidate()
 
@@ -143,7 +143,7 @@ def _build_plate(tmp_path: Path) -> tuple[str, str, str]:
 
 def _create_flatfields(tmp_path: Path) -> tuple[str, dict[str, str]]:
     """
-    Save 64×64 flatfield PNG files (one per channel) to tmp_path/flatfields/.
+    Save 64x64 flatfield PNG files (one per channel) to tmp_path/flatfields/.
 
     The profile is a Gaussian centred at (32, 32) with values in [1 000, 5 000].
     After ``correction_matrix / max(correction_matrix)`` the profile is in
@@ -244,8 +244,8 @@ def test_full_pipeline(tmp_path: Path) -> None:
         level_path="2",
     )
 
-    ome1 = open_ome_zarr_container(zarr_url_1)
-    rois = ome1.get_generic_roi_table(_ROI_TABLE).rois()
+    some1 = open_ome_zarr_container(zarr_url_1)
+    rois = some1.get_generic_roi_table(_ROI_TABLE).rois()
     assert len(rois) == 1
     roi = rois[0]
     assert roi.model_extra is not None
@@ -263,8 +263,8 @@ def test_full_pipeline(tmp_path: Path) -> None:
         registered_roi_table=_REGISTERED_ROI_TABLE,
     )
 
-    ome0 = open_ome_zarr_container(zarr_url_0)
-    assert _REGISTERED_ROI_TABLE in ome0.list_tables(), (
+    some0 = open_ome_zarr_container(zarr_url_0)
+    assert _REGISTERED_ROI_TABLE in some0.list_tables(), (
         "compute_registration_consensus must write image_ROI_table_registered to acq-0"
     )
 
@@ -301,8 +301,8 @@ def test_full_pipeline(tmp_path: Path) -> None:
     proj_zarr_url = proj_result["image_list_updates"][0]["zarr_url"]
     assert Path(proj_zarr_url).exists(), "Projected zarr must exist on disk"
 
-    proj_ome = open_ome_zarr_container(proj_zarr_url)
-    proj_img = proj_ome.get_image()
+    proj_some = open_ome_zarr_container(proj_zarr_url)
+    proj_img = proj_some.get_image()
     assert proj_img.dimensions.get("z", default=None) == 1, (
         "Projected image must have z=1"
     )
@@ -319,8 +319,8 @@ def test_full_pipeline(tmp_path: Path) -> None:
         overwrite=True,
     )
 
-    ome0 = open_ome_zarr_container(zarr_url_0)
-    assert "nuclei" in ome0.list_labels(), (
+    some0 = open_ome_zarr_container(zarr_url_0)
+    assert "nuclei" in some0.list_labels(), (
         "threshold_segmentation must create a 'nuclei' label"
     )
 
@@ -333,7 +333,7 @@ def test_full_pipeline(tmp_path: Path) -> None:
         features=[ShapeFeatures()],
     )
 
-    ome0 = open_ome_zarr_container(zarr_url_0)
-    assert "region_props_features" in ome0.list_tables(), (
+    some0 = open_ome_zarr_container(zarr_url_0)
+    assert "region_props_features" in some0.list_tables(), (
         "measure_features must create a 'region_props_features' table"
     )

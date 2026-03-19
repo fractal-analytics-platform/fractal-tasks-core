@@ -1,7 +1,5 @@
 # Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
-"""
-Task for 3D->2D maximum-intensity projection.
-"""
+"""Task for 3D->2D maximum-intensity projection."""
 
 from __future__ import annotations
 
@@ -28,8 +26,7 @@ def projection(
     ),
     overwrite: bool = False,
 ) -> dict[str, Any]:
-    """
-    Perform intensity projection along Z axis with a chosen method.
+    """Perform intensity projection along Z axis with a chosen method.
 
     Note: this task will write the output in a new OM-Zarr file
         in the same location as the input one, with the same name plus

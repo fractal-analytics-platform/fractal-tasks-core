@@ -11,10 +11,9 @@ logger = logging.getLogger("projection_utils")
 
 
 def safe_sum(dask_array: da.Array, axis: int = 0) -> da.Array:
-    """
-    Perform a safe sum on a Dask array to avoid overflow, by clipping the
-    result of da.sum & casting it to its original dtype.
+    """Perform a safe sum on a Dask array to avoid overflow.
 
+    Clips the result of da.sum & casts it to its original dtype.
     Dask.array already correctly handles promotion to uin32 or uint64 when
     necessary internally, but we want to ensure we clip the result.
 
@@ -49,8 +48,7 @@ def safe_sum(dask_array: da.Array, axis: int = 0) -> da.Array:
 
 
 def mean_wrapper(dask_array: da.Array, axis: int = 0) -> da.Array:
-    """
-    Perform a da.mean on the dask_array & cast it to its original dtype.
+    """Perform a da.mean on the dask_array & cast it to its original dtype.
 
     Without casting, the result can change dtype to e.g. float64
 
@@ -76,8 +74,7 @@ def mean_wrapper(dask_array: da.Array, axis: int = 0) -> da.Array:
 
 
 def max_wrapper(dask_array: da.Array, axis: int = 0) -> da.Array:
-    """
-    Perform a da.max on the dask_array
+    """Perform a da.max on the dask_array.
 
     Args:
         dask_array (dask.array.Array): The input Dask array.
@@ -91,8 +88,7 @@ def max_wrapper(dask_array: da.Array, axis: int = 0) -> da.Array:
 
 
 def min_wrapper(dask_array: da.Array, axis: int = 0) -> da.Array:
-    """
-    Perform a da.min on the dask_array
+    """Perform a da.min on the dask_array.
 
     Args:
         dask_array (dask.array.Array): The input Dask array.
@@ -106,8 +102,7 @@ def min_wrapper(dask_array: da.Array, axis: int = 0) -> da.Array:
 
 
 class DaskProjectionMethod(Enum):
-    """
-    Registration method selection
+    """Registration method selection.
 
     Choose which method to use for intensity projection along the Z axis.
 
@@ -124,8 +119,7 @@ class DaskProjectionMethod(Enum):
     SUMIP = "Sum intensity projection"
 
     def apply(self, dask_array: da.Array, axis: int = 0) -> da.Array:
-        """
-        Apply the selected projection method to the given Dask array.
+        """Apply the selected projection method to the given Dask array.
 
         Args:
             dask_array (dask.array.Array): The Dask array to project.
@@ -147,8 +141,7 @@ class DaskProjectionMethod(Enum):
 
     @property
     def abbreviation(self) -> str:
-        """
-        Get the abbreviation of the projection method.
+        """Get the abbreviation of the projection method.
 
         Returns:
             str: The abbreviation of the projection method.
@@ -168,7 +161,7 @@ def _compute_new_shape(source_image: Image) -> tuple[tuple[int, ...], int]:
     The new shape is the same as the original one,
     except for the z-axis, which is set to 1.
 
-    returns:
+    Returns:
         - new shape of the image
         - index of the z-axis in the original image
     """
@@ -196,8 +189,7 @@ def projection_core(
     overwrite: bool = False,
     attributes: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """
-    Perform intensity projection along Z axis with a chosen method.
+    """Perform intensity projection along Z axis with a chosen method.
 
     Note: this task stores the output in a new zarr file.
 
@@ -214,15 +206,15 @@ def projection_core(
 
     # Read image metadata
     original_ome_zarr = open_ome_zarr_container(input_zarr_url)
-    orginal_image = original_ome_zarr.get_image()
+    original_image = original_ome_zarr.get_image()
 
-    if orginal_image.is_2d or orginal_image.is_2d_time_series:
+    if original_image.is_2d or original_image.is_2d_time_series:
         raise ValueError(
             "The input image is 2D, projection is only supported for 3D images."
         )
 
     # Compute the new shape and pixel size
-    dest_on_disk_shape, z_axis_index = _compute_new_shape(orginal_image)
+    dest_on_disk_shape, z_axis_index = _compute_new_shape(original_image)
     logger.info(f"New shape: {dest_on_disk_shape=}")
 
     # Create the new empty image
@@ -230,9 +222,9 @@ def projection_core(
         store=output_zarr_url,
         name=method.value.upper(),
         shape=dest_on_disk_shape,
-        pixelsize=orginal_image.pixel_size.yx,
+        pixelsize=original_image.pixel_size.yx,
         z_spacing=1.0,
-        time_spacing=orginal_image.pixel_size.t,
+        time_spacing=original_image.pixel_size.t,
         overwrite=overwrite,
         copy_labels=False,
         copy_tables=True,
@@ -241,7 +233,7 @@ def projection_core(
     proj_image = ome_zarr_mip.get_image()
 
     # Process the image
-    source_dask = orginal_image.get_as_dask()
+    source_dask = original_image.get_as_dask()
     dest_dask = method.apply(dask_array=source_dask, axis=z_axis_index)
     dest_dask = da.expand_dims(dest_dask, axis=z_axis_index)
     proj_image.set_array(dest_dask)
@@ -263,22 +255,21 @@ def projection_core(
 
     # Generate image_list_updates
     attributes = attributes or {}
-    image_list_update_dict = dict(
-        image_list_updates=[
-            dict(
-                zarr_url=output_zarr_url,
-                origin=input_zarr_url,
-                attributes=attributes,
-                types=dict(is_3D=False),
-            )
+    image_list_update_dict = {
+        "image_list_updates": [
+            {
+                "zarr_url": output_zarr_url,
+                "origin": input_zarr_url,
+                "attributes": attributes,
+                "types": {"is_3D": False},
+            }
         ]
-    )
+    }
     return image_list_update_dict
 
 
 class InitArgsMIP(BaseModel):
-    """
-    Init Args for MIP task.
+    """Init Args for MIP task.
 
     Attributes:
         origin_url: Path to the zarr_url with the 3D data

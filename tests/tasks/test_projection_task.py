@@ -15,7 +15,7 @@ from fractal_tasks_core.projection import projection
 
 def _make_zarr(tmp_path: Path, shape: tuple, axes: str, name: str = "image") -> Path:
     store = tmp_path / f"{name}.zarr"
-    ome = create_empty_ome_zarr(
+    some = create_empty_ome_zarr(
         store=store,
         shape=shape,
         pixelsize=0.1,
@@ -23,8 +23,8 @@ def _make_zarr(tmp_path: Path, shape: tuple, axes: str, name: str = "image") -> 
         overwrite=False,
         axes_names=axes,
     )
-    table = ome.build_image_roi_table("image")
-    ome.add_table("well_ROI_table", table, backend="anndata")
+    table = some.build_image_roi_table("image")
+    some.add_table("well_ROI_table", table, backend="anndata")
     return store
 
 
@@ -119,7 +119,7 @@ def test_projection_non_zarr_url_fails(tmp_path: Path) -> None:
     store = _make_zarr(tmp_path, shape=(16, 32, 32), axes="zyx")
     bad_url = str(store).removesuffix(".zarr")
 
-    with pytest.raises(ValueError, match="must end with .zarr"):
+    with pytest.raises(ValueError, match=r"must end with .zarr"):
         projection(zarr_url=bad_url)
 
 
