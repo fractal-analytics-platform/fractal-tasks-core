@@ -1,6 +1,6 @@
 [project]
 name = "fractal-tasks-core"
-version = "2.0.0a0"
+dynamic = ["version"]
 description = "Reference task package for the Fractal analytics platform"
 readme = "README.md"
 license = { text = "BSD-3-Clause" }
@@ -26,13 +26,13 @@ dev = [
     "devtools==0.12.0",
     "pre-commit>=2.19.0",
     "pytest>=7.1.2",
-    "bumpver>=2022.1118",
+    "commitizen>=4.0",
     "coverage[toml]>=7.6,<7.7",
     "jsonschema>=4.16.0",
     "ruff>=0.11.0",
     "requests>=2.28.0",
     "pooch==1.8.0",
-    "mypy",
+    "ty",
     "pytest-cov",
     "notebook",
 ]
@@ -53,8 +53,11 @@ Documentation = "https://fractal-analytics-platform.github.io/fractal-tasks-core
 Changelog = "https://github.com/fractal-analytics-platform/fractal-tasks-core/blob/main/CHANGELOG.md"
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
 
 [tool.pixi.workspace]
 channels = ["conda-forge"]
@@ -63,6 +66,17 @@ platforms = ["linux-64", "osx-arm64", "win-64"]
 [tool.pixi.pypi-dependencies]
 fractal-tasks-core = { path = ".", editable = true }
 # fractal-tasks-utils = { path = "../fractal-tasks-utils", editable = true }
+
+[tool.pixi.feature.dev.pypi-dependencies]
+commitizen = ">=4.0"
+
+[tool.pixi.feature.dev.tasks]
+bump-patch = "cz bump --increment PATCH"
+bump-minor = "cz bump --increment MINOR"
+bump-major = "cz bump --increment MAJOR"
+bump-alpha = "cz bump --pre-release alpha"
+bump-beta  = "cz bump --pre-release beta"
+pre-commit = "pre-commit run --all-files; git add -u"
 
 [tool.pixi.environments]
 default = { solve-group = "default" }
@@ -86,25 +100,73 @@ omit = ["tests/*", "fractal_tasks_core/dev/*", ".pixi/*"]
 [tool.coverage.report]
 omit = ["tests/*", "fractal_tasks_core/dev/*", ".pixi/*"]
 
-[tool.bumpver]
-current_version = "2.0.0a0"
-version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
-commit_message = "bump version {old_version} -> {new_version}"
-commit = true
-tag = true
-push = true
-
-[tool.bumpver.file_patterns]
-"pyproject.toml" = ['version = "{version}"$']
-"fractal_tasks_core/__init__.py" = ['__VERSION__ = "{version}"$']
-
 [tool.ruff]
 line-length = 88
 target-version = "py311"
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I"]
-ignore = ["E203"]
+select = [
+    "E",    # style errors
+    "W",    # style warnings
+    "F",    # flakes
+    "D",    # pydocstyle
+    "I",    # isort
+    "UP",   # pyupgrade
+    "C4",   # flake8-comprehensions
+    "B",    # flake8-bugbear
+    "A001", # flake8-builtins
+    "RUF",  # ruff-specific rules
+    "TCH",  # flake8-type-checking
+    "TID",  # flake8-tidy-imports
+]
+ignore = [
+    "D401", # First line should be in imperative mood (remove to opt in)
+    "B008", # Do not perform function call in argument defaults (Pydantic Field)
+]
 
-[tool.deptry]
-exclude = ['tests', 'docs']
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["D"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ty.environment]
+python-version = "3.11"
+
+[tool.ty.rules]
+unresolved-import = "warn"
+
+[tool.typos.default.extend-words]
+# Acronyms
+OME = "OME"
+Ome = "Ome"
+ome = "ome"
+FO = "FO"
+# Surname
+Comparin = "Comparin"
+
+[tool.typos.files]
+extend-exclude = ["CHANGELOG.md"]
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "v$version"
+version_scheme = "pep440"
+version_provider = "scm"
+update_changelog_on_bump = false
+major_version_zero = true
+
+[tool.check-manifest]
+ignore = [
+    ".pre-commit-config.yaml",
+    ".ruff_cache/**/*",
+    ".github/**/*",
+    "docs/**/*",
+    "pixi.lock",
+    "mkdocs.yml",
+    "CHANGELOG.md",
+    "tests/**/*",
+]
