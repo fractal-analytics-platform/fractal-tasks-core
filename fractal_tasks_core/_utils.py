@@ -1,3 +1,6 @@
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
+"""Utility functions and models for HCS OME-Zarr URL handling."""
+
 from dataclasses import dataclass
 from typing import Literal, TypeAlias
 

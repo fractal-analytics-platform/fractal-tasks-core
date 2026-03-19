@@ -1,3 +1,6 @@
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
+"""Utility functions and models for intensity projection tasks."""
+
 import logging
 from enum import Enum
 from typing import Any
