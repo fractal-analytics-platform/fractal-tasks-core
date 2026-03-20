@@ -31,7 +31,9 @@ repos:
     -   id: ruff
         args: [--fix]
     -   id: ruff-format
--   repo: https://github.com/kynan/nbstripout
-    rev: 0.9.1
-    hooks:
-    -   id: nbstripout
+# Uncomment the following lines if
+# a jupyter notebook needs to be committed to the repo.
+#-   repo: https://github.com/kynan/nbstripout
+#    rev: 0.9.1
+#    hooks:
+#    -   id: nbstripout
