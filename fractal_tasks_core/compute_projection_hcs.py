@@ -1,7 +1,5 @@
 # Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
-"""
-Task for 3D->2D maximum-intensity projection.
-"""
+"""Task for 3D->2D maximum-intensity projection."""
 
 from __future__ import annotations
 
@@ -22,8 +20,7 @@ def compute_projection_hcs(
     zarr_url: str,
     init_args: InitArgsMIP,
 ) -> dict[str, Any]:
-    """
-    Perform intensity projection for one image in an HCS plate.
+    """Perform intensity projection for one image in an HCS plate.
 
     Uses settings prepared by `init_projection_hcs` and stores the output
     in a new OME-Zarr file within the projected plate.

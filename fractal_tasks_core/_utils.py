@@ -1,3 +1,6 @@
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
+"""Utility functions and models for HCS OME-Zarr URL handling."""
+
 from dataclasses import dataclass
 from typing import Literal, TypeAlias
 
@@ -52,8 +55,7 @@ def _parse_hcs_zarr_url(zarr_urls: list[str]) -> list[HCSZarrUrl]:
 
 
 def group_by_plate(zarr_urls: list[str]) -> dict[str, list[HCSZarrUrl]]:
-    """
-    Group a list of zarr_urls by plate.
+    """Group a list of zarr_urls by plate.
 
     Args:
         zarr_urls: list of zarr_urls, each containing the path to an OME-Zarr image.
@@ -71,8 +73,7 @@ def group_by_plate(zarr_urls: list[str]) -> dict[str, list[HCSZarrUrl]]:
 
 
 def group_by_well(zarr_urls: list[str]) -> dict[str, list[HCSZarrUrl]]:
-    """
-    Group a list of zarr_urls by well.
+    """Group a list of zarr_urls by well.
 
     Args:
         zarr_urls: list of zarr_urls, each containing the path to an OME-Zarr image.
@@ -89,11 +90,11 @@ def group_by_well(zarr_urls: list[str]) -> dict[str, list[HCSZarrUrl]]:
 
 
 def split_well_path_image_path(zarr_url: str) -> tuple[str, str]:
-    """
-    Split a zarr_url into the well path and the image path.
+    """Split a zarr_url into the well path and the image path.
 
     Args:
         zarr_url: zarr_url of the form `/path/to/plate_name/row/column/image_path`.
+
     Returns:
         well_path: path to the well, of the form `/path/to/plate_name/row/column`.
         image_path: path to the image within the well, of the form `image_path`.

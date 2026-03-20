@@ -529,7 +529,7 @@ def test_wrong_constant_background_wavelengths(
 
     illumination_profiles = ProfileCorrectionModel(
         folder="/fake",
-        profiles={w: "fake.png" for w in wavelengths},
+        profiles=dict.fromkeys(wavelengths, "fake.png"),
     )
     background_model = ConstantCorrectionModel(
         constants=constants_factory(wavelengths),
@@ -560,7 +560,7 @@ def test_inconsistent_fov_sizes(tmp_path: Path) -> None:
         overwrite=True,
         levels=2,
     )
-    # ROI 1: 5×5 µm → 10×10 px; ROI 2: 10×10 µm → 20×20 px — inconsistent sizes
+    # ROI 1: 5x5 um -> 10x10 px; ROI 2: 10x10 um -> 20x20 px -- inconsistent sizes
     roi1 = Roi.from_values(
         name="fov_1", slices={"x": (0.0, 5.0), "y": (0.0, 5.0), "z": (0.0, 1.0)}
     )
@@ -573,7 +573,7 @@ def test_inconsistent_fov_sizes(tmp_path: Path) -> None:
     wavelengths = [w for w in ome_zarr.wavelength_ids if w is not None]
     illumination_profiles = ProfileCorrectionModel(
         folder="/fake",
-        profiles={w: "fake.png" for w in wavelengths},
+        profiles=dict.fromkeys(wavelengths, "fake.png"),
     )
 
     with pytest.raises(ValueError, match="Inconsistent image sizes"):
@@ -604,21 +604,21 @@ def _make_tiny_zyx_zarr_with_roi(tmp_path: Path) -> tuple[str, list[str]]:
     )
     table = ome_zarr.build_image_roi_table("image")
     ome_zarr.add_table("well_ROI_table", table, backend="anndata")
-    wavelengths = list(w for w in ome_zarr.wavelength_ids if w is not None)
+    wavelengths = [w for w in ome_zarr.wavelength_ids if w is not None]
     return str(store), wavelengths
 
 
 def _save_tiny_flatfield(path: Path) -> None:
-    """Save a valid 10×10 flatfield PNG (uniform, no zeros) to *path*."""
+    """Save a valid 10x10 flatfield PNG (uniform, no zeros) to *path*."""
     imsave(str(path), np.full((10, 10), 100, dtype=np.uint16))
 
 
 def test_flatfield_shape_mismatch(tmp_path: Path, testdata_path: Path) -> None:
     zarr_url, wavelengths = _make_tiny_zyx_zarr_with_roi(tmp_path)
-    # The existing PNG is 2160×2560; the image is 10×10 → mismatch
+    # The existing PNG is 2160x2560; the image is 10x10 -> mismatch
     illum_profiles = ProfileCorrectionModel(
         folder=str(testdata_path / "illumination_correction"),
-        profiles={w: "flatfield_corr_matrix.png" for w in wavelengths},
+        profiles=dict.fromkeys(wavelengths, "flatfield_corr_matrix.png"),
     )
 
     with pytest.raises(ValueError, match="illumination"):
@@ -633,17 +633,17 @@ def test_flatfield_shape_mismatch(tmp_path: Path, testdata_path: Path) -> None:
 def test_darkfield_shape_mismatch(tmp_path: Path, testdata_path: Path) -> None:
     zarr_url, wavelengths = _make_tiny_zyx_zarr_with_roi(tmp_path)
 
-    # Flatfield must match (10×10) so we get past that check
+    # Flatfield must match (10x10) so we get past that check
     tiny_ff = tmp_path / "tiny_flatfield.png"
     _save_tiny_flatfield(tiny_ff)
     illum_profiles = ProfileCorrectionModel(
         folder=str(tmp_path),
-        profiles={w: "tiny_flatfield.png" for w in wavelengths},
+        profiles=dict.fromkeys(wavelengths, "tiny_flatfield.png"),
     )
-    # Darkfield PNG is 2160×2560 → mismatch with 10×10 image
+    # Darkfield PNG is 2160x2560 -> mismatch with 10x10 image
     background = ProfileCorrectionModel(
         folder=str(testdata_path / "illumination_correction"),
-        profiles={w: "darkfield_corr_matrix.png" for w in wavelengths},
+        profiles=dict.fromkeys(wavelengths, "darkfield_corr_matrix.png"),
         model="Profile",
     )
 
@@ -667,8 +667,8 @@ def test_clipping_when_values_exceed_dtype_max(
 ) -> None:
     zarr_url, wavelengths = _make_tiny_zyx_zarr_with_roi(tmp_path)
     # Fill the image with high uint16 values (60000)
-    ome = open_ome_zarr_container(zarr_url)
-    img = ome.get_image()
+    some = open_ome_zarr_container(zarr_url)
+    img = some.get_image()
     data = np.full((1, 10, 10), 60_000, dtype=np.uint16)
     img.set_array(data)
     img.consolidate()
@@ -682,7 +682,7 @@ def test_clipping_when_values_exceed_dtype_max(
     imsave(str(ff_path), flatfield)
     illum_profiles = ProfileCorrectionModel(
         folder=str(tmp_path),
-        profiles={w: "flatfield_clip.png" for w in wavelengths},
+        profiles=dict.fromkeys(wavelengths, "flatfield_clip.png"),
     )
 
     with caplog.at_level(logging.WARNING, logger="illumination_correction"):
@@ -701,10 +701,10 @@ def test_extra_background_profile_wavelengths_raises(tmp_path: Path) -> None:
     _save_tiny_flatfield(tiny_ff)
     illum_profiles = ProfileCorrectionModel(
         folder=str(tmp_path),
-        profiles={w: "tiny_flatfield.png" for w in wavelengths},
+        profiles=dict.fromkeys(wavelengths, "tiny_flatfield.png"),
     )
     # Background has an extra wavelength not present in the image
-    background_profiles = {w: "tiny_flatfield.png" for w in wavelengths}
+    background_profiles = dict.fromkeys(wavelengths, "tiny_flatfield.png")
     background_profiles["BOGUS_CHANNEL"] = "tiny_flatfield.png"
     background = ProfileCorrectionModel(
         folder=str(tmp_path),
@@ -729,7 +729,7 @@ def test_zero_in_flatfield_raises(tmp_path: Path) -> None:
     imsave(str(ff_path), flatfield_with_zero)
     illum_profiles = ProfileCorrectionModel(
         folder=str(tmp_path),
-        profiles={w: "flatfield_with_zero.png" for w in wavelengths},
+        profiles=dict.fromkeys(wavelengths, "flatfield_with_zero.png"),
     )
     with pytest.raises(ValueError, match="zero values"):
         illumination_correction(

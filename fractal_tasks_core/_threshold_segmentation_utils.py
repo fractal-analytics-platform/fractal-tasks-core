@@ -1,3 +1,4 @@
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
 """Pydantic models and utilities specific to threshold segmentation."""
 
 import logging

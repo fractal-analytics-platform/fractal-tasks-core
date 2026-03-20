@@ -177,6 +177,7 @@ def _prepare_regionprops_kwargs(
         use_scaling (bool): Whether to use pixel scaling from the image metadata.
             Defaults to True.
         use_cache (bool): Whether to cache the loaded images. Defaults to True.
+
     Returns:
         tuple[dict, list[ChannelSelectionModel] | None]: Keyword arguments to pass
             to regionprops, e.g. {"intensity_image": ...}, and the list
@@ -196,7 +197,7 @@ def _prepare_regionprops_kwargs(
             i: m.identifier for i, m in enumerate(channel_selection_models)
         }
     else:
-        channel_identifiers = {i: label for i, label in enumerate(image.channel_labels)}
+        channel_identifiers = dict(enumerate(image.channel_labels))
 
     px_size = image.pixel_size
     if is_2d:

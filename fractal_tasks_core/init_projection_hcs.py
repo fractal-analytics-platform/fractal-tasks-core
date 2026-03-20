@@ -1,7 +1,5 @@
 # Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
-"""
-Task that copies the structure of an OME-NGFF zarr array to a new one.
-"""
+"""Task that copies the structure of an OME-NGFF zarr array to a new one."""
 
 import logging
 from functools import cache
@@ -20,17 +18,14 @@ logger = logging.getLogger("init_projection_hcs")
 
 @cache
 def _open_well(well_path) -> OmeZarrWell:
-    """
-    Given the absolute `well_url` for an OME-Zarr plate,
-        return the well object.
-    """
+    """Open and return an OME-Zarr well object from the given path."""
     try:
         well = open_ome_zarr_well(well_path, mode="r", cache=True)
-    except NgioFileNotFoundError:
+    except NgioFileNotFoundError as err:
         raise NgioFileNotFoundError(
             f"Could not open well {well_path}. "
             "Ensure that the path is correct and the file exists."
-        )
+        ) from err
     return well
 
 
@@ -39,9 +34,7 @@ def _get_plate(
     proj_plate_url: str,
     re_initialize_plate: bool = False,
 ) -> OmeZarrPlate:
-    """
-    Given the absolute `plate_url` for an OME-Zarr plate,
-        return the plate object.
+    """Get or create an OME-Zarr projection plate.
 
     If the plate already exists, return it.
     If it does not exist, or if `re_initialize_plate` is True,
@@ -79,8 +72,7 @@ def init_projection_hcs(
     overwrite: bool = False,
     re_initialize_plate: bool = False,
 ) -> dict[str, Any]:
-    """
-    Duplicate the OME-Zarr HCS structure for a set of zarr_urls.
+    """Duplicate the OME-Zarr HCS structure for a set of zarr_urls.
 
     This task only processes the zarr images in the zarr_urls, not all the
     images in the plate. It copies all the  plate & well structure, but none
@@ -136,7 +128,7 @@ def init_projection_hcs(
         base_dir = "/".join(base)
 
         plate_url = f"{base_dir}/{plate_name}"
-        plate_name = plate_name.rstrip(".zarr")  # Remove .zarr extension if present
+        plate_name = plate_name.removesuffix(".zarr")
         proj_plate_name = format_template_name(
             output_plate_name,
             plate_name=plate_name,
@@ -201,7 +193,7 @@ def init_projection_hcs(
         parallelization_list.append(parallelization_item)
 
     _open_well.cache_clear()
-    return dict(parallelization_list=parallelization_list)
+    return {"parallelization_list": parallelization_list}
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
 import pytest
 from devtools import debug
@@ -225,7 +225,7 @@ def test_new_plate_name(tmp_path: Path):
         test_new_plate_name = p_list["parallelization_list"][0]["init_args"][
             "new_plate_name"
         ]
-        assert test_new_plate_name == f"plate_xy_2w_1_{method.abbreviation}.zarr", (
+        assert test_new_plate_name == f"plate_xy_2w_1a_{method.abbreviation}.zarr", (
             test_new_plate_name
         )
 

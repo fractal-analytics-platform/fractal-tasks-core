@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 1
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Set up Python 3.11
@@ -35,9 +35,9 @@ jobs:
         continue-on-error: true
         run: ruff check fractal_tasks_core
 
-      - name: Install mypy
-        run: pip install mypy
+      - name: Install ty
+        run: pip install ty
 
-      - name: Run mypy (do not fail for errors)
+      - name: Run ty (do not fail for errors)
         continue-on-error: true
-        run: mypy --package fractal_tasks_core --ignore-missing-imports --warn-redundant-casts --warn-unused-ignores --warn-unreachable --pretty
+        run: ty check fractal_tasks_core

@@ -1,7 +1,5 @@
 # Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
-"""
-Initializes the parallelization list for registration in HCS plates.
-"""
+"""Initializes the parallelization list for registration in HCS plates."""
 
 import logging
 from typing import Any
@@ -23,8 +21,7 @@ def init_image_based_registration(
     # Core parameters
     reference_acquisition: int = 0,
 ) -> dict[str, list[dict[str, Any]]]:
-    """
-    Initialize the image-based registration task.
+    """Initialize the image-based registration task.
 
     This task prepares a parallelization list of all zarr_urls that need to be
     used to calculate the registration between acquisitions (all zarr_urls
@@ -86,12 +83,12 @@ def init_image_based_registration(
             if url.zarr_url == ref_path:
                 continue
             parallelization_list.append(
-                dict(
-                    zarr_url=url.zarr_url,
-                    init_args=dict(reference_zarr_url=ref_path),
-                )
+                {
+                    "zarr_url": url.zarr_url,
+                    "init_args": {"reference_zarr_url": ref_path},
+                }
             )
-    return dict(parallelization_list=parallelization_list)
+    return {"parallelization_list": parallelization_list}
 
 
 if __name__ == "__main__":
