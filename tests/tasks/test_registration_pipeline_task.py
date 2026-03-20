@@ -1300,7 +1300,7 @@ def test_consensus_partial_registration_fails(tmp_path: Path):
         level_path="2",
     )
 
-    with pytest.raises(ValueError, match=r"[Ss]some but not all"):
+    with pytest.raises(ValueError, match=r"[Ss]ome but not all"):
         compute_registration_consensus(
             zarr_url=zarr_url_0,
             init_args=InitArgsRegistrationConsensus(
