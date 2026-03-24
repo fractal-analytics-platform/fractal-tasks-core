@@ -26,7 +26,6 @@ dev = [
     "devtools==0.12.0",
     "pre-commit>=2.19.0",
     "pytest>=7.1.2",
-    "commitizen>=4.0",
     "coverage[toml]>=7.6,<7.7",
     "jsonschema>=4.16.0",
     "ruff>=0.11.0",
@@ -67,15 +66,7 @@ platforms = ["linux-64", "osx-arm64", "win-64"]
 fractal-tasks-core = { path = ".", editable = true }
 # fractal-tasks-utils = { path = "../fractal-tasks-utils", editable = true }
 
-[tool.pixi.feature.dev.pypi-dependencies]
-commitizen = ">=4.0"
-
 [tool.pixi.feature.dev.tasks]
-bump-patch = "cz bump --increment PATCH"
-bump-minor = "cz bump --increment MINOR"
-bump-major = "cz bump --increment MAJOR"
-bump-alpha = "cz bump --prerelease alpha"
-bump-beta = "cz bump --prerelease beta"
 pre-commit = "pre-commit run --all-files; git add -u"
 
 [tool.pixi.environments]
@@ -151,13 +142,6 @@ Comparin = "Comparin"
 [tool.typos.files]
 extend-exclude = ["CHANGELOG.md"]
 
-[tool.commitizen]
-name = "cz_conventional_commits"
-tag_format = "$version"
-version_scheme = "pep440"
-version_provider = "scm"
-update_changelog_on_bump = true
-major_version_zero = true
 
 [tool.check-manifest]
 ignore = [

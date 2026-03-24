@@ -61,16 +61,18 @@ pixi run -e dev fractal-manifest create --package fractal_tasks_core
 
 ### Actual release
 
-1. From within the `main` branch, use a command like:
+1. From within the `main` branch, create a new git tag:
 ```bash
-# Automatic bump of release number
-pixi run -e dev bumpver update --[tag-num|patch|minor] --dry
+# For a release version
+git tag 1.2.3
 
-# Set a specific version
-pixi run -e dev bumpver update --set-version 1.2.3 --dry
+# For a prerelease version
+git tag 1.2.3a1
 ```
-to test updating the version bump
-2. If the previous step looks good, remove the `--dry` and re-run the same command. This will commit both the edited files and the new tag, and push.
+2. Push the tag to the remote:
+```bash
+git push origin <tag>
+```
 3. Approve the new version deployment at [Publish package to PyPI](https://github.com/fractal-analytics-platform/fractal-tasks-core/actions/workflows/publish_pypi.yml) (or have it approved); the corresponding GitHub action will take care of building and publishing the package with the appropriate credentials.
 
 
