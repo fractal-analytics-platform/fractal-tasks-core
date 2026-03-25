@@ -16,23 +16,6 @@ Fractal tasks core is the reference task package for the [Fractal](https://fract
 
 [Fractal](https://fractal-analytics-platform.github.io/) is a framework developed at the [BioVisionCenter](https://www.biovisioncenter.uzh.ch/en.html) to process bioimaging data at scale in the OME-Zarr format and prepare the images for interactive visualization.
 
-## Roadmap fo Fractal Tasks Core V2.0
-- Remove all the tooling around manifest creation and validation (DONE)
-- Remove napari workflows task (DONE)
-- Remove cellpose segmentation task (DONE)
-- Adopt Pixi for environment management and task execution (DONE)
-- Refactor dev tooling (DONE)
-- Refactor Illumination correction task to use ngio (DONE)
-- Cleanup docs (DONE)
-- Refactor registration tasks to use ngio (DONE)
-- Refactor import OME-Zarr task to use ngio (DONE)
-- Improve test_v2 suite to cover all legacy edge cases
-- Remove the cellvoyager conversion tasks (to be moved into fractal-uzh-converters)
-- Refactor test suite to rely more on ngio "correctness" in writing
-- Remove all non-task related code (e.g. NGFF validation, ROI table handling, etc.)
-- Add a new simple segmentation task (like thresholding-based segmentation)
-- Add a new simple measurement task (like regionprops-based measurement)
-
 ## Documentation
 
 See https://fractal-analytics-platform.github.io/fractal-tasks-core
@@ -42,10 +25,6 @@ See https://fractal-analytics-platform.github.io/fractal-tasks-core
 For a complete list of all available Fractal tasks (including tasks from other packages), visit the [Fractal task list](https://fractal-analytics-platform.github.io/fractal_tasks/).
 
 This package includes the following tasks:
-
-- **Image Conversion**:
-  - *Convert Cellvoyager to OME-Zarr*: Converts CV7000/CV8000 images to OME-Zarr format.
-  - *Convert Cellvoyager Multiplexing to OME-Zarr*: Converts multiplexed images from CV7000/CV8000 to OME-Zarr.
 
 - **Image Processing**:
   - *Project Image (HCS Plate)*: Generates intensity projections (e.g., maximum intensity projection) for images in an HCS plate.

@@ -22,11 +22,6 @@ For a complete list of all available Fractal tasks (including tasks from other p
 
 This package includes the following tasks:
 
-**Image Conversion** *(planned to be moved to a separate package)*:
-
-  - *Convert Cellvoyager to OME-Zarr*: Converts CV7000/CV8000 images to OME-Zarr format.
-  - *Convert Cellvoyager Multiplexing to OME-Zarr*: Converts multiplexed images from CV7000/CV8000 to OME-Zarr.
-
 **Image Processing**:
 
   - *Project Image (HCS Plate)*: Generates intensity projections (e.g., maximum intensity projection) for images in an HCS plate.
