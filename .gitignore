@@ -22,7 +22,7 @@ site
 .pixi
 # We might want to track the lock file
 # In the future but for now we can ignore it
-pixi.lock
+# pixi.lock
 .claude
 
 *.zarr
