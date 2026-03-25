@@ -1,6 +1,6 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# Unreleased
+# 2.0.0
 * Development:
     * Move environment management from `poetry` to `pixi`.
     * Replace `black`, `flake8`, `reorder_python_imports` with `ruff` for linting and formatting.
