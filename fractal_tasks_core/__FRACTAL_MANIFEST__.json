@@ -533,8 +533,25 @@
             "description": "Advanced iterator configuration.",
             "properties": {
               "masking": {
-                "$ref": "#/$defs/MaskingConfig",
+                "default": {
+                  "mode": "No Masking"
+                },
                 "description": "If set, the segmentation will be performed only within the confines of\nthe specified mask. A mask can be specified either by a label image or a\nMasking ROI table.",
+                "discriminator": {
+                  "mapping": {
+                    "Masking": "#/$defs/MaskingConfig",
+                    "No Masking": "#/$defs/NoMaskingConfig"
+                  },
+                  "propertyName": "mode"
+                },
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/NoMaskingConfig"
+                  },
+                  {
+                    "$ref": "#/$defs/MaskingConfig"
+                  }
+                ],
                 "title": "Masking Iterator Configuration"
               },
               "roi_table": {
@@ -550,13 +567,20 @@
             "description": "Masking configuration.",
             "properties": {
               "mode": {
+                "const": "Masking",
+                "default": "Masking",
+                "description": "If set to \"No Masking\", the segmentation will be performed without any masking,\nwhile if set to \"Masking\", the segmentation will be performed only within the\nthe confines of the specified mask.",
+                "title": "Mode",
+                "type": "string"
+              },
+              "masking_source": {
                 "default": "Table Name",
-                "description": "Mode of masking to be applied.\n    - If \"Table Name\", the identifier refers to a masking table name.\n    - If \"Label Name\", the identifier refers to a label image name.",
+                "description": "Mode of masking to be applied.\n    - If \"Table Name\", the identifier refers to a table name. This must identify\n    a valid masking ROI table in the ome-Zarr.\n    - If \"Label Name\", the identifier refers to a label image name in the ome-Zarr.\n    In this case, the masking roi table will be built on the fly from the label\n    image.",
                 "enum": [
                   "Table Name",
                   "Label Name"
                 ],
-                "title": "Mode",
+                "title": "Masking Source",
                 "type": "string"
               },
               "identifier": {
@@ -565,6 +589,9 @@
                 "type": "string"
               }
             },
+            "required": [
+              "identifier"
+            ],
             "title": "MaskingConfig",
             "type": "object"
           },
@@ -592,6 +619,20 @@
               }
             },
             "title": "MedianFilterConfig",
+            "type": "object"
+          },
+          "NoMaskingConfig": {
+            "description": "No masking configuration.",
+            "properties": {
+              "mode": {
+                "const": "No Masking",
+                "default": "No Masking",
+                "description": "If set to \"No Masking\", the segmentation will be performed without any masking,\nwhile if set to \"Masking\", the segmentation will be performed only within the\nthe confines of the specified mask.",
+                "title": "Mode",
+                "type": "string"
+              }
+            },
+            "title": "NoMaskingConfig",
             "type": "object"
           },
           "OtsuConfiguration": {
