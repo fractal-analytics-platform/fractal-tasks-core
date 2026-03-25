@@ -1,0 +1,272 @@
+from collections.abc import Callable
+from pathlib import Path
+
+import pytest
+from devtools import debug
+from ngio import (
+    ImageInWellPath,
+    OmeZarrPlate,
+    create_empty_ome_zarr,
+    create_empty_plate,
+    open_ome_zarr_plate,
+)
+
+from fractal_tasks_core.init_projection_hcs import (
+    DaskProjectionMethod,
+    init_projection_hcs,
+)
+
+
+def _build_2w_1a_plate(plate_path: Path) -> OmeZarrPlate:
+    images = [
+        ImageInWellPath(row="A", column="01", path="0"),
+        ImageInWellPath(row="B", column="02", path="0"),
+    ]
+    return create_empty_plate(
+        store=plate_path / "plate_xy_2w_1a.zarr",
+        name="plate_xy_2w_1a",
+        images=images,
+        overwrite=True,
+        cache=True,
+    )
+
+
+def _build_1w_2a_plate(plate_path: Path) -> OmeZarrPlate:
+    images = [
+        ImageInWellPath(row="A", column="01", path="0", acquisition_id=0),
+        ImageInWellPath(row="A", column="01", path="1", acquisition_id=1),
+    ]
+    return create_empty_plate(
+        store=plate_path / "plate_xy_1w_2a.zarr",
+        name="plate_xy_1w_2a",
+        images=images,
+        overwrite=True,
+        cache=True,
+    )
+
+
+def _add_images_to_plate(
+    plate: OmeZarrPlate, shape: tuple[int, ...], axes: str = "czyx"
+) -> OmeZarrPlate:
+    for image_path in plate.images_paths():
+        row, column, path = image_path.split("/")
+        ome_zarr = create_empty_ome_zarr(
+            store=plate.get_image_store(row, column, path),
+            shape=shape,
+            pixelsize=0.5,
+            overwrite=True,
+            levels=2,
+            axes_names=axes,
+        )
+        table = ome_zarr.build_image_roi_table("image")
+        ome_zarr.add_table("well_ROI_table", table, backend="anndata")
+    return plate
+
+
+def _sample_plate_zarr_urls(
+    tmp_path: Path,
+    shape: tuple[int, ...],
+    axes: str,
+    plate_type: str = "2w_1a",
+) -> list[str]:
+    if plate_type == "2w_1a":
+        plate = _build_2w_1a_plate(tmp_path)
+        store_path = tmp_path / "plate_xy_2w_1a.zarr"
+    elif plate_type == "1w_2a":
+        plate = _build_1w_2a_plate(tmp_path)
+        store_path = tmp_path / "plate_xy_1w_2a.zarr"
+    else:
+        raise ValueError(f"Unknown plate type: {plate_type}")
+
+    plate = _add_images_to_plate(plate, shape, axes)
+
+    base_url = store_path.resolve()
+    return [f"{base_url}/{image_path}" for image_path in plate.images_paths()]
+
+
+def plate_2w_1a_czyx(tmp_path: Path) -> list[str]:
+    return _sample_plate_zarr_urls(
+        tmp_path, shape=(3, 4, 10, 10), axes="czyx", plate_type="2w_1a"
+    )
+
+
+def plate_2w_1a_zyx(tmp_path: Path) -> list[str]:
+    return _sample_plate_zarr_urls(
+        tmp_path, shape=(4, 10, 10), axes="zyx", plate_type="2w_1a"
+    )
+
+
+def plate_1w_2a_czyx(tmp_path: Path) -> list[str]:
+    return _sample_plate_zarr_urls(
+        tmp_path, shape=(3, 4, 10, 10), axes="czyx", plate_type="1w_2a"
+    )
+
+
+def _get_plate(zarr_url: str) -> OmeZarrPlate:
+    """
+    Get the plate from the parallelization list.
+    """
+    *plate_url, _, _, _ = zarr_url.split("/")
+    plate_url = "/".join(plate_url)
+    return open_ome_zarr_plate(plate_url, cache=True)
+
+
+@pytest.mark.parametrize(
+    "create_plate",
+    [
+        plate_2w_1a_zyx,
+        plate_1w_2a_czyx,
+    ],
+)
+def test_copy_hcs_plate(create_plate: Callable, tmp_path: Path):
+    # Create a sample plate and returns a list of zarr urls
+    sample_plate_zarr_urls = create_plate(tmp_path)
+    debug(sample_plate_zarr_urls)
+    parallel_list = init_projection_hcs(
+        zarr_urls=sample_plate_zarr_urls, zarr_dir=str(tmp_path)
+    )
+
+    image = parallel_list["parallelization_list"][0]
+    debug(image)
+    assert Path(image["zarr_url"]).parent.exists()
+
+    origin_url = image["init_args"]["origin_url"]
+    assert origin_url in sample_plate_zarr_urls
+
+    source_plate = _get_plate(origin_url)
+    dest_plate = _get_plate(image["zarr_url"])
+
+    assert source_plate.columns == dest_plate.columns
+    assert source_plate.rows == dest_plate.rows
+    assert source_plate.images_paths() == dest_plate.images_paths()
+    assert source_plate.acquisition_ids == dest_plate.acquisition_ids
+
+
+def test_flexibility_copy_hcs(tmp_path: Path):
+    zarr_urls = plate_2w_1a_czyx(tmp_path)
+
+    # Run in subsets
+    subset_dir = str(tmp_path / "subset")
+    # Subset 1
+    parallel_list_1 = init_projection_hcs(
+        zarr_urls=[zarr_urls[0]],
+        zarr_dir=subset_dir,
+        overwrite=True,
+        re_initialize_plate=True,
+    )
+    # Subset 2
+    _ = init_projection_hcs(
+        zarr_urls=[zarr_urls[1]],
+        zarr_dir=subset_dir,
+        overwrite=False,
+        re_initialize_plate=False,
+    )
+
+    zarr_url = parallel_list_1["parallelization_list"][0]["zarr_url"]
+    subset_plate = _get_plate(zarr_url)
+
+    # Run all
+    all_dir = str(tmp_path / "all")
+    parallel_list_all = init_projection_hcs(
+        zarr_urls=zarr_urls,
+        zarr_dir=all_dir,
+        overwrite=True,
+        re_initialize_plate=True,
+    )
+    zarr_url = parallel_list_all["parallelization_list"][0]["zarr_url"]
+    all_plate = _get_plate(zarr_url)
+
+    assert subset_plate.columns == all_plate.columns
+    assert subset_plate.rows == all_plate.rows
+    assert subset_plate.images_paths() == all_plate.images_paths()
+    assert subset_plate.acquisition_ids == all_plate.acquisition_ids
+
+
+def test_fail_overwrite(tmp_path: Path):
+    zarr_urls = plate_2w_1a_czyx(tmp_path)
+
+    init_projection_hcs(
+        zarr_urls=zarr_urls,
+        zarr_dir=str(tmp_path),
+        overwrite=False,
+        re_initialize_plate=False,
+    )
+
+    # Run with re_initialize_plate=True
+    # Should remove all existing images
+    init_projection_hcs(
+        zarr_urls=zarr_urls,
+        zarr_dir=str(tmp_path),
+        overwrite=False,
+        re_initialize_plate=True,
+    )
+
+    with pytest.raises(FileExistsError):
+        init_projection_hcs(
+            zarr_urls=zarr_urls,
+            zarr_dir=str(tmp_path),
+            overwrite=False,
+            re_initialize_plate=False,
+        )
+
+
+def test_new_plate_name(tmp_path: Path):
+    zarr_urls = plate_2w_1a_czyx(tmp_path)
+
+    for method in DaskProjectionMethod:
+        p_list = init_projection_hcs(
+            zarr_urls=[zarr_urls[0]],
+            zarr_dir=str(tmp_path),
+            method=method,
+            overwrite=False,
+            re_initialize_plate=False,
+        )
+
+        test_new_plate_name = p_list["parallelization_list"][0]["init_args"][
+            "new_plate_name"
+        ]
+        assert test_new_plate_name == f"plate_xy_2w_1a_{method.abbreviation}.zarr", (
+            test_new_plate_name
+        )
+
+
+def test_fail_not_plate_url():
+    with pytest.raises(ValueError):
+        # Test with a non-image-in-plate URL
+        init_projection_hcs(
+            zarr_urls=["/tmp/plate.zarr"],
+            zarr_dir="/tmp",
+            overwrite=False,
+            re_initialize_plate=False,
+        )
+
+
+def test_reinit_true(tmp_path: Path):
+    zarr_urls = plate_2w_1a_czyx(tmp_path)
+
+    # Run in subsets
+    # Subset 1
+    parallel_list_1 = init_projection_hcs(
+        zarr_urls=[zarr_urls[0]],
+        zarr_dir=str(tmp_path),
+        overwrite=True,
+        re_initialize_plate=True,
+    )
+
+    zarr_url = parallel_list_1["parallelization_list"][0]["zarr_url"]
+    assert Path(zarr_url).parent.exists()
+
+    # Subset 2 will reinitialize the plate
+    # and overwrite the images
+    parallel_list_2 = init_projection_hcs(
+        zarr_urls=[zarr_urls[1]],
+        zarr_dir=str(tmp_path),
+        overwrite=False,
+        re_initialize_plate=True,
+    )
+
+    zarr_url = parallel_list_2["parallelization_list"][0]["zarr_url"]
+    assert Path(zarr_url).parent.exists()
+
+    zarr_url = parallel_list_1["parallelization_list"][0]["zarr_url"]
+    assert not Path(zarr_url).parent.exists(), zarr_url

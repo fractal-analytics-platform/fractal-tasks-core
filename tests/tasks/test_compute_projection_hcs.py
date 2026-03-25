@@ -1,0 +1,235 @@
+from pathlib import Path
+
+import pytest
+from ngio import create_empty_ome_zarr, open_ome_zarr_container
+from ngio.tables import RoiTable
+from ngio.utils import NgioFileExistsError
+
+from fractal_tasks_core._projection_utils import DaskProjectionMethod
+from fractal_tasks_core.compute_projection_hcs import (
+    InitArgsMIP,
+    compute_projection_hcs,
+)
+from fractal_tasks_core.init_projection_hcs import (
+    init_projection_hcs,
+)
+
+
+@pytest.fixture
+def sample_ome_zarr_zyx_url(tmp_path: Path) -> Path:
+    store = tmp_path / "sample_zyx" / "sample_ome_zarr_zyx.zarr"
+    origin_ome_zarr = create_empty_ome_zarr(
+        store=store,
+        shape=(16, 32, 32),
+        pixelsize=0.1,
+        z_spacing=0.5,
+        overwrite=True,
+        axes_names="zyx",
+    )
+    table = origin_ome_zarr.build_image_roi_table("image")
+    origin_ome_zarr.add_table("well_ROI_table", table, backend="anndata")
+    return store
+
+
+def test_mip_task(cardiomyocyte_tiny_path: Path, tmp_path: Path) -> None:
+    image_url = str(cardiomyocyte_tiny_path / "B" / "03" / "0")
+    parallel_list = init_projection_hcs(
+        zarr_urls=[image_url],
+        zarr_dir=str(tmp_path / "tmp_out"),
+        overwrite=True,
+        re_initialize_plate=True,
+    )
+
+    assert len(parallel_list["parallelization_list"]) == 1
+
+    image = parallel_list["parallelization_list"][0]
+    update_list = compute_projection_hcs(**image)
+
+    zarr_url = update_list["image_list_updates"][0]["zarr_url"]
+    origin_url = update_list["image_list_updates"][0]["origin"]
+    attributes = update_list["image_list_updates"][0]["attributes"]
+    types = update_list["image_list_updates"][0]["types"]
+
+    assert Path(zarr_url).exists()
+    assert Path(origin_url).exists()
+    assert attributes == {
+        "plate": "20200812-CardiomyocyteDifferentiation14-Cycle1-tiny_mip.zarr"
+    }
+    assert types == {"is_3D": False}
+
+    ome_zarr = open_ome_zarr_container(zarr_url)
+
+    image = ome_zarr.get_image()
+    assert image.dimensions.get("z", default=None) == 1
+    assert image.pixel_size.z == 1.0
+
+    assert ome_zarr.list_tables() == ["FOV_ROI_table", "well_ROI_table"]
+
+
+@pytest.mark.parametrize(
+    "shape, axes, expected_shape",
+    [
+        ((16, 32, 32), "zyx", (1, 32, 32)),
+        ((4, 3, 16, 32, 32), "tczyx", (4, 3, 1, 32, 32)),
+        ((1, 1, 16, 32, 32), "tczyx", (1, 1, 1, 32, 32)),
+        ((3, 16, 32, 32), "czyx", (3, 1, 32, 32)),
+    ],
+)
+def test_compute_projection_hcs(
+    shape, axes: str, expected_shape: tuple[int, ...], tmp_path: Path
+) -> None:
+    """
+    Test the projection task.
+    """
+    store = tmp_path / "sample_ome_zarr.zarr"
+    origin_ome_zarr = create_empty_ome_zarr(
+        store=store,
+        shape=shape,
+        pixelsize=0.1,
+        z_spacing=0.5,
+        overwrite=False,
+        axes_names=axes,
+    )
+    table = origin_ome_zarr.build_image_roi_table("image")
+    origin_ome_zarr.add_table("well_ROI_table", table, backend="anndata")
+
+    init_mip = InitArgsMIP(
+        origin_url=str(store),
+        method=DaskProjectionMethod.MIP,
+        overwrite=False,
+        new_plate_name="new_plate.zarr",
+    )
+
+    mip_store = tmp_path / "sample_ome_zarr_mip.zarr"
+    update_list = compute_projection_hcs(zarr_url=str(mip_store), init_args=init_mip)
+
+    zarr_url = update_list["image_list_updates"][0]["zarr_url"]
+    origin_url = update_list["image_list_updates"][0]["origin"]
+    attributes = update_list["image_list_updates"][0]["attributes"]
+    types = update_list["image_list_updates"][0]["types"]
+
+    assert Path(zarr_url).exists()
+    assert Path(origin_url).exists()
+    assert attributes == {"plate": "new_plate.zarr"}
+    assert types == {"is_3D": False}
+
+    ome_zarr = open_ome_zarr_container(zarr_url)
+
+    image = ome_zarr.get_image()
+    assert image.shape == expected_shape
+    assert image.pixel_size.z == 1.0
+
+    assert ome_zarr.list_tables() == ["well_ROI_table"]
+
+    mip_table = ome_zarr.get_table("well_ROI_table")
+    assert isinstance(mip_table, RoiTable)
+    z_slice = mip_table.get("image").get("z")
+    assert z_slice is not None
+    assert z_slice.length == 1
+    assert z_slice.start == 0
+
+
+@pytest.mark.parametrize(
+    "shape, axes",
+    [
+        ((1, 32, 32), "zyx"),
+        ((32, 32), "yx"),
+        ((4, 3, 1, 32, 32), "tczyx"),
+        ((4, 32, 32), "tyx"),
+    ],
+)
+def test_fail_non_3d_compute_projection_hcs(shape, axes: str, tmp_path: Path) -> None:
+    """
+    Test the projection task.
+    """
+    store = tmp_path / "sample_ome_zarr.zarr"
+    create_empty_ome_zarr(
+        store=store,
+        shape=shape,
+        pixelsize=0.1,
+        z_spacing=0.5,
+        overwrite=False,
+        axes_names=axes,
+    )
+
+    init_mip = InitArgsMIP(
+        origin_url=str(store),
+        method=DaskProjectionMethod.MIP,
+        overwrite=False,
+        new_plate_name="new_plate.zarr",
+    )
+
+    mip_store = tmp_path / "sample_ome_zarr_mip.zarr"
+    with pytest.raises(ValueError):
+        compute_projection_hcs(zarr_url=str(mip_store), init_args=init_mip)
+
+
+@pytest.mark.parametrize(
+    "method",
+    [
+        DaskProjectionMethod.MIP,
+        DaskProjectionMethod.MINIP,
+        DaskProjectionMethod.MEANIP,
+        DaskProjectionMethod.SUMIP,
+    ],
+)
+def test_projections_methods(
+    sample_ome_zarr_zyx_url: Path, tmp_path: Path, method: DaskProjectionMethod
+) -> None:
+    """
+    Test the projection task.
+    """
+    init_mip = InitArgsMIP(
+        origin_url=str(sample_ome_zarr_zyx_url),
+        method=method,
+        overwrite=False,
+        new_plate_name="new_plate.zarr",
+    )
+
+    mip_store = tmp_path / "sample_ome_zarr_mip.zarr"
+    update_list = compute_projection_hcs(zarr_url=str(mip_store), init_args=init_mip)
+
+    zarr_url = update_list["image_list_updates"][0]["zarr_url"]
+    origin_url = update_list["image_list_updates"][0]["origin"]
+    attributes = update_list["image_list_updates"][0]["attributes"]
+    types = update_list["image_list_updates"][0]["types"]
+
+    assert Path(zarr_url).exists()
+    assert Path(origin_url).exists()
+    assert attributes == {"plate": "new_plate.zarr"}
+    assert types == {"is_3D": False}
+
+    ome_zarr = open_ome_zarr_container(zarr_url)
+
+    image = ome_zarr.get_image()
+    assert image.shape == (1, 32, 32)
+    assert image.pixel_size.z == 1.0
+
+
+def test_projection_overwrite(sample_ome_zarr_zyx_url: Path, tmp_path: Path) -> None:
+    """
+    Test the projection task.
+    """
+    # Create a plate with 2 wells and 1 acquisition
+    init_mip = InitArgsMIP(
+        origin_url=str(sample_ome_zarr_zyx_url),
+        method=DaskProjectionMethod.MIP,
+        overwrite=True,
+        new_plate_name="new_plate.zarr",
+    )
+
+    mip_store = tmp_path / "sample_ome_zarr_mip.zarr"
+    compute_projection_hcs(zarr_url=str(mip_store), init_args=init_mip)
+
+    compute_projection_hcs(zarr_url=str(mip_store), init_args=init_mip)
+
+    # Check if the overwrite behavior is correct
+    init_mip = InitArgsMIP(
+        origin_url=str(sample_ome_zarr_zyx_url),
+        method=DaskProjectionMethod.MIP,
+        overwrite=False,
+        new_plate_name="new_plate.zarr",
+    )
+
+    with pytest.raises(NgioFileExistsError):
+        compute_projection_hcs(zarr_url=str(mip_store), init_args=init_mip)

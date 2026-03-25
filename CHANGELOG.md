@@ -1,10 +1,42 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# Unreleased
+* Development:
+    * Move environment management from `poetry` to `pixi`.
+    * Replace `black`, `flake8`, `reorder_python_imports` with `ruff` for linting and formatting.
+    * Update line-length from 79 to 88.
+    * Move `fractal-tasks` optional dependencies into core dependencies.
+    * Unify CI test jobs (remove core/tasks split).
+    * Remove outdated docs pages and table specs.
+    * Update docs and README to reflect task-only package framing.
+    * Remove all testings outside of `tests_v2` (not renamed `tests`) and `integration` subpackage.
+    * Update `fractal-task-tools` to v0.4.x.
+    * Adopt `fractal-tasks-utils` for segmentation and measurement tasks.
+    * Use `importlib.metadata` for version detection; rename `__VERSION__` to `__version__`.
+* Library:
+    * Remove all library function outside the `tasks` subpackage.
+    * Move the `tasks` subpackage to the top package level.
+    * Rename task modules for clarity (e.g. `init_image_based` → `init_image_based_registration`, `init_zarr_hcs_plate` → `init_projection_hcs`, `init_registration_multiplexing` → `init_registration_consensus`).
+    * Remove `_io_models` module; redistribute models to respective utility modules.
+* Tasks:
+    * `Import OME-Zarr` task refactored to use `ngio`.
+    * `Registration` tasks refactored to use `ngio`.
+    * `Illumination Correction` task adopted `ngio`.
+    * Simplify `Illumination Correction` task interface: remove `BackgroundCorrection` wrapper model; `background_correction` parameter now accepts correction models directly.
+    * Remove `Cellpose Segmentation` task.
+    * Remove `Napari Workflows Wrapper` task.
+    * Remove `Cellvoyager to OME-Zarr` and `Cellvoyager Multiplexing to OME-Zarr` tasks.
+    * Add new non-hcs `Projection` task.
+    * Add new `Thresholding` segmentation task.
+    * Add new `Measurement` task.
+    * Refactor UI for all tasks to be more consistent across tasks.
+
 # 1.6.0
 * Tests
     * Fix Zenodo data downloads in CI (\#1010).
 * Dependencies
     * Update ngio to v0.4 (\#1007).
+    * Add handling of darkfield correction profiles to illumination correction task.
 
 # 1.5.6
 

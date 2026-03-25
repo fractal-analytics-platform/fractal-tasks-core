@@ -1,0 +1,80 @@
+name: CI (pixi)
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main", "v2"]
+
+jobs:
+  tests:
+    name: "Tests, Python ${{ matrix.python-version }}"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: prefix-dev/setup-pixi@v0.9.4
+        with:
+          environments: dev
+          pixi-version: "latest"
+
+      - name: Check if manifest has changed
+        run: pixi run --environment dev fractal-manifest check --package fractal-tasks-core
+
+      - name: Cache Pooch folder
+        id: cache-pooch-folder
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pooch
+          key: pooch-cache
+
+      - name: Run tests with pytest
+        env:
+          COVERAGE_FILE: coverage-data-${{ matrix.python-version }}
+        run: pixi run --environment dev coverage run -m pytest tests
+
+      - name: Upload coverage data
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-data-${{ matrix.python-version }}
+          path: coverage-data-${{ matrix.python-version }}*
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-24.04
+    needs: [tests]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: prefix-dev/setup-pixi@v0.8.8
+        with:
+          environments: dev
+          pixi-version: "latest"
+
+      - name: Download data
+        uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-data-*
+          merge-multiple: true
+
+      - name: Combine coverage
+        run: pixi run --environment dev coverage combine coverage-data-*
+
+      - name: Add coverage comment to Pull Requests
+        id: coverage_comment
+        uses: py-cov-action/python-coverage-comment-action@v3
+        with:
+          GITHUB_TOKEN: ${{ github.token }}
+          MINIMUM_GREEN: 90
+          MINIMUM_ORANGE: 60
+          ANNOTATE_MISSING_LINES: true
+          ANNOTATION_TYPE: notice

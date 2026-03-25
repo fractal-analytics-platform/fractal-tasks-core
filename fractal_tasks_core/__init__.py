@@ -1,11 +1,9 @@
-import logging
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
+"""Reference task package for the Fractal analytics platform."""
 
+from importlib.metadata import PackageNotFoundError, version
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s; %(levelname)s; %(message)s"
-)
-
-
-__VERSION__ = "1.6.0"
-__OME_NGFF_VERSION__ = "0.4"
-__FRACTAL_TABLE_VERSION__ = "1"
+try:
+    __version__ = version("fractal-tasks-core")
+except PackageNotFoundError:
+    __version__ = "uninstalled"

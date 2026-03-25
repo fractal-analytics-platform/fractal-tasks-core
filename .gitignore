@@ -17,3 +17,12 @@ _build
 venv
 site
 .vscode
+
+# Pixi-related
+.pixi
+# We might want to track the lock file
+# In the future but for now we can ignore it
+# pixi.lock
+.claude
+
+*.zarr

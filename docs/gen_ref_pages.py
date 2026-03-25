@@ -1,29 +1,32 @@
+"""Generate API reference pages for mkdocs."""
+
 import logging
+from collections.abc import Iterable, Mapping
 from pathlib import Path
-from typing import Iterable
-from typing import Mapping
 
 import mkdocs_gen_files
 from mkdocs_gen_files import Nav
 
 
 class CustomNav(Nav):
-    """
+    """Custom Nav with a specific ordering for top-level sections.
+
     The original Nav class is part of mkdocs_gen_files
-    (https://github.com/oprypin/mkdocs-gen-files)
+    (https://github.com/oprypin/mkdocs-gen-files).
     Original Copyright 2020 Oleh Prypin <oleh@pryp.in>
     License: MIT
     """
 
     def __init__(self, *args, **kwargs):
+        """Initialize CustomNav."""
         super().__init__(*args, **kwargs)
 
     @classmethod
     def _items(cls, data: Mapping, level: int) -> Iterable[Nav.Item]:
-        """
-        Custom modification: rather than looping over data.items(), we loop
-        over keys/values in a custom order (that is, we first include "tasks",
-        then "dev", then all the rest)
+        """Loop over keys/values in a custom order.
+
+        Rather than looping over data.items(), we first include "tasks",
+        then "dev", then all the rest.
         """
         sorted_keys = list(data.keys())
         if None in sorted_keys:
@@ -31,17 +34,15 @@ class CustomNav(Nav):
         sorted_keys = sorted(sorted_keys, key=str.casefold)
         if "dev" in sorted_keys:
             sorted_keys.remove("dev")
-            sorted_keys = ["dev"] + sorted_keys
+            sorted_keys = ["dev", *sorted_keys]
         if "tasks" in sorted_keys:
             sorted_keys.remove("tasks")
-            sorted_keys = ["tasks"] + sorted_keys
+            sorted_keys = ["tasks", *sorted_keys]
 
         for key in sorted_keys:
             value = data[key]
             if key is not None:
-                yield cls.Item(
-                    level=level, title=key, filename=value.get(None)
-                )
+                yield cls.Item(level=level, title=key, filename=value.get(None))
                 yield from cls._items(value, level + 1)
 
 

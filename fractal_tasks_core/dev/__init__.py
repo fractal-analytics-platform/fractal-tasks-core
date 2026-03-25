@@ -1,4 +1,2 @@
-"""
-Development-tools subpackage (e.g. for the creation of JSON Schemas for task
-parameters).
-"""
+# Copyright 2022-2026 (C) BioVisionCenter, University of Zurich
+"""Fractal-tasks-core task list for manifest generation."""
