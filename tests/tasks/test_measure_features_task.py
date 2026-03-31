@@ -132,6 +132,20 @@ def test_intensity_features_property_names() -> None:
     }
 
 
+def test_intensity_features_to_channel_selection_models() -> None:
+    """Empty list and None both return None; a populated list returns models."""
+    from fractal_tasks_core._measure_features_utils import InputChannel
+
+    assert IntensityFeatures(channels=None).to_channel_selection_models() is None
+    assert IntensityFeatures(channels=[]).to_channel_selection_models() is None
+
+    ch = InputChannel(mode="index", identifier="0")
+    result = IntensityFeatures(channels=[ch]).to_channel_selection_models()
+    assert result is not None
+    assert len(result) == 1
+    assert result[0].identifier == "0"
+
+
 # ---------------------------------------------------------------------------
 # Unit tests — region_props_features_func
 # ---------------------------------------------------------------------------
