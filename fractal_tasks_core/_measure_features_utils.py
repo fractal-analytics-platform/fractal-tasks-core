@@ -122,9 +122,9 @@ class IntensityFeatures(BaseModel):
             list[ChannelSelectionModel] | None: List of channel selection models,
                 or None if no channels are specified.
         """
-        if self.channels is None:
-            return None
-        return [channel.to_channel_selection_models() for channel in self.channels]
+        if self.channels:
+            return [channel.to_channel_selection_models() for channel in self.channels]
+        return None
 
 
 SupportedFeatures = Annotated[
