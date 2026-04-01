@@ -6,22 +6,22 @@
 |------------------------------------------------------------ | -------: | -------: | -------: | -------: | ------: | --------: |
 | fractal\_tasks\_core/\_\_init\_\_.py                        |        5 |        2 |        0 |        0 |     60% |       8-9 |
 | fractal\_tasks\_core/\_illumination\_correction\_utils.py   |       23 |        0 |        2 |        0 |    100% |           |
-| fractal\_tasks\_core/\_measure\_features\_utils.py          |       93 |        1 |       30 |        2 |     98% |228, 258->261 |
-| fractal\_tasks\_core/\_projection\_utils.py                 |       80 |        1 |       12 |        2 |     97% |176, 252->254 |
-| fractal\_tasks\_core/\_registration\_utils.py               |       29 |        0 |        8 |        1 |     97% |  72->exit |
+| fractal\_tasks\_core/\_measure\_features\_utils.py          |       93 |        1 |       30 |        2 |     98% |228, 258-\>261 |
+| fractal\_tasks\_core/\_projection\_utils.py                 |       80 |        1 |       12 |        2 |     97% |176, 252-\>254 |
+| fractal\_tasks\_core/\_registration\_utils.py               |       29 |        0 |        8 |        1 |     97% | 72-\>exit |
 | fractal\_tasks\_core/\_threshold\_segmentation\_utils.py    |       57 |        1 |        2 |        1 |     97% |       206 |
 | fractal\_tasks\_core/\_utils.py                             |       56 |        0 |       14 |        0 |    100% |           |
-| fractal\_tasks\_core/apply\_registration\_to\_image.py      |      106 |        9 |       38 |        6 |     90% |166-167, 200, 237->248, 250->278, 262-269, 309-311 |
+| fractal\_tasks\_core/apply\_registration\_to\_image.py      |      106 |        9 |       38 |        6 |     90% |166-167, 200, 237-\>248, 250-\>278, 262-269, 309-311 |
 | fractal\_tasks\_core/compute\_image\_based\_registration.py |       47 |        3 |       14 |        2 |     92% |113, 160-162 |
 | fractal\_tasks\_core/compute\_projection\_hcs.py            |       11 |        2 |        2 |        1 |     77% |     45-47 |
-| fractal\_tasks\_core/compute\_registration\_consensus.py    |      110 |        6 |       38 |        6 |     92% |49->exit, 72, 167, 210, 242, 268-270 |
+| fractal\_tasks\_core/compute\_registration\_consensus.py    |      110 |        6 |       38 |        6 |     92% |49-\>exit, 72, 167, 210, 242, 268-270 |
 | fractal\_tasks\_core/illumination\_correction.py            |      134 |        4 |       64 |        3 |     96% |238, 290, 340-342 |
 | fractal\_tasks\_core/import\_ome\_zarr.py                   |      107 |        4 |       26 |        3 |     95% |39, 335, 347-349 |
 | fractal\_tasks\_core/init\_image\_based\_registration.py    |       30 |        3 |       12 |        2 |     88% | 72, 95-97 |
-| fractal\_tasks\_core/init\_projection\_hcs.py               |       68 |        5 |       16 |        3 |     90% |24-25, 138->140, 166, 200-202 |
+| fractal\_tasks\_core/init\_projection\_hcs.py               |       68 |        5 |       16 |        3 |     90% |24-25, 138-\>140, 166, 200-202 |
 | fractal\_tasks\_core/init\_registration\_consensus.py       |       27 |        3 |        8 |        2 |     86% | 60, 81-83 |
 | fractal\_tasks\_core/measure\_features.py                   |       35 |        3 |        8 |        1 |     91% |29, 121-123 |
-| fractal\_tasks\_core/projection.py                          |       19 |        2 |        6 |        2 |     84% |54->56, 66-68 |
+| fractal\_tasks\_core/projection.py                          |       19 |        2 |        6 |        2 |     84% |54-\>56, 66-68 |
 | fractal\_tasks\_core/threshold\_segmentation.py             |       39 |        2 |        6 |        1 |     93% |   160-162 |
 | **TOTAL**                                                   | **1076** |   **51** |  **306** |   **38** | **94%** |           |
 
