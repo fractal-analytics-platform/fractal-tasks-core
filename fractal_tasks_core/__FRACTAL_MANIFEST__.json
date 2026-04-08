@@ -115,6 +115,7 @@
                 "title": "Method"
               },
               "overwrite": {
+                "default": false,
                 "title": "Overwrite",
                 "type": "boolean"
               },
@@ -125,7 +126,6 @@
             },
             "required": [
               "origin_url",
-              "overwrite",
               "new_plate_name"
             ],
             "title": "InitArgsMIP",
