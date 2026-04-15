@@ -53,7 +53,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0c/d5/c5db1ea3394c6e1732fb3286b3bd878b59507a8f77d32a2cebda7d7b7cd4/donfig-0.8.1.post1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a4/a5/842ae8f0c08b61d6484b52f99a03510a3a72d23141942d216ebe81fefbce/filelock-3.25.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/28/63/cd0c3b26afe60995a5295f37c246a93d454023726c3261cfbb3559969bb9/fonttools-4.62.1-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/18/d1/07221659a367736599573f2552c8957663a8857836a6d12f5d04fe7ea58e/fractal_task_tools-0.5.0a12-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/4f/04/c0292af2a0c0a0454860d0f95e2e709c044c3f2957c79f1c40c21d66a4f6/fractal_task_tools-0.5.0a13-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/02/c4/7f97d13e019781bb71c97fe8984f197d4bfc7c123b9eb2c2f56a2326935f/fractal_tasks_utils-0.1.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a7/b2/fabede9fafd976b991e9f1b9c8c873ed86f202889b864756f240ce6dd855/frozenlist-1.8.0-cp314-cp314-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/d5/1f/5f4a3cd9e4440e9d9bc78ad0a91a1c8d46b4d429d5239ebe6793c9fe5c41/fsspec-2026.3.0-py3-none-any.whl
@@ -156,7 +156,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0c/d5/c5db1ea3394c6e1732fb3286b3bd878b59507a8f77d32a2cebda7d7b7cd4/donfig-0.8.1.post1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a4/a5/842ae8f0c08b61d6484b52f99a03510a3a72d23141942d216ebe81fefbce/filelock-3.25.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/36/f0/2888cdac391807d68d90dcb16ef858ddc1b5309bfc6966195a459dd326e2/fonttools-4.62.1-cp314-cp314-macosx_10_15_universal2.whl
-      - pypi: https://files.pythonhosted.org/packages/18/d1/07221659a367736599573f2552c8957663a8857836a6d12f5d04fe7ea58e/fractal_task_tools-0.5.0a12-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/4f/04/c0292af2a0c0a0454860d0f95e2e709c044c3f2957c79f1c40c21d66a4f6/fractal_task_tools-0.5.0a13-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/02/c4/7f97d13e019781bb71c97fe8984f197d4bfc7c123b9eb2c2f56a2326935f/fractal_tasks_utils-0.1.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a1/93/72b1736d68f03fda5fdf0f2180fb6caaae3894f1b854d006ac61ecc727ee/frozenlist-1.8.0-cp314-cp314-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/d5/1f/5f4a3cd9e4440e9d9bc78ad0a91a1c8d46b4d429d5239ebe6793c9fe5c41/fsspec-2026.3.0-py3-none-any.whl
@@ -261,7 +261,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0c/d5/c5db1ea3394c6e1732fb3286b3bd878b59507a8f77d32a2cebda7d7b7cd4/donfig-0.8.1.post1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a4/a5/842ae8f0c08b61d6484b52f99a03510a3a72d23141942d216ebe81fefbce/filelock-3.25.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/6b/67/74b070029043186b5dd13462c958cb7c7f811be0d2e634309d9a1ffb1505/fonttools-4.62.1-cp314-cp314-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/18/d1/07221659a367736599573f2552c8957663a8857836a6d12f5d04fe7ea58e/fractal_task_tools-0.5.0a12-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/4f/04/c0292af2a0c0a0454860d0f95e2e709c044c3f2957c79f1c40c21d66a4f6/fractal_task_tools-0.5.0a13-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/02/c4/7f97d13e019781bb71c97fe8984f197d4bfc7c123b9eb2c2f56a2326935f/fractal_tasks_utils-0.1.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/59/ad/9caa9b9c836d9ad6f067157a531ac48b7d36499f5036d4141ce78c230b1b/frozenlist-1.8.0-cp314-cp314-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/d5/1f/5f4a3cd9e4440e9d9bc78ad0a91a1c8d46b4d429d5239ebe6793c9fe5c41/fsspec-2026.3.0-py3-none-any.whl
@@ -401,7 +401,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/a4/a5/842ae8f0c08b61d6484b52f99a03510a3a72d23141942d216ebe81fefbce/filelock-3.25.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/28/63/cd0c3b26afe60995a5295f37c246a93d454023726c3261cfbb3559969bb9/fonttools-4.62.1-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/cf/58/8acf1b3e91c58313ce5cb67df61001fc9dcd21be4fadb76c1a2d540e09ed/fqdn-1.5.1-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/18/d1/07221659a367736599573f2552c8957663a8857836a6d12f5d04fe7ea58e/fractal_task_tools-0.5.0a12-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/4f/04/c0292af2a0c0a0454860d0f95e2e709c044c3f2957c79f1c40c21d66a4f6/fractal_task_tools-0.5.0a13-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/02/c4/7f97d13e019781bb71c97fe8984f197d4bfc7c123b9eb2c2f56a2326935f/fractal_tasks_utils-0.1.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a7/b2/fabede9fafd976b991e9f1b9c8c873ed86f202889b864756f240ce6dd855/frozenlist-1.8.0-cp314-cp314-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/d5/1f/5f4a3cd9e4440e9d9bc78ad0a91a1c8d46b4d429d5239ebe6793c9fe5c41/fsspec-2026.3.0-py3-none-any.whl
@@ -618,7 +618,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/a4/a5/842ae8f0c08b61d6484b52f99a03510a3a72d23141942d216ebe81fefbce/filelock-3.25.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/36/f0/2888cdac391807d68d90dcb16ef858ddc1b5309bfc6966195a459dd326e2/fonttools-4.62.1-cp314-cp314-macosx_10_15_universal2.whl
       - pypi: https://files.pythonhosted.org/packages/cf/58/8acf1b3e91c58313ce5cb67df61001fc9dcd21be4fadb76c1a2d540e09ed/fqdn-1.5.1-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/18/d1/07221659a367736599573f2552c8957663a8857836a6d12f5d04fe7ea58e/fractal_task_tools-0.5.0a12-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/4f/04/c0292af2a0c0a0454860d0f95e2e709c044c3f2957c79f1c40c21d66a4f6/fractal_task_tools-0.5.0a13-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/02/c4/7f97d13e019781bb71c97fe8984f197d4bfc7c123b9eb2c2f56a2326935f/fractal_tasks_utils-0.1.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a1/93/72b1736d68f03fda5fdf0f2180fb6caaae3894f1b854d006ac61ecc727ee/frozenlist-1.8.0-cp314-cp314-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/d5/1f/5f4a3cd9e4440e9d9bc78ad0a91a1c8d46b4d429d5239ebe6793c9fe5c41/fsspec-2026.3.0-py3-none-any.whl
@@ -834,7 +834,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/a4/a5/842ae8f0c08b61d6484b52f99a03510a3a72d23141942d216ebe81fefbce/filelock-3.25.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/6b/67/74b070029043186b5dd13462c958cb7c7f811be0d2e634309d9a1ffb1505/fonttools-4.62.1-cp314-cp314-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/cf/58/8acf1b3e91c58313ce5cb67df61001fc9dcd21be4fadb76c1a2d540e09ed/fqdn-1.5.1-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/18/d1/07221659a367736599573f2552c8957663a8857836a6d12f5d04fe7ea58e/fractal_task_tools-0.5.0a12-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/4f/04/c0292af2a0c0a0454860d0f95e2e709c044c3f2957c79f1c40c21d66a4f6/fractal_task_tools-0.5.0a13-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/02/c4/7f97d13e019781bb71c97fe8984f197d4bfc7c123b9eb2c2f56a2326935f/fractal_tasks_utils-0.1.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/59/ad/9caa9b9c836d9ad6f067157a531ac48b7d36499f5036d4141ce78c230b1b/frozenlist-1.8.0-cp314-cp314-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/d5/1f/5f4a3cd9e4440e9d9bc78ad0a91a1c8d46b4d429d5239ebe6793c9fe5c41/fsspec-2026.3.0-py3-none-any.whl
@@ -1046,7 +1046,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0c/d5/c5db1ea3394c6e1732fb3286b3bd878b59507a8f77d32a2cebda7d7b7cd4/donfig-0.8.1.post1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a4/a5/842ae8f0c08b61d6484b52f99a03510a3a72d23141942d216ebe81fefbce/filelock-3.25.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/28/63/cd0c3b26afe60995a5295f37c246a93d454023726c3261cfbb3559969bb9/fonttools-4.62.1-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/18/d1/07221659a367736599573f2552c8957663a8857836a6d12f5d04fe7ea58e/fractal_task_tools-0.5.0a12-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/4f/04/c0292af2a0c0a0454860d0f95e2e709c044c3f2957c79f1c40c21d66a4f6/fractal_task_tools-0.5.0a13-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/02/c4/7f97d13e019781bb71c97fe8984f197d4bfc7c123b9eb2c2f56a2326935f/fractal_tasks_utils-0.1.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a7/b2/fabede9fafd976b991e9f1b9c8c873ed86f202889b864756f240ce6dd855/frozenlist-1.8.0-cp314-cp314-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/d5/1f/5f4a3cd9e4440e9d9bc78ad0a91a1c8d46b4d429d5239ebe6793c9fe5c41/fsspec-2026.3.0-py3-none-any.whl
@@ -1174,7 +1174,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0c/d5/c5db1ea3394c6e1732fb3286b3bd878b59507a8f77d32a2cebda7d7b7cd4/donfig-0.8.1.post1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a4/a5/842ae8f0c08b61d6484b52f99a03510a3a72d23141942d216ebe81fefbce/filelock-3.25.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/36/f0/2888cdac391807d68d90dcb16ef858ddc1b5309bfc6966195a459dd326e2/fonttools-4.62.1-cp314-cp314-macosx_10_15_universal2.whl
-      - pypi: https://files.pythonhosted.org/packages/18/d1/07221659a367736599573f2552c8957663a8857836a6d12f5d04fe7ea58e/fractal_task_tools-0.5.0a12-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/4f/04/c0292af2a0c0a0454860d0f95e2e709c044c3f2957c79f1c40c21d66a4f6/fractal_task_tools-0.5.0a13-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/02/c4/7f97d13e019781bb71c97fe8984f197d4bfc7c123b9eb2c2f56a2326935f/fractal_tasks_utils-0.1.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a1/93/72b1736d68f03fda5fdf0f2180fb6caaae3894f1b854d006ac61ecc727ee/frozenlist-1.8.0-cp314-cp314-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/d5/1f/5f4a3cd9e4440e9d9bc78ad0a91a1c8d46b4d429d5239ebe6793c9fe5c41/fsspec-2026.3.0-py3-none-any.whl
@@ -1303,7 +1303,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0c/d5/c5db1ea3394c6e1732fb3286b3bd878b59507a8f77d32a2cebda7d7b7cd4/donfig-0.8.1.post1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a4/a5/842ae8f0c08b61d6484b52f99a03510a3a72d23141942d216ebe81fefbce/filelock-3.25.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/6b/67/74b070029043186b5dd13462c958cb7c7f811be0d2e634309d9a1ffb1505/fonttools-4.62.1-cp314-cp314-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/18/d1/07221659a367736599573f2552c8957663a8857836a6d12f5d04fe7ea58e/fractal_task_tools-0.5.0a12-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/4f/04/c0292af2a0c0a0454860d0f95e2e709c044c3f2957c79f1c40c21d66a4f6/fractal_task_tools-0.5.0a13-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/02/c4/7f97d13e019781bb71c97fe8984f197d4bfc7c123b9eb2c2f56a2326935f/fractal_tasks_utils-0.1.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/59/ad/9caa9b9c836d9ad6f067157a531ac48b7d36499f5036d4141ce78c230b1b/frozenlist-1.8.0-cp314-cp314-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/d5/1f/5f4a3cd9e4440e9d9bc78ad0a91a1c8d46b4d429d5239ebe6793c9fe5c41/fsspec-2026.3.0-py3-none-any.whl
@@ -2464,10 +2464,10 @@ packages:
   requires_dist:
   - cached-property>=1.3.0 ; python_full_version < '3.8'
   requires_python: '>=2.7,!=3.0,!=3.1,!=3.2,!=3.3,!=3.4,<4'
-- pypi: https://files.pythonhosted.org/packages/18/d1/07221659a367736599573f2552c8957663a8857836a6d12f5d04fe7ea58e/fractal_task_tools-0.5.0a12-py3-none-any.whl
+- pypi: https://files.pythonhosted.org/packages/4f/04/c0292af2a0c0a0454860d0f95e2e709c044c3f2957c79f1c40c21d66a4f6/fractal_task_tools-0.5.0a13-py3-none-any.whl
   name: fractal-task-tools
-  version: 0.5.0a12
-  sha256: 3e674809c8f2b962e95d634ed7b1c541fc013ece2308a2f0cb7adcdfb09c3a90
+  version: 0.5.0a13
+  sha256: 34642bc71ea6c7af7071d1d49ec14e902f643e956d352fc11eb6760da6b1602e
   requires_dist:
   - pydantic>=2.11.0,<2.13.0
   - docstring-parser>=0.15,<=0.17
@@ -2487,11 +2487,11 @@ packages:
   requires_python: '>=3.11,<3.15'
 - pypi: ./
   name: fractal-tasks-core
-  version: 2.0.2.dev0+g8bf24c72d.d20260407
-  sha256: 3d3997a06a26972764769b77c0baba2ae380b16e13248f968b189c32a721ad1b
+  version: 2.0.2.dev2+gfb63b5ea7.d20260415
+  sha256: 617efe28f76ff82147d387d8484d4713c3571edba48d77fc0db044a7f0c826af
   requires_dist:
   - dask>=2023.1.0,<2025.11.0
-  - fractal-task-tools==0.5.0a12
+  - fractal-task-tools==0.5.0a13
   - fractal-tasks-utils>=0.1.3,<0.2.0
   - image-registration>=0.2.9
   - ngio>=0.5.8,<0.6.0
