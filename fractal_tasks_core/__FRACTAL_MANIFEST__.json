@@ -115,6 +115,7 @@
                 "title": "Method"
               },
               "overwrite": {
+                "default": false,
                 "title": "Overwrite",
                 "type": "boolean"
               },
@@ -125,7 +126,6 @@
             },
             "required": [
               "origin_url",
-              "overwrite",
               "new_plate_name"
             ],
             "title": "InitArgsMIP",
@@ -451,9 +451,17 @@
                 "type": "number"
               },
               "sigma_z": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
                 "description": "Standard deviation for Gaussian kernel in Z axis.\nIf not specified, no blurring is applied in Z axis.",
-                "title": "Sigma Z",
-                "type": "number"
+                "title": "Sigma Z"
               }
             },
             "title": "GaussianBlurConfig",
@@ -470,14 +478,30 @@
                 "type": "string"
               },
               "kernel_size_xy": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
                 "description": "Shape of kernel in XY plane. If None, the default is 1/8 of image height by\n1/8 of its width.",
-                "title": "Kernel Size XY",
-                "type": "integer"
+                "title": "Kernel Size XY"
               },
               "kernel_size_z": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
                 "description": "Shape of kernel in Z axis. If None, the default is 1/8 of image height by\n1/8 of its width.",
-                "title": "Kernel Size Z",
-                "type": "integer"
+                "title": "Kernel Size Z"
               },
               "clip_limit": {
                 "default": 0.01,
@@ -555,9 +579,17 @@
                 "title": "Masking Iterator Configuration"
               },
               "roi_table": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
                 "description": "Name of a ROI table. If set, the segmentation will be applied to each ROI\nin the table individually. This option can be combined with masking.",
-                "title": "Iterate Over ROIs",
-                "type": "string"
+                "title": "Iterate Over ROIs"
               }
             },
             "title": "IteratorConfig",
@@ -613,9 +645,17 @@
                 "type": "integer"
               },
               "size_z": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
                 "description": "Size in pixels of the median filter in Z axis.\nIf not specified, no filtering is applied in Z axis.",
-                "title": "Size Z",
-                "type": "integer"
+                "title": "Size Z"
               }
             },
             "title": "MedianFilterConfig",
@@ -781,8 +821,16 @@
             "description": "Name of the resulting label image. Optionally, it can contain a placeholder \"{channel_identifier}\" which will be replaced by the channel identifier specified in the channels parameter."
           },
           "level_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
             "title": "Level Path",
-            "type": "string",
             "description": "If the OME-Zarr has multiple resolution levels, the level to use can be specified here. If not provided, the highest resolution level will be used."
           },
           "segmentation_method": {
@@ -808,7 +856,15 @@
             "description": "Configuration for the segmentation method."
           },
           "iterator_configuration": {
-            "$ref": "#/$defs/IteratorConfig",
+            "anyOf": [
+              {
+                "$ref": "#/$defs/IteratorConfig"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
             "title": "Iterator Configuration",
             "description": "Optionally restrict segmentation to a specific set of ROIs or a sub-region. If not provided, the full image is segmented."
           },
@@ -880,9 +936,17 @@
             "description": "Advanced options for feature measurement.",
             "properties": {
               "level_path": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
                 "description": "Optional path to the pyramid level to use for the measurement.\nIf None, the highest resolution level will be used.",
-                "title": "Level Path",
-                "type": "string"
+                "title": "Level Path"
               },
               "use_scaling": {
                 "default": true,
@@ -949,12 +1013,20 @@
                 "type": "string"
               },
               "channels": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "$ref": "#/$defs/InputChannel"
+                    },
+                    "type": "array"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
                 "description": "List of channels to extract intensity features from. If None all\nchannels will be used.",
-                "items": {
-                  "$ref": "#/$defs/InputChannel"
-                },
-                "title": "Channels",
-                "type": "array"
+                "title": "Channels"
               }
             },
             "title": "IntensityFeatures",
@@ -1032,8 +1104,16 @@
             "description": "List of feature configurations describing which properties to extract."
           },
           "input_roi_table": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
             "title": "Input Roi Table",
-            "type": "string",
             "description": "Name of the ROI table to condition the feature extraction on. If None, features will be extracted for the whole label image (2D) or volume (3D)."
           },
           "advanced_options": {
@@ -1450,6 +1530,6 @@
     }
   ],
   "has_args_schemas": true,
-  "args_schema_version": "pydantic_v2",
+  "args_schema_version": "fractal_schema_v1",
   "authors": "Fractal Core Team"
 }
