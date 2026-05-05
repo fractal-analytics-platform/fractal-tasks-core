@@ -2487,11 +2487,11 @@ packages:
   requires_python: '>=3.11,<3.15'
 - pypi: ./
   name: fractal-tasks-core
-  version: 2.0.2.dev3+g09a817dd7.d20260422
-  sha256: 0e860d0c256e00254cbd78604dfd9a121e2be77e27fb23ad79e82d0f5c2a9cc5
+  version: 2.0.2.dev6+g21931ea99
+  sha256: 03de669c7af40b202ffbb7dbfcc3422690a11c17e75830b9445b511a375afeaa
   requires_dist:
   - dask>=2023.1.0,<2025.11.0
-  - fractal-task-tools==0.5.0
+  - fractal-task-tools>=0.5.0,<0.6.0
   - fractal-tasks-utils>=0.1.3,<0.2.0
   - image-registration>=0.2.9
   - ngio>=0.5.8,<0.6.0
