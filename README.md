@@ -7,7 +7,7 @@
 | fractal\_tasks\_core/\_\_init\_\_.py                        |        5 |        2 |        0 |        0 |     60% |       8-9 |
 | fractal\_tasks\_core/\_illumination\_correction\_utils.py   |       23 |        0 |        2 |        0 |    100% |           |
 | fractal\_tasks\_core/\_measure\_features\_utils.py          |       93 |        1 |       30 |        2 |     98% |228, 258-\>261 |
-| fractal\_tasks\_core/\_projection\_utils.py                 |       80 |        1 |       12 |        2 |     97% |176, 252-\>254 |
+| fractal\_tasks\_core/\_projection\_utils.py                 |       81 |        1 |       12 |        2 |     97% |176, 252-\>254 |
 | fractal\_tasks\_core/\_registration\_utils.py               |       29 |        0 |        8 |        1 |     97% | 72-\>exit |
 | fractal\_tasks\_core/\_threshold\_segmentation\_utils.py    |       57 |        1 |        2 |        1 |     97% |       206 |
 | fractal\_tasks\_core/\_utils.py                             |       56 |        0 |       14 |        0 |    100% |           |
@@ -23,7 +23,7 @@
 | fractal\_tasks\_core/measure\_features.py                   |       35 |        3 |        8 |        1 |     91% |29, 121-123 |
 | fractal\_tasks\_core/projection.py                          |       19 |        2 |        6 |        2 |     84% |54-\>56, 66-68 |
 | fractal\_tasks\_core/threshold\_segmentation.py             |       39 |        2 |        6 |        1 |     93% |   160-162 |
-| **TOTAL**                                                   | **1076** |   **51** |  **306** |   **38** | **94%** |           |
+| **TOTAL**                                                   | **1077** |   **51** |  **306** |   **38** | **94%** |           |
 
 
 ## Setup coverage badge
