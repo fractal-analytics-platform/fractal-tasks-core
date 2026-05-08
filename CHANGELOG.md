@@ -1,5 +1,9 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# Unreleased
+* Dependencies:
+    * Update fractal-task-tools to 0.5.0 (\#1042).
+
 # 2.0.1
 * Tasks:
     * Fix `IntensityFeatures.to_channel_selection_models()`: an empty `channels` list now correctly returns `None` instead of an empty list (\#1038).

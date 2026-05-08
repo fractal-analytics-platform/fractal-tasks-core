@@ -283,5 +283,5 @@ class InitArgsMIP(BaseModel):
 
     origin_url: str
     method: DaskProjectionMethod = DaskProjectionMethod.MIP
-    overwrite: bool
+    overwrite: bool = False
     new_plate_name: str
