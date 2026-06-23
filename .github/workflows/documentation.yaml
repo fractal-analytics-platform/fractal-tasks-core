@@ -23,8 +23,9 @@ jobs:
           environments: docs
           pixi-version: "latest"
           cache: false
+          activate-environment: true
 
-      - run: pixi run --frozen mkdocs build --config-file mkdocs.yml --site-dir site --clean
+      - run: mkdocs build --config-file mkdocs.yml --site-dir site --clean
 
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
