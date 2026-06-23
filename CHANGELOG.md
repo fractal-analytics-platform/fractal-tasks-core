@@ -1,5 +1,6 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+
 # 2.0.2
 * Tasks:
     * Fix `import_ome_zarr`: `grid_y_shape`/`grid_x_shape` now correctly specify the number of ROIs per axis (a 2x2 grid by default) rather than the ROI pixel size (\#1048).
@@ -7,6 +8,7 @@
     * Update fractal-task-tools to 0.5.0 (\#1042).
 * Documentation:
     * Review docs GitHub Action (\#1051).
+    * Remove `polyfill` from extra JS (\#1053).
 
 # 2.0.1
 * Tasks:
