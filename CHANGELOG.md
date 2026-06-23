@@ -3,6 +3,8 @@
 # Unreleased
 * Dependencies:
     * Update fractal-task-tools to 0.5.0 (\#1042).
+* Documentation:
+    * Review docs GitHub Action (\#1051).
 
 # 2.0.1
 * Tasks:
