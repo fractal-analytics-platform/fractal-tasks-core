@@ -183,10 +183,14 @@ def test_import_overwrite(tmp_path: Path) -> None:
 @pytest.mark.parametrize(
     "shape, axes, grid_y, grid_x, expected_n_rois",
     [
-        ((8, 8), "yx", 2, 2, 16),  # 4 steps in y x 4 in x
-        ((8, 8), "yx", 4, 4, 4),  # 2 steps in y x 2 in x
-        ((4, 8, 16), "zyx", 4, 4, 8),  # 2 steps in y x 4 in x
-        ((2, 2, 4, 8, 16), "tczyx", 4, 4, 8),  # t=2,c=2,z=4,y=8,x=16 -> 2x4=8 ROIs
+        # grid_y/grid_x are the number of ROIs along Y/X, so the image is split
+        # into a grid_y x grid_x grid of ROIs (issue #1048).
+        ((8, 8), "yx", 2, 2, 4),  # 2x2 grid -> 4 ROIs
+        ((8, 8), "yx", 4, 4, 16),  # 4x4 grid -> 16 ROIs
+        ((4, 8, 16), "zyx", 4, 4, 16),  # 4x4 grid in YX -> 16 ROIs
+        ((2, 2, 4, 8, 16), "tczyx", 4, 4, 16),  # 4x4 grid in YX -> 16 ROIs
+        # Uneven split: 10/3 -> tiles of 4,4,2 px, still exactly 3 ROIs per axis.
+        ((9, 10), "yx", 3, 3, 9),
     ],
 )
 def test_grid_roi_table_roi_count(
@@ -212,6 +216,29 @@ def test_grid_roi_table_roi_count(
     grid_table = ome_zarr.get_table("grid_ROI_table")
     assert isinstance(grid_table, RoiTable)
     assert len(grid_table.rois()) == expected_n_rois
+
+
+def test_grid_roi_table_roi_extent(tmp_path: Path) -> None:
+    """A 2x2 grid on an 8x8 image yields 4 ROIs of 4x4 px each (issue #1048)."""
+    pixelsize = 0.5
+    image_path = _make_image(tmp_path, axes="yx", shape=(8, 8))
+
+    import_ome_zarr(
+        zarr_dir=str(tmp_path),
+        zarr_name="image.zarr",
+        grid_y_shape=2,
+        grid_x_shape=2,
+        add_image_roi_table=False,
+        update_omero_metadata=False,
+    )
+
+    grid_table = open_ome_zarr_container(str(image_path)).get_table("grid_ROI_table")
+    rois = grid_table.rois()
+    assert len(rois) == 4
+    # Each ROI covers a quadrant: 4 pixels x 0.5 um/px = 2.0 um per side.
+    for roi in rois:
+        assert roi["x"].length == pytest.approx(4 * pixelsize)
+        assert roi["y"].length == pytest.approx(4 * pixelsize)
 
 
 def test_import_omero_metadata_update(tmp_path: Path) -> None:
