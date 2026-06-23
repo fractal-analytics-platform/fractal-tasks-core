@@ -1492,13 +1492,13 @@
             "default": 2,
             "title": "Grid Y Shape",
             "type": "integer",
-            "description": "Y shape of the ROI grid in `grid_ROI_table`."
+            "description": "Number of ROIs along the Y axis of `grid_ROI_table`. The image is split into a `grid_y_shape` by `grid_x_shape` grid of ROIs (e.g. the default 2 by 2 produces 4 ROIs)."
           },
           "grid_x_shape": {
             "default": 2,
             "title": "Grid X Shape",
             "type": "integer",
-            "description": "X shape of the ROI grid in `grid_ROI_table`."
+            "description": "Number of ROIs along the X axis of `grid_ROI_table`. The image is split into a `grid_y_shape` by `grid_x_shape` grid of ROIs (e.g. the default 2 by 2 produces 4 ROIs)."
           },
           "table_backend": {
             "default": "anndata",

@@ -2,6 +2,7 @@
 """Task to import an existing OME-Zarr."""
 
 import logging
+import math
 from typing import Any
 
 from ngio import (
@@ -31,7 +32,8 @@ def _build_xy_roi_table(
 
     Args:
         ome_zarr_image: OME-Zarr image container.
-        grid_YX_shape: YX shape of the ROI grid.
+        grid_YX_shape: Number of ROIs along Y and X. The image is split into a
+            `grid_YX_shape[0]` by `grid_YX_shape[1]` grid of ROIs.
         backend: Table backend to use.
         overwrite: Whether to overwrite an existing `grid_ROI_table`.
     """
@@ -51,15 +53,23 @@ def _build_xy_roi_table(
     t_ind = image.axes_handler.get_index("t")
     t_length = image_shape[t_ind] if t_ind is not None else 1
 
-    for y in range(0, image_YX_shape[0], grid_YX_shape[0]):
-        for x in range(0, image_YX_shape[1], grid_YX_shape[1]):
-            x_length = min(grid_YX_shape[1], image_YX_shape[1] - x)
-            y_length = min(grid_YX_shape[0], image_YX_shape[0] - y)
+    # `grid_YX_shape` is the number of ROIs along each axis: split the image
+    # into an `n_y` by `n_x` grid of tiles of size `len_y` by `len_x` pixels
+    # (the last tile along each axis is clipped to the image edge).
+    n_y, n_x = grid_YX_shape
+    len_y = math.ceil(image_YX_shape[0] / n_y)
+    len_x = math.ceil(image_YX_shape[1] / n_x)
+    for ind_y in range(n_y):
+        start_y = ind_y * len_y
+        y_length = min(image_YX_shape[0], start_y + len_y) - start_y
+        for ind_x in range(n_x):
+            start_x = ind_x * len_x
+            x_length = min(image_YX_shape[1], start_x + len_x) - start_x
             roi_pixels = Roi.from_values(
                 name=f"ROI_{roi_id}",
                 slices={
-                    "x": (x, x_length),
-                    "y": (y, y_length),
+                    "x": (start_x, x_length),
+                    "y": (start_y, y_length),
                     "z": (z_start, z_length),
                     "t": (t_start, t_length),
                 },
@@ -285,8 +295,12 @@ def import_ome_zarr(
             image, with a single ROI covering the whole image.
         add_grid_roi_table: Whether to add a `grid_ROI_table` table to each
             image, with the image split into a rectangular grid of ROIs.
-        grid_y_shape: Y shape of the ROI grid in `grid_ROI_table`.
-        grid_x_shape: X shape of the ROI grid in `grid_ROI_table`.
+        grid_y_shape: Number of ROIs along the Y axis of `grid_ROI_table`. The
+            image is split into a `grid_y_shape` by `grid_x_shape` grid of ROIs
+            (e.g. the default 2 by 2 produces 4 ROIs).
+        grid_x_shape: Number of ROIs along the X axis of `grid_ROI_table`. The
+            image is split into a `grid_y_shape` by `grid_x_shape` grid of ROIs
+            (e.g. the default 2 by 2 produces 4 ROIs).
         table_backend: Backend to use for the new ROI tables. Defaults to "anndata".
         update_omero_metadata: Whether to update Omero-channels metadata, to
             make them Fractal-compatible.
