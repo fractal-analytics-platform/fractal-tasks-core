@@ -5,6 +5,8 @@
     * Fix `import_ome_zarr`: `grid_y_shape`/`grid_x_shape` now correctly specify the number of ROIs per axis (a 2x2 grid by default) rather than the ROI pixel size (\#1048).
 * Dependencies:
     * Update fractal-task-tools to 0.5.0 (\#1042).
+* Documentation:
+    * Review docs GitHub Action (\#1051).
 
 # 2.0.1
 * Tasks:
