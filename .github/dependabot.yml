@@ -1,0 +1,19 @@
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /.github/workflows
+    schedule:
+      interval: "quarterly"
+    cooldown:
+      default-days: 7
+    groups:
+      version-updates:
+        applies-to: version-updates
+        patterns:
+          - '*'
+      security-updates:
+        applies-to: security-updates
+        patterns:
+          - '*'
