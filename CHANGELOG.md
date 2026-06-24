@@ -1,5 +1,9 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# Unreleased
+* Documentation:
+    * Remove `extra_javascript` from docs (\#1055).
+
 
 # 2.0.2
 * Tasks:
