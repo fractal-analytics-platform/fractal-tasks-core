@@ -4,7 +4,9 @@ on:
   push:
     branches: ["main"]
   pull_request:
-    branches: ["main", "v2"]
+    branches: ["main"]
+
+permissions: {}
 
 jobs:
   tests:
@@ -52,10 +54,17 @@ jobs:
     name: Coverage
     runs-on: ubuntu-24.04
     needs: [tests]
+    permissions:
+      pull-requests: write
+      contents: write
+
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          persist-credentials: false
+          # The git operations in python-coverage-comment-action utilize the
+          # token stored by actions/checkout.
+          # https://github.com/py-cov-action/python-coverage-comment-action/issues/610
+          persist-credentials: true
 
       - uses: prefix-dev/setup-pixi@19eac09b398e3d0c747adc7921926a6d802df4da # v0.8.8
         with:
@@ -73,7 +82,7 @@ jobs:
 
       - name: Add coverage comment to Pull Requests
         id: coverage_comment
-        uses: py-cov-action/python-coverage-comment-action@50d15ff8768f6d897b04e5a0805bd1a98f7096c4 # v3
+        uses: py-cov-action/python-coverage-comment-action@63f52f4fbbffada6e8dee8ec432de7e01df9ba79 # v3.41
         with:
           GITHUB_TOKEN: ${{ github.token }}
           MINIMUM_GREEN: 90
