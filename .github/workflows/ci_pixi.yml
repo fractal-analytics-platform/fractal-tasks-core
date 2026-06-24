@@ -17,12 +17,12 @@ jobs:
         python-version: ["3.11", "3.12", "3.13", "3.14"]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: prefix-dev/setup-pixi@v0.9.4
+      - uses: prefix-dev/setup-pixi@a0af7a228712d6121d37aba47adf55c1332c9c2e # v0.9.4
         with:
           environments: dev
           pixi-version: "latest"
@@ -32,7 +32,7 @@ jobs:
 
       - name: Cache Pooch folder
         id: cache-pooch-folder
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ~/.cache/pooch
           key: pooch-cache
@@ -43,7 +43,7 @@ jobs:
         run: pixi run --environment dev coverage run -m pytest tests
 
       - name: Upload coverage data
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: coverage-data-${{ matrix.python-version }}
           path: coverage-data-${{ matrix.python-version }}*
@@ -53,15 +53,17 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [tests]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
-      - uses: prefix-dev/setup-pixi@v0.8.8
+      - uses: prefix-dev/setup-pixi@19eac09b398e3d0c747adc7921926a6d802df4da # v0.8.8
         with:
           environments: dev
           pixi-version: "latest"
 
       - name: Download data
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           pattern: coverage-data-*
           merge-multiple: true
@@ -71,7 +73,7 @@ jobs:
 
       - name: Add coverage comment to Pull Requests
         id: coverage_comment
-        uses: py-cov-action/python-coverage-comment-action@v3
+        uses: py-cov-action/python-coverage-comment-action@50d15ff8768f6d897b04e5a0805bd1a98f7096c4 # v3
         with:
           GITHUB_TOKEN: ${{ github.token }}
           MINIMUM_GREEN: 90
