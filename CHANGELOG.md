@@ -3,6 +3,8 @@
 # Unreleased
 * Documentation:
     * Remove `extra_javascript` from docs (\#1055).
+* Testing:
+    * Introduce `zizmor` scanning of GitHub Actions and implement fixes based on first reports (\#1057).
 
 
 # 2.0.2
