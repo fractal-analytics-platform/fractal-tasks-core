@@ -36,11 +36,12 @@ Tests are also run through GitHub Actions, with Python 3.11 and 3.12. Within Git
 
 ## Documentation
 
-The documentation is built with mkdocs.
-To build the documentation locally, setup the docs environment and then run one of these commands:
+The documentation is built with `zensical`.
+To build the documentation locally, setup the docs environment and then run these commands:
 ```bash
-pixi run -e docs mkdocs serve --config-file mkdocs.yml  # serves the docs at http://127.0.0.1:8000
-pixi run -e docs mkdocs build --config-file mkdocs.yml  # creates a build in the `site` folder
+pixi run python ./docs/scripts/generate_code_ref.py
+pixi run -e docs zensical  # serves the docs at http://127.0.0.1:8000
+pixi run -e docs zensical build  # creates a build in the `site` folder
 ```
 
 A [dedicated GitHub action](https://github.com/fractal-analytics-platform/fractal-tasks-core/blob/main/.github/workflows/documentation.yaml) takes care of building the documentation and pushing it to https://fractal-analytics-platform.github.io/fractal-tasks-core, when commits are pushed to the `main` branch.

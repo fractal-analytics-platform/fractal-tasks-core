@@ -3,6 +3,7 @@
 # Unreleased
 * Documentation:
     * Remove `extra_javascript` from docs (\#1055).
+    * Move from `mkdocs` to `zensical` (\#1060).
 * Testing:
     * Introduce `zizmor` scanning of GitHub Actions and implement fixes based on first reports (\#1057).
 

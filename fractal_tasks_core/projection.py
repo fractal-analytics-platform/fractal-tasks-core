@@ -28,7 +28,7 @@ def projection(
 ) -> dict[str, Any]:
     """Perform intensity projection along Z axis with a chosen method.
 
-    Note: this task will write the output in a new OM-Zarr file
+    Note: this task will write the output in a new OME-Zarr file
         in the same location as the input one, with the same name plus
         a suffix indicating the projection method used (e.g. "_MIP" for
         maximum intensity projection).
