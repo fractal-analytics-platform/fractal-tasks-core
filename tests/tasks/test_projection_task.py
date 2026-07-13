@@ -13,7 +13,13 @@ from fractal_tasks_core.projection import projection
 # ---------------------------------------------------------------------------
 
 
-def _make_zarr(tmp_path: Path, shape: tuple, axes: str, name: str = "image") -> Path:
+def _make_zarr(
+    tmp_path: Path,
+    shape: tuple,
+    axes: str,
+    name: str = "image",
+    backend: str = "anndata",
+) -> Path:
     store = tmp_path / f"{name}.zarr"
     some = create_empty_ome_zarr(
         store=store,
@@ -24,7 +30,7 @@ def _make_zarr(tmp_path: Path, shape: tuple, axes: str, name: str = "image") -> 
         axes_names=axes,
     )
     table = some.build_image_roi_table("image")
-    some.add_table("well_ROI_table", table, backend="anndata")
+    some.add_table("well_ROI_table", table, backend=backend)
     return store
 
 
@@ -154,3 +160,17 @@ def test_projection_roi_table_z_update(tmp_path: Path) -> None:
     assert z_slice is not None
     assert z_slice.start == 0
     assert z_slice.length == 1
+
+
+@pytest.mark.parametrize("backend", ["anndata", "csv", "parquet", "json"])
+def test_projection_preserves_input_table_backend(backend: str, tmp_path: Path) -> None:
+    """Output ROI table backend matches the input table's backend, not a
+    hardcoded one."""
+    store = _make_zarr(tmp_path, shape=(16, 32, 32), axes="zyx", backend=backend)
+
+    result = projection(zarr_url=str(store))
+
+    zarr_url = result["image_list_updates"][0]["zarr_url"]
+    out = open_ome_zarr_container(zarr_url)
+    table = out.get_table("well_ROI_table")
+    assert table.backend_name == backend

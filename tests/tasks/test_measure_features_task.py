@@ -327,18 +327,33 @@ def test_measure_features_advanced_options_no_scaling(tmp_path: Path) -> None:
 
 
 def test_measure_features_advanced_options_table_backend(tmp_path: Path) -> None:
-    """table_backend='parquet' stores the table correctly."""
+    """table_backend='csv' stores the table with the csv backend."""
     store = _make_zarr_with_label(tmp_path)
 
     measure_features(
         zarr_url=str(store),
         input_label_name="nuclei",
         features=[ShapeFeatures()],
-        advanced_options=AdvancedOptions(table_backend="parquet"),
+        advanced_options=AdvancedOptions(table_backend="csv"),
     )
 
     some = open_ome_zarr_container(str(store))
     assert "region_props_features" in some.list_tables()
+    assert some.get_table("region_props_features").backend_name == "csv"
+
+
+def test_measure_features_default_table_backend(tmp_path: Path) -> None:
+    """The default table backend for the output feature table is parquet."""
+    store = _make_zarr_with_label(tmp_path)
+
+    measure_features(
+        zarr_url=str(store),
+        input_label_name="nuclei",
+        features=[ShapeFeatures()],
+    )
+
+    some = open_ome_zarr_container(str(store))
+    assert some.get_table("region_props_features").backend_name == "parquet"
 
 
 def test_intensity_features_with_channels(tmp_path: Path) -> None:

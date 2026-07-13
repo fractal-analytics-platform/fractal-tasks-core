@@ -18,7 +18,7 @@ from ngio.ome_zarr_meta.ngio_specs import ChannelsMeta
 from ngio.tables import RoiTable
 from pydantic import validate_call
 
-from fractal_tasks_core._utils import AVAILABLE_TABLE_BACKENDS, DEFAULT_TABLE_BACKEND
+from fractal_tasks_core._utils import AVAILABLE_TABLE_BACKENDS
 
 logger = logging.getLogger("import_ome_zarr")
 
@@ -26,7 +26,7 @@ logger = logging.getLogger("import_ome_zarr")
 def _build_xy_roi_table(
     ome_zarr_image: OmeZarrContainer,
     grid_YX_shape: tuple[int, int] | None = None,
-    backend: AVAILABLE_TABLE_BACKENDS = DEFAULT_TABLE_BACKEND,
+    backend: AVAILABLE_TABLE_BACKENDS = "csv",
     overwrite: bool = False,
 ) -> None:
     """Build a grid_ROI_table with a rectangular grid of ROIs covering the whole image.
@@ -94,7 +94,7 @@ def _process_single_image(
     update_omero_metadata: bool,
     grid_YX_shape: tuple[int, int] | None = None,
     attributes: dict[str, Any] | None = None,
-    table_backend: AVAILABLE_TABLE_BACKENDS = DEFAULT_TABLE_BACKEND,
+    table_backend: AVAILABLE_TABLE_BACKENDS = "csv",
     overwrite: bool = False,
 ) -> list[dict[str, Any]]:
     """Optionally generate ROI tables and update omero metadata for a single image.
@@ -161,7 +161,7 @@ def _process_well(
     add_grid_roi_table: bool,
     update_omero_metadata: bool,
     grid_YX_shape: tuple[int, int] | None = None,
-    table_backend: AVAILABLE_TABLE_BACKENDS = DEFAULT_TABLE_BACKEND,
+    table_backend: AVAILABLE_TABLE_BACKENDS = "csv",
     overwrite: bool = False,
 ) -> list[dict[str, Any]]:
     """For each image in the well, create an image list update dict."""
@@ -196,7 +196,7 @@ def _process_plate(
     add_grid_roi_table: bool,
     update_omero_metadata: bool,
     grid_YX_shape: tuple[int, int] | None = None,
-    table_backend: AVAILABLE_TABLE_BACKENDS = DEFAULT_TABLE_BACKEND,
+    table_backend: AVAILABLE_TABLE_BACKENDS = "csv",
     overwrite: bool = False,
 ) -> list[dict[str, Any]]:
     """For each image in the plate, create an image list update dict."""
@@ -276,7 +276,7 @@ def import_ome_zarr(
     # Advanced parameters
     grid_y_shape: int = 2,
     grid_x_shape: int = 2,
-    table_backend: AVAILABLE_TABLE_BACKENDS = DEFAULT_TABLE_BACKEND,
+    table_backend: AVAILABLE_TABLE_BACKENDS = "csv",
     # Other parameters
     overwrite: bool = False,
 ) -> dict[str, Any]:
@@ -304,7 +304,7 @@ def import_ome_zarr(
         grid_x_shape: Number of ROIs along the X axis of `grid_ROI_table`. The
             image is split into a `grid_y_shape` by `grid_x_shape` grid of ROIs
             (e.g. the default 2 by 2 produces 4 ROIs).
-        table_backend: Backend to use for the new ROI tables. Defaults to "anndata".
+        table_backend: Backend to use for the new ROI tables. Defaults to "csv".
         update_omero_metadata: Whether to update Omero-channels metadata, to
             make them Fractal-compatible.
         overwrite: Whether new ROI tables (added when `add_image_roi_table`

@@ -68,11 +68,15 @@ def _make_image(
     return image_path
 
 
-def _check_roi_tables(image_url: str) -> None:
-    """Assert both image_ROI_table and grid_ROI_table are present."""
-    tables = open_ome_zarr_container(image_url).list_tables()
+def _check_roi_tables(image_url: str, expected_backend: str = "csv") -> None:
+    """Assert both image_ROI_table and grid_ROI_table are present with the
+    expected backend."""
+    ome_zarr = open_ome_zarr_container(image_url)
+    tables = ome_zarr.list_tables()
     assert "image_ROI_table" in tables
     assert "grid_ROI_table" in tables
+    assert ome_zarr.get_table("image_ROI_table").backend_name == expected_backend
+    assert ome_zarr.get_table("grid_ROI_table").backend_name == expected_backend
 
 
 # ---------------------------------------------------------------------------
@@ -178,6 +182,22 @@ def test_import_overwrite(tmp_path: Path) -> None:
         zarr_dir=str(tmp_path), zarr_name="image.zarr", overwrite=True
     )
     assert len(result["image_list_updates"]) == 1
+
+
+def test_import_explicit_table_backend(tmp_path: Path) -> None:
+    """table_backend='parquet' overrides the default and applies to both ROI tables."""
+    _make_image(tmp_path)
+
+    result = import_ome_zarr(
+        zarr_dir=str(tmp_path),
+        zarr_name="image.zarr",
+        table_backend="parquet",
+        update_omero_metadata=False,
+    )
+
+    updates = result["image_list_updates"]
+    assert len(updates) == 1
+    _check_roi_tables(updates[0]["zarr_url"], expected_backend="parquet")
 
 
 @pytest.mark.parametrize(

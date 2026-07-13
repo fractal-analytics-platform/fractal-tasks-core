@@ -12,7 +12,7 @@ from ngio import (
 from pydantic import BaseModel, Field
 from skimage import measure
 
-from fractal_tasks_core._utils import AVAILABLE_TABLE_BACKENDS, DEFAULT_TABLE_BACKEND
+from fractal_tasks_core._utils import AVAILABLE_TABLE_BACKENDS
 
 
 class ShapeFeatures(BaseModel):
@@ -155,9 +155,9 @@ class AdvancedOptions(BaseModel):
     but can also increase memory usage. Defaults to True.
     """
 
-    table_backend: AVAILABLE_TABLE_BACKENDS = DEFAULT_TABLE_BACKEND
+    table_backend: AVAILABLE_TABLE_BACKENDS = "parquet"
     """
-    Table backend to use for the output table. Defaults to "anndata".
+    Table backend to use for the output table. Defaults to "parquet".
     """
 
 

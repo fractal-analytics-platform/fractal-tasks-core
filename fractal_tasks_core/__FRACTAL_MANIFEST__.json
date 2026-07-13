@@ -418,8 +418,8 @@
                 "type": "string"
               },
               "table_backend": {
-                "default": "anndata",
-                "description": "Backend to use for storing the masking ROI table. Options are \"anndata\", \"json\",\n\"csv\", and \"parquet\".",
+                "default": "csv",
+                "description": "Backend to use for storing the masking ROI table. Options are \"anndata\", \"json\",\n\"csv\", and \"parquet\". Defaults to \"csv\".",
                 "enum": [
                   "anndata",
                   "json",
@@ -961,8 +961,8 @@
                 "type": "boolean"
               },
               "table_backend": {
-                "default": "anndata",
-                "description": "Table backend to use for the output table. Defaults to \"anndata\".",
+                "default": "parquet",
+                "description": "Table backend to use for the output table. Defaults to \"parquet\".",
                 "enum": [
                   "anndata",
                   "json",
@@ -1122,7 +1122,7 @@
               "level_path": null,
               "use_scaling": true,
               "use_cache": true,
-              "table_backend": "anndata"
+              "table_backend": "parquet"
             },
             "title": "Advanced Options",
             "description": "Advanced options for feature measurement."
@@ -1501,7 +1501,7 @@
             "description": "Number of ROIs along the X axis of `grid_ROI_table`. The image is split into a `grid_y_shape` by `grid_x_shape` grid of ROIs (e.g. the default 2 by 2 produces 4 ROIs)."
           },
           "table_backend": {
-            "default": "anndata",
+            "default": "csv",
             "enum": [
               "anndata",
               "json",
@@ -1510,7 +1510,7 @@
             ],
             "title": "Table Backend",
             "type": "string",
-            "description": "Backend to use for the new ROI tables. Defaults to \"anndata\"."
+            "description": "Backend to use for the new ROI tables. Defaults to \"csv\"."
           },
           "overwrite": {
             "default": false,

@@ -1,7 +1,12 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# 2.0.3
+# 2.1.0
 * Tasks:
+    * Change default table backends to better fit each task's data (\#1063):
+        * `measure_features`: default `table_backend` is now `"parquet"` (was `"anndata"`).
+        * `import_ome_zarr`: default `table_backend` for `image_ROI_table`/`grid_ROI_table` is now `"csv"` (was `"anndata"`).
+        * `threshold_segmentation`'s `CreateMaskingRoiTable`: default `table_backend` is now `"csv"` (was `"anndata"`).
+        * `projection`/`compute_projection_hcs`: confirmed (no code change needed) that the projected image's ROI tables already preserve the input image's table backend, and added regression tests for this.
     * Fix table copying in `apply_registration_to_image` task: Use the existing table backend for the newly written table, perform table writing outside the try/except loop to catch reading race conditions and provide reading exception in the Runtime Error (\#1063).
 * Chore:
     * Handle deprecation warnings in ngio (\#1063).
