@@ -27,7 +27,7 @@ def sample_ome_zarr_zyx_url(tmp_path: Path) -> Path:
         axes_names="zyx",
     )
     table = origin_ome_zarr.build_image_roi_table("image")
-    origin_ome_zarr.add_table("well_ROI_table", table, backend="anndata")
+    origin_ome_zarr.add_table("well_ROI_table", table, backend="csv")
     return store
 
 
@@ -91,7 +91,7 @@ def test_compute_projection_hcs(
         axes_names=axes,
     )
     table = origin_ome_zarr.build_image_roi_table("image")
-    origin_ome_zarr.add_table("well_ROI_table", table, backend="anndata")
+    origin_ome_zarr.add_table("well_ROI_table", table, backend="csv")
 
     init_mip = InitArgsMIP(
         origin_url=str(store),

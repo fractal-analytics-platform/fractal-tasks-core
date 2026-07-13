@@ -71,7 +71,7 @@ _SHIFT_X_UM = 2.6  # um
 _SHIFT_Z_PX = 2
 _SHIFT_Z_UM = 2.0  # um
 # Table backend
-_TABLE_BACKEND = "anndata"
+_TABLE_BACKEND = "csv"
 
 
 def _build_image(zarr_url: str, y_offset: int = 0, x_offset: int = 0) -> None:

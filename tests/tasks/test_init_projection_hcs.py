@@ -59,7 +59,7 @@ def _add_images_to_plate(
             axes_names=axes,
         )
         table = ome_zarr.build_image_roi_table("image")
-        ome_zarr.add_table("well_ROI_table", table, backend="anndata")
+        ome_zarr.add_table("well_ROI_table", table, backend="csv")
     return plate
 
 

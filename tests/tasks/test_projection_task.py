@@ -18,7 +18,7 @@ def _make_zarr(
     shape: tuple,
     axes: str,
     name: str = "image",
-    backend: str = "anndata",
+    backend: str = "csv",
 ) -> Path:
     store = tmp_path / f"{name}.zarr"
     some = create_empty_ome_zarr(
