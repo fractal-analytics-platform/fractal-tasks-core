@@ -275,7 +275,7 @@ def apply_registration_to_image(
             # Writing table outside of the retry loop intentionally. We only
             # want to catch loading race conditions above, not real writing
             # errors.
-            # Only overwrite the backend if it is set before (which should 
+            # Only overwrite the backend if it is set before (which should
             # always be the case for loaded tables)
             if table.backend_name:
                 new_ome_zarr.add_table(
