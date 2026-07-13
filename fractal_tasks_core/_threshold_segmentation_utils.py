@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 from skimage.filters import threshold_otsu
 from skimage.measure import label
 
-from fractal_tasks_core._utils import AVAILABLE_TABLE_BACKENDS, DEFAULT_TABLE_BACKEND
+from fractal_tasks_core._utils import AVAILABLE_TABLE_BACKENDS
 
 logger = logging.getLogger("threshold_segmentation_task_utils")
 
@@ -32,10 +32,10 @@ class CreateMaskingRoiTable(BaseModel):
     "{output_label_name}", which will be replaced by the name of the label image used
     for segmentation.
     """
-    table_backend: AVAILABLE_TABLE_BACKENDS = DEFAULT_TABLE_BACKEND
+    table_backend: AVAILABLE_TABLE_BACKENDS = "csv"
     """
     Backend to use for storing the masking ROI table. Options are "anndata", "json",
-    "csv", and "parquet".
+    "csv", and "parquet". Defaults to "csv".
     """
 
     def get_table_name(self, output_label_name: str) -> str:

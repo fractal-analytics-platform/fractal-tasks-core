@@ -256,6 +256,24 @@ def test_create_masking_roi_table(tmp_path: Path) -> None:
 
     some = open_ome_zarr_container(str(store))
     assert "nuclei_masking_ROI_table" in some.list_tables()
+    assert some.get_table("nuclei_masking_ROI_table").backend_name == "csv"
+
+
+def test_create_masking_roi_table_explicit_backend(tmp_path: Path) -> None:
+    """table_backend='parquet' overrides the default csv backend."""
+    store = _make_czyx_zarr(tmp_path)
+
+    threshold_segmentation(
+        zarr_url=str(store),
+        channel=InputChannel(mode="index", identifier="0"),
+        output_label_name="nuclei",
+        segmentation_method=SimpleThresholdConfiguration(threshold=500),
+        create_masking_roi_table=CreateMaskingRoiTable(table_backend="parquet"),
+        overwrite=True,
+    )
+
+    some = open_ome_zarr_container(str(store))
+    assert some.get_table("nuclei_masking_ROI_table").backend_name == "parquet"
 
 
 def test_with_gaussian_preprocess(tmp_path: Path) -> None:

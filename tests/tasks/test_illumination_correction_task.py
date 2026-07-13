@@ -460,7 +460,7 @@ def test_multidimensional_input(
     )
 
     table = origin_ome_zarr.build_image_roi_table("image")
-    origin_ome_zarr.add_table("well_ROI_table", table, backend="anndata")
+    origin_ome_zarr.add_table("well_ROI_table", table, backend="csv")
 
     # Prepare arguments for illumination_correction function
     testdata_str = testdata_path.as_posix()
@@ -568,7 +568,7 @@ def test_inconsistent_fov_sizes(tmp_path: Path) -> None:
         name="fov_2", slices={"x": (5.0, 10.0), "y": (0.0, 10.0), "z": (0.0, 1.0)}
     )
     roi_table = RoiTable(rois=[roi1, roi2])
-    ome_zarr.add_table("well_ROI_table", roi_table, backend="anndata")
+    ome_zarr.add_table("well_ROI_table", roi_table, backend="csv")
 
     wavelengths = [w for w in ome_zarr.wavelength_ids if w is not None]
     illumination_profiles = ProfileCorrectionModel(
@@ -603,7 +603,7 @@ def _make_tiny_zyx_zarr_with_roi(tmp_path: Path) -> tuple[str, list[str]]:
         levels=2,
     )
     table = ome_zarr.build_image_roi_table("image")
-    ome_zarr.add_table("well_ROI_table", table, backend="anndata")
+    ome_zarr.add_table("well_ROI_table", table, backend="csv")
     wavelengths = [w for w in ome_zarr.wavelength_ids if w is not None]
     return str(store), wavelengths
 
