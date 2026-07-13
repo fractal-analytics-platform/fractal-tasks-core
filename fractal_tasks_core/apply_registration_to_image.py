@@ -254,12 +254,13 @@ def apply_registration_to_image(
         for table_name, source in tables_to_copy.items():
             logger.info(f"Copying table: {table_name}")
             # Retry loop to guard against race conditions (see issue #516)
+            last_exception: Exception | None = None
             for attempt in range(max_retries):
                 try:
                     table = source.get_table(table_name)
-                    new_ome_zarr.add_table(name=table_name, table=table, overwrite=True)
                     break
-                except Exception:
+                except Exception as e:
+                    last_exception = e
                     logger.debug(
                         f"Table {table_name} not found in attempt {attempt}. "
                         f"Waiting {sleep_time} seconds before trying again."
@@ -267,10 +268,24 @@ def apply_registration_to_image(
                     time.sleep(sleep_time)
             else:
                 raise RuntimeError(
-                    f"Table {table_name} not found after {max_retries} attempts. "
-                    "Check whether this table actually exists. If it does, "
-                    "this may be a race condition issue."
+                    f"Table {table_name} could not be loaded after "
+                    f"{max_retries} attempts. "
+                    f"The original error was: {last_exception}"
+                ) from last_exception
+            # Writing table outside of the retry loop intentionally. We only
+            # want to catch loading race conditions above, not real writing
+            # errors.
+            # Only overwrite the backend if it is set before (which should 
+            # always be the case for loaded tables)
+            if table.backend_name:
+                new_ome_zarr.add_table(
+                    name=table_name,
+                    table=table,
+                    backend=table.backend_name,
+                    overwrite=True,
                 )
+            else:
+                new_ome_zarr.add_table(name=table_name, table=table, overwrite=True)
 
     ####################
     # Clean up Zarr file
