@@ -14,6 +14,7 @@ from ngio import (
     open_ome_zarr_plate,
     open_ome_zarr_well,
 )
+from ngio.ome_zarr_meta.ngio_specs import ChannelsMeta
 from ngio.tables import RoiTable
 from pydantic import validate_call
 
@@ -132,8 +133,10 @@ def _process_single_image(
         channel_names = image.channel_labels
         wavelengths = image.channels_meta.channel_wavelength_ids
         ome_zarr_image.set_channel_meta(
-            labels=channel_names,
-            wavelength_id=wavelengths,
+            channel_meta=ChannelsMeta.default_init(
+                labels=channel_names,
+                wavelength_id=wavelengths,
+            )
         )
 
     type_updates = {

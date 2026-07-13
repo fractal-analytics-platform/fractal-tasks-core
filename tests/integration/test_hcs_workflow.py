@@ -28,6 +28,7 @@ from ngio import (
     create_empty_plate,
     open_ome_zarr_container,
 )
+from ngio.ome_zarr_meta.ngio_specs import Channel
 from skimage.io import imsave
 
 from fractal_tasks_core._illumination_correction_utils import ProfileCorrectionModel
@@ -63,6 +64,13 @@ from fractal_tasks_core.threshold_segmentation import threshold_segmentation
 # ---------------------------------------------------------------------------
 
 _CHANNELS = ["A01_C01", "A01_C02"]
+# Channel labels are distinct from the wavelength_ids in _CHANNELS, so it's
+# clear the pipeline matches channels by wavelength_id, not by a label that
+# happens to coincide with it.
+_CHANNELS_META = [
+    Channel.default_init(label=f"channel_{i}", wavelength_id=wavelength_id)
+    for i, wavelength_id in enumerate(_CHANNELS)
+]
 _SHAPE = (2, 4, 64, 64)  # czyx: 2 channels, 4 z-slices, 64x64 px
 _PIXELSIZE = 0.325  # µm/px at level 0
 _Z_SPACING = 1.0  # µm/z-slice
@@ -124,7 +132,7 @@ def _build_plate(tmp_path: Path) -> tuple[str, str, str]:
             z_spacing=_Z_SPACING,
             axes_names="czyx",
             levels=_LEVELS,
-            channel_wavelengths=_CHANNELS,
+            channels_meta=_CHANNELS_META,
             overwrite=True,
         )
         data = np.zeros(_SHAPE, dtype=np.uint16)

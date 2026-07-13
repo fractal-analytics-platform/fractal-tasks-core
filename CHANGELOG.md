@@ -3,6 +3,8 @@
 # 2.0.3
 * Tasks:
     * Fix table copying in `apply_registration_to_image` task: Use the existing table backend for the newly written table, perform table writing outside the try/except loop to catch reading race conditions and provide reading exception in the Runtime Error (\#1063).
+* Chore:
+    * Handle deprecation warnings in ngio (\#1063).
 * Documentation:
     * Remove `extra_javascript` from docs (\#1055).
     * Move from `mkdocs` to `zensical` (\#1060).

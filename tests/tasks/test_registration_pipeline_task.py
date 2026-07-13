@@ -21,6 +21,7 @@ from ngio import (
     open_ome_zarr_container,
     open_ome_zarr_well,
 )
+from ngio.ome_zarr_meta.ngio_specs import Channel
 from ngio.tables import FeatureTable, RoiTable
 from pandas import DataFrame
 
@@ -54,6 +55,10 @@ _SHAPE = (1, 1, 64, 64)  # czyx
 _PIXELSIZE = 0.325  # um/px at level 0
 _LEVELS = 3  # level 2 = 16x16 px, pixel size = 0.325*4 = 1.3 um/px
 _WAVELENGTH = "A01_C01"
+# Channel label is distinct from the wavelength_id, so it's clear the tests
+# match channels by wavelength_id (as the registration task does) and not by
+# a label that happens to coincide with it.
+_CHANNEL_META = Channel.default_init(label="channel_0", wavelength_id=_WAVELENGTH)
 
 # Known shift applied to acquisition 1 (pixels at level 0)
 _SHIFT_Y_PX = 4
@@ -78,7 +83,7 @@ def _build_image(zarr_url: str, y_offset: int = 0, x_offset: int = 0) -> None:
         z_spacing=1.0,
         axes_names="czyx",
         levels=_LEVELS,
-        channel_wavelengths=[_WAVELENGTH],
+        channels_meta=[_CHANNEL_META],
         overwrite=True,
     )
     img = some.get_image()
@@ -113,7 +118,7 @@ def _build_image_for_axes(
         "pixelsize": _PIXELSIZE,
         "axes_names": axes,
         "levels": _LEVELS,
-        "channel_wavelengths": [_WAVELENGTH],
+        "channels_meta": [_CHANNEL_META],
         "overwrite": True,
     }
     if "z" in axes:
@@ -148,7 +153,7 @@ def _build_multi_fov_image(zarr_url: str, y_offset: int = 0, x_offset: int = 0) 
         z_spacing=1.0,
         axes_names="czyx",
         levels=_LEVELS,
-        channel_wavelengths=[_WAVELENGTH],
+        channels_meta=[_CHANNEL_META],
         overwrite=True,
     )
     data = np.zeros(_SHAPE, dtype=np.uint16)
@@ -414,7 +419,7 @@ def test_calculate_registration_detects_z_shift(tmp_path: Path):
             z_spacing=1.0,
             axes_names="czyx",
             levels=_LEVELS,
-            channel_wavelengths=[_WAVELENGTH],
+            channels_meta=[_CHANNEL_META],
             overwrite=True,
         )
         data = np.zeros(shape, dtype=np.uint16)
@@ -451,7 +456,7 @@ def test_calculate_registration_chi2_shift_3d_raises(tmp_path: Path):
         z_spacing=1.0,
         axes_names="czyx",
         levels=3,
-        channel_wavelengths=[_WAVELENGTH],
+        channels_meta=[_CHANNEL_META],
         overwrite=True,
     )
     fov = some.build_image_roi_table("image")
@@ -478,7 +483,7 @@ def test_calculate_registration_time_series_raises(tmp_path: Path):
         z_spacing=1.0,
         axes_names="tczyx",
         levels=3,
-        channel_wavelengths=[_WAVELENGTH],
+        channels_meta=[_CHANNEL_META],
         overwrite=True,
     )
     fov = some.build_image_roi_table("image")
@@ -670,7 +675,7 @@ def test_calculate_registration_shape_mismatch_raises(tmp_path: Path):
             z_spacing=1.0,
             axes_names="czyx",
             levels=_LEVELS,
-            channel_wavelengths=[_WAVELENGTH],
+            channels_meta=[_CHANNEL_META],
             overwrite=True,
         )
         data = np.zeros(shape, dtype=np.uint16)
@@ -773,7 +778,7 @@ def test_consensus_mismatched_roi_names_raises(tmp_path: Path):
             z_spacing=1.0,
             axes_names="czyx",
             levels=_LEVELS,
-            channel_wavelengths=[_WAVELENGTH],
+            channels_meta=[_CHANNEL_META],
             overwrite=True,
         )
         fov = some.build_image_roi_table(roi_name)
@@ -1320,7 +1325,7 @@ def test_calculate_registration_tyx_t_gt1_raises(tmp_path: Path):
         pixelsize=_PIXELSIZE,
         axes_names="tyx",
         levels=_LEVELS,
-        channel_wavelengths=[_WAVELENGTH],
+        channels_meta=[_CHANNEL_META],
         overwrite=True,
     )
     fov = some.build_image_roi_table("image")
