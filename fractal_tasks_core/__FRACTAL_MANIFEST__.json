@@ -1458,6 +1458,77 @@
       "type": "converter_non_parallel",
       "executable_non_parallel": "import_ome_zarr.py",
       "args_schema_non_parallel": {
+        "$defs": {
+          "AdvancedOptions": {
+            "description": "Advanced options for importing an OME-Zarr.",
+            "properties": {
+              "update_omero_metadata": {
+                "default": false,
+                "description": "Whether to update Omero-channels metadata with channel labels and\nwavelength ids to make them compatible with some downstream Fractal tasks.",
+                "title": "Update Omero Metadata",
+                "type": "boolean"
+              },
+              "add_image_roi_table": {
+                "default": false,
+                "description": "Whether to add an `image_ROI_table` table to each image, with a single ROI\ncovering the whole image.",
+                "title": "Add Image Roi Table",
+                "type": "boolean"
+              },
+              "grid_roi_table": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/GridRoiTable"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "If set, add a `grid_ROI_table` table to each image, with the image split\ninto a rectangular grid of ROIs of the given shape. If `None`, no\n`grid_ROI_table` is created.",
+                "title": "Grid_Roi_Table"
+              },
+              "table_backend": {
+                "default": "csv",
+                "description": "Table backend to use for the new ROI tables. Defaults to \"csv\".",
+                "enum": [
+                  "anndata",
+                  "json",
+                  "csv",
+                  "parquet"
+                ],
+                "title": "Table Backend",
+                "type": "string"
+              },
+              "overwrite": {
+                "default": false,
+                "description": "Whether new ROI tables (added when `add_image_roi_table=True` and/or\n`grid_roi_table` is not `None`) can overwrite existing ones.",
+                "title": "Overwrite",
+                "type": "boolean"
+              }
+            },
+            "title": "AdvancedOptions",
+            "type": "object"
+          },
+          "GridRoiTable": {
+            "description": "Configuration for building a `grid_ROI_table`.",
+            "properties": {
+              "grid_y_shape": {
+                "default": 2,
+                "description": "Number of ROIs along the Y axis. The image is split into a `grid_y_shape` by\n`grid_x_shape` grid of ROIs (e.g. the default 2 by 2 produces 4 ROIs).",
+                "title": "Grid Y Shape",
+                "type": "integer"
+              },
+              "grid_x_shape": {
+                "default": 2,
+                "description": "Number of ROIs along the X axis. The image is split into a `grid_y_shape` by\n`grid_x_shape` grid of ROIs (e.g. the default 2 by 2 produces 4 ROIs).",
+                "title": "Grid X Shape",
+                "type": "integer"
+              }
+            },
+            "title": "GridRoiTable",
+            "type": "object"
+          }
+        },
         "additionalProperties": false,
         "properties": {
           "zarr_dir": {
@@ -1470,53 +1541,17 @@
             "type": "string",
             "description": "The OME-Zarr name, without its parent folder. The parent folder is provided by zarr_dir; e.g. `zarr_name=\"array.zarr\"`, if the OME-Zarr path is in `/zarr_dir/array.zarr`."
           },
-          "update_omero_metadata": {
-            "default": true,
-            "title": "Update Omero Metadata",
-            "type": "boolean",
-            "description": "Whether to update Omero-channels metadata, to make them Fractal-compatible."
-          },
-          "add_image_roi_table": {
-            "default": true,
-            "title": "Add Image Roi Table",
-            "type": "boolean",
-            "description": "Whether to add a `image_ROI_table` table to each image, with a single ROI covering the whole image."
-          },
-          "add_grid_roi_table": {
-            "default": true,
-            "title": "Add Grid Roi Table",
-            "type": "boolean",
-            "description": "Whether to add a `grid_ROI_table` table to each image, with the image split into a rectangular grid of ROIs."
-          },
-          "grid_y_shape": {
-            "default": 2,
-            "title": "Grid Y Shape",
-            "type": "integer",
-            "description": "Number of ROIs along the Y axis of `grid_ROI_table`. The image is split into a `grid_y_shape` by `grid_x_shape` grid of ROIs (e.g. the default 2 by 2 produces 4 ROIs)."
-          },
-          "grid_x_shape": {
-            "default": 2,
-            "title": "Grid X Shape",
-            "type": "integer",
-            "description": "Number of ROIs along the X axis of `grid_ROI_table`. The image is split into a `grid_y_shape` by `grid_x_shape` grid of ROIs (e.g. the default 2 by 2 produces 4 ROIs)."
-          },
-          "table_backend": {
-            "default": "csv",
-            "enum": [
-              "anndata",
-              "json",
-              "csv",
-              "parquet"
-            ],
-            "title": "Table Backend",
-            "type": "string",
-            "description": "Backend to use for the new ROI tables. Defaults to \"csv\"."
-          },
-          "overwrite": {
-            "default": false,
-            "title": "Overwrite",
-            "type": "boolean",
-            "description": "Whether new ROI tables (added when `add_image_roi_table` and/or `add_grid_roi_table` are `True`) can overwrite existing ones."
+          "advanced_options": {
+            "$ref": "#/$defs/AdvancedOptions",
+            "default": {
+              "update_omero_metadata": false,
+              "add_image_roi_table": false,
+              "grid_roi_table": null,
+              "table_backend": "csv",
+              "overwrite": false
+            },
+            "title": "Advanced Options",
+            "description": "Advanced options for importing an OME-Zarr, including whether to add `image_ROI_table`/`grid_ROI_table` tables, whether to update Omero-channels metadata, the table backend to use, and whether new tables can overwrite existing ones."
           }
         },
         "required": [

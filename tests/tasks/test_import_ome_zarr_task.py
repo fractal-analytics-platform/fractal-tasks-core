@@ -10,6 +10,7 @@ from ngio import (
 from ngio.tables import RoiTable
 from ngio.utils import NgioValueError
 
+from fractal_tasks_core._import_ome_zarr_utils import AdvancedOptions, GridRoiTable
 from fractal_tasks_core.import_ome_zarr import (
     import_ome_zarr,
     open_unknown_container,
@@ -102,9 +103,11 @@ def test_import_plate(
     result = import_ome_zarr(
         zarr_dir=str(tmp_path),
         zarr_name="plate.zarr",
-        grid_y_shape=2,
-        grid_x_shape=2,
-        update_omero_metadata=False,
+        advanced_options=AdvancedOptions(
+            add_image_roi_table=True,
+            grid_roi_table=GridRoiTable(grid_y_shape=2, grid_x_shape=2),
+            update_omero_metadata=False,
+        ),
     )
 
     updates = result["image_list_updates"]
@@ -124,7 +127,11 @@ def test_import_well(tmp_path: Path) -> None:
     result = import_ome_zarr(
         zarr_dir=str(tmp_path),
         zarr_name="plate.zarr/A/01",
-        update_omero_metadata=False,
+        advanced_options=AdvancedOptions(
+            add_image_roi_table=True,
+            grid_roi_table=GridRoiTable(),
+            update_omero_metadata=False,
+        ),
     )
 
     updates = result["image_list_updates"]
@@ -140,7 +147,11 @@ def test_import_image(tmp_path: Path) -> None:
     result = import_ome_zarr(
         zarr_dir=str(tmp_path),
         zarr_name="plate.zarr/A/01/0",
-        update_omero_metadata=False,
+        advanced_options=AdvancedOptions(
+            add_image_roi_table=True,
+            grid_roi_table=GridRoiTable(),
+            update_omero_metadata=False,
+        ),
     )
 
     updates = result["image_list_updates"]
@@ -155,9 +166,7 @@ def test_import_roi_tables_disabled(tmp_path: Path) -> None:
     result = import_ome_zarr(
         zarr_dir=str(tmp_path),
         zarr_name="plate.zarr",
-        add_image_roi_table=False,
-        add_grid_roi_table=False,
-        update_omero_metadata=False,
+        advanced_options=AdvancedOptions(update_omero_metadata=False),
     )
 
     for update in result["image_list_updates"]:
@@ -171,15 +180,33 @@ def test_import_overwrite(tmp_path: Path) -> None:
     _make_image(tmp_path)
 
     # First import creates both ROI tables
-    import_ome_zarr(zarr_dir=str(tmp_path), zarr_name="image.zarr")
+    import_ome_zarr(
+        zarr_dir=str(tmp_path),
+        zarr_name="image.zarr",
+        advanced_options=AdvancedOptions(
+            add_image_roi_table=True, grid_roi_table=GridRoiTable()
+        ),
+    )
 
     # Re-import with overwrite=False (default) raises because tables already exist
     with pytest.raises(NgioValueError):
-        import_ome_zarr(zarr_dir=str(tmp_path), zarr_name="image.zarr", overwrite=False)
+        import_ome_zarr(
+            zarr_dir=str(tmp_path),
+            zarr_name="image.zarr",
+            advanced_options=AdvancedOptions(
+                add_image_roi_table=True,
+                grid_roi_table=GridRoiTable(),
+                overwrite=False,
+            ),
+        )
 
     # Re-import with overwrite=True succeeds and returns valid updates
     result = import_ome_zarr(
-        zarr_dir=str(tmp_path), zarr_name="image.zarr", overwrite=True
+        zarr_dir=str(tmp_path),
+        zarr_name="image.zarr",
+        advanced_options=AdvancedOptions(
+            add_image_roi_table=True, grid_roi_table=GridRoiTable(), overwrite=True
+        ),
     )
     assert len(result["image_list_updates"]) == 1
 
@@ -191,8 +218,12 @@ def test_import_explicit_table_backend(tmp_path: Path) -> None:
     result = import_ome_zarr(
         zarr_dir=str(tmp_path),
         zarr_name="image.zarr",
-        table_backend="parquet",
-        update_omero_metadata=False,
+        advanced_options=AdvancedOptions(
+            add_image_roi_table=True,
+            grid_roi_table=GridRoiTable(),
+            table_backend="parquet",
+            update_omero_metadata=False,
+        ),
     )
 
     updates = result["image_list_updates"]
@@ -226,10 +257,10 @@ def test_grid_roi_table_roi_count(
     import_ome_zarr(
         zarr_dir=str(tmp_path),
         zarr_name="image.zarr",
-        grid_y_shape=grid_y,
-        grid_x_shape=grid_x,
-        add_image_roi_table=False,
-        update_omero_metadata=False,
+        advanced_options=AdvancedOptions(
+            grid_roi_table=GridRoiTable(grid_y_shape=grid_y, grid_x_shape=grid_x),
+            update_omero_metadata=False,
+        ),
     )
 
     ome_zarr = open_ome_zarr_container(str(image_path))
@@ -246,10 +277,10 @@ def test_grid_roi_table_roi_extent(tmp_path: Path) -> None:
     import_ome_zarr(
         zarr_dir=str(tmp_path),
         zarr_name="image.zarr",
-        grid_y_shape=2,
-        grid_x_shape=2,
-        add_image_roi_table=False,
-        update_omero_metadata=False,
+        advanced_options=AdvancedOptions(
+            grid_roi_table=GridRoiTable(grid_y_shape=2, grid_x_shape=2),
+            update_omero_metadata=False,
+        ),
     )
 
     grid_table = open_ome_zarr_container(str(image_path)).get_table("grid_ROI_table")
@@ -268,9 +299,7 @@ def test_import_omero_metadata_update(tmp_path: Path) -> None:
     import_ome_zarr(
         zarr_dir=str(tmp_path),
         zarr_name="image.zarr",
-        update_omero_metadata=True,
-        add_image_roi_table=False,
-        add_grid_roi_table=False,
+        advanced_options=AdvancedOptions(update_omero_metadata=True),
     )
 
     image = open_ome_zarr_container(str(tmp_path / "image.zarr")).get_image()
@@ -285,9 +314,7 @@ def test_import_plate_omero_metadata_update(tmp_path: Path) -> None:
     result = import_ome_zarr(
         zarr_dir=str(tmp_path),
         zarr_name="plate.zarr",
-        update_omero_metadata=True,
-        add_image_roi_table=False,
-        add_grid_roi_table=False,
+        advanced_options=AdvancedOptions(update_omero_metadata=True),
     )
 
     for update in result["image_list_updates"]:
@@ -303,9 +330,7 @@ def test_import_well_omero_metadata_update(tmp_path: Path) -> None:
     result = import_ome_zarr(
         zarr_dir=str(tmp_path),
         zarr_name="plate.zarr/A/01",
-        update_omero_metadata=True,
-        add_image_roi_table=False,
-        add_grid_roi_table=False,
+        advanced_options=AdvancedOptions(update_omero_metadata=True),
     )
 
     for update in result["image_list_updates"]:
