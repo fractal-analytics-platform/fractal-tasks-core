@@ -42,7 +42,14 @@ jobs:
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # v1.14.0
 
-      - name: Create GitHub Release
+      - name: Create or update GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release create "${GITHUB_REF_NAME}" ./dist/* --generate-notes
+        run: |
+          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            echo "Release ${GITHUB_REF_NAME} already exists; uploading build artifacts to it"
+            gh release upload "${GITHUB_REF_NAME}" ./dist/* --clobber
+          else
+            echo "No existing release for ${GITHUB_REF_NAME}; creating one with auto-generated notes"
+            gh release create "${GITHUB_REF_NAME}" ./dist/* --generate-notes
+          fi
