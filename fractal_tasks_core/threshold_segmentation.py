@@ -10,7 +10,6 @@ from fractal_tasks_utils.segmentation import (
 )
 from fractal_tasks_utils.segmentation._transforms import SegmentationTransformConfig
 from ngio import OmeZarrContainer, open_ome_zarr_container
-from ngio.images._image import _parse_channel_selection
 from ngio.utils import NgioValueError
 from pydantic import Field, validate_call
 
@@ -48,7 +47,7 @@ def _skip_segmentation(channels: InputChannel, ome_zarr: OmeZarrContainer) -> bo
     channel_selection = channels.to_channel_selection_models()
     image = ome_zarr.get_image()
     try:
-        _parse_channel_selection(image=image, channel_selection=channel_selection)
+        image.resolve_channel_selection(channel_selection)
     except NgioValueError as e:
         if channels.skip_if_missing:
             logger.warning(
