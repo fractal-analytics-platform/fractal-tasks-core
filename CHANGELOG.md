@@ -1,6 +1,13 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
-# 2.1.0
+# Unreleased
+* Dependencies:
+    * Migrate to ngio 1.1 (currently pinned to the `1.1.0a2` pre-release; the pin will be relaxed once 1.1.0 final is out).
+    * Update `fractal-tasks-utils` to its ngio-1.1 branch as a temporary git reference (will move back to a PyPI range once released).
+    * Raise the `dask` floor to `>=2025.12` (required by ngio 1.1) and drop the `<2025.11.0` cap.
+* Tasks:
+    * `illumination_correction`: adapt to the renamed `ImageProcessingIterator(channel_selection=...)` argument (was `input_channel_selection=`, removed in ngio 1.1) and import the iterator from `ngio.iterators` instead of the deprecated `ngio.experimental.iterators`.
+    * Opt in to the ngio 1.2 defaults ahead of time: pyramid consolidation uses `mode="auto"` and plate-wide reads pass `max_workers="auto"` (`import_ome_zarr`, `init_projection_hcs`).
 * Tasks:
     * Change default table backends to better fit each task's data (\#1063):
         * `measure_features`: default `table_backend` is now `"parquet"` (was `"anndata"`).
