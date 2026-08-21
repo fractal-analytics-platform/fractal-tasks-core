@@ -140,7 +140,7 @@ def _build_plate(tmp_path: Path) -> tuple[str, str, str]:
         data[:, :, 20 + y_off : 30 + y_off, 20 + x_off : 30 + x_off] = 1_000
         img = some.get_image()
         img.set_array(data)
-        img.consolidate()
+        img.consolidate(mode="auto")
 
     return zarr_url_0, zarr_url_1, well_url
 

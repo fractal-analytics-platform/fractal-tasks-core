@@ -55,7 +55,7 @@ def _make_zarr_with_label(
     else:  # CYX
         data[:, 8:20, 8:20] = 500
     image.set_array(data)
-    image.consolidate()
+    image.consolidate(mode="auto")
 
     threshold_segmentation(
         zarr_url=str(store),

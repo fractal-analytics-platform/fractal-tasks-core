@@ -48,7 +48,7 @@ def _build_1w_2a_plate(plate_path: Path) -> OmeZarrPlate:
 def _add_images_to_plate(
     plate: OmeZarrPlate, shape: tuple[int, ...], axes: str = "czyx"
 ) -> OmeZarrPlate:
-    for image_path in plate.images_paths():
+    for image_path in plate.images_paths(max_workers="auto"):
         row, column, path = image_path.split("/")
         ome_zarr = create_empty_ome_zarr(
             store=plate.get_image_store(row, column, path),
@@ -81,7 +81,10 @@ def _sample_plate_zarr_urls(
     plate = _add_images_to_plate(plate, shape, axes)
 
     base_url = store_path.resolve()
-    return [f"{base_url}/{image_path}" for image_path in plate.images_paths()]
+    return [
+        f"{base_url}/{image_path}"
+        for image_path in plate.images_paths(max_workers="auto")
+    ]
 
 
 def plate_2w_1a_czyx(tmp_path: Path) -> list[str]:
@@ -138,7 +141,9 @@ def test_copy_hcs_plate(create_plate: Callable, tmp_path: Path):
 
     assert source_plate.columns == dest_plate.columns
     assert source_plate.rows == dest_plate.rows
-    assert source_plate.images_paths() == dest_plate.images_paths()
+    assert source_plate.images_paths(max_workers="auto") == dest_plate.images_paths(
+        max_workers="auto"
+    )
     assert source_plate.acquisition_ids == dest_plate.acquisition_ids
 
 
@@ -178,7 +183,9 @@ def test_flexibility_copy_hcs(tmp_path: Path):
 
     assert subset_plate.columns == all_plate.columns
     assert subset_plate.rows == all_plate.rows
-    assert subset_plate.images_paths() == all_plate.images_paths()
+    assert subset_plate.images_paths(max_workers="auto") == all_plate.images_paths(
+        max_workers="auto"
+    )
     assert subset_plate.acquisition_ids == all_plate.acquisition_ids
 
 
