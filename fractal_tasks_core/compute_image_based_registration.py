@@ -151,10 +151,7 @@ def compute_image_based_registration(
 
     to_align_ome_zarr.add_table(
         name=input_roi_table,
-        # ty: GenericRoiTableV1 currently fails ngio's `Table` protocol
-        # (`from_handler` is inherited abstract and lacks `attrs`); reported
-        # upstream, remove the ignore once fixed in ngio.
-        table=to_align_roi_table,  # ty: ignore[invalid-argument-type]
+        table=to_align_roi_table,
         overwrite=True,
     )
 

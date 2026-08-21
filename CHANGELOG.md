@@ -2,7 +2,7 @@
 
 # Unreleased
 * Dependencies:
-    * Migrate to ngio 1.1 (currently pinned to the `1.1.0b1` pre-release; the pin will be relaxed once 1.1.0 final is out).
+    * Migrate to ngio 1.1 (currently pinned to the `1.1.0b2` pre-release; the pin will be relaxed once 1.1.0 final is out).
     * Update `fractal-tasks-utils` to its ngio-1.1 branch as a temporary git reference (will move back to a PyPI range once released).
     * Raise the `dask` floor to `>=2025.12` (required by ngio 1.1) and drop the `<2025.11.0` cap.
 * Tasks:
