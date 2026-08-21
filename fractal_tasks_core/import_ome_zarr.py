@@ -178,7 +178,7 @@ def _process_plate(
     """For each image in the plate, create an image list update dict."""
     image_list_updates = []
     plate_name = zarr_path.rstrip("/").split("/")[-1]
-    for path, image in ome_zarr_plate.get_images().items():
+    for path, image in ome_zarr_plate.get_images(max_workers="auto").items():
         row, column, _ = path.split("/")
         well_name = f"{row}{int(column):02d}"
         attributes = {

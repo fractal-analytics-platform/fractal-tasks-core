@@ -73,7 +73,7 @@ def _write_registered_ngio_image(
     for acq_roi, ref_roi in roi_pairs:
         patch = source_image.get_roi(acq_roi)
         new_image.set_roi(ref_roi, patch)
-    new_image.consolidate(order="linear")
+    new_image.consolidate(order="linear", mode="auto")
     return new_ome_zarr
 
 
@@ -101,7 +101,7 @@ def _write_registered_ngio_label(
     for acq_roi, ref_roi in roi_pairs:
         patch = acq_label.get_roi(acq_roi)
         new_label.set_roi(ref_roi, patch)
-    new_label.consolidate()
+    new_label.consolidate(mode="auto")
 
 
 @validate_call

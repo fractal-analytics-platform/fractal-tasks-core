@@ -240,7 +240,7 @@ def projection_core(
     dest_dask = method.apply(dask_array=source_dask, axis=z_axis_index)
     dest_dask = da.expand_dims(dest_dask, axis=z_axis_index)
     proj_image.set_array(dest_dask)
-    proj_image.consolidate()
+    proj_image.consolidate(mode="auto")
     # Ends
 
     # Edit the roi tables
