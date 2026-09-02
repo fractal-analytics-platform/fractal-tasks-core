@@ -7,8 +7,8 @@ from typing import Annotated, Any
 
 import numpy as np
 from ngio import ChannelSelectionModel, open_ome_zarr_container, open_ome_zarr_well
-from ngio.experimental.iterators import ImageProcessingIterator
-from ngio.utils._errors import NgioFileNotFoundError
+from ngio.iterators import ImageProcessingIterator
+from ngio.utils import NgioFileNotFoundError
 from pydantic import Field, validate_call
 from skimage.io import imread
 
@@ -295,8 +295,9 @@ def illumination_correction(
         iterator = ImageProcessingIterator(
             input_image=image,
             output_image=output_image,
-            input_channel_selection=channel_selection,
+            channel_selection=channel_selection,
             output_channel_selection=channel_selection,
+            consolidation_mode="auto",
         )
         iterator = iterator.product(FOV_ROI_table).by_zyx(strict=False)
         for image_data, writer in iterator.iter_as_numpy():

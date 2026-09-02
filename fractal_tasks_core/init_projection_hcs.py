@@ -146,7 +146,9 @@ def init_projection_hcs(
                 re_initialize_plate=re_initialize_plate,
             )
             proj_plates[proj_plate_url] = _proj_plate
-            proj_plates_images_paths[proj_plate_url] = _proj_plate.images_paths()
+            proj_plates_images_paths[proj_plate_url] = _proj_plate.images_paths(
+                max_workers="auto"
+            )
 
         proj_plate = proj_plates[proj_plate_url]
         proj_plate_images_paths = proj_plates_images_paths[proj_plate_url]

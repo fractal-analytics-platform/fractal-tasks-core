@@ -91,7 +91,7 @@ def _build_image(zarr_url: str, y_offset: int = 0, x_offset: int = 0) -> None:
     y0, x0 = 20 + y_offset, 20 + x_offset
     data[0, 0, y0 : y0 + 10, x0 : x0 + 10] = 1000
     img.set_array(data)
-    img.consolidate()
+    img.consolidate(mode="auto")
     fov = some.build_image_roi_table("image")
     some.add_table("FOV_ROI_table", fov, backend=_TABLE_BACKEND)
 
@@ -133,7 +133,7 @@ def _build_image_for_axes(
     slices[x_idx] = slice(20 + x_offset, 30 + x_offset)
     data[tuple(slices)] = 1000
     img.set_array(data)
-    img.consolidate()
+    img.consolidate(mode="auto")
     fov = some.build_image_roi_table("image")
     some.add_table("FOV_ROI_table", fov, backend=_TABLE_BACKEND)
 
@@ -163,7 +163,7 @@ def _build_multi_fov_image(zarr_url: str, y_offset: int = 0, x_offset: int = 0) 
     # FOV_2: block in bottom half (rows 32-64); same relative position within the half
     data[0, 0, 32 + y0 : 32 + y0 + 10, x0 : x0 + 10] = 1000
     some.get_image().set_array(data)
-    some.get_image().consolidate()
+    some.get_image().consolidate(mode="auto")
 
     half_um = (_SHAPE[-2] // 2) * _PIXELSIZE  # 10.4 µm
     full_um = _SHAPE[-1] * _PIXELSIZE  # 20.8 µm
@@ -425,7 +425,7 @@ def test_calculate_registration_detects_z_shift(tmp_path: Path):
         data = np.zeros(shape, dtype=np.uint16)
         data[0, z_start : z_start + _z_block, 20:30, 20:30] = 1000
         some.get_image().set_array(data)
-        some.get_image().consolidate()
+        some.get_image().consolidate(mode="auto")
         fov = some.build_image_roi_table("image")
         some.add_table("FOV_ROI_table", fov, backend=_TABLE_BACKEND)
 
@@ -681,7 +681,7 @@ def test_calculate_registration_shape_mismatch_raises(tmp_path: Path):
         data = np.zeros(shape, dtype=np.uint16)
         data[0, 0, 10:20, 10:20] = 1000
         some.get_image().set_array(data)
-        some.get_image().consolidate()
+        some.get_image().consolidate(mode="auto")
         fov = some.build_image_roi_table("image")
         some.add_table("FOV_ROI_table", fov, backend=_TABLE_BACKEND)
 
@@ -986,7 +986,7 @@ def test_full_pipeline_with_labels(multiplex_plate_urls):
     y0, x0 = 20 + _SHIFT_Y_PX, 20 + _SHIFT_X_PX
     label_data[0, y0 : y0 + 10, x0 : x0 + 10] = 1
     label.set_array(label_data)
-    label.consolidate()
+    label.consolidate(mode="auto")
 
     # add masking roi table
     masking_roi_table = label.build_masking_roi_table()

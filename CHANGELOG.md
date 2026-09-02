@@ -1,5 +1,13 @@
 **Note**: Numbers like (\#123) point to closed Pull Requests on the fractal-tasks-core repository.
 
+# Unreleased
+* Dependencies:
+    * Migrate from `ngio>=0.5.8,<0.6.0` to `ngio>=1.1.0,<1.2` (\#1069).
+    * Update `fractal-tasks-utils` to `>=0.2.0,<0.3.0`, its first ngio-1.1 release (\#1069).
+    * Raise the `dask` floor to `>=2025.12` (required by ngio 1.1) and drop the `<2025.11.0` cap (\#1069).
+* Chore:
+    * Adapt task code to the ngio 1.1 API, and opt in to the ngio 1.2 defaults ahead of time: pyramid consolidation now uses `mode="auto"` and plate-wide reads use `max_workers="auto"` (\#1069).
+
 # 2.1.0
 * Tasks:
     * Change default table backends to better fit each task's data (\#1063):

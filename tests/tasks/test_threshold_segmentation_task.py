@@ -42,7 +42,7 @@ def _make_czyx_zarr(
     data = np.zeros(shape, dtype=np.uint16)
     data[:, :, 10:20, 10:20] = bright_value
     image.set_array(data)
-    image.consolidate()
+    image.consolidate(mode="auto")
     return store
 
 
@@ -67,7 +67,7 @@ def _make_cyx_zarr(
     data = np.zeros(shape, dtype=np.uint16)
     data[:, 10:20, 10:20] = bright_value
     image.set_array(data)
-    image.consolidate()
+    image.consolidate(mode="auto")
     return store
 
 

@@ -38,7 +38,7 @@ def _make_plate(
         images=images,
         overwrite=True,
     )
-    for image_path in plate.images_paths():
+    for image_path in plate.images_paths(max_workers="auto"):
         row, col, path = image_path.split("/")
         create_empty_ome_zarr(
             store=plate.get_image_store(row, col, path),
@@ -283,7 +283,9 @@ def test_grid_roi_table_roi_extent(tmp_path: Path) -> None:
         ),
     )
 
-    grid_table = open_ome_zarr_container(str(image_path)).get_table("grid_ROI_table")
+    grid_table = open_ome_zarr_container(str(image_path)).get_roi_table(
+        "grid_ROI_table"
+    )
     rois = grid_table.rois()
     assert len(rois) == 4
     # Each ROI covers a quadrant: 4 pixels x 0.5 um/px = 2.0 um per side.

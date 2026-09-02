@@ -671,7 +671,7 @@ def test_clipping_when_values_exceed_dtype_max(
     img = some.get_image()
     data = np.full((1, 10, 10), 60_000, dtype=np.uint16)
     img.set_array(data)
-    img.consolidate()
+    img.consolidate(mode="auto")
 
     # Flatfield: half pixels = 100, other half = 200 → normalized min = 0.5
     # 60000 / 0.5 = 120000 > 65535 → triggers clip warning
