@@ -2,13 +2,11 @@
 
 # Unreleased
 * Dependencies:
-    * Migrate to ngio 1.1 (currently pinned to the `1.1.0b2` pre-release; the pin will be relaxed once 1.1.0 final is out).
-    * Update `fractal-tasks-utils` to its ngio-1.1 branch as a temporary git reference (will move back to a PyPI range once released).
-    * Raise the `dask` floor to `>=2025.12` (required by ngio 1.1) and drop the `<2025.11.0` cap.
-* Tasks:
-    * `illumination_correction`: adapt to the renamed `ImageProcessingIterator(channel_selection=...)` argument (was `input_channel_selection=`, removed in ngio 1.1) and import the iterator from `ngio.iterators` instead of the deprecated `ngio.experimental.iterators`.
-    * Opt in to the ngio 1.2 defaults ahead of time: pyramid consolidation uses `mode="auto"` and plate-wide reads pass `max_workers="auto"` (`import_ome_zarr`, `init_projection_hcs`).
-    * `threshold_segmentation`: use the public `Image.resolve_channel_selection` (new in ngio 1.1.0b1) instead of the private `ngio.images._image._parse_channel_selection`, removing the last private ngio import.
+    * Migrate from `ngio>=0.5.8,<0.6.0` to `ngio>=1.1.0,<1.2` (\#1069).
+    * Update `fractal-tasks-utils` to `>=0.2.0,<0.3.0`, its first ngio-1.1 release (\#1069).
+    * Raise the `dask` floor to `>=2025.12` (required by ngio 1.1) and drop the `<2025.11.0` cap (\#1069).
+* Chore:
+    * Adapt task code to the ngio 1.1 API, and opt in to the ngio 1.2 defaults ahead of time: pyramid consolidation now uses `mode="auto"` and plate-wide reads use `max_workers="auto"` (\#1069).
 
 # 2.1.0
 * Tasks:
