@@ -6,17 +6,17 @@ on:
   workflow_dispatch:
   # FIXME: Enable schedule
   # schedule:
-  #   - cron: 0 5 1 * * 
+  #   - cron: 0 5 1 * *
 
 jobs:
 
   pixi-update:
     runs-on: ubuntu-26.04
     timeout-minutes: 15
-    permissions: 
+    permissions:
       contents: write       # Needed to make commits
       pull-requests: write  # Needed to write a new PR
-      
+
     steps:
 
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
@@ -44,11 +44,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH_NAME: "update-pixi-lock"
 
+      # Create dedicated label for the target version
+      - run: gh label create "pixi" --force
+        env:
+          GH_TOKEN: ${{ github.token }}
+
       - run: gh pr list --label pixi > open-prs.txt
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
 
       # FIXME: Better handling of existing update-pixi PRs
       - run: gh pr create --title "Update pixi.lock" --body-file diff.md --base main --head update-pixi-lock --label pixi --draft
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
