@@ -15,7 +15,7 @@ concurrency:
 jobs:
 
   pixi-update:
-    if: ${{ github.ref != 'refs/heads/main' }}
+    if: ${{ github.ref == 'refs/heads/main' }}
     name: Update pixi.lock
     runs-on: ubuntu-26.04
     timeout-minutes: 20
