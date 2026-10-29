@@ -49,11 +49,17 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
-      - run: gh pr list --label pixi > open-prs.txt
+      # Check whether the same PR already exists, so that we do not recreate it
+      - run: |
+          echo number=$(gh pr list --label "pixi" --json number --jq '.[].number' | wc -l) >> $GITHUB_OUTPUT
+        id: existing-issue
         env:
           GH_TOKEN: ${{ github.token }}
 
-      # FIXME: Better handling of existing update-pixi PRs
       - run: gh pr create --title "Update pixi.lock" --body-file diff.md --base main --head update-pixi-lock --label pixi --draft
+        if: ${{ steps.existing-issue.outputs.number == 0 }}
         env:
           GH_TOKEN: ${{ github.token }}
+
+      - run: echo "There is already an existing 'pixi' PR. Skip creating a new one."
+        if: ${{ steps.existing-issue.outputs.number != 0 }}
