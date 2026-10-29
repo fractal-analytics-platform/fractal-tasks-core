@@ -4,9 +4,9 @@ permissions: {}
 
 on:
   workflow_dispatch:
-  # FIXME: Enable schedule
-  # schedule:
-  #   - cron: 0 5 1 * *
+  schedule:
+    # Run at 6:01 on Wednesday
+    - cron: 1 6 * * 3
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
