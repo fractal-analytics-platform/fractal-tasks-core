@@ -39,7 +39,7 @@ jobs:
           git switch "$BRANCH_NAME" || git switch -c "$BRANCH_NAME"
           git add pixi.lock
           git commit -m 'Update pixi.lock'
-          git push --set-upstream origin "$BRANCH_NAME"
+          git push --set-upstream origin "$BRANCH_NAME" --force
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH_NAME: "update-pixi-lock"
