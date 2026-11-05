@@ -38,6 +38,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
+          pixi workspace exclude-newer set 2d  # Only include packages older than two days
           pixi update --json > diff.json
           echo "difflines=$(cat diff.json | jq '.environment' | wc -l)" >> $GITHUB_OUTPUT
           cat diff.json | pixi exec pixi-diff-to-markdown > diff.md
