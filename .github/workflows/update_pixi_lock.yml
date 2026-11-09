@@ -79,4 +79,3 @@ jobs:
         if: ${{ steps.existing-pr.outputs.number == 0 && steps.update-lockfile.outputs.difflines != 1 }}
         env:
           GH_TOKEN: ${{ github.token }}
-
